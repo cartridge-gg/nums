@@ -82,7 +82,7 @@ pub mod challenge_actions {
             ref self: ContractState,
             title: felt252,
             expiration: u64,
-            slots_required: u8
+            slots_required: u8,
             token: Option<Token>,
             appchain: Option<AppChain>,
         ) -> u32 {

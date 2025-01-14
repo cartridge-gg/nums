@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@cartridge/connector':
-        specifier: 0.5.6
-        version: 0.5.6(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(typescript@5.5.4)
+        specifier: 0.5.8
+        version: 0.5.8(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(typescript@5.5.4)
       '@cartridge/controller':
-        specifier: 0.5.6
-        version: 0.5.6
+        specifier: 0.5.8
+        version: 0.5.8
       '@chakra-ui/icons':
         specifier: ^2.1.1
         version: 2.1.1(@chakra-ui/system@2.6.2(@emotion/react@11.11.4(@types/react@18.2.79)(react@18.2.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.2.79)(react@18.2.0))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0))(react@18.2.0)
@@ -31,13 +31,13 @@ importers:
         version: 3.0.2
       '@starknet-react/core':
         specifier: ^3.0.3
-        version: 3.0.3(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(starknet@6.7.0)(typescript@5.5.4)
+        version: 3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)
       framer-motion:
         specifier: ^11.1.1
         version: 11.1.1(@emotion/is-prop-valid@1.2.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       get-starknet-core:
         specifier: ^3.2.0
-        version: 3.2.0(starknet@6.7.0)
+        version: 3.2.0(starknet@6.11.0)
       gql.tada:
         specifier: ^1.5.1
         version: 1.5.1(graphql@16.8.1)(typescript@5.5.4)
@@ -57,8 +57,8 @@ importers:
         specifier: ^6.22.3
         version: 6.22.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       starknet:
-        specifier: ^6.7.0
-        version: 6.7.0
+        specifier: ^6.11.0
+        version: 6.11.0
       urql:
         specifier: ^4.0.7
         version: 4.0.7(graphql@16.8.1)(react@18.2.0)
@@ -240,14 +240,14 @@ packages:
     resolution: {integrity: sha512-+j7a5c253RfKh8iABBhywc8NSfP5LURe7Uh4qpsh6jc+aLJguvmIUBdjSdEMQv2bENrCR5MfRdjGo7vzS/ob7w==}
     engines: {node: '>=6.9.0'}
 
-  '@cartridge/account-wasm@0.5.6':
-    resolution: {integrity: sha512-2mNuFkRqePe5PiJP0ReZVgiIv41o7KOLzY0/eDtDWKXqOZW6PHkEyaFTXvircyHncfwSsGyPoWg+Z1B//D9H+w==}
+  '@cartridge/account-wasm@0.5.8':
+    resolution: {integrity: sha512-DuD/18rdywTpMlDMSILSvyMAYE2Tk2qUxTVru8io+fSzzba5xvyBxngpIjGpossu+H0lvsph1Q/ZZS7Xpnq0Uw==}
 
-  '@cartridge/connector@0.5.6':
-    resolution: {integrity: sha512-MqmWlAuvWYWJroB8xvQb/rXFqfqV2YwuuLIT/Sw1bCUAhHlDI62xC1oS7JN+ojVe76Poqob8fw/ZW/VHtz8BxA==}
+  '@cartridge/connector@0.5.8':
+    resolution: {integrity: sha512-fv7bZOjSnJHPOKy6D8Ua+BISoD1oUUQQYweI4WskQvDCAovdy12iZ3f4bbbZUu5TXYlH7+/JDRoRudaDcz34og==}
 
-  '@cartridge/controller@0.5.6':
-    resolution: {integrity: sha512-TJO0irbbwsBlJQcBmf2Szo33qIpKkMLVaYfqQ3sqtp23TE/QSxvPxB3NI3hbW27k0xdziOBwXjPI5NEhPptuqg==}
+  '@cartridge/controller@0.5.8':
+    resolution: {integrity: sha512-TananeGPCNcS6NMC9Ik2OnT2av7n1cfCs5c97ugOh6Xu1Ocgo9zw380ca7XAhHSnH6iZ1nrKNqAMVRFhE8bffA==}
 
   '@cartridge/penpal@6.2.3':
     resolution: {integrity: sha512-K8h9VqBfFPXcAFQNnvgBnejF/dp7249pS4jXu3NhNYR6JqMQxtcrDqfnPmJvbF4ECEBs+8Z2UiwlRQiKt5nNsg==}
@@ -2299,14 +2299,8 @@ packages:
     resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
     engines: {node: '>=6'}
 
-  starknet-types@0.0.4:
-    resolution: {integrity: sha512-PklqFeSp9gMqbzW5IbO8l1s3xsNZYkNG/x/gsytgYCIl6H/cqiwCZolVTneyTibvrdHOQ8kP3PXwfdsypudYqw==}
-
   starknet@6.11.0:
     resolution: {integrity: sha512-u50KrGDi9fbu1Ogu7ynwF/tSeFlp3mzOg1/Y5x50tYFICImo3OfY4lOz9OtYDk404HK4eUujKkhov9tG7GAKlg==}
-
-  starknet@6.7.0:
-    resolution: {integrity: sha512-8NMedKBfkg/oZUgTYNw9lKeNoNYakL/Roah2HwKzrVyvDxBs0arrNrR8No8+tTq0wQg0HGu1w+JIObynjHAK3w==}
 
   strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
@@ -2740,12 +2734,12 @@ snapshots:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  '@cartridge/account-wasm@0.5.6': {}
+  '@cartridge/account-wasm@0.5.8': {}
 
-  '@cartridge/connector@0.5.6(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(typescript@5.5.4)':
+  '@cartridge/connector@0.5.8(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(typescript@5.5.4)':
     dependencies:
-      '@cartridge/controller': 0.5.6
-      '@starknet-react/core': 3.0.3(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)
+      '@cartridge/controller': 0.5.8
+      '@starknet-react/core': 3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)
       starknet: 6.11.0
     transitivePeerDependencies:
       - bufferutil
@@ -2755,9 +2749,9 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@cartridge/controller@0.5.6':
+  '@cartridge/controller@0.5.8':
     dependencies:
-      '@cartridge/account-wasm': 0.5.6
+      '@cartridge/account-wasm': 0.5.8
       '@cartridge/penpal': 6.2.3
       '@starknet-io/types-js': 0.7.7
       '@telegram-apps/sdk': 2.5.2
@@ -3900,31 +3894,15 @@ snapshots:
 
   '@starknet-react/chains@3.0.2': {}
 
-  '@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)':
+  '@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)':
     dependencies:
       '@starknet-io/types-js': 0.7.7
       '@starknet-react/chains': 3.0.2
       '@tanstack/react-query': 5.29.2(react@18.2.0)
       eventemitter3: 5.0.1
-      get-starknet-core: 3.2.0(starknet@6.7.0)
+      get-starknet-core: 3.2.0(starknet@6.11.0)
       react: 18.2.0
       starknet: 6.11.0
-      viem: 2.21.34(typescript@5.5.4)(zod@3.22.4)
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-
-  '@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.7.0))(react@18.2.0)(starknet@6.7.0)(typescript@5.5.4)':
-    dependencies:
-      '@starknet-io/types-js': 0.7.7
-      '@starknet-react/chains': 3.0.2
-      '@tanstack/react-query': 5.29.2(react@18.2.0)
-      eventemitter3: 5.0.1
-      get-starknet-core: 3.2.0(starknet@6.7.0)
-      react: 18.2.0
-      starknet: 6.7.0
       viem: 2.21.34(typescript@5.5.4)(zod@3.22.4)
       zod: 3.22.4
     transitivePeerDependencies:
@@ -4565,9 +4543,9 @@ snapshots:
 
   get-nonce@1.0.1: {}
 
-  get-starknet-core@3.2.0(starknet@6.7.0):
+  get-starknet-core@3.2.0(starknet@6.11.0):
     dependencies:
-      starknet: 6.7.0
+      starknet: 6.11.0
 
   get-starknet-core@4.0.0:
     dependencies:
@@ -5026,8 +5004,6 @@ snapshots:
 
   split-on-first@1.1.0: {}
 
-  starknet-types@0.0.4: {}
-
   starknet@6.11.0:
     dependencies:
       '@noble/curves': 1.4.0
@@ -5041,22 +5017,6 @@ snapshots:
       lossless-json: 4.0.1
       pako: 2.1.0
       starknet-types-07: '@starknet-io/types-js@0.7.7'
-      ts-mixer: 6.0.4
-      url-join: 4.0.1
-    transitivePeerDependencies:
-      - encoding
-
-  starknet@6.7.0:
-    dependencies:
-      '@noble/curves': 1.4.0
-      '@scure/base': 1.1.6
-      '@scure/starknet': 1.0.0
-      abi-wan-kanabi: 2.2.2
-      fetch-cookie: 3.0.1
-      isomorphic-fetch: 3.0.0
-      lossless-json: 4.0.1
-      pako: 2.1.0
-      starknet-types: 0.0.4
       ts-mixer: 6.0.4
       url-join: 4.0.1
     transitivePeerDependencies:

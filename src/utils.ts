@@ -1,5 +1,4 @@
 import { BigNumberish, num } from "starknet";
-import { getCurrentChain } from "./network";
 
 export function formatAddress(addr: BigNumberish) {
   if (typeof addr === "number") {
@@ -19,19 +18,5 @@ export function removeZeros(addr: string) {
   return "0x" + addr.replace(/^0+/, "");
 }
 
-export function numsErc20Link() {
-  switch (getCurrentChain()) {
-    case "sepolia":
-      return (
-        "https://sepolia.voyager.online/token/" +
-        import.meta.env.VITE_NUMS_ERC20
-      );
-    case "mainnet":
-      return "https://voyager.online/token/" + import.meta.env.VITE_NUMS_ERC20;
-    case "slot":
-      return (
-        "https://sepolia.voyager.online/token/" +
-        import.meta.env.VITE_NUMS_ERC20
-      );
-  }
-}
+export const capitalize = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);

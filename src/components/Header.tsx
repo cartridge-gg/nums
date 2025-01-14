@@ -9,32 +9,33 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import ControllerConnector from "@cartridge/connector/controller";
-import { Chain, getCurrentChain, onClickChain } from "../network";
-import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
-import { formatAddress } from "../utils";
-import { useMemo } from "react";
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+  useSwitchChain,
+} from "@starknet-react/core";
+import { capitalize, formatAddress } from "../utils";
+import { constants, num } from "starknet";
 
 const Header = ({
   showBack,
-  lockChain,
+  hideChain,
 }: {
   showBack?: boolean;
-  lockChain?: boolean;
+  hideChain?: boolean;
 }) => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { address, connector } = useAccount();
+  const { chain, chains } = useNetwork();
+  const { account, address, connector } = useAccount();
+  const { switchChain } = useSwitchChain({
+    params: {
+      chainId: constants.StarknetChainId.SN_SEPOLIA,
+    },
+  });
   const controllerConnector = connector as never as ControllerConnector;
-
-  const chains = [
-    { name: "Mainnet", id: "mainnet" },
-    { name: "Sepolia (Testnet)", id: "sepolia" },
-    { name: "Slot (L3)", id: "slot" },
-  ];
-
-  const chainName = useMemo(() => {
-    return chains.find((c) => c.id === getCurrentChain())?.name;
-  }, [chains, getCurrentChain]);
 
   return (
     <HStack w="full" position="absolute" top="0" left="0" p="20px">
@@ -51,22 +52,24 @@ const Header = ({
         />
       )}
       <Spacer />
-      <Menu autoSelect={false}>
-        <MenuButton
-          as={Button}
-          rightIcon={<ChevronDownIcon />}
-          isDisabled={lockChain}
-        >
-          {chainName}
-        </MenuButton>
-        <MenuList>
-          {chains.map((c) => (
-            <MenuItem onClick={() => onClickChain(c.id as Chain)}>
-              {c.name}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+      {account && !hideChain && (
+        <Menu autoSelect={false}>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            {capitalize(chain.network)}
+          </MenuButton>
+          <MenuList>
+            {chains.map((c) => (
+              <MenuItem
+                onClick={() => {
+                  switchChain({ chainId: num.toHex(c.id) });
+                }}
+              >
+                {capitalize(c.network)}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      )}
       {address ? (
         <Menu autoSelect={false}>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>

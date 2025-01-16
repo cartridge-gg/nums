@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use nums_common::challenge_mode::ChallengeMode;
+use nums_common::models::challenge::ChallengeMode;
 
 // Subset of Challenge model for Appchain from Starknet's Challenge model
 #[derive(Copy, Drop, Serde, PartialEq)]

@@ -1,4 +1,4 @@
-use nums_starknet::models::token::Token;
+use nums_common::token::Token;
 use nums_common::messages::AppChain;
 
 
@@ -10,7 +10,7 @@ pub trait IChallengeActions<T> {
         expiration: u64,
         extension_time: u64,
         token: Option<Token>,
-        appchain: Option<AppChain>,
+        appchain: AppChain,
     ) -> u32;
     fn create_conditional_victory(
         ref self: T,
@@ -18,7 +18,7 @@ pub trait IChallengeActions<T> {
         expiration: u64,
         slots_required: u8,
         token: Option<Token>,
-        appchain: Option<AppChain>,
+        appchain: AppChain,
     ) -> u32;
     fn verify(ref self: T, challenge_id: u32, verified: bool);
     fn resend_appchain_message(ref self: T, challenge_id: u32, appchain: AppChain);
@@ -51,7 +51,6 @@ pub mod challenge_actions {
     pub struct ChallengeCreated {
         #[key]
         challenge_id: u32,
-        is_appchain: bool,
         token: Option<Token>,
     }
 
@@ -83,7 +82,7 @@ pub mod challenge_actions {
             expiration: u64,
             slots_required: u8,
             token: Option<Token>,
-            appchain: Option<AppChain>,
+            appchain: AppChain,
         ) -> u32 {
             let mode = ChallengeMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
             self._create(title, mode, expiration, token, appchain)
@@ -95,7 +94,7 @@ pub mod challenge_actions {
             expiration: u64,
             extension_time: u64,
             token: Option<Token>,
-            appchain: Option<AppChain>,
+            appchain: AppChain,
         ) -> u32 {
             if expiration == 0 && extension_time > 0 {
                 panic!("cannot set extension with no expiration");
@@ -242,7 +241,7 @@ pub mod challenge_actions {
             mode: ChallengeMode,
             expiration: u64,
             token: Option<Token>,
-            appchain: Option<AppChain>,
+            appchain: AppChain,
         ) -> u32 {
             if expiration > 0 {
                 assert!(expiration > get_block_timestamp(), "Expiration already passed")
@@ -266,7 +265,7 @@ pub mod challenge_actions {
                     }
                 );
 
-            world.emit_event(@ChallengeCreated { challenge_id: id, is_appchain: appchain.is_some(), token });
+            world.emit_event(@ChallengeCreated { challenge_id: id, token });
 
             if let Option::Some(token) = token {
                 assert(token.ty == TokenType::ERC20, 'only ERC20 supported');
@@ -276,15 +275,14 @@ pub mod challenge_actions {
                     .transferFrom(get_caller_address(), get_contract_address(), token.total);
             }
 
-            if let Option::Some(appchain) = appchain {
-                let message = ChallengeMessage {
-                    id,
-                    mode,
-                    expiration,
-                };
+           
+            let message = ChallengeMessage {
+                id,
+                mode,
+                expiration,
+            };
 
-                self._send_appchain_message(message, appchain);
-            }
+            self._send_appchain_message(message, appchain);
 
             id
         }

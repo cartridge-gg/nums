@@ -12,7 +12,7 @@ pub trait IGameActions<T> {
 #[dojo::contract]
 pub mod game_actions {
     use core::array::ArrayTrait;
-    use nums_appchain::models::config::{Config, SlotRewardTrait};
+    use nums_common::models::config::{Config, SlotRewardTrait};
     use nums_appchain::models::game::{Game, Reward, GameTrait};
     use nums_appchain::models::name::Name;
     use nums_appchain::models::slot::Slot;

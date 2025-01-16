@@ -16,4 +16,4 @@ account_address = "0x054f2b25070d70d49f1c1f7c10Ef2639889fDAc15894D3FBa1a03caF560
 keystore_path = "/Users/broody/.starkli_accounts/sepolia/keystore.json"
 
 [writers]
-"nums" = ["nums-challenge_actions"]
+"nums" = ["nums-challenge_actions", "nums-config_actions"]

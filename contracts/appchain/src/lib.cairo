@@ -7,7 +7,6 @@ pub mod models {
     pub mod game;
     pub mod name;
     pub mod slot;
-    pub mod challenge;
 }
 
 pub mod tests {

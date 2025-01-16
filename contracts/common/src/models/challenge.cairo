@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use nums_starknet::models::token::Token;
+use nums_common::token::Token;
 
 #[derive(Copy, Drop, Serde, PartialEq)]
 #[dojo::model]
@@ -15,14 +15,6 @@ pub struct Challenge {
     pub claimed: bool, // gql lacks ability to filter on winner Option, use bool for filtering on active challenges
     pub verified: bool,
 }
-
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
-pub struct AppChain {
-    pub message_contract: ContractAddress,
-    pub to_address: ContractAddress,
-    pub to_selector: felt252,
-}
-
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub enum ChallengeMode {

@@ -3,7 +3,6 @@ pub mod systems {
 }
 
 pub mod models {
-    pub mod challenge;
     pub mod token;
     pub mod metadata;
 }

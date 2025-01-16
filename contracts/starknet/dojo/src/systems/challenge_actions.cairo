@@ -1,5 +1,5 @@
 use nums_starknet::models::token::Token;
-use nums_starknet::models::challenge::AppChain;
+use nums_common::messages::AppChain;
 
 
 #[starknet::interface]
@@ -21,7 +21,7 @@ pub trait IChallengeActions<T> {
         appchain: Option<AppChain>,
     ) -> u32;
     fn verify(ref self: T, challenge_id: u32, verified: bool);
-    fn resend_appchain_message(ref self: T, challenge_id: u32);
+    fn resend_appchain_message(ref self: T, challenge_id: u32, appchain: AppChain);
     //fn claim(ref self: T, game_id: u32);
     //fn king_me(ref self: T, game_id: u32);
 }
@@ -31,12 +31,11 @@ pub trait IChallengeActions<T> {
 pub mod challenge_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Zero;
-    use nums_starknet::models::challenge::{Challenge, AppChain};
     use nums_starknet::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
     use nums_starknet::models::token::{Token, TokenType};
-    use nums_common::challenge_mode::{ChallengeMode, ConditionalVictory, KingOfTheHill};
-    use nums_common::messages::ChallengeMessage;
+    use nums_common::models::challenge::{Challenge, ChallengeMode, ConditionalVictory, KingOfTheHill};
+    use nums_common::messages::{ChallengeMessage, AppChain};
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
@@ -222,10 +221,9 @@ pub mod challenge_actions {
             world.write_model(@challenge);
         }
 
-        fn resend_appchain_message(ref self: ContractState, challenge_id: u32) {
+        fn resend_appchain_message(ref self: ContractState, challenge_id: u32, appchain: AppChain) {
             let mut world = self.world(@"nums");
             let challenge: Challenge = world.read_model(challenge_id);
-            let appchain = challenge.appchain.expect('appchain not set');
             let message = ChallengeMessage {
                 id: challenge_id,
                 mode: challenge.mode,
@@ -264,7 +262,6 @@ pub mod challenge_actions {
                         token,
                         claimed: false,
                         verified: false,
-                        appchain,
                         winner: Option::None,
                     }
                 );
@@ -299,7 +296,7 @@ pub mod challenge_actions {
         ) {
             let mut payload: Array<felt252> = array![];
             message.serialize(ref payload);
-
+            
             IMessagingDispatcher { contract_address: appchain.message_contract.try_into().unwrap() }.send_message_to_appchain(
                 appchain.to_address.try_into().unwrap(),
                 appchain.to_selector,

@@ -1,4 +1,5 @@
-use nums_common::challenge_mode::ChallengeMode;
+use nums_common::models::challenge::ChallengeMode;
+use starknet::ContractAddress;
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct ChallengeMessage {
@@ -9,3 +10,10 @@ pub struct ChallengeMessage {
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct ConfigMessage {}
+
+#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+pub struct AppChain {
+    pub message_contract: ContractAddress,
+    pub to_address: ContractAddress,
+    pub to_selector: felt252,
+}

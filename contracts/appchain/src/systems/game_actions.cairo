@@ -1,9 +1,9 @@
-use nums_appchain::models::config::Config;
+//use nums_appchain::models::config::Config;
 
 #[starknet::interface]
 pub trait IGameActions<T> {
     fn create_game(ref self: T, challenge_id: Option<u32>) -> (u32, u16);
-    fn set_config(ref self: T, config: Config);
+    //fn set_config(ref self: T, config: Config);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn set_name(ref self: T, game_id: u32, name: felt252);
     fn end_game(ref self: T, game_id: u32);
@@ -55,15 +55,15 @@ pub mod game_actions {
 
     #[abi(embed_v0)]
     impl GameActionsImpl of IGameActions<ContractState> {
-        fn set_config(ref self: ContractState, config: Config) {
-            let owner = get_caller_address();
-            let mut world = self.world(@"nums");
+        // fn set_config(ref self: ContractState, config: Config) {
+        //     let owner = get_caller_address();
+        //     let mut world = self.world(@"nums");
 
-            assert!(world.dispatcher.is_owner(WORLD, owner), "Unauthorized owner");
-            assert!(config.world_resource == WORLD, "Invalid config state");
+        //     assert!(world.dispatcher.is_owner(WORLD, owner), "Unauthorized owner");
+        //     assert!(config.world_resource == WORLD, "Invalid config state");
 
-            world.write_model(@config);
-        }
+        //     world.write_model(@config);
+        // }
 
         /// Creates a new game instance, initializes its state, and emits a creation event.
         ///

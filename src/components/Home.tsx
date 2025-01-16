@@ -24,8 +24,8 @@ import { graphql } from "../graphql";
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "../utils";
-import { useAccount } from "@starknet-react/core";
+import { capitalize, formatAddress } from "../utils";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import Connect from "./Create";
 import { DojoIcon } from "./icons/Dojo";
@@ -55,6 +55,7 @@ const GamesQuery = graphql(`
 
 const Leaderboard = () => {
   const navigate = useNavigate();
+  const { chain } = useNetwork();
   const [offset, setOffset] = useState<number>(0);
   const { account } = useAccount();
   const { colorMode } = useColorMode();
@@ -169,7 +170,7 @@ const Leaderboard = () => {
               </VStack>
             </VStack>
             <VStack spacing="20px">
-              <Heading>Leaderboard</Heading>
+              <Heading>Leaderboard ({capitalize(chain.network)})</Heading>
               <TableContainer w="100%">
                 <Table variant="simple">
                   <Thead>

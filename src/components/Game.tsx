@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { graphql } from "../graphql";
 import { useQuery } from "urql";
 import { useEffect, useState } from "react";
-import { formatAddress, removeZeros } from "../utils";
+import { capitalize, formatAddress, removeZeros } from "../utils";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import {
   useColorMode,
   useInterval,
 } from "@chakra-ui/react";
-import { useAccount, useExplorer } from "@starknet-react/core";
+import { useAccount, useExplorer, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import Header from "./Header";
 
@@ -69,6 +69,7 @@ const Game = () => {
   const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
   const [totalRewards, setTotalRewards] = useState<number | null>(null);
   const [nextReward] = useState<number | null>(null);
+  const { chain } = useNetwork();
   const explorer = useExplorer();
   const { account } = useAccount();
   const { gameId } = useParams();
@@ -166,7 +167,7 @@ const Game = () => {
 
   return (
     <Container h="100vh">
-      <Header showBack lockChain />
+      <Header showBack hideChain />
       <VStack h={["auto", "auto", "100%"]} justify={["none", "none", "center"]}>
         <VStack
           w="100%"
@@ -233,6 +234,7 @@ const Game = () => {
                 </Link>
                 {isOwner && " (you)"}
               </Text>
+              <Text>Chain: {capitalize(chain.network)}</Text>
               <Text>Number Range: {numRange}</Text>
               <Text>
                 Remaining Slots: <strong>{remaining}</strong>

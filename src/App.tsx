@@ -9,33 +9,58 @@ import {
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions } from "@cartridge/controller";
+import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { getRpc } from "./network";
+import { constants } from "starknet";
+import { UrqlProvider } from "./UrqlContext";
 
-function rpc(_chain: Chain) {
-  return {
-    nodeUrl: getRpc(),
-  };
-}
+const provider = jsonRpcProvider({
+  rpc: (chain: Chain) => {
+    console.log("provider requested", chain.network);
+    switch (chain) {
+      case mainnet:
+        return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
+      case sepolia:
+        return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
+      default:
+        // TODO: handle slot specifically
+        return { nodeUrl: import.meta.env.VITE_SLOT_RPC_URL };
+    }
+  },
+});
 
-const policies = [
-  {
-    target: import.meta.env.VITE_GAME_CONTRACT,
-    method: "create_game",
+const policies: SessionPolicies = {
+  contracts: {
+    [import.meta.env.VITE_GAME_CONTRACT]: {
+      methods: [
+        {
+          name: "Create Game",
+          entrypoint: "create_game",
+          description: "Creates a new game",
+        },
+        {
+          name: "Set Slot",
+          entrypoint: "set_slot",
+          description: "Sets one slot for the game",
+        },
+        {
+          name: "Request Random",
+          entrypoint: "request_random",
+          description: "Requests a random number from the VRF contract",
+        },
+      ],
+    },
   },
-  {
-    target: import.meta.env.VITE_GAME_CONTRACT,
-    method: "set_slot",
-  },
-  // {
-  //   target: import.meta.env.VITE_VRF_CONTRACT,
-  //   method: "request_random"
-  // }
-];
+};
 
 const options: ControllerOptions = {
-  rpc: getRpc(),
   policies,
+  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  chains: [
+    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SLOT_RPC_URL },
+  ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
   },
@@ -50,14 +75,16 @@ function App() {
       chains={[sepolia, mainnet]}
       connectors={connectors}
       explorer={voyager}
-      provider={jsonRpcProvider({ rpc })}
+      provider={provider}
     >
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/:gameId" element={<Game />} />
-        </Routes>
-      </Router>
+      <UrqlProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/:gameId" element={<Game />} />
+          </Routes>
+        </Router>
+      </UrqlProvider>
     </StarknetConfig>
   );
 }

@@ -11,20 +11,20 @@ import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions } from "@cartridge/controller";
 import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { constants } from "starknet";
+import { constants, num, shortString } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
-    console.log("provider requested", chain.network);
     switch (chain) {
       case mainnet:
         return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
       case sepolia:
         return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
-      default:
-        // TODO: handle slot specifically
+      case slot:
         return { nodeUrl: import.meta.env.VITE_SLOT_RPC_URL };
+      default:
+        throw new Error(`Unsupported chain: ${chain.network}`);
     }
   },
 });
@@ -68,11 +68,27 @@ const options: ControllerOptions = {
 
 const connectors = [new ControllerConnector(options) as never as Connector];
 
+const slot: Chain = {
+  id: num.toBigInt(shortString.encodeShortString("WP_NUMS_SLOT")),
+  network: "slot",
+  name: "Nums Chain",
+  rpcUrls: {
+    default: import.meta.env.VITE_SLOT_RPC_URL,
+    public: import.meta.env.VITE_SLOT_RPC_URL,
+  },
+  nativeCurrency: {
+    name: "Ethereum",
+    symbol: "ETH",
+    decimals: 18,
+    address: import.meta.env.VITE_ETH_ADDRESS,
+  },
+};
+
 function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[sepolia, mainnet]}
+      chains={[sepolia, mainnet, slot]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

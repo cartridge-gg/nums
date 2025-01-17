@@ -9,7 +9,7 @@ sierra = true
 casm = true
 build-external-contracts = [
     "dojo::world::world_contract::world", 
-    "nums_common::models::challenge::m_Challenge", 
+    "nums_common::models::jackpot::m_Jackpot", 
     "nums_common::models::config::m_Config",
 ]
 

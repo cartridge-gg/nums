@@ -1252,408 +1252,7 @@
   },
   "contracts": [
     {
-      "address": "0x512b3bf6edc6a499edc935a773f2dd8c5fbc29a25b68c161ecf749ba2340947",
-      "class_hash": "0x14ba3b888e58365f38dbd0e85695655868d54a6fb0dedc85983a27e9e342f51",
-      "abi": [
-        {
-          "type": "impl",
-          "name": "challenge_actions__ContractImpl",
-          "interface_name": "dojo::contract::interface::IContract"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::interface::IContract",
-          "items": []
-        },
-        {
-          "type": "impl",
-          "name": "challenge_actions__DeployedContractImpl",
-          "interface_name": "dojo::meta::interface::IDeployedResource"
-        },
-        {
-          "type": "struct",
-          "name": "core::byte_array::ByteArray",
-          "members": [
-            {
-              "name": "data",
-              "type": "core::array::Array::<core::bytes_31::bytes31>"
-            },
-            {
-              "name": "pending_word",
-              "type": "core::felt252"
-            },
-            {
-              "name": "pending_word_len",
-              "type": "core::integer::u32"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::meta::interface::IDeployedResource",
-          "items": [
-            {
-              "type": "function",
-              "name": "dojo_name",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "ChallengeActions",
-          "interface_name": "nums_starknet::systems::challenge_actions::IChallengeActions"
-        },
-        {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::option::Option::<core::integer::u256>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "core::integer::u256"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "nums_common::token::TokenType",
-          "variants": [
-            {
-              "name": "ERC20",
-              "type": "()"
-            },
-            {
-              "name": "ERC721",
-              "type": "()"
-            },
-            {
-              "name": "ERC1155",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "nums_common::token::Token",
-          "members": [
-            {
-              "name": "id",
-              "type": "core::option::Option::<core::integer::u256>"
-            },
-            {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "ty",
-              "type": "nums_common::token::TokenType"
-            },
-            {
-              "name": "total",
-              "type": "core::integer::u256"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::option::Option::<nums_common::token::Token>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "nums_common::token::Token"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "nums_common::messages::AppChain",
-          "members": [
-            {
-              "name": "message_contract",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "to_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "to_selector",
-              "type": "core::felt252"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::bool",
-          "variants": [
-            {
-              "name": "False",
-              "type": "()"
-            },
-            {
-              "name": "True",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "nums_starknet::systems::challenge_actions::IChallengeActions",
-          "items": [
-            {
-              "type": "function",
-              "name": "create_king_of_the_hill",
-              "inputs": [
-                {
-                  "name": "title",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "expiration",
-                  "type": "core::integer::u64"
-                },
-                {
-                  "name": "extension_time",
-                  "type": "core::integer::u64"
-                },
-                {
-                  "name": "token",
-                  "type": "core::option::Option::<nums_common::token::Token>"
-                },
-                {
-                  "name": "appchain",
-                  "type": "nums_common::messages::AppChain"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::integer::u32"
-                }
-              ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "create_conditional_victory",
-              "inputs": [
-                {
-                  "name": "title",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "expiration",
-                  "type": "core::integer::u64"
-                },
-                {
-                  "name": "slots_required",
-                  "type": "core::integer::u8"
-                },
-                {
-                  "name": "token",
-                  "type": "core::option::Option::<nums_common::token::Token>"
-                },
-                {
-                  "name": "appchain",
-                  "type": "nums_common::messages::AppChain"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::integer::u32"
-                }
-              ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "verify",
-              "inputs": [
-                {
-                  "name": "challenge_id",
-                  "type": "core::integer::u32"
-                },
-                {
-                  "name": "verified",
-                  "type": "core::bool"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "resend_appchain_message",
-              "inputs": [
-                {
-                  "name": "challenge_id",
-                  "type": "core::integer::u32"
-                },
-                {
-                  "name": "appchain",
-                  "type": "nums_common::messages::AppChain"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
-        },
-        {
-          "type": "impl",
-          "name": "WorldProviderImpl",
-          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
-        },
-        {
-          "type": "struct",
-          "name": "dojo::world::iworld::IWorldDispatcher",
-          "members": [
-            {
-              "name": "contract_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::world_provider::IWorldProvider",
-          "items": [
-            {
-              "type": "function",
-              "name": "world_dispatcher",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "dojo::world::iworld::IWorldDispatcher"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "UpgradeableImpl",
-          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::upgradeable::IUpgradeable",
-          "items": [
-            {
-              "type": "function",
-              "name": "upgrade",
-              "inputs": [
-                {
-                  "name": "new_class_hash",
-                  "type": "core::starknet::class_hash::ClassHash"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "constructor",
-          "name": "constructor",
-          "inputs": []
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-          "kind": "struct",
-          "members": [
-            {
-              "name": "class_hash",
-              "type": "core::starknet::class_hash::ClassHash",
-              "kind": "data"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "Upgraded",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-              "kind": "nested"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
-          "name": "nums_starknet::systems::challenge_actions::challenge_actions::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "UpgradeableEvent",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-              "kind": "nested"
-            },
-            {
-              "name": "WorldProviderEvent",
-              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-              "kind": "nested"
-            }
-          ]
-        }
-      ],
-      "init_calldata": [],
-      "tag": "nums-challenge_actions",
-      "selector": "0x7b1c41dbe8a3f909d7e3f756394f01e5e36a993c1045f2fa0c3c88d1ef7f334",
-      "systems": [
-        "create_king_of_the_hill",
-        "create_conditional_victory",
-        "verify",
-        "resend_appchain_message",
-        "upgrade"
-      ]
-    },
-    {
-      "address": "0xf942a8d0c5b4da1746ebea0fe9764a44c19ef1bc5bf104e0288b109404728",
+      "address": "0x1f9e093b288f88eab563d9b505adda4dc1e7aeb6316004b459ae68fa188acff",
       "class_hash": "0x3526b8076c431104ce5f1cb49d7ab190928c3de42ada460fee29ad5791f9ca5",
       "abi": [
         {
@@ -1965,20 +1564,421 @@
         "set_config",
         "upgrade"
       ]
+    },
+    {
+      "address": "0x7c2ef7947cd1ed6b4e675c0b455d55a5d77ca7d9ceef560f96d1e1c0ef0c2ea",
+      "class_hash": "0x179463aaba97b0d1d5b237ba084203c6e1a2e4b2e4fda56836e51b4af9ecabe",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "jackpot_actions__ContractImpl",
+          "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "jackpot_actions__DeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
+        },
+        {
+          "type": "struct",
+          "name": "core::byte_array::ByteArray",
+          "members": [
+            {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+              "name": "pending_word",
+              "type": "core::felt252"
+            },
+            {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::meta::interface::IDeployedResource",
+          "items": [
+            {
+              "type": "function",
+              "name": "dojo_name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "JackpotActions",
+          "interface_name": "nums_starknet::systems::jackpot_actions::IJackpotActions"
+        },
+        {
+          "type": "struct",
+          "name": "core::integer::u256",
+          "members": [
+            {
+              "name": "low",
+              "type": "core::integer::u128"
+            },
+            {
+              "name": "high",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u256>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "nums_common::token::TokenType",
+          "variants": [
+            {
+              "name": "ERC20",
+              "type": "()"
+            },
+            {
+              "name": "ERC721",
+              "type": "()"
+            },
+            {
+              "name": "ERC1155",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums_common::token::Token",
+          "members": [
+            {
+              "name": "id",
+              "type": "core::option::Option::<core::integer::u256>"
+            },
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "ty",
+              "type": "nums_common::token::TokenType"
+            },
+            {
+              "name": "total",
+              "type": "core::integer::u256"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<nums_common::token::Token>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "nums_common::token::Token"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums_common::messages::AppChain",
+          "members": [
+            {
+              "name": "message_contract",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "to_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "to_selector",
+              "type": "core::felt252"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "nums_starknet::systems::jackpot_actions::IJackpotActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "create_king_of_the_hill",
+              "inputs": [
+                {
+                  "name": "title",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "expiration",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "extension_time",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "token",
+                  "type": "core::option::Option::<nums_common::token::Token>"
+                },
+                {
+                  "name": "appchain",
+                  "type": "nums_common::messages::AppChain"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u32"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "create_conditional_victory",
+              "inputs": [
+                {
+                  "name": "title",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "expiration",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "slots_required",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "token",
+                  "type": "core::option::Option::<nums_common::token::Token>"
+                },
+                {
+                  "name": "appchain",
+                  "type": "nums_common::messages::AppChain"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u32"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "verify",
+              "inputs": [
+                {
+                  "name": "jackpot_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "verified",
+                  "type": "core::bool"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "resend_appchain_message",
+              "inputs": [
+                {
+                  "name": "jackpot_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "appchain",
+                  "type": "nums_common::messages::AppChain"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
+        },
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::iworld::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::world_provider::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world_dispatcher",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::iworld::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradeableImpl",
+          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "constructor",
+          "name": "constructor",
+          "inputs": []
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
+          "name": "nums_starknet::systems::jackpot_actions::jackpot_actions::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+              "kind": "nested"
+            },
+            {
+              "name": "WorldProviderEvent",
+              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "init_calldata": [],
+      "tag": "nums-jackpot_actions",
+      "selector": "0x54db86b66f3061f4a01801b930c1aede2b50f8aec7607f687dd93331753f65f",
+      "systems": [
+        "create_king_of_the_hill",
+        "create_conditional_victory",
+        "verify",
+        "resend_appchain_message",
+        "upgrade"
+      ]
     }
   ],
   "models": [
     {
       "members": [],
-      "class_hash": "0x4c26dd2b6d69c3e042abd6d7ea1d996cfa26b86f09b453c1756c29957888050",
-      "tag": "nums-Challenge",
-      "selector": "0x20090a11f167e29edaf6e04629134c5882aaff0f0d18ceaeb68c274f50cc4ea"
-    },
-    {
-      "members": [],
       "class_hash": "0x60d244407711a1db38e75abc810c5d73d5f1e490d345ca77cd2bd8c0556e99d",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6a9daaf00784d6255b57e34270ad58d810fef2ad6ab4d1d840766b8b7e24edc",
+      "tag": "nums-Jackpot",
+      "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
@@ -1990,19 +1990,19 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x15c23329143ebc3990c8512050c64f82583148dbf58f9e117b6dde1fafc209f",
-      "tag": "nums-ChallengeClaimed",
-      "selector": "0x1a9fd6bac4b15615bdaf88a794a7a330bc7d258e56b38581c0d3a2d8efdd1c3"
+      "class_hash": "0x597149b1a2cc09a926506a0d8a71bd10d38559b6ca425e2dab50e7831cdd320",
+      "tag": "nums-JackpotClaimed",
+      "selector": "0x175ae38739f53db95298ea994d0391bb4f789681601f4cf16fdc20414bff6f"
     },
     {
       "members": [],
-      "class_hash": "0x13db895311f6658b83ee1d2bcfa9c42b698d755c0ee0da6e8dc40e745f695bc",
-      "tag": "nums-ChallengeCreated",
-      "selector": "0x28e732dcb2119aefb0e41c79cbc930ee7037f83ba52b9fe931537b3e6e3cb81"
+      "class_hash": "0x328589343abaa7b0d306dabab1d7a16a982295122d926c9a73296f82c6b1cd5",
+      "tag": "nums-JackpotCreated",
+      "selector": "0x2316c6700328c1de9b2bf8e664b6119789a104f0d9f865acba568281247589"
     },
     {
       "members": [],
-      "class_hash": "0x4aa5d126f1331f3e07e5b878e262ffd0c7794f65ffbe5bdd2262b03c1f70f59",
+      "class_hash": "0x34a07ec9edc2369aca13eb906dd196c743ac37ccededf049a19e72c06350ebd",
       "tag": "nums-KingCrowned",
       "selector": "0x7d4f8f724ffe9ff34050a58ee7ba63e5277fff6f3731f3606e96c64c46d7959"
     }

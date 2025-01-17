@@ -1,11 +1,8 @@
-//use nums_appchain::models::config::Config;
 
 #[starknet::interface]
 pub trait IGameActions<T> {
-    fn create_game(ref self: T, challenge_id: Option<u32>) -> (u32, u16);
-    //fn set_config(ref self: T, config: Config);
+    fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
-    fn set_name(ref self: T, game_id: u32, name: felt252);
     fn end_game(ref self: T, game_id: u32);
 }
 
@@ -14,7 +11,6 @@ pub mod game_actions {
     use core::array::ArrayTrait;
     use nums_common::models::config::{Config, SlotRewardTrait};
     use nums_appchain::models::game::{Game, Reward, GameTrait};
-    use nums_appchain::models::name::Name;
     use nums_appchain::models::slot::Slot;
     use nums_common::random::{Random, RandomImpl};
 
@@ -50,26 +46,16 @@ pub mod game_actions {
         max_slots: u8,
         max_number: u16,
         min_number: u16,
-        challenge_id: Option<u32>,
+        jackpot_id: Option<u32>,
     }
 
     #[abi(embed_v0)]
     impl GameActionsImpl of IGameActions<ContractState> {
-        // fn set_config(ref self: ContractState, config: Config) {
-        //     let owner = get_caller_address();
-        //     let mut world = self.world(@"nums");
-
-        //     assert!(world.dispatcher.is_owner(WORLD, owner), "Unauthorized owner");
-        //     assert!(config.world_resource == WORLD, "Invalid config state");
-
-        //     world.write_model(@config);
-        // }
-
         /// Creates a new game instance, initializes its state, and emits a creation event.
         ///
         /// # Returns
         /// A tuple containing the game ID and the first random number for the game.
-        fn create_game(ref self: ContractState, challenge_id: Option<u32>) -> (u32, u16) {
+        fn create_game(ref self: ContractState, jackpot_id: Option<u32>) -> (u32, u16) {
             let mut world = self.world(@"nums");
             let config: Config = world.read_model(WORLD);
             let game_config = config.game.expect('Game config not set');
@@ -102,7 +88,7 @@ pub mod game_actions {
                         min_number: game_config.min_number,
                         next_number,
                         finished: false,
-                        challenge_id,
+                        jackpot_id,
                     }
                 );
 
@@ -114,7 +100,7 @@ pub mod game_actions {
                         max_slots: game_config.max_slots,
                         max_number: game_config.max_number,
                         min_number: game_config.min_number,
-                        challenge_id,
+                        jackpot_id,
                     }
                 );
 
@@ -210,23 +196,6 @@ pub mod game_actions {
                 );
 
             next_number
-        }
-
-        /// Sets the player's name for a specific game. Ensures that the player is authorized and
-        /// that the name has not been set before.
-        ///
-        /// # Arguments
-        /// * `game_id` - The identifier of the game.
-        /// * `name` - The new name to be set for the player.
-        fn set_name(ref self: ContractState, game_id: u32, name: felt252) {
-            let mut world = self.world(@"nums");
-            let player = get_caller_address();
-            let mut name_model: Name = world.read_model((game_id, player));
-            assert!(name_model.player == player, "Unauthorized player");
-            assert!(name_model.name == 0, "Name already set");
-
-            name_model.name = name;
-            world.write_model(@name_model);
         }
     }
 

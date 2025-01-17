@@ -3,21 +3,21 @@ use nums_common::token::Token;
 
 #[derive(Copy, Drop, Serde, PartialEq)]
 #[dojo::model]
-pub struct Challenge {
+pub struct Jackpot {
     #[key]
     pub id: u32,
     pub title: felt252,
     pub creator: ContractAddress,
-    pub mode: ChallengeMode,
+    pub mode: JackpotMode,
     pub expiration: u64,
     pub token: Option<Token>,
     pub winner: Option<ContractAddress>,
-    pub claimed: bool, // gql lacks ability to filter on winner Option, use bool for filtering on active challenges
+    pub claimed: bool, // gql lacks ability to filter on winner Option, use bool for filtering on active Jackpots
     pub verified: bool,
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
-pub enum ChallengeMode {
+pub enum JackpotMode {
     KING_OF_THE_HILL: KingOfTheHill,
     CONDITIONAL_VICTORY: ConditionalVictory,
 }
@@ -34,20 +34,20 @@ pub struct ConditionalVictory {
 }
 
 #[generate_trait]
-pub impl ChallengeModeImpl of ChallengeModeTrait {
-    fn new(mode: ChallengeMode, expiration: u64) -> ChallengeMode {
+pub impl JackpotModeImpl of JackpotModeTrait {
+    fn new(mode: JackpotMode, expiration: u64) -> JackpotMode {
         match mode {
-            ChallengeMode::KING_OF_THE_HILL(params) => {
+            JackpotMode::KING_OF_THE_HILL(params) => {
                 assert!(expiration != 0, "King of the Hill must have expiration");
 
-                ChallengeMode::KING_OF_THE_HILL(
+                JackpotMode::KING_OF_THE_HILL(
                     KingOfTheHill {
                         extension_time: params.extension_time,
                         king: starknet::contract_address_const::<0x0>(),
                     }
                 )
             },
-            ChallengeMode::CONDITIONAL_VICTORY(_) => {
+            JackpotMode::CONDITIONAL_VICTORY(_) => {
                 mode
             }
         }
@@ -57,25 +57,25 @@ pub impl ChallengeModeImpl of ChallengeModeTrait {
 
 
 // #[generate_trait]
-// pub impl ChallengeImpl of ChallengeTrait {
-//     /// Determines if the challenge can be claimed based on the current game state.
+// pub impl JackpotImpl of JackpotTrait {
+//     /// Determines if the Jackpot can be claimed based on the current game state.
 //     ///
 //     /// # Arguments
-//     /// * `self` - A reference to the Challenge struct.
+//     /// * `self` - A reference to the Jackpot struct.
 //     /// * `nums` - An array of numbers representing the current game state.
 //     ///
 //     /// # Returns
-//     /// * `bool` - True if the challenge can be claimed, false otherwise.
-//     fn can_claim(self: @Challenge, nums: @Array<u16>) -> bool {
+//     /// * `bool` - True if the Jackpot can be claimed, false otherwise.
+//     fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
 //         match self.mode {
-//             ChallengeMode::CONDITIONAL_VICTORY(condition) => {
+//             JackpotMode::CONDITIONAL_VICTORY(condition) => {
 //                 if nums.len() >= (*condition.slots_required).into() {
 //                     return true;
 //                 }
 
 //                 return false;
 //             },
-//             ChallengeMode::KING_OF_THE_HILL(condition) => {
+//             JackpotMode::KING_OF_THE_HILL(condition) => {
 //                 if *condition.king == get_caller_address() {
 //                     return true;
 //                 }

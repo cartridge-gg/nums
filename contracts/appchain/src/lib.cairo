@@ -5,7 +5,6 @@ pub mod systems {
 
 pub mod models {
     pub mod game;
-    pub mod name;
     pub mod slot;
 }
 

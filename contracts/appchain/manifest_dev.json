@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x65be9154c491429d8bc012bdd01bf57e1516e24a234660704b0a2db70cd9359",
-      "class_hash": "0xec1736ddabc14ed84e677862e06240107a7408aa5076bc68b9e4a205ea61c5",
+      "address": "0x255c49a741b8dd79ca0d1a583bb76b94ace7d0fc94feb1d3bb2cbdb81569ed3",
+      "class_hash": "0x3393c478ab554b7392fefc5c13bcf57609ea8518bfb5b1b2036f1ad3aabed99",
       "abi": [
         {
           "type": "impl",
@@ -1333,7 +1333,7 @@
               "name": "create_game",
               "inputs": [
                 {
-                  "name": "challenge_id",
+                  "name": "jackpot_id",
                   "type": "core::option::Option::<core::integer::u32>"
                 }
               ],
@@ -1362,22 +1362,6 @@
                   "type": "core::integer::u16"
                 }
               ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "set_name",
-              "inputs": [
-                {
-                  "name": "game_id",
-                  "type": "core::integer::u32"
-                },
-                {
-                  "name": "name",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [],
               "state_mutability": "external"
             },
             {
@@ -1515,14 +1499,13 @@
       "systems": [
         "create_game",
         "set_slot",
-        "set_name",
         "end_game",
         "upgrade"
       ]
     },
     {
-      "address": "0xd2a11b4cc83176d25270621b93fd208b94e5d6f9c7837234b98b2020224dd9",
-      "class_hash": "0x7eb5c5646a57039affe749b1c259917f5333c06265742d1afe3aba94a771b14",
+      "address": "0x306bee7669dcdc6e0531df567520d888616e5a0932479dd1ccbd14c813351ec",
+      "class_hash": "0x4ebca02c7a8e480130e0c9080d9b6767a0d10ed6ae8660a96c692739f5629aa",
       "abi": [
         {
           "type": "impl",
@@ -1638,7 +1621,7 @@
         },
         {
           "type": "struct",
-          "name": "nums_common::models::challenge::KingOfTheHill",
+          "name": "nums_common::models::jackpot::KingOfTheHill",
           "members": [
             {
               "name": "extension_time",
@@ -1652,7 +1635,7 @@
         },
         {
           "type": "struct",
-          "name": "nums_common::models::challenge::ConditionalVictory",
+          "name": "nums_common::models::jackpot::ConditionalVictory",
           "members": [
             {
               "name": "slots_required",
@@ -1662,15 +1645,15 @@
         },
         {
           "type": "enum",
-          "name": "nums_common::models::challenge::ChallengeMode",
+          "name": "nums_common::models::jackpot::JackpotMode",
           "variants": [
             {
               "name": "KING_OF_THE_HILL",
-              "type": "nums_common::models::challenge::KingOfTheHill"
+              "type": "nums_common::models::jackpot::KingOfTheHill"
             },
             {
               "name": "CONDITIONAL_VICTORY",
-              "type": "nums_common::models::challenge::ConditionalVictory"
+              "type": "nums_common::models::jackpot::ConditionalVictory"
             }
           ]
         },
@@ -1786,7 +1769,7 @@
         },
         {
           "type": "struct",
-          "name": "nums_common::models::challenge::Challenge",
+          "name": "nums_common::models::jackpot::Jackpot",
           "members": [
             {
               "name": "id",
@@ -1802,7 +1785,7 @@
             },
             {
               "name": "mode",
-              "type": "nums_common::models::challenge::ChallengeMode"
+              "type": "nums_common::models::jackpot::JackpotMode"
             },
             {
               "name": "expiration",
@@ -1828,19 +1811,15 @@
         },
         {
           "type": "l1_handler",
-          "name": "challenge_message_handler",
+          "name": "jackpot_message_handler",
           "inputs": [
             {
               "name": "from_address",
               "type": "core::felt252"
             },
             {
-              "name": "challenge_title",
-              "type": "core::felt252"
-            },
-            {
-              "name": "challenge",
-              "type": "nums_common::models::challenge::Challenge"
+              "name": "jackpot",
+              "type": "nums_common::models::jackpot::Jackpot"
             }
           ],
           "outputs": [],
@@ -2018,27 +1997,21 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x4c26dd2b6d69c3e042abd6d7ea1d996cfa26b86f09b453c1756c29957888050",
-      "tag": "nums-Challenge",
-      "selector": "0x20090a11f167e29edaf6e04629134c5882aaff0f0d18ceaeb68c274f50cc4ea"
-    },
-    {
-      "members": [],
       "class_hash": "0x60d244407711a1db38e75abc810c5d73d5f1e490d345ca77cd2bd8c0556e99d",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
     {
       "members": [],
-      "class_hash": "0x7c5d3020280b99b689e53bbff0e6f944cad5531ef93669429d03ae712923d69",
+      "class_hash": "0x5b6f79b2f24cd66df7723ef771663c30778a40c0ffef711afe72ca5ed9b75b9",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
     },
     {
       "members": [],
-      "class_hash": "0x1fcb3db43eed9d5dd56948294bb876f3a69a4fe7d53d3d115de872c5c450dd",
-      "tag": "nums-Name",
-      "selector": "0x3d78139183db912d1e4ded0b4f3bfb5e2363c265e1f620cc51ed3dcdc66033a"
+      "class_hash": "0x6a9daaf00784d6255b57e34270ad58d810fef2ad6ab4d1d840766b8b7e24edc",
+      "tag": "nums-Jackpot",
+      "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
@@ -2056,7 +2029,7 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x2482845b2ef9629b77266efda1f6b986efcb3c36b205b3e436314401c33aa71",
+      "class_hash": "0x503f4fec90f46f944524ba1f4f58fb750db660e94fdb413058dcfed90a69687",
       "tag": "nums-GameCreated",
       "selector": "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
     },

@@ -1,5 +1,5 @@
 pub mod systems {
-    pub mod challenge_actions;
+    pub mod jackpot_actions;
     pub mod config_actions;
 }
 

@@ -1,20 +1,17 @@
 #[dojo::contract]
 pub mod message_handlers {
     use dojo::model::ModelStorage;
-
-    use nums_common::models::{challenge::Challenge, config::Config};
-
-    const WORLD: felt252 = 0;
+    use nums_common::models::{jackpot::Jackpot, config::Config};
 
     #[l1_handler]
-    fn challenge_message_handler(
+    fn jackpot_message_handler(
         ref self: ContractState,
         from_address: felt252,
-        challenge: Challenge
+        jackpot: Jackpot
     ) {
-        // TODO: check if calling address is Starknet Contract
+        // TODO: check if calling address is Piltover Contract
         let mut world = self.world(@"nums");
-        world.write_model(@challenge);
+        world.write_model(@jackpot);
     }
 
     #[l1_handler]
@@ -23,14 +20,8 @@ pub mod message_handlers {
         from_address: felt252,
         config: Config,
     ) {
-        // TODO: check if calling address is Starknet Contract
-
-        //let owner = get_caller_address();
+        // TODO: check if calling address is Piltover Contract
         let mut world = self.world(@"nums");
-
-        //assert!(world.dispatcher.is_owner(WORLD, owner), "Unauthorized owner");
-        assert!(config.world_resource == WORLD, "Invalid config state");
-
         world.write_model(@config);
     }
 }

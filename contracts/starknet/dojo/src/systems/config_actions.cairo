@@ -3,7 +3,7 @@ use nums_common::models::config::Config;
 
 #[starknet::interface]
 pub trait IConfigActions<T> {
-    fn set_config(ref self: T, config: Config);
+    fn set_config(ref self: T, config: Config, appchain: AppChain);
 }
 
 
@@ -21,7 +21,7 @@ pub mod config_actions {
 
     #[abi(embed_v0)]
     impl ConfigActions of IConfigActions<ContractState> {
-        fn set_config(ref self: ContractState, config: Config) {
+        fn set_config(ref self: ContractState, config: Config, appchain: AppChain) {
             let owner = starknet::get_caller_address();
             let mut world = self.world(@"nums");
 
@@ -30,14 +30,14 @@ pub mod config_actions {
 
             world.write_model(@config);
 
-            // let mut payload: Array<felt252> = array![];
-            // appchain.serialize(ref payload);
+            let mut payload: Array<felt252> = array![];
+            config.serialize(ref payload);
 
-            // IMessagingDispatcher { contract_address: appchain.message_contract.try_into().unwrap() }.send_message_to_appchain(
-            //     appchain.to_address.try_into().unwrap(),
-            //     appchain.to_selector,
-            //     payload.span(),
-            // );
+            IMessagingDispatcher { contract_address: appchain.message_contract.try_into().unwrap() }.send_message_to_appchain(
+                appchain.to_address.try_into().unwrap(),
+                appchain.to_selector,
+                payload.span(),
+            );
         }
     }
 }

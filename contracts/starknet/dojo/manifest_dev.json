@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x79d1e9fc59625817bff1d88b70f10fe491373b57c8e8a344e74ecfde2547834",
-      "class_hash": "0x7dc365f90451d6b8ad1285c26b6abe950439575aa2972104d8e2ace97adda84",
+      "address": "0x512b3bf6edc6a499edc935a773f2dd8c5fbc29a25b68c161ecf749ba2340947",
+      "class_hash": "0x14ba3b888e58365f38dbd0e85695655868d54a6fb0dedc85983a27e9e342f51",
       "abi": [
         {
           "type": "impl",
@@ -1340,7 +1340,7 @@
         },
         {
           "type": "enum",
-          "name": "nums_starknet::models::token::TokenType",
+          "name": "nums_common::token::TokenType",
           "variants": [
             {
               "name": "ERC20",
@@ -1358,7 +1358,7 @@
         },
         {
           "type": "struct",
-          "name": "nums_starknet::models::token::Token",
+          "name": "nums_common::token::Token",
           "members": [
             {
               "name": "id",
@@ -1370,7 +1370,7 @@
             },
             {
               "name": "ty",
-              "type": "nums_starknet::models::token::TokenType"
+              "type": "nums_common::token::TokenType"
             },
             {
               "name": "total",
@@ -1380,11 +1380,11 @@
         },
         {
           "type": "enum",
-          "name": "core::option::Option::<nums_starknet::models::token::Token>",
+          "name": "core::option::Option::<nums_common::token::Token>",
           "variants": [
             {
               "name": "Some",
-              "type": "nums_starknet::models::token::Token"
+              "type": "nums_common::token::Token"
             },
             {
               "name": "None",
@@ -1446,7 +1446,7 @@
                 },
                 {
                   "name": "token",
-                  "type": "core::option::Option::<nums_starknet::models::token::Token>"
+                  "type": "core::option::Option::<nums_common::token::Token>"
                 },
                 {
                   "name": "appchain",
@@ -1478,7 +1478,7 @@
                 },
                 {
                   "name": "token",
-                  "type": "core::option::Option::<nums_starknet::models::token::Token>"
+                  "type": "core::option::Option::<nums_common::token::Token>"
                 },
                 {
                   "name": "appchain",
@@ -1653,8 +1653,8 @@
       ]
     },
     {
-      "address": "0x6c3ded2ce4a631adbe42d76775364714a70ae75828a7205c73c6b4814d7ef14",
-      "class_hash": "0x1bbff1279a11c618e039a2f3bc6d08e84b49280297e2d03509582346d83d4bc",
+      "address": "0xf942a8d0c5b4da1746ebea0fe9764a44c19ef1bc5bf104e0288b109404728",
+      "class_hash": "0x3526b8076c431104ce5f1cb49d7ab190928c3de42ada460fee29ad5791f9ca5",
       "abi": [
         {
           "type": "impl",
@@ -1804,6 +1804,24 @@
           ]
         },
         {
+          "type": "struct",
+          "name": "nums_common::messages::AppChain",
+          "members": [
+            {
+              "name": "message_contract",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "to_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "to_selector",
+              "type": "core::felt252"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "nums_starknet::systems::config_actions::IConfigActions",
           "items": [
@@ -1814,6 +1832,10 @@
                 {
                   "name": "config",
                   "type": "nums_common::models::config::Config"
+                },
+                {
+                  "name": "appchain",
+                  "type": "nums_common::messages::AppChain"
                 }
               ],
               "outputs": [],
@@ -1948,6 +1970,18 @@
   "models": [
     {
       "members": [],
+      "class_hash": "0x4c26dd2b6d69c3e042abd6d7ea1d996cfa26b86f09b453c1756c29957888050",
+      "tag": "nums-Challenge",
+      "selector": "0x20090a11f167e29edaf6e04629134c5882aaff0f0d18ceaeb68c274f50cc4ea"
+    },
+    {
+      "members": [],
+      "class_hash": "0x60d244407711a1db38e75abc810c5d73d5f1e490d345ca77cd2bd8c0556e99d",
+      "tag": "nums-Config",
+      "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
+    },
+    {
+      "members": [],
       "class_hash": "0x4b316e8eb27f2df894df3e70b79fe8ccc6fa15aa840d1604d433e4ebf77bc7b",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
@@ -1962,7 +1996,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x4cb3a7ebf111b7b8cf39a8e81ffeb27a8d73aa1ef659e4d78574e5d23dbd093",
+      "class_hash": "0x13db895311f6658b83ee1d2bcfa9c42b698d755c0ee0da6e8dc40e745f695bc",
       "tag": "nums-ChallengeCreated",
       "selector": "0x28e732dcb2119aefb0e41c79cbc930ee7037f83ba52b9fe931537b3e6e3cb81"
     },

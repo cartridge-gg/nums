@@ -1252,7 +1252,7 @@
   },
   "contracts": [
     {
-      "address": "0x6ebe08720ab3ab60727142b8753e2c19544bab924c592fdd992b3b1af6409ef",
+      "address": "0x65be9154c491429d8bc012bdd01bf57e1516e24a234660704b0a2db70cd9359",
       "class_hash": "0xec1736ddabc14ed84e677862e06240107a7408aa5076bc68b9e4a205ea61c5",
       "abi": [
         {
@@ -1521,8 +1521,8 @@
       ]
     },
     {
-      "address": "0x293b876b8d176997198dc0fe32e949963d63667565d8f54955f38e5f226b11b",
-      "class_hash": "0x50d47fd9bf8228ab4fe1cbc7e7b07cd440d4c2c177484adcbc883316bec9b94",
+      "address": "0xd2a11b4cc83176d25270621b93fd208b94e5d6f9c7837234b98b2020224dd9",
+      "class_hash": "0x7eb5c5646a57039affe749b1c259917f5333c06265742d1afe3aba94a771b14",
       "abi": [
         {
           "type": "impl",
@@ -1848,11 +1848,93 @@
         },
         {
           "type": "struct",
-          "name": "core::array::Span::<core::felt252>",
+          "name": "nums_common::models::config::GameConfig",
           "members": [
             {
-              "name": "snapshot",
-              "type": "@core::array::Array::<core::felt252>"
+              "name": "max_slots",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "max_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "min_number",
+              "type": "core::integer::u16"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<nums_common::models::config::GameConfig>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "nums_common::models::config::GameConfig"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums_common::models::config::RewardLevel",
+          "members": [
+            {
+              "name": "level",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "amount",
+              "type": "core::integer::u16"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums_common::models::config::SlotReward",
+          "members": [
+            {
+              "name": "token",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "levels",
+              "type": "core::array::Array::<nums_common::models::config::RewardLevel>"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<nums_common::models::config::SlotReward>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "nums_common::models::config::SlotReward"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums_common::models::config::Config",
+          "members": [
+            {
+              "name": "world_resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "game",
+              "type": "core::option::Option::<nums_common::models::config::GameConfig>"
+            },
+            {
+              "name": "reward",
+              "type": "core::option::Option::<nums_common::models::config::SlotReward>"
             }
           ]
         },
@@ -1865,8 +1947,8 @@
               "type": "core::felt252"
             },
             {
-              "name": "payload",
-              "type": "core::array::Span::<core::felt252>"
+              "name": "config",
+              "type": "nums_common::models::config::Config"
             }
           ],
           "outputs": [],
@@ -1934,6 +2016,18 @@
     }
   ],
   "models": [
+    {
+      "members": [],
+      "class_hash": "0x4c26dd2b6d69c3e042abd6d7ea1d996cfa26b86f09b453c1756c29957888050",
+      "tag": "nums-Challenge",
+      "selector": "0x20090a11f167e29edaf6e04629134c5882aaff0f0d18ceaeb68c274f50cc4ea"
+    },
+    {
+      "members": [],
+      "class_hash": "0x60d244407711a1db38e75abc810c5d73d5f1e490d345ca77cd2bd8c0556e99d",
+      "tag": "nums-Config",
+      "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
+    },
     {
       "members": [],
       "class_hash": "0x7c5d3020280b99b689e53bbff0e6f944cad5531ef93669429d03ae712923d69",

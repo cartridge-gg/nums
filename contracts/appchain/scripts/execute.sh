@@ -4,7 +4,7 @@
 if [ $# -lt 2 ]; then
     echo "Error: Please provide a command and a profile name"
     echo "Usage: $0 <command> <profile_name>"
-    echo "Commands: create_game, set_config"
+    echo "Commands: create_game"
     exit 1
 fi
 
@@ -49,28 +49,13 @@ fi
 
 # Execute commands based on the provided command
 case "$COMMAND" in
-    set_config)
-        echo "Setting config for profile: $PROFILE_NAME"
-        echo "Actions address: $GAME_ACTIONS_ADDR"
-        # no rewards
-        # sozo execute $GAME_ACTIONS_ADDR set_config -c 0,0,20,1000,1,1 --profile $PROFILE_NAME --world $WORLD_ADDR
-        if [ -z "$TOKEN_ADDR" ]; then
-            sozo execute $GAME_ACTIONS_ADDR set_config -c 0,0,20,1000,1,1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
-        else
-            sozo execute $GAME_ACTIONS_ADDR set_config -c 0,0,20,1000,1,0,$TOKEN_ADDR,9,10,1,13,2,14,4,15,8,16,16,17,32,18,64,19,128,20,256 --profile $PROFILE_NAME --world $WORLD_ADDR
-        fi
-        ;;
-    create_jackpot)
-        echo "Creating jackpot for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot -c 1,1,1,0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7,0,0x1234,0,1,0 --profile $PROFILE_NAME --world $WORLD_ADDR
-        ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR create_game -c 0x1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: create_game, set_config"
+        echo "Available commands: create_game"
         exit 1
         ;;
 esac

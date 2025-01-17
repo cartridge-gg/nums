@@ -7,8 +7,11 @@ edition = "2024_07"
 [[target.starknet-contract]]
 sierra = true
 casm = true
-# It's important to keep this, since it's used by Sozo to check the world version.
-build-external-contracts = ["dojo::world::world_contract::world"]
+build-external-contracts = [
+    "dojo::world::world_contract::world", 
+    "nums_common::models::challenge::m_Challenge", 
+    "nums_common::models::config::m_Config",
+]
 
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.11" }

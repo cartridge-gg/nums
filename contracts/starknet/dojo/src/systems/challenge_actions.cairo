@@ -33,7 +33,7 @@ pub mod challenge_actions {
     use core::num::traits::Zero;
     use nums_starknet::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
-    use nums_starknet::models::token::{Token, TokenType};
+    use nums_common::token::{Token, TokenType};
     use nums_common::models::challenge::{Challenge, ChallengeMode, ConditionalVictory, KingOfTheHill};
     use nums_common::messages::{ChallengeMessage, AppChain};
 

@@ -17,16 +17,6 @@ pub struct Game {
     pub jackpot_id: Option<u32>,
 }
 
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
-pub struct Reward {
-    #[key]
-    pub game_id: u32,
-    #[key]
-    pub player: ContractAddress,
-    pub total: u32
-}
-
 #[generate_trait]
 pub impl GameImpl of GameTrait {
     /// Checks if the elements in the given array of slots are in ascending order.

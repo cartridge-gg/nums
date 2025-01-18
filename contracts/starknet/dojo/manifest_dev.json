@@ -1566,8 +1566,8 @@
       ]
     },
     {
-      "address": "0x7c2ef7947cd1ed6b4e675c0b455d55a5d77ca7d9ceef560f96d1e1c0ef0c2ea",
-      "class_hash": "0x179463aaba97b0d1d5b237ba084203c6e1a2e4b2e4fda56836e51b4af9ecabe",
+      "address": "0x45a87b7a4e21a4fcdf18cb506ec18c49744856521a2ec67efe54469be66f018",
+      "class_hash": "0x4d1b77e6af6d63803a0b3182186bc40cd056ef95dd07e38b227cc24eaf67ee5",
       "abi": [
         {
           "type": "impl",
@@ -1976,7 +1976,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6a9daaf00784d6255b57e34270ad58d810fef2ad6ab4d1d840766b8b7e24edc",
+      "class_hash": "0x72854186d160eb8e589745b6c8a11f5a1d7a62748f3119da73751395e0a9cdf",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
@@ -1999,12 +1999,6 @@
       "class_hash": "0x328589343abaa7b0d306dabab1d7a16a982295122d926c9a73296f82c6b1cd5",
       "tag": "nums-JackpotCreated",
       "selector": "0x2316c6700328c1de9b2bf8e664b6119789a104f0d9f865acba568281247589"
-    },
-    {
-      "members": [],
-      "class_hash": "0x34a07ec9edc2369aca13eb906dd196c743ac37ccededf049a19e72c06350ebd",
-      "tag": "nums-KingCrowned",
-      "selector": "0x7d4f8f724ffe9ff34050a58ee7ba63e5277fff6f3731f3606e96c64c46d7959"
     }
   ]
 }

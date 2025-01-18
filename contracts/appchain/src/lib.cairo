@@ -6,6 +6,7 @@ pub mod systems {
 pub mod models {
     pub mod game;
     pub mod slot;
+    pub mod reward;
 }
 
 pub mod tests {

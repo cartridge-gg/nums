@@ -34,6 +34,7 @@ pub mod jackpot_actions {
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
     use nums_common::token::{Token, TokenType};
     use nums_common::models::jackpot::{Jackpot, JackpotMode, ConditionalVictory, KingOfTheHill};
+    use nums_common::models::config::Config;
     use nums_common::messages::AppChain;
 
     use dojo::model::ModelStorage;
@@ -63,16 +64,6 @@ pub mod jackpot_actions {
         player: ContractAddress,
     }
 
-    #[derive(Drop, Serde)]
-    #[dojo::event]
-    pub struct KingCrowned {
-        #[key]
-        game_id: u32,
-        #[key]
-        jackpot_id: u32,
-        player: ContractAddress
-    }
-
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {
         fn create_conditional_victory(
@@ -83,6 +74,11 @@ pub mod jackpot_actions {
             token: Option<Token>,
             appchain: AppChain,
         ) -> u32 {
+            let mut world = self.world(@"nums");
+            let config: Config = world.read_model(WORLD);
+            let game_config = config.game.expect('game config not set');
+
+            assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
             let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
             self._create(title, mode, expiration, token, appchain)
         }
@@ -99,10 +95,15 @@ pub mod jackpot_actions {
                 panic!("cannot set extension with no expiration");
             }
 
+            let mut world = self.world(@"nums");
+            let config: Config = world.read_model(WORLD);
+            let game_config = config.game.expect('game config not set');
+
             let mode = JackpotMode::KING_OF_THE_HILL(
                 KingOfTheHill {
                     extension_time,
                     king: starknet::contract_address_const::<0x0>(),
+                    remaining_slots: game_config.max_slots,
                 }
             );
             self._create(title, mode, expiration, token, appchain)

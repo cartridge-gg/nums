@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x255c49a741b8dd79ca0d1a583bb76b94ace7d0fc94feb1d3bb2cbdb81569ed3",
-      "class_hash": "0x3393c478ab554b7392fefc5c13bcf57609ea8518bfb5b1b2036f1ad3aabed99",
+      "address": "0x1c9bb271069733bfbf7dc1614621554450b37cce452bad4044496aa1b00efc1",
+      "class_hash": "0x42ca460ec458166073dd6c7b04007fb47488e5351da9ae275f9cff07efcaa2c",
       "abi": [
         {
           "type": "impl",
@@ -1367,6 +1367,18 @@
             {
               "type": "function",
               "name": "end_game",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "king_me",
               "inputs": [
                 {
                   "name": "game_id",
@@ -1500,12 +1512,13 @@
         "create_game",
         "set_slot",
         "end_game",
+        "king_me",
         "upgrade"
       ]
     },
     {
-      "address": "0x306bee7669dcdc6e0531df567520d888616e5a0932479dd1ccbd14c813351ec",
-      "class_hash": "0x4ebca02c7a8e480130e0c9080d9b6767a0d10ed6ae8660a96c692739f5629aa",
+      "address": "0x47465e44f2786242f1399d27fc88d1547db60518914e1653ca49a0218bc02a0",
+      "class_hash": "0x1f26db7e705a42d704a6ccb43d46615e68875e18ccc42e57f78d5208dca8c6e",
       "abi": [
         {
           "type": "impl",
@@ -1626,6 +1639,10 @@
             {
               "name": "extension_time",
               "type": "core::integer::u64"
+            },
+            {
+              "name": "remaining_slots",
+              "type": "core::integer::u8"
             },
             {
               "name": "king",
@@ -2009,7 +2026,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6a9daaf00784d6255b57e34270ad58d810fef2ad6ab4d1d840766b8b7e24edc",
+      "class_hash": "0x72854186d160eb8e589745b6c8a11f5a1d7a62748f3119da73751395e0a9cdf",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
@@ -2038,6 +2055,12 @@
       "class_hash": "0x5cc1cad069c9623da87e4155afc4c297a6a188f7f6e474af913973f17d0b3df",
       "tag": "nums-Inserted",
       "selector": "0x68a8cf4a301f71be018a6ed94f1991773d5804f7520391049d429ba5aff98cd"
+    },
+    {
+      "members": [],
+      "class_hash": "0x76344e07f068d0223308dddfbc23cbe39a6aac152646c1934886fe47fa721c6",
+      "tag": "nums-KingCrowned",
+      "selector": "0x7d4f8f724ffe9ff34050a58ee7ba63e5277fff6f3731f3606e96c64c46d7959"
     }
   ]
 }

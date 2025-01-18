@@ -25,6 +25,7 @@ pub enum JackpotMode {
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct KingOfTheHill {
     pub extension_time: u64,
+    pub remaining_slots: u8,
     pub king: ContractAddress,
 }
 
@@ -35,7 +36,7 @@ pub struct ConditionalVictory {
 
 #[generate_trait]
 pub impl JackpotModeImpl of JackpotModeTrait {
-    fn new(mode: JackpotMode, expiration: u64) -> JackpotMode {
+    fn new(mode: JackpotMode, max_slots: u8, expiration: u64) -> JackpotMode {
         match mode {
             JackpotMode::KING_OF_THE_HILL(params) => {
                 assert!(expiration != 0, "King of the Hill must have expiration");
@@ -44,10 +45,13 @@ pub impl JackpotModeImpl of JackpotModeTrait {
                     KingOfTheHill {
                         extension_time: params.extension_time,
                         king: starknet::contract_address_const::<0x0>(),
+                        remaining_slots: max_slots,
                     }
                 )
             },
-            JackpotMode::CONDITIONAL_VICTORY(_) => {
+            JackpotMode::CONDITIONAL_VICTORY(params) => {
+                assert!(params.slots_required <= max_slots, "slots_required exceeds max_slots");
+
                 mode
             }
         }

@@ -4,15 +4,18 @@ pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn end_game(ref self: T, game_id: u32);
+    fn king_me(ref self: T, game_id: u32);
 }
 
 #[dojo::contract]
 pub mod game_actions {
     use core::array::ArrayTrait;
+    use nums_common::models::jackpot::{Jackpot, JackpotMode};
     use nums_common::models::config::{Config, SlotRewardTrait};
-    use nums_appchain::models::game::{Game, Reward, GameTrait};
-    use nums_appchain::models::slot::Slot;
     use nums_common::random::{Random, RandomImpl};
+    use nums_appchain::models::game::{Game, GameTrait};
+    use nums_appchain::models::reward::Reward;
+    use nums_appchain::models::slot::Slot;
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
@@ -47,6 +50,16 @@ pub mod game_actions {
         max_number: u16,
         min_number: u16,
         jackpot_id: Option<u32>,
+    }
+
+    #[derive(Drop, Serde)]
+    #[dojo::event]
+    pub struct KingCrowned {
+        #[key]
+        game_id: u32,
+        #[key]
+        jackpot_id: u32,
+        player: ContractAddress
     }
 
     #[abi(embed_v0)]
@@ -196,6 +209,55 @@ pub mod game_actions {
                 );
 
             next_number
+        }
+
+        /// Attempts to crown the caller as the new king in a King of the Hill jackpot.
+        ///
+        /// This function allows a player to claim the position of "king" in a King of the Hill
+        /// jackpot game. It verifies that the game is associated with a King of the Hill
+        /// jackpot, updates the current king, and potentially extends the jackpot's expiration
+        /// time.
+        ///
+        /// The remaining_slots mechanism ensures that each new king must have fewer or equal
+        /// remaining slots compared to the previous king. This creates a progressively more
+        /// challenging game as it continues.
+        ///
+        /// # Arguments
+        /// * `game_id` - The identifier of the game associated with the jackpot.
+        fn king_me(ref self: ContractState, game_id: u32) {
+            let mut world = self.world(@"nums");
+            let player = get_caller_address();
+            let game: Game = world.read_model((game_id, player));
+            let jackpot_id = game.jackpot_id.expect('Jackpot not defined');
+            let mut jackpot: Jackpot = world.read_model(jackpot_id);
+
+            let mut king_of_the_hill = match jackpot.mode {
+                JackpotMode::KING_OF_THE_HILL(koth) => koth,
+                _ => panic!("Not a King of the Hill jackpot")
+            };
+
+            assert(jackpot.expiration > starknet::get_block_timestamp(), 'Jackpot already expired');
+            assert(
+                game.remaining_slots < king_of_the_hill.remaining_slots
+                    || (game.remaining_slots == king_of_the_hill.remaining_slots
+                        && player != king_of_the_hill.king),
+                'No improvement or already king'
+            );
+
+            king_of_the_hill.king = player;
+            king_of_the_hill.remaining_slots = game.remaining_slots;
+
+            if king_of_the_hill.extension_time > 0 {
+                let new_expiration = jackpot.expiration + king_of_the_hill.extension_time;
+                if new_expiration > jackpot.expiration {
+                    jackpot.expiration = new_expiration;
+                }
+            }
+
+            // Update the jackpot with the new king
+            jackpot.mode = JackpotMode::KING_OF_THE_HILL(king_of_the_hill);
+            world.write_model(@jackpot);
+            world.emit_event(@KingCrowned { game_id, jackpot_id, player });
         }
     }
 

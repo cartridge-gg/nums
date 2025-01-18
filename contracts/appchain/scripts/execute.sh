@@ -4,14 +4,13 @@
 if [ $# -lt 2 ]; then
     echo "Error: Please provide a command and a profile name"
     echo "Usage: $0 <command> <profile_name>"
-    echo "Commands: create_game"
+    echo "Commands: create_game, set_slot, king_me"
     exit 1
 fi
 
 # Get the command and profile name from the command line arguments
 COMMAND="$1"
 PROFILE_NAME="$2"
-TOKEN_ADDR="$3"
 
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -47,9 +46,20 @@ case "$COMMAND" in
         echo "Creating game for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR create_game 0 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    set_slot)
+        GAME_ID=$3
+        SLOT_IDX=$4
+        echo "Setting slot for profile: $PROFILE_NAME"
+        sozo execute $GAME_ACTIONS_ADDR set_slot $GAME_ID $SLOT_IDX --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
+    king_me)
+        GAME_ID=$3
+        echo "Kinging me for profile: $PROFILE_NAME"
+        sozo execute $GAME_ACTIONS_ADDR king_me $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: create_game"
+        echo "Available commands: create_game, set_slot, king_me"
         exit 1
         ;;
 esac

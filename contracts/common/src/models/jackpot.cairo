@@ -60,32 +60,32 @@ pub impl JackpotModeImpl of JackpotModeTrait {
 
 
 
-// #[generate_trait]
-// pub impl JackpotImpl of JackpotTrait {
-//     /// Determines if the Jackpot can be claimed based on the current game state.
-//     ///
-//     /// # Arguments
-//     /// * `self` - A reference to the Jackpot struct.
-//     /// * `nums` - An array of numbers representing the current game state.
-//     ///
-//     /// # Returns
-//     /// * `bool` - True if the Jackpot can be claimed, false otherwise.
-//     fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
-//         match self.mode {
-//             JackpotMode::CONDITIONAL_VICTORY(condition) => {
-//                 if nums.len() >= (*condition.slots_required).into() {
-//                     return true;
-//                 }
+#[generate_trait]
+pub impl JackpotImpl of JackpotTrait {
+    /// Determines if the Jackpot can be claimed based on the current game state.
+    ///
+    /// # Arguments
+    /// * `self` - A reference to the Jackpot struct.
+    /// * `nums` - An array of numbers representing the current game state.
+    ///
+    /// # Returns
+    /// * `bool` - True if the Jackpot can be claimed, false otherwise.
+    fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
+        match self.mode {
+            JackpotMode::CONDITIONAL_VICTORY(condition) => {
+                if nums.len() >= (*condition.slots_required).into() {
+                    return true;
+                }
 
-//                 return false;
-//             },
-//             JackpotMode::KING_OF_THE_HILL(condition) => {
-//                 if *condition.king == get_caller_address() {
-//                     return true;
-//                 }
+                return false;
+            },
+            JackpotMode::KING_OF_THE_HILL(condition) => {
+                if *condition.king == starknet::get_caller_address() {
+                    return true;
+                }
 
-//                 return false;
-//             },
-//         }
-//     }
-// }
+                return false;
+            },
+        }
+    }
+}

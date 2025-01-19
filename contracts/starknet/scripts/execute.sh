@@ -55,9 +55,8 @@ if [ -z "$WORLD_ADDR" ]; then
 fi
 
 PILTOVER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
-APPCHAIN_MESSAGE_HANDLER_ADDR="0x047465e44f2786242f1399d27fc88d1547db60518914e1653ca49a0218bc02a0"
-APPCHAIN_CONFIG_SELECTOR="0x01da3edff9ce6947fbb72a3f32ef3d6d42ba492aebe47e1a4e73b9245686ea60"
-APPCHAIN_JACKPOT_SELECTOR="0x01823f61dad7acc9cbad9851d1fc09a3642eb3c83ad76070deff1d6cba7aad1c"
+APPCHAIN_HANDLER_ADDR="0x051b5fd6f4ecea87f700fb12ef9892ae964aa17e259c4c5a5a2316cc12022dd9"
+STARKNET_HANDLER_ADDR="0x00f5cc3a27206253df5d9921e6982a298169c3a9f2ce47a2f7b9da033099733a"
 
 echo "Profile name: $PROFILE_NAME"
 
@@ -67,17 +66,17 @@ case "$COMMAND" in
         echo "Config actions address: $CONFIG_ACTIONS_ADDR"
         if [ -z "$TOKEN_ADDR" ]; then
             # no rewards
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 0 20 1000 1 1 $PILTOVER_ADDR $APPCHAIN_MESSAGE_HANDLER_ADDR $APPCHAIN_CONFIG_SELECTOR --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         else
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         fi
         ;;
     create_jackpot)
         TITLE="0x4e756d73204a61636b706f74" # "Nums Jackpot"
-        EXPIRATION=$(( $(date +%s) + 3600 )) # Current unix time + 1 hour
+        EXPIRATION=$(( $(date +%s) + 300 )) # Current unix time + 5 minutes
         EXTENSION_TIME=0
         echo "Jackpot actions address: $JACKPOT_ACTIONS_ADDR"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill $TITLE $EXPIRATION $EXTENSION_TIME 1 $PILTOVER_ADDR $APPCHAIN_MESSAGE_HANDLER_ADDR $APPCHAIN_JACKPOT_SELECTOR --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill $TITLE $EXPIRATION $EXTENSION_TIME 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"

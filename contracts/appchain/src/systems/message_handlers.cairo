@@ -1,10 +1,11 @@
 #[dojo::contract]
 pub mod message_handlers {
+    use nums_common::models::config::Config;
+    use nums_common::models::jackpot::Jackpot;
     use dojo::model::ModelStorage;
-    use nums_common::models::{jackpot::Jackpot, config::Config};
 
     #[l1_handler]
-    fn jackpot_message_handler(
+    fn create_jackpot_handler(
         ref self: ContractState,
         from_address: felt252,
         jackpot: Jackpot
@@ -15,7 +16,7 @@ pub mod message_handlers {
     }
 
     #[l1_handler]
-    fn config_message_handler(
+    fn set_config_handler(
         ref self: ContractState,
         from_address: felt252,
         config: Config,

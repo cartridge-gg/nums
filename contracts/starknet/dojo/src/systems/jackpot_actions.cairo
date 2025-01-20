@@ -4,18 +4,10 @@ use nums_common::token::Token;
 #[starknet::interface]
 pub trait IJackpotActions<T> {
     fn create_king_of_the_hill(
-        ref self: T,
-        title: felt252,
-        expiration: u64,
-        extension_time: u64,
-        token: Option<Token>,
+        ref self: T, title: felt252, expiration: u64, extension_time: u64, token: Option<Token>,
     ) -> u32;
     fn create_conditional_victory(
-        ref self: T,
-        title: felt252,
-        expiration: u64,
-        slots_required: u8,
-        token: Option<Token>,
+        ref self: T, title: felt252, expiration: u64, slots_required: u8, token: Option<Token>,
     ) -> u32;
     fn verify(ref self: T, jackpot_id: u32, verified: bool);
 }
@@ -62,7 +54,15 @@ pub mod jackpot_actions {
 
             assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
             let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
-            self._create(title, mode, expiration, token, config.starknet_messenger, config.appchain_handler)
+            self
+                ._create(
+                    title,
+                    mode,
+                    expiration,
+                    token,
+                    config.starknet_messenger,
+                    config.appchain_handler
+                )
         }
 
         fn create_king_of_the_hill(
@@ -87,7 +87,15 @@ pub mod jackpot_actions {
                     remaining_slots: game_config.max_slots,
                 }
             );
-            self._create(title, mode, expiration, token, config.starknet_messenger, config.appchain_handler)
+            self
+                ._create(
+                    title,
+                    mode,
+                    expiration,
+                    token,
+                    config.starknet_messenger,
+                    config.appchain_handler
+                )
         }
 
         /// Verifies or unverifies a jackpot as legitimate.
@@ -151,18 +159,13 @@ pub mod jackpot_actions {
 
             let mut payload: Array<felt252> = array![];
             jackpot.serialize(ref payload);
-            
-            let (hash, _) = IMessagingDispatcher { contract_address: starknet_messenger }.send_message_to_appchain(
-                appchain_handler,
-                selector!("create_jackpot_handler"),
-                payload.span(),
-            );
 
-            let message = Message {
-                player: creator,
-                hash,
-                destination: Destination::APPCHAIN,
-            };
+            let (hash, _) = IMessagingDispatcher { contract_address: starknet_messenger }
+                .send_message_to_appchain(
+                    appchain_handler, selector!("create_jackpot_handler"), payload.span(),
+                );
+
+            let message = Message { player: creator, hash, destination: Destination::APPCHAIN, };
             world.write_model(@message);
 
             id

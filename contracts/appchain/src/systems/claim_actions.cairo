@@ -74,12 +74,17 @@ pub mod claim_actions {
             world.write_model(@jackpot);
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
 
-            send_message_to_l1_syscall(MSG_TO_L2_MAGIC, array![
-                config.starknet_consumer.into(), 
-                player.into(),
-                game_id.into(), 
-                jackpot.id.into(), 
-            ].span()).unwrap_syscall();
+            send_message_to_l1_syscall(
+                MSG_TO_L2_MAGIC,
+                array![
+                    config.starknet_consumer.into(),
+                    player.into(),
+                    game_id.into(),
+                    jackpot.id.into(),
+                ]
+                    .span()
+            )
+                .unwrap_syscall();
         }
     }
 }

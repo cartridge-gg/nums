@@ -1,4 +1,3 @@
-
 #[starknet::interface]
 pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
@@ -79,14 +78,7 @@ pub mod game_actions {
 
             if let Option::Some(reward_config) = config.reward {
                 assert!(reward_config.levels.len() > 0, "Reward levels not set");
-                world
-                    .write_model(
-                        @Reward {
-                            game_id,
-                            player,
-                            total: 0,
-                        }
-                    );
+                world.write_model(@Reward { game_id, player, total: 0, });
             }
 
             world

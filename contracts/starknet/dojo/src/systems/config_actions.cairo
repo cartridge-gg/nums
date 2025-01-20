@@ -30,22 +30,18 @@ pub mod config_actions {
             let mut payload: Array<felt252> = array![];
             config.serialize(ref payload);
 
-            let (hash, _) = IMessagingDispatcher { 
-                contract_address: config.starknet_messenger.try_into().unwrap() 
-            }.send_message_to_appchain(
-                config.appchain_handler.try_into().unwrap(),
-                selector!("set_config_handler"),
-                payload.span(),
-            );
+            let (hash, _) = IMessagingDispatcher {
+                contract_address: config.starknet_messenger.try_into().unwrap()
+            }
+                .send_message_to_appchain(
+                    config.appchain_handler.try_into().unwrap(),
+                    selector!("set_config_handler"),
+                    payload.span(),
+                );
 
-            let message = Message {
-                player,
-                hash,
-                destination: Destination::APPCHAIN,
-            };
+            let message = Message { player, hash, destination: Destination::APPCHAIN, };
             world.write_model(@message);
             world.write_model(@config);
-
         }
     }
 }

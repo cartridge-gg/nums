@@ -2,7 +2,10 @@
 mod tests {
     use dojo::model::ModelStorage;
     use dojo::world::{WorldStorageTrait, WorldStorage};
-    use dojo_cairo_test::{spawn_test_world, NamespaceDef, TestResource, ContractDef, ContractDefTrait, WorldStorageTestTrait};
+    use dojo_cairo_test::{
+        spawn_test_world, NamespaceDef, TestResource, ContractDef, ContractDefTrait,
+        WorldStorageTestTrait
+    };
 
     use starknet::ContractAddress;
 
@@ -32,25 +35,13 @@ mod tests {
                 TestResource::Model(m_Slot::TEST_CLASS_HASH),
                 TestResource::Model(m_Config::TEST_CLASS_HASH),
                 TestResource::Model(m_Challenge::TEST_CLASS_HASH),
-                TestResource::Event(
-                    game_actions::e_GameCreated::TEST_CLASS_HASH
-                ),
+                TestResource::Event(game_actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(game_actions::e_Inserted::TEST_CLASS_HASH),
-                TestResource::Event(
-                    challenge_actions::e_ChallengeCreated::TEST_CLASS_HASH
-                ),
-                TestResource::Event(
-                    challenge_actions::e_ChallengeClaimed::TEST_CLASS_HASH
-                ),
-                TestResource::Event(
-                    challenge_actions::e_KingCrowned::TEST_CLASS_HASH
-                ),
-                TestResource::Contract(
-                    game_actions::TEST_CLASS_HASH
-                ),
-                TestResource::Contract(
-                    challenge_actions::TEST_CLASS_HASH
-                )
+                TestResource::Event(challenge_actions::e_ChallengeCreated::TEST_CLASS_HASH),
+                TestResource::Event(challenge_actions::e_ChallengeClaimed::TEST_CLASS_HASH),
+                TestResource::Event(challenge_actions::e_KingCrowned::TEST_CLASS_HASH),
+                TestResource::Contract(game_actions::TEST_CLASS_HASH),
+                TestResource::Contract(challenge_actions::TEST_CLASS_HASH)
             ].span()
         };
 

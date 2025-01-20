@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x41def24830081aceaddd26ecd520758189980fd12dc5bd0ecf2ffc2d063bb96",
-      "class_hash": "0x66c452970c871c2aa097c294a536f6302128456b67a30567ab50bda9347a06c",
+      "address": "0x497f9f1072e609f04705eaec8c3d7473f1196472f6965fb57e79aaf6d63cbda",
+      "class_hash": "0x1cefa179024739e1b9d5e3c32ca795e700d795d7c652f80b6c45f6baac5ccc9",
       "abi": [
         {
           "type": "impl",
@@ -1398,6 +1398,10 @@
             },
             {
               "name": "appchain_handler",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "appchain_jackpot",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
@@ -1556,8 +1560,8 @@
       ]
     },
     {
-      "address": "0x3d13098744ed302c07b9b0bfe1df8c25fb0720d84d6ac9f0efa05ca38a7be60",
-      "class_hash": "0x592e8d7696e1fd88ac4de2c982226f551dd24cf8bb3c590f1242728c2413c85",
+      "address": "0x13ea95d123dc83f9839ee834a3f3a2f8870893577c90487c0ab1670f45c2bf3",
+      "class_hash": "0x7e24cc1d5615f3b46f9e25dde48e6a864493fa2b39e706febe883d56e8747fd",
       "abi": [
         {
           "type": "impl",
@@ -1914,8 +1918,8 @@
       ]
     },
     {
-      "address": "0xf5cc3a27206253df5d9921e6982a298169c3a9f2ce47a2f7b9da033099733a",
-      "class_hash": "0x7036381b7a80fcccb9f344eb45c27503f66ad9416ea938ffcf769926993baf9",
+      "address": "0x2eef731de126da4487f581d454086e77b516609f49cf523205f0a2510e2b1ac",
+      "class_hash": "0x340591de18c7a99d69f6c5f0468b254d2f4d5149c1ec951499e0c74081fb871",
       "abi": [
         {
           "type": "impl",
@@ -1973,200 +1977,6 @@
           "interface_name": "nums_starknet::systems::message_handlers::IMessageHandlers"
         },
         {
-          "type": "struct",
-          "name": "nums_common::models::jackpot::KingOfTheHill",
-          "members": [
-            {
-              "name": "extension_time",
-              "type": "core::integer::u64"
-            },
-            {
-              "name": "remaining_slots",
-              "type": "core::integer::u8"
-            },
-            {
-              "name": "king",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "nums_common::models::jackpot::ConditionalVictory",
-          "members": [
-            {
-              "name": "slots_required",
-              "type": "core::integer::u8"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "nums_common::models::jackpot::JackpotMode",
-          "variants": [
-            {
-              "name": "KING_OF_THE_HILL",
-              "type": "nums_common::models::jackpot::KingOfTheHill"
-            },
-            {
-              "name": "CONDITIONAL_VICTORY",
-              "type": "nums_common::models::jackpot::ConditionalVictory"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::option::Option::<core::integer::u256>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "core::integer::u256"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "nums_common::token::TokenType",
-          "variants": [
-            {
-              "name": "ERC20",
-              "type": "()"
-            },
-            {
-              "name": "ERC721",
-              "type": "()"
-            },
-            {
-              "name": "ERC1155",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "nums_common::token::Token",
-          "members": [
-            {
-              "name": "id",
-              "type": "core::option::Option::<core::integer::u256>"
-            },
-            {
-              "name": "address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "ty",
-              "type": "nums_common::token::TokenType"
-            },
-            {
-              "name": "total",
-              "type": "core::integer::u256"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::option::Option::<nums_common::token::Token>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "nums_common::token::Token"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::option::Option::<core::starknet::contract_address::ContractAddress>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::bool",
-          "variants": [
-            {
-              "name": "False",
-              "type": "()"
-            },
-            {
-              "name": "True",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "nums_common::models::jackpot::Jackpot",
-          "members": [
-            {
-              "name": "id",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "title",
-              "type": "core::felt252"
-            },
-            {
-              "name": "creator",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "mode",
-              "type": "nums_common::models::jackpot::JackpotMode"
-            },
-            {
-              "name": "expiration",
-              "type": "core::integer::u64"
-            },
-            {
-              "name": "token",
-              "type": "core::option::Option::<nums_common::token::Token>"
-            },
-            {
-              "name": "winner",
-              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
-            },
-            {
-              "name": "claimed",
-              "type": "core::bool"
-            },
-            {
-              "name": "verified",
-              "type": "core::bool"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "nums_starknet::systems::message_handlers::IMessageHandlers",
           "items": [
@@ -2175,8 +1985,16 @@
               "name": "consume_claim_jackpot",
               "inputs": [
                 {
-                  "name": "jackpot",
-                  "type": "nums_common::models::jackpot::Jackpot"
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "jackpot_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "player",
+                  "type": "core::starknet::contract_address::ContractAddress"
                 }
               ],
               "outputs": [],
@@ -2311,7 +2129,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x52966062c5b98b3ebd977655362c0b9ca84825daa90d20f25f3e84ccacd2241",
+      "class_hash": "0x55eff1e7ec6bdf72957c311e496bcb361a0ed4b0b03f75019f43cf156400ef9",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -2323,7 +2141,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x4b316e8eb27f2df894df3e70b79fe8ccc6fa15aa840d1604d433e4ebf77bc7b",
+      "class_hash": "0x1493c5c7cbd8d8312fe5942a75566047782a5fc236aa241e2e406089d5f5c24",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
     }

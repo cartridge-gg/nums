@@ -35,6 +35,7 @@ fi
 # Find the address where tag = "nums-game_actions"
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
+MESSAGE_HANDLERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$JSON_FILE")
 
 if [ -z "$CONFIG_ACTIONS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-config_actions'"
@@ -55,8 +56,9 @@ if [ -z "$WORLD_ADDR" ]; then
 fi
 
 PILTOVER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
-APPCHAIN_HANDLER_ADDR="0x051b5fd6f4ecea87f700fb12ef9892ae964aa17e259c4c5a5a2316cc12022dd9"
-STARKNET_HANDLER_ADDR="0x00f5cc3a27206253df5d9921e6982a298169c3a9f2ce47a2f7b9da033099733a"
+APPCHAIN_HANDLER_ADDR="0x04f0c94dfa616a8d05fa55180c73d274289a8d3914bbdd2d582ebfcefcb504b8"
+APPCHAIN_JACKPOT_ADDR="0x07830ece5107a8443637384349ed4e1510fd3ea0a5c6ab09bcce9687bd323100"
+STARKNET_HANDLER_ADDR="0x02eef731de126da4487f581d454086e77b516609f49cf523205f0a2510e2b1ac"
 
 echo "Profile name: $PROFILE_NAME"
 
@@ -66,9 +68,9 @@ case "$COMMAND" in
         echo "Config actions address: $CONFIG_ACTIONS_ADDR"
         if [ -z "$TOKEN_ADDR" ]; then
             # no rewards
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_JACKPOT_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         else
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $PILTOVER_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_JACKPOT_ADDR $STARKNET_HANDLER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         fi
         ;;
     create_jackpot)
@@ -78,9 +80,14 @@ case "$COMMAND" in
         echo "Jackpot actions address: $JACKPOT_ACTIONS_ADDR"
         sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill $TITLE $EXPIRATION $EXTENSION_TIME 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    consume_claim)
+        echo "Jackpot actions address: $MESSAGE_HANDLERS_ADDR"
+        PLAYER=$3
+        sozo execute $MESSAGE_HANDLERS_ADDR consume_claim_jackpot 0 0 $PLAYER --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: set_config, create_jackpot"
+        echo "Available commands: set_config, create_jackpot, consume_claim_jackpot"
         exit 1
         ;;
 esac

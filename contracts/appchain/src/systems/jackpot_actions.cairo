@@ -70,26 +70,18 @@ pub mod jackpot_actions {
             assert(game.is_valid(@nums), 'invalid game state');
             assert(jackpot.can_claim(@nums), 'cannot claim jackpot');
 
-            jackpot.winner = Option::Some(game.player);
+            jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
             world.write_model(@jackpot);
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
 
-            let mut serialized: Array<felt252> = array![];
-            jackpot.serialize(ref serialized);
-
-            let mut payload: Array<felt252> = array![];
-            payload.append(config.starknet_handler.into());
-            let mut i: usize = 0;
-            loop {
-                if i >= serialized.len() {
-                    break;
-                }
-                payload.append(*serialized[i]);
-                i += 1;
-            };
             
-            send_message_to_l1_syscall(MSG_TO_L2_MAGIC, payload.span()).unwrap_syscall();
+            send_message_to_l1_syscall(MSG_TO_L2_MAGIC, array![
+                config.starknet_handler.into(), 
+                game_id.into(), 
+                jackpot.id.into(), 
+                player.into(),
+            ].span()).unwrap_syscall();
         }
     }
 }

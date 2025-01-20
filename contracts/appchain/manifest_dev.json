@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x4a2bb5a9785048a4b3936082b528a97beb89026eacd0273b9cb67eb33d57fe0",
-      "class_hash": "0x5915ade7192a4e1ca362151b65f2bc8a907fcefd84ab964fc5b9d6c03497f6f",
+      "address": "0x56dc3b8e4eab1d361d423eb9fccfc4748a44eec8da093d31928af3987a4e141",
+      "class_hash": "0x5cbffc82a8f0c8192457d2ccd598cee81471356aa815ff690248fa7d7f2b4b9",
       "abi": [
         {
           "type": "impl",
@@ -1517,8 +1517,8 @@
       ]
     },
     {
-      "address": "0x2bdd0c57a84cfcdf6fe03d4f2582ba82287a6618f62a6e71b0cba9e95b79e71",
-      "class_hash": "0x62fffb10fe4e75425782b58287aec5c6fd114a64e4d0542dc95f00f2ae5e022",
+      "address": "0x7830ece5107a8443637384349ed4e1510fd3ea0a5c6ab09bcce9687bd323100",
+      "class_hash": "0x53bd560293000e8ee55806743535f67ed41c4712da599269f860131fa1a321f",
       "abi": [
         {
           "type": "impl",
@@ -1725,8 +1725,8 @@
       ]
     },
     {
-      "address": "0x51b5fd6f4ecea87f700fb12ef9892ae964aa17e259c4c5a5a2316cc12022dd9",
-      "class_hash": "0x337e47f61ce736dc9fb8f676ce3653488b2d0e52755e9c567af3ece3e21f4f6",
+      "address": "0x4f0c94dfa616a8d05fa55180c73d274289a8d3914bbdd2d582ebfcefcb504b8",
+      "class_hash": "0xb7db65abd006ccec3865844e49534ec1a982c61e7c287c6e6215723913e824",
       "abi": [
         {
           "type": "impl",
@@ -2141,6 +2141,10 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
+              "name": "appchain_jackpot",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
               "name": "starknet_handler",
               "type": "core::starknet::contract_address::ContractAddress"
             },
@@ -2234,7 +2238,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x52966062c5b98b3ebd977655362c0b9ca84825daa90d20f25f3e84ccacd2241",
+      "class_hash": "0x55eff1e7ec6bdf72957c311e496bcb361a0ed4b0b03f75019f43cf156400ef9",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

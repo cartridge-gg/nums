@@ -58,8 +58,6 @@ pub impl JackpotModeImpl of JackpotModeTrait {
     }
 }
 
-
-
 #[generate_trait]
 pub impl JackpotImpl of JackpotTrait {
     /// Determines if the Jackpot can be claimed based on the current game state.

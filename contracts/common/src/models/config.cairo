@@ -6,8 +6,9 @@ pub struct Config {
     #[key]
     pub world_resource: felt252,
     pub messenger_address: ContractAddress, // piltover contract address
-    pub appchain_handler: ContractAddress, // appchain handler address
-    pub starknet_handler: ContractAddress, // starknet handler address
+    pub appchain_handler: ContractAddress, // appchain message handler address
+    pub appchain_jackpot: ContractAddress, // appchain jackpot contract address
+    pub starknet_handler: ContractAddress, // starknet message handler address
     pub game: Option<GameConfig>,
     pub reward: Option<SlotReward>,
 }

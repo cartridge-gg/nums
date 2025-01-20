@@ -32,10 +32,12 @@ if [ ! -f "$JSON_FILE" ]; then
     exit 1
 fi
 
-# Find the address where tag = "nums-game_actions"
+# Piltover address
+STARKNET_MESSENGER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
+
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
-MESSAGE_HANDLERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$JSON_FILE")
+MESSAGE_CONSUMERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_consumers") | .address' "$JSON_FILE")
 
 if [ -z "$CONFIG_ACTIONS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-config_actions'"
@@ -47,6 +49,11 @@ if [ -z "$JACKPOT_ACTIONS_ADDR" ]; then
     exit 1
 fi
 
+if [ -z "$MESSAGE_CONSUMERS_ADDR" ]; then
+    echo "Error: Could not find address for tag 'nums-message_consumers'"
+    exit 1
+fi
+
 WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
 
 # Check if WorldContract address was found
@@ -54,9 +61,6 @@ if [ -z "$WORLD_ADDR" ]; then
     echo "Error: Could not find WorldContract address"
     exit 1
 fi
-
-STARKNET_MESSENGER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
-STARKNET_CONSUMER_ADDR="0x05534f5e0d53fa29550fee451243f2b48b643b7bf98c904d3937b549e3812f52"
 
 APPCHAIN_DOJO_DIR="$SCRIPT_DIR/../../appchain"
 # Change to appchain directory
@@ -67,6 +71,16 @@ cd "$APPCHAIN_DOJO_DIR" || {
 
 APPCHAIN_HANDLER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$JSON_FILE")
 APPCHAIN_CLAIMER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
+
+if [ -z "$APPCHAIN_HANDLER_ADDR" ]; then
+    echo "Error: Could not find address for tag 'nums-message_handlers'"
+    exit 1
+fi
+
+if [ -z "$APPCHAIN_CLAIMER_ADDR" ]; then
+    echo "Error: Could not find address for tag 'nums-claim_actions'"
+    exit 1
+fi
 
 cd "$STARKNET_DOJO_DIR"
 
@@ -80,9 +94,9 @@ case "$COMMAND" in
         echo "Appchain claimer address: $APPCHAIN_CLAIMER_ADDR"
         if [ -z "$TOKEN_ADDR" ]; then
             # no rewards
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $STARKNET_CONSUMER_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         else
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $STARKNET_CONSUMER_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         fi
         ;;
     create_jackpot)
@@ -93,9 +107,9 @@ case "$COMMAND" in
         sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill $TITLE $EXPIRATION $EXTENSION_TIME 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     consume_claim)
-        echo "Jackpot actions address: $STARKNET_CONSUMER_ADDR"
+        echo "Consumer address: $MESSAGE_CONSUMERS_ADDR"
         PLAYER=$3
-        sozo execute $STARKNET_CONSUMER_ADDR consume_claim_jackpot $PLAYER 0 0 --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $MESSAGE_CONSUMERS_ADDR consume_claim_jackpot $PLAYER 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"

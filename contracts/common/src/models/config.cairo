@@ -7,6 +7,8 @@ pub struct Config {
     pub world_resource: felt252,
     pub starknet_messenger: ContractAddress, // piltover contract address
     pub starknet_consumer: ContractAddress, // starknet message handler address
+    pub starknet_config: ContractAddress, // starknet config actions address
+    pub starknet_jackpot: ContractAddress, // starknet jackpot actions address
     pub appchain_handler: ContractAddress, // appchain message handler address
     pub appchain_claimer: ContractAddress, // appchain jackpot contract address
     pub game: Option<GameConfig>,

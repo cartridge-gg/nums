@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x6929b087f853896a53ec4687e6e6b57af6421396de61760b36f5b416b6cf518",
-      "class_hash": "0x43db49a88a9a7f94559bbce90031bf68dfb880b21b3665a795eb71533c48ce6",
+      "address": "0x1650d054dc2e65255237aba6ef29928c5e0e4a1d394e29497c7c6c134127d9",
+      "class_hash": "0x104535c982a3e9e13ec69f95a1a3b2498f9f4c63f994c269e29ab171f548718",
       "abi": [
         {
           "type": "impl",
@@ -1460,8 +1460,8 @@
       ]
     },
     {
-      "address": "0x329f98941891df17b54ee1edeecb43dd10f821bdd99edc401c6f753e714adee",
-      "class_hash": "0x45ef0fa820ed3251c263c4c71e3f5d488af522ea8adec03a61d1ad13b06d9a5",
+      "address": "0x538a38d0b1df2d201c27d860247dcd20ca1b8dab7c4b2d610442939ec8b2163",
+      "class_hash": "0x641b3abc2f20457c447925a04afd069fc675afad8f8b21bbcd9510bc1e6ea4b",
       "abi": [
         {
           "type": "impl",
@@ -1725,8 +1725,8 @@
       ]
     },
     {
-      "address": "0x50e28eb36be2490e9ee6fd66cf8205e1548baf0d6a7e5942d3b2506ac785b51",
-      "class_hash": "0x1ce433e09db37ea1c9efadecfe8f7b4a725db9ec365d9a8e84b6f1c309361d6",
+      "address": "0x174cbe3185e02c136cba80409dc05c3712f355e791859e1cb79b8038c09a503",
+      "class_hash": "0x48f9ccea633e2f66405e0d7f05acc59a294a11551875e1bc17598552c5499a8",
       "abi": [
         {
           "type": "impl",
@@ -2141,6 +2141,14 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
+              "name": "starknet_config",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "starknet_jackpot",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
               "name": "appchain_handler",
               "type": "core::starknet::contract_address::ContractAddress"
             },
@@ -2238,7 +2246,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x21079347b113552ccdb4ed0f2120a118e071d7b6874072bbdba5f9b7d93dab4",
+      "class_hash": "0x5b1ca896898703b14f794e9de73be4a6345926ab2e45f9f64044e60ab3afbe2",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

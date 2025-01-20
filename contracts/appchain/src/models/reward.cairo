@@ -4,8 +4,9 @@ use starknet::ContractAddress;
 #[dojo::model]
 pub struct Reward {
     #[key]
-    pub game_id: u32,
-    #[key]
     pub player: ContractAddress,
-    pub total: u32
+    #[key]
+    pub game_id: u32,
+    pub amount: u16,
+    pub claimed: bool,
 }

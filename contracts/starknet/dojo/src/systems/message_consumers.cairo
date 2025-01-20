@@ -15,7 +15,7 @@ pub mod message_consumers {
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
-
+    use nums_starknet::interfaces::token::{INumsTokenDispatcher, INumsTokenDispatcherTrait};
     use dojo::model::ModelStorage;
 
     #[abi(embed_v0)]
@@ -52,6 +52,24 @@ pub mod message_consumers {
 
         fn consume_claim_reward(
             ref self: ContractState, player: ContractAddress, game_id: u32, amount: u16
-        ) {}
+        ) {
+            assert(player == starknet::get_caller_address(), 'caller is not the player');
+
+            let mut world = self.world(@"nums");
+            let config: Config = world.read_model(WORLD_RESOURCE);
+
+            let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
+                .consume_message_from_appchain(
+                    config.appchain_claimer,
+                    array![player.into(), game_id.into(), amount.into(),].span()
+                );
+
+            let message = Message { player, hash, destination: Destination::STARKNET, };
+            world.write_model(@message);
+
+            let reward = config.reward.expect('reward token not set');
+            INumsTokenDispatcher { contract_address: reward.token }.reward(player, amount);
+        }
     }
 }
+

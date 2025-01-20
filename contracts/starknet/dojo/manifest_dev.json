@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x7d8ac265bcd71c786c781256034165d7264730a6bd92d35be73a45a4ad1a742",
-      "class_hash": "0x69b30660199e26634a314cc0643056219fd1ddb185706c1caf3174f3d623fc7",
+      "address": "0x410f6b9a9aa45821803c8d27704ae01f70b839db1a2af287c64eb7c1b5b9c21",
+      "class_hash": "0xd58a8954f135c22eff3b383f6c7b51ccb25d8690aa932d3f7938163f0a7ded",
       "abi": [
         {
           "type": "impl",
@@ -1398,6 +1398,14 @@
             },
             {
               "name": "starknet_consumer",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "starknet_config",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "starknet_jackpot",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
@@ -1560,8 +1568,8 @@
       ]
     },
     {
-      "address": "0x1c54151845c80169f7f98c7cc1f28e6e7c1182dc0af677b4bbacc8abcdc023a",
-      "class_hash": "0x13ad20753ac5a70a69741f9e5e27c1a5945ef55120ea2970a15d9c82943b473",
+      "address": "0x7d3cf2de41b76dd97531b6867a07a934c69981f10db6b64ea199eccfeadefb",
+      "class_hash": "0x1fcfbd07981180f3fb42131a1b4c20af5c3240db3355a68c2b2474c8b0c0183",
       "abi": [
         {
           "type": "impl",
@@ -1918,8 +1926,8 @@
       ]
     },
     {
-      "address": "0x5534f5e0d53fa29550fee451243f2b48b643b7bf98c904d3937b549e3812f52",
-      "class_hash": "0x724b8b5d289a5f53d54617e67206a2e61f0c627acef95f1e9f48525698ce969",
+      "address": "0x1af5219a10e6f3001fd389f804a34a47768aae2ff821d8878fd19babe32f7ec",
+      "class_hash": "0x580b34291189ab6f9582fe6ce20ad92fbb120cda9ea97ea0c87822485b0191",
       "abi": [
         {
           "type": "impl",
@@ -2150,7 +2158,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x21079347b113552ccdb4ed0f2120a118e071d7b6874072bbdba5f9b7d93dab4",
+      "class_hash": "0x5b1ca896898703b14f794e9de73be4a6345926ab2e45f9f64044e60ab3afbe2",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

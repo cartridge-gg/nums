@@ -1,6 +1,6 @@
 #[starknet::interface]
 pub trait IClaimActions<T> {
-    fn claim_reward(ref self: T);
+    fn claim_reward(ref self: T, game_id: u32);
     fn claim_jackpot(ref self: T, game_id: u32);
 }
 
@@ -13,6 +13,7 @@ pub mod claim_actions {
 
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::slot::Slot;
+    use nums_appchain::models::reward::Reward;
     use nums_common::models::jackpot::{Jackpot, JackpotTrait};
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
@@ -31,9 +32,45 @@ pub mod claim_actions {
         player: ContractAddress,
     }
 
+    #[derive(Drop, Serde)]
+    #[dojo::event]
+    pub struct RewardClaimed {
+        #[key]
+        game_id: u32,
+        player: ContractAddress,
+        amount: u16,
+    }
+
     #[abi(embed_v0)]
     impl ClaimActionsImpl of IClaimActions<ContractState> {
-        fn claim_reward(ref self: ContractState) {}
+        fn claim_reward(ref self: ContractState, game_id: u32) {
+            let mut world = self.world(@"nums");
+            let player = starknet::get_caller_address();
+            let game: Game = world.read_model((game_id, player));
+            let config: Config = world.read_model(WORLD_RESOURCE);
+            assert!(game.player == player, "Unauthorized player");
+            assert!(game.finished, "Cannot claim unfinished game");
+
+            let mut reward: Reward = world.read_model((game_id, player));
+            assert!(reward.amount > 0, "No reward to claim");
+            assert!(!reward.claimed, "Reward already claimed");
+
+            reward.claimed = true;
+            world.write_model(@reward);
+            world.emit_event(@RewardClaimed { game_id, player, amount: reward.amount });
+
+            send_message_to_l1_syscall(
+                MSG_TO_L2_MAGIC,
+                array![
+                    config.starknet_consumer.into(),
+                    player.into(),
+                    game_id.into(),
+                    reward.amount.into(),
+                ]
+                    .span()
+            )
+                .unwrap_syscall();
+        }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that
         /// the jackpot has not been claimed before.

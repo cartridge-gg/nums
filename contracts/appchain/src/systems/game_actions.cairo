@@ -78,7 +78,7 @@ pub mod game_actions {
 
             if let Option::Some(reward_config) = config.reward {
                 assert!(reward_config.levels.len() > 0, "Reward levels not set");
-                world.write_model(@Reward { game_id, player, total: 0, });
+                world.write_model(@Reward { game_id, player, amount: 0, claimed: false });
             }
 
             world
@@ -128,7 +128,7 @@ pub mod game_actions {
             if let Option::Some(reward_config) = config.reward {
                 let (_, amount) = reward_config.compute(game.level());
                 let mut game_reward: Reward = world.read_model((game_id, player));
-                game_reward.total = amount.into();
+                game_reward.amount = amount;
                 world.write_model(@game_reward);
             }
         }

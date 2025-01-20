@@ -28,7 +28,7 @@ pub mod jackpot_actions {
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
 
-    use starknet::{get_contract_address, get_caller_address, get_block_timestamp, ContractAddress};
+    use starknet::{get_caller_address, get_block_timestamp};
     use super::IJackpotActions;
 
     #[derive(Drop, Serde)]
@@ -54,15 +54,7 @@ pub mod jackpot_actions {
 
             assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
             let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
-            self
-                ._create(
-                    title,
-                    mode,
-                    expiration,
-                    token,
-                    config.starknet_messenger,
-                    config.appchain_handler
-                )
+            self._create(title, mode, expiration, token)
         }
 
         fn create_king_of_the_hill(
@@ -87,15 +79,7 @@ pub mod jackpot_actions {
                     remaining_slots: game_config.max_slots,
                 }
             );
-            self
-                ._create(
-                    title,
-                    mode,
-                    expiration,
-                    token,
-                    config.starknet_messenger,
-                    config.appchain_handler
-                )
+            self._create(title, mode, expiration, token)
         }
 
         /// Verifies or unverifies a jackpot as legitimate.
@@ -123,9 +107,7 @@ pub mod jackpot_actions {
             title: felt252,
             mode: JackpotMode,
             expiration: u64,
-            token: Option<Token>,
-            starknet_messenger: ContractAddress,
-            appchain_handler: ContractAddress
+            token: Option<Token>
         ) -> u32 {
             if expiration > 0 {
                 assert!(expiration > get_block_timestamp(), "Expiration already passed")
@@ -148,21 +130,25 @@ pub mod jackpot_actions {
 
             world.write_model(@jackpot);
             world.emit_event(@JackpotCreated { jackpot_id: id, token });
+            let config: Config = world.read_model(WORLD_RESOURCE);
 
             if let Option::Some(token) = token {
                 assert(token.ty == TokenType::ERC20, 'only ERC20 supported');
                 assert(token.total.is_non_zero(), 'total cannot be zero');
 
+                // message_consumers.cairo is what will transfer jackpot
                 ITokenDispatcher { contract_address: token.address }
-                    .transferFrom(get_caller_address(), get_contract_address(), token.total);
+                    .transferFrom(
+                        get_caller_address(), config.starknet_consumer.clone(), token.total
+                    );
             }
 
             let mut payload: Array<felt252> = array![];
             jackpot.serialize(ref payload);
 
-            let (hash, _) = IMessagingDispatcher { contract_address: starknet_messenger }
+            let (hash, _) = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .send_message_to_appchain(
-                    appchain_handler, selector!("create_jackpot_handler"), payload.span(),
+                    config.appchain_handler, selector!("create_jackpot_handler"), payload.span(),
                 );
 
             let message = Message { player: creator, hash, destination: Destination::APPCHAIN, };

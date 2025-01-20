@@ -20,7 +20,6 @@ pub mod config_actions {
     #[abi(embed_v0)]
     impl ConfigActions of IConfigActions<ContractState> {
         fn set_config(ref self: ContractState, config: Config) {
-            let player = starknet::get_caller_address();
             let owner = starknet::get_caller_address();
             let mut world = self.world(@"nums");
 
@@ -39,7 +38,7 @@ pub mod config_actions {
                     payload.span(),
                 );
 
-            let message = Message { player, hash, destination: Destination::APPCHAIN, };
+            let message = Message { player: owner, hash, destination: Destination::APPCHAIN, };
             world.write_model(@message);
             world.write_model(@config);
         }

@@ -15,6 +15,7 @@ pub mod message_consumers {
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use nums_starknet::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums_starknet::interfaces::token::{INumsTokenDispatcher, INumsTokenDispatcherTrait};
     use dojo::model::ModelStorage;
 
@@ -44,10 +45,10 @@ pub mod message_consumers {
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
             world.write_model(@jackpot);
-            // if let Option::Some(token) = jackpot.token {
-        //     ITokenDispatcher { contract_address: token.address }
-        //         .transfer(game.player, token.total);
-        // }
+
+            if let Option::Some(token) = jackpot.token {
+                ITokenDispatcher { contract_address: token.address }.transfer(player, token.total);
+            }
         }
 
         fn consume_claim_reward(

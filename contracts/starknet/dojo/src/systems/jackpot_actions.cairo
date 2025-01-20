@@ -27,18 +27,17 @@ pub mod jackpot_actions {
     use core::num::traits::Zero;
     use nums_starknet::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums_starknet::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use nums_starknet::models::message::{Message, Destination};
     use nums_common::token::{Token, TokenType};
     use nums_common::models::jackpot::{Jackpot, JackpotMode, ConditionalVictory, KingOfTheHill};
     use nums_common::models::config::Config;
-
+    use nums_common::WORLD_RESOURCE;
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
 
     use starknet::{get_contract_address, get_caller_address, get_block_timestamp, ContractAddress};
     use super::IJackpotActions;
-
-    const WORLD: felt252 = 0;
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -58,12 +57,12 @@ pub mod jackpot_actions {
             token: Option<Token>,
         ) -> u32 {
             let mut world = self.world(@"nums");
-            let config: Config = world.read_model(WORLD);
+            let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('game config not set');
 
             assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
             let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
-            self._create(title, mode, expiration, token, config.messenger_address, config.appchain_handler)
+            self._create(title, mode, expiration, token, config.starknet_messenger, config.appchain_handler)
         }
 
         fn create_king_of_the_hill(
@@ -78,7 +77,7 @@ pub mod jackpot_actions {
             }
 
             let mut world = self.world(@"nums");
-            let config: Config = world.read_model(WORLD);
+            let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('game config not set');
 
             let mode = JackpotMode::KING_OF_THE_HILL(
@@ -88,7 +87,7 @@ pub mod jackpot_actions {
                     remaining_slots: game_config.max_slots,
                 }
             );
-            self._create(title, mode, expiration, token, config.messenger_address, config.appchain_handler)
+            self._create(title, mode, expiration, token, config.starknet_messenger, config.appchain_handler)
         }
 
         /// Verifies or unverifies a jackpot as legitimate.
@@ -101,7 +100,7 @@ pub mod jackpot_actions {
         fn verify(ref self: ContractState, jackpot_id: u32, verified: bool) {
             let mut world = self.world(@"nums");
             let owner = get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD, owner), "Unauthorized owner");
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
             let mut jackpot: Jackpot = world.read_model(jackpot_id);
             jackpot.verified = verified;
 
@@ -117,7 +116,7 @@ pub mod jackpot_actions {
             mode: JackpotMode,
             expiration: u64,
             token: Option<Token>,
-            messenger_address: ContractAddress,
+            starknet_messenger: ContractAddress,
             appchain_handler: ContractAddress
         ) -> u32 {
             if expiration > 0 {
@@ -153,11 +152,18 @@ pub mod jackpot_actions {
             let mut payload: Array<felt252> = array![];
             jackpot.serialize(ref payload);
             
-            IMessagingDispatcher { contract_address: messenger_address }.send_message_to_appchain(
+            let (hash, _) = IMessagingDispatcher { contract_address: starknet_messenger }.send_message_to_appchain(
                 appchain_handler,
                 selector!("create_jackpot_handler"),
                 payload.span(),
             );
+
+            let message = Message {
+                player: creator,
+                hash,
+                destination: Destination::APPCHAIN,
+            };
+            world.write_model(@message);
 
             id
         }

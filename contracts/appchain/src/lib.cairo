@@ -1,6 +1,6 @@
 pub mod systems {
     pub mod game_actions;
-    pub mod jackpot_actions;
+    pub mod claim_actions;
     pub mod message_handlers;
 }
 

@@ -1,12 +1,12 @@
 #[starknet::interface]
-pub trait IJackpotActions<T> {
+pub trait IClaimActions<T> {
     fn claim_reward(ref self: T);
     fn claim_jackpot(ref self: T, game_id: u32);
 }
 
 #[dojo::contract]
-pub mod jackpot_actions {
-    use super::IJackpotActions;
+pub mod claim_actions {
+    use super::IClaimActions;
     use core::array::ArrayTrait;
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
@@ -15,11 +15,10 @@ pub mod jackpot_actions {
     use nums_appchain::models::slot::Slot;
     use nums_common::models::jackpot::{Jackpot, JackpotTrait};
     use nums_common::models::config::Config;
+    use nums_common::WORLD_RESOURCE;
 
     use starknet::{ContractAddress, SyscallResultTrait};
     use starknet::syscalls::send_message_to_l1_syscall;
-
-    const WORLD: felt252 = 0;
     const MSG_TO_L2_MAGIC: felt252 = 'MSG';
 
     #[derive(Drop, Serde)]
@@ -33,7 +32,7 @@ pub mod jackpot_actions {
     }
 
     #[abi(embed_v0)]
-    impl JackpotActionsImpl of IJackpotActions<ContractState> {
+    impl ClaimActionsImpl of IClaimActions<ContractState> {
         fn claim_reward(ref self: ContractState) {}
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that
@@ -46,7 +45,7 @@ pub mod jackpot_actions {
             let mut world = self.world(@"nums");
             let player = starknet::get_caller_address();
             let game: Game = world.read_model((game_id, player));
-            let config: Config = world.read_model(WORLD);
+            let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('game config not set');
             let jackpot_id = game.jackpot_id.expect('jackpot not defined');
             let mut jackpot: Jackpot = world.read_model(jackpot_id);
@@ -75,12 +74,11 @@ pub mod jackpot_actions {
             world.write_model(@jackpot);
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
 
-            
             send_message_to_l1_syscall(MSG_TO_L2_MAGIC, array![
-                config.starknet_handler.into(), 
+                config.starknet_consumer.into(), 
+                player.into(),
                 game_id.into(), 
                 jackpot.id.into(), 
-                player.into(),
             ].span()).unwrap_syscall();
         }
     }

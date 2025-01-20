@@ -26,7 +26,7 @@ fi
 
 # Find the address where tag = "nums-game_actions"
 GAME_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-game_actions") | .address' "$JSON_FILE")
-JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
+CLAIM_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
 
 if [ -z "$GAME_ACTIONS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-game_actions'"
@@ -62,7 +62,7 @@ case "$COMMAND" in
     claim_jackpot)
         GAME_ID=$3
         echo "Claiming jackpot for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR claim_jackpot $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $CLAIM_ACTIONS_ADDR claim_jackpot $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"

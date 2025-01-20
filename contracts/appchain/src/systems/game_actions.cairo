@@ -13,6 +13,7 @@ pub mod game_actions {
     use nums_common::models::jackpot::{Jackpot, JackpotMode};
     use nums_common::models::config::{Config, SlotRewardTrait};
     use nums_common::random::{Random, RandomImpl};
+    use nums_common::WORLD_RESOURCE;
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::reward::Reward;
     use nums_appchain::models::slot::Slot;
@@ -23,8 +24,6 @@ pub mod game_actions {
 
     use starknet::{ContractAddress, get_caller_address};
     use super::IGameActions;
-
-    const WORLD: felt252 = 0;
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -70,7 +69,7 @@ pub mod game_actions {
         /// A tuple containing the game ID and the first random number for the game.
         fn create_game(ref self: ContractState, jackpot_id: Option<u32>) -> (u32, u16) {
             let mut world = self.world(@"nums");
-            let config: Config = world.read_model(WORLD);
+            let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('Game config not set');
 
             let game_id = world.dispatcher.uuid();
@@ -131,7 +130,7 @@ pub mod game_actions {
             game.finished = true;
             world.write_model(@game);
 
-            let config: Config = world.read_model(WORLD);
+            let config: Config = world.read_model(WORLD_RESOURCE);
 
             // Slot reward
             if let Option::Some(reward_config) = config.reward {

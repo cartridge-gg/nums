@@ -1252,8 +1252,216 @@
   },
   "contracts": [
     {
-      "address": "0x56dc3b8e4eab1d361d423eb9fccfc4748a44eec8da093d31928af3987a4e141",
-      "class_hash": "0x5cbffc82a8f0c8192457d2ccd598cee81471356aa815ff690248fa7d7f2b4b9",
+      "address": "0x6929b087f853896a53ec4687e6e6b57af6421396de61760b36f5b416b6cf518",
+      "class_hash": "0x43db49a88a9a7f94559bbce90031bf68dfb880b21b3665a795eb71533c48ce6",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "claim_actions__ContractImpl",
+          "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "claim_actions__DeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
+        },
+        {
+          "type": "struct",
+          "name": "core::byte_array::ByteArray",
+          "members": [
+            {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+              "name": "pending_word",
+              "type": "core::felt252"
+            },
+            {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::meta::interface::IDeployedResource",
+          "items": [
+            {
+              "type": "function",
+              "name": "dojo_name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "ClaimActionsImpl",
+          "interface_name": "nums_appchain::systems::claim_actions::IClaimActions"
+        },
+        {
+          "type": "interface",
+          "name": "nums_appchain::systems::claim_actions::IClaimActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "claim_reward",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "claim_jackpot",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
+        },
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::iworld::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::world_provider::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world_dispatcher",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::iworld::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradeableImpl",
+          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "constructor",
+          "name": "constructor",
+          "inputs": []
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
+          "name": "nums_appchain::systems::claim_actions::claim_actions::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+              "kind": "nested"
+            },
+            {
+              "name": "WorldProviderEvent",
+              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "init_calldata": [],
+      "tag": "nums-claim_actions",
+      "selector": "0x3b1c88d497d2baa39da6ca44d1ddd75ac5fc782b723e92dcc01c9f56b15a057",
+      "systems": [
+        "claim_reward",
+        "claim_jackpot",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x329f98941891df17b54ee1edeecb43dd10f821bdd99edc401c6f753e714adee",
+      "class_hash": "0x45ef0fa820ed3251c263c4c71e3f5d488af522ea8adec03a61d1ad13b06d9a5",
       "abi": [
         {
           "type": "impl",
@@ -1517,216 +1725,8 @@
       ]
     },
     {
-      "address": "0x7830ece5107a8443637384349ed4e1510fd3ea0a5c6ab09bcce9687bd323100",
-      "class_hash": "0x53bd560293000e8ee55806743535f67ed41c4712da599269f860131fa1a321f",
-      "abi": [
-        {
-          "type": "impl",
-          "name": "jackpot_actions__ContractImpl",
-          "interface_name": "dojo::contract::interface::IContract"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::interface::IContract",
-          "items": []
-        },
-        {
-          "type": "impl",
-          "name": "jackpot_actions__DeployedContractImpl",
-          "interface_name": "dojo::meta::interface::IDeployedResource"
-        },
-        {
-          "type": "struct",
-          "name": "core::byte_array::ByteArray",
-          "members": [
-            {
-              "name": "data",
-              "type": "core::array::Array::<core::bytes_31::bytes31>"
-            },
-            {
-              "name": "pending_word",
-              "type": "core::felt252"
-            },
-            {
-              "name": "pending_word_len",
-              "type": "core::integer::u32"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::meta::interface::IDeployedResource",
-          "items": [
-            {
-              "type": "function",
-              "name": "dojo_name",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "JackpotActionsImpl",
-          "interface_name": "nums_appchain::systems::jackpot_actions::IJackpotActions"
-        },
-        {
-          "type": "interface",
-          "name": "nums_appchain::systems::jackpot_actions::IJackpotActions",
-          "items": [
-            {
-              "type": "function",
-              "name": "claim_reward",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "claim_jackpot",
-              "inputs": [
-                {
-                  "name": "game_id",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
-        },
-        {
-          "type": "impl",
-          "name": "WorldProviderImpl",
-          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
-        },
-        {
-          "type": "struct",
-          "name": "dojo::world::iworld::IWorldDispatcher",
-          "members": [
-            {
-              "name": "contract_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::world_provider::IWorldProvider",
-          "items": [
-            {
-              "type": "function",
-              "name": "world_dispatcher",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "dojo::world::iworld::IWorldDispatcher"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "UpgradeableImpl",
-          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::upgradeable::IUpgradeable",
-          "items": [
-            {
-              "type": "function",
-              "name": "upgrade",
-              "inputs": [
-                {
-                  "name": "new_class_hash",
-                  "type": "core::starknet::class_hash::ClassHash"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "constructor",
-          "name": "constructor",
-          "inputs": []
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-          "kind": "struct",
-          "members": [
-            {
-              "name": "class_hash",
-              "type": "core::starknet::class_hash::ClassHash",
-              "kind": "data"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "Upgraded",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-              "kind": "nested"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
-          "name": "nums_appchain::systems::jackpot_actions::jackpot_actions::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "UpgradeableEvent",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-              "kind": "nested"
-            },
-            {
-              "name": "WorldProviderEvent",
-              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-              "kind": "nested"
-            }
-          ]
-        }
-      ],
-      "init_calldata": [],
-      "tag": "nums-jackpot_actions",
-      "selector": "0x54db86b66f3061f4a01801b930c1aede2b50f8aec7607f687dd93331753f65f",
-      "systems": [
-        "claim_reward",
-        "claim_jackpot",
-        "upgrade"
-      ]
-    },
-    {
-      "address": "0x4f0c94dfa616a8d05fa55180c73d274289a8d3914bbdd2d582ebfcefcb504b8",
-      "class_hash": "0xb7db65abd006ccec3865844e49534ec1a982c61e7c287c6e6215723913e824",
+      "address": "0x50e28eb36be2490e9ee6fd66cf8205e1548baf0d6a7e5942d3b2506ac785b51",
+      "class_hash": "0x1ce433e09db37ea1c9efadecfe8f7b4a725db9ec365d9a8e84b6f1c309361d6",
       "abi": [
         {
           "type": "impl",
@@ -2133,7 +2133,11 @@
               "type": "core::felt252"
             },
             {
-              "name": "messenger_address",
+              "name": "starknet_messenger",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "starknet_consumer",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
@@ -2141,11 +2145,7 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
-              "name": "appchain_jackpot",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "starknet_handler",
+              "name": "appchain_claimer",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
@@ -2238,7 +2238,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x55eff1e7ec6bdf72957c311e496bcb361a0ed4b0b03f75019f43cf156400ef9",
+      "class_hash": "0x21079347b113552ccdb4ed0f2120a118e071d7b6874072bbdba5f9b7d93dab4",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -2282,7 +2282,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x117b1ea39e9fe92a4c74d3b00d2eeeece00c455ea7f6f1663db7efb332723e",
+      "class_hash": "0x15720a6a20c8c1a5a83bf272ac2e13f6c2d934d7056e7196a1c09e0cb630c31",
       "tag": "nums-JackpotClaimed",
       "selector": "0x175ae38739f53db95298ea994d0391bb4f789681601f4cf16fdc20414bff6f"
     },

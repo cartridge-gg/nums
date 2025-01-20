@@ -4,7 +4,7 @@
 if [ $# -lt 2 ]; then
     echo "Error: Please provide a command and a profile name"
     echo "Usage: $0 <command> <profile_name>"
-    echo "Commands: create_game, set_slot, king_me"
+    echo "Commands: create_game, end_game, set_slot, king_me, claim_jackpot, claim_reward"
     exit 1
 fi
 
@@ -54,6 +54,11 @@ case "$COMMAND" in
         echo "Setting slot for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR set_slot $GAME_ID $SLOT_IDX --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    end_game)
+        GAME_ID=$3
+        echo "Ending game for profile: $PROFILE_NAME"
+        sozo execute $GAME_ACTIONS_ADDR end_game $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     king_me)
         GAME_ID=$3
         echo "Kinging me for profile: $PROFILE_NAME"
@@ -64,9 +69,14 @@ case "$COMMAND" in
         echo "Claiming jackpot for profile: $PROFILE_NAME"
         sozo execute $CLAIM_ACTIONS_ADDR claim_jackpot $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    claim_reward)
+        GAME_ID=$3
+        echo "Claiming reward for profile: $PROFILE_NAME"
+        sozo execute $CLAIM_ACTIONS_ADDR claim_reward $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: create_game, set_slot, king_me, claim_jackpot"
+        echo "Available commands: create_game, set_slot, king_me, claim_jackpot, claim_reward"
         exit 1
         ;;
 esac

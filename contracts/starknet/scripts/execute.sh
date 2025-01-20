@@ -11,7 +11,6 @@ fi
 # Get the command and profile name from the command line arguments
 COMMAND="$1"
 PROFILE_NAME="$2"
-TOKEN_ADDR="$3"
 
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -34,6 +33,7 @@ fi
 
 # Piltover address
 STARKNET_MESSENGER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
+NUMS_TOKEN_ADDR="0x7bdfb419c6b7f6a5129eadac541a5b7f30f9a1acea302b89eb9dbc56472a64c"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -92,12 +92,7 @@ case "$COMMAND" in
         echo "Config actions address: $CONFIG_ACTIONS_ADDR"
         echo "Appchain handler address: $APPCHAIN_HANDLER_ADDR"
         echo "Appchain claimer address: $APPCHAIN_CLAIMER_ADDR"
-        if [ -z "$TOKEN_ADDR" ]; then
-            # no rewards
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
-        else
-            sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
-        fi
+        sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $NUMS_TOKEN_ADDR 9 10 1 13 2 14 4 15 8 16 16 17 32 18 64 19 128 20 256 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         ;;
     create_jackpot)
         TITLE="0x4e756d73204a61636b706f74" # "Nums Jackpot"
@@ -106,14 +101,19 @@ case "$COMMAND" in
         echo "Jackpot actions address: $JACKPOT_ACTIONS_ADDR"
         sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill $TITLE $EXPIRATION $EXTENSION_TIME 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
-    consume_claim)
+    consume_claim_jackpot)
         echo "Consumer address: $MESSAGE_CONSUMERS_ADDR"
         PLAYER=$3
-        sozo execute $MESSAGE_CONSUMERS_ADDR consume_claim_jackpot $PLAYER 1 1 --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $MESSAGE_CONSUMERS_ADDR consume_claim_jackpot $PLAYER 0 0 --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
+    consume_claim_reward)
+        echo "Consumer address: $MESSAGE_CONSUMERS_ADDR"
+        PLAYER=$3
+        sozo execute $MESSAGE_CONSUMERS_ADDR consume_claim_reward $PLAYER 0 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: set_config, create_jackpot, consume_claim_jackpot"
+        echo "Available commands: set_config, create_jackpot, consume_claim_jackpot, consume_claim_reward"
         exit 1
         ;;
 esac

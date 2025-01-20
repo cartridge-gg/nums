@@ -127,7 +127,7 @@ pub mod game_actions {
             // Slot reward
             if let Option::Some(reward_config) = config.reward {
                 let (_, amount) = reward_config.compute(game.level());
-                let mut game_reward: Reward = world.read_model((game_id, player));
+                let mut game_reward: Reward = world.read_model((player, game_id));
                 game_reward.amount = amount;
                 world.write_model(@game_reward);
             }

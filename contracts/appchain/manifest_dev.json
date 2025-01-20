@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x1650d054dc2e65255237aba6ef29928c5e0e4a1d394e29497c7c6c134127d9",
-      "class_hash": "0x104535c982a3e9e13ec69f95a1a3b2498f9f4c63f994c269e29ab171f548718",
+      "address": "0x457febc8b38d0db05555867332f06dcb1c105711375e1a222eada1cbd26025a",
+      "class_hash": "0x8d1d9fb1dd4a2cbb89872840100dbee84688ff5eb02bcd33c9bd8d6efe6292",
       "abi": [
         {
           "type": "impl",
@@ -1317,7 +1317,12 @@
             {
               "type": "function",
               "name": "claim_reward",
-              "inputs": [],
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
               "outputs": [],
               "state_mutability": "external"
             },
@@ -1460,8 +1465,8 @@
       ]
     },
     {
-      "address": "0x538a38d0b1df2d201c27d860247dcd20ca1b8dab7c4b2d610442939ec8b2163",
-      "class_hash": "0x641b3abc2f20457c447925a04afd069fc675afad8f8b21bbcd9510bc1e6ea4b",
+      "address": "0x5236d76954ca164762c5c6ced1f25b4ef07c1e891fc198dbb207e967ced8cad",
+      "class_hash": "0x6da66ea8dd24f5745d07522c6fdf643b88ff4c8cabfa3470487f7d53004b3e2",
       "abi": [
         {
           "type": "impl",
@@ -2264,7 +2269,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x1e841c46c1232d82c79a29d760c41e104d8711626defac2323dbc0b8ee4683f",
+      "class_hash": "0x5cf0837b167019faad13d004741f6ec349790e4cb75840ab90b67c3c1410ac3",
       "tag": "nums-Reward",
       "selector": "0x5a0970e88008f6a6d156290eb5c5b0f662011fcd7080e8882b16772710da827"
     },
@@ -2299,6 +2304,12 @@
       "class_hash": "0x76344e07f068d0223308dddfbc23cbe39a6aac152646c1934886fe47fa721c6",
       "tag": "nums-KingCrowned",
       "selector": "0x7d4f8f724ffe9ff34050a58ee7ba63e5277fff6f3731f3606e96c64c46d7959"
+    },
+    {
+      "members": [],
+      "class_hash": "0x34719dae954c4085b320a454b08996c92701727a9353df328385978a3d41718",
+      "tag": "nums-RewardClaimed",
+      "selector": "0x50747aeeb809b835b94582572edbc2834497b6ba5c8164e857352ac6c0ef959"
     }
   ]
 }

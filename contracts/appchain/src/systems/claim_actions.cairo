@@ -51,7 +51,7 @@ pub mod claim_actions {
             assert!(game.player == player, "Unauthorized player");
             assert!(game.finished, "Cannot claim unfinished game");
 
-            let mut reward: Reward = world.read_model((game_id, player));
+            let mut reward: Reward = world.read_model((player, game_id));
             assert!(reward.amount > 0, "No reward to claim");
             assert!(!reward.claimed, "Reward already claimed");
 

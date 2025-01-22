@@ -44,9 +44,8 @@ fi
 # Execute commands based on the provided command
 case "$COMMAND" in
     create_game)
-        JACKPOT_ID=$3
         echo "Creating game for profile: $PROFILE_NAME"
-        sozo execute $GAME_ACTIONS_ADDR create_game 0 $JACKPOT_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $GAME_ACTIONS_ADDR create_game 1 --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     set_slot)
         GAME_ID=$3

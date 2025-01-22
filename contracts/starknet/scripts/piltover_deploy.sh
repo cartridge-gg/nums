@@ -9,7 +9,7 @@ cd "$PILTOVER_DIR" || {
 }
 
 PILTOVER_CLASS_ADDR="0x0034c8b964ac018ee916398fdb59b5d1ad5946f23309bdac7b22db25b6c3e879"
-STARKNET_L2_RPC="http://0.0.0.0:2222"
+STARKNET_L2_RPC="https://api.cartridge.gg/x/nums-starknet/katana"
 
 starkli declare target/dev/piltover_appchain.contract_class.json --rpc $STARKNET_L2_RPC --account katana-0 --compiler-version 2.8.5
 sleep 1

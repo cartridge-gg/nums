@@ -39,7 +39,7 @@ const GameQuery = graphql(`
     numsRewardModels(where: { game_id: $gameId }) {
       edges {
         node {
-          total
+          amount
         }
       }
     }
@@ -66,9 +66,8 @@ const Game = () => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [numRange, setNumRange] = useState<string>();
-  const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
-  const [totalRewards, setTotalRewards] = useState<number | null>(null);
-  const [nextReward] = useState<number | null>(null);
+  // const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
+  // const [nextReward] = useState<number | null>(null);
   const { chain } = useNetwork();
   const explorer = useExplorer();
   const { account } = useAccount();
@@ -90,7 +89,7 @@ const Game = () => {
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
-    const rewardsModel = queryResult.data?.numsRewardModels?.edges?.[0]?.node;
+    //const rewardsModel = queryResult.data?.numsRewardModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
     if (!gamesModel || !slotsEdges) {
       return;
@@ -117,10 +116,10 @@ const Game = () => {
 
     setSlots(newSlots);
 
-    if (rewardsModel) {
-      setIsRewardsActive(true);
-      setTotalRewards(rewardsModel.total as number);
-    }
+    // if (rewardsModel) {
+    //   setIsRewardsActive(true);
+    //   setTotalRewards(rewardsModel.total as number);
+    // }
 
     setIsLoading(false);
     dismiss();
@@ -254,7 +253,7 @@ const Game = () => {
                   [ {isRewardsActive ? "ACTIVE" : "INACTIVE"} ]
                 </Heading> 
               </HStack>*/}
-              {isRewardsActive && (
+              {/* {isRewardsActive && (
                 <>
                   <Text>
                     Next: <strong>{nextReward}</strong>
@@ -263,7 +262,7 @@ const Game = () => {
                     Total Earned: <strong>{totalRewards}</strong>
                   </Text>
                 </>
-              )}
+              )} */}
             </VStack>
           </VStack>
         </SimpleGrid>

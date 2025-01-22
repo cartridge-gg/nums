@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useExplorer } from "@starknet-react/core";
 import useToast from "../hooks/toast";
+import { hash } from "starknet";
 
 const Create = () => {
   const { address, account, connector } = useAccount();
@@ -45,14 +46,10 @@ const Create = () => {
         retryInterval: 500,
       });
 
-      // Parses for game idea from `GameCreated` event
       if (receipt.isSuccess()) {
         console.log({ receipt });
         const createdEvent = receipt.events.find(
-          // no idea what this key is, previously it would've been hash of `GameCreated`
-          ({ keys }) =>
-            keys[0] ===
-            "0x1a2f334228cee715f1f0f54053bb6b5eac54fa336e0bc1aacf7516decb0471d",
+          ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
         );
 
         navigate(`/${createdEvent?.data[1]}`);

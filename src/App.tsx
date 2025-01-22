@@ -11,7 +11,7 @@ import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions } from "@cartridge/controller";
 import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { constants, num, shortString } from "starknet";
+import { num, shortString } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
 
 const provider = jsonRpcProvider({
@@ -21,8 +21,8 @@ const provider = jsonRpcProvider({
         return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
       case sepolia:
         return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
-      case slot:
-        return { nodeUrl: import.meta.env.VITE_SLOT_RPC_URL };
+      case appchain:
+        return { nodeUrl: import.meta.env.VITE_APPCHAIN_RPC_URL };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -55,11 +55,11 @@ const policies: SessionPolicies = {
 
 const options: ControllerOptions = {
   policies,
-  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  defaultChainId: shortString.encodeShortString("WP_NUMS_APPCHAIN"),
   chains: [
     { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
     { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_SLOT_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -68,13 +68,13 @@ const options: ControllerOptions = {
 
 const connectors = [new ControllerConnector(options) as never as Connector];
 
-const slot: Chain = {
-  id: num.toBigInt(shortString.encodeShortString("WP_NUMS_SLOT")),
-  network: "slot",
+const appchain: Chain = {
+  id: num.toBigInt(shortString.encodeShortString("WP_NUMS_APPCHAIN")),
+  network: "appchain",
   name: "Nums Chain",
   rpcUrls: {
-    default: import.meta.env.VITE_SLOT_RPC_URL,
-    public: import.meta.env.VITE_SLOT_RPC_URL,
+    default: import.meta.env.VITE_APPCHAIN_RPC_URL,
+    public: import.meta.env.VITE_APPCHAIN_RPC_URL,
   },
   nativeCurrency: {
     name: "Ethereum",
@@ -88,7 +88,7 @@ function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[sepolia, mainnet, slot]}
+      chains={[appchain, sepolia, mainnet]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

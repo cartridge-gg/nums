@@ -68,6 +68,7 @@ const Game = () => {
   const [numRange, setNumRange] = useState<string>();
   // const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
   // const [nextReward] = useState<number | null>(null);
+  const [rewards, setRewards] = useState<number>(0);
   const { chain } = useNetwork();
   const explorer = useExplorer();
   const { account } = useAccount();
@@ -89,7 +90,7 @@ const Game = () => {
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
-    //const rewardsModel = queryResult.data?.numsRewardModels?.edges?.[0]?.node;
+    const rewardsModel = queryResult.data?.numsRewardModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
     if (!gamesModel || !slotsEdges) {
       return;
@@ -116,10 +117,9 @@ const Game = () => {
 
     setSlots(newSlots);
 
-    // if (rewardsModel) {
-    //   setIsRewardsActive(true);
-    //   setTotalRewards(rewardsModel.total as number);
-    // }
+    if (rewardsModel) {
+      setRewards(rewardsModel.amount as number);
+    }
 
     setIsLoading(false);
     dismiss();
@@ -237,6 +237,9 @@ const Game = () => {
               <Text>Number Range: {numRange}</Text>
               <Text>
                 Remaining Slots: <strong>{remaining}</strong>
+              </Text>
+              <Text>
+                $NUMS Earned: <strong>{rewards}</strong>
               </Text>
               <br />
               {/*<HStack mb="10px">

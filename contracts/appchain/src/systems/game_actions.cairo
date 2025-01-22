@@ -52,6 +52,16 @@ pub mod game_actions {
 
     #[derive(Drop, Serde)]
     #[dojo::event]
+    pub struct GameEnded {
+        #[key]
+        game_id: u32,
+        #[key]
+        player: ContractAddress,
+        remaining_slots: u8
+    }
+
+    #[derive(Drop, Serde)]
+    #[dojo::event]
     pub struct KingCrowned {
         #[key]
         game_id: u32,
@@ -122,15 +132,12 @@ pub mod game_actions {
             game.finished = true;
             world.write_model(@game);
 
-            let config: Config = world.read_model(WORLD_RESOURCE);
-
-            // Slot reward
-            if let Option::Some(reward_config) = config.reward {
-                let (_, amount) = reward_config.compute(game.level());
-                let mut game_reward: Reward = world.read_model((player, game_id));
-                game_reward.amount = amount;
-                world.write_model(@game_reward);
-            }
+            world
+                .emit_event(
+                    @GameEnded {
+                        game_id, player, remaining_slots: game.remaining_slots
+                    }
+                );
         }
 
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
@@ -186,6 +193,16 @@ pub mod game_actions {
 
             world.write_model(@game);
             world.write_model(@Slot { game_id, player, index: target_idx, number: target_number });
+
+            let config: Config = world.read_model(WORLD_RESOURCE);
+
+            // Slot reward
+            if let Option::Some(reward_config) = config.reward {
+                let (_, amount) = reward_config.compute(game.level());
+                let mut game_reward: Reward = world.read_model((player, game_id));
+                game_reward.amount += amount;
+                world.write_model(@game_reward);
+            }
 
             world
                 .emit_event(

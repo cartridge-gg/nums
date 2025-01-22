@@ -7,6 +7,6 @@ pub struct Reward {
     pub player: ContractAddress,
     #[key]
     pub game_id: u32,
-    pub amount: u16,
+    pub amount: u32,
     pub claimed: bool,
 }

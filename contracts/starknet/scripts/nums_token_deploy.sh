@@ -8,7 +8,7 @@ cd "$STARKNET_DOJO_DIR" || {
     exit 1
 }
 
-MESSAGE_CONSUMERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_consumers") | .address' "manifest_dev.json")
+MESSAGE_CONSUMERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_consumers") | .address' "manifest_slot.json")
 
 if [ -z "$MESSAGE_CONSUMERS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-message_consumers'"

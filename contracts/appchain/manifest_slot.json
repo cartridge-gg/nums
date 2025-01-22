@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x457febc8b38d0db05555867332f06dcb1c105711375e1a222eada1cbd26025a",
-      "class_hash": "0x8d1d9fb1dd4a2cbb89872840100dbee84688ff5eb02bcd33c9bd8d6efe6292",
+      "address": "0x61eff9292f8378225d06c98fea1a5f8516bd6d96ede36422983626372e7c26f",
+      "class_hash": "0x6d94d172d90d975de863f64d98203081b9d3158ca8b59ce6c95d76810a6e6e7",
       "abi": [
         {
           "type": "impl",
@@ -1465,8 +1465,8 @@
       ]
     },
     {
-      "address": "0x5236d76954ca164762c5c6ced1f25b4ef07c1e891fc198dbb207e967ced8cad",
-      "class_hash": "0x3ac0fbf9a40ccc2fe86ed7cc4caaeb690824b6f58baae27193ed4068794bd77",
+      "address": "0x485bd85a3018dc229f0b74fe5ea46f58885f78a0e62e6d28cd93117b0998f7b",
+      "class_hash": "0xb7b3bea2da863abf53429c93bdcfbbc1e0a58bab7a61d09568a84b4863449c",
       "abi": [
         {
           "type": "impl",
@@ -1730,8 +1730,8 @@
       ]
     },
     {
-      "address": "0x174cbe3185e02c136cba80409dc05c3712f355e791859e1cb79b8038c09a503",
-      "class_hash": "0x48f9ccea633e2f66405e0d7f05acc59a294a11551875e1bc17598552c5499a8",
+      "address": "0x38e1340df982ea6a315ab79406d637a0d9e9aecd08a8bcd52b8c9b8840eeb47",
+      "class_hash": "0x7beb575cf497de58afec9a8a0f1fc823aa7ff143a14079abc9bdbd8668c2bc6",
       "abi": [
         {
           "type": "impl",
@@ -2097,7 +2097,7 @@
             },
             {
               "name": "amount",
-              "type": "core::integer::u16"
+              "type": "core::integer::u32"
             }
           ]
         },
@@ -2251,7 +2251,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x5b1ca896898703b14f794e9de73be4a6345926ab2e45f9f64044e60ab3afbe2",
+      "class_hash": "0x4b936c252df908820e1e998ba95a89036f3dc06ac0d057bf4e7dc197f89d82d",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -2269,7 +2269,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x5cf0837b167019faad13d004741f6ec349790e4cb75840ab90b67c3c1410ac3",
+      "class_hash": "0x689ad76f9d35aee84b95a4d6ce5e3ae4fa959767b15410755e9001273f90458",
       "tag": "nums-Reward",
       "selector": "0x5a0970e88008f6a6d156290eb5c5b0f662011fcd7080e8882b16772710da827"
     },
@@ -2313,7 +2313,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x34719dae954c4085b320a454b08996c92701727a9353df328385978a3d41718",
+      "class_hash": "0xa2826cf284cabb084cf621f758e989446157c7cede143e55ad20ff883968f9",
       "tag": "nums-RewardClaimed",
       "selector": "0x50747aeeb809b835b94582572edbc2834497b6ba5c8164e857352ac6c0ef959"
     }

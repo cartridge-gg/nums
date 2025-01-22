@@ -38,7 +38,7 @@ pub mod claim_actions {
         #[key]
         game_id: u32,
         player: ContractAddress,
-        amount: u16,
+        amount: u32,
     }
 
     #[abi(embed_v0)]

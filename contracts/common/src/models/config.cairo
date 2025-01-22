@@ -31,7 +31,7 @@ pub struct SlotReward {
 #[derive(Copy, Drop, Serde, Introspect)]
 pub struct RewardLevel {
     pub level: u8,
-    pub amount: u16,
+    pub amount: u32,
 }
 
 #[generate_trait]
@@ -56,7 +56,7 @@ pub impl SlotRewardImpl of SlotRewardTrait {
     /// in the vector represents the reward for all levels up to and including the specified level.
     /// It iterates through the reward levels to find the appropriate reward for the given level.
     /// If no reward is configured, it returns (None, 0).
-    fn compute(self: @SlotReward, level: u8) -> (ContractAddress, u16) {
+    fn compute(self: @SlotReward, level: u8) -> (ContractAddress, u32) {
         let levels_len = self.levels.len();
         let mut i = 0;
         let mut amount = 0;

@@ -2,7 +2,6 @@
 pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
-    fn end_game(ref self: T, game_id: u32);
     fn king_me(ref self: T, game_id: u32);
 }
 
@@ -14,7 +13,7 @@ pub mod game_actions {
     use nums_common::random::{Random, RandomImpl};
     use nums_common::WORLD_RESOURCE;
     use nums_appchain::models::game::{Game, GameTrait};
-    use nums_appchain::models::reward::Reward;
+    use nums_appchain::models::totals::Totals;
     use nums_appchain::models::slot::Slot;
 
     use dojo::model::ModelStorage;
@@ -86,11 +85,6 @@ pub mod game_actions {
             let mut rand = RandomImpl::new();
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
 
-            if let Option::Some(reward_config) = config.reward {
-                assert!(reward_config.levels.len() > 0, "Reward levels not set");
-                world.write_model(@Reward { game_id, player, amount: 0, claimed: false });
-            }
-
             world
                 .write_model(
                     @Game {
@@ -102,6 +96,7 @@ pub mod game_actions {
                         min_number: game_config.min_number,
                         next_number,
                         finished: false,
+                        reward: 0,
                         jackpot_id,
                     }
                 );
@@ -119,25 +114,6 @@ pub mod game_actions {
                 );
 
             (game_id, next_number)
-        }
-
-        fn end_game(ref self: ContractState, game_id: u32) {
-            let mut world = self.world(@"nums");
-            let player = get_caller_address();
-            let mut game: Game = world.read_model((game_id, player));
-
-            assert!(game.player == player, "Unauthorized player");
-            assert!(!game.finished, "Game already finished");
-
-            game.finished = true;
-            world.write_model(@game);
-
-            world
-                .emit_event(
-                    @GameEnded {
-                        game_id, player, remaining_slots: game.remaining_slots
-                    }
-                );
         }
 
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
@@ -191,18 +167,20 @@ pub mod game_actions {
             game.next_number = next_number;
             game.remaining_slots -= 1;
 
-            world.write_model(@game);
-            world.write_model(@Slot { game_id, player, index: target_idx, number: target_number });
+            let mut totals: Totals = world.read_model(player);
+            totals.slots_filled += 1;
 
             let config: Config = world.read_model(WORLD_RESOURCE);
-
             // Slot reward
             if let Option::Some(reward_config) = config.reward {
                 let (_, amount) = reward_config.compute(game.level());
-                let mut game_reward: Reward = world.read_model((player, game_id));
-                game_reward.amount += amount;
-                world.write_model(@game_reward);
+                game.reward += amount;
+                totals.rewards_earned += amount;
             }
+
+            world.write_model(@game);
+            world.write_model(@totals);
+            world.write_model(@Slot { game_id, player, index: target_idx, number: target_number });
 
             world
                 .emit_event(

@@ -33,13 +33,7 @@ const GameQuery = graphql(`
           max_slots
           remaining_slots
           next_number
-        }
-      }
-    }
-    numsRewardModels(where: { game_id: $gameId }) {
-      edges {
-        node {
-          amount
+          reward
         }
       }
     }
@@ -90,7 +84,6 @@ const Game = () => {
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
-    const rewardsModel = queryResult.data?.numsRewardModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
     if (!gamesModel || !slotsEdges) {
       return;
@@ -117,9 +110,7 @@ const Game = () => {
 
     setSlots(newSlots);
 
-    if (rewardsModel) {
-      setRewards(rewardsModel.amount as number);
-    }
+    setRewards(gamesModel.reward as number);
 
     setIsLoading(false);
     dismiss();

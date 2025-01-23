@@ -13,7 +13,6 @@ pub mod claim_actions {
 
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::slot::Slot;
-    use nums_appchain::models::reward::Reward;
     use nums_common::models::jackpot::{Jackpot, JackpotTrait};
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
@@ -49,15 +48,10 @@ pub mod claim_actions {
             let game: Game = world.read_model((game_id, player));
             let config: Config = world.read_model(WORLD_RESOURCE);
             assert!(game.player == player, "Unauthorized player");
-            assert!(game.finished, "Cannot claim unfinished game");
+            assert!(!game.finished, "Already claimed");
+            assert!(game.reward > 0, "No reward to claim");
 
-            let mut reward: Reward = world.read_model((player, game_id));
-            assert!(reward.amount > 0, "No reward to claim");
-            assert!(!reward.claimed, "Reward already claimed");
-
-            reward.claimed = true;
-            world.write_model(@reward);
-            world.emit_event(@RewardClaimed { game_id, player, amount: reward.amount });
+            world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
@@ -65,7 +59,7 @@ pub mod claim_actions {
                     config.starknet_consumer.into(),
                     player.into(),
                     game_id.into(),
-                    reward.amount.into(),
+                    game.reward.into(),
                 ]
                     .span()
             )

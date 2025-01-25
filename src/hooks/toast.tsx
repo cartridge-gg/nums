@@ -1,47 +1,36 @@
-import { Link, useToast as useChakraToast } from "@chakra-ui/react";
+import { Link } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster";
 import { formatAddress } from "../utils";
 import { useExplorer } from "@starknet-react/core";
 
 const useToast = () => {
-  const toast = useChakraToast();
   const explorer = useExplorer();
 
   const showTxn = (hash: string) => {
-    toast({
+    toaster.create({
       title: "Transaction Submitted",
       description: (
-        <Link href={explorer.transaction(hash)} isExternal>
+        <Link href={explorer.transaction(hash)}>
           <strong>{formatAddress(hash)}</strong>
         </Link>
       ),
-      duration: null,
-      isClosable: true,
-      position: "bottom-right",
     });
   };
 
   const showError = (hash: string) => {
-    toast({
+    toaster.create({
       title: "Transaction Error",
       description: (
-        <Link href={explorer.transaction(hash)} isExternal>
+        <Link href={explorer.transaction(hash)}>
           <strong>{formatAddress(hash)}</strong>
         </Link>
       ),
-      duration: null,
-      isClosable: true,
-      position: "bottom-right",
-      status: "error",
     });
   };
 
-  const dismiss = () => {
-    toast.closeAll();
-  };
   return {
     showTxn,
     showError,
-    dismiss,
   };
 };
 

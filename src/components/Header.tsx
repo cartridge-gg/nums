@@ -1,13 +1,13 @@
-import { ArrowBackIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
-  Button,
   HStack,
-  Menu,
-  MenuButton,
+  MenuContent,
   MenuItem,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
   Spacer,
+  Text,
 } from "@chakra-ui/react";
+import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
 import {
   useAccount,
@@ -16,20 +16,26 @@ import {
   useNetwork,
   useSwitchChain,
 } from "@starknet-react/core";
-import { capitalize, formatAddress } from "../utils";
+import { capitalize } from "../utils";
 import { constants, num } from "starknet";
+import { LogoIcon } from "./icons/Logo";
+import { HomeIcon } from "./icons/Home";
+import { useEffect, useState } from "react";
+import { ControllerIcon } from "./icons/Controller";
+import { DisconnectIcon } from "./icons/Disconnect";
 
 const Header = ({
-  showBack,
+  showHome,
   hideChain,
 }: {
-  showBack?: boolean;
+  showHome?: boolean;
   hideChain?: boolean;
 }) => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { chain, chains } = useNetwork();
   const { account, address, connector } = useAccount();
+  const [username, setUsername] = useState<string | null>(null);
   const { switchChain } = useSwitchChain({
     params: {
       chainId: constants.StarknetChainId.SN_SEPOLIA,
@@ -37,68 +43,90 @@ const Header = ({
   });
   const controllerConnector = connector as never as ControllerConnector;
 
+  useEffect(() => {
+    if (controllerConnector) {
+      controllerConnector.username()?.then((username) => {
+        setUsername(username);
+      });
+    }
+  }, [controllerConnector]);
+
   return (
-    <HStack w="full" position="absolute" top="0" left="0" p="20px">
-      {showBack && (
-        <ArrowBackIcon
-          position="absolute"
-          top="20px"
-          left="20px"
-          boxSize="24px"
-          cursor="pointer"
-          onClick={() => {
-            window.history.back();
-          }}
-        />
-      )}
-      <Spacer />
-      {account && !hideChain && (
-        <Menu autoSelect={false}>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            {capitalize(chain.network)}
-          </MenuButton>
-          <MenuList>
-            {chains.map((c) => (
-              <MenuItem
-                onClick={() => {
-                  switchChain({ chainId: num.toHex(c.id) });
-                }}
-              >
-                {capitalize(c.network)}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      )}
-      {address ? (
-        <Menu autoSelect={false}>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            <strong>{formatAddress(address)}</strong>
-          </MenuButton>
-          <MenuList>
-            <MenuItem
-              onClick={() => controllerConnector.controller.openProfile()}
-            >
-              Profile
-            </MenuItem>
-            <MenuItem
-              onClick={() => controllerConnector.controller.openSettings()}
-            >
-              Settings
-            </MenuItem>
-            <MenuItem onClick={() => disconnect()}>Disconnect</MenuItem>
-          </MenuList>
-        </Menu>
-      ) : (
-        <Button
-          onClick={() => {
-            connect({ connector: connectors[0] });
-          }}
+    <>
+      <HStack
+        w="full"
+        position="absolute"
+        top="0"
+        left="0"
+        p="12px"
+        bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
+      >
+        <LogoIcon />
+        <Text
+          color="white"
+          fontSize="48px"
+          textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+          fontWeight="400"
+          fontFamily="Ekamai"
+          letterSpacing="0.01em"
         >
-          Connect
-        </Button>
-      )}
-    </HStack>
+          NUMS.GG
+        </Text>
+        <Spacer maxW="20px" />
+        {showHome && (
+          <Button
+            visual="transparent"
+            h="48px"
+            gap="10px"
+            onClick={() => {
+              window.history.back();
+            }}
+          >
+            <HomeIcon /> Home
+          </Button>
+        )}
+        <Spacer />
+        {account && !hideChain && (
+          <MenuRoot>
+            <MenuTrigger asChild>
+              <Button>{capitalize(chain.network)}</Button>
+            </MenuTrigger>
+
+            <MenuContent>
+              {chains.map((c) => (
+                <MenuItem
+                  value={c.network}
+                  onClick={() => {
+                    switchChain({ chainId: num.toHex(c.id) });
+                  }}
+                >
+                  {capitalize(c.network)}
+                </MenuItem>
+              ))}
+            </MenuContent>
+          </MenuRoot>
+        )}
+        {address ? (
+          <>
+            <Button visual="transparent" h="48px" gap="10px">
+              {address && <ControllerIcon />}
+              {username}
+            </Button>
+            <Button visual="transparent" h="48px" onClick={() => disconnect()}>
+              <DisconnectIcon />
+            </Button>
+          </>
+        ) : (
+          <Button
+            onClick={() => {
+              connect({ connector: connectors[0] });
+            }}
+          >
+            Connect
+          </Button>
+        )}
+      </HStack>
+    </>
   );
 };
 

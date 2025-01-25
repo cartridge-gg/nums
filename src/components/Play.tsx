@@ -1,23 +1,17 @@
-import { Button, HStack, Link, Text, VStack } from "@chakra-ui/react";
+import { Button, Spinner } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ControllerConnector from "@cartridge/connector/controller";
-import { useAccount, useExplorer } from "@starknet-react/core";
+import { useState } from "react";
+import { useAccount, useConnect } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash } from "starknet";
 
-const Create = () => {
-  const { address, account, connector } = useAccount();
+const Play = () => {
+  const { account } = useAccount();
+  const { connect, connectors } = useConnect();
+
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const explorer = useExplorer();
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>("");
-  const controllerConnector = connector as never as ControllerConnector;
-
-  useEffect(() => {
-    controllerConnector?.username()?.then(setUsername);
-  }, [controllerConnector]);
 
   const newGame = async () => {
     if (!account) return;
@@ -47,7 +41,6 @@ const Create = () => {
       });
 
       if (receipt.isSuccess()) {
-        console.log({ receipt });
         const createdEvent = receipt.events.find(
           ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
         );
@@ -64,32 +57,17 @@ const Create = () => {
 
   return (
     <>
-      <VStack w="100%" h="120px" spacing="20px">
-        <HStack>
-          <Text>
-            Hello,{" "}
-            {address ? (
-              <>
-                <Link href={explorer.contract(address)} isExternal>
-                  <strong>{username}</strong>
-                </Link>
-              </>
-            ) : (
-              "anon"
-            )}
-            .
-          </Text>
-        </HStack>
-        <HStack spacing="20px">
-          {address && (
-            <Button isLoading={creating} onClick={newGame}>
-              Create Game
-            </Button>
-          )}
-        </HStack>
-      </VStack>
+      {account ? (
+        <Button onClick={newGame} disabled={creating} w="100px">
+          {creating ? <Spinner /> : "Play!"}
+        </Button>
+      ) : (
+        <Button onClick={() => connect({ connector: connectors[0] })}>
+          Connect
+        </Button>
+      )}
     </>
   );
 };
 
-export default Create;
+export default Play;

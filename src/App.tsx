@@ -13,6 +13,7 @@ import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
 import { num, shortString } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
+import "./fonts.css";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {

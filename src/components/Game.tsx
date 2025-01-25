@@ -2,22 +2,20 @@ import { useParams } from "react-router-dom";
 import { graphql } from "../graphql";
 import { useQuery } from "urql";
 import { useEffect, useState } from "react";
-import { capitalize, formatAddress, removeZeros } from "../utils";
+import { removeZeros } from "../utils";
+import { useInterval } from "usehooks-ts";
 import {
-  Box,
-  Button,
   Container,
+  Grid,
+  GridItem,
   HStack,
-  Heading,
-  Link,
-  SimpleGrid,
   Text,
   VStack,
-  useColorMode,
-  useInterval,
 } from "@chakra-ui/react";
-import { useAccount, useExplorer, useNetwork } from "@starknet-react/core";
+import { Button } from "../components/Button";
+import { useAccount } from "@starknet-react/core";
 import useToast from "../hooks/toast";
+import { Toaster } from "@/components/ui/toaster";
 import Header from "./Header";
 
 const REFRESH_INTERVAL = 1000;
@@ -55,19 +53,17 @@ const GameQuery = graphql(`
 const Game = () => {
   const [slots, setSlots] = useState<number[]>(Array.from({ length: 20 }));
   const [next, setNext] = useState<number | null>();
-  const [player, setPlayer] = useState<string>("");
+  //const [player, setPlayer] = useState<string>("");
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [numRange, setNumRange] = useState<string>();
   // const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
   // const [nextReward] = useState<number | null>(null);
-  const [rewards, setRewards] = useState<number>(0);
-  const { chain } = useNetwork();
-  const explorer = useExplorer();
+  //const [rewards, setRewards] = useState<number>(0);
   const { account } = useAccount();
   const { gameId } = useParams();
-  const { showTxn, showError, dismiss } = useToast();
+  const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
   }
@@ -101,7 +97,7 @@ const Game = () => {
     setRemaining(gamesModel.remaining_slots || 0);
     setNext(gamesModel.next_number);
     setNumRange(gamesModel.min_number + " - " + gamesModel.max_number);
-    setPlayer(gamesModel.player as string);
+    //setPlayer(gamesModel.player as string);
 
     const newSlots: number[] = Array.from({ length: 20 });
     slotsEdges.forEach((edge: any) => {
@@ -110,15 +106,13 @@ const Game = () => {
 
     setSlots(newSlots);
 
-    setRewards(gamesModel.reward as number);
+    //setRewards(gamesModel.reward as number);
 
     setIsLoading(false);
-    dismiss();
   }, [queryResult, account]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
-
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([
@@ -156,26 +150,29 @@ const Game = () => {
   };
 
   return (
-    <Container h="100vh">
-      <Header showBack hideChain />
-      <VStack h={["auto", "auto", "100%"]} justify={["none", "none", "center"]}>
+    <>
+      <Toaster />
+      <Container h="100vh" maxW="100vw">
+        <Header showHome hideChain />
         <VStack
-          w="100%"
-          mt={["100px", "100px", "40px"]}
-          display={["flex", "flex", "none"]}
+          h={["auto", "auto", "100%"]}
+          justify={["none", "none", "center"]}
         >
-          <Heading fontSize="24px">Next: {next}</Heading>
-        </VStack>
-        <SimpleGrid
-          columns={[1, 1, 2]}
-          h={["auto", "auto", "700px"]}
-          w={["100%", "100%", "1200px"]}
-          spacing={"20px"}
-          py="25px"
-        >
-          <HStack justify={["center", "center", "flex-end"]}>
-            <VStack mr="40px">
-              {slots.slice(0, 10).map((number, index) => {
+          <Text>The Number is...</Text>
+          <Text
+            textStyle="next-number"
+            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+          >
+            {next}
+          </Text>
+          <VStack gap="40px">
+            <Grid
+              templateRows="repeat(5, 1fr)"
+              autoFlow="column"
+              gapX="60px"
+              gapY="20px"
+            >
+              {slots.map((number, index) => {
                 return (
                   <Slot
                     key={index}
@@ -183,85 +180,25 @@ const Game = () => {
                     number={number}
                     isOwner={isOwner}
                     disableAll={isLoading}
-                    onClick={async (slot) => {
-                      return await setSlot(slot);
-                    }}
+                    onClick={(slot) => setSlot(slot)}
                   />
                 );
               })}
-            </VStack>
-            <VStack>
-              {slots.slice(10, 20).map((number, index) => {
-                return (
-                  <Slot
-                    key={index + 10}
-                    index={index + 10}
-                    number={number}
-                    isOwner={isOwner}
-                    disableAll={isLoading}
-                    onClick={async (slot) => {
-                      return await setSlot(slot);
-                    }}
-                  />
-                );
-              })}
-            </VStack>
-            <Box />
-          </HStack>
-          <VStack
-            align="center"
-            justify="center"
-            display={["none", "none", "flex"]}
-          >
-            <VStack align="flex-start">
-              <Heading fontSize="24px" mb="10px">
-                Next Number: <strong>{next}</strong>
-              </Heading>
-              <Text>
-                Player:{" "}
-                <Link href={explorer.contract(player)} isExternal>
-                  <strong>{formatAddress(player)}</strong>
-                </Link>
-                {isOwner && " (you)"}
-              </Text>
-              <Text>Chain: {capitalize(chain.network)}</Text>
-              <Text>Number Range: {numRange}</Text>
-              <Text>
-                Remaining Slots: <strong>{remaining}</strong>
-              </Text>
-              <Text>
-                $NUMS Earned: <strong>{rewards}</strong>
-              </Text>
-              <br />
-              {/*<HStack mb="10px">
-                <Heading fontSize="18px">
-                  <Link href={numsErc20Link()} isExternal>
-                    $NUMS
-                  </Link>{" "}
-                  Rewards{" "}
-                </Heading>
-                 <Heading
-                  fontSize="18px"
-                  color={isRewardsActive ? "green.400" : "red.400"}
-                >
-                  [ {isRewardsActive ? "ACTIVE" : "INACTIVE"} ]
-                </Heading> 
-              </HStack>*/}
-              {/* {isRewardsActive && (
-                <>
-                  <Text>
-                    Next: <strong>{nextReward}</strong>
-                  </Text>
-                  <Text>
-                    Total Earned: <strong>{totalRewards}</strong>
-                  </Text>
-                </>
-              )} */}
-            </VStack>
+            </Grid>
+            <HStack w="full">
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Number Ranger</Text>
+                <Text>{numRange}</Text>
+              </VStack>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Remaining Slots</Text>
+                <Text>{remaining}</Text>
+              </VStack>
+            </HStack>
           </VStack>
-        </SimpleGrid>
-      </VStack>
-    </Container>
+        </VStack>
+      </Container>
+    </>
   );
 };
 
@@ -279,37 +216,32 @@ const Slot = ({
   onClick: (slot: number) => Promise<boolean>;
 }) => {
   const [loading, setLoading] = useState(false);
-  const { colorMode } = useColorMode();
   return (
-    <HStack key={index} justify="space-between" width="150px">
-      <Text>{index + 1}:</Text>
-      <Box w="100px">
-        {number ? (
-          <Button
-            w="100%"
-            pointerEvents="none"
-            bgColor={colorMode === "light" ? "green.100" : "green.400"}
-          >
-            {number}
-          </Button>
-        ) : (
-          <Button
-            w="100%"
-            isDisabled={!isOwner || disableAll}
-            isLoading={loading}
-            onClick={async () => {
-              setLoading(true);
-              const success = await onClick(index);
-              if (!success) {
-                setLoading(false);
-              }
-            }}
-          >
-            {isOwner ? "Set" : "Empty"}
-          </Button>
-        )}
-      </Box>
-    </HStack>
+    <GridItem>
+      <HStack>
+        <Text w="24px" fontWeight="500" color="purple.50">
+          {index + 1}.
+        </Text>
+        <Button
+          w="100px"
+          fontSize="24px"
+          visual="transparent"
+          justifyContent="center"
+          color={disableAll ? "purple.50" : number ? "green.50" : "white"}
+          disabled={!isOwner || loading || !!number || disableAll}
+          transition="color 0.2s ease-in-out"
+          _hover={{
+            color: "orange.50",
+          }}
+          onClick={async () => {
+            setLoading(true);
+            return await onClick(index);
+          }}
+        >
+          {number ? number : isOwner ? "Set" : "--"}
+        </Button>
+      </HStack>
+    </GridItem>
   );
 };
 

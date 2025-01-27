@@ -80,7 +80,11 @@ const Home = () => {
     return addressUsernamesMap?.get(address) ?? formatAddress(address);
   };
 
-  return (
+  const showComingSoon = true;
+
+  return showComingSoon ? (
+    <ComingSoon />
+  ) : (
     <>
       <Container h="100vh" maxW="100vw">
         <Header hideChain />
@@ -256,6 +260,17 @@ const LeaderboardRow = ({
       </Box>
     </HStack>
   );
+};
+
+const ComingSoon = () => {
+  return (
+    <Container h="100vh" maxW="100vw">
+      <VStack h="100%" justify={["none", "none", "center"]}>
+        <Text textStyle="header">NUMS.GG</Text>
+        <Text>#Soon</Text>
+      </VStack>
+    </Container>
+  ) ;
 };
 
 export default Home;

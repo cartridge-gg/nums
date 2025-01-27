@@ -14,6 +14,7 @@ export const buttonRecipe = defineRecipe({
         fontFamily: "Ekamai",
         borderRadius: "8px",
         textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+        transition: "all 0.2s ease-in-out",
         textTransform: "uppercase",
         padding: "8px 16px",
         _hover: {
@@ -30,6 +31,7 @@ export const buttonRecipe = defineRecipe({
         textTransform: "uppercase",
         padding: "8px 24px",
         bg: "rgba(255, 255, 255, 0.08)",
+        transition: "all 0.2s ease-in-out",
         boxShadow:
           "1px 1px 0px rgba(0, 0, 0, 0.12), inset 1px 1px 0px rgba(255, 255, 255, 0.12)",
         _hover: {

@@ -229,7 +229,6 @@ const Slot = ({
           justifyContent="center"
           color={disableAll ? "purple.50" : number ? "green.50" : "white"}
           disabled={!isOwner || loading || !!number || disableAll}
-          transition="color 0.2s ease-in-out"
           _hover={{
             color: "orange.50",
           }}

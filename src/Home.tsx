@@ -14,21 +14,21 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { graphql } from "../graphql";
+import { graphql } from "./graphql";
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "../utils";
+import { formatAddress } from "./utils";
 import { useAccount } from "@starknet-react/core";
 3;
-import Header from "./Header";
+import Header from "./components/Header";
 import { lookupAddresses } from "@cartridge/controller";
-import { TrophyIcon } from "./icons/Trophy";
-import { Button } from "./Button";
-import { Timer } from "./Timer";
-import { InfoIcon } from "./icons/Info";
-import { CaretIcon } from "./icons/Caret";
-import Play from "./Play";
+import { TrophyIcon } from "./components/icons/Trophy";
+import { Button } from "./components/Button";
+import { Timer } from "./components/Timer";
+import { InfoIcon } from "./components/icons/Info";
+import { CaretIcon } from "./components/icons/Caret";
+import Play from "./components/Play";
 
 const MAX_SLOTS = 20;
 

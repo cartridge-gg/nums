@@ -1,25 +1,19 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { graphql } from "../graphql";
+import { graphql } from "./graphql";
 import { useQuery } from "urql";
 import { useEffect, useState } from "react";
-import { isGameOver, removeZeros } from "../utils";
+import { isGameOver, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
-import {
-  Container,
-  Grid,
-  GridItem,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { Button } from "../components/Button";
+import { Container, Grid, HStack, Text, VStack } from "@chakra-ui/react";
+import { Button } from "./components/Button";
 import { useAccount } from "@starknet-react/core";
-import useToast from "../hooks/toast";
+import useToast from "./hooks/toast";
 import { Toaster } from "@/components/ui/toaster";
-import Header from "./Header";
-import Overlay from "./Overlay";
-import { HomeIcon } from "./icons/Home";
-import Play from "./Play";
+import Header from "./components/Header";
+import Overlay from "./components/Overlay";
+import { HomeIcon } from "./components/icons/Home";
+import Play from "./components/Play";
+import Slot from "./components/Slot";
 
 const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;
@@ -58,7 +52,7 @@ const Game = () => {
   const [slots, setSlots] = useState<number[]>(
     Array.from({ length: MAX_SLOTS }, () => 0),
   );
-  const [next, setNext] = useState<number | null>();
+  const [nextNumber, setNextNumber] = useState<number | null>();
   const [isOver, setIsOver] = useState<boolean>(false);
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -101,7 +95,7 @@ const Game = () => {
     }
 
     setRemaining(gamesModel.remaining_slots || 0);
-    setNext(gamesModel.next_number);
+    setNextNumber(gamesModel.next_number);
     setNumRange(gamesModel.min_number + " - " + gamesModel.max_number);
     setReward(gamesModel.reward as number);
     const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
@@ -197,7 +191,7 @@ const Game = () => {
         >
           <Text>The Number is...</Text>
           <Text textStyle="huge" textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)">
-            {next}
+            {nextNumber}
           </Text>
           <VStack gap="40px">
             <Grid
@@ -212,8 +206,9 @@ const Game = () => {
                     key={index}
                     index={index}
                     number={number}
+                    nextNumber={nextNumber}
                     isOwner={isOwner}
-                    disableAll={isLoading}
+                    disable={isLoading}
                     onClick={(slot) => setSlot(slot)}
                   />
                 );
@@ -233,49 +228,6 @@ const Game = () => {
         </VStack>
       </Container>
     </>
-  );
-};
-
-const Slot = ({
-  index,
-  number,
-  isOwner,
-  disableAll,
-  onClick,
-}: {
-  index: number;
-  number: number;
-  disableAll: boolean;
-  isOwner: boolean;
-  onClick: (slot: number) => Promise<boolean>;
-}) => {
-  const [loading, setLoading] = useState(false);
-  return (
-    <GridItem>
-      <HStack>
-        <Text w="24px" fontWeight="500" color="purple.50">
-          {index + 1}.
-        </Text>
-        <Button
-          w="100px"
-          fontSize="24px"
-          visual="transparent"
-          justifyContent="center"
-          color={disableAll ? "purple.50" : number ? "green.50" : "white"}
-          disabled={!isOwner || loading || !!number || disableAll}
-          _hover={{
-            color: "orange.50",
-          }}
-          onClick={async () => {
-            setLoading(true);
-            await onClick(index);
-            setLoading(false);
-          }}
-        >
-          {number ? number : isOwner ? "Set" : "-"}
-        </Button>
-      </HStack>
-    </GridItem>
   );
 };
 

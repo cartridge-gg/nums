@@ -238,7 +238,7 @@ const Slot = ({
             setLoading(false);
           }}
         >
-          {number ? number : isOwner ? "Set" : "--"}
+          {number ? number : isOwner ? "Set" : "-"}
         </Button>
       </HStack>
     </GridItem>

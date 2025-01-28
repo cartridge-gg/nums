@@ -19,7 +19,9 @@ const Overlay = ({
       left="0"
       position="absolute"
       padding="125px 25px 25px 25px"
-      display={show && isOpen ? "flex" : "none"}
+      opacity={show && isOpen ? 1 : 0}
+      visibility={show && isOpen ? "visible" : "hidden"}
+      transition="opacity 0.2s ease-in-out"
       pointerEvents="none"
     >
       <VStack
@@ -29,7 +31,7 @@ const Overlay = ({
         bg="rgba(0, 0, 0, 0.64)"
         border="2px solid #000000"
         boxShadow="0px 4px 4px rgba(0, 0, 0, 0.25)"
-        backdropFilter="blur(4px)"
+        backdropFilter="blur(2px)"
         justify="center"
         pointerEvents="all"
       >

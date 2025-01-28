@@ -45,6 +45,7 @@ const GamesQuery = graphql(`
           game_id
           player
           remaining_slots
+          reward
         }
       }
     }
@@ -201,7 +202,7 @@ const Home = () => {
                         isOwn={edge.node.player === account?.address}
                         player={getUsername(edge.node.player)}
                         score={MAX_SLOTS - edge.node.remaining_slots}
-                        tokens={Math.floor(Math.random() * 1000000)}
+                        tokens={edge.node.reward}
                         onClick={() => {
                           navigate(`/0x${edge.node.game_id.toString(16)}`);
                         }}

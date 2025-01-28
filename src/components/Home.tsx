@@ -137,7 +137,7 @@ const Home = () => {
                 </Text>
                 <HStack w="full" justify="space-between">
                   <Timer hrs={5} mins={5} secs={5} />
-                  <Play />
+                  <Play onReady={(gameId) => navigate(`/${gameId}`)} />
                 </HStack>
               </VStack>
             </VStack>

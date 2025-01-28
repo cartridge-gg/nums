@@ -1,8 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { graphql } from "../graphql";
 import { useQuery } from "urql";
 import { useEffect, useState } from "react";
-import { removeZeros } from "../utils";
+import { isGameOver, removeZeros } from "../utils";
 import { useInterval } from "usehooks-ts";
 import {
   Container,
@@ -17,8 +17,12 @@ import { useAccount } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "./Header";
+import Overlay from "./Overlay";
+import { HomeIcon } from "./icons/Home";
+import Play from "./Play";
 
 const REFRESH_INTERVAL = 1000;
+const MAX_SLOTS = 20;
 
 const GameQuery = graphql(`
   query GameQuery($gameId: u32) {
@@ -51,18 +55,20 @@ const GameQuery = graphql(`
 `);
 
 const Game = () => {
-  const [slots, setSlots] = useState<number[]>(Array.from({ length: 20 }));
+  const [slots, setSlots] = useState<number[]>(
+    Array.from({ length: MAX_SLOTS }, () => 0),
+  );
   const [next, setNext] = useState<number | null>();
-  //const [player, setPlayer] = useState<string>("");
+  const [isOver, setIsOver] = useState<boolean>(false);
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [numRange, setNumRange] = useState<string>();
-  // const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
-  // const [nextReward] = useState<number | null>(null);
-  //const [rewards, setRewards] = useState<number>(0);
+  const [reward, setReward] = useState<number>(0);
   const { account } = useAccount();
   const { gameId } = useParams();
+  const navigate = useNavigate();
+
   const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
@@ -97,16 +103,14 @@ const Game = () => {
     setRemaining(gamesModel.remaining_slots || 0);
     setNext(gamesModel.next_number);
     setNumRange(gamesModel.min_number + " - " + gamesModel.max_number);
-    //setPlayer(gamesModel.player as string);
-
-    const newSlots: number[] = Array.from({ length: 20 });
+    setReward(gamesModel.reward as number);
+    const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
     slotsEdges.forEach((edge: any) => {
       newSlots[edge.node.index] = edge.node.number;
     });
 
     setSlots(newSlots);
-
-    //setRewards(gamesModel.reward as number);
+    setIsOver(isGameOver(newSlots, gamesModel.next_number!));
 
     setIsLoading(false);
   }, [queryResult, account]);
@@ -149,20 +153,50 @@ const Game = () => {
     return true;
   };
 
+  const resetGame = () => {
+    setSlots(Array.from({ length: MAX_SLOTS }));
+    setIsOver(false);
+    reexecuteQuery();
+  };
+
   return (
     <>
       <Toaster />
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
+        <Overlay show={isOwner && isOver}>
+          <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
+            Game Over
+          </Text>
+          <HStack w={["300px", "300px", "400px"]}>
+            <VStack layerStyle="transparent" flex="1" align="flex-start">
+              <Text color="purple.50">Score</Text>
+              <Text>{MAX_SLOTS - remaining}</Text>
+            </VStack>
+            <VStack layerStyle="transparent" flex="1" align="flex-start">
+              <Text color="purple.50">Nums Rewarded</Text>
+              <Text>{reward}</Text>
+            </VStack>
+          </HStack>
+          <HStack pt="32px">
+            <Button visual="transparent" onClick={() => navigate("/")}>
+              <HomeIcon /> Home
+            </Button>
+            <Play
+              isAgain
+              onReady={(gameId) => {
+                navigate(`/${gameId}`);
+                resetGame();
+              }}
+            />
+          </HStack>
+        </Overlay>
         <VStack
           h={["auto", "auto", "100%"]}
           justify={["none", "none", "center"]}
         >
           <Text>The Number is...</Text>
-          <Text
-            textStyle="next-number"
-            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
-          >
+          <Text textStyle="huge" textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)">
             {next}
           </Text>
           <VStack gap="40px">

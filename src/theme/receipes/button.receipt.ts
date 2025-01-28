@@ -7,6 +7,8 @@ export const buttonRecipe = defineRecipe({
   variants: {
     visual: {
       primary: {
+        gap: "10px",
+        alignItems: "center",
         bg: "orange.50",
         color: "white",
         height: "48px",
@@ -23,6 +25,7 @@ export const buttonRecipe = defineRecipe({
         },
       },
       transparent: {
+        gap: "10px",
         alignItems: "center",
         fontSize: "24px",
         borderRadius: "8px",

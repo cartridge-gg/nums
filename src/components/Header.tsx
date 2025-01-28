@@ -23,6 +23,7 @@ import { HomeIcon } from "./icons/Home";
 import { useEffect, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({
   showHome,
@@ -33,6 +34,7 @@ const Header = ({
 }) => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const navigate = useNavigate();
   const { chain, chains } = useNetwork();
   const { account, address, connector } = useAccount();
   const [username, setUsername] = useState<string | null>(null);
@@ -78,9 +80,7 @@ const Header = ({
             visual="transparent"
             h="48px"
             gap="10px"
-            onClick={() => {
-              window.history.back();
-            }}
+            onClick={() => navigate("/")}
           >
             <HomeIcon /> Home
           </Button>

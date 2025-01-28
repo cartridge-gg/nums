@@ -234,7 +234,8 @@ const Slot = ({
           }}
           onClick={async () => {
             setLoading(true);
-            return await onClick(index);
+            await onClick(index);
+            setLoading(false);
           }}
         >
           {number ? number : isOwner ? "Set" : "--"}

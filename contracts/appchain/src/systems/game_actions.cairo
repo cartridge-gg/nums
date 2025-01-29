@@ -7,6 +7,7 @@ pub trait IGameActions<T> {
 
 #[dojo::contract]
 pub mod game_actions {
+    use achievement::components::achievable::AchievableComponent;
     use core::array::ArrayTrait;
     use nums_common::models::jackpot::{Jackpot, JackpotMode};
     use nums_common::models::config::{Config, SlotRewardTrait};
@@ -15,13 +16,38 @@ pub mod game_actions {
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::totals::Totals;
     use nums_appchain::models::slot::Slot;
+    use nums_appchain::elements::achievements::index::{
+        Achievement, AchievementTrait, ACHIEVEMENT_COUNT
+    };
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
-    use dojo::world::IWorldDispatcherTrait;
+    use dojo::world::{IWorldDispatcherTrait, WorldStorage};
 
     use starknet::{ContractAddress, get_caller_address};
     use super::IGameActions;
+
+    // Components
+
+    component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
+    impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+
+    // Storage
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        achievable: AchievableComponent::Storage,
+    }
+
+    // Events
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AchievableEvent: AchievableComponent::Event,
+    }
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -67,6 +93,35 @@ pub mod game_actions {
         #[key]
         jackpot_id: u32,
         player: ContractAddress
+    }
+
+    // Constuctor
+
+    fn dojo_init(self: @ContractState,) {
+        // [Event] Emit all Achievement events
+        let mut world: WorldStorage = self.world(@"nums");
+        let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
+        while achievement_id > 0 {
+            let achievement: Achievement = achievement_id.into();
+            self
+                .achievable
+                .create(
+                    world,
+                    id: achievement.identifier(),
+                    hidden: achievement.hidden(),
+                    index: achievement.index(),
+                    points: achievement.points(),
+                    start: 0,
+                    end: 0,
+                    group: achievement.group(),
+                    icon: achievement.icon(),
+                    title: achievement.title(),
+                    description: achievement.description(),
+                    tasks: achievement.tasks(),
+                    data: achievement.data(),
+                );
+            achievement_id -= 1;
+        }
     }
 
     #[abi(embed_v0)]

@@ -3,7 +3,7 @@ name = "nums_common"
 version = "0.1.0"
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.11" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
 starknet = "2.8.4"
 
 [lib]

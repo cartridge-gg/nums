@@ -8,20 +8,21 @@ edition = "2024_07"
 sierra = true
 casm = true
 build-external-contracts = [
-    "dojo::world::world_contract::world", 
-    "nums_common::models::jackpot::m_Jackpot", 
+    "dojo::world::world_contract::world",
+    "nums_common::models::jackpot::m_Jackpot",
     "nums_common::models::config::m_Config",
 ]
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.11" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "e8af2f3" }
 starknet = "2.8.4"
 nums_common = { path = "../common" }
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.11" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.12" }
 
-[features] 
+[features]
 default = []
 
 [profile.slot]

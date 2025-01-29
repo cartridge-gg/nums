@@ -13,6 +13,11 @@ pub enum Task {
     None,
     King,
     Grinder,
+    Blackjack,
+    Answer,
+    Missing,
+    Jackpot,
+    Emergency,
 }
 
 // Implementations
@@ -25,6 +30,11 @@ pub impl TaskImpl of TaskTrait {
             Task::None => 0,
             Task::King => tasks::king::King::identifier(),
             Task::Grinder => tasks::grinder::Grinder::identifier(),
+            Task::Blackjack => tasks::blackjack::Blackjack::identifier(),
+            Task::Answer => tasks::answer::Answer::identifier(),
+            Task::Missing => tasks::missing::Missing::identifier(),
+            Task::Jackpot => tasks::jackpot::Jackpot::identifier(),
+            Task::Emergency => tasks::emergency::Emergency::identifier(),
         }
     }
 
@@ -34,6 +44,11 @@ pub impl TaskImpl of TaskTrait {
             Task::None => "",
             Task::King => tasks::king::King::description(count),
             Task::Grinder => tasks::grinder::Grinder::description(count),
+            Task::Blackjack => tasks::blackjack::Blackjack::description(count),
+            Task::Answer => tasks::answer::Answer::description(count),
+            Task::Missing => tasks::missing::Missing::description(count),
+            Task::Jackpot => tasks::jackpot::Jackpot::description(count),
+            Task::Emergency => tasks::emergency::Emergency::description(count),
         }
     }
 
@@ -52,6 +67,11 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
             Task::None => 0,
             Task::King => 1,
             Task::Grinder => 2,
+            Task::Blackjack => 3,
+            Task::Answer => 4,
+            Task::Missing => 5,
+            Task::Jackpot => 6,
+            Task::Emergency => 7,
         }
     }
 }
@@ -64,6 +84,11 @@ impl IntoU8Task of core::traits::Into<u8, Task> {
             0 => Task::None,
             1 => Task::King,
             2 => Task::Grinder,
+            3 => Task::Blackjack,
+            4 => Task::Answer,
+            5 => Task::Missing,
+            6 => Task::Jackpot,
+            7 => Task::Emergency,
             _ => Task::None,
         }
     }

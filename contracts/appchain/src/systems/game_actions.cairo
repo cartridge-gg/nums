@@ -255,6 +255,25 @@ pub mod game_actions {
                     }
                 );
 
+            // Update achievement progression for the player
+            let player_id: felt252 = player.into();
+            if target_number == 21 {
+                let task_id: felt252 = Task::Blackjack.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 42 {
+                let task_id: felt252 = Task::Answer.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 404 {
+                let task_id: felt252 = Task::Missing.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 777 {
+                let task_id: felt252 = Task::Jackpot.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 911 {
+                let task_id: felt252 = Task::Emergency.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            }
+
             next_number
         }
 

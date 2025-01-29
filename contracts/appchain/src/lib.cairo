@@ -16,12 +16,18 @@ pub mod elements {
         pub mod index;
         pub mod king;
         pub mod grinder;
+        pub mod reference;
     }
     pub mod tasks {
         pub mod interface;
         pub mod index;
         pub mod king;
         pub mod grinder;
+        pub mod answer;
+        pub mod blackjack;
+        pub mod emergency;
+        pub mod jackpot;
+        pub mod missing;
     }
 }
 

@@ -149,7 +149,7 @@ const Game = () => {
   };
 
   const resetGame = () => {
-    setSlots(Array.from({ length: MAX_SLOTS }));
+    setSlots([]);
     setIsOver(false);
     reexecuteQuery();
   };

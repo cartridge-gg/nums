@@ -269,7 +269,7 @@ const ComingSoon = () => {
         <Text>#Soon</Text>
       </VStack>
     </Container>
-  ) ;
+  );
 };
 
 export default Home;

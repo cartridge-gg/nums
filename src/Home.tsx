@@ -7,6 +7,7 @@ import {
   Box,
   HStack,
   Spacer,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -29,6 +30,7 @@ import { Timer } from "./components/Timer";
 import { InfoIcon } from "./components/icons/Info";
 import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
+import Overlay from "./components/Overlay";
 
 const MAX_SLOTS = 20;
 
@@ -54,11 +56,12 @@ const GamesQuery = graphql(`
 
 const Home = () => {
   const navigate = useNavigate();
-  // const [offset, setOffset] = useState<number>(0);
+  const { open, onOpen: onOpenAbout, onClose: onCloseAbout } = useDisclosure();
   const { account } = useAccount();
   const [addressUsernamesMap, setAddressUsernamesMap] =
     useState<Map<string, string>>();
 
+  // const [offset, setOffset] = useState<number>(0);
   const [gameResult] = useQuery({
     query: GamesQuery,
     // variables: {
@@ -87,6 +90,45 @@ const Home = () => {
     <>
       <Container h="100vh" maxW="100vw">
         <Header hideChain />
+        <Overlay open={open} onClose={onCloseAbout}>
+          <Text textStyle="huge">ABOUT $NUMS</Text>
+          <VStack>
+            <VStack
+              w="50%"
+              layerStyle="transparent"
+              align="flex-start"
+              bgColor="rgba(255,255,255,0.04)"
+            >
+              <Text color="purple.50">About $NUMS</Text>
+              <Text>
+                $Nums is reward token intended to demonstrate the horizontal
+                scalability of Validity rollups. Earn $Nums by playing Nums, a
+                game hosted on its own app layer. the better you do the more you
+                earn. Rewards are claimable on Starknet mainnet
+              </Text>
+            </VStack>
+            <VStack
+              w="50%"
+              layerStyle="transparent"
+              align="flex-start"
+              bgColor="rgba(255,255,255,0.04)"
+            >
+              <Text color="purple.50">$NUMS token address</Text>
+              <Text>
+                0xdeadbeef
+              </Text>
+            </VStack>
+            <VStack
+              w="50%"
+              layerStyle="transparent"
+              align="flex-start"
+              bgColor="rgba(255,255,255,0.04)"
+            >
+              <Text color="purple.50">Token supply</Text>
+              <Text>320,202,002/∞</Text>
+            </VStack>
+          </VStack>
+        </Overlay>
         <VStack h="100%" justify={["none", "none", "center"]}>
           <SimpleGrid
             columns={[1, 1, 1, 2]}
@@ -158,7 +200,7 @@ const Home = () => {
                 <Button
                   visual="transparent"
                   p="8px"
-                  onClick={() => console.log("info")}
+                  onClick={() => onOpenAbout()}
                 >
                   <InfoIcon />
                 </Button>

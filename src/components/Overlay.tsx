@@ -1,16 +1,17 @@
-import { HStack, VStack } from "@chakra-ui/react";
+import { HStack, useDisclosure, VStack } from "@chakra-ui/react";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./Button";
-import { useState } from "react";
+import { useEffect } from "react";
 
 const Overlay = ({
-  show,
+  open,
+  onClose,
   children,
 }: {
-  show?: boolean;
+  open?: boolean;
+  onClose: () => void;
   children: React.ReactNode;
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
   return (
     <HStack
       w="100vw"
@@ -19,8 +20,8 @@ const Overlay = ({
       left="0"
       position="absolute"
       padding="125px 25px 25px 25px"
-      opacity={show && isOpen ? 1 : 0}
-      visibility={show && isOpen ? "visible" : "hidden"}
+      opacity={open ? 1 : 0}
+      visibility={open ? "visible" : "hidden"}
       transition="opacity 0.2s ease-in-out"
       pointerEvents="none"
       zIndex="1000"
@@ -41,7 +42,7 @@ const Overlay = ({
           position="absolute"
           top="24px"
           right="24px"
-          onClick={() => setIsOpen(false)}
+          onClick={() => onClose()}
         >
           <CloseIcon />
         </Button>

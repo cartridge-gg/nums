@@ -4,7 +4,14 @@ import { useQuery } from "urql";
 import { useEffect, useState } from "react";
 import { isGameOver, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
-import { Container, Grid, HStack, Text, VStack } from "@chakra-ui/react";
+import {
+  Container,
+  Grid,
+  HStack,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import { Button } from "./components/Button";
 import { useAccount } from "@starknet-react/core";
 import useToast from "./hooks/toast";
@@ -60,6 +67,7 @@ const Game = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [numRange, setNumRange] = useState<string>();
   const [reward, setReward] = useState<number>(0);
+  const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
@@ -86,9 +94,9 @@ const Game = () => {
       return;
     }
 
-    setIsOwner(
-      (account && gamesModel.player === removeZeros(account.address)) || false,
-    );
+    const isOwner =
+      (account && gamesModel.player === removeZeros(account.address)) || false;
+    setIsOwner(isOwner);
 
     // update if game progressed
     if (slotsEdges.length === gamesModel.max_slots! - remaining) {
@@ -105,10 +113,16 @@ const Game = () => {
     });
 
     setSlots(newSlots);
-    setIsOver(isGameOver(newSlots, gamesModel.next_number!));
+
+    const isOver = isGameOver(newSlots, gamesModel.next_number!);
+    setIsOver(isOver);
+
+    if (isOwner && isOver) {
+      onOpen();
+    }
 
     setIsLoading(false);
-  }, [queryResult, account]);
+  }, [queryResult, account, onOpen]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
@@ -149,6 +163,7 @@ const Game = () => {
   };
 
   const resetGame = () => {
+    onClose();
     setSlots([]);
     setIsOver(false);
     reexecuteQuery();
@@ -159,7 +174,7 @@ const Game = () => {
       <Toaster />
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
-        <Overlay show={isOwner && isOver}>
+        <Overlay open={open} onClose={onClose}>
           <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
             Game Over
           </Text>

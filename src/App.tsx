@@ -60,6 +60,15 @@ const policies: SessionPolicies = {
         },
       ],
     },
+    [import.meta.env.VITE_CONSUMER_CONTRACT]: {
+      methods: [
+        {
+          name: "Consume Reward on Starknet",
+          entrypoint: "consume_claim_reward",
+          description: "Consumes a claim reward message on Starknet",
+        },
+      ],
+    },
   },
 };
 

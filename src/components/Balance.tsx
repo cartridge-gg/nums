@@ -66,7 +66,13 @@ const Balance = () => {
 
   return (
     <>
-      <Button position="relative" visual="transparent" h="48px" bgColor="rgba(255,255,255,0.04)" disabled>
+      <Button
+        position="relative"
+        visual="transparent"
+        h="48px"
+        bgColor="rgba(255,255,255,0.04)"
+        disabled
+      >
         <Text color="purple.50">BALANCE:</Text>
         <Text>{totalRewards.toLocaleString()} NUMS</Text>
         <Box

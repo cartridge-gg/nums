@@ -209,20 +209,22 @@ const Home = () => {
                 </MenuRoot>
 
                 <HStack>
-                  {account && <Button
-                    visual="transparent"
-                    fontSize="18px"
-                    gap="4px"
-                    p="6px 16px"
-                    bgColor="green.100"
-                    _hover={{
-                      bgColor: "green.50",
-                    }}
-                    onClick={() => onOpenRewards()}
-                  >
-                    <GiftIcon />
-                    Claim
-                  </Button>}
+                  {account && (
+                    <Button
+                      visual="transparent"
+                      fontSize="18px"
+                      gap="4px"
+                      p="6px 16px"
+                      bgColor="green.100"
+                      _hover={{
+                        bgColor: "green.50",
+                      }}
+                      onClick={() => onOpenRewards()}
+                    >
+                      <GiftIcon />
+                      Claim
+                    </Button>
+                  )}
                   <Button
                     visual="transparent"
                     p="8px"

@@ -19,6 +19,7 @@ pub mod game_actions {
     use nums_appchain::elements::achievements::index::{
         Achievement, AchievementTrait, ACHIEVEMENT_COUNT
     };
+    use nums_appchain::elements::tasks::index::{Task, TaskTrait};
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
@@ -299,6 +300,11 @@ pub mod game_actions {
             jackpot.mode = JackpotMode::KING_OF_THE_HILL(king_of_the_hill);
             world.write_model(@jackpot);
             world.emit_event(@KingCrowned { game_id, jackpot_id, player });
+
+            // Update achievement progression for the new king
+            let player_id: felt252 = player.into();
+            let task_id: felt252 = Task::King.identifier();
+            self.achievable.progress(world, player_id, task_id, 1);
         }
     }
 

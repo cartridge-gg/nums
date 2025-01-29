@@ -81,9 +81,7 @@ const Home = () => {
     return addressUsernamesMap?.get(address) ?? formatAddress(address);
   };
 
-  const showComingSoon = false;
-
-  return showComingSoon ? (
+  return import.meta.env.VITE_VERCEL_ENV === "production" ? (
     <ComingSoon />
   ) : (
     <>
@@ -266,12 +264,12 @@ const LeaderboardRow = ({
 const ComingSoon = () => {
   return (
     <Container h="100vh" maxW="100vw">
-      <VStack h="100%" justify={["none", "none", "center"]}>
+      <VStack h="100%">
         <Text textStyle="header">NUMS.GG</Text>
         <Text>#Soon</Text>
       </VStack>
     </Container>
-  );
+  ) ;
 };
 
 export default Home;

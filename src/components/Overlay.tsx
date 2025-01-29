@@ -23,6 +23,7 @@ const Overlay = ({
       visibility={show && isOpen ? "visible" : "hidden"}
       transition="opacity 0.2s ease-in-out"
       pointerEvents="none"
+      zIndex="1000"
     >
       <VStack
         w="100%"

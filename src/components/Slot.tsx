@@ -20,20 +20,32 @@ const Slot = ({
   const [loading, setLoading] = useState(false);
   const [requestedNumber, setRequestedNumber] = useState<number | null>(null);
   const color = useMemo(() => {
-    if (requestedNumber && number !== requestedNumber) {
-      return "orange.50";
-    }
-
-    if (disable) {
-      return "purple.50";
-    }
-
-    if (number) {
+    if ((requestedNumber && number !== requestedNumber) || number) {
       return "green.50";
+    }
+
+    if (disable && !number) {
+      return "purple.50";
     }
 
     return "white";
   }, [requestedNumber, disable, number]);
+
+  const numberShown = useMemo(() => {
+    if (requestedNumber) {
+      return requestedNumber;
+    }
+
+    if (number) {
+      return number;
+    }
+
+    if (isOwner) {
+      return "Set";
+    }
+
+    return "-";
+  }, [requestedNumber, number, isOwner]);
   return (
     <GridItem>
       <HStack>
@@ -63,13 +75,7 @@ const Slot = ({
             setLoading(false);
           }}
         >
-          {requestedNumber
-            ? requestedNumber
-            : number
-              ? number
-              : isOwner
-                ? "Set"
-                : "-"}
+          {numberShown}
         </Button>
       </HStack>
     </GridItem>

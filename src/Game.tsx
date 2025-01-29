@@ -14,6 +14,7 @@ import Overlay from "./components/Overlay";
 import { HomeIcon } from "./components/icons/Home";
 import Play from "./components/Play";
 import Slot from "./components/Slot";
+import NextNumber from "./components/NextNumber";
 
 const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;
@@ -189,9 +190,17 @@ const Game = () => {
           h={["auto", "auto", "100%"]}
           justify={["none", "none", "center"]}
         >
-          <Text>The Number is...</Text>
-          <Text textStyle="huge" textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)">
-            {nextNumber}
+          <Text>The next number is...</Text>
+          <Text
+            textStyle="huge"
+            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+            lineHeight="100px"
+          >
+            {isOver || !isOwner ? (
+              nextNumber
+            ) : (
+              <NextNumber number={nextNumber!} />
+            )}
           </Text>
           <VStack gap="40px">
             <Grid

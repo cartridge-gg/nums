@@ -51,6 +51,15 @@ const policies: SessionPolicies = {
         },
       ],
     },
+    [import.meta.env.VITE_CLAIM_CONTRACT]: {
+      methods: [
+        {
+          name: "Claim Appchain Reward",
+          entrypoint: "claim_reward",
+          description: "Claims token rewards on Appchain",
+        },
+      ],
+    },
   },
 };
 

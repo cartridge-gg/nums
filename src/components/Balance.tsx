@@ -66,7 +66,7 @@ const Balance = () => {
 
   return (
     <>
-      <Button position="relative" visual="transparent" h="48px" disabled>
+      <Button position="relative" visual="transparent" h="48px" bgColor="rgba(255,255,255,0.04)" disabled>
         <Text color="purple.50">BALANCE:</Text>
         <Text>{totalRewards.toLocaleString()} NUMS</Text>
         <Box
@@ -77,6 +77,7 @@ const Balance = () => {
           animation={difference > 0 ? `${floatUp} 3s forwards` : "none"}
           key={difference}
           opacity={difference > 0 ? 1 : 0}
+          onAnimationEnd={() => setDifference(0)}
         >
           <Text color="green.50" fontSize="24px">
             +{difference.toLocaleString()} NUMS

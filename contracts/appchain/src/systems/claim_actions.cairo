@@ -45,12 +45,14 @@ pub mod claim_actions {
         fn claim_reward(ref self: ContractState, game_id: u32) {
             let mut world = self.world(@"nums");
             let player = starknet::get_caller_address();
-            let game: Game = world.read_model((game_id, player));
+            let mut game: Game = world.read_model((game_id, player));
             let config: Config = world.read_model(WORLD_RESOURCE);
             assert!(game.player == player, "Unauthorized player");
             assert!(!game.finished, "Already claimed");
             assert!(game.reward > 0, "No reward to claim");
 
+            game.finished = true;
+            world.write_model(@game);
             world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
 
             send_message_to_l1_syscall(
@@ -64,6 +66,7 @@ pub mod claim_actions {
                     .span()
             )
                 .unwrap_syscall();
+
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that

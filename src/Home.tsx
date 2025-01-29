@@ -31,6 +31,8 @@ import { InfoIcon } from "./components/icons/Info";
 import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
 import Overlay from "./components/Overlay";
+import RewardsOverlay from "./components/Rewards";
+import { GiftIcon } from "./components/icons/Gift";
 
 const MAX_SLOTS = 20;
 
@@ -56,7 +58,16 @@ const GamesQuery = graphql(`
 
 const Home = () => {
   const navigate = useNavigate();
-  const { open, onOpen: onOpenAbout, onClose: onCloseAbout } = useDisclosure();
+  const {
+    open: openAbout,
+    onOpen: onOpenAbout,
+    onClose: onCloseAbout,
+  } = useDisclosure();
+  const {
+    open: openRewards,
+    onOpen: onOpenRewards,
+    onClose: onCloseRewards,
+  } = useDisclosure();
   const { account } = useAccount();
   const [addressUsernamesMap, setAddressUsernamesMap] =
     useState<Map<string, string>>();
@@ -90,8 +101,9 @@ const Home = () => {
     <>
       <Container h="100vh" maxW="100vw">
         <Header hideChain />
-        <Overlay open={open} onClose={onCloseAbout}>
-          <Text textStyle="huge">ABOUT $NUMS</Text>
+        <RewardsOverlay open={openRewards} onClose={onCloseRewards} />
+        <Overlay open={openAbout} onClose={onCloseAbout}>
+          <Text textStyle="h-md">ABOUT $NUMS</Text>
           <VStack>
             <VStack
               w="50%"
@@ -114,9 +126,7 @@ const Home = () => {
               bgColor="rgba(255,255,255,0.04)"
             >
               <Text color="purple.50">$NUMS token address</Text>
-              <Text>
-                0xdeadbeef
-              </Text>
+              <Text>0xdeadbeef</Text>
             </VStack>
             <VStack
               w="50%"
@@ -138,7 +148,7 @@ const Home = () => {
             mt={["100px", "100px", "30px"]}
           >
             <VStack gap="30px">
-              <Heading w="full" color="purple.50" textStyle="header">
+              <Heading w="full" color="purple.50" fontSize="24px">
                 HOW TO PLAY
               </Heading>
               <VStack gap="30px" align="flex-start" fontWeight="450">
@@ -197,13 +207,30 @@ const Home = () => {
                     <MenuItem value="tokens">Tokens</MenuItem>
                   </MenuContent>
                 </MenuRoot>
-                <Button
-                  visual="transparent"
-                  p="8px"
-                  onClick={() => onOpenAbout()}
-                >
-                  <InfoIcon />
-                </Button>
+
+                <HStack>
+                  {account && <Button
+                    visual="transparent"
+                    fontSize="18px"
+                    gap="4px"
+                    p="6px 16px"
+                    bgColor="green.100"
+                    _hover={{
+                      bgColor: "green.50",
+                    }}
+                    onClick={() => onOpenRewards()}
+                  >
+                    <GiftIcon />
+                    Claim
+                  </Button>}
+                  <Button
+                    visual="transparent"
+                    p="8px"
+                    onClick={() => onOpenAbout()}
+                  >
+                    <InfoIcon />
+                  </Button>
+                </HStack>
               </HStack>
 
               <Box
@@ -288,16 +315,16 @@ const LeaderboardRow = ({
       color={isOwn ? "orange.50" : "white"}
     >
       <Box w="full">
-        <Text textStyle="bold">{rank}</Text>
+        <Text>{rank}</Text>
       </Box>
       <Box w="full">
-        <Text textStyle="bold">{player}</Text>
+        <Text>{player}</Text>
       </Box>
       <Box w="full">
-        <Text textStyle="bold">{score}</Text>
+        <Text>{score}</Text>
       </Box>
       <Box w="full">
-        <Text textStyle="bold">{tokens.toLocaleString()}</Text>
+        <Text>{tokens.toLocaleString()}</Text>
       </Box>
     </HStack>
   );
@@ -307,7 +334,7 @@ const ComingSoon = () => {
   return (
     <Container h="100vh" maxW="100vw">
       <VStack h="100%" justify="center">
-        <Text textStyle="header">NUMS.GG</Text>
+        <Text textStyle="h-sm">NUMS.GG</Text>
         <Text>#Soon</Text>
       </VStack>
     </Container>

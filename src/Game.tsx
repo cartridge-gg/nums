@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { graphql } from "./graphql";
 import { useQuery } from "urql";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isGameOver, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
 import {
@@ -38,6 +38,7 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
+          finished
         }
       }
     }
@@ -67,6 +68,7 @@ const Game = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [numRange, setNumRange] = useState<string>();
   const [reward, setReward] = useState<number>(0);
+  const [claimError, setClaimError] = useState<Error>();
   const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
   const { gameId } = useParams();
@@ -86,6 +88,21 @@ const Game = () => {
   useInterval(() => {
     isLoading && reexecuteQuery();
   }, REFRESH_INTERVAL);
+
+  const claimReward = useCallback(async () => {
+    if (!account) return;
+    account
+      .execute([
+        {
+          contractAddress: import.meta.env.VITE_CLAIM_CONTRACT,
+          entrypoint: "claim_reward",
+          calldata: [gameId],
+        },
+      ])
+      .catch((e) => {
+        setClaimError(e);
+      });
+  }, [account, gameId, setClaimError]);
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
@@ -118,11 +135,14 @@ const Game = () => {
     setIsOver(isOver);
 
     if (isOwner && isOver) {
+      if (!gamesModel.finished) {
+        claimReward();
+      }
       onOpen();
     }
 
     setIsLoading(false);
-  }, [queryResult, account, onOpen]);
+  }, [queryResult, account, onOpen, claimReward]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
@@ -200,6 +220,12 @@ const Game = () => {
               }}
             />
           </HStack>
+          {claimError && (
+            <VStack mt="20px">
+              <Text>There was an error claiming on appchain:</Text>
+              <Text color="red">{claimError?.message}</Text>
+            </VStack>
+          )}
         </Overlay>
         <VStack
           h={["auto", "auto", "100%"]}
@@ -207,7 +233,7 @@ const Game = () => {
         >
           <Text>The next number is...</Text>
           <Text
-            textStyle="huge"
+            textStyle="h-lg"
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"
           >

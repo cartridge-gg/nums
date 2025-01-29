@@ -1,7 +1,6 @@
-import { HStack, useDisclosure, VStack } from "@chakra-ui/react";
+import { HStack, VStack } from "@chakra-ui/react";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./Button";
-import { useEffect } from "react";
 
 const Overlay = ({
   open,

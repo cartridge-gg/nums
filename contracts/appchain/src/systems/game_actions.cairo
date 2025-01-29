@@ -169,6 +169,11 @@ pub mod game_actions {
                     }
                 );
 
+            // Update achievement progression for the player
+            let player_id: felt252 = player.into();
+            let task_id: felt252 = Task::Grinder.identifier();
+            self.achievable.progress(world, player_id, task_id, 1);
+
             (game_id, next_number)
         }
 
@@ -301,7 +306,7 @@ pub mod game_actions {
             world.write_model(@jackpot);
             world.emit_event(@KingCrowned { game_id, jackpot_id, player });
 
-            // Update achievement progression for the new king
+            // Update achievement progression for the player
             let player_id: felt252 = player.into();
             let task_id: felt252 = Task::King.identifier();
             self.achievable.progress(world, player_id, task_id, 1);

@@ -15,11 +15,13 @@ pub mod elements {
         pub mod interface;
         pub mod index;
         pub mod king;
+        pub mod grinder;
     }
     pub mod tasks {
         pub mod interface;
         pub mod index;
         pub mod king;
+        pub mod grinder;
     }
 }
 

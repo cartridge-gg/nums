@@ -12,6 +12,7 @@ use nums_appchain::elements::tasks;
 pub enum Task {
     None,
     King,
+    Grinder,
 }
 
 // Implementations
@@ -23,6 +24,7 @@ pub impl TaskImpl of TaskTrait {
         match self {
             Task::None => 0,
             Task::King => tasks::king::King::identifier(),
+            Task::Grinder => tasks::grinder::Grinder::identifier(),
         }
     }
 
@@ -31,6 +33,7 @@ pub impl TaskImpl of TaskTrait {
         match self {
             Task::None => "",
             Task::King => tasks::king::King::description(count),
+            Task::Grinder => tasks::grinder::Grinder::description(count),
         }
     }
 
@@ -48,6 +51,7 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
         match self {
             Task::None => 0,
             Task::King => 1,
+            Task::Grinder => 2,
         }
     }
 }
@@ -59,6 +63,7 @@ impl IntoU8Task of core::traits::Into<u8, Task> {
         match card {
             0 => Task::None,
             1 => Task::King,
+            2 => Task::Grinder,
             _ => Task::None,
         }
     }

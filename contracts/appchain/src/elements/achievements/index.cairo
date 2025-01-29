@@ -3,7 +3,7 @@ use nums_appchain::elements::achievements;
 
 // Constants
 
-pub const ACHIEVEMENT_COUNT: u8 = 5;
+pub const ACHIEVEMENT_COUNT: u8 = 10;
 
 // Typ
 
@@ -15,6 +15,11 @@ pub enum Achievement {
     KingIII,
     KingIV,
     KingV,
+    GrinderI,
+    GrinderII,
+    GrinderIII,
+    GrinderIV,
+    GrinderV,
 }
 
 #[generate_trait]
@@ -28,6 +33,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::identifier(2),
             Achievement::KingIV => achievements::king::King::identifier(3),
             Achievement::KingV => achievements::king::King::identifier(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::identifier(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::identifier(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::identifier(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::identifier(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::identifier(4),
         }
     }
 
@@ -40,6 +50,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::hidden(2),
             Achievement::KingIV => achievements::king::King::hidden(3),
             Achievement::KingV => achievements::king::King::hidden(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::hidden(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::hidden(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::hidden(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::hidden(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::hidden(4),
         }
     }
 
@@ -52,6 +67,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::index(2),
             Achievement::KingIV => achievements::king::King::index(3),
             Achievement::KingV => achievements::king::King::index(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::index(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::index(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::index(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::index(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::index(4),
         }
     }
 
@@ -64,6 +84,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::points(2),
             Achievement::KingIV => achievements::king::King::points(3),
             Achievement::KingV => achievements::king::King::points(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::points(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::points(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::points(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::points(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::points(4),
         }
     }
 
@@ -76,6 +101,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::group(),
             Achievement::KingIV => achievements::king::King::group(),
             Achievement::KingV => achievements::king::King::group(),
+            Achievement::GrinderI => achievements::grinder::Grinder::group(),
+            Achievement::GrinderII => achievements::grinder::Grinder::group(),
+            Achievement::GrinderIII => achievements::grinder::Grinder::group(),
+            Achievement::GrinderIV => achievements::grinder::Grinder::group(),
+            Achievement::GrinderV => achievements::grinder::Grinder::group(),
         }
     }
 
@@ -88,6 +118,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::icon(2),
             Achievement::KingIV => achievements::king::King::icon(3),
             Achievement::KingV => achievements::king::King::icon(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::icon(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::icon(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::icon(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::icon(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::icon(4),
         }
     }
 
@@ -100,6 +135,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::title(2),
             Achievement::KingIV => achievements::king::King::title(3),
             Achievement::KingV => achievements::king::King::title(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::title(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::title(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::title(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::title(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::title(4),
         }
     }
 
@@ -112,6 +152,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::description(2),
             Achievement::KingIV => achievements::king::King::description(3),
             Achievement::KingV => achievements::king::King::description(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::description(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::description(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::description(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::description(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::description(4),
         }
     }
 
@@ -124,6 +169,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::KingIII => achievements::king::King::tasks(2),
             Achievement::KingIV => achievements::king::King::tasks(3),
             Achievement::KingV => achievements::king::King::tasks(4),
+            Achievement::GrinderI => achievements::grinder::Grinder::tasks(0),
+            Achievement::GrinderII => achievements::grinder::Grinder::tasks(1),
+            Achievement::GrinderIII => achievements::grinder::Grinder::tasks(2),
+            Achievement::GrinderIV => achievements::grinder::Grinder::tasks(3),
+            Achievement::GrinderV => achievements::grinder::Grinder::tasks(4),
         }
     }
 
@@ -143,6 +193,11 @@ impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
             Achievement::KingIII => 3,
             Achievement::KingIV => 4,
             Achievement::KingV => 5,
+            Achievement::GrinderI => 6,
+            Achievement::GrinderII => 7,
+            Achievement::GrinderIII => 8,
+            Achievement::GrinderIV => 9,
+            Achievement::GrinderV => 10,
         }
     }
 }
@@ -158,6 +213,11 @@ impl IntoU8Achievement of core::traits::Into<u8, Achievement> {
             3 => Achievement::KingIII,
             4 => Achievement::KingIV,
             5 => Achievement::KingV,
+            6 => Achievement::GrinderI,
+            7 => Achievement::GrinderII,
+            8 => Achievement::GrinderIII,
+            9 => Achievement::GrinderIV,
+            10 => Achievement::GrinderV,
             _ => Achievement::None,
         }
     }

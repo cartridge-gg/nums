@@ -8,7 +8,7 @@ export const textStyles = defineTextStyles({
       fontWeight: "400",
     },
   },
-  "next-number": {
+  huge: {
     value: {
       fontSize: "96px",
       fontFamily: "Ekamai",

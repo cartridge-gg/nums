@@ -20,3 +20,24 @@ export function removeZeros(addr: string) {
 
 export const capitalize = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
+
+export function isGameOver(slots: number[], nextNumber: number) {
+  for (let i = 0; i < slots.length; i++) {
+    if (slots[i] === 0) {
+      const temp = [...slots];
+      temp[i] = nextNumber;
+      const nonZeros = temp.filter((x) => x !== 0);
+      let isSorted = true;
+      for (let j = 1; j < nonZeros.length; j++) {
+        if (nonZeros[j] < nonZeros[j - 1]) {
+          isSorted = false;
+          break;
+        }
+      }
+      if (isSorted) {
+        return false;
+      }
+    }
+  }
+  return true;
+}

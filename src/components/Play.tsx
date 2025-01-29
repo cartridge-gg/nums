@@ -1,17 +1,22 @@
 import { Button, Spinner } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAccount, useConnect } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash } from "starknet";
+import { RefreshIcon } from "./icons/Refresh";
 
-const Play = () => {
+const Play = ({
+  isAgain,
+  onReady,
+}: {
+  isAgain?: boolean;
+  onReady: (gameId: string) => void;
+}) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
 
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const newGame = async () => {
     if (!account) return;
@@ -45,7 +50,7 @@ const Play = () => {
           ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
         );
 
-        navigate(`/${createdEvent?.data[1]}`);
+        onReady(createdEvent?.data[1]!);
         return;
       }
     } catch (e) {
@@ -58,8 +63,16 @@ const Play = () => {
   return (
     <>
       {account ? (
-        <Button onClick={newGame} disabled={creating} w="100px">
-          {creating ? <Spinner /> : "Play!"}
+        <Button onClick={newGame} disabled={creating}>
+          {creating ? (
+            <Spinner />
+          ) : isAgain ? (
+            <>
+              <RefreshIcon /> Play Again
+            </>
+          ) : (
+            "Play!"
+          )}
         </Button>
       ) : (
         <Button onClick={() => connect({ connector: connectors[0] })}>

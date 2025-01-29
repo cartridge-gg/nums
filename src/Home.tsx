@@ -14,21 +14,21 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { graphql } from "../graphql";
+import { graphql } from "./graphql";
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "../utils";
+import { formatAddress } from "./utils";
 import { useAccount } from "@starknet-react/core";
 3;
-import Header from "./Header";
+import Header from "./components/Header";
 import { lookupAddresses } from "@cartridge/controller";
-import { TrophyIcon } from "./icons/Trophy";
-import { Button } from "./Button";
-import { Timer } from "./Timer";
-import { InfoIcon } from "./icons/Info";
-import { CaretIcon } from "./icons/Caret";
-import Play from "./Play";
+import { TrophyIcon } from "./components/icons/Trophy";
+import { Button } from "./components/Button";
+import { Timer } from "./components/Timer";
+import { InfoIcon } from "./components/icons/Info";
+import { CaretIcon } from "./components/icons/Caret";
+import Play from "./components/Play";
 
 const MAX_SLOTS = 20;
 
@@ -45,6 +45,7 @@ const GamesQuery = graphql(`
           game_id
           player
           remaining_slots
+          reward
         }
       }
     }
@@ -80,9 +81,7 @@ const Home = () => {
     return addressUsernamesMap?.get(address) ?? formatAddress(address);
   };
 
-  const showComingSoon = true;
-
-  return showComingSoon ? (
+  return import.meta.env.VITE_VERCEL_ENV === "production" ? (
     <ComingSoon />
   ) : (
     <>
@@ -137,7 +136,7 @@ const Home = () => {
                 </Text>
                 <HStack w="full" justify="space-between">
                   <Timer hrs={5} mins={5} secs={5} />
-                  <Play />
+                  <Play onReady={(gameId) => navigate(`/${gameId}`)} />
                 </HStack>
               </VStack>
             </VStack>
@@ -201,7 +200,7 @@ const Home = () => {
                         isOwn={edge.node.player === account?.address}
                         player={getUsername(edge.node.player)}
                         score={MAX_SLOTS - edge.node.remaining_slots}
-                        tokens={Math.floor(Math.random() * 1000000)}
+                        tokens={edge.node.reward}
                         onClick={() => {
                           navigate(`/0x${edge.node.game_id.toString(16)}`);
                         }}
@@ -265,7 +264,7 @@ const LeaderboardRow = ({
 const ComingSoon = () => {
   return (
     <Container h="100vh" maxW="100vw">
-      <VStack h="100%" justify={["none", "none", "center"]}>
+      <VStack h="100%" justify="center">
         <Text textStyle="header">NUMS.GG</Text>
         <Text>#Soon</Text>
       </VStack>

@@ -24,6 +24,21 @@ import { useEffect, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate } from "react-router-dom";
+import { graphql } from "gql.tada";
+import { useQuery } from "urql";
+import { useInterval } from "usehooks-ts";
+
+const TotalsQuery = graphql(`
+  query TotalsQuery($player: ContractAddress) {
+    numsTotalsModels(where: { playerEQ: $player }) {
+      edges {
+        node {
+          rewards_earned
+        }
+      }
+    }
+  }
+`);
 
 const Header = ({
   showHome,
@@ -37,6 +52,7 @@ const Header = ({
   const navigate = useNavigate();
   const { chain, chains } = useNetwork();
   const { account, address, connector } = useAccount();
+  const [totalRewards, setTotalRewards] = useState<number>(0);
   const [username, setUsername] = useState<string | null>(null);
   const { switchChain } = useSwitchChain({
     params: {
@@ -44,6 +60,26 @@ const Header = ({
     },
   });
   const controllerConnector = connector as never as ControllerConnector;
+
+  const [totalsResult, reexecuteQuery] = useQuery({
+    query: TotalsQuery,
+    variables: {
+      player: address,
+    },
+    requestPolicy: account ? "network-only" : "cache-and-network",
+  });
+
+  useInterval(() => {
+    reexecuteQuery();
+  }, 1000);
+
+  useEffect(() => {
+    // @ts-ignore
+    const totalsModel = totalsResult.data?.numsTotalsModels?.edges?.[0]?.node;
+    if (totalsResult) {
+      setTotalRewards(totalsModel?.rewards_earned || 0);
+    }
+  }, [totalsResult]);
 
   useEffect(() => {
     if (controllerConnector) {
@@ -76,12 +112,7 @@ const Header = ({
         </Text>
         <Spacer maxW="20px" />
         {showHome && (
-          <Button
-            visual="transparent"
-            h="48px"
-            gap="10px"
-            onClick={() => navigate("/")}
-          >
+          <Button visual="transparent" h="48px" onClick={() => navigate("/")}>
             <HomeIcon /> Home
           </Button>
         )}
@@ -108,7 +139,11 @@ const Header = ({
         )}
         {address ? (
           <>
-            <Button visual="transparent" h="48px" gap="10px">
+            <Button visual="transparent" h="48px" disabled>
+              <Text color="purple.50">BALANCE:</Text>
+              <Text>{totalRewards.toLocaleString()} NUMS</Text>
+            </Button>
+            <Button visual="transparent" h="48px">
               {address && <ControllerIcon />}
               {username}
             </Button>

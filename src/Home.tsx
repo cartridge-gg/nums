@@ -195,7 +195,7 @@ const Home = () => {
             <VStack gap="20px" w="full" align="flex-start">
               <HStack w="full" justify="space-between">
                 <MenuRoot>
-                  <MenuTrigger>
+                  <MenuTrigger asChild>
                     <Button visual="transparent" gap="8px" fontSize="18px">
                       <TrophyIcon />
                       Score
@@ -267,6 +267,7 @@ const Home = () => {
                   {gameResult.data?.numsGameModels?.edges?.map(
                     (edge: any, index) => (
                       <LeaderboardRow
+                        key={index}
                         rank={index + 1}
                         isOwn={edge.node.player === account?.address}
                         player={getUsername(edge.node.player)}

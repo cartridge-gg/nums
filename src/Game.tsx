@@ -146,6 +146,11 @@ const Game = () => {
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
+
+    if (isOver) {
+      onOpen();
+      return false;
+    }
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([

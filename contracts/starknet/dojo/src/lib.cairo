@@ -7,6 +7,7 @@ pub mod systems {
 pub mod models {
     pub mod metadata;
     pub mod message;
+    pub mod claims;
 }
 
 pub mod interfaces {

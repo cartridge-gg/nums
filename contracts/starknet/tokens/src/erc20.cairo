@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait INumsToken<TContractState> {
-    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u16) -> bool;
+    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u32) -> bool;
     fn set_rewards_caller(ref self: TContractState, caller: ContractAddress);
     fn renounce_ownership(ref self: TContractState);
     fn owner(ref self: TContractState) -> ContractAddress;
@@ -73,8 +73,7 @@ mod NumsToken {
 
     #[abi(embed_v0)]
     impl NumsTokenImpl of super::INumsToken<ContractState> {
-        // restrict amount to u16 so upper limit is 0xFFFF tokens
-        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u16) -> bool {
+        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u32) -> bool {
             assert!(self.rewards_caller.read() == get_caller_address(), "Only the reward caller can mint tokens");
             self.erc20.mint(recipient, amount.into() * DECIMALS);
             true

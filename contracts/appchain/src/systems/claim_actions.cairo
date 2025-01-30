@@ -48,10 +48,10 @@ pub mod claim_actions {
             let mut game: Game = world.read_model((game_id, player));
             let config: Config = world.read_model(WORLD_RESOURCE);
             assert!(game.player == player, "Unauthorized player");
-            assert!(!game.finished, "Already claimed");
+            assert!(!game.claimed, "Already claimed");
             assert!(game.reward > 0, "No reward to claim");
 
-            game.finished = true;
+            game.claimed = true;
             world.write_model(@game);
             world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
 
@@ -66,7 +66,6 @@ pub mod claim_actions {
                     .span()
             )
                 .unwrap_syscall();
-
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that

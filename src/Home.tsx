@@ -33,6 +33,7 @@ import Play from "./components/Play";
 import Overlay from "./components/Overlay";
 import RewardsOverlay from "./components/Rewards";
 import { GiftIcon } from "./components/icons/Gift";
+import useChain from "./hooks/chain";
 
 const MAX_SLOTS = 20;
 
@@ -69,6 +70,7 @@ const Home = () => {
     onClose: onCloseRewards,
   } = useDisclosure();
   const { account } = useAccount();
+  const { requestStarknet } = useChain();
   const [addressUsernamesMap, setAddressUsernamesMap] =
     useState<Map<string, string>>();
 
@@ -81,10 +83,10 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (!gameResult.data) return;
+    const gamesModels = gameResult.data?.numsGameModels;
+    if (!gamesModels) return;
 
-    const addresses =
-      gameResult.data.numsGameModels?.edges?.map((g) => g!.node!.player!) || [];
+    const addresses = gamesModels.edges!.map((g) => g!.node!.player!) || [];
 
     lookupAddresses(addresses).then((usernames) =>
       setAddressUsernamesMap(usernames),
@@ -148,7 +150,12 @@ const Home = () => {
             mt={["100px", "100px", "30px"]}
           >
             <VStack gap="30px">
-              <Heading w="full" color="purple.50" fontSize="24px">
+              <Heading
+                w="full"
+                color="purple.50"
+                fontSize="32px"
+                fontWeight="400"
+              >
                 HOW TO PLAY
               </Heading>
               <VStack gap="30px" align="flex-start" fontWeight="450">
@@ -219,7 +226,10 @@ const Home = () => {
                       _hover={{
                         bgColor: "green.50",
                       }}
-                      onClick={() => onOpenRewards()}
+                      onClick={async () => {
+                        requestStarknet();
+                        onOpenRewards();
+                      }}
                     >
                       <GiftIcon />
                       Claim
@@ -317,16 +327,16 @@ const LeaderboardRow = ({
       onClick={onClick}
       color={isOwn ? "orange.50" : "white"}
     >
-      <Box w="full">
+      <Box flex="1">
         <Text>{rank}</Text>
       </Box>
-      <Box w="full">
+      <Box flex="1">
         <Text>{player}</Text>
       </Box>
-      <Box w="full">
+      <Box flex="1">
         <Text>{score}</Text>
       </Box>
-      <Box w="full">
+      <Box flex="1">
         <Text>{tokens.toLocaleString()}</Text>
       </Box>
     </HStack>

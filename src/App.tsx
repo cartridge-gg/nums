@@ -9,11 +9,12 @@ import {
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions } from "@cartridge/controller";
-import { SessionPolicies } from "@cartridge/controller";
+import { SessionPolicies } from "@cartridge/presets";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num, shortString } from "starknet";
+import { num } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
 import "./fonts.css";
+import { APPCHAIN_CHAIN_ID, STARKNET_CHAIN_ID } from "./hooks/chain";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -24,6 +25,8 @@ const provider = jsonRpcProvider({
         return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
       case appchain:
         return { nodeUrl: import.meta.env.VITE_APPCHAIN_RPC_URL };
+      case mockStarknet:
+        return { nodeUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -74,11 +77,10 @@ const policies: SessionPolicies = {
 
 const options: ControllerOptions = {
   policies,
-  defaultChainId: shortString.encodeShortString("WP_NUMS_APPCHAIN"),
+  defaultChainId: APPCHAIN_CHAIN_ID,
   chains: [
-    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -88,7 +90,7 @@ const options: ControllerOptions = {
 const connectors = [new ControllerConnector(options) as never as Connector];
 
 const appchain: Chain = {
-  id: num.toBigInt(shortString.encodeShortString("WP_NUMS_APPCHAIN")),
+  id: num.toBigInt(APPCHAIN_CHAIN_ID),
   network: "appchain",
   name: "Nums Chain",
   rpcUrls: {
@@ -103,11 +105,27 @@ const appchain: Chain = {
   },
 };
 
+const mockStarknet: Chain = {
+  id: num.toBigInt(STARKNET_CHAIN_ID),
+  network: "mockStarknet",
+  name: "Mock Starknet",
+  nativeCurrency: {
+    name: "Ethereum",
+    symbol: "ETH",
+    decimals: 18,
+    address: import.meta.env.VITE_ETH_ADDRESS,
+  },
+  rpcUrls: {
+    default: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
+    public: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
+  },
+};
+
 function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[appchain, sepolia, mainnet]}
+      chains={[appchain, mockStarknet]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

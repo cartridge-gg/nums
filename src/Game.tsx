@@ -38,7 +38,7 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
-          finished
+          claimed
         }
       }
     }
@@ -135,7 +135,7 @@ const Game = () => {
     setIsOver(isOver);
 
     if (isOwner && isOver) {
-      if (!gamesModel.finished) {
+      if (!gamesModel.claimed) {
         claimReward();
       }
       onOpen();
@@ -277,6 +277,10 @@ const Game = () => {
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Remaining Slots</Text>
                 <Text>{remaining}</Text>
+              </VStack>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Rewards Earned</Text>
+                <Text>{reward}</Text>
               </VStack>
             </HStack>
           </VStack>

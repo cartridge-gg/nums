@@ -32,7 +32,6 @@ case $COMMAND in
                 exit 1
             fi
 
-
             slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR
         fi
         ;;

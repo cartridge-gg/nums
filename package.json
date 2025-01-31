@@ -12,8 +12,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@cartridge/connector": "0.6.0",
-    "@cartridge/controller": "0.6.0",
+    "@cartridge/connector": "0.7.0",
+    "@cartridge/controller": "0.7.0",
+    "@cartridge/presets": "^0.5.2",
     "@chakra-ui/react": "^3.5.1",
     "@emotion/react": "^11.14.0",
     "@starknet-react/chains": "^3.0.2",

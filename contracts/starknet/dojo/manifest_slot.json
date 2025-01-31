@@ -1926,8 +1926,8 @@
       ]
     },
     {
-      "address": "0x753506768ae8c87aa49b3d4a2dabf4b8b6faa3235662586516cb42f2272de4b",
-      "class_hash": "0xa65ea17bd53d5934302bace6a6addf571d7d00bffbd160311d0b5f168e6a5",
+      "address": "0x5f01beb6961edd803a61e995e3f0a7f7696608fa79c5aa0738d60654642a7cc",
+      "class_hash": "0x584c9b095264d30d062c86b994f858f2ca313ee38b9efe5b5c24f41f00117ad",
       "abi": [
         {
           "type": "impl",
@@ -1985,6 +1985,42 @@
           "interface_name": "nums_starknet::systems::message_consumers::IMessageConsumers"
         },
         {
+          "type": "enum",
+          "name": "piltover::messaging::types::MessageToAppchainStatus",
+          "variants": [
+            {
+              "name": "NotSent",
+              "type": "()"
+            },
+            {
+              "name": "Sealed",
+              "type": "()"
+            },
+            {
+              "name": "Cancelled",
+              "type": "()"
+            },
+            {
+              "name": "Pending",
+              "type": "core::felt252"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "piltover::messaging::types::MessageToStarknetStatus",
+          "variants": [
+            {
+              "name": "NothingToConsume",
+              "type": "()"
+            },
+            {
+              "name": "ReadyToConsume",
+              "type": "core::felt252"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "nums_starknet::systems::message_consumers::IMessageConsumers",
           "items": [
@@ -2022,11 +2058,43 @@
                 },
                 {
                   "name": "amount",
-                  "type": "core::integer::u16"
+                  "type": "core::integer::u32"
                 }
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "sn_to_appchain_messages",
+              "inputs": [
+                {
+                  "name": "message_hash",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "piltover::messaging::types::MessageToAppchainStatus"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "appchain_to_sn_messages",
+              "inputs": [
+                {
+                  "name": "message_hash",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "piltover::messaging::types::MessageToStarknetStatus"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -2179,6 +2247,12 @@
       "class_hash": "0x1493c5c7cbd8d8312fe5942a75566047782a5fc236aa241e2e406089d5f5c24",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
+    },
+    {
+      "members": [],
+      "class_hash": "0x3b6c85ecd2dde1d4204eed8eedb20c0e8f5f8e51c74d268df8e769b36dcd259",
+      "tag": "nums-RewardClaims",
+      "selector": "0x5c16914c1ab8a135f8e7440553402b0c4fbeb7c5f48d242c4bc005f6758be83"
     }
   ],
   "events": [

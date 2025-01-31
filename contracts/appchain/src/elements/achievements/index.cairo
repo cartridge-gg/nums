@@ -3,7 +3,7 @@ use nums_appchain::elements::achievements;
 
 // Constants
 
-pub const ACHIEVEMENT_COUNT: u8 = 23;
+pub const ACHIEVEMENT_COUNT: u8 = 28;
 
 // Typ
 
@@ -33,6 +33,11 @@ pub enum Achievement {
     StreakOne,
     StreakTwo,
     StreakThree,
+    ClaimerOne,
+    ClaimerTwo,
+    ClaimerThree,
+    ClaimerFour,
+    ClaimerFive,
 }
 
 #[generate_trait]
@@ -64,6 +69,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::identifier(0),
             Achievement::StreakTwo => achievements::streak::Streak::identifier(1),
             Achievement::StreakThree => achievements::streak::Streak::identifier(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::identifier(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::identifier(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::identifier(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::identifier(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::identifier(4),
         }
     }
 
@@ -94,6 +104,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::hidden(0),
             Achievement::StreakTwo => achievements::streak::Streak::hidden(1),
             Achievement::StreakThree => achievements::streak::Streak::hidden(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::hidden(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::hidden(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::hidden(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::hidden(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::hidden(4),
         }
     }
 
@@ -124,6 +139,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::index(0),
             Achievement::StreakTwo => achievements::streak::Streak::index(1),
             Achievement::StreakThree => achievements::streak::Streak::index(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::index(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::index(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::index(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::index(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::index(4),
         }
     }
 
@@ -154,6 +174,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::points(0),
             Achievement::StreakTwo => achievements::streak::Streak::points(1),
             Achievement::StreakThree => achievements::streak::Streak::points(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::points(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::points(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::points(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::points(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::points(4),
         }
     }
 
@@ -184,6 +209,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::group(),
             Achievement::StreakTwo => achievements::streak::Streak::group(),
             Achievement::StreakThree => achievements::streak::Streak::group(),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::group(),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::group(),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::group(),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::group(),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::group(),
         }
     }
 
@@ -214,6 +244,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::icon(0),
             Achievement::StreakTwo => achievements::streak::Streak::icon(1),
             Achievement::StreakThree => achievements::streak::Streak::icon(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::icon(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::icon(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::icon(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::icon(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::icon(4),
         }
     }
 
@@ -244,6 +279,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::title(0),
             Achievement::StreakTwo => achievements::streak::Streak::title(1),
             Achievement::StreakThree => achievements::streak::Streak::title(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::title(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::title(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::title(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::title(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::title(4),
         }
     }
 
@@ -274,6 +314,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::description(0),
             Achievement::StreakTwo => achievements::streak::Streak::description(1),
             Achievement::StreakThree => achievements::streak::Streak::description(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::description(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::description(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::description(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::description(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::description(4),
         }
     }
 
@@ -304,6 +349,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::StreakOne => achievements::streak::Streak::tasks(0),
             Achievement::StreakTwo => achievements::streak::Streak::tasks(1),
             Achievement::StreakThree => achievements::streak::Streak::tasks(2),
+            Achievement::ClaimerOne => achievements::claimer::Claimer::tasks(0),
+            Achievement::ClaimerTwo => achievements::claimer::Claimer::tasks(1),
+            Achievement::ClaimerThree => achievements::claimer::Claimer::tasks(2),
+            Achievement::ClaimerFour => achievements::claimer::Claimer::tasks(3),
+            Achievement::ClaimerFive => achievements::claimer::Claimer::tasks(4),
         }
     }
 
@@ -341,6 +391,11 @@ impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
             Achievement::StreakOne => 21,
             Achievement::StreakTwo => 22,
             Achievement::StreakThree => 23,
+            Achievement::ClaimerOne => 24,
+            Achievement::ClaimerTwo => 25,
+            Achievement::ClaimerThree => 26,
+            Achievement::ClaimerFour => 27,
+            Achievement::ClaimerFive => 28,
         }
     }
 }
@@ -374,6 +429,11 @@ impl IntoU8Achievement of core::traits::Into<u8, Achievement> {
             21 => Achievement::StreakOne,
             22 => Achievement::StreakTwo,
             23 => Achievement::StreakThree,
+            24 => Achievement::ClaimerOne,
+            25 => Achievement::ClaimerTwo,
+            26 => Achievement::ClaimerThree,
+            27 => Achievement::ClaimerFour,
+            28 => Achievement::ClaimerFive,
             _ => Achievement::None,
         }
     }

@@ -8,7 +8,7 @@ pub impl ReferenceOne of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place the number 21."
+        "Place the number 21"
     }
 }
 
@@ -20,7 +20,7 @@ pub impl ReferenceTwo of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place the number 42."
+        "Place the number 42"
     }
 }
 
@@ -32,7 +32,7 @@ pub impl ReferenceThree of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place the number 404."
+        "Place the number 404"
     }
 }
 
@@ -44,7 +44,7 @@ pub impl ReferenceFour of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place the number 777."
+        "Place the number 777"
     }
 }
 
@@ -56,6 +56,6 @@ pub impl ReferenceFive of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place the number 911."
+        "Place the number 911"
     }
 }

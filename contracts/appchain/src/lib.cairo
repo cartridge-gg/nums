@@ -19,6 +19,7 @@ pub mod elements {
         pub mod reference;
         pub mod filler;
         pub mod streak;
+        pub mod claimer;
     }
     pub mod tasks {
         pub mod interface;
@@ -28,6 +29,7 @@ pub mod elements {
         pub mod reference;
         pub mod filler;
         pub mod streaker;
+        pub mod claimer;
     }
 }
 

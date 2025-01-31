@@ -11,6 +11,8 @@ build-external-contracts = [
     "dojo::world::world_contract::world",
     "nums_common::models::jackpot::m_Jackpot",
     "nums_common::models::config::m_Config",
+    "achievement::events::index::e_TrophyCreation",
+    "achievement::events::index::e_TrophyProgression",
 ]
 
 [dependencies]

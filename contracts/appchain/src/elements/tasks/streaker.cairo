@@ -8,7 +8,7 @@ pub impl StreakerOne of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place 2 consecutive numbers."
+        "Place 2 consecutive numbers"
     }
 }
 
@@ -20,7 +20,7 @@ pub impl StreakerTwo of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place 3 consecutive numbers."
+        "Place 3 consecutive numbers"
     }
 }
 
@@ -32,6 +32,6 @@ pub impl StreakerThree of TaskTrait {
 
     #[inline]
     fn description(count: u32) -> ByteArray {
-        "Place 4 consecutive numbers."
+        "Place 4 consecutive numbers"
     }
 }

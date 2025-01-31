@@ -26,6 +26,7 @@ pub enum Task {
     StreakerOne,
     StreakerTwo,
     StreakerThree,
+    Claimer,
 }
 
 // Implementations
@@ -51,6 +52,7 @@ pub impl TaskImpl of TaskTrait {
             Task::StreakerOne => tasks::streaker::StreakerOne::identifier(),
             Task::StreakerTwo => tasks::streaker::StreakerTwo::identifier(),
             Task::StreakerThree => tasks::streaker::StreakerThree::identifier(),
+            Task::Claimer => tasks::claimer::Claimer::identifier(),
         }
     }
 
@@ -73,6 +75,7 @@ pub impl TaskImpl of TaskTrait {
             Task::StreakerOne => tasks::streaker::StreakerOne::description(count),
             Task::StreakerTwo => tasks::streaker::StreakerTwo::description(count),
             Task::StreakerThree => tasks::streaker::StreakerThree::description(count),
+            Task::Claimer => tasks::claimer::Claimer::description(count),
         }
     }
 
@@ -104,6 +107,7 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
             Task::StreakerOne => 13,
             Task::StreakerTwo => 14,
             Task::StreakerThree => 15,
+            Task::Claimer => 16,
         }
     }
 }
@@ -129,6 +133,7 @@ impl IntoU8Task of core::traits::Into<u8, Task> {
             13 => Task::StreakerOne,
             14 => Task::StreakerTwo,
             15 => Task::StreakerThree,
+            16 => Task::Claimer,
             _ => Task::None,
         }
     }

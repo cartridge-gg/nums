@@ -14,7 +14,7 @@ pub mod message_consumers {
     use super::IMessageConsumers;
     use starknet::ContractAddress;
     use nums_starknet::models::message::{Message, Destination};
-    use nums_starknet::models::claims::RewardClaims;
+    use nums_common::models::claims::Claims;
     use nums_common::models::jackpot::Jackpot;
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;

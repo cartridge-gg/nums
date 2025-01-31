@@ -11,10 +11,12 @@ build-external-contracts = [
     "dojo::world::world_contract::world", 
     "nums_common::models::jackpot::m_Jackpot", 
     "nums_common::models::config::m_Config",
+    "nums_common::models::claims::m_Claims",
 ]
 
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.11" }
+piltover = { git = "https://github.com/keep-starknet-strange/piltover.git" }
 starknet = "2.8.4"
 nums_common = { path = "../common" }
 

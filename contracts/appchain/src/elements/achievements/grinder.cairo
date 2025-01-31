@@ -81,11 +81,11 @@ pub impl Grinder of AchievementTrait {
     #[inline]
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {
-            0 => 5,
-            1 => 10,
-            2 => 25,
-            3 => 50,
-            4 => 100,
+            0 => 25,
+            1 => 50,
+            2 => 100,
+            3 => 250,
+            4 => 500,
             _ => 0,
         };
         Task::Grinder.tasks(count)

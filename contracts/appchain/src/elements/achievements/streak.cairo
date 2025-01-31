@@ -26,9 +26,9 @@ pub impl Streak of AchievementTrait {
     #[inline]
     fn points(level: u8) -> u16 {
         match level {
-            0 => 30,
-            1 => 70,
-            2 => 100,
+            0 => 10,
+            1 => 50,
+            2 => 90,
             _ => 0,
         }
     }

@@ -17,7 +17,7 @@ pub mod game_actions {
     use nums_appchain::models::totals::Totals;
     use nums_appchain::models::slot::Slot;
     use nums_appchain::elements::achievements::index::{
-        Achievement, AchievementTrait, ACHIEVEMENT_COUNT
+        Achievement, AchievementTrait, ACHIEVEMENT_COUNT,
     };
     use nums_appchain::elements::tasks::index::{Task, TaskTrait};
 
@@ -60,7 +60,7 @@ pub mod game_actions {
         index: u8,
         number: u16,
         next_number: u16,
-        remaining_slots: u8
+        remaining_slots: u8,
     }
 
     #[derive(Drop, Serde)]
@@ -83,7 +83,7 @@ pub mod game_actions {
         game_id: u32,
         #[key]
         player: ContractAddress,
-        remaining_slots: u8
+        remaining_slots: u8,
     }
 
     #[derive(Drop, Serde)]
@@ -93,12 +93,12 @@ pub mod game_actions {
         game_id: u32,
         #[key]
         jackpot_id: u32,
-        player: ContractAddress
+        player: ContractAddress,
     }
 
     // Constuctor
 
-    fn dojo_init(self: @ContractState,) {
+    fn dojo_init(self: @ContractState) {
         // [Event] Emit all Achievement events
         let mut world: WorldStorage = self.world(@"nums");
         let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
@@ -154,7 +154,7 @@ pub mod game_actions {
                         finished: false,
                         reward: 0,
                         jackpot_id,
-                    }
+                    },
                 );
 
             world
@@ -166,7 +166,7 @@ pub mod game_actions {
                         max_number: game_config.max_number,
                         min_number: game_config.min_number,
                         jackpot_id,
-                    }
+                    },
                 );
 
             // Update achievement progression for the player
@@ -197,6 +197,8 @@ pub mod game_actions {
             assert!(target_idx < game.max_slots, "Invalid slot");
 
             // Build up nums array and insert target
+            let mut streak = 1;
+            let mut prev_num = 0;
             let mut nums = ArrayTrait::<u16>::new();
             let mut idx = 0_u8;
             loop {
@@ -205,10 +207,26 @@ pub mod game_actions {
                     // Check if we're trying to insert into a filled slot
                     assert!(target_idx != idx, "Slot already filled");
                     nums.append(slot.number);
+
+                    // Update streak
+                    if prev_num != 0 && slot.number == prev_num + 1 {
+                        streak += 1;
+                    } else {
+                        streak = 1;
+                    };
+                    prev_num = slot.number;
                 }
 
                 if target_idx == idx {
                     nums.append(game.next_number);
+
+                    // Update streak
+                    if prev_num != 0 && game.next_number == prev_num + 1 {
+                        streak += 1;
+                    } else {
+                        streak = 1;
+                    };
+                    prev_num = game.next_number;
                 }
 
                 idx += 1_u8;
@@ -251,26 +269,57 @@ pub mod game_actions {
                         index: target_idx,
                         number: target_number,
                         next_number,
-                        remaining_slots: game.remaining_slots
-                    }
+                        remaining_slots: game.remaining_slots,
+                    },
                 );
 
-            // Update achievement progression for the player
+            // Update achievement progression for the player - Filler tasks
             let player_id: felt252 = player.into();
+            let filled_slots = nums.len();
+            if filled_slots == 10 {
+                let task_id: felt252 = Task::FillerOne.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if filled_slots == 15 {
+                let task_id: felt252 = Task::FillerTwo.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if filled_slots == 17 {
+                let task_id: felt252 = Task::FillerThree.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if filled_slots == 19 {
+                let task_id: felt252 = Task::FillerFour.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if filled_slots == 20 {
+                let task_id: felt252 = Task::FillerFive.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            }
+
+            // Update achievement progression for the player - Reference tasks
             if target_number == 21 {
-                let task_id: felt252 = Task::Blackjack.identifier();
+                let task_id: felt252 = Task::ReferenceOne.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
             } else if target_number == 42 {
-                let task_id: felt252 = Task::Answer.identifier();
+                let task_id: felt252 = Task::ReferenceTwo.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
             } else if target_number == 404 {
-                let task_id: felt252 = Task::Missing.identifier();
+                let task_id: felt252 = Task::ReferenceThree.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
             } else if target_number == 777 {
-                let task_id: felt252 = Task::Jackpot.identifier();
+                let task_id: felt252 = Task::ReferenceFour.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
             } else if target_number == 911 {
-                let task_id: felt252 = Task::Emergency.identifier();
+                let task_id: felt252 = Task::ReferenceFive.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            }
+
+            // Update achievement progression for the player - Streak tasks
+            if streak == 2 {
+                let task_id: felt252 = Task::StreakerOne.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if streak == 3 {
+                let task_id: felt252 = Task::StreakerTwo.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if streak == 4 {
+                let task_id: felt252 = Task::StreakerThree.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
             }
 
@@ -299,7 +348,7 @@ pub mod game_actions {
 
             let mut king_of_the_hill = match jackpot.mode {
                 JackpotMode::KING_OF_THE_HILL(koth) => koth,
-                _ => panic!("Not a King of the Hill jackpot")
+                _ => panic!("Not a King of the Hill jackpot"),
             };
 
             assert(jackpot.expiration > starknet::get_block_timestamp(), 'Jackpot already expired');
@@ -307,7 +356,7 @@ pub mod game_actions {
                 game.remaining_slots < king_of_the_hill.remaining_slots
                     || (game.remaining_slots == king_of_the_hill.remaining_slots
                         && player != king_of_the_hill.king),
-                'No improvement or already king'
+                'No improvement or already king',
             );
 
             king_of_the_hill.king = player;
@@ -364,7 +413,7 @@ pub mod game_actions {
 
         match reroll {
             true => next_random(rand, nums, min, max),
-            false => random
+            false => random,
         }
     }
 }

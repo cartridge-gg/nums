@@ -1,5 +1,5 @@
 use nums_appchain::elements::achievements::interface::{
-    AchievementTrait, ArcadeTask, Task, TaskTrait
+    AchievementTrait, ArcadeTask, Task, TaskTrait,
 };
 
 pub impl Reference of AchievementTrait {
@@ -82,11 +82,11 @@ pub impl Reference of AchievementTrait {
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = 1;
         match level {
-            0 => Task::Blackjack.tasks(count),
-            1 => Task::Answer.tasks(count),
-            2 => Task::Missing.tasks(count),
-            3 => Task::Jackpot.tasks(count),
-            4 => Task::Emergency.tasks(count),
+            0 => Task::ReferenceOne.tasks(count),
+            1 => Task::ReferenceTwo.tasks(count),
+            2 => Task::ReferenceThree.tasks(count),
+            3 => Task::ReferenceFour.tasks(count),
+            4 => Task::ReferenceFive.tasks(count),
             _ => [].span(),
         }
     }

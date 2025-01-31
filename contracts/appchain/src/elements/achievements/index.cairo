@@ -3,7 +3,7 @@ use nums_appchain::elements::achievements;
 
 // Constants
 
-pub const ACHIEVEMENT_COUNT: u8 = 10;
+pub const ACHIEVEMENT_COUNT: u8 = 23;
 
 // Typ
 
@@ -25,6 +25,14 @@ pub enum Achievement {
     ReferenceIII,
     ReferenceIV,
     ReferenceV,
+    FillerOne,
+    FillerTwo,
+    FillerThree,
+    FillerFour,
+    FillerFive,
+    StreakOne,
+    StreakTwo,
+    StreakThree,
 }
 
 #[generate_trait]
@@ -48,6 +56,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::identifier(2),
             Achievement::ReferenceIV => achievements::reference::Reference::identifier(3),
             Achievement::ReferenceV => achievements::reference::Reference::identifier(4),
+            Achievement::FillerOne => achievements::filler::Filler::identifier(0),
+            Achievement::FillerTwo => achievements::filler::Filler::identifier(1),
+            Achievement::FillerThree => achievements::filler::Filler::identifier(2),
+            Achievement::FillerFour => achievements::filler::Filler::identifier(3),
+            Achievement::FillerFive => achievements::filler::Filler::identifier(4),
+            Achievement::StreakOne => achievements::streak::Streak::identifier(0),
+            Achievement::StreakTwo => achievements::streak::Streak::identifier(1),
+            Achievement::StreakThree => achievements::streak::Streak::identifier(2),
         }
     }
 
@@ -70,6 +86,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::hidden(2),
             Achievement::ReferenceIV => achievements::reference::Reference::hidden(3),
             Achievement::ReferenceV => achievements::reference::Reference::hidden(4),
+            Achievement::FillerOne => achievements::filler::Filler::hidden(0),
+            Achievement::FillerTwo => achievements::filler::Filler::hidden(1),
+            Achievement::FillerThree => achievements::filler::Filler::hidden(2),
+            Achievement::FillerFour => achievements::filler::Filler::hidden(3),
+            Achievement::FillerFive => achievements::filler::Filler::hidden(4),
+            Achievement::StreakOne => achievements::streak::Streak::hidden(0),
+            Achievement::StreakTwo => achievements::streak::Streak::hidden(1),
+            Achievement::StreakThree => achievements::streak::Streak::hidden(2),
         }
     }
 
@@ -92,6 +116,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::index(2),
             Achievement::ReferenceIV => achievements::reference::Reference::index(3),
             Achievement::ReferenceV => achievements::reference::Reference::index(4),
+            Achievement::FillerOne => achievements::filler::Filler::index(0),
+            Achievement::FillerTwo => achievements::filler::Filler::index(1),
+            Achievement::FillerThree => achievements::filler::Filler::index(2),
+            Achievement::FillerFour => achievements::filler::Filler::index(3),
+            Achievement::FillerFive => achievements::filler::Filler::index(4),
+            Achievement::StreakOne => achievements::streak::Streak::index(0),
+            Achievement::StreakTwo => achievements::streak::Streak::index(1),
+            Achievement::StreakThree => achievements::streak::Streak::index(2),
         }
     }
 
@@ -114,6 +146,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::points(2),
             Achievement::ReferenceIV => achievements::reference::Reference::points(3),
             Achievement::ReferenceV => achievements::reference::Reference::points(4),
+            Achievement::FillerOne => achievements::filler::Filler::points(0),
+            Achievement::FillerTwo => achievements::filler::Filler::points(1),
+            Achievement::FillerThree => achievements::filler::Filler::points(2),
+            Achievement::FillerFour => achievements::filler::Filler::points(3),
+            Achievement::FillerFive => achievements::filler::Filler::points(4),
+            Achievement::StreakOne => achievements::streak::Streak::points(0),
+            Achievement::StreakTwo => achievements::streak::Streak::points(1),
+            Achievement::StreakThree => achievements::streak::Streak::points(2),
         }
     }
 
@@ -136,6 +176,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::group(),
             Achievement::ReferenceIV => achievements::reference::Reference::group(),
             Achievement::ReferenceV => achievements::reference::Reference::group(),
+            Achievement::FillerOne => achievements::filler::Filler::group(),
+            Achievement::FillerTwo => achievements::filler::Filler::group(),
+            Achievement::FillerThree => achievements::filler::Filler::group(),
+            Achievement::FillerFour => achievements::filler::Filler::group(),
+            Achievement::FillerFive => achievements::filler::Filler::group(),
+            Achievement::StreakOne => achievements::streak::Streak::group(),
+            Achievement::StreakTwo => achievements::streak::Streak::group(),
+            Achievement::StreakThree => achievements::streak::Streak::group(),
         }
     }
 
@@ -158,6 +206,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::icon(2),
             Achievement::ReferenceIV => achievements::reference::Reference::icon(3),
             Achievement::ReferenceV => achievements::reference::Reference::icon(4),
+            Achievement::FillerOne => achievements::filler::Filler::icon(0),
+            Achievement::FillerTwo => achievements::filler::Filler::icon(1),
+            Achievement::FillerThree => achievements::filler::Filler::icon(2),
+            Achievement::FillerFour => achievements::filler::Filler::icon(3),
+            Achievement::FillerFive => achievements::filler::Filler::icon(4),
+            Achievement::StreakOne => achievements::streak::Streak::icon(0),
+            Achievement::StreakTwo => achievements::streak::Streak::icon(1),
+            Achievement::StreakThree => achievements::streak::Streak::icon(2),
         }
     }
 
@@ -180,6 +236,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::title(2),
             Achievement::ReferenceIV => achievements::reference::Reference::title(3),
             Achievement::ReferenceV => achievements::reference::Reference::title(4),
+            Achievement::FillerOne => achievements::filler::Filler::title(0),
+            Achievement::FillerTwo => achievements::filler::Filler::title(1),
+            Achievement::FillerThree => achievements::filler::Filler::title(2),
+            Achievement::FillerFour => achievements::filler::Filler::title(3),
+            Achievement::FillerFive => achievements::filler::Filler::title(4),
+            Achievement::StreakOne => achievements::streak::Streak::title(0),
+            Achievement::StreakTwo => achievements::streak::Streak::title(1),
+            Achievement::StreakThree => achievements::streak::Streak::title(2),
         }
     }
 
@@ -202,6 +266,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::description(2),
             Achievement::ReferenceIV => achievements::reference::Reference::description(3),
             Achievement::ReferenceV => achievements::reference::Reference::description(4),
+            Achievement::FillerOne => achievements::filler::Filler::description(0),
+            Achievement::FillerTwo => achievements::filler::Filler::description(1),
+            Achievement::FillerThree => achievements::filler::Filler::description(2),
+            Achievement::FillerFour => achievements::filler::Filler::description(3),
+            Achievement::FillerFive => achievements::filler::Filler::description(4),
+            Achievement::StreakOne => achievements::streak::Streak::description(0),
+            Achievement::StreakTwo => achievements::streak::Streak::description(1),
+            Achievement::StreakThree => achievements::streak::Streak::description(2),
         }
     }
 
@@ -224,6 +296,14 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ReferenceIII => achievements::reference::Reference::tasks(2),
             Achievement::ReferenceIV => achievements::reference::Reference::tasks(3),
             Achievement::ReferenceV => achievements::reference::Reference::tasks(4),
+            Achievement::FillerOne => achievements::filler::Filler::tasks(0),
+            Achievement::FillerTwo => achievements::filler::Filler::tasks(1),
+            Achievement::FillerThree => achievements::filler::Filler::tasks(2),
+            Achievement::FillerFour => achievements::filler::Filler::tasks(3),
+            Achievement::FillerFive => achievements::filler::Filler::tasks(4),
+            Achievement::StreakOne => achievements::streak::Streak::tasks(0),
+            Achievement::StreakTwo => achievements::streak::Streak::tasks(1),
+            Achievement::StreakThree => achievements::streak::Streak::tasks(2),
         }
     }
 
@@ -253,6 +333,14 @@ impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
             Achievement::ReferenceIII => 13,
             Achievement::ReferenceIV => 14,
             Achievement::ReferenceV => 15,
+            Achievement::FillerOne => 16,
+            Achievement::FillerTwo => 17,
+            Achievement::FillerThree => 18,
+            Achievement::FillerFour => 19,
+            Achievement::FillerFive => 20,
+            Achievement::StreakOne => 21,
+            Achievement::StreakTwo => 22,
+            Achievement::StreakThree => 23,
         }
     }
 }
@@ -278,6 +366,14 @@ impl IntoU8Achievement of core::traits::Into<u8, Achievement> {
             13 => Achievement::ReferenceIII,
             14 => Achievement::ReferenceIV,
             15 => Achievement::ReferenceV,
+            16 => Achievement::FillerOne,
+            17 => Achievement::FillerTwo,
+            18 => Achievement::FillerThree,
+            19 => Achievement::FillerFour,
+            20 => Achievement::FillerFive,
+            21 => Achievement::StreakOne,
+            22 => Achievement::StreakTwo,
+            23 => Achievement::StreakThree,
             _ => Achievement::None,
         }
     }

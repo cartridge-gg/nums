@@ -15,7 +15,6 @@ import {
 import { Button } from "./components/Button";
 import { useAccount, useNetwork } from "@starknet-react/core";
 import useToast from "./hooks/toast";
-import { Toaster } from "@/components/ui/toaster";
 import Header from "./components/Header";
 import Overlay from "./components/Overlay";
 import { HomeIcon } from "./components/icons/Home";

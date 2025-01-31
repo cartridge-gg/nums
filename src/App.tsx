@@ -107,8 +107,8 @@ const appchain: Chain = {
 
 const mockStarknet: Chain = {
   id: num.toBigInt(STARKNET_CHAIN_ID),
-  network: "mockStarknet",
-  name: "Mock Starknet",
+  network: "Starknet",
+  name: "Starknet Mainnet",
   nativeCurrency: {
     name: "Ethereum",
     symbol: "ETH",

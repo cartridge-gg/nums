@@ -34,6 +34,7 @@ import Overlay from "./components/Overlay";
 import RewardsOverlay from "./components/Rewards";
 import { GiftIcon } from "./components/icons/Gift";
 import useChain from "./hooks/chain";
+import useToast from "./hooks/toast";
 
 const MAX_SLOTS = 20;
 

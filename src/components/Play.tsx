@@ -1,6 +1,6 @@
 import { Button, Spinner } from "@chakra-ui/react";
 import { useState } from "react";
-import { useAccount, useConnect } from "@starknet-react/core";
+import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
@@ -14,7 +14,7 @@ const Play = ({
 }) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
-
+  const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ const Play = ({
         },
       ]);
 
-      showTxn(transaction_hash);
+      showTxn(transaction_hash, chain?.name);
 
       const receipt = await account.waitForTransaction(transaction_hash, {
         retryInterval: 500,

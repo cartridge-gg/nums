@@ -13,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Button } from "./components/Button";
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import useToast from "./hooks/toast";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "./components/Header";
@@ -66,9 +66,9 @@ const Game = () => {
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [numRange, setNumRange] = useState<string>();
   const [reward, setReward] = useState<number>(0);
   const [claimError, setClaimError] = useState<Error>();
+  const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
   const { gameId } = useParams();
@@ -122,7 +122,6 @@ const Game = () => {
 
     setRemaining(gamesModel.remaining_slots || 0);
     setNextNumber(gamesModel.next_number);
-    setNumRange(gamesModel.min_number + " - " + gamesModel.max_number);
     setReward(gamesModel.reward as number);
     const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
     slotsEdges.forEach((edge: any) => {
@@ -169,7 +168,7 @@ const Game = () => {
         },
       ]);
 
-      showTxn(transaction_hash);
+      showTxn(transaction_hash, chain?.name);
 
       try {
         // catch any txn errors (nonce err, etc) and reset state
@@ -196,7 +195,6 @@ const Game = () => {
 
   return (
     <>
-      <Toaster />
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
@@ -270,10 +268,6 @@ const Game = () => {
               })}
             </Grid>
             <HStack w="full">
-              <VStack layerStyle="transparent" flex="1" align="flex-start">
-                <Text color="purple.50">Number Ranger</Text>
-                <Text>{numRange}</Text>
-              </VStack>
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Remaining Slots</Text>
                 <Text>{remaining}</Text>

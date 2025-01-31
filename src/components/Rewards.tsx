@@ -1,12 +1,13 @@
 import { HStack, Text, VStack } from "@chakra-ui/react";
 import Overlay from "./Overlay";
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import { graphql } from "gql.tada";
 import { useQuery } from "urql";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./Button";
 import { CallData } from "starknet";
 import useChain from "@/hooks/chain";
+import useToast from "@/hooks/toast";
 
 const RewardsQuery = graphql(`
   query RewardsQuery($address: String!) {
@@ -126,6 +127,8 @@ const Row = ({
   status: Status;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { chain } = useNetwork();
+  const { showTxn } = useToast();
   const { account } = useAccount();
 
   const { requestStarknet } = useChain();
@@ -139,7 +142,7 @@ const Row = ({
 
     try {
       await requestStarknet();
-      await account.execute([
+      const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
           entrypoint: "consume_claim_reward",
@@ -150,6 +153,7 @@ const Row = ({
           }),
         },
       ]);
+      showTxn(transaction_hash, chain.name);
     } catch (error) {
       console.log(error);
     } finally {

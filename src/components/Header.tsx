@@ -25,6 +25,7 @@ import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate } from "react-router-dom";
 import Balance from "./Balance";
+import { Toaster } from "./ui/toaster";
 
 const Header = ({
   showHome,
@@ -56,6 +57,7 @@ const Header = ({
 
   return (
     <>
+      <Toaster />
       <HStack
         w="full"
         position="absolute"

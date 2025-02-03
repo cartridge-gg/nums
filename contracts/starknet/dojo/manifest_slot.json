@@ -1926,8 +1926,8 @@
       ]
     },
     {
-      "address": "0x2de1ca4206f5659f88ba476158403e3147b56bdec69f667fb125e67a88bb14c",
-      "class_hash": "0x584c9b095264d30d062c86b994f858f2ca313ee38b9efe5b5c24f41f00117ad",
+      "address": "0x1aae53e4d5f0c2d1b5bccd9ae4d866916a3222c1d32864b9cfebdcac9b1ec11",
+      "class_hash": "0x5a0733baa981c07f5911514fd47def1facb8b6723d8d9bc26dc3f4f432c6332",
       "abi": [
         {
           "type": "impl",
@@ -2226,6 +2226,12 @@
   "models": [
     {
       "members": [],
+      "class_hash": "0x2fd23c9da7c878982e37097c61c345662338411c3f3541a24384c6768fe2bf0",
+      "tag": "nums-Claims",
+      "selector": "0x49b7b89f531d9854e41c25cd819141b398876c2d71ddeba151f3d748316b843"
+    },
+    {
+      "members": [],
       "class_hash": "0x4b936c252df908820e1e998ba95a89036f3dc06ac0d057bf4e7dc197f89d82d",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
@@ -2247,12 +2253,6 @@
       "class_hash": "0x1493c5c7cbd8d8312fe5942a75566047782a5fc236aa241e2e406089d5f5c24",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
-    },
-    {
-      "members": [],
-      "class_hash": "0x3b6c85ecd2dde1d4204eed8eedb20c0e8f5f8e51c74d268df8e769b36dcd259",
-      "tag": "nums-RewardClaims",
-      "selector": "0x5c16914c1ab8a135f8e7440553402b0c4fbeb7c5f48d242c4bc005f6758be83"
     }
   ],
   "events": [

@@ -12,7 +12,7 @@ pub mod claim_actions {
     use dojo::event::EventStorage;
     use achievement::store::StoreTrait;
 
-    use piltover::messaging::hash::compute_message_hash_appc_to_sn;
+    //use piltover::messaging::hash::compute_message_hash_appc_to_sn;
 
 
     use nums_appchain::models::game::{Game, GameTrait};
@@ -62,15 +62,16 @@ pub mod claim_actions {
                 game_id,
                 ty: ClaimsType::TOKEN(TokenClaim { amount: game.reward }),
                 block_number: block_info.block_number,
-                message_hash: compute_message_hash_appc_to_sn(
-                    starknet::get_contract_address(),
-                    config.starknet_consumer,
-                    array![
-                        player.into(),
-                        game_id.into(),
-                        game.reward.into(),
-                    ].span(),
-                ),
+                message_hash: 0,
+                // message_hash: compute_message_hash_appc_to_sn(
+                //     starknet::get_contract_address(),
+                //     config.starknet_consumer,
+                //     array![
+                //         player.into(),
+                //         game_id.into(),
+                //         game.reward.into(),
+                //     ].span(),
+                // ),
             };
 
             game.claimed = true;
@@ -138,15 +139,16 @@ pub mod claim_actions {
                 game_id,
                 ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
                 block_number: block_info.block_number,
-                message_hash: compute_message_hash_appc_to_sn(
-                    starknet::get_contract_address(),
-                    config.starknet_consumer,
-                    array![
-                        player.into(),
-                        game_id.into(),
-                        jackpot_id.into(),
-                    ].span(),
-                ),
+                message_hash: 0,
+                // message_hash: compute_message_hash_appc_to_sn(
+                //     starknet::get_contract_address(),
+                //     config.starknet_consumer,
+                //     array![
+                //         player.into(),
+                //         game_id.into(),
+                //         jackpot_id.into(),
+                //     ].span(),
+                // ),
             };
 
             world.write_model(@jackpot);

@@ -8,11 +8,13 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "format": "prettier ./src --write"
+    "format": "prettier ./src --write",
+    "test": "jest"
   },
   "dependencies": {
-    "@cartridge/connector": "0.6.0",
-    "@cartridge/controller": "0.6.0",
+    "@cartridge/connector": "0.7.0",
+    "@cartridge/controller": "0.7.0",
+    "@cartridge/presets": "^0.5.2",
     "@chakra-ui/react": "^3.5.1",
     "@emotion/react": "^11.14.0",
     "@starknet-react/chains": "^3.0.2",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.12.12",
     "@chakra-ui/cli": "^3.5.1",
+    "@types/jest": "^29.5.14",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -47,6 +50,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.5.4",
     "vite": "^5.2.0",
     "vite-plugin-static-copy": "^2.2.0",

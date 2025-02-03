@@ -1,24 +1,29 @@
-import { useParams } from "react-router-dom";
-import { graphql } from "../graphql";
+import { useNavigate, useParams } from "react-router-dom";
+import { graphql } from "./graphql";
 import { useQuery } from "urql";
-import { useEffect, useState } from "react";
-import { removeZeros } from "../utils";
+import { useCallback, useEffect, useState } from "react";
+import { isGameOver, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
 import {
   Container,
   Grid,
-  GridItem,
   HStack,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { Button } from "../components/Button";
-import { useAccount } from "@starknet-react/core";
-import useToast from "../hooks/toast";
-import { Toaster } from "@/components/ui/toaster";
-import Header from "./Header";
+import { Button } from "./components/Button";
+import { useAccount, useNetwork } from "@starknet-react/core";
+import useToast from "./hooks/toast";
+import Header from "./components/Header";
+import Overlay from "./components/Overlay";
+import { HomeIcon } from "./components/icons/Home";
+import Play from "./components/Play";
+import Slot from "./components/Slot";
+import NextNumber from "./components/NextNumber";
 
 const REFRESH_INTERVAL = 1000;
+const MAX_SLOTS = 20;
 
 const GameQuery = graphql(`
   query GameQuery($gameId: u32) {
@@ -32,6 +37,7 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
+          claimed
         }
       }
     }
@@ -51,18 +57,22 @@ const GameQuery = graphql(`
 `);
 
 const Game = () => {
-  const [slots, setSlots] = useState<number[]>(Array.from({ length: 20 }));
-  const [next, setNext] = useState<number | null>();
-  //const [player, setPlayer] = useState<string>("");
+  const [slots, setSlots] = useState<number[]>(
+    Array.from({ length: MAX_SLOTS }, () => 0),
+  );
+  const [nextNumber, setNextNumber] = useState<number | null>();
+  const [isOver, setIsOver] = useState<boolean>(false);
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [numRange, setNumRange] = useState<string>();
-  // const [isRewardsActive, setIsRewardsActive] = useState<boolean>(false);
-  // const [nextReward] = useState<number | null>(null);
-  //const [rewards, setRewards] = useState<number>(0);
+  const [reward, setReward] = useState<number>(0);
+  const [claimError, setClaimError] = useState<Error>();
+  const { chain } = useNetwork();
+  const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
   const { gameId } = useParams();
+  const navigate = useNavigate();
+
   const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
@@ -78,6 +88,21 @@ const Game = () => {
     isLoading && reexecuteQuery();
   }, REFRESH_INTERVAL);
 
+  const claimReward = useCallback(async () => {
+    if (!account) return;
+    account
+      .execute([
+        {
+          contractAddress: import.meta.env.VITE_CLAIM_CONTRACT,
+          entrypoint: "claim_reward",
+          calldata: [gameId],
+        },
+      ])
+      .catch((e) => {
+        setClaimError(e);
+      });
+  }, [account, gameId, setClaimError]);
+
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
@@ -85,9 +110,9 @@ const Game = () => {
       return;
     }
 
-    setIsOwner(
-      (account && gamesModel.player === removeZeros(account.address)) || false,
-    );
+    const isOwner =
+      (account && gamesModel.player === removeZeros(account.address)) || false;
+    setIsOwner(isOwner);
 
     // update if game progressed
     if (slotsEdges.length === gamesModel.max_slots! - remaining) {
@@ -95,24 +120,35 @@ const Game = () => {
     }
 
     setRemaining(gamesModel.remaining_slots || 0);
-    setNext(gamesModel.next_number);
-    setNumRange(gamesModel.min_number + " - " + gamesModel.max_number);
-    //setPlayer(gamesModel.player as string);
-
-    const newSlots: number[] = Array.from({ length: 20 });
+    setNextNumber(gamesModel.next_number);
+    setReward(gamesModel.reward as number);
+    const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
     slotsEdges.forEach((edge: any) => {
       newSlots[edge.node.index] = edge.node.number;
     });
 
     setSlots(newSlots);
 
-    //setRewards(gamesModel.reward as number);
+    const isOver = isGameOver(newSlots, gamesModel.next_number!);
+    setIsOver(isOver);
+
+    if (isOwner && isOver) {
+      if (!gamesModel.claimed) {
+        claimReward();
+      }
+      onOpen();
+    }
 
     setIsLoading(false);
-  }, [queryResult, account]);
+  }, [queryResult, account, onOpen, claimReward]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
+
+    if (isOver) {
+      onOpen();
+      return false;
+    }
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([
@@ -131,7 +167,7 @@ const Game = () => {
         },
       ]);
 
-      showTxn(transaction_hash);
+      showTxn(transaction_hash, chain?.name);
 
       try {
         // catch any txn errors (nonce err, etc) and reset state
@@ -149,21 +185,65 @@ const Game = () => {
     return true;
   };
 
+  const resetGame = () => {
+    onClose();
+    setSlots([]);
+    setIsOver(false);
+    reexecuteQuery();
+  };
+
   return (
     <>
-      <Toaster />
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
+        <Overlay open={open} onClose={onClose}>
+          <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
+            Game Over
+          </Text>
+          <HStack w={["300px", "300px", "400px"]}>
+            <VStack layerStyle="transparent" flex="1" align="flex-start">
+              <Text color="purple.50">Score</Text>
+              <Text>{MAX_SLOTS - remaining}</Text>
+            </VStack>
+            <VStack layerStyle="transparent" flex="1" align="flex-start">
+              <Text color="purple.50">Nums Rewarded</Text>
+              <Text>{reward}</Text>
+            </VStack>
+          </HStack>
+          <HStack pt="32px">
+            <Button visual="transparent" onClick={() => navigate("/")}>
+              <HomeIcon /> Home
+            </Button>
+            <Play
+              isAgain
+              onReady={(gameId) => {
+                navigate(`/${gameId}`);
+                resetGame();
+              }}
+            />
+          </HStack>
+          {claimError && (
+            <VStack mt="20px">
+              <Text>There was an error claiming on appchain:</Text>
+              <Text color="red">{claimError?.message}</Text>
+            </VStack>
+          )}
+        </Overlay>
         <VStack
           h={["auto", "auto", "100%"]}
           justify={["none", "none", "center"]}
         >
-          <Text>The Number is...</Text>
+          <Text>The next number is...</Text>
           <Text
-            textStyle="next-number"
+            textStyle="h-lg"
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+            lineHeight="100px"
           >
-            {next}
+            {isOver || !isOwner ? (
+              nextNumber
+            ) : (
+              <NextNumber number={nextNumber!} />
+            )}
           </Text>
           <VStack gap="40px">
             <Grid
@@ -178,8 +258,9 @@ const Game = () => {
                     key={index}
                     index={index}
                     number={number}
+                    nextNumber={nextNumber}
                     isOwner={isOwner}
-                    disableAll={isLoading}
+                    disable={isLoading}
                     onClick={(slot) => setSlot(slot)}
                   />
                 );
@@ -187,61 +268,18 @@ const Game = () => {
             </Grid>
             <HStack w="full">
               <VStack layerStyle="transparent" flex="1" align="flex-start">
-                <Text color="purple.50">Number Ranger</Text>
-                <Text>{numRange}</Text>
-              </VStack>
-              <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Remaining Slots</Text>
                 <Text>{remaining}</Text>
+              </VStack>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Rewards Earned</Text>
+                <Text>{reward}</Text>
               </VStack>
             </HStack>
           </VStack>
         </VStack>
       </Container>
     </>
-  );
-};
-
-const Slot = ({
-  index,
-  number,
-  isOwner,
-  disableAll,
-  onClick,
-}: {
-  index: number;
-  number: number;
-  disableAll: boolean;
-  isOwner: boolean;
-  onClick: (slot: number) => Promise<boolean>;
-}) => {
-  const [loading, setLoading] = useState(false);
-  return (
-    <GridItem>
-      <HStack>
-        <Text w="24px" fontWeight="500" color="purple.50">
-          {index + 1}.
-        </Text>
-        <Button
-          w="100px"
-          fontSize="24px"
-          visual="transparent"
-          justifyContent="center"
-          color={disableAll ? "purple.50" : number ? "green.50" : "white"}
-          disabled={!isOwner || loading || !!number || disableAll}
-          transition="color 0.2s ease-in-out"
-          _hover={{
-            color: "orange.50",
-          }}
-          onClick={async () => {
-            setLoading(true);
-            return await onClick(index);
-          }}
-        >
-          {number ? number : isOwner ? "Set" : "--"}
-        </Button>
-      </HStack>
-    </GridItem>
   );
 };
 

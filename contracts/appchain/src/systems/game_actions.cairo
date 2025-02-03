@@ -151,7 +151,7 @@ pub mod game_actions {
                         max_number: game_config.max_number,
                         min_number: game_config.min_number,
                         next_number,
-                        finished: false,
+                        claimed: false,
                         reward: 0,
                         jackpot_id,
                     },
@@ -193,7 +193,6 @@ pub mod game_actions {
             let mut game: Game = world.read_model((game_id, player));
 
             assert!(game.player == player, "Unauthorized player");
-            assert!(!game.finished, "Game already finished");
             assert!(target_idx < game.max_slots, "Invalid slot");
 
             // Build up nums array and insert target

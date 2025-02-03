@@ -22,7 +22,7 @@
     "plugins": [ 
       { 
         "name": "gql.tada/ts-plugin",
-        "schema": "https://api.cartridge.gg/x/nums-slot/torii/graphql", 
+        "schema": "https://api.cartridge.gg/x/nums-appchain/torii/graphql", 
         "tadaOutputLocation": "./src/graphql/graphql-env.d.ts"
       } 
     ],

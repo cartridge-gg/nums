@@ -6,14 +6,20 @@ import { useExplorer } from "@starknet-react/core";
 const useToast = () => {
   const explorer = useExplorer();
 
-  const showTxn = (hash: string) => {
+  const showTxn = (hash: string, chainName: string) => {
     toaster.create({
-      title: "Transaction Submitted",
+      title: "Transaction Submitted on " + chainName,
       description: (
         <Link href={explorer.transaction(hash)}>
           <strong>{formatAddress(hash)}</strong>
         </Link>
       ),
+    });
+  };
+
+  const showChainSwitch = (chainName: string) => {
+    toaster.create({
+      title: "Switched to " + chainName,
     });
   };
 
@@ -29,6 +35,7 @@ const useToast = () => {
   };
 
   return {
+    showChainSwitch,
     showTxn,
     showError,
   };

@@ -15,7 +15,7 @@ build-external-contracts = [
 
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
-piltover = { git = "https://github.com/keep-starknet-strange/piltover.git", branch = "feat/messaging-test" }
+piltover = { git = "https://github.com/keep-starknet-strange/piltover.git" }
 nums_common = { path = "../../common" }
 starknet = "2.8.4"
 

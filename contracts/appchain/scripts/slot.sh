@@ -26,13 +26,19 @@ case $COMMAND in
                 exit 1
             fi
 
+            TOML_FILE="$SCRIPT_DIR/../torii.toml"
+            if [ ! -f "$TOML_FILE" ]; then
+                echo "Error: TOML file not found at $TOML_FILE"
+                exit 1
+            fi
+
             WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
             if [ -z "$WORLD_ADDR" ]; then
                 echo "Error: Could not find WorldContract address"
                 exit 1
             fi
 
-            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR
+            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR --config $TOML_FILE
         fi
         ;;
     "delete")

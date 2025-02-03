@@ -57,13 +57,6 @@ pub mod claim_actions {
             assert!(!game.claimed, "Already claimed");
             assert!(game.reward > 0, "No reward to claim");
 
-            game.claimed = true;
-            let message_payload = array![
-                player.into(),
-                game_id.into(),
-                game.reward.into(),
-            ].span();
-
             let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
                 game_id,
@@ -72,17 +65,27 @@ pub mod claim_actions {
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    message_payload,
+                    array![
+                        player.into(),
+                        game_id.into(),
+                        game.reward.into(),
+                    ].span(),
                 ),
             };
 
+            game.claimed = true;
             world.write_model(@game);
             world.write_model(@claims);
             world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
-                message_payload
+                array![
+                    config.starknet_consumer.into(),
+                    player.into(),
+                    game_id.into(),
+                    game.reward.into(),
+                ].span()
             )
                 .unwrap_syscall();
 
@@ -129,11 +132,6 @@ pub mod claim_actions {
 
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
-            let message_payload = array![
-                player.into(),
-                game_id.into(),
-                game.reward.into(),
-            ].span();
 
             let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
@@ -143,7 +141,11 @@ pub mod claim_actions {
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    message_payload,
+                    array![
+                        player.into(),
+                        game_id.into(),
+                        jackpot_id.into(),
+                    ].span(),
                 ),
             };
 
@@ -153,8 +155,13 @@ pub mod claim_actions {
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
-                message_payload
-            )
+                array![
+                    config.starknet_consumer.into(),
+                    player.into(),
+                    game_id.into(),
+                    jackpot_id.into(),
+                ].span()
+        )
                 .unwrap_syscall();
         }
     }

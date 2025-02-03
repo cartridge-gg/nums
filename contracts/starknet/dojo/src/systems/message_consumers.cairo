@@ -59,17 +59,17 @@ pub mod message_consumers {
 
             let mut world = self.world(@"nums");
             let mut claims: Claims = world.read_model(game_id);
+            match claims.ty {
+                ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
+                _ => panic!("Expected token claim"),
+            };
+            
             let config: Config = world.read_model(WORLD_RESOURCE);
             let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
                     array![player.into(), game_id.into(), amount.into(),].span()
                 );
-
-            match claims.ty {
-                ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
-                _ => panic!("Expected token claim"),
-            };
 
             claims.game_id = game_id;
             claims.ty = ClaimsType::TOKEN(TokenClaim { amount });

@@ -33,7 +33,7 @@ fi
 
 # Piltover address
 STARKNET_MESSENGER_ADDR="0x03df9031d9c01ea8f3104593d8340ae12e755af0aa6a0a2cbcf5620cb78614bf"
-NUMS_TOKEN_ADDR="0x01dba4e908da3d9f8424d91bf5d76b7e352c5a03f554c474bb2ca44949d9d12b"
+NUMS_TOKEN_ADDR="0x026e41947273a1da555981681eaf2f98c5a9bad9a91262d37fccfb34a2419bc1"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")

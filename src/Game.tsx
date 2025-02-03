@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { graphql } from "./graphql";
 import { useQuery } from "urql";
 import { useCallback, useEffect, useState } from "react";
 import { isGameOver, removeZeros } from "./utils";
@@ -21,6 +20,7 @@ import { HomeIcon } from "./components/icons/Home";
 import Play from "./components/Play";
 import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
+import { graphql } from "./graphql/appchain";
 
 const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;

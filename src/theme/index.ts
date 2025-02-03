@@ -36,6 +36,7 @@ const theme = createSystem(defaultConfig, {
           50: { value: "#78BD98" },
           100: { value: "#57AD7F" },
         },
+        yellow: { value: "#FFE665" },
         teal: { value: "#43B3C0" },
       },
     },

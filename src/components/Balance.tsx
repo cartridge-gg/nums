@@ -2,7 +2,6 @@ import { Box, Text, useDisclosure } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useState } from "react";
-import { graphql } from "gql.tada";
 import { useQuery } from "urql";
 import { useInterval } from "usehooks-ts";
 import { keyframes } from "@emotion/react";
@@ -10,6 +9,7 @@ import useChain from "@/hooks/chain";
 import { Toaster } from "./ui/toaster";
 import RewardsOverlay from "./Rewards";
 import { LogoIcon } from "./icons/Logo";
+import { graphql } from "@/graphql/appchain";
 
 const floatUp = keyframes`
   0% {

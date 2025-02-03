@@ -144,12 +144,7 @@ const Header = ({
         {address ? (
           <>
             <Balance />
-            <Button
-              visual="transparent"
-              h="48px"
-              gap="10px"
-              onClick={openProfile}
-            >
+            <Button visual="transparent" h="48px" onClick={openProfile}>
               {address && <ControllerIcon />}
               {username}
             </Button>

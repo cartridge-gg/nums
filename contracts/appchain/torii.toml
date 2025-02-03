@@ -1,0 +1,4 @@
+[indexing]
+index_transactions = true # Will be used for testing Streak player stats
+[events]
+historical = ["nums-TrophyProgression"] # Required for achievements

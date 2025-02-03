@@ -8,20 +8,20 @@ edition = "2024_07"
 sierra = true
 casm = true
 build-external-contracts = [
-    "dojo::world::world_contract::world", 
-    "nums_common::models::jackpot::m_Jackpot", 
+    "dojo::world::world_contract::world",
+    "nums_common::models::jackpot::m_Jackpot",
     "nums_common::models::config::m_Config",
     "nums_common::models::claims::m_Claims",
 ]
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.11" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
 piltover = { git = "https://github.com/keep-starknet-strange/piltover.git" }
 nums_common = { path = "../../common" }
 starknet = "2.8.4"
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.11" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.12" }
 
 [features]
 default = []

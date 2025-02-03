@@ -1252,8 +1252,13 @@
   },
   "contracts": [
     {
+<<<<<<< HEAD
       "address": "0x482c92ee36a6b5a12877b7304fe347fc11c22db386137f004834f598d955ad",
       "class_hash": "0x3a2bdb20430204275d22033e1f92c04e264a894735db794e69fe89696e506ec",
+=======
+      "address": "0x20b52c8b9004309ff40bb9de6fdfac511896f182d501bc14c1daa88e2954825",
+      "class_hash": "0x2ebef19d4c31522b896a44029e7e22aaf4e1057de311f3c5ef51f997c4c6f5e",
+>>>>>>> main
       "abi": [
         {
           "type": "impl",
@@ -1465,8 +1470,8 @@
       ]
     },
     {
-      "address": "0x57bd7861082b4e447024d92204086fb839125d5b1e324d5bf4b2dd67a232cad",
-      "class_hash": "0x13155b7a249d9fee167108f908ecee8cadbbf5148f8963b1b55129d86f72d07",
+      "address": "0x332db79c2997606ae7119d18653abccbae582fdd65292b6641ceafda45ea383",
+      "class_hash": "0xc97a0962be445f07adf646055a059bbb6413209fcf6dcd0c46ef49abbdff59",
       "abi": [
         {
           "type": "impl",
@@ -1517,6 +1522,13 @@
               "state_mutability": "view"
             }
           ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -1590,13 +1602,6 @@
               "state_mutability": "external"
             }
           ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -1690,6 +1695,12 @@
         },
         {
           "type": "event",
+          "name": "achievement::components::achievable::AchievableComponent::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
           "name": "nums_appchain::systems::game_actions::game_actions::Event",
           "kind": "enum",
           "variants": [
@@ -1702,6 +1713,11 @@
               "name": "WorldProviderEvent",
               "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
               "kind": "nested"
+            },
+            {
+              "name": "AchievableEvent",
+              "type": "achievement::components::achievable::AchievableComponent::Event",
+              "kind": "flat"
             }
           ]
         }
@@ -2309,6 +2325,18 @@
       "class_hash": "0xa2826cf284cabb084cf621f758e989446157c7cede143e55ad20ff883968f9",
       "tag": "nums-RewardClaimed",
       "selector": "0x50747aeeb809b835b94582572edbc2834497b6ba5c8164e857352ac6c0ef959"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6b38999d987627835d4c20e7e571c73d32ddc856786d9790a131bdb3372a246",
+      "tag": "nums-TrophyCreation",
+      "selector": "0x56616429b5b0d46c58178789cf3c5388e1a9c31026c428d70a72dcad6bcf0e7"
+    },
+    {
+      "members": [],
+      "class_hash": "0xf05f290a704ad2671544b391f0c33d50d6d43d468d52791282852a833a00c7",
+      "tag": "nums-TrophyProgression",
+      "selector": "0x3eb3683417faea182a1a84e66356a222166847485ea08b61d802e4f63acef2d"
     }
   ]
 }

@@ -1926,8 +1926,13 @@
       ]
     },
     {
+<<<<<<< HEAD
       "address": "0x1aae53e4d5f0c2d1b5bccd9ae4d866916a3222c1d32864b9cfebdcac9b1ec11",
       "class_hash": "0x5a0733baa981c07f5911514fd47def1facb8b6723d8d9bc26dc3f4f432c6332",
+=======
+      "address": "0x2de1ca4206f5659f88ba476158403e3147b56bdec69f667fb125e67a88bb14c",
+      "class_hash": "0x584c9b095264d30d062c86b994f858f2ca313ee38b9efe5b5c24f41f00117ad",
+>>>>>>> main
       "abi": [
         {
           "type": "impl",

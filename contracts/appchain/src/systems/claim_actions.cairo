@@ -10,9 +10,11 @@ pub mod claim_actions {
     use core::array::ArrayTrait;
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
+    use achievement::store::StoreTrait;
 
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::slot::Slot;
+    use nums_appchain::elements::tasks::index::{Task, TaskTrait};
     use nums_common::models::jackpot::{Jackpot, JackpotTrait};
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
@@ -63,9 +65,15 @@ pub mod claim_actions {
                     game_id.into(),
                     game.reward.into(),
                 ]
-                    .span()
+                    .span(),
             )
                 .unwrap_syscall();
+
+            // Update player progression
+            let player_id: felt252 = player.into();
+            let task_id: felt252 = Task::Claimer.identifier();
+            let mut store = StoreTrait::new(world);
+            store.progress(player_id, task_id, game.reward.into(), starknet::get_block_timestamp());
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that
@@ -115,7 +123,7 @@ pub mod claim_actions {
                     game_id.into(),
                     jackpot.id.into(),
                 ]
-                    .span()
+                    .span(),
             )
                 .unwrap_syscall();
         }

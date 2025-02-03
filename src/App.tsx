@@ -8,8 +8,8 @@ import {
   Connector,
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions } from "@cartridge/controller";
-import { SessionPolicies } from "@cartridge/presets";
+import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
+import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
 import { num } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
@@ -75,7 +75,14 @@ const policies: SessionPolicies = {
   },
 };
 
+const profile: ProfileOptions = {
+  preset: "nums",
+  slot: "nums-mainnet",
+  namespace: "nums",
+};
+
 const options: ControllerOptions = {
+  ...profile,
   policies,
   defaultChainId: APPCHAIN_CHAIN_ID,
   chains: [

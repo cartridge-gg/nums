@@ -66,12 +66,11 @@ pub mod message_consumers {
                     array![player.into(), game_id.into(), amount.into(),].span()
                 );
 
-            let amount = match claims.ty {
-                ClaimsType::TOKEN(token) => token.amount,
+            match claims.ty {
+                ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
                 _ => panic!("Expected token claim"),
             };
 
-            assert(amount == 0, 'Already claimed');
             claims.game_id = game_id;
             claims.ty = ClaimsType::TOKEN(TokenClaim { amount });
             claims.message_hash = hash;

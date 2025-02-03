@@ -59,7 +59,6 @@ pub mod claim_actions {
 
             game.claimed = true;
             let message_payload = array![
-                config.starknet_consumer.into(),
                 player.into(),
                 game_id.into(),
                 game.reward.into(),
@@ -131,7 +130,6 @@ pub mod claim_actions {
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
             let message_payload = array![
-                config.starknet_consumer.into(),
                 player.into(),
                 game_id.into(),
                 game.reward.into(),

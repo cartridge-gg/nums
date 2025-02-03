@@ -133,7 +133,7 @@ source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.16.0#ba
 [[package]]
 name = "piltover"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/piltover.git?branch=feat%2Fmessaging-test#53f6c65e5e97b661283dcdc16a6ec05ec6beabc8"
+source = "git+https://github.com/keep-starknet-strange/piltover.git#ac2f6a26af02e65799b3179e7ba7575b2135a7d9"
 dependencies = [
  "openzeppelin",
 ]

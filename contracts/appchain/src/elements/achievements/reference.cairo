@@ -17,7 +17,7 @@ pub impl Reference of AchievementTrait {
 
     #[inline]
     fn index(level: u8) -> u8 {
-        level
+        0
     }
 
     #[inline]

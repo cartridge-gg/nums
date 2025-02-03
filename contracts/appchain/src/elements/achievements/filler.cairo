@@ -28,11 +28,11 @@ pub impl Filler of AchievementTrait {
     #[inline]
     fn points(level: u8) -> u16 {
         match level {
-            0 => 20,
-            1 => 30,
-            2 => 40,
-            3 => 50,
-            4 => 60,
+            0 => 30,
+            1 => 40,
+            2 => 50,
+            3 => 60,
+            4 => 70,
             _ => 0,
         }
     }

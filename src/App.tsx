@@ -8,7 +8,7 @@ import {
   Connector,
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions } from "@cartridge/controller";
+import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
 import { SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
 import { num, shortString } from "starknet";
@@ -54,7 +54,14 @@ const policies: SessionPolicies = {
   },
 };
 
+const profile: ProfileOptions = {
+  preset: "nums",
+  slot: "nums-mainnet",
+  namespace: "nums",
+};
+
 const options: ControllerOptions = {
+  ...profile,
   policies,
   defaultChainId: shortString.encodeShortString("WP_NUMS_APPCHAIN"),
   chains: [

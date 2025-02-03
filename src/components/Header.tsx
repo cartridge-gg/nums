@@ -20,7 +20,7 @@ import { capitalize } from "../utils";
 import { constants, num } from "starknet";
 import { LogoIcon } from "./icons/Logo";
 import { HomeIcon } from "./icons/Home";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 
@@ -42,6 +42,14 @@ const Header = ({
     },
   });
   const controllerConnector = connector as never as ControllerConnector;
+
+  const openProfile = useCallback(() => {
+    if (!(connector as ControllerConnector)?.controller) {
+      console.error("Connector not initialized");
+      return;
+    }
+    (connector as ControllerConnector)?.controller.openProfile("achievements");
+  }, [connector]);
 
   useEffect(() => {
     if (controllerConnector) {
@@ -108,7 +116,12 @@ const Header = ({
         )}
         {address ? (
           <>
-            <Button visual="transparent" h="48px" gap="10px">
+            <Button
+              visual="transparent"
+              h="48px"
+              gap="10px"
+              onClick={openProfile}
+            >
               {address && <ControllerIcon />}
               {username}
             </Button>

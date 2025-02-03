@@ -13,8 +13,7 @@ pub trait IMessageConsumers<T> {
 pub mod message_consumers {
     use super::IMessageConsumers;
     use starknet::ContractAddress;
-    use nums_starknet::models::message::{Message, Destination};
-    use nums_starknet::models::claims::RewardClaims;
+    use nums_common::models::claims::{Claims, ClaimsType, TokenClaim};
     use nums_common::models::jackpot::Jackpot;
     use nums_common::models::config::Config;
     use nums_common::WORLD_RESOURCE;
@@ -38,14 +37,11 @@ pub mod message_consumers {
             let config: Config = world.read_model(WORLD_RESOURCE);
             assert(config.game.is_some(), 'game config not set');
 
-            let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
+            let _ = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
                     array![player.into(), game_id.into(), jackpot_id.into(),].span()
                 );
-
-            let message = Message { player, hash, destination: Destination::STARKNET, };
-            world.write_model(@message);
 
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
@@ -62,13 +58,7 @@ pub mod message_consumers {
             assert(player == starknet::get_caller_address(), 'caller is not the player');
 
             let mut world = self.world(@"nums");
-            let mut claims: RewardClaims = world.read_model(game_id);
-
-            assert(claims.amount == 0, 'Already claimed');
-            claims.game_id = game_id;
-            claims.amount = amount;
-            world.write_model(@claims);
-
+            let mut claims: Claims = world.read_model(game_id);
             let config: Config = world.read_model(WORLD_RESOURCE);
             let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
@@ -76,8 +66,15 @@ pub mod message_consumers {
                     array![player.into(), game_id.into(), amount.into(),].span()
                 );
 
-            let message = Message { player, hash, destination: Destination::STARKNET, };
-            world.write_model(@message);
+            match claims.ty {
+                ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
+                _ => panic!("Expected token claim"),
+            };
+
+            claims.game_id = game_id;
+            claims.ty = ClaimsType::TOKEN(TokenClaim { amount });
+            claims.message_hash = hash;
+            world.write_model(@claims);
 
             let reward = config.reward.expect('reward token not set');
             INumsTokenDispatcher { contract_address: reward.token }.reward(player, amount);

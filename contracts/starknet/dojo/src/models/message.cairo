@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+// Can be removed, used for testing
 #[derive(Drop, Serde)]
 #[dojo::model]
 pub struct Message {

@@ -12,8 +12,12 @@ pub mod claim_actions {
     use dojo::event::EventStorage;
     use achievement::store::StoreTrait;
 
+    use piltover::messaging::hash::compute_message_hash_appc_to_sn;
+
+
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::slot::Slot;
+    use nums_common::models::claims::{Claims, ClaimsType, TokenClaim, JackpotClaim};
     use nums_appchain::elements::tasks::index::{Task, TaskTrait};
     use nums_common::models::jackpot::{Jackpot, JackpotTrait};
     use nums_common::models::config::Config;
@@ -54,18 +58,31 @@ pub mod claim_actions {
             assert!(game.reward > 0, "No reward to claim");
 
             game.claimed = true;
+            let message_payload = array![
+                player.into(),
+                game_id.into(),
+                game.reward.into(),
+            ].span();
+
+            let block_info = starknet::get_block_info().unbox();
+            let claims = Claims {
+                game_id,
+                ty: ClaimsType::TOKEN(TokenClaim { amount: game.reward }),
+                block_number: block_info.block_number,
+                message_hash: compute_message_hash_appc_to_sn(
+                    starknet::get_contract_address(),
+                    config.starknet_consumer,
+                    message_payload,
+                ),
+            };
+
             world.write_model(@game);
+            world.write_model(@claims);
             world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
-                array![
-                    config.starknet_consumer.into(),
-                    player.into(),
-                    game_id.into(),
-                    game.reward.into(),
-                ]
-                    .span(),
+                message_payload
             )
                 .unwrap_syscall();
 
@@ -112,18 +129,31 @@ pub mod claim_actions {
 
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
+            let message_payload = array![
+                player.into(),
+                game_id.into(),
+                game.reward.into(),
+            ].span();
+
+            let block_info = starknet::get_block_info().unbox();
+            let claims = Claims {
+                game_id,
+                ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
+                block_number: block_info.block_number,
+                message_hash: compute_message_hash_appc_to_sn(
+                    starknet::get_contract_address(),
+                    config.starknet_consumer,
+                    message_payload,
+                ),
+            };
+
             world.write_model(@jackpot);
+            world.write_model(@claims);
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
-                array![
-                    config.starknet_consumer.into(),
-                    player.into(),
-                    game_id.into(),
-                    jackpot.id.into(),
-                ]
-                    .span(),
+                message_payload
             )
                 .unwrap_syscall();
         }

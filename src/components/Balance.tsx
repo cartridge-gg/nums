@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, useDisclosure } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useState } from "react";
@@ -6,6 +6,10 @@ import { graphql } from "gql.tada";
 import { useQuery } from "urql";
 import { useInterval } from "usehooks-ts";
 import { keyframes } from "@emotion/react";
+import useChain from "@/hooks/chain";
+import { Toaster } from "./ui/toaster";
+import RewardsOverlay from "./Rewards";
+import { LogoIcon } from "./icons/Logo";
 
 const floatUp = keyframes`
   0% {
@@ -34,6 +38,13 @@ const Balance = () => {
   const [totalRewards, setTotalRewards] = useState<number>(0);
   const [difference, setDifference] = useState<number>(0);
   const { address, account } = useAccount();
+
+  const {
+    open: openRewards,
+    onOpen: onOpenRewards,
+    onClose: onCloseRewards,
+  } = useDisclosure();
+  const { requestStarknet } = useChain();
 
   const [totalsResult, reexecuteQuery] = useQuery({
     query: TotalsQuery,
@@ -66,14 +77,24 @@ const Balance = () => {
 
   return (
     <>
+      <Toaster />
+      <RewardsOverlay open={openRewards} onClose={onCloseRewards} />
       <Button
         position="relative"
         visual="transparent"
         h="48px"
-        bgColor="rgba(255,255,255,0.04)"
-        disabled
+        bgColor="green.50"
+        _hover={{
+          bgColor: "green.100",
+        }}
+        onClick={() => {
+          requestStarknet();
+          onOpenRewards();
+        }}
       >
-        <Text color="purple.50">BALANCE:</Text>
+        <Text>
+          <LogoIcon w={32} h={32} />:
+        </Text>
         <Text>{totalRewards.toLocaleString()} NUMS</Text>
         <Box
           position="absolute"

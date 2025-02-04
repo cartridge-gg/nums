@@ -23,7 +23,7 @@ mod tests {
     fn CONFIG(reward_token: ContractAddress) -> Config {
         Config {
             world_resource: 0,
-            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0, }),
+            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0 }),
             reward: Option::Some(REWARD(reward_token)),
         }
     }

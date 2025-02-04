@@ -10,12 +10,12 @@ pub struct Claims {
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct TokenClaim {
-    amount: u32,
+    pub amount: u32,
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct JackpotClaim {
-    id: u32,
+    pub id: u32,
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]

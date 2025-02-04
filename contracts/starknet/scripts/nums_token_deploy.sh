@@ -27,7 +27,7 @@ STARKNET_L2_RPC="https://api.cartridge.gg/x/nums-starknet/katana"
 
 echo "Message consumers address: $MESSAGE_CONSUMERS_ADDR"
 
-starkli declare target/dev/nums_tokens_NumsToken.contract_class.json --rpc $STARKNET_L2_RPC --account katana-0 --compiler-version 2.8.5 
+starkli declare target/dev/nums_tokens_NumsToken.contract_class.json --rpc $STARKNET_L2_RPC --account katana-0 --compiler-version 2.9.1
 sleep 1
 starkli invoke $UDC_DEPLOYER_ADDR deployContract $NUMS_TOKEN_CLASS 0x6e756d73 0x0 0x1 $MESSAGE_CONSUMERS_ADDR --rpc $STARKNET_L2_RPC --account katana-0
 

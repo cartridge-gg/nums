@@ -18,13 +18,13 @@ build-external-contracts = [
 
 [dependencies]
 dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.1.2" }
-achievement = { git = "https://github.com/cartridge-gg/arcade", tag = "v1.1.2" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", tag="v1.1.2" }
+piltover = { git = "https://github.com/broody/piltover.git", rev = "c7eb928c" }
 starknet = "2.9.2"
 nums_common = { path = "../common" }
 
 [dev-dependencies]
 dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.1.2" }
-cairo_test = "2.9.2"
 
 [features]
 default = []

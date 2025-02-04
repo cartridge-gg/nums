@@ -6,4 +6,4 @@ pub mod models {
     pub mod claims;
 }
 
-const WORLD_RESOURCE: felt252 = 0;
+pub const WORLD_RESOURCE: felt252 = 0;

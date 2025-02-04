@@ -1,4 +1,3 @@
 [submodule "contracts/starknet/piltover"]
 	path = contracts/starknet/piltover
-	url = https://github.com/keep-starknet-strange/piltover.git
-	branch = feat/messaging-test
+	url = https://github.com/broody/piltover

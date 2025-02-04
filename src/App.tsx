@@ -96,6 +96,7 @@ const options: ControllerOptions = {
   chains: [
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
     { rpcUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],

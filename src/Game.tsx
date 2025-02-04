@@ -140,11 +140,11 @@ const Game = () => {
     setIsOver(isOver);
 
     if (isOwner && isOver) {
+      negativeSound.play();
+
       if (!gamesModel.claimed) {
         claimReward();
       }
-      negativeSound.play();
-      onOpen();
     }
 
     setIsLoading(false);
@@ -207,37 +207,39 @@ const Game = () => {
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
-          <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
-            Game Over
-          </Text>
-          <HStack w={["300px", "300px", "400px"]}>
-            <VStack layerStyle="transparent" flex="1" align="flex-start">
-              <Text color="purple.50">Score</Text>
-              <Text>{MAX_SLOTS - remaining}</Text>
-            </VStack>
-            <VStack layerStyle="transparent" flex="1" align="flex-start">
-              <Text color="purple.50">Nums Rewarded</Text>
-              <Text>{reward}</Text>
-            </VStack>
-          </HStack>
-          <HStack pt="32px">
-            <Button visual="transparent" onClick={() => navigate("/")}>
-              <HomeIcon /> Home
-            </Button>
-            <Play
-              isAgain
-              onReady={(gameId) => {
-                navigate(`/${gameId}`);
-                resetGame();
-              }}
-            />
-          </HStack>
-          {claimError && (
-            <VStack mt="20px">
-              <Text>There was an error claiming on appchain:</Text>
-              <Text color="red">{claimError?.message}</Text>
-            </VStack>
-          )}
+          <VStack boxSize="full" justify="center">
+            <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
+              Game Over
+            </Text>
+            <HStack w={["300px", "300px", "400px"]}>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Score</Text>
+                <Text>{MAX_SLOTS - remaining}</Text>
+              </VStack>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Nums Rewarded</Text>
+                <Text>{reward}</Text>
+              </VStack>
+            </HStack>
+            <HStack pt="32px">
+              <Button visual="transparent" onClick={() => navigate("/")}>
+                <HomeIcon /> Home
+              </Button>
+              <Play
+                isAgain
+                onReady={(gameId) => {
+                  navigate(`/${gameId}`);
+                  resetGame();
+                }}
+              />
+            </HStack>
+            {claimError && (
+              <VStack mt="20px">
+                <Text>There was an error claiming on appchain:</Text>
+                <Text color="red">{claimError?.message}</Text>
+              </VStack>
+            )}
+          </VStack>
         </Overlay>
         <VStack
           h={["auto", "auto", "100%"]}
@@ -248,12 +250,15 @@ const Game = () => {
             textStyle="h-lg"
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"
+            color={isOver ? "red" : "inherit"}
+            transition="color 3s"
+            onTransitionEnd={() => {
+              if (isOver && isOwner) {
+                onOpen();
+              }
+            }}
           >
-            {isOver || !isOwner ? (
-              nextNumber
-            ) : (
-              <NextNumber number={nextNumber!} />
-            )}
+            <NextNumber number={nextNumber!} />
           </Text>
           <VStack gap="40px">
             <Grid
@@ -276,7 +281,7 @@ const Game = () => {
                 );
               })}
             </Grid>
-            <HStack w="full">
+            {/* <HStack w="full">
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Remaining Slots</Text>
                 <Text>{remaining}</Text>
@@ -285,7 +290,7 @@ const Game = () => {
                 <Text color="purple.50">Rewards Earned</Text>
                 <Text>{reward}</Text>
               </VStack>
-            </HStack>
+            </HStack> */}
           </VStack>
         </VStack>
       </Container>

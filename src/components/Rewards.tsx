@@ -1,13 +1,13 @@
 import { HStack, Text, VStack } from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount, useNetwork } from "@starknet-react/core";
-import { graphql } from "gql.tada";
 import { useQuery } from "urql";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./Button";
 import { CallData } from "starknet";
 import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
+import { graphql } from "@/graphql/appchain";
 
 const RewardsQuery = graphql(`
   query RewardsQuery($address: String!) {
@@ -84,8 +84,7 @@ const RewardsOverlay = ({
         onClose();
       }}
     >
-      <Text textStyle="h-md">Rewards</Text>
-      <VStack w="75%">
+      <VStack w="50%" pt="40px">
         <HStack
           p="16px"
           justify="space-between"
@@ -130,18 +129,14 @@ const Row = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const { account } = useAccount();
+  const { requestAppchain, requestStarknet } = useChain();
 
-  const { requestStarknet } = useChain();
-
-  // Claim rewards are automatically triggered on appchain when game is over, however,
-  // we need to trigger the consume claim contract on starknet to actually claim the rewards.
-  // Switch chain to starknet and trigger the consume claim contract.
   const onClaim = useCallback(async () => {
     if (!account) return;
     setIsLoading(true);
 
     try {
-      await requestStarknet();
+      await requestStarknet(true);
       const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
@@ -154,18 +149,27 @@ const Row = ({
         },
       ]);
       showTxn(transaction_hash, chain.name);
-    } catch (error) {
-      console.log(error);
+
+      // await requestAppchain(true);
+      // await account.execute([
+      //   {
+      //     contractAddress: import.meta.env.VITE_CLAIM_CONTRACT,
+      //     entrypoint: "claimed_on_starknet",
+      //     calldata: CallData.compile({
+      //       game_id: gameId,
+      //     }),
+      //   },
+      // ]);
     } finally {
       setIsLoading(false);
     }
-  }, [account, gameId, reward, requestStarknet]);
+  }, [account, gameId, reward, requestAppchain]);
 
   return (
     <HStack
       borderRadius="8px"
       bgColor="rgba(255,255,255,0.04)"
-      p="10px"
+      p="5px"
       justify="space-between"
       w="full"
       fontSize="16px"
@@ -183,12 +187,13 @@ const Row = ({
       <HStack flex="1" justify="center">
         {" "}
         <Button
+          h="40px"
           visual="secondary"
-          fontSize="18px"
+          fontSize="16px"
           disabled={isLoading}
           onClick={() => onClaim()}
         >
-          Claim on Starknet
+          Claim
         </Button>
       </HStack>
     </HStack>

@@ -6,7 +6,6 @@ import {
   MenuTrigger,
   Spacer,
   Text,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
@@ -26,10 +25,6 @@ import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate } from "react-router-dom";
 import Balance from "./Balance";
-import { Toaster } from "./ui/toaster";
-import useChain from "@/hooks/chain";
-import { GiftIcon } from "./icons/Gift";
-import RewardsOverlay from "./Rewards";
 
 const Header = ({
   showHome,
@@ -44,12 +39,6 @@ const Header = ({
   const { chain, chains } = useNetwork();
   const { account, address, connector } = useAccount();
   const [username, setUsername] = useState<string | null>(null);
-  const {
-    open: openRewards,
-    onOpen: onOpenRewards,
-    onClose: onCloseRewards,
-  } = useDisclosure();
-  const { requestStarknet } = useChain();
   const { switchChain } = useSwitchChain({
     params: {
       chainId: constants.StarknetChainId.SN_SEPOLIA,
@@ -75,8 +64,6 @@ const Header = ({
 
   return (
     <>
-      <Toaster />
-      <RewardsOverlay open={openRewards} onClose={onCloseRewards} />
       <HStack
         w="full"
         position="absolute"
@@ -99,28 +86,10 @@ const Header = ({
         <Spacer maxW="20px" />
         {showHome && (
           <Button visual="transparent" h="48px" onClick={() => navigate("/")}>
-            <HomeIcon /> Home
+            <HomeIcon />
           </Button>
         )}
         <Spacer />
-        {account && (
-          <Button
-            visual="transparent"
-            h="48px"
-            gap="4px"
-            bgColor="green.100"
-            _hover={{
-              bgColor: "green.50",
-            }}
-            onClick={async () => {
-              requestStarknet();
-              onOpenRewards();
-            }}
-          >
-            <GiftIcon />
-            Claim
-          </Button>
-        )}
         {account && !hideChain && (
           <MenuRoot>
             <MenuTrigger asChild>

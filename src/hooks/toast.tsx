@@ -2,6 +2,7 @@ import { Link } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { formatAddress } from "../utils";
 import { useExplorer } from "@starknet-react/core";
+import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
 
 const useToast = () => {
   const explorer = useExplorer();
@@ -18,8 +19,14 @@ const useToast = () => {
   };
 
   const showChainSwitch = (chainName: string) => {
+    const icon =
+      chainName === "Starknet Mainnet" ? <StarknetColoredIcon /> : <></>;
     toaster.create({
-      title: "Switched to " + chainName,
+      title: (
+        <>
+          {icon} Switched to {chainName}
+        </>
+      ),
     });
   };
 

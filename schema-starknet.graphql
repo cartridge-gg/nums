@@ -1,0 +1,1069 @@
+schema {
+  query: World__Query
+  subscription: World__Subscription
+}
+
+scalar ByteArray
+
+scalar ContractAddress
+
+scalar Cursor
+
+scalar DateTime
+
+type ERC20__Token {
+  name: String!
+  symbol: String!
+  decimals: Int!
+  contractAddress: String!
+  amount: String!
+}
+
+type ERC721__Token {
+  name: String!
+  symbol: String!
+  tokenId: String!
+  contractAddress: String!
+  metadata: String!
+  metadataName: String
+  metadataDescription: String
+  metadataAttributes: String
+  imagePath: String!
+}
+
+union ERC__Token = ERC20__Token | ERC721__Token
+
+scalar Enum
+
+union ModelUnion = nums_JackpotCreated | nums_Claims | nums_Config | nums_Message | nums_Jackpot | nums_Metadata
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+type Token__Balance {
+  tokenMetadata: ERC__Token!
+}
+
+type Token__BalanceConnection {
+  edges: [Token__BalanceEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type Token__BalanceEdge {
+  node: Token__Balance
+  cursor: Cursor
+}
+
+type Token__Transfer {
+  from: String!
+  to: String!
+  executedAt: String!
+  tokenMetadata: ERC__Token!
+  transactionHash: String!
+}
+
+type Token__TransferConnection {
+  edges: [Token__TransferEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type Token__TransferEdge {
+  node: Token__Transfer
+  cursor: Cursor
+}
+
+type World__Content {
+  name: String
+  description: String
+  website: String
+  iconUri: String
+  coverUri: String
+  socials: [World__Social]
+}
+
+type World__Entity {
+  id: ID
+  keys: [String]
+  eventId: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  models: [ModelUnion]
+}
+
+type World__EntityConnection {
+  edges: [World__EntityEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EntityEdge {
+  node: World__Entity
+  cursor: Cursor
+}
+
+type World__Event {
+  id: ID
+  keys: [String]
+  data: [String]
+  executedAt: DateTime
+  createdAt: DateTime
+  transactionHash: String
+}
+
+type World__EventConnection {
+  edges: [World__EventEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EventEdge {
+  node: World__Event
+  cursor: Cursor
+}
+
+type World__EventMessage {
+  id: ID
+  keys: [String]
+  eventId: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  models: [ModelUnion]
+}
+
+type World__EventMessageConnection {
+  edges: [World__EventMessageEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EventMessageEdge {
+  node: World__EventMessage
+  cursor: Cursor
+}
+
+type World__Metadata {
+  id: ID
+  uri: String
+  worldAddress: String!
+  content: World__Content
+  iconImg: String
+  coverImg: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type World__MetadataConnection {
+  edges: [World__MetadataEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__MetadataEdge {
+  node: World__Metadata
+  cursor: Cursor
+}
+
+type World__Model {
+  id: ID
+  name: String
+  namespace: String
+  classHash: felt252
+  contractAddress: felt252
+  transactionHash: felt252
+  executedAt: DateTime
+  createdAt: DateTime
+}
+
+type World__ModelConnection {
+  edges: [World__ModelEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__ModelEdge {
+  node: World__Model
+  cursor: Cursor
+}
+
+input World__ModelOrder {
+  direction: OrderDirection!
+  field: World__ModelOrderField!
+}
+
+enum World__ModelOrderField {
+  NAME
+  CLASS_HASH
+}
+
+type World__PageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+  startCursor: Cursor
+  endCursor: Cursor
+}
+
+type World__Query {
+  entity(id: ID!): World__Entity!
+  entities(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EntityConnection
+  eventMessage(id: ID!): World__EventMessage!
+  eventMessages(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EventMessageConnection
+  events(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EventConnection
+  metadatas(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): World__MetadataConnection
+  model(id: ID!): World__Model!
+  models(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, order: World__ModelOrder): World__ModelConnection
+  transaction(transactionHash: ID!): World__Transaction!
+  transactions(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): World__TransactionConnection
+  tokenBalances(accountAddress: String!, first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): Token__BalanceConnection
+  tokenTransfers(accountAddress: String!, first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): Token__TransferConnection
+  numsJackpotCreatedModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_JackpotCreatedWhereInput, order: nums_JackpotCreatedOrder): nums_JackpotCreatedConnection
+  numsClaimsModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_ClaimsWhereInput, order: nums_ClaimsOrder): nums_ClaimsConnection
+  numsConfigModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_ConfigWhereInput, order: nums_ConfigOrder): nums_ConfigConnection
+  numsMessageModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_MessageWhereInput, order: nums_MessageOrder): nums_MessageConnection
+  numsJackpotModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_JackpotWhereInput, order: nums_JackpotOrder): nums_JackpotConnection
+  numsMetadataModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: nums_MetadataWhereInput, order: nums_MetadataOrder): nums_MetadataConnection
+}
+
+type World__Social {
+  name: String
+  url: String
+}
+
+type World__Subscription {
+  entityUpdated(id: ID): World__Entity!
+  eventMessageUpdated(id: ID): World__EventMessage!
+  eventEmitted(keys: [String]): World__Event!
+  modelRegistered(id: ID): World__Model!
+}
+
+type World__Transaction {
+  id: ID
+  transactionHash: felt252
+  senderAddress: felt252
+  calldata: [felt252]
+  maxFee: felt252
+  signature: [felt252]
+  nonce: felt252
+  executedAt: DateTime
+  createdAt: DateTime
+}
+
+type World__TransactionConnection {
+  edges: [World__TransactionEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__TransactionEdge {
+  node: World__Transaction
+  cursor: Cursor
+}
+
+scalar bool
+
+scalar felt252
+
+type nums_Claims {
+  game_id: u32
+  ty: nums_ClaimsType
+  block_number: u64
+  message_hash: felt252
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_ClaimsConnection {
+  edges: [nums_ClaimsEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_ClaimsEdge {
+  node: nums_Claims
+  cursor: Cursor
+}
+
+input nums_ClaimsOrder {
+  direction: OrderDirection!
+  field: nums_ClaimsOrderField!
+}
+
+enum nums_ClaimsOrderField {
+  GAME_ID
+  TY
+  BLOCK_NUMBER
+  MESSAGE_HASH
+}
+
+type nums_ClaimsType {
+  TOKEN: nums_TokenClaim
+  JACKPOT: nums_JackpotClaim
+  option: Enum
+}
+
+input nums_ClaimsWhereInput {
+  game_id: u32
+  game_idGT: u32
+  game_idGTE: u32
+  game_idLT: u32
+  game_idLTE: u32
+  game_idNEQ: u32
+  game_idEQ: u32
+  game_idNOTIN: [u32]
+  game_idIN: [u32]
+  game_idNOTLIKE: u32
+  game_idLIKE: u32
+  ty: nums_Claims_tyWhereInput
+  block_number: u64
+  block_numberGT: u64
+  block_numberGTE: u64
+  block_numberLT: u64
+  block_numberLTE: u64
+  block_numberNEQ: u64
+  block_numberEQ: u64
+  block_numberNOTIN: [u64]
+  block_numberIN: [u64]
+  block_numberNOTLIKE: u64
+  block_numberLIKE: u64
+  message_hash: felt252
+  message_hashGT: felt252
+  message_hashGTE: felt252
+  message_hashLT: felt252
+  message_hashLTE: felt252
+  message_hashNEQ: felt252
+  message_hashEQ: felt252
+  message_hashNOTIN: [felt252]
+  message_hashIN: [felt252]
+  message_hashNOTLIKE: felt252
+  message_hashLIKE: felt252
+}
+
+input nums_Claims_tyWhereInput {
+  TOKEN: nums_Claims_ty_TOKENWhereInput
+  JACKPOT: nums_Claims_ty_JACKPOTWhereInput
+  option: Enum
+}
+
+input nums_Claims_ty_JACKPOTWhereInput {
+  id: u32
+  idGT: u32
+  idGTE: u32
+  idLT: u32
+  idLTE: u32
+  idNEQ: u32
+  idEQ: u32
+  idNOTIN: [u32]
+  idIN: [u32]
+  idNOTLIKE: u32
+  idLIKE: u32
+}
+
+input nums_Claims_ty_TOKENWhereInput {
+  amount: u32
+  amountGT: u32
+  amountGTE: u32
+  amountLT: u32
+  amountLTE: u32
+  amountNEQ: u32
+  amountEQ: u32
+  amountNOTIN: [u32]
+  amountIN: [u32]
+  amountNOTLIKE: u32
+  amountLIKE: u32
+}
+
+type nums_ConditionalVictory {
+  slots_required: u8
+}
+
+type nums_Config {
+  world_resource: felt252
+  starknet_messenger: ContractAddress
+  starknet_consumer: ContractAddress
+  starknet_config: ContractAddress
+  starknet_jackpot: ContractAddress
+  appchain_handler: ContractAddress
+  appchain_claimer: ContractAddress
+  game: nums_OptionGameConfig
+  reward: nums_OptionSlotReward
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_ConfigConnection {
+  edges: [nums_ConfigEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_ConfigEdge {
+  node: nums_Config
+  cursor: Cursor
+}
+
+input nums_ConfigOrder {
+  direction: OrderDirection!
+  field: nums_ConfigOrderField!
+}
+
+enum nums_ConfigOrderField {
+  WORLD_RESOURCE
+  STARKNET_MESSENGER
+  STARKNET_CONSUMER
+  STARKNET_CONFIG
+  STARKNET_JACKPOT
+  APPCHAIN_HANDLER
+  APPCHAIN_CLAIMER
+  GAME
+  REWARD
+}
+
+input nums_ConfigWhereInput {
+  world_resource: felt252
+  world_resourceGT: felt252
+  world_resourceGTE: felt252
+  world_resourceLT: felt252
+  world_resourceLTE: felt252
+  world_resourceNEQ: felt252
+  world_resourceEQ: felt252
+  world_resourceNOTIN: [felt252]
+  world_resourceIN: [felt252]
+  world_resourceNOTLIKE: felt252
+  world_resourceLIKE: felt252
+  starknet_messenger: ContractAddress
+  starknet_messengerGT: ContractAddress
+  starknet_messengerGTE: ContractAddress
+  starknet_messengerLT: ContractAddress
+  starknet_messengerLTE: ContractAddress
+  starknet_messengerNEQ: ContractAddress
+  starknet_messengerEQ: ContractAddress
+  starknet_messengerNOTIN: [ContractAddress]
+  starknet_messengerIN: [ContractAddress]
+  starknet_messengerNOTLIKE: ContractAddress
+  starknet_messengerLIKE: ContractAddress
+  starknet_consumer: ContractAddress
+  starknet_consumerGT: ContractAddress
+  starknet_consumerGTE: ContractAddress
+  starknet_consumerLT: ContractAddress
+  starknet_consumerLTE: ContractAddress
+  starknet_consumerNEQ: ContractAddress
+  starknet_consumerEQ: ContractAddress
+  starknet_consumerNOTIN: [ContractAddress]
+  starknet_consumerIN: [ContractAddress]
+  starknet_consumerNOTLIKE: ContractAddress
+  starknet_consumerLIKE: ContractAddress
+  starknet_config: ContractAddress
+  starknet_configGT: ContractAddress
+  starknet_configGTE: ContractAddress
+  starknet_configLT: ContractAddress
+  starknet_configLTE: ContractAddress
+  starknet_configNEQ: ContractAddress
+  starknet_configEQ: ContractAddress
+  starknet_configNOTIN: [ContractAddress]
+  starknet_configIN: [ContractAddress]
+  starknet_configNOTLIKE: ContractAddress
+  starknet_configLIKE: ContractAddress
+  starknet_jackpot: ContractAddress
+  starknet_jackpotGT: ContractAddress
+  starknet_jackpotGTE: ContractAddress
+  starknet_jackpotLT: ContractAddress
+  starknet_jackpotLTE: ContractAddress
+  starknet_jackpotNEQ: ContractAddress
+  starknet_jackpotEQ: ContractAddress
+  starknet_jackpotNOTIN: [ContractAddress]
+  starknet_jackpotIN: [ContractAddress]
+  starknet_jackpotNOTLIKE: ContractAddress
+  starknet_jackpotLIKE: ContractAddress
+  appchain_handler: ContractAddress
+  appchain_handlerGT: ContractAddress
+  appchain_handlerGTE: ContractAddress
+  appchain_handlerLT: ContractAddress
+  appchain_handlerLTE: ContractAddress
+  appchain_handlerNEQ: ContractAddress
+  appchain_handlerEQ: ContractAddress
+  appchain_handlerNOTIN: [ContractAddress]
+  appchain_handlerIN: [ContractAddress]
+  appchain_handlerNOTLIKE: ContractAddress
+  appchain_handlerLIKE: ContractAddress
+  appchain_claimer: ContractAddress
+  appchain_claimerGT: ContractAddress
+  appchain_claimerGTE: ContractAddress
+  appchain_claimerLT: ContractAddress
+  appchain_claimerLTE: ContractAddress
+  appchain_claimerNEQ: ContractAddress
+  appchain_claimerEQ: ContractAddress
+  appchain_claimerNOTIN: [ContractAddress]
+  appchain_claimerIN: [ContractAddress]
+  appchain_claimerNOTLIKE: ContractAddress
+  appchain_claimerLIKE: ContractAddress
+  game: nums_Config_gameWhereInput
+  reward: nums_Config_rewardWhereInput
+}
+
+input nums_Config_gameWhereInput {
+  Some: nums_Config_game_SomeWhereInput
+  option: Enum
+}
+
+input nums_Config_game_SomeWhereInput {
+  max_slots: u8
+  max_slotsGT: u8
+  max_slotsGTE: u8
+  max_slotsLT: u8
+  max_slotsLTE: u8
+  max_slotsNEQ: u8
+  max_slotsEQ: u8
+  max_slotsNOTIN: [u8]
+  max_slotsIN: [u8]
+  max_slotsNOTLIKE: u8
+  max_slotsLIKE: u8
+  max_number: u16
+  max_numberGT: u16
+  max_numberGTE: u16
+  max_numberLT: u16
+  max_numberLTE: u16
+  max_numberNEQ: u16
+  max_numberEQ: u16
+  max_numberNOTIN: [u16]
+  max_numberIN: [u16]
+  max_numberNOTLIKE: u16
+  max_numberLIKE: u16
+  min_number: u16
+  min_numberGT: u16
+  min_numberGTE: u16
+  min_numberLT: u16
+  min_numberLTE: u16
+  min_numberNEQ: u16
+  min_numberEQ: u16
+  min_numberNOTIN: [u16]
+  min_numberIN: [u16]
+  min_numberNOTLIKE: u16
+  min_numberLIKE: u16
+}
+
+input nums_Config_rewardWhereInput {
+  Some: nums_Config_reward_SomeWhereInput
+  option: Enum
+}
+
+input nums_Config_reward_SomeWhereInput {
+  token: ContractAddress
+  tokenGT: ContractAddress
+  tokenGTE: ContractAddress
+  tokenLT: ContractAddress
+  tokenLTE: ContractAddress
+  tokenNEQ: ContractAddress
+  tokenEQ: ContractAddress
+  tokenNOTIN: [ContractAddress]
+  tokenIN: [ContractAddress]
+  tokenNOTLIKE: ContractAddress
+  tokenLIKE: ContractAddress
+}
+
+type nums_GameConfig {
+  max_slots: u8
+  max_number: u16
+  min_number: u16
+}
+
+type nums_Jackpot {
+  id: u32
+  title: felt252
+  creator: ContractAddress
+  mode: nums_JackpotMode
+  expiration: u64
+  token: nums_OptionToken
+  winner: nums_OptionContractAddress
+  claimed: bool
+  verified: bool
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_JackpotClaim {
+  id: u32
+}
+
+type nums_JackpotConnection {
+  edges: [nums_JackpotEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_JackpotCreated {
+  jackpot_id: u32
+  token: nums_OptionToken
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_JackpotCreatedConnection {
+  edges: [nums_JackpotCreatedEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_JackpotCreatedEdge {
+  node: nums_JackpotCreated
+  cursor: Cursor
+}
+
+input nums_JackpotCreatedOrder {
+  direction: OrderDirection!
+  field: nums_JackpotCreatedOrderField!
+}
+
+enum nums_JackpotCreatedOrderField {
+  JACKPOT_ID
+  TOKEN
+}
+
+input nums_JackpotCreatedWhereInput {
+  jackpot_id: u32
+  jackpot_idGT: u32
+  jackpot_idGTE: u32
+  jackpot_idLT: u32
+  jackpot_idLTE: u32
+  jackpot_idNEQ: u32
+  jackpot_idEQ: u32
+  jackpot_idNOTIN: [u32]
+  jackpot_idIN: [u32]
+  jackpot_idNOTLIKE: u32
+  jackpot_idLIKE: u32
+  token: nums_JackpotCreated_tokenWhereInput
+}
+
+input nums_JackpotCreated_tokenWhereInput {
+  Some: nums_JackpotCreated_token_SomeWhereInput
+  option: Enum
+}
+
+input nums_JackpotCreated_token_SomeWhereInput {
+  id: nums_JackpotCreated_token_Some_idWhereInput
+  address: ContractAddress
+  addressGT: ContractAddress
+  addressGTE: ContractAddress
+  addressLT: ContractAddress
+  addressLTE: ContractAddress
+  addressNEQ: ContractAddress
+  addressEQ: ContractAddress
+  addressNOTIN: [ContractAddress]
+  addressIN: [ContractAddress]
+  addressNOTLIKE: ContractAddress
+  addressLIKE: ContractAddress
+  ty: Enum
+  total: u256
+  totalGT: u256
+  totalGTE: u256
+  totalLT: u256
+  totalLTE: u256
+  totalNEQ: u256
+  totalEQ: u256
+  totalNOTIN: [u256]
+  totalIN: [u256]
+  totalNOTLIKE: u256
+  totalLIKE: u256
+}
+
+input nums_JackpotCreated_token_Some_idWhereInput {
+  Some: u256
+  SomeGT: u256
+  SomeGTE: u256
+  SomeLT: u256
+  SomeLTE: u256
+  SomeNEQ: u256
+  SomeEQ: u256
+  SomeNOTIN: [u256]
+  SomeIN: [u256]
+  SomeNOTLIKE: u256
+  SomeLIKE: u256
+  option: Enum
+}
+
+type nums_JackpotEdge {
+  node: nums_Jackpot
+  cursor: Cursor
+}
+
+type nums_JackpotMode {
+  KING_OF_THE_HILL: nums_KingOfTheHill
+  CONDITIONAL_VICTORY: nums_ConditionalVictory
+  option: Enum
+}
+
+input nums_JackpotOrder {
+  direction: OrderDirection!
+  field: nums_JackpotOrderField!
+}
+
+enum nums_JackpotOrderField {
+  ID
+  TITLE
+  CREATOR
+  MODE
+  EXPIRATION
+  TOKEN
+  WINNER
+  CLAIMED
+  VERIFIED
+}
+
+input nums_JackpotWhereInput {
+  id: u32
+  idGT: u32
+  idGTE: u32
+  idLT: u32
+  idLTE: u32
+  idNEQ: u32
+  idEQ: u32
+  idNOTIN: [u32]
+  idIN: [u32]
+  idNOTLIKE: u32
+  idLIKE: u32
+  title: felt252
+  titleGT: felt252
+  titleGTE: felt252
+  titleLT: felt252
+  titleLTE: felt252
+  titleNEQ: felt252
+  titleEQ: felt252
+  titleNOTIN: [felt252]
+  titleIN: [felt252]
+  titleNOTLIKE: felt252
+  titleLIKE: felt252
+  creator: ContractAddress
+  creatorGT: ContractAddress
+  creatorGTE: ContractAddress
+  creatorLT: ContractAddress
+  creatorLTE: ContractAddress
+  creatorNEQ: ContractAddress
+  creatorEQ: ContractAddress
+  creatorNOTIN: [ContractAddress]
+  creatorIN: [ContractAddress]
+  creatorNOTLIKE: ContractAddress
+  creatorLIKE: ContractAddress
+  mode: nums_Jackpot_modeWhereInput
+  expiration: u64
+  expirationGT: u64
+  expirationGTE: u64
+  expirationLT: u64
+  expirationLTE: u64
+  expirationNEQ: u64
+  expirationEQ: u64
+  expirationNOTIN: [u64]
+  expirationIN: [u64]
+  expirationNOTLIKE: u64
+  expirationLIKE: u64
+  token: nums_Jackpot_tokenWhereInput
+  winner: nums_Jackpot_winnerWhereInput
+  claimed: bool
+  verified: bool
+}
+
+input nums_Jackpot_modeWhereInput {
+  KING_OF_THE_HILL: nums_Jackpot_mode_KING_OF_THE_HILLWhereInput
+  CONDITIONAL_VICTORY: nums_Jackpot_mode_CONDITIONAL_VICTORYWhereInput
+  option: Enum
+}
+
+input nums_Jackpot_mode_CONDITIONAL_VICTORYWhereInput {
+  slots_required: u8
+  slots_requiredGT: u8
+  slots_requiredGTE: u8
+  slots_requiredLT: u8
+  slots_requiredLTE: u8
+  slots_requiredNEQ: u8
+  slots_requiredEQ: u8
+  slots_requiredNOTIN: [u8]
+  slots_requiredIN: [u8]
+  slots_requiredNOTLIKE: u8
+  slots_requiredLIKE: u8
+}
+
+input nums_Jackpot_mode_KING_OF_THE_HILLWhereInput {
+  extension_time: u64
+  extension_timeGT: u64
+  extension_timeGTE: u64
+  extension_timeLT: u64
+  extension_timeLTE: u64
+  extension_timeNEQ: u64
+  extension_timeEQ: u64
+  extension_timeNOTIN: [u64]
+  extension_timeIN: [u64]
+  extension_timeNOTLIKE: u64
+  extension_timeLIKE: u64
+  remaining_slots: u8
+  remaining_slotsGT: u8
+  remaining_slotsGTE: u8
+  remaining_slotsLT: u8
+  remaining_slotsLTE: u8
+  remaining_slotsNEQ: u8
+  remaining_slotsEQ: u8
+  remaining_slotsNOTIN: [u8]
+  remaining_slotsIN: [u8]
+  remaining_slotsNOTLIKE: u8
+  remaining_slotsLIKE: u8
+  king: ContractAddress
+  kingGT: ContractAddress
+  kingGTE: ContractAddress
+  kingLT: ContractAddress
+  kingLTE: ContractAddress
+  kingNEQ: ContractAddress
+  kingEQ: ContractAddress
+  kingNOTIN: [ContractAddress]
+  kingIN: [ContractAddress]
+  kingNOTLIKE: ContractAddress
+  kingLIKE: ContractAddress
+}
+
+input nums_Jackpot_tokenWhereInput {
+  Some: nums_Jackpot_token_SomeWhereInput
+  option: Enum
+}
+
+input nums_Jackpot_token_SomeWhereInput {
+  id: nums_Jackpot_token_Some_idWhereInput
+  address: ContractAddress
+  addressGT: ContractAddress
+  addressGTE: ContractAddress
+  addressLT: ContractAddress
+  addressLTE: ContractAddress
+  addressNEQ: ContractAddress
+  addressEQ: ContractAddress
+  addressNOTIN: [ContractAddress]
+  addressIN: [ContractAddress]
+  addressNOTLIKE: ContractAddress
+  addressLIKE: ContractAddress
+  ty: Enum
+  total: u256
+  totalGT: u256
+  totalGTE: u256
+  totalLT: u256
+  totalLTE: u256
+  totalNEQ: u256
+  totalEQ: u256
+  totalNOTIN: [u256]
+  totalIN: [u256]
+  totalNOTLIKE: u256
+  totalLIKE: u256
+}
+
+input nums_Jackpot_token_Some_idWhereInput {
+  Some: u256
+  SomeGT: u256
+  SomeGTE: u256
+  SomeLT: u256
+  SomeLTE: u256
+  SomeNEQ: u256
+  SomeEQ: u256
+  SomeNOTIN: [u256]
+  SomeIN: [u256]
+  SomeNOTLIKE: u256
+  SomeLIKE: u256
+  option: Enum
+}
+
+input nums_Jackpot_winnerWhereInput {
+  Some: ContractAddress
+  SomeGT: ContractAddress
+  SomeGTE: ContractAddress
+  SomeLT: ContractAddress
+  SomeLTE: ContractAddress
+  SomeNEQ: ContractAddress
+  SomeEQ: ContractAddress
+  SomeNOTIN: [ContractAddress]
+  SomeIN: [ContractAddress]
+  SomeNOTLIKE: ContractAddress
+  SomeLIKE: ContractAddress
+  option: Enum
+}
+
+type nums_KingOfTheHill {
+  extension_time: u64
+  remaining_slots: u8
+  king: ContractAddress
+}
+
+type nums_Message {
+  player: ContractAddress
+  hash: felt252
+  destination: Enum
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_MessageConnection {
+  edges: [nums_MessageEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_MessageEdge {
+  node: nums_Message
+  cursor: Cursor
+}
+
+input nums_MessageOrder {
+  direction: OrderDirection!
+  field: nums_MessageOrderField!
+}
+
+enum nums_MessageOrderField {
+  PLAYER
+  HASH
+  DESTINATION
+}
+
+input nums_MessageWhereInput {
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  hash: felt252
+  hashGT: felt252
+  hashGTE: felt252
+  hashLT: felt252
+  hashLTE: felt252
+  hashNEQ: felt252
+  hashEQ: felt252
+  hashNOTIN: [felt252]
+  hashIN: [felt252]
+  hashNOTLIKE: felt252
+  hashLIKE: felt252
+  destination: Enum
+}
+
+type nums_Metadata {
+  jackpot_id: u32
+  description: ByteArray
+  sponsor_url: ByteArray
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type nums_MetadataConnection {
+  edges: [nums_MetadataEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type nums_MetadataEdge {
+  node: nums_Metadata
+  cursor: Cursor
+}
+
+input nums_MetadataOrder {
+  direction: OrderDirection!
+  field: nums_MetadataOrderField!
+}
+
+enum nums_MetadataOrderField {
+  JACKPOT_ID
+  DESCRIPTION
+  SPONSOR_URL
+}
+
+input nums_MetadataWhereInput {
+  jackpot_id: u32
+  jackpot_idGT: u32
+  jackpot_idGTE: u32
+  jackpot_idLT: u32
+  jackpot_idLTE: u32
+  jackpot_idNEQ: u32
+  jackpot_idEQ: u32
+  jackpot_idNOTIN: [u32]
+  jackpot_idIN: [u32]
+  jackpot_idNOTLIKE: u32
+  jackpot_idLIKE: u32
+  description: ByteArray
+  descriptionGT: ByteArray
+  descriptionGTE: ByteArray
+  descriptionLT: ByteArray
+  descriptionLTE: ByteArray
+  descriptionNEQ: ByteArray
+  descriptionEQ: ByteArray
+  descriptionNOTIN: [ByteArray]
+  descriptionIN: [ByteArray]
+  descriptionNOTLIKE: ByteArray
+  descriptionLIKE: ByteArray
+  sponsor_url: ByteArray
+  sponsor_urlGT: ByteArray
+  sponsor_urlGTE: ByteArray
+  sponsor_urlLT: ByteArray
+  sponsor_urlLTE: ByteArray
+  sponsor_urlNEQ: ByteArray
+  sponsor_urlEQ: ByteArray
+  sponsor_urlNOTIN: [ByteArray]
+  sponsor_urlIN: [ByteArray]
+  sponsor_urlNOTLIKE: ByteArray
+  sponsor_urlLIKE: ByteArray
+}
+
+type nums_OptionContractAddress {
+  Some: ContractAddress
+  option: Enum
+}
+
+type nums_OptionGameConfig {
+  Some: nums_GameConfig
+  option: Enum
+}
+
+type nums_OptionSlotReward {
+  Some: nums_SlotReward
+  option: Enum
+}
+
+type nums_OptionToken {
+  Some: nums_Token
+  option: Enum
+}
+
+type nums_Optionu256 {
+  Some: u256
+  option: Enum
+}
+
+type nums_RewardLevel {
+  level: u8
+  amount: u32
+}
+
+type nums_SlotReward {
+  token: ContractAddress
+  levels: [nums_RewardLevel]
+}
+
+type nums_Token {
+  id: nums_Optionu256
+  address: ContractAddress
+  ty: Enum
+  total: u256
+}
+
+type nums_TokenClaim {
+  amount: u32
+}
+
+scalar u16
+
+scalar u256
+
+scalar u32
+
+scalar u64
+
+scalar u8

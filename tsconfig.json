@@ -22,8 +22,20 @@
     "plugins": [ 
       { 
         "name": "gql.tada/ts-plugin",
-        "schema": "https://api.cartridge.gg/x/nums-appchain/torii/graphql", 
-        "tadaOutputLocation": "./src/graphql/graphql-env.d.ts"
+        "schemas" : [
+          {
+            "name": "appchain",
+            "schema": "https://api.cartridge.gg/x/nums-appchain/torii/graphql",
+            "tadaOutputLocation": "./src/graphql/appchain-env.d.ts",
+            "tadaTurboLocation": "./src/graphql/appchain-turbo.ts"
+          }, 
+          {
+            "name": "starknet",
+            "schema": "https://api.cartridge.gg/x/nums-starknet/torii/graphql",
+            "tadaOutputLocation": "./src/graphql/starknet-env.d.ts",
+            "tadaTurboLocation": "./src/graphql/starknet-turbo.ts"
+          }
+        ]
       } 
     ],
     "paths": {

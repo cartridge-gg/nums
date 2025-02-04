@@ -77,7 +77,7 @@ pub mod jackpot_actions {
                     extension_time,
                     king: starknet::contract_address_const::<0x0>(),
                     remaining_slots: game_config.max_slots,
-                }
+                },
             );
             self._create(title, mode, expiration, token)
         }
@@ -107,7 +107,7 @@ pub mod jackpot_actions {
             title: felt252,
             mode: JackpotMode,
             expiration: u64,
-            token: Option<Token>
+            token: Option<Token>,
         ) -> u32 {
             if expiration > 0 {
                 assert!(expiration > get_block_timestamp(), "Expiration already passed")
@@ -139,7 +139,7 @@ pub mod jackpot_actions {
                 // message_consumers.cairo is what will transfer jackpot
                 ITokenDispatcher { contract_address: token.address }
                     .transferFrom(
-                        get_caller_address(), config.starknet_consumer.clone(), token.total
+                        get_caller_address(), config.starknet_consumer.clone(), token.total,
                     );
             }
 
@@ -151,7 +151,7 @@ pub mod jackpot_actions {
                     config.appchain_handler, selector!("create_jackpot_handler"), payload.span(),
                 );
 
-            let message = Message { player: creator, hash, destination: Destination::APPCHAIN, };
+            let message = Message { player: creator, hash, destination: Destination::APPCHAIN };
             world.write_model(@message);
 
             id

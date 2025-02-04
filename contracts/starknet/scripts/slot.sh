@@ -16,7 +16,7 @@ SLOT_PROJECT="nums-starknet"
 case $COMMAND in
     "create")
         if [ "$SERVICE" == "katana" ]; then
-            slot d create $SLOT_PROJECT katana --dev 
+            slot d create $SLOT_PROJECT katana --dev --version v1.1.2
         fi
         if [ "$SERVICE" == "torii" ]; then
             JSON_FILE="$SCRIPT_DIR/../dojo/manifest_slot.json"
@@ -32,7 +32,7 @@ case $COMMAND in
             fi
 
 
-            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR
+            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR --version v1.1.2
         fi
         ;;
     "delete")

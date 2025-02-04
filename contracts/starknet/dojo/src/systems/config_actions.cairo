@@ -30,7 +30,7 @@ pub mod config_actions {
             config.serialize(ref payload);
 
             let (hash, _) = IMessagingDispatcher {
-                contract_address: config.starknet_messenger.try_into().unwrap()
+                contract_address: config.starknet_messenger.try_into().unwrap(),
             }
                 .send_message_to_appchain(
                     config.appchain_handler.try_into().unwrap(),
@@ -38,7 +38,7 @@ pub mod config_actions {
                     payload.span(),
                 );
 
-            let message = Message { player: owner, hash, destination: Destination::APPCHAIN, };
+            let message = Message { player: owner, hash, destination: Destination::APPCHAIN };
             world.write_model(@message);
             world.write_model(@config);
         }

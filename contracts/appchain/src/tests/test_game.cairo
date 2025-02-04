@@ -4,22 +4,23 @@ mod tests {
     use dojo::world::{WorldStorageTrait, WorldStorage};
     use dojo_cairo_test::{
         spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
-        WorldStorageTestTrait
+        WorldStorageTestTrait,
     };
 
     use nums::{
         systems::{
-            game_actions::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait}
+            game_actions::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
         },
         models::{
             game::{Game, GameTrait, m_Game}, slot::m_Slot, name::{Name, m_Name},
-            config::{Config, GameConfig, m_Config}
-        }
+            config::{Config, GameConfig, m_Config},
+        },
     };
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
-            namespace: "nums", resources: [
+            namespace: "nums",
+            resources: [
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
                 TestResource::Model(m_Slot::TEST_CLASS_HASH),
                 TestResource::Model(m_Name::TEST_CLASS_HASH),
@@ -27,7 +28,8 @@ mod tests {
                 TestResource::Event(game_actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(game_actions::e_Inserted::TEST_CLASS_HASH),
                 TestResource::Contract(game_actions::TEST_CLASS_HASH),
-            ].span()
+            ]
+                .span(),
         };
 
         ndef
@@ -37,7 +39,8 @@ mod tests {
         [
             ContractDefTrait::new(@"nums", @"game_actions")
                 .with_writer_of([dojo::utils::bytearray_hash(@"nums")].span())
-        ].span()
+        ]
+            .span()
     }
 
     fn spawn_nums_world() -> WorldStorage {
@@ -51,7 +54,7 @@ mod tests {
     fn CONFIG() -> Config {
         Config {
             world_resource: 0,
-            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0, }),
+            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0 }),
             reward: Option::None,
         }
     }

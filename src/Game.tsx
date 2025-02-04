@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { graphql } from "./graphql";
 import { useQuery } from "urql";
-import { useCallback, useEffect, useState } from "react";
-import { isGameOver, removeZeros } from "./utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
 import {
   Container,
@@ -21,6 +20,7 @@ import { HomeIcon } from "./components/icons/Home";
 import Play from "./components/Play";
 import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
+import { graphql } from "./graphql/appchain";
 
 const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;
@@ -72,7 +72,14 @@ const Game = () => {
   const { account } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
-
+  const positiveSound = useMemo(
+    () => new Audio("/sounds/esm_positive.wav"),
+    [],
+  );
+  const negativeSound = useMemo(
+    () => new Audio("/sounds/esm_negative.wav"),
+    [],
+  );
   const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
@@ -133,22 +140,25 @@ const Game = () => {
     setIsOver(isOver);
 
     if (isOwner && isOver) {
+      negativeSound.play();
+
       if (!gamesModel.claimed) {
         claimReward();
       }
-      onOpen();
     }
 
     setIsLoading(false);
-  }, [queryResult, account, onOpen, claimReward]);
+  }, [queryResult, account, negativeSound, onOpen, claimReward]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
 
-    if (isOver) {
-      onOpen();
+    if (!isMoveLegal(slots, nextNumber!, slot)) {
+      negativeSound.play();
       return false;
     }
+
+    positiveSound.play();
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([
@@ -197,37 +207,39 @@ const Game = () => {
       <Container h="100vh" maxW="100vw">
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
-          <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
-            Game Over
-          </Text>
-          <HStack w={["300px", "300px", "400px"]}>
-            <VStack layerStyle="transparent" flex="1" align="flex-start">
-              <Text color="purple.50">Score</Text>
-              <Text>{MAX_SLOTS - remaining}</Text>
-            </VStack>
-            <VStack layerStyle="transparent" flex="1" align="flex-start">
-              <Text color="purple.50">Nums Rewarded</Text>
-              <Text>{reward}</Text>
-            </VStack>
-          </HStack>
-          <HStack pt="32px">
-            <Button visual="transparent" onClick={() => navigate("/")}>
-              <HomeIcon /> Home
-            </Button>
-            <Play
-              isAgain
-              onReady={(gameId) => {
-                navigate(`/${gameId}`);
-                resetGame();
-              }}
-            />
-          </HStack>
-          {claimError && (
-            <VStack mt="20px">
-              <Text>There was an error claiming on appchain:</Text>
-              <Text color="red">{claimError?.message}</Text>
-            </VStack>
-          )}
+          <VStack boxSize="full" justify="center">
+            <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
+              Game Over
+            </Text>
+            <HStack w={["300px", "300px", "400px"]}>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Score</Text>
+                <Text>{MAX_SLOTS - remaining}</Text>
+              </VStack>
+              <VStack layerStyle="transparent" flex="1" align="flex-start">
+                <Text color="purple.50">Nums Rewarded</Text>
+                <Text>{reward}</Text>
+              </VStack>
+            </HStack>
+            <HStack pt="32px">
+              <Button visual="transparent" onClick={() => navigate("/")}>
+                <HomeIcon /> Home
+              </Button>
+              <Play
+                isAgain
+                onReady={(gameId) => {
+                  navigate(`/${gameId}`);
+                  resetGame();
+                }}
+              />
+            </HStack>
+            {claimError && (
+              <VStack mt="20px">
+                <Text>There was an error claiming on appchain:</Text>
+                <Text color="red">{claimError?.message}</Text>
+              </VStack>
+            )}
+          </VStack>
         </Overlay>
         <VStack
           h={["auto", "auto", "100%"]}
@@ -238,12 +250,15 @@ const Game = () => {
             textStyle="h-lg"
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"
+            color={isOver ? "red" : "inherit"}
+            transition="color 3s"
+            onTransitionEnd={() => {
+              if (isOver && isOwner) {
+                onOpen();
+              }
+            }}
           >
-            {isOver || !isOwner ? (
-              nextNumber
-            ) : (
-              <NextNumber number={nextNumber!} />
-            )}
+            <NextNumber number={nextNumber!} />
           </Text>
           <VStack gap="40px">
             <Grid
@@ -266,7 +281,7 @@ const Game = () => {
                 );
               })}
             </Grid>
-            <HStack w="full">
+            {/* <HStack w="full">
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Remaining Slots</Text>
                 <Text>{remaining}</Text>
@@ -275,7 +290,7 @@ const Game = () => {
                 <Text color="purple.50">Rewards Earned</Text>
                 <Text>{reward}</Text>
               </VStack>
-            </HStack>
+            </HStack> */}
           </VStack>
         </VStack>
       </Container>

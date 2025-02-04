@@ -61,6 +61,11 @@ const policies: SessionPolicies = {
           entrypoint: "claim_reward",
           description: "Claims token rewards on Appchain",
         },
+        {
+          name: "Claimed on Starknet",
+          entrypoint: "claimed_on_starknet",
+          description: "Specifies that a reward has been claimed on Starknet",
+        },
       ],
     },
     [import.meta.env.VITE_CONSUMER_CONTRACT]: {

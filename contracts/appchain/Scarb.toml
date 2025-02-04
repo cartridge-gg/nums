@@ -1,7 +1,7 @@
 [package]
 name = "nums_appchain"
 version = "0.1.0"
-cairo-version = "=2.8.4"
+cairo-version = "=2.9.2"
 edition = "2024_07"
 
 [[target.starknet-contract]]
@@ -17,14 +17,14 @@ build-external-contracts = [
 ]
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.12" }
-achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "e8af2f3" }
-piltover = { git = "https://github.com/keep-starknet-strange/piltover.git" }
-starknet = "2.8.4"
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.1.2" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", tag="v1.1.2" }
+piltover = { git = "https://github.com/broody/piltover.git", rev = "c7eb928c" }
+starknet = "2.9.2"
 nums_common = { path = "../common" }
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.12" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.1.2" }
 
 [features]
 default = []

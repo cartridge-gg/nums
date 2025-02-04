@@ -4,7 +4,7 @@ mod tests {
     use dojo::world::{WorldStorageTrait, WorldStorage};
     use dojo_cairo_test::{
         spawn_test_world, NamespaceDef, TestResource, ContractDef, ContractDefTrait,
-        WorldStorageTestTrait
+        WorldStorageTestTrait,
     };
 
     use starknet::ContractAddress;
@@ -13,13 +13,13 @@ mod tests {
         systems::{
             game_actions::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
             challenge_actions::{
-                challenge_actions, IChallengeActionsDispatcher, IChallengeActionsDispatcherTrait
-            }
+                challenge_actions, IChallengeActionsDispatcher, IChallengeActionsDispatcherTrait,
+            },
         },
         models::{
             game::m_Game, slot::m_Slot, config::{m_Config, Config, GameConfig},
             challenge::challenge::{m_Challenge, Challenge}, challenge::mode::ChallengeMode,
-        }
+        },
     };
 
     const START_BLOCK_TIME: u64 = 100;
@@ -30,7 +30,8 @@ mod tests {
 
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
-            namespace: "nums", resources: [
+            namespace: "nums",
+            resources: [
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
                 TestResource::Model(m_Slot::TEST_CLASS_HASH),
                 TestResource::Model(m_Config::TEST_CLASS_HASH),
@@ -41,8 +42,9 @@ mod tests {
                 TestResource::Event(challenge_actions::e_ChallengeClaimed::TEST_CLASS_HASH),
                 TestResource::Event(challenge_actions::e_KingCrowned::TEST_CLASS_HASH),
                 TestResource::Contract(game_actions::TEST_CLASS_HASH),
-                TestResource::Contract(challenge_actions::TEST_CLASS_HASH)
-            ].span()
+                TestResource::Contract(challenge_actions::TEST_CLASS_HASH),
+            ]
+                .span(),
         };
 
         ndef
@@ -53,8 +55,9 @@ mod tests {
             ContractDefTrait::new(@"nums", @"game_actions")
                 .with_writer_of([dojo::utils::bytearray_hash(@"nums")].span()),
             ContractDefTrait::new(@"nums", @"challenge_actions")
-                .with_writer_of([dojo::utils::bytearray_hash(@"nums")].span())
-        ].span()
+                .with_writer_of([dojo::utils::bytearray_hash(@"nums")].span()),
+        ]
+            .span()
     }
 
     fn spawn_nums_world() -> WorldStorage {
@@ -75,7 +78,7 @@ mod tests {
     }
 
     fn KING_OF_THE_HILL_STATE(
-        start_time: u64, expiration: u64, extension: u64
+        start_time: u64, expiration: u64, extension: u64,
     ) -> (WorldStorage, u32, IGameActionsDispatcher, IChallengeActionsDispatcher) {
         let world = spawn_nums_world();
         let (game_actions_address, _) = world.dns(@"game_actions").unwrap();
@@ -83,7 +86,7 @@ mod tests {
 
         let mut game_actions = IGameActionsDispatcher { contract_address: game_actions_address };
         let mut challenge_actions = IChallengeActionsDispatcher {
-            contract_address: challenge_actions_address
+            contract_address: challenge_actions_address,
         };
 
         game_actions.set_config(CONFIG());
@@ -106,7 +109,7 @@ mod tests {
     fn CONFIG() -> Config {
         Config {
             world_resource: 0,
-            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0, }),
+            game: Option::Some(GameConfig { max_slots: 20, max_number: 1000, min_number: 0 }),
             reward: Option::None,
         }
     }
@@ -114,7 +117,7 @@ mod tests {
     #[test]
     fn test_create_king_of_the_hill() {
         let (world, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let challenge: Challenge = world.read_model(challenge_id);
         assert(challenge.winner == Option::None, 'no winner');
@@ -128,7 +131,7 @@ mod tests {
         let challenge: Challenge = world.read_model(challenge_id);
         let king_of_the_hill = match challenge.mode {
             ChallengeMode::KING_OF_THE_HILL(koth) => koth,
-            _ => panic!("Not a King of the Hill challenge")
+            _ => panic!("Not a King of the Hill challenge"),
         };
 
         assert(challenge.expiration == EXPIRATION_TIME + EXTENSION_TIME, 'expiration extends 300');
@@ -146,10 +149,11 @@ mod tests {
         let challenge: Challenge = world.read_model(challenge_id);
         let king_of_the_hill = match challenge.mode {
             ChallengeMode::KING_OF_THE_HILL(koth) => koth,
-            _ => panic!("Not a King of the Hill challenge")
+            _ => panic!("Not a King of the Hill challenge"),
         };
         assert(
-            challenge.expiration == EXPIRATION_TIME + (EXTENSION_TIME * 2), 'expiration extends 400'
+            challenge.expiration == EXPIRATION_TIME + (EXTENSION_TIME * 2),
+            'expiration extends 400',
         );
         assert(king_of_the_hill.king == PLAYER_ONE(), 'player should be king');
         assert(king_of_the_hill.remaining_slots == 18, 'remaining have deducted');
@@ -159,7 +163,7 @@ mod tests {
     #[should_panic(expected: ('No improvement or already king', 'ENTRYPOINT_FAILED'))]
     fn test_king_me_multiple() {
         let (_, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let (game_id, _) = game_actions.create_game(Option::Some(challenge_id));
 
@@ -171,7 +175,7 @@ mod tests {
     #[should_panic(expected: ('Challenge already expired', 'ENTRYPOINT_FAILED'))]
     fn test_king_me_expired() {
         let (_, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let (game_id, _) = game_actions.create_game(Option::Some(challenge_id));
 
@@ -183,7 +187,7 @@ mod tests {
     #[test]
     fn test_claim_king_of_the_hill() {
         let (world, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let (game_id, _) = game_actions.create_game(Option::Some(challenge_id));
         game_actions.set_slot(game_id, 6);
@@ -200,7 +204,7 @@ mod tests {
     #[should_panic(expected: ('no slots filled', 'ENTRYPOINT_FAILED'))]
     fn test_claim_king_not_winner() {
         let (_, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let (game_id, _) = game_actions.create_game(Option::Some(challenge_id));
         game_actions.set_slot(game_id, 6);
@@ -215,7 +219,7 @@ mod tests {
     #[should_panic(expected: ('cannot claim yet', 'ENTRYPOINT_FAILED'))]
     fn test_cannot_claim_king_yet() {
         let (_, challenge_id, mut game_actions, mut challenge_actions) = KING_OF_THE_HILL_STATE(
-            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME
+            START_BLOCK_TIME, EXPIRATION_TIME, EXTENSION_TIME,
         );
         let (game_id, _) = game_actions.create_game(Option::Some(challenge_id));
         game_actions.set_slot(game_id, 6);

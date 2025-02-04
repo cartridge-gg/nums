@@ -26,7 +26,7 @@ pub mod message_consumers {
     #[abi(embed_v0)]
     impl MessageConsumersImpl of IMessageConsumers<ContractState> {
         fn consume_claim_jackpot(
-            ref self: ContractState, player: ContractAddress, game_id: u32, jackpot_id: u32
+            ref self: ContractState, player: ContractAddress, game_id: u32, jackpot_id: u32,
         ) {
             assert(player == starknet::get_caller_address(), 'caller is not the player');
 
@@ -40,7 +40,7 @@ pub mod message_consumers {
             let _ = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
-                    array![player.into(), game_id.into(), jackpot_id.into(),].span()
+                    array![player.into(), game_id.into(), jackpot_id.into()].span(),
                 );
 
             jackpot.winner = Option::Some(player);
@@ -53,7 +53,7 @@ pub mod message_consumers {
         }
 
         fn consume_claim_reward(
-            ref self: ContractState, player: ContractAddress, game_id: u32, amount: u32
+            ref self: ContractState, player: ContractAddress, game_id: u32, amount: u32,
         ) {
             assert(player == starknet::get_caller_address(), 'caller is not the player');
 
@@ -63,12 +63,12 @@ pub mod message_consumers {
                 ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
                 _ => panic!("Expected token claim"),
             };
-            
+
             let config: Config = world.read_model(WORLD_RESOURCE);
             let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
-                    array![player.into(), game_id.into(), amount.into(),].span()
+                    array![player.into(), game_id.into(), amount.into()].span(),
                 );
 
             claims.game_id = game_id;
@@ -81,7 +81,7 @@ pub mod message_consumers {
         }
 
         fn sn_to_appchain_messages(
-            self: @ContractState, message_hash: felt252
+            self: @ContractState, message_hash: felt252,
         ) -> MessageToAppchainStatus {
             let world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);
@@ -91,7 +91,7 @@ pub mod message_consumers {
         }
 
         fn appchain_to_sn_messages(
-            self: @ContractState, message_hash: felt252
+            self: @ContractState, message_hash: felt252,
         ) -> MessageToStarknetStatus {
             let world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);

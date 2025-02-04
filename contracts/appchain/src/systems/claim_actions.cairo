@@ -14,7 +14,6 @@ pub mod claim_actions {
 
     use piltover::messaging::hash::compute_message_hash_appc_to_sn;
 
-
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::slot::Slot;
     use nums_common::models::claims::{Claims, ClaimsType, TokenClaim, JackpotClaim};
@@ -65,11 +64,7 @@ pub mod claim_actions {
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    array![
-                        player.into(),
-                        game_id.into(),
-                        game.reward.into(),
-                    ].span(),
+                    array![player.into(), game_id.into(), game.reward.into()].span(),
                 ),
             };
 
@@ -85,7 +80,8 @@ pub mod claim_actions {
                     player.into(),
                     game_id.into(),
                     game.reward.into(),
-                ].span()
+                ]
+                    .span(),
             )
                 .unwrap_syscall();
 
@@ -141,11 +137,7 @@ pub mod claim_actions {
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    array![
-                        player.into(),
-                        game_id.into(),
-                        jackpot_id.into(),
-                    ].span(),
+                    array![player.into(), game_id.into(), jackpot_id.into()].span(),
                 ),
             };
 
@@ -160,8 +152,9 @@ pub mod claim_actions {
                     player.into(),
                     game_id.into(),
                     jackpot_id.into(),
-                ].span()
-        )
+                ]
+                    .span(),
+            )
                 .unwrap_syscall();
         }
     }

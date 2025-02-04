@@ -13,7 +13,6 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { graphql } from "./graphql";
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -29,6 +28,7 @@ import { InfoIcon } from "./components/icons/Info";
 import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
+import { graphql } from "./graphql/appchain";
 
 const MAX_SLOTS = 20;
 

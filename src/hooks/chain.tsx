@@ -19,9 +19,9 @@ const chainName = {
 export interface UseChain {
   chain: Chain;
   error: Error | undefined;
-  requestChain: (chainId: string) => void;
-  requestStarknet: () => void;
-  requestAppchain: () => void;
+  requestChain: (chainId: string, silent?: boolean) => void;
+  requestStarknet: (silent?: boolean) => void;
+  requestAppchain: (silent?: boolean) => void;
 }
 
 const useChain = () => {
@@ -35,8 +35,8 @@ const useChain = () => {
   });
 
   const requestChain = useCallback(
-    async (chainId: string) => {
-      if (chain.id === num.toBigInt(chainId)) {
+    async (chainId: string, silent?: boolean) => {
+      if (chain.id === num.toBigInt(chainId) && !silent) {
         showChainSwitch(chainName[chainId]);
         return;
       }
@@ -48,7 +48,9 @@ const useChain = () => {
           return;
         }
 
-        showChainSwitch(chainName[chainId]);
+        if (!silent) {
+          showChainSwitch(chainName[chainId]);
+        }
       } catch (e) {
         setError(e as Error);
         console.error(e);
@@ -57,21 +59,27 @@ const useChain = () => {
     [chain],
   );
 
-  const requestStarknet = useCallback(async () => {
-    if (chain.id === num.toBigInt(STARKNET_CHAIN_ID)) {
-      return;
-    }
+  const requestStarknet = useCallback(
+    async (silent?: boolean) => {
+      if (chain.id === num.toBigInt(STARKNET_CHAIN_ID)) {
+        return;
+      }
 
-    requestChain(STARKNET_CHAIN_ID);
-  }, [chain]);
+      await requestChain(STARKNET_CHAIN_ID, silent);
+    },
+    [chain],
+  );
 
-  const requestAppchain = useCallback(async () => {
-    if (chain.id === num.toBigInt(APPCHAIN_CHAIN_ID)) {
-      return;
-    }
+  const requestAppchain = useCallback(
+    async (silent?: boolean) => {
+      if (chain.id === num.toBigInt(APPCHAIN_CHAIN_ID)) {
+        return;
+      }
 
-    requestChain(APPCHAIN_CHAIN_ID);
-  }, [chain]);
+      await requestChain(APPCHAIN_CHAIN_ID, silent);
+    },
+    [chain],
+  );
 
   return {
     chain,

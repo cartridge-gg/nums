@@ -1,11 +1,19 @@
 import { Icon, IconProps } from "@chakra-ui/react";
 
-export const LogoIcon = ({ props }: { props?: IconProps }) => {
+export const LogoIcon = ({
+  h,
+  w,
+  props,
+}: {
+  h?: number;
+  w?: number;
+  props?: IconProps;
+}) => {
   return (
-    <Icon boxSize="40px 48px" {...props}>
+    <Icon {...props}>
       <svg
-        width="40"
-        height="48"
+        width={w ? w : "40"}
+        height={h ? h : "48"}
         viewBox="0 0 40 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

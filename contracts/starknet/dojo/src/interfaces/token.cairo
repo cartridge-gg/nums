@@ -4,7 +4,7 @@ use starknet::ContractAddress;
 pub trait IToken<TState> {
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
 }
 

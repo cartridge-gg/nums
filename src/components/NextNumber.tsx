@@ -1,4 +1,4 @@
-import { Box, Flex, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, VStack } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useState, useEffect } from "react";
 

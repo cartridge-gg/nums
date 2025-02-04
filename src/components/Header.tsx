@@ -1,5 +1,4 @@
 import {
-  Box,
   HStack,
   MenuContent,
   MenuItem,

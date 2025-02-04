@@ -68,7 +68,7 @@ const Play = ({
   return (
     <>
       {account ? (
-        <Button onClick={newGame} disabled={creating}>
+        <Button onClick={newGame} disabled={creating} minW="150px">
           {creating ? (
             <Spinner />
           ) : isAgain ? (

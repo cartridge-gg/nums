@@ -6,6 +6,7 @@ import {
   HStack,
   Spacer,
   useDisclosure,
+  Stack,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -157,7 +158,7 @@ const Home = () => {
                       isOwn={edge.node.player === account?.address}
                       player={getUsername(edge.node.player)}
                       score={MAX_SLOTS - edge.node.remaining_slots}
-                      tokens={edge.node.reward}
+                      tokens={edge.node.reward.toLocaleString()}
                       onClick={() => {
                         navigate(`/0x${edge.node.game_id.toString(16)}`);
                       }}
@@ -170,10 +171,15 @@ const Home = () => {
               <Text color="purple.50" textStyle="faded">
                 Game ends in...
               </Text>
-              <HStack w="full" justify="space-between">
+              <Stack
+                w="full"
+                gap={["20px", "20px", "50px"]}
+                justify="space-between"
+                direction={["column", "column", "row"]}
+              >
                 <Timer hrs={5} mins={5} secs={5} />
                 <Play onReady={(gameId) => navigate(`/${gameId}`)} />
-              </HStack>
+              </Stack>
             </VStack>
           </VStack>
         </VStack>

@@ -84,7 +84,13 @@ const RewardsOverlay = ({
         onClose();
       }}
     >
-      <VStack w="50%" pt="40px">
+      <VStack
+        w={["100%", "100%", "50%"]}
+        h="full"
+        align="flex-start"
+        p="24px"
+        pt="60px"
+      >
         <HStack
           p="16px"
           justify="space-between"

@@ -1,4 +1,4 @@
-import { Box, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Text, useDisclosure, HStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useState } from "react";
@@ -92,24 +92,25 @@ const Balance = () => {
           onOpenRewards();
         }}
       >
-        <Text>
-          <LogoIcon w={32} h={32} />:
-        </Text>
-        <Text>{totalRewards.toLocaleString()} NUMS</Text>
-        <Box
-          position="absolute"
-          bottom="-50px"
-          left="50%"
-          transform="translateX(-50%)"
-          animation={difference > 0 ? `${floatUp} 3s forwards` : "none"}
-          key={difference}
-          opacity={difference > 0 ? 1 : 0}
-          onAnimationEnd={() => setDifference(0)}
-        >
-          <Text color="green.50" fontSize="24px">
-            +{difference.toLocaleString()} NUMS
-          </Text>
-        </Box>
+        <LogoIcon w={32} h={32} />
+        <HStack display={["none", "none", "flex"]}>
+          <Text>:</Text>
+          <Text>{totalRewards.toLocaleString()} NUMS</Text>
+          <Box
+            position="absolute"
+            bottom="-50px"
+            left="50%"
+            transform="translateX(-50%)"
+            animation={difference > 0 ? `${floatUp} 3s forwards` : "none"}
+            key={difference}
+            opacity={difference > 0 ? 1 : 0}
+            onAnimationEnd={() => setDifference(0)}
+          >
+            <Text color="green.50" fontSize="24px">
+              +{difference.toLocaleString()} NUMS
+            </Text>
+          </Box>
+        </HStack>
       </Button>
     </>
   );

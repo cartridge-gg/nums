@@ -12,6 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@bal7hazar/arcade-sdk": "^0.0.74",
     "@cartridge/connector": "0.7.0",
     "@cartridge/controller": "0.7.0",
     "@cartridge/presets": "^0.5.2",
@@ -36,7 +37,9 @@
     "urql": "^4.0.7",
     "usehooks-ts": "^3.1.0",
     "viem": "^2.13.2",
-    "vite-plugin-mkcert": "^1.17.6"
+    "vite-plugin-mkcert": "^1.17.6",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.4.1"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.12.12",
@@ -56,5 +59,6 @@
     "vite": "^5.2.0",
     "vite-plugin-static-copy": "^2.2.0",
     "vite-tsconfig-paths": "^5.1.4"
-  }
+  },
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }

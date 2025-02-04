@@ -10,8 +10,9 @@ import {
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
 import { SessionPolicies } from "@cartridge/controller";
+import { getSocialPolicies } from "@bal7hazar/arcade-sdk";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num } from "starknet";
+import { constants, num } from "starknet";
 import { UrqlProvider } from "./UrqlContext";
 import "./fonts.css";
 import { APPCHAIN_CHAIN_ID, STARKNET_CHAIN_ID } from "./hooks/chain";
@@ -77,6 +78,8 @@ const policies: SessionPolicies = {
         },
       ],
     },
+    ...getSocialPolicies(constants.StarknetChainId.SN_MAIN, { pin: true })
+      .contracts,
   },
 };
 

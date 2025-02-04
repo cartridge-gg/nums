@@ -72,7 +72,7 @@ const Header = ({
         p="12px"
         bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
       >
-        <LogoIcon />
+        {!showHome && <LogoIcon />}
         <Text
           color="white"
           fontSize="48px"
@@ -80,6 +80,7 @@ const Header = ({
           fontWeight="400"
           fontFamily="Ekamai"
           letterSpacing="0.01em"
+          display={["none", "none", "block"]}
         >
           NUMS.GG
         </Text>
@@ -115,7 +116,7 @@ const Header = ({
             <Balance />
             <Button visual="transparent" h="48px" onClick={openProfile}>
               {address && <ControllerIcon />}
-              {username}
+              <Text display={["none", "none", "block"]}>{username}</Text>
             </Button>
             <Button visual="transparent" h="48px" onClick={() => disconnect()}>
               <DisconnectIcon />

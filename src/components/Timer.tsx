@@ -10,11 +10,16 @@ export const Timer = ({
   secs: number;
 }) => {
   return (
-    <HStack w="full" fontFamily="Ekamai">
+    <HStack
+      w="full"
+      fontFamily="Ekamai"
+      justify={["space-between", "space-between", "flex-start"]}
+    >
       <HStack
         layerStyle="transparent"
         paddingY="8px"
         bgColor="rgba(0, 0, 0, 0.04)"
+        flex={1}
       >
         <Text fontSize="24px" textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)">
           {hrs.toString().padStart(2, "0")}
@@ -25,6 +30,7 @@ export const Timer = ({
         layerStyle="transparent"
         paddingY="8px"
         bgColor="rgba(0, 0, 0, 0.04)"
+        flex={1}
       >
         <Text fontSize="24px" textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)">
           {mins.toString().padStart(2, "0")}
@@ -35,6 +41,7 @@ export const Timer = ({
         layerStyle="transparent"
         paddingY="8px"
         bgColor="rgba(0, 0, 0, 0.04)"
+        flex={1}
       >
         <Text fontSize="24px" textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)">
           {secs.toString().padStart(2, "0")}

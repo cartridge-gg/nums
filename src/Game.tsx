@@ -218,7 +218,7 @@ const Game = () => {
               </VStack>
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Nums Rewarded</Text>
-                <Text>{reward}</Text>
+                <Text>{reward.toLocaleString()}</Text>
               </VStack>
             </HStack>
             <HStack pt="32px">
@@ -242,12 +242,13 @@ const Game = () => {
           </VStack>
         </Overlay>
         <VStack
-          h={["auto", "auto", "100%"]}
-          justify={["none", "none", "center"]}
+          h={["auto", "auto", "full"]}
+          justify={["flex-start", "flex-start", "center"]}
+          pt={["100px", "100px", "0"]}
         >
-          <Text>The next number is...</Text>
+          <Text display={["none", "none", "block"]}>The next number is...</Text>
           <Text
-            textStyle="h-lg"
+            textStyle={["h-md", "h-md", "h-lg"]}
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"
             color={isOver ? "red" : "inherit"}
@@ -260,38 +261,30 @@ const Game = () => {
           >
             <NextNumber number={nextNumber!} />
           </Text>
-          <VStack gap="40px">
-            <Grid
-              templateRows="repeat(5, 1fr)"
-              autoFlow="column"
-              gapX="60px"
-              gapY="20px"
-            >
-              {slots.map((number, index) => {
-                return (
-                  <Slot
-                    key={index}
-                    index={index}
-                    number={number}
-                    nextNumber={nextNumber}
-                    isOwner={isOwner}
-                    disable={isLoading}
-                    onClick={(slot) => setSlot(slot)}
-                  />
-                );
-              })}
-            </Grid>
-            {/* <HStack w="full">
-              <VStack layerStyle="transparent" flex="1" align="flex-start">
-                <Text color="purple.50">Remaining Slots</Text>
-                <Text>{remaining}</Text>
-              </VStack>
-              <VStack layerStyle="transparent" flex="1" align="flex-start">
-                <Text color="purple.50">Rewards Earned</Text>
-                <Text>{reward}</Text>
-              </VStack>
-            </HStack> */}
-          </VStack>
+          <Grid
+            templateRows={[
+              "repeat(10, 1fr)",
+              "repeat(10, 1fr)",
+              "repeat(5, 1fr)",
+            ]}
+            autoFlow="column"
+            gapX="60px"
+            gapY={["10px", "10px", "20px"]}
+          >
+            {slots.map((number, index) => {
+              return (
+                <Slot
+                  key={index}
+                  index={index}
+                  number={number}
+                  nextNumber={nextNumber}
+                  isOwner={isOwner}
+                  disable={isLoading}
+                  onClick={(slot) => setSlot(slot)}
+                />
+              );
+            })}
+          </Grid>
         </VStack>
       </Container>
     </>

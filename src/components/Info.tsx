@@ -19,7 +19,14 @@ const InfoOverlay = ({
 
   return (
     <Overlay open={open} onClose={onClose}>
-      <VStack w="50%" h="full" align="flex-start" gap="40px" pt="60px">
+      <VStack
+        w={["100%", "100%", "50%"]}
+        h="full"
+        align="flex-start"
+        gap="40px"
+        p="30px"
+        pt="100px"
+      >
         <HStack>
           <Button
             visual="transparent"

@@ -36,7 +36,7 @@ const SpinningDigit = ({ digit, delay }: { digit: number; delay: number }) => {
 
   return (
     <Box
-      w="60px"
+      w={["40px", "40px", "60px"]}
       animation={isSpinning ? `${spin} 0.1s infinite` : undefined}
       transition="transform 0.1s ease-out"
       transform={isSpinning ? "translateY(-0.1em)" : "translateY(0)"}
@@ -55,7 +55,12 @@ const NextNumber = ({ number }: { number: number | null }) => {
   const delays = digits.map((_, i) => 500 + i * 500);
 
   return (
-    <VStack overflowY="hidden" h="100px" align="center" lineHeight="100px">
+    <VStack
+      overflowY="hidden"
+      h={["60px", "60px", "100px"]}
+      align="center"
+      lineHeight={["60px", "60px", "100px"]}
+    >
       <Flex>
         {digits.map((digit, index) => (
           <SpinningDigit key={index} digit={digit} delay={delays[index]} />

@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "urql";
-import { useCallback, useEffect, useState } from "react";
-import { isGameOver, removeZeros } from "./utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import { useInterval } from "usehooks-ts";
 import {
   Container,
@@ -72,7 +72,14 @@ const Game = () => {
   const { account } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
-
+  const positiveSound = useMemo(
+    () => new Audio("/sounds/esm_positive.wav"),
+    [],
+  );
+  const negativeSound = useMemo(
+    () => new Audio("/sounds/esm_negative.wav"),
+    [],
+  );
   const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
@@ -136,19 +143,22 @@ const Game = () => {
       if (!gamesModel.claimed) {
         claimReward();
       }
+      negativeSound.play();
       onOpen();
     }
 
     setIsLoading(false);
-  }, [queryResult, account, onOpen, claimReward]);
+  }, [queryResult, account, negativeSound, onOpen, claimReward]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
 
-    if (isOver) {
-      onOpen();
+    if (!isMoveLegal(slots, nextNumber!, slot)) {
+      negativeSound.play();
       return false;
     }
+
+    positiveSound.play();
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([

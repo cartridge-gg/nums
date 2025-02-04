@@ -1,5 +1,5 @@
 import { Button, Spinner } from "@chakra-ui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash } from "starknet";
@@ -17,12 +17,17 @@ const Play = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
+  const positiveSound = useMemo(
+    () => new Audio("/sounds/esm_positive.wav"),
+    [],
+  );
 
   const newGame = async () => {
     if (!account) return;
 
     try {
       setCreating(true);
+      positiveSound.play();
       const { transaction_hash } = await account.execute([
         // {
         //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,

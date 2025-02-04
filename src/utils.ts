@@ -41,3 +41,30 @@ export function isGameOver(slots: number[], nextNumber: number) {
   }
   return true;
 }
+
+export function isMoveLegal(
+  slots: number[],
+  number: number,
+  index: number,
+): boolean {
+  if (slots[index] !== 0) {
+    return false;
+  }
+
+  const nonZeroBefore = slots.slice(0, index).filter((x) => x !== 0);
+  const nonZeroAfter = slots.slice(index + 1).filter((x) => x !== 0);
+
+  if (
+    (nonZeroBefore.length > 0 &&
+      number < nonZeroBefore[nonZeroBefore.length - 1]) ||
+    (nonZeroAfter.length > 0 && number > nonZeroAfter[0])
+  ) {
+    return false;
+  }
+
+  if (slots.includes(number)) {
+    return false;
+  }
+
+  return true;
+}

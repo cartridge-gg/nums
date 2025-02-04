@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait INumsToken<TContractState> {
-    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u32) -> bool;
+    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u64) -> bool;
     fn set_rewards_caller(ref self: TContractState, caller: ContractAddress);
     fn renounce_ownership(ref self: TContractState);
     fn owner(ref self: TContractState) -> ContractAddress;
@@ -14,13 +14,9 @@ mod NumsToken {
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use starknet::{ContractAddress, ClassHash, get_caller_address, contract_address_const};
+    use starknet::{ContractAddress, ClassHash, get_caller_address};
     
-    use core::option::OptionTrait;
-    use starknet::storage::{
-        StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
-    };
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     const DECIMALS: u256 = 1000000000000000000;
 
@@ -73,7 +69,7 @@ mod NumsToken {
 
     #[abi(embed_v0)]
     impl NumsTokenImpl of super::INumsToken<ContractState> {
-        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u32) -> bool {
+        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u64) -> bool {
             assert!(self.rewards_caller.read() == get_caller_address(), "Only the reward caller can mint tokens");
             self.erc20.mint(recipient, amount.into() * DECIMALS);
             true

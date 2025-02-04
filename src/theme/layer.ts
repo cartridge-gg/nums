@@ -9,4 +9,11 @@ export const layerStyles = defineLayerStyles({
       padding: "16px",
     },
   },
+  faded: {
+    value: {
+      borderRadius: "8px",
+      bgColor: "rgba(255,255,255,0.04)",
+      padding: "20px",
+    },
+  },
 });

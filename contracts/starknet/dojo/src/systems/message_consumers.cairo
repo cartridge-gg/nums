@@ -3,8 +3,8 @@ use piltover::messaging::types::{MessageToAppchainStatus, MessageToStarknetStatu
 
 #[starknet::interface]
 pub trait IMessageConsumers<T> {
-    fn consume_claim_jackpot(ref self: T, player: ContractAddress, game_id: u32, jackpot_id: u32);
-    fn consume_claim_reward(ref self: T, player: ContractAddress, game_id: u32, amount: u32);
+    fn consume_claim_jackpot(ref self: T, player: ContractAddress, claim_id: u32, jackpot_id: u32);
+    fn consume_claim_reward(ref self: T, player: ContractAddress, claim_id: u32, amount: u64);
     fn sn_to_appchain_messages(self: @T, message_hash: felt252) -> MessageToAppchainStatus;
     fn appchain_to_sn_messages(self: @T, message_hash: felt252) -> MessageToStarknetStatus;
 }
@@ -26,7 +26,7 @@ pub mod message_consumers {
     #[abi(embed_v0)]
     impl MessageConsumersImpl of IMessageConsumers<ContractState> {
         fn consume_claim_jackpot(
-            ref self: ContractState, player: ContractAddress, game_id: u32, jackpot_id: u32,
+            ref self: ContractState, player: ContractAddress, claim_id: u32, jackpot_id: u32,
         ) {
             assert(player == starknet::get_caller_address(), 'caller is not the player');
 
@@ -40,7 +40,7 @@ pub mod message_consumers {
             let _ = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
-                    array![player.into(), game_id.into(), jackpot_id.into()].span(),
+                    array![player.into(), claim_id.into(), jackpot_id.into()].span(),
                 );
 
             jackpot.winner = Option::Some(player);
@@ -53,12 +53,12 @@ pub mod message_consumers {
         }
 
         fn consume_claim_reward(
-            ref self: ContractState, player: ContractAddress, game_id: u32, amount: u32,
+            ref self: ContractState, player: ContractAddress, claim_id: u32, amount: u64,
         ) {
             assert(player == starknet::get_caller_address(), 'caller is not the player');
 
             let mut world = self.world(@"nums");
-            let mut claims: Claims = world.read_model(game_id);
+            let mut claims: Claims = world.read_model((player, claim_id));
             match claims.ty {
                 ClaimsType::TOKEN(token) => assert(token.amount == 0, 'Already claimed'),
                 _ => panic!("Expected token claim"),
@@ -68,10 +68,10 @@ pub mod message_consumers {
             let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
-                    array![player.into(), game_id.into(), amount.into()].span(),
+                    array![player.into(), claim_id.into(), amount.into()].span(),
                 );
 
-            claims.game_id = game_id;
+            claims.claim_id = claim_id;
             claims.ty = ClaimsType::TOKEN(TokenClaim { amount });
             claims.message_hash = hash;
             world.write_model(@claims);

@@ -30,6 +30,7 @@ import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
+import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 
@@ -65,12 +66,17 @@ const Home = () => {
     useState<Map<string, string>>();
 
   // const [offset, setOffset] = useState<number>(0);
-  const [gameResult] = useQuery({
+  const [gameResult, reexecuteQuery] = useQuery({
     query: GamesQuery,
+    requestPolicy: "cache-and-network",
     // variables: {
     //   offset,
     // },
   });
+
+  useInterval(() => {
+    reexecuteQuery();
+  }, 1000);
 
   useEffect(() => {
     const gamesModels = gameResult.data?.numsGameModels;

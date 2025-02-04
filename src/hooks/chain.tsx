@@ -66,15 +66,20 @@ const useChain = () => {
       }
 
       await requestChain(STARKNET_CHAIN_ID, silent);
-    }, [chain]);
+    },
+    [chain],
+  );
 
-  const requestAppchain = useCallback(async (silent?: boolean) => {
-    if (chain.id === num.toBigInt(APPCHAIN_CHAIN_ID)) {
-      return;
-    }
+  const requestAppchain = useCallback(
+    async (silent?: boolean) => {
+      if (chain.id === num.toBigInt(APPCHAIN_CHAIN_ID)) {
+        return;
+      }
 
-    await requestChain(APPCHAIN_CHAIN_ID, silent);
-  }, [chain]);
+      await requestChain(APPCHAIN_CHAIN_ID, silent);
+    },
+    [chain],
+  );
 
   return {
     chain,

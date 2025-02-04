@@ -2,7 +2,7 @@ import { Icon, IconProps } from "@chakra-ui/react";
 
 export const StarknetColoredIcon = ({ props }: { props?: IconProps }) => {
   return (
-    <Icon boxSize="24px" {...props}>
+    <Icon boxSize="30px" {...props}>
       <svg viewBox="0 0 24 24">
         <path
           d="M21 11.9999C21 16.9704 16.9707 20.9997 12.0001 20.9997C7.02959 20.9997 3 16.9704 3 11.9999C3 7.02933 7.02959 3 12.0001 3C16.9707 3 21 7.02933 21 11.9999Z"

@@ -1,30 +1,49 @@
-import { Link } from "@chakra-ui/react";
+import { HStack, Image, Link, Spacer } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { formatAddress } from "../utils";
 import { useExplorer } from "@starknet-react/core";
 import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
+import { ExternalIcon } from "@/components/icons/External";
 
 const useToast = () => {
   const explorer = useExplorer();
 
+  const chainIcon = (chainName: string) => {
+    return chainName === "Starknet Mainnet" ? (
+      <StarknetColoredIcon />
+    ) : (
+      <Image
+        boxSize="24px"
+        borderRadius="full"
+        fit="cover"
+        src="/nums_logo.png"
+      />
+    );
+  };
+
   const showTxn = (hash: string, chainName: string) => {
     toaster.create({
-      title: "Transaction Submitted on " + chainName,
-      description: (
-        <Link href={explorer.transaction(hash)}>
-          <strong>{formatAddress(hash)}</strong>
-        </Link>
+      title: (
+        <HStack w="full">
+          {chainIcon(chainName)} Transaction Submitted on {chainName} <Spacer />
+          <Link
+            href={explorer.transaction(hash)}
+            color="rgba(255,255,255,0.48)"
+          >
+            <ExternalIcon />
+          </Link>
+        </HStack>
       ),
     });
   };
 
   const showChainSwitch = (chainName: string) => {
-    const icon =
-      chainName === "Starknet Mainnet" ? <StarknetColoredIcon /> : <></>;
     toaster.create({
       title: (
         <>
-          {icon} Switched to {chainName}
+          <HStack>
+            {chainIcon(chainName)} Switched to {chainName}
+          </HStack>
         </>
       ),
     });

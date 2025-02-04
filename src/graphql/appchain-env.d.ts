@@ -183,11 +183,11 @@ export type introspection_types = {
  * instead save to a .ts instead of a .d.ts file.
  */
 export type introspection = {
-  name: 'appchain';
-  query: 'World__Query';
+  name: "appchain";
+  query: "World__Query";
   mutation: never;
-  subscription: 'World__Subscription';
+  subscription: "World__Subscription";
   types: introspection_types;
 };
 
-import * as gqlTada from 'gql.tada';
+import * as gqlTada from "gql.tada";

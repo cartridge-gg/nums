@@ -106,7 +106,9 @@ const Home = () => {
           setHeaders(TOP_SCORE_HEADERS);
           const rows = gameModels.edges!.map((g, i) => ({
             rank: i + 1,
-            player: usernames.get(g!.node!.player!) ?? formatAddress(g!.node!.player!),
+            player:
+              usernames.get(g!.node!.player!) ??
+              formatAddress(g!.node!.player!),
             score: MAX_SLOTS - g!.node!.remaining_slots!,
             reward: g!.node!.reward!.toLocaleString(),
             gameId: g!.node!.game_id,
@@ -116,7 +118,9 @@ const Home = () => {
           setHeaders(TOTAL_TOKENS_HEADERS);
           const rows = totalsModels.edges!.map((t, i) => ({
             rank: i + 1,
-            player: usernames.get(t!.node!.player!) ?? formatAddress(t!.node!.player!),
+            player:
+              usernames.get(t!.node!.player!) ??
+              formatAddress(t!.node!.player!),
             totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
           }));
           setRows(rows);

@@ -35,7 +35,7 @@ export function TotalsProvider({ children }: { children: ReactNode }) {
   const [rewardsClaimed, setRewardsClaimed] = useState<number>(0);
   const { address, account } = useAccount();
 
-  const [totalsResult, reexecuteQuery] = useQuery({
+  const [totalsResult, executeQuery] = useQuery({
     query: TotalsQuery,
     variables: {
       player: address,
@@ -43,9 +43,15 @@ export function TotalsProvider({ children }: { children: ReactNode }) {
     requestPolicy: account ? "network-only" : "cache-and-network",
   });
 
-  useInterval(() => {
-    reexecuteQuery();
-  }, 1000);
+  useEffect(() => {
+    if (!totalsResult.fetching) {
+      const id = setTimeout(
+        () => executeQuery({ requestPolicy: "network-only" }),
+        2000,
+      );
+      return () => clearTimeout(id);
+    }
+  }, [totalsResult.fetching, executeQuery]);
 
   useEffect(() => {
     const totalsModel = totalsResult.data?.numsTotalsModels?.edges?.[0]?.node;

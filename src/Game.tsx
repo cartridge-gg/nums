@@ -83,15 +83,24 @@ const Game = () => {
     return <></>;
   }
 
-  const [queryResult, reexecuteQuery] = useQuery({
+  const [queryResult, executeQuery] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
     requestPolicy: isOwner ? "network-only" : "cache-and-network",
   });
 
-  useInterval(() => {
-    isLoading && reexecuteQuery();
-  }, REFRESH_INTERVAL);
+  useEffect(() => {
+    if (!queryResult.fetching) {
+      const id = setTimeout(
+        () =>
+          executeQuery({
+            requestPolicy: isOwner ? "network-only" : "cache-and-network",
+          }),
+        REFRESH_INTERVAL,
+      );
+      return () => clearTimeout(id);
+    }
+  }, [queryResult.fetching, isOwner, executeQuery]);
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
@@ -178,7 +187,7 @@ const Game = () => {
     onClose();
     setSlots([]);
     setIsOver(false);
-    reexecuteQuery();
+    executeQuery();
   };
 
   return (
@@ -221,6 +230,7 @@ const Game = () => {
         >
           <Text display={["none", "none", "block"]}>The next number is...</Text>
           <Text
+            mb={["25px", "25px", "50px"]}
             textStyle={["h-md", "h-md", "h-lg"]}
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"

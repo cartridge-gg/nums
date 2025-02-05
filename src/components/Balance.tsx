@@ -48,6 +48,7 @@ const Balance = () => {
       <Button
         position="relative"
         visual="transparent"
+        display={rewardsEarned === 0 ? "none" : "flex"}
         h="48px"
         bgColor={claimable > 0 ? "green.50" : ""}
         _hover={{
@@ -55,27 +56,21 @@ const Balance = () => {
         }}
         onClick={() => onOpenRewards()}
       >
-        <LogoIcon w={32} h={32} />
-        <HStack
-          display={rewardsEarned === 0 ? "none" : ["none", "none", "flex"]}
+        <Text>{rewardsEarned.toLocaleString()} NUMS</Text>
+        <Box
+          position="absolute"
+          bottom="-50px"
+          left="50%"
+          transform="translateX(-50%)"
+          animation={difference > 0 ? `${floatUp} 3s forwards` : "none"}
+          key={difference}
+          opacity={difference > 0 ? 1 : 0}
+          onAnimationEnd={() => setDifference(0)}
         >
-          <Text>:</Text>
-          <Text>{rewardsEarned.toLocaleString()} NUMS</Text>
-          <Box
-            position="absolute"
-            bottom="-50px"
-            left="50%"
-            transform="translateX(-50%)"
-            animation={difference > 0 ? `${floatUp} 3s forwards` : "none"}
-            key={difference}
-            opacity={difference > 0 ? 1 : 0}
-            onAnimationEnd={() => setDifference(0)}
-          >
-            <Text color="green.50" fontSize="24px">
-              +{difference.toLocaleString()} NUMS
-            </Text>
-          </Box>
-        </HStack>
+          <Text color="green.50" fontSize="24px">
+            +{difference.toLocaleString()} NUMS
+          </Text>
+        </Box>
       </Button>
     </>
   );

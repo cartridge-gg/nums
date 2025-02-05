@@ -2,6 +2,7 @@
 pub trait IClaimActions<T> {
     fn claim_reward(ref self: T);
     fn claim_jackpot(ref self: T, game_id: u32);
+    fn claimed_on_starknet(ref self: T, claim_id: u32);
 }
 
 #[dojo::contract]
@@ -49,6 +50,13 @@ pub mod claim_actions {
 
     #[abi(embed_v0)]
     impl ClaimActionsImpl of IClaimActions<ContractState> {
+        fn claimed_on_starknet(ref self: ContractState, claim_id: u32) {
+            let mut world = self.world(@"nums");
+            let mut claims: Claims = world.read_model(claim_id);
+            claims.claimed_on_starknet = true;
+            world.write_model(@claims);
+        }
+
         fn claim_reward(ref self: ContractState) {
             let mut world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);
@@ -62,6 +70,7 @@ pub mod claim_actions {
             let claims = Claims {
                 player,
                 claim_id,
+                claimed_on_starknet: false,
                 ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(
@@ -139,6 +148,7 @@ pub mod claim_actions {
             let claims = Claims {
                 player,
                 claim_id,
+                claimed_on_starknet: false,
                 ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(

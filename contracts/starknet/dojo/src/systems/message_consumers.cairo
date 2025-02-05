@@ -74,6 +74,7 @@ pub mod message_consumers {
             claims.claim_id = claim_id;
             claims.ty = ClaimsType::TOKEN(TokenClaim { amount });
             claims.message_hash = hash;
+            claims.claimed_on_starknet = true;
             world.write_model(@claims);
 
             let reward = config.reward.expect('reward token not set');

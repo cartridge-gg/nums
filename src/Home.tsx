@@ -104,22 +104,21 @@ const Home = () => {
       (usernames) => {
         if (sortBy === "score") {
           setHeaders(TOP_SCORE_HEADERS);
-          // Rank, Player, Score, $NUMS
-          const rows = gameModels.edges!.map((g, i) => [
-            i + 1,
-            usernames.get(g!.node!.player!) ?? formatAddress(g!.node!.player!),
-            MAX_SLOTS - g!.node!.remaining_slots!,
-            g!.node!.reward!.toLocaleString(),
-          ]);
+          const rows = gameModels.edges!.map((g, i) => ({
+            rank: i + 1,
+            player: usernames.get(g!.node!.player!) ?? formatAddress(g!.node!.player!),
+            score: MAX_SLOTS - g!.node!.remaining_slots!,
+            reward: g!.node!.reward!.toLocaleString(),
+            gameId: g!.node!.game_id,
+          }));
           setRows(rows);
         } else {
           setHeaders(TOTAL_TOKENS_HEADERS);
-          // Rank, Player, Total Tokens
-          const rows = totalsModels.edges!.map((t, i) => [
-            i + 1,
-            usernames.get(t!.node!.player!) ?? formatAddress(t!.node!.player!),
-            parseInt(t!.node!.rewards_earned!).toLocaleString(),
-          ]);
+          const rows = totalsModels.edges!.map((t, i) => ({
+            rank: i + 1,
+            player: usernames.get(t!.node!.player!) ?? formatAddress(t!.node!.player!),
+            totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
+          }));
           setRows(rows);
         }
       },
@@ -188,10 +187,11 @@ const Home = () => {
               <VStack w="full">
                 {rows.map((row) => (
                   <LeaderboardRow
-                    data={row}
-                    isOwn={row[2] === account?.address}
+                    key={row.rank}
+                    rowData={row}
+                    isOwn={row.player === account?.address}
                     onClick={() => {
-                      navigate(`/0x${row[0].toString(16)}`);
+                      navigate(`/0x${Number(row.gameId).toString(16)}`);
                     }}
                   />
                 ))}
@@ -218,18 +218,22 @@ const Home = () => {
   );
 };
 
-const LeaderboardRow = ({
-  data,
-  isOwn,
-  onClick,
-}: {
-  data: any[];
+interface LeaderboardRowProps {
+  rowData: {
+    rank: number;
+    player: string;
+    score?: number;
+    reward?: string;
+    totalTokens?: string;
+    gameId: string;
+  };
   isOwn?: boolean;
   onClick: () => void;
-}) => {
+}
+
+const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   return (
     <HStack
-      key={data[0]}
       w="full"
       h="30px"
       justify="space-between"
@@ -241,11 +245,26 @@ const LeaderboardRow = ({
       onClick={onClick}
       color={isOwn ? "orange.50" : "white"}
     >
-      {data.map((d) => (
+      <Box flex="1" textAlign="center">
+        <Text>{rowData.rank}</Text>
+      </Box>
+      <Box flex="1" textAlign="center">
+        <Text>{rowData.player}</Text>
+      </Box>
+      {rowData.score !== undefined ? (
+        <>
+          <Box flex="1" textAlign="center">
+            <Text>{rowData.score}</Text>
+          </Box>
+          <Box flex="1" textAlign="center">
+            <Text>{rowData.reward}</Text>
+          </Box>
+        </>
+      ) : (
         <Box flex="1" textAlign="center">
-          <Text>{d}</Text>
+          <Text>{rowData.totalTokens}</Text>
         </Box>
-      ))}
+      )}
     </HStack>
   );
 };

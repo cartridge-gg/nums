@@ -1,4 +1,4 @@
-import { HStack, Image, Spacer, Spinner, Text, VStack } from "@chakra-ui/react";
+import { HStack, Image, Spinner, Text, VStack } from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount, useNetwork } from "@starknet-react/core";
 import { useQuery } from "urql";
@@ -46,6 +46,7 @@ const RewardsOverlay = ({
   onClose: () => void;
 }) => {
   const [claiming, setClaiming] = useState(false);
+  const { requestAppchain } = useChain();
   const { rewardsEarned, rewardsClaimed } = useTotals();
   const { showTxn } = useToast();
   const { chain } = useNetwork();
@@ -110,7 +111,11 @@ const RewardsOverlay = ({
   if (!address) return <></>;
 
   return (
-    <Overlay open={open} onClose={() => onClose()}>
+    <Overlay open={open} onClose={() => {
+      requestAppchain();
+
+      onClose();
+    }}>
       <VStack
         w={["100%", "100%", "50%"]}
         h="full"
@@ -143,21 +148,17 @@ const RewardsOverlay = ({
                 {(rewardsEarned - rewardsClaimed).toLocaleString()} NUMS
               </Text>
             </VStack>
-            <Spacer />
-            <Button
-              visual="secondary"
-              fontSize="16px"
-              h="40px"
-              w="80px"
-              disabled={claiming || rewardsEarned - rewardsClaimed <= 0}
-              opacity={
-                claiming || rewardsEarned - rewardsClaimed <= 0 ? 0.5 : 1
-              }
-              onClick={() => claimReward()}
-            >
-              {claiming ? <Spinner /> : "Claim"}
-            </Button>
           </HStack>
+          <Button
+            visual="secondary"
+            fontSize="16px"
+            h="30px"
+            disabled={claiming || rewardsEarned - rewardsClaimed <= 0}
+            opacity={claiming || rewardsEarned - rewardsClaimed <= 0 ? 0.5 : 1}
+            onClick={() => claimReward()}
+          >
+            {claiming ? <Spinner /> : <>{"> > Claim > >"}</>}
+          </Button>
           <VStack
             h="full"
             flex={1}
@@ -188,7 +189,7 @@ const RewardsOverlay = ({
             CLAIM ID
           </Text>
           <Text flex="1" textAlign="center">
-            REWARDS
+            AMOUNT
           </Text>
           <Text flex="1" textAlign="center">
             STEP
@@ -215,17 +216,16 @@ const Row = ({
   status: Status;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { chain } = useNetwork();
   const { showTxn } = useToast();
   const { account } = useAccount();
-  const { requestAppchain, requestStarknet } = useChain();
+  const { requestStarknet } = useChain();
 
   const onClaim = useCallback(async () => {
     if (!account) return;
     setIsLoading(true);
 
     try {
-      await requestStarknet(true);
+      await requestStarknet();
       const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
@@ -237,7 +237,7 @@ const Row = ({
           }),
         },
       ]);
-      showTxn(transaction_hash, chain.name);
+      showTxn(transaction_hash, "Starknet Mainnet");
 
       // await requestAppchain(true);
       // await account.execute([
@@ -252,7 +252,7 @@ const Row = ({
     } finally {
       setIsLoading(false);
     }
-  }, [account, claimId, amount, requestAppchain]);
+  }, [account, claimId, amount, requestStarknet]);
 
   return (
     <HStack
@@ -282,7 +282,7 @@ const Row = ({
           disabled={isLoading}
           onClick={() => onClaim()}
         >
-          Receive
+          Receive on SN
         </Button>
       </HStack>
     </HStack>

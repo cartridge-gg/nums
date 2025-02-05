@@ -111,11 +111,14 @@ const RewardsOverlay = ({
   if (!address) return <></>;
 
   return (
-    <Overlay open={open} onClose={() => {
-      requestAppchain();
+    <Overlay
+      open={open}
+      onClose={() => {
+        requestAppchain();
 
-      onClose();
-    }}>
+        onClose();
+      }}
+    >
       <VStack
         w={["100%", "100%", "50%"]}
         h="full"

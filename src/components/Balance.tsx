@@ -1,10 +1,9 @@
-import { Box, Text, useDisclosure, HStack } from "@chakra-ui/react";
+import { Box, Text, useDisclosure } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { useEffect, useState } from "react";
 import { keyframes } from "@emotion/react";
 import { Toaster } from "./ui/toaster";
 import RewardsOverlay from "./Rewards";
-import { LogoIcon } from "./icons/Logo";
 import { useTotals } from "@/context/totals";
 
 const floatUp = keyframes`

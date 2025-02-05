@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "urql";
 import { useEffect, useMemo, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
-import { useInterval } from "usehooks-ts";
 import {
   Container,
   Grid,

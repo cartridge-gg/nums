@@ -21,7 +21,7 @@ const Slot = ({
   const [requestedNumber, setRequestedNumber] = useState<number | null>(null);
   const color = useMemo(() => {
     if ((requestedNumber && number !== requestedNumber) || number) {
-      return "green.50";
+      return "yellow";
     }
 
     if (disable && !number) {

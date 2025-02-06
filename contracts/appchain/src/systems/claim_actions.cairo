@@ -72,6 +72,7 @@ pub mod claim_actions {
                 claim_id,
                 claimed_on_starknet: false,
                 ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
+                block_timestamp: block_info.block_timestamp,
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
@@ -151,6 +152,7 @@ pub mod claim_actions {
                 claimed_on_starknet: false,
                 ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
                 block_number: block_info.block_number,
+                block_timestamp: block_info.block_timestamp,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,

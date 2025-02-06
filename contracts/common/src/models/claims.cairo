@@ -9,6 +9,7 @@ pub struct Claims {
     pub claim_id: u32,
     pub ty: ClaimsType,
     pub claimed_on_starknet: bool,
+    pub block_timestamp: u64, // for eta purposes
     pub block_number: u64, // to track proving progress from saya
     pub message_hash: felt252, // to track messages from appchain to starknet (piltover)
 }

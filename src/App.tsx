@@ -17,6 +17,7 @@ import { UrqlProvider } from "./UrqlContext";
 import "./fonts.css";
 import { APPCHAIN_CHAIN_ID, STARKNET_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
+import { AudioProvider } from "./context/audio";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -148,14 +149,16 @@ function App() {
       provider={provider}
     >
       <UrqlProvider>
-        <TotalsProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/:gameId" element={<Game />} />
-            </Routes>
-          </Router>
-        </TotalsProvider>
+        <AudioProvider>
+          <TotalsProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/:gameId" element={<Game />} />
+              </Routes>
+            </Router>
+          </TotalsProvider>
+        </AudioProvider>
       </UrqlProvider>
     </StarknetConfig>
   );

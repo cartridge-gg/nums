@@ -25,6 +25,9 @@ import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate } from "react-router-dom";
 import Balance from "./Balance";
+import { useAudio } from "@/context/audio";
+import { SoundOffIcon } from "./icons/SoundOff";
+import { SoundOnIcon } from "./icons/SoundOn";
 
 const Header = ({
   showHome,
@@ -38,6 +41,7 @@ const Header = ({
   const navigate = useNavigate();
   const { chain, chains } = useNetwork();
   const { account, address, connector } = useAccount();
+  const { isMuted, toggleMute } = useAudio();
   const [username, setUsername] = useState<string | null>(null);
   const { switchChain } = useSwitchChain({
     params: {
@@ -91,6 +95,9 @@ const Header = ({
           </Button>
         )}
         <Spacer />
+        <Button visual="transparent" h="48px" onClick={() => toggleMute()}>
+          {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
+        </Button>
         {account && !hideChain && (
           <MenuRoot>
             <MenuTrigger asChild>

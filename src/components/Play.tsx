@@ -1,9 +1,10 @@
 import { Button, Spinner } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
+import { useAudio } from "@/context/audio";
 
 const Play = ({
   isAgain,
@@ -17,14 +18,14 @@ const Play = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const replaySound = useMemo(() => new Audio("/sounds/esm_replay.wav"), []);
+  const { playReplay } = useAudio();
 
   const newGame = async () => {
     if (!account) return;
 
     try {
       setCreating(true);
-      replaySound.play();
+      playReplay();
       const { transaction_hash } = await account.execute([
         // {
         //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "urql";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import {
   Container,
@@ -20,6 +20,7 @@ import Play from "./components/Play";
 import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
+import { useAudio } from "./context/audio";
 
 const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;
@@ -69,14 +70,8 @@ const Game = () => {
   const { account } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const positiveSound = useMemo(
-    () => new Audio("/sounds/esm_positive.wav"),
-    [],
-  );
-  const negativeSound = useMemo(
-    () => new Audio("/sounds/esm_negative.wav"),
-    [],
-  );
+  const { playPositive, playNegative } = useAudio();
+
   const { showTxn, showError } = useToast();
   if (!gameId) {
     return <></>;
@@ -131,21 +126,21 @@ const Game = () => {
     setIsOver(isOver);
 
     if (isOwner && isOver) {
-      negativeSound.play();
+      playNegative();
     }
 
     setIsLoading(false);
-  }, [queryResult, account, negativeSound, onOpen]);
+  }, [queryResult, account, playNegative, onOpen]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
 
     if (!isMoveLegal(slots, nextNumber!, slot)) {
-      negativeSound.play();
+      playNegative();
       return false;
     }
 
-    positiveSound.play();
+    playPositive();
     try {
       setIsLoading(true);
       const { transaction_hash } = await account.execute([

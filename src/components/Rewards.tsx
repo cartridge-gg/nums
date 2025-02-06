@@ -102,7 +102,7 @@ const RewardsOverlay = ({
       }}
     >
       <VStack
-        w={["100%", "100%", "75%"]}
+        w={["100%", "100%", "60%"]}
         h="full"
         align="flex-start"
         p="24px"
@@ -114,17 +114,27 @@ const RewardsOverlay = ({
             body={
               <VStack>
                 <HStack>
-                  <Image
-                    boxSize="24px"
-                    borderRadius="full"
-                    fit="cover"
-                    src="/nums_logo.png"
-                  />
-                  <Text fontSize="16px" fontWeight="450">
-                    {amountToBridge > 0
-                      ? amountToBridge.toLocaleString() + " NUMS"
-                      : "NONE"}
-                  </Text>
+                  {amountToBridge ? (
+                    <>
+                      <Image
+                        boxSize="24px"
+                        borderRadius="full"
+                        fit="cover"
+                        src="/nums_logo.png"
+                      />
+                      <Text fontSize="16px" fontWeight="500">
+                        {amountToBridge.toLocaleString() + " NUMS"}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text
+                      fontSize="16px"
+                      fontWeight="500"
+                      color="rgba(255,255,255,0.5)"
+                    >
+                      None
+                    </Text>
+                  )}
                 </HStack>
               </VStack>
             }
@@ -152,12 +162,22 @@ const RewardsOverlay = ({
             body={
               <VStack>
                 <HStack>
-                  {amountBridging > 0 ? <Spinner /> : <></>}
-                  <Text fontSize="16px" fontWeight="450">
-                    {amountBridging > 0
-                      ? amountBridging.toLocaleString() + " NUMS"
-                      : "NONE"}
-                  </Text>
+                  {amountBridging > 0 ? (
+                    <>
+                      <Spinner />
+                      <Text fontSize="16px" fontWeight="500">
+                        {amountBridging.toLocaleString() + " NUMS"}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text
+                      fontSize="16px"
+                      fontWeight="500"
+                      color="rgba(255,255,255,0.5)"
+                    >
+                      None
+                    </Text>
+                  )}
                 </HStack>
               </VStack>
             }
@@ -175,7 +195,7 @@ const RewardsOverlay = ({
                       color="rgba(255,255,255,0.5)"
                       cursor="pointer"
                     >
-                      <Text>~2HR</Text> <InfoIcon />{" "}
+                      <Text>~2 HR</Text> <InfoIcon />{" "}
                     </HStack>
                   </Tooltip>
                 )}
@@ -188,17 +208,27 @@ const RewardsOverlay = ({
             body={
               <VStack>
                 <HStack>
-                  <Image
-                    boxSize="24px"
-                    borderRadius="full"
-                    fit="cover"
-                    src="/nums_icon_green.png"
-                  />
-                  <Text fontSize="16px" fontWeight="450">
-                    {amountToClaim > 0
-                      ? amountToClaim.toLocaleString() + " NUMS"
-                      : "NONE"}
-                  </Text>
+                  {amountToClaim > 0 ? (
+                    <>
+                      <Image
+                        boxSize="24px"
+                        borderRadius="full"
+                        fit="cover"
+                        src="/nums_icon_green.png"
+                      />
+                      <Text fontSize="16px" fontWeight="500">
+                        {amountToClaim.toLocaleString() + " NUMS"}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text
+                      fontSize="16px"
+                      fontWeight="500"
+                      color="rgba(255,255,255,0.5)"
+                    >
+                      None
+                    </Text>
+                  )}
                 </HStack>
               </VStack>
             }
@@ -221,9 +251,27 @@ const RewardsOverlay = ({
             body={
               <VStack>
                 <HStack>
-                  <Text fontSize="16px" fontWeight="450">
-                    {amountClaimed.toLocaleString()} NUMS
-                  </Text>
+                  {amountClaimed > 0 ? (
+                    <>
+                      <Image
+                        boxSize="24px"
+                        borderRadius="full"
+                        fit="cover"
+                        src="/nums_icon_gray.png"
+                      />
+                      <Text fontSize="16px" fontWeight="450">
+                        {amountClaimed.toLocaleString() + " NUMS"}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text
+                      fontSize="16px"
+                      fontWeight="500"
+                      color="rgba(255,255,255,0.5)"
+                    >
+                      None
+                    </Text>
+                  )}
                 </HStack>
               </VStack>
             }
@@ -291,7 +339,7 @@ const Step = ({
         borderRadius="8px 8px 0 0"
         p="20px"
       >
-        <Text fontSize="12px" fontWeight="450" opacity={0.5}>
+        <Text fontSize="14px" fontWeight="450" opacity={0.5}>
           {title}
         </Text>
         {body}

@@ -1,4 +1,12 @@
-import { Box, HStack, Image, Spinner, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Image,
+  SimpleGrid,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount } from "@starknet-react/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
@@ -94,13 +102,13 @@ const RewardsOverlay = ({
       }}
     >
       <VStack
-        w={["100%", "100%", "60%"]}
+        w={["100%", "100%", "75%"]}
         h="full"
         align="flex-start"
         p="24px"
-        pt="60px"
+        pt={["80px", "80px", "60px"]}
       >
-        <HStack w="full">
+        <SimpleGrid w="full" columns={[2, 2, 4]} gap="20px">
           <Step
             title="Ready to Bridge"
             body={
@@ -234,7 +242,7 @@ const RewardsOverlay = ({
               </Button>
             }
           />
-        </HStack>
+        </SimpleGrid>
         <HStack
           p="16px"
           justify="space-between"

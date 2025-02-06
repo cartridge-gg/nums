@@ -30,10 +30,11 @@ import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
+import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 
-const GamesQuery = graphql(`
+const LeaderboardQuery = graphql(`
   query Games($offset: Int) {
     numsGameModels(
       order: { direction: ASC, field: REMAINING_SLOTS }
@@ -50,8 +51,20 @@ const GamesQuery = graphql(`
         }
       }
     }
+    numsTotalsModels(order: { direction: DESC, field: REWARDS_EARNED }) {
+      totalCount
+      edges {
+        node {
+          player
+          rewards_earned
+        }
+      }
+    }
   }
 `);
+
+const TOP_SCORE_HEADERS = ["Ranking", "Player", "Score", "$NUMS"];
+const TOTAL_TOKENS_HEADERS = ["Ranking", "Player", "Total $NUMS"];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -61,31 +74,60 @@ const Home = () => {
     onClose: onCloseInfo,
   } = useDisclosure();
   const { account } = useAccount();
-  const [addressUsernamesMap, setAddressUsernamesMap] =
-    useState<Map<string, string>>();
+  const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
+  const [rows, setRows] = useState<any[]>([]);
+  const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
 
   // const [offset, setOffset] = useState<number>(0);
-  const [gameResult] = useQuery({
-    query: GamesQuery,
+  const [leaderboardResult, reexecuteQuery] = useQuery({
+    query: LeaderboardQuery,
+    requestPolicy: "cache-and-network",
     // variables: {
     //   offset,
     // },
   });
 
+  useInterval(() => {
+    reexecuteQuery();
+  }, 1000);
+
   useEffect(() => {
-    const gamesModels = gameResult.data?.numsGameModels;
-    if (!gamesModels) return;
+    const gameModels = leaderboardResult.data?.numsGameModels;
+    const totalsModels = leaderboardResult.data?.numsTotalsModels;
+    if (!gameModels || !totalsModels) return;
 
-    const addresses = gamesModels.edges!.map((g) => g!.node!.player!) || [];
+    const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
+    const totalsAddresses =
+      totalsModels.edges!.map((t) => t!.node!.player!) || [];
 
-    lookupAddresses(addresses).then((usernames) =>
-      setAddressUsernamesMap(usernames),
+    lookupAddresses([...gameAddresses, ...totalsAddresses]).then(
+      (usernames) => {
+        if (sortBy === "score") {
+          setHeaders(TOP_SCORE_HEADERS);
+          const rows = gameModels.edges!.map((g, i) => ({
+            rank: i + 1,
+            player:
+              usernames.get(g!.node!.player!) ??
+              formatAddress(g!.node!.player!),
+            score: MAX_SLOTS - g!.node!.remaining_slots!,
+            reward: g!.node!.reward!.toLocaleString(),
+            gameId: g!.node!.game_id,
+          }));
+          setRows(rows);
+        } else {
+          setHeaders(TOTAL_TOKENS_HEADERS);
+          const rows = totalsModels.edges!.map((t, i) => ({
+            rank: i + 1,
+            player:
+              usernames.get(t!.node!.player!) ??
+              formatAddress(t!.node!.player!),
+            totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
+          }));
+          setRows(rows);
+        }
+      },
     );
-  }, [gameResult]);
-
-  const getUsername = (address: string) => {
-    return addressUsernamesMap?.get(address) ?? formatAddress(address);
-  };
+  }, [leaderboardResult, sortBy]);
 
   return import.meta.env.VITE_VERCEL_ENV === "production" ? (
     <ComingSoon />
@@ -101,13 +143,17 @@ const Home = () => {
                 <MenuTrigger asChild>
                   <Button visual="transparent" gap="8px" fontSize="18px">
                     <TrophyIcon />
-                    Score
+                    {sortBy === "score" ? "Top Score" : "Total Tokens"}
                     <CaretIcon />
                   </Button>
                 </MenuTrigger>
                 <MenuContent>
-                  <MenuItem value="score">Score</MenuItem>
-                  <MenuItem value="tokens">Tokens</MenuItem>
+                  <MenuItem value="score" onClick={() => setSortBy("score")}>
+                    Top Score
+                  </MenuItem>
+                  <MenuItem value="tokens" onClick={() => setSortBy("tokens")}>
+                    Total Tokens
+                  </MenuItem>
                 </MenuContent>
               </MenuRoot>
               <HStack>
@@ -135,36 +181,24 @@ const Home = () => {
                 color="purple.50"
                 textTransform="uppercase"
               >
-                <Box w="full">
-                  <Text>Ranking</Text>
-                </Box>
-                <Box w="full">
-                  <Text>Player</Text>
-                </Box>
-                <Box w="full">
-                  <Text>Score</Text>
-                </Box>
-                <Box w="full">
-                  <Text>$NUMS</Text>
-                </Box>
+                {headers.map((h, i) => (
+                  <Box key={i} w="full" textAlign="center">
+                    <Text>{h}</Text>
+                  </Box>
+                ))}
               </HStack>
               <Spacer minH="20px" />
               <VStack w="full">
-                {gameResult.data?.numsGameModels?.edges?.map(
-                  (edge: any, index) => (
-                    <LeaderboardRow
-                      key={index}
-                      rank={index + 1}
-                      isOwn={edge.node.player === account?.address}
-                      player={getUsername(edge.node.player)}
-                      score={MAX_SLOTS - edge.node.remaining_slots}
-                      tokens={edge.node.reward.toLocaleString()}
-                      onClick={() => {
-                        navigate(`/0x${edge.node.game_id.toString(16)}`);
-                      }}
-                    />
-                  ),
-                )}
+                {rows.map((row) => (
+                  <LeaderboardRow
+                    key={row.rank}
+                    rowData={row}
+                    isOwn={row.player === account?.address}
+                    onClick={() => {
+                      navigate(`/0x${Number(row.gameId).toString(16)}`);
+                    }}
+                  />
+                ))}
               </VStack>
             </Box>
             <VStack w="full" align="flex-start">
@@ -188,21 +222,20 @@ const Home = () => {
   );
 };
 
-const LeaderboardRow = ({
-  rank,
-  player,
-  score,
-  tokens,
-  isOwn,
-  onClick,
-}: {
-  rank: number;
-  player: string;
-  score: number;
-  tokens: number;
+interface LeaderboardRowProps {
+  rowData: {
+    rank: number;
+    player: string;
+    score?: number;
+    reward?: string;
+    totalTokens?: string;
+    gameId: string;
+  };
   isOwn?: boolean;
   onClick: () => void;
-}) => {
+}
+
+const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   return (
     <HStack
       w="full"
@@ -216,18 +249,26 @@ const LeaderboardRow = ({
       onClick={onClick}
       color={isOwn ? "orange.50" : "white"}
     >
-      <Box flex="1">
-        <Text>{rank}</Text>
+      <Box flex="1" textAlign="center">
+        <Text>{rowData.rank}</Text>
       </Box>
-      <Box flex="1">
-        <Text>{player}</Text>
+      <Box flex="1" textAlign="center">
+        <Text>{rowData.player}</Text>
       </Box>
-      <Box flex="1">
-        <Text>{score}</Text>
-      </Box>
-      <Box flex="1">
-        <Text>{tokens.toLocaleString()}</Text>
-      </Box>
+      {rowData.score !== undefined ? (
+        <>
+          <Box flex="1" textAlign="center">
+            <Text>{rowData.score}</Text>
+          </Box>
+          <Box flex="1" textAlign="center">
+            <Text>{rowData.reward}</Text>
+          </Box>
+        </>
+      ) : (
+        <Box flex="1" textAlign="center">
+          <Text>{rowData.totalTokens}</Text>
+        </Box>
+      )}
     </HStack>
   );
 };

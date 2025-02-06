@@ -17,17 +17,14 @@ const Play = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const positiveSound = useMemo(
-    () => new Audio("/sounds/esm_positive.wav"),
-    [],
-  );
+  const replaySound = useMemo(() => new Audio("/sounds/esm_replay.wav"), []);
 
   const newGame = async () => {
     if (!account) return;
 
     try {
       setCreating(true);
-      positiveSound.play();
+      replaySound.play();
       const { transaction_hash } = await account.execute([
         // {
         //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,

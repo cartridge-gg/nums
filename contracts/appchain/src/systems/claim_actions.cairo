@@ -1,7 +1,8 @@
 #[starknet::interface]
 pub trait IClaimActions<T> {
-    fn claim_reward(ref self: T, game_id: u32);
+    fn claim_reward(ref self: T);
     fn claim_jackpot(ref self: T, game_id: u32);
+    fn claimed_on_starknet(ref self: T, claim_id: u32);
 }
 
 #[dojo::contract]
@@ -10,11 +11,13 @@ pub mod claim_actions {
     use core::array::ArrayTrait;
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
+    use dojo::world::IWorldDispatcherTrait;
     use achievement::store::StoreTrait;
 
     use piltover::messaging::hash::compute_message_hash_appc_to_sn;
 
     use nums_appchain::models::game::{Game, GameTrait};
+    use nums_appchain::models::totals::Totals;
     use nums_appchain::models::slot::Slot;
     use nums_common::models::claims::{Claims, ClaimsType, TokenClaim, JackpotClaim};
     use nums_appchain::elements::tasks::index::{Task, TaskTrait};
@@ -40,56 +43,68 @@ pub mod claim_actions {
     #[dojo::event]
     pub struct RewardClaimed {
         #[key]
-        game_id: u32,
+        claim_id: u32,
         player: ContractAddress,
-        amount: u32,
+        amount: u64,
     }
 
     #[abi(embed_v0)]
     impl ClaimActionsImpl of IClaimActions<ContractState> {
-        fn claim_reward(ref self: ContractState, game_id: u32) {
+        fn claimed_on_starknet(ref self: ContractState, claim_id: u32) {
             let mut world = self.world(@"nums");
-            let player = starknet::get_caller_address();
-            let mut game: Game = world.read_model((game_id, player));
-            let config: Config = world.read_model(WORLD_RESOURCE);
-            assert!(game.player == player, "Unauthorized player");
-            assert!(!game.claimed, "Already claimed");
-            assert!(game.reward > 0, "No reward to claim");
+            let mut claims: Claims = world.read_model(claim_id);
+            claims.claimed_on_starknet = true;
+            world.write_model(@claims);
+        }
 
+        fn claim_reward(ref self: ContractState) {
+            let mut world = self.world(@"nums");
+            let config: Config = world.read_model(WORLD_RESOURCE);
+            let player = starknet::get_caller_address();
+            let mut totals: Totals = world.read_model(player);
+            let claim_amount = totals.rewards_earned - totals.rewards_claimed;
+            assert(claim_amount > 0, 'nothing to claim');
+
+            let claim_id = world.dispatcher.uuid();
             let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
-                game_id,
-                ty: ClaimsType::TOKEN(TokenClaim { amount: game.reward }),
+                player,
+                claim_id,
+                claimed_on_starknet: false,
+                ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
+                block_timestamp: block_info.block_timestamp,
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    array![player.into(), game_id.into(), game.reward.into()].span(),
+                    array![player.into(), claim_id.into(), claim_amount.into()].span(),
                 ),
             };
 
-            game.claimed = true;
-            world.write_model(@game);
+            totals.rewards_claimed += claim_amount;
+
+            world.write_model(@totals);
             world.write_model(@claims);
-            world.emit_event(@RewardClaimed { game_id, player, amount: game.reward });
+            world.emit_event(@RewardClaimed { claim_id, player, amount: claim_amount });
 
             send_message_to_l1_syscall(
                 MSG_TO_L2_MAGIC,
                 array![
                     config.starknet_consumer.into(),
                     player.into(),
-                    game_id.into(),
-                    game.reward.into(),
+                    claim_id.into(),
+                    claim_amount.into(),
                 ]
                     .span(),
             )
                 .unwrap_syscall();
-
-            // Update player progression
-            let player_id: felt252 = player.into();
-            let task_id: felt252 = Task::Claimer.identifier();
-            let mut store = StoreTrait::new(world);
-            store.progress(player_id, task_id, game.reward.into(), starknet::get_block_timestamp());
+            // FIXME: claim_amount is u64 but task is u32
+        // Update player progression
+        // let player_id: felt252 = player.into();
+        // let task_id: felt252 = Task::Claimer.identifier();
+        // let mut store = StoreTrait::new(world);
+        // store.progress(player_id, task_id, claim_amount.into(),
+        // starknet::get_block_timestamp());
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that
@@ -129,15 +144,19 @@ pub mod claim_actions {
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
 
+            let claim_id = world.dispatcher.uuid();
             let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
-                game_id,
+                player,
+                claim_id,
+                claimed_on_starknet: false,
                 ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
                 block_number: block_info.block_number,
+                block_timestamp: block_info.block_timestamp,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
                     config.starknet_consumer,
-                    array![player.into(), game_id.into(), jackpot_id.into()].span(),
+                    array![player.into(), claim_id.into(), jackpot_id.into()].span(),
                 ),
             };
 
@@ -150,7 +169,7 @@ pub mod claim_actions {
                 array![
                     config.starknet_consumer.into(),
                     player.into(),
-                    game_id.into(),
+                    claim_id.into(),
                     jackpot_id.into(),
                 ]
                     .span(),

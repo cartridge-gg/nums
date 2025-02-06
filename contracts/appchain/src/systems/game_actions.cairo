@@ -151,7 +151,6 @@ pub mod game_actions {
                         max_number: game_config.max_number,
                         min_number: game_config.min_number,
                         next_number,
-                        claimed: false,
                         reward: 0,
                         jackpot_id,
                     },
@@ -253,7 +252,7 @@ pub mod game_actions {
             if let Option::Some(reward_config) = config.reward {
                 let (_, amount) = reward_config.compute(game.level());
                 game.reward += amount;
-                totals.rewards_earned += amount;
+                totals.rewards_earned += amount.into();
             }
 
             world.write_model(@game);

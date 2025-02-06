@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x44e05c3e148b896414b964a05e847bdc05167267db0a20e242cfccd3c28fce7",
-      "class_hash": "0x6ddf1467c3e61de74ebc5feebc350f61a978f7c178642778c2845e367d9c62f",
+      "address": "0x32a9215cc231f8a0df0a97e0eb76ff1f484ed68345bf0d0b2223b773383f6f1",
+      "class_hash": "0x4ab5b4433d6f11d369459ff3de94e1dfa278481240a4edba7903a122e7c1ee",
       "abi": [
         {
           "type": "impl",
@@ -1317,6 +1317,13 @@
             {
               "type": "function",
               "name": "claim_reward",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "claim_jackpot",
               "inputs": [
                 {
                   "name": "game_id",
@@ -1328,10 +1335,10 @@
             },
             {
               "type": "function",
-              "name": "claim_jackpot",
+              "name": "claimed_on_starknet",
               "inputs": [
                 {
-                  "name": "game_id",
+                  "name": "claim_id",
                   "type": "core::integer::u32"
                 }
               ],
@@ -1461,12 +1468,13 @@
       "systems": [
         "claim_reward",
         "claim_jackpot",
+        "claimed_on_starknet",
         "upgrade"
       ]
     },
     {
-      "address": "0x21aa79d59f6428b16de527031bee82bdeb3edff9369dd91c80d781d74b0c050",
-      "class_hash": "0x488a0fe3afa28350a2f1d0c8e5c054466cdbf4c8e8c694e6af6a579a51389b6",
+      "address": "0x7d28b369bf76ce2bb3e1e1e0b23c7968ac1b664f981b47b5d8b7e4810225fe5",
+      "class_hash": "0xf8de125b207a480e9fee189b61845b36832e738de7bbe50fd818e6fa00b71",
       "abi": [
         {
           "type": "impl",
@@ -2249,7 +2257,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x5bdc91882911785603c812955c8b557779310ba503f75e4fd28b6aa91f6f396",
+      "class_hash": "0x559b7eca22b9196462a4e1d71532bf53ad0e7290ab5a410878e88b3b0fb89e5",
       "tag": "nums-Claims",
       "selector": "0x49b7b89f531d9854e41c25cd819141b398876c2d71ddeba151f3d748316b843"
     },
@@ -2261,7 +2269,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x19048abc1dca41ca5a81a8fe79c51e4e527e479fbf5b612d9a79f590486b576",
+      "class_hash": "0xbd89bb135169863c4fbee7c2bda364d31c5a33cf3e06dba1f0c3963cbfcde5",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
     },
@@ -2279,7 +2287,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6524e2779c754c44cceeda4946b8a57924d626ec058da9205f0fd0e1ab6b028",
+      "class_hash": "0x2a4b9aa192713a54a47833bed888c9b424a0c0a46b2f06d6d4b8236f9b28967",
       "tag": "nums-Totals",
       "selector": "0x293104e49f49ee445423ae4b6ed9cbcc84ce3e5a27466264fee006dea23bfa6"
     }
@@ -2317,7 +2325,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x391232e8853197ae95aaf8cd9057802c6b447cbe3c3dfa3dff8028a168eead5",
+      "class_hash": "0x29f82786b5ad698a84828c3212f2dfa02f0e1fdbf4af0730623f2edb5ed2d3b",
       "tag": "nums-RewardClaimed",
       "selector": "0x50747aeeb809b835b94582572edbc2834497b6ba5c8164e857352ac6c0ef959"
     },

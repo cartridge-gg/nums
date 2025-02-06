@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "urql";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
-import { useInterval } from "usehooks-ts";
 import {
   Container,
   Grid,
@@ -37,7 +36,6 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
-          claimed
         }
       }
     }
@@ -66,7 +64,6 @@ const Game = () => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [reward, setReward] = useState<number>(0);
-  const [claimError, setClaimError] = useState<Error>();
   const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
@@ -85,30 +82,24 @@ const Game = () => {
     return <></>;
   }
 
-  const [queryResult, reexecuteQuery] = useQuery({
+  const [queryResult, executeQuery] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
     requestPolicy: isOwner ? "network-only" : "cache-and-network",
   });
 
-  useInterval(() => {
-    isLoading && reexecuteQuery();
-  }, REFRESH_INTERVAL);
-
-  const claimReward = useCallback(async () => {
-    if (!account) return;
-    account
-      .execute([
-        {
-          contractAddress: import.meta.env.VITE_CLAIM_CONTRACT,
-          entrypoint: "claim_reward",
-          calldata: [gameId],
-        },
-      ])
-      .catch((e) => {
-        setClaimError(e);
-      });
-  }, [account, gameId, setClaimError]);
+  useEffect(() => {
+    if (!queryResult.fetching) {
+      const id = setTimeout(
+        () =>
+          executeQuery({
+            requestPolicy: isOwner ? "network-only" : "cache-and-network",
+          }),
+        REFRESH_INTERVAL,
+      );
+      return () => clearTimeout(id);
+    }
+  }, [queryResult.fetching, isOwner, executeQuery]);
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
@@ -141,14 +132,10 @@ const Game = () => {
 
     if (isOwner && isOver) {
       negativeSound.play();
-
-      if (!gamesModel.claimed) {
-        claimReward();
-      }
     }
 
     setIsLoading(false);
-  }, [queryResult, account, negativeSound, onOpen, claimReward]);
+  }, [queryResult, account, negativeSound, onOpen]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;
@@ -199,7 +186,7 @@ const Game = () => {
     onClose();
     setSlots([]);
     setIsOver(false);
-    reexecuteQuery();
+    executeQuery();
   };
 
   return (
@@ -233,12 +220,6 @@ const Game = () => {
                 }}
               />
             </HStack>
-            {claimError && (
-              <VStack mt="20px">
-                <Text>There was an error claiming on appchain:</Text>
-                <Text color="red">{claimError?.message}</Text>
-              </VStack>
-            )}
           </VStack>
         </Overlay>
         <VStack
@@ -248,6 +229,7 @@ const Game = () => {
         >
           <Text display={["none", "none", "block"]}>The next number is...</Text>
           <Text
+            mb={["25px", "25px", "50px"]}
             textStyle={["h-md", "h-md", "h-lg"]}
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"

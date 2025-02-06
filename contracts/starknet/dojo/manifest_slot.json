@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x5f2358c005acf2a63616a32b76a01d632463b84609954ff846998f898a49778",
+    "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
+    "address": "0x7686a16189676ac3978c3b865ae7e3d625a1cd7438800849c7fd866e4b9afd1",
     "seed": "nums",
     "name": "Nums",
     "entrypoints": [
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x3990b8ec888e36281c96519c5cd189709cb7f8ce5ece8e2523f3891914204e",
-      "class_hash": "0x1ab54f50f8a506c393a706a622773f0f1999909c38120106a78954bd563cd3",
+      "address": "0xc0dbfb698c5221a362bafd9e2b63340b5f5e264d5f596aa5e5a60b70ae8ef1",
+      "class_hash": "0x279dcb61681838dcadd036438e48d231c7b002d217e4e4f4cbf286bc50a4ff6",
       "abi": [
         {
           "type": "impl",
@@ -1568,8 +1568,8 @@
       ]
     },
     {
-      "address": "0x41e045085cce34d4de834895584c7a85ac76056c8b04108e77d5153012ab6aa",
-      "class_hash": "0x4bd2e1311e5666d6de76b33a933831ac0d577de01d674bc8ba91f6884a8424",
+      "address": "0x513a686a41b8e916ba73ef2a4de2ed61ddab19b1225be09ff28f0c7e1c34bdd",
+      "class_hash": "0x77e400082fe61c3d19eeeaef52b2b88dde77893cf44ab39c93b4f8e9d1b8bed",
       "abi": [
         {
           "type": "impl",
@@ -1926,8 +1926,8 @@
       ]
     },
     {
-      "address": "0x727d63a2c4dad4dc7a1605257ca28210b9c84ea1aec1923c9109ec49ce5b641",
-      "class_hash": "0x2e55b2388bef71224aec4aadfc8b256142bf6303bdd237ecace143d2043f5cc",
+      "address": "0x69a0cfa243ec44ffee26205ae1929bb810768b5748e5503d44ae797a7ff1593",
+      "class_hash": "0x55d9968bbc0454291886f10f3a6cc16f28213adfa131287e40ccc0c52ef75d1",
       "abi": [
         {
           "type": "impl",
@@ -2033,7 +2033,7 @@
                   "type": "core::starknet::contract_address::ContractAddress"
                 },
                 {
-                  "name": "game_id",
+                  "name": "claim_id",
                   "type": "core::integer::u32"
                 },
                 {
@@ -2053,12 +2053,12 @@
                   "type": "core::starknet::contract_address::ContractAddress"
                 },
                 {
-                  "name": "game_id",
+                  "name": "claim_id",
                   "type": "core::integer::u32"
                 },
                 {
                   "name": "amount",
-                  "type": "core::integer::u32"
+                  "type": "core::integer::u64"
                 }
               ],
               "outputs": [],
@@ -2226,31 +2226,31 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x2fd23c9da7c878982e37097c61c345662338411c3f3541a24384c6768fe2bf0",
+      "class_hash": "0x7396af668f6e55fbe6553cfbcf0585ccf1daca3cdc9c435520fa852f6861a16",
       "tag": "nums-Claims",
       "selector": "0x49b7b89f531d9854e41c25cd819141b398876c2d71ddeba151f3d748316b843"
     },
     {
       "members": [],
-      "class_hash": "0x4b936c252df908820e1e998ba95a89036f3dc06ac0d057bf4e7dc197f89d82d",
+      "class_hash": "0x6345e4042f60cc80349acc550673312e90fb0f6880b142397a2020016c2197f",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
     {
       "members": [],
-      "class_hash": "0x72854186d160eb8e589745b6c8a11f5a1d7a62748f3119da73751395e0a9cdf",
+      "class_hash": "0x6b49aa8399538113a2d9d3b368fdb2899b4ce4e3ab0c4ac5458de429cb687b",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
-      "class_hash": "0x1e0f9c72ea6f79cce3d22de2c346debda60e2c46a3b2fcb1e25332a9371f0db",
+      "class_hash": "0x381c906d83bad501868a20eeb9e276ed23bbc1ba81864f820cf3283e221e8a6",
       "tag": "nums-Message",
       "selector": "0x4d1eba5fab4506e3657603af8e7a07e33109ad753f59d5e23d03ddd86794ea8"
     },
     {
       "members": [],
-      "class_hash": "0x1493c5c7cbd8d8312fe5942a75566047782a5fc236aa241e2e406089d5f5c24",
+      "class_hash": "0x1a09dba8926a46511a2e6b28024657b75a975a121eda4a547edf68772b90c37",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
     }
@@ -2258,7 +2258,7 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x328589343abaa7b0d306dabab1d7a16a982295122d926c9a73296f82c6b1cd5",
+      "class_hash": "0x11498de64a7b821baec821bf6858d37b9adf0f3bca6946f055be0f3c03be28",
       "tag": "nums-JackpotCreated",
       "selector": "0x2316c6700328c1de9b2bf8e664b6119789a104f0d9f865acba568281247589"
     }

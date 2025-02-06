@@ -14,7 +14,6 @@ pub struct Game {
     pub remaining_slots: u8,
     pub next_number: u16,
     pub reward: u32,
-    pub claimed: bool,
     pub jackpot_id: Option<u32>,
 }
 

@@ -13,12 +13,11 @@ import { SessionPolicies } from "@cartridge/controller";
 import { getSocialPolicies } from "@bal7hazar/arcade-sdk";
 import ControllerConnector from "@cartridge/connector/controller";
 import { constants, num } from "starknet";
-import { UrqlProvider } from "./UrqlContext";
 import "./fonts.css";
 import { APPCHAIN_CHAIN_ID, STARKNET_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
-
+import { UrqlProvider } from "./context/urql";
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
@@ -39,6 +38,8 @@ const provider = jsonRpcProvider({
 const policies: SessionPolicies = {
   contracts: {
     [import.meta.env.VITE_GAME_CONTRACT]: {
+      name: "Nums Game",
+      description: "Nums Game",
       methods: [
         {
           name: "Create Game",

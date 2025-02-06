@@ -1926,8 +1926,8 @@
       ]
     },
     {
-      "address": "0x69a0cfa243ec44ffee26205ae1929bb810768b5748e5503d44ae797a7ff1593",
-      "class_hash": "0x55d9968bbc0454291886f10f3a6cc16f28213adfa131287e40ccc0c52ef75d1",
+      "address": "0x35ca141ebbc0ce0cfd4f68abea501a9dbac13d621e2d426dceab7da9a8f7588",
+      "class_hash": "0x369b837b29bff674901d9cffc6022421d0d44131685bec76823cff7bcc882e5",
       "abi": [
         {
           "type": "impl",
@@ -2226,7 +2226,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x7396af668f6e55fbe6553cfbcf0585ccf1daca3cdc9c435520fa852f6861a16",
+      "class_hash": "0x559b7eca22b9196462a4e1d71532bf53ad0e7290ab5a410878e88b3b0fb89e5",
       "tag": "nums-Claims",
       "selector": "0x49b7b89f531d9854e41c25cd819141b398876c2d71ddeba151f3d748316b843"
     },

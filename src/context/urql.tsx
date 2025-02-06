@@ -7,7 +7,7 @@ import {
   subscriptionExchange,
 } from "urql";
 import { createClient as createWSClient } from "graphql-ws";
-import { getGraphqlUrl } from "./network";
+import { getGraphqlUrl } from "../network";
 import { useNetwork } from "@starknet-react/core";
 
 interface UrqlContextType {

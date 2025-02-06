@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-import { CallData, RpcProvider } from "starknet";
+import { useCallback, useState } from "react";
+import { CallData, Provider } from "starknet";
+import { useInterval } from "usehooks-ts";
 
 type Message = Record<string, boolean>;
 
 export const useMessage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hashes, setHashes] = useState<string[]>([]);
-  const provider = new RpcProvider({
-    nodeUrl: import.meta.env.MOCK_STARKNET_RPC_URL,
+  const provider = new Provider({
+    nodeUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
   });
 
   const status = useCallback(
@@ -25,14 +26,30 @@ export const useMessage = () => {
     [provider],
   );
 
-  useEffect(() => {
+  useInterval(() => {
     if (hashes.length === 0) return;
 
-    hashes.forEach(async (hash) => {
+    const checkHash = async (index: number) => {
+      if (index >= hashes.length) return;
+
+      const hash = hashes[index];
       const res = await status(hash);
       setMessages((prev) => ({ ...prev, [hash]: res }));
-    });
-  }, [hashes]);
+
+      setTimeout(() => checkHash(index + 1), 500);
+    };
+
+    checkHash(0);
+  }, 5000);
+
+  // useEffect(() => {
+  //     if (hashes.length === 0) return;
+
+  //     hashes.forEach(async (hash) => {
+  //         const res = await status(hash);
+  //         setMessages((prev) => ({ ...prev, [hash]: res }));
+  //     });
+  // }, [hashes]);
 
   return {
     messages,

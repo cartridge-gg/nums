@@ -39,6 +39,10 @@ export const buttonRecipe = defineRecipe({
         transition: "all 0.2s ease-in-out",
         textTransform: "uppercase",
         padding: "8px 16px",
+        _disabled: {
+          cursor: "not-allowed",
+          opacity: 0.3,
+        },
         _hover: {
           cursor: "pointer",
           bg: "green.50",

@@ -1,44 +1,15 @@
 import { Box, HStack, Image, Spinner, Text, VStack } from "@chakra-ui/react";
 import Overlay from "./Overlay";
-import { useAccount, useNetwork } from "@starknet-react/core";
-import { useQuery } from "urql";
+import { useAccount } from "@starknet-react/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { Button } from "./Button";
-import { CallData } from "starknet";
+import { AllowArray, Call, CallData } from "starknet";
 import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
-import { graphql } from "@/graphql/appchain";
 import { StarknetColoredIcon } from "./icons/StarknetColored";
-import { useTotals } from "@/context/totals";
-import { useMessage } from "@/hooks/message";
-
-const ClaimsQuery = graphql(`
-  query ClaimsQuery($address: String!) {
-    numsClaimsModels(where: { playerEQ: $address }) {
-      edges {
-        node {
-          claim_id
-          message_hash
-          claimed_on_starknet
-          ty {
-            TOKEN {
-              amount
-            }
-          }
-        }
-      }
-    }
-  }
-`);
-
-type Status = "Claimed" | "Bridging" | "Ready to Claim";
-
-type ClaimStatus = {
-  claimId: number;
-  amount: number;
-  eta: number;
-  status: Status;
-};
+import { ClaimData, useClaims } from "@/hooks/claims";
+import { InfoIcon } from "./icons/Info";
+import { Tooltip } from "@/components/ui/tooltip";
 
 const RewardsOverlay = ({
   open,
@@ -48,29 +19,48 @@ const RewardsOverlay = ({
   onClose: () => void;
 }) => {
   const [bridging, setBridging] = useState(false);
-  const { requestAppchain } = useChain();
-  const { rewardsEarned, rewardsClaimed } = useTotals();
-  const { messages, setHashes } = useMessage();
-  const [rewardsBridging, setRewardsBridging] = useState(0);
-  const [rewardsReady, setRewardsReady] = useState(0);
+  const [claiming, setClaiming] = useState(false);
+  const { requestAppchain, requestStarknet } = useChain();
   const { showTxn } = useToast();
-  const { chain } = useNetwork();
-  const [claims, setClaims] = useState<ClaimStatus[]>([]);
   const { address, account } = useAccount();
-  const [queryResult, executeQuery] = useQuery({
-    query: ClaimsQuery,
-    variables: { address: address! },
-  });
+
+  const {
+    claims,
+    amountToBridge,
+    amountBridging,
+    amountClaimed,
+    amountToClaim,
+    setAutoRefresh,
+  } = useClaims();
 
   useEffect(() => {
-    if (!queryResult.fetching) {
-      const id = setTimeout(
-        () => executeQuery({ requestPolicy: "network-only" }),
-        2000,
-      );
-      return () => clearTimeout(id);
+    setAutoRefresh(open);
+  }, [open, setAutoRefresh]);
+
+  const claimAll = useCallback(async () => {
+    if (!account || !Object.keys(claims).length) return;
+    setClaiming(true);
+    try {
+      const txns: AllowArray<Call> = Object.entries(claims)
+        .filter(([_, claim]) => claim.status === "Ready to Claim")
+        .map(([_, claim]) => ({
+          contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
+          entrypoint: "consume_claim_reward",
+          calldata: CallData.compile({
+            player: account.address,
+            claim_id: claim.claimId,
+            amount: claim.amount,
+          }),
+        }));
+
+      await requestStarknet();
+      const { transaction_hash } = await account.execute(txns);
+      showTxn(transaction_hash, "Starknet Mainnet");
+    } catch (e) {
+      console.error(e);
+      setClaiming(false);
     }
-  }, [queryResult.fetching, executeQuery]);
+  }, [claims]);
 
   const bridgeRewards = useCallback(async () => {
     if (!account) return;
@@ -84,48 +74,12 @@ const RewardsOverlay = ({
           calldata: [],
         },
       ]);
-      showTxn(transaction_hash, chain.name);
-      await executeQuery({ requestPolicy: "network-only" });
+      showTxn(transaction_hash, "Nums Chain");
     } catch (e) {
       console.error(e);
       setBridging(false);
     }
-  }, [account, executeQuery]);
-
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
-
-  useEffect(() => {
-    const claimsModels = queryResult.data?.numsClaimsModels?.edges;
-    if (!claimsModels) return;
-
-    const brdiging = claimsModels
-      .filter((claim) => !claim!.node!.claimed_on_starknet)
-      .reduce(
-        (acc, claim) => acc + parseInt(claim!.node!.ty!.TOKEN!.amount!),
-        0,
-      );
-    setRewardsBridging(brdiging);
-
-    const hashes = claimsModels.map((claim) => claim!.node!.message_hash!);
-    setHashes(hashes);
-
-    const status: ClaimStatus[] = claimsModels.map((claimModel) => {
-      const claimId = claimModel!.node!.claim_id as number;
-      const amount = parseInt(claimModel!.node!.ty!.TOKEN!.amount!) as number;
-      const status = "Bridging";
-      const eta = 0;
-      return {
-        claimId,
-        amount,
-        status,
-        eta,
-      };
-    });
-
-    setClaims(status);
-  }, [queryResult]);
+  }, [account]);
 
   if (!address) return <></>;
 
@@ -134,6 +88,8 @@ const RewardsOverlay = ({
       open={open}
       onClose={() => {
         requestAppchain();
+        setBridging(false);
+        setClaiming(false);
         onClose();
       }}
     >
@@ -157,7 +113,9 @@ const RewardsOverlay = ({
                     src="/nums_logo.png"
                   />
                   <Text fontSize="16px" fontWeight="450">
-                    {(rewardsEarned - rewardsClaimed).toLocaleString()} NUMS
+                    {amountToBridge > 0
+                      ? amountToBridge.toLocaleString() + " NUMS"
+                      : "NONE"}
                   </Text>
                 </HStack>
               </VStack>
@@ -168,7 +126,9 @@ const RewardsOverlay = ({
                 h="40px"
                 w="full"
                 fontSize="16px"
-                disabled={bridging}
+                disabled={bridging || amountToBridge === 0}
+                bgColor="purple.100"
+                _hover={{ bgColor: "purple.50" }}
                 onClick={async () => {
                   await requestAppchain();
                   bridgeRewards();
@@ -184,14 +144,35 @@ const RewardsOverlay = ({
             body={
               <VStack>
                 <HStack>
-                  {rewardsBridging > 0 ? <Spinner /> : <></>}
+                  {amountBridging > 0 ? <Spinner /> : <></>}
                   <Text fontSize="16px" fontWeight="450">
-                    {rewardsBridging.toLocaleString()} NUMS
+                    {amountBridging > 0
+                      ? amountBridging.toLocaleString() + " NUMS"
+                      : "NONE"}
                   </Text>
                 </HStack>
               </VStack>
             }
-            footer={<Box h="40px"></Box>}
+            footer={
+              <Box h="40px" w="full">
+                {amountBridging > 0 && (
+                  <Tooltip content="We're working towards real-time proving which will make bridging close to instant">
+                    <HStack
+                      h="40px"
+                      w="full"
+                      justify="center"
+                      gap="4px"
+                      textStyle="h-sm"
+                      fontSize="24px"
+                      color="rgba(255,255,255,0.5)"
+                      cursor="pointer"
+                    >
+                      <Text>~2HR</Text> <InfoIcon />{" "}
+                    </HStack>
+                  </Tooltip>
+                )}
+              </Box>
+            }
           />
 
           <Step
@@ -203,16 +184,25 @@ const RewardsOverlay = ({
                     boxSize="24px"
                     borderRadius="full"
                     fit="cover"
-                    src="/nums_logo.png"
+                    src="/nums_icon_green.png"
                   />
                   <Text fontSize="16px" fontWeight="450">
-                    {(rewardsEarned - rewardsClaimed).toLocaleString()} NUMS
+                    {amountToClaim > 0
+                      ? amountToClaim.toLocaleString() + " NUMS"
+                      : "NONE"}
                   </Text>
                 </HStack>
               </VStack>
             }
             footer={
-              <Button visual="secondary" h="40px" w="full" fontSize="16px">
+              <Button
+                visual="secondary"
+                h="40px"
+                w="full"
+                fontSize="16px"
+                disabled={amountToClaim === 0 || claiming}
+                onClick={claimAll}
+              >
                 Claim
               </Button>
             }
@@ -224,7 +214,7 @@ const RewardsOverlay = ({
               <VStack>
                 <HStack>
                   <Text fontSize="16px" fontWeight="450">
-                    {(rewardsEarned - rewardsClaimed).toLocaleString()} NUMS
+                    {amountClaimed.toLocaleString()} NUMS
                   </Text>
                 </HStack>
               </VStack>
@@ -236,6 +226,9 @@ const RewardsOverlay = ({
                 fontSize="16px"
                 visual="transparent"
                 textAlign="center"
+                onClick={() => {
+                  window.open("https://app.ekubo.org", "_blank");
+                }}
               >
                 <StarknetColoredIcon /> Trade
               </Button>
@@ -257,10 +250,13 @@ const RewardsOverlay = ({
             AMOUNT
           </Text>
           <Text flex="1" textAlign="center">
-            STEP
+            STATUS
+          </Text>
+          <Text flex="1" textAlign="center">
+            ETA
           </Text>
         </HStack>
-        {claims.map((claim) => (
+        {Object.values(claims).map((claim) => (
           <Row key={claim.claimId} {...claim} />
         ))}
       </VStack>
@@ -287,7 +283,9 @@ const Step = ({
         borderRadius="8px 8px 0 0"
         p="20px"
       >
-        <Text>{title}</Text>
+        <Text fontSize="12px" fontWeight="450" opacity={0.5}>
+          {title}
+        </Text>
         {body}
       </VStack>
       <HStack
@@ -303,63 +301,35 @@ const Step = ({
   );
 };
 
-const Row = ({
-  claimId,
-  amount,
-  status,
-}: {
-  claimId: number;
-  amount: number;
-  status: Status;
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { showTxn } = useToast();
-  const { account } = useAccount();
-  const { requestStarknet } = useChain();
+const Row = ({ claimId, amount, status, blockTimestamp }: ClaimData) => {
+  const getETA = (timestamp: number) => {
+    if (status === "Claimed" || status === "Ready to Claim") return "-";
 
-  const onClaim = useCallback(async () => {
-    if (!account) return;
-    setIsLoading(true);
+    const etaTime = (timestamp + 2 * 60 * 60) * 1000; // Add 2 hours in milliseconds
+    const now = Date.now();
+    const minutesRemaining = (etaTime - now) / (1000 * 60);
 
-    try {
-      await requestStarknet();
-      const { transaction_hash } = await account.execute([
-        {
-          contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
-          entrypoint: "consume_claim_reward",
-          calldata: CallData.compile({
-            player: account.address,
-            claim_id: claimId,
-            amount: amount,
-          }),
-        },
-      ]);
-      showTxn(transaction_hash, "Starknet Mainnet");
+    if (minutesRemaining <= 0) return "Unknown";
+    if (minutesRemaining > 60) return `${Math.ceil(minutesRemaining / 60)}hr`;
+    return `${Math.ceil(minutesRemaining)}min`;
+  };
 
-      // await requestAppchain(true);
-      // await account.execute([
-      //   {
-      //     contractAddress: import.meta.env.VITE_CLAIM_CONTRACT,
-      //     entrypoint: "claimed_on_starknet",
-      //     calldata: CallData.compile({
-      //       game_id: gameId,
-      //     }),
-      //   },
-      // ]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [account, claimId, amount, requestStarknet]);
+  const getStatusColor = (status: string) => {
+    if (status === "Claimed") return "rgba(255,255,255,0.5)";
+    if (status === "Ready to Claim") return "green.50";
+    return "white";
+  };
 
   return (
     <HStack
       borderRadius="8px"
       bgColor="rgba(255,255,255,0.04)"
-      p="5px"
+      p="16px"
       justify="space-between"
       w="full"
       fontSize="16px"
       fontWeight="500"
+      color={getStatusColor(status)}
     >
       <Text flex="1" textAlign="center">
         {claimId}
@@ -369,6 +339,9 @@ const Row = ({
       </Text>
       <Text flex="1" textAlign="center">
         {status}
+      </Text>
+      <Text flex="1" textAlign="center">
+        {getETA(blockTimestamp)}
       </Text>
     </HStack>
   );

@@ -242,9 +242,10 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
       h="30px"
       justify="space-between"
       fontWeight="500"
+      borderRadius="4px"
       _hover={{
         cursor: "pointer",
-        bgColor: "purple.50",
+        bgColor: "rgba(255,255,255,0.08)",
       }}
       onClick={onClick}
       color={isOwn ? "orange.50" : "white"}

@@ -24,6 +24,7 @@ import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
 import { hash, num } from "starknet";
 import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
+import { ShowReward } from "./components/ShowReward";
 
 const MAX_SLOTS = 20;
 
@@ -67,6 +68,8 @@ const Game = () => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [reward, setReward] = useState<number>(0);
+  const [level, setLevel] = useState<number>(0);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
   const { account } = useAccount();
@@ -131,7 +134,10 @@ const Game = () => {
     setIsLoading(false);
   }, [queryResult, account]);
 
-  const setSlot = async (slot: number): Promise<boolean> => {
+  const setSlot = async (
+    slot: number,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ): Promise<boolean> => {
     if (!account) return false;
 
     if (!isMoveLegal(slots, nextNumber!, slot)) {
@@ -139,6 +145,8 @@ const Game = () => {
       return false;
     }
 
+    setPosition({ x: event.clientX, y: event.clientY });
+    setLevel(MAX_SLOTS - remaining + 1);
     playPositive();
     try {
       setIsLoading(true);
@@ -200,6 +208,7 @@ const Game = () => {
   return (
     <>
       <Container h="100vh" maxW="100vw">
+        {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
           <VStack boxSize="full" justify="center">
@@ -272,7 +281,7 @@ const Game = () => {
                   isOwner={isOwner}
                   disable={isLoading}
                   legal={legal}
-                  onClick={(slot) => setSlot(slot)}
+                  onClick={(slot, event) => setSlot(slot, event)}
                 />
               );
             })}

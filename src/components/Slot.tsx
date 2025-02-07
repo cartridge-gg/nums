@@ -17,7 +17,10 @@ const Slot = ({
   disable: boolean;
   isOwner: boolean;
   legal: boolean;
-  onClick: (slot: number) => Promise<boolean>;
+  onClick: (
+    slot: number,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => Promise<boolean>;
 }) => {
   const [loading, setLoading] = useState(false);
   const [requestedNumber, setRequestedNumber] = useState<number | null>(null);
@@ -65,13 +68,13 @@ const Slot = ({
           _hover={{
             color: "orange.50",
           }}
-          onClick={async () => {
+          onClick={async (event) => {
             setLoading(true);
             if (nextNumber) {
               setRequestedNumber(nextNumber);
             }
 
-            const result = await onClick(index);
+            const result = await onClick(index, event);
             if (!result) {
               setRequestedNumber(null);
             }

@@ -3,6 +3,7 @@ import { useQuery } from "urql";
 import { useEffect, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import {
+  Box,
   Container,
   Grid,
   HStack,
@@ -233,7 +234,7 @@ const Game = () => {
           pt={["100px", "100px", "0"]}
         >
           <Text display={["none", "none", "block"]}>The next number is...</Text>
-          <Text
+          <Box
             mb={["25px", "25px", "50px"]}
             textStyle={["h-md", "h-md", "h-lg"]}
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
@@ -247,7 +248,7 @@ const Game = () => {
             }}
           >
             <NextNumber number={nextNumber!} isLoading={isLoading} />
-          </Text>
+          </Box>
           <Grid
             templateRows={[
               "repeat(10, 1fr)",

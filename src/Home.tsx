@@ -79,17 +79,13 @@ const Home = () => {
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
 
   // const [offset, setOffset] = useState<number>(0);
-  const [leaderboardResult, reexecuteQuery] = useQuery({
+  const [leaderboardResult] = useQuery({
     query: LeaderboardQuery,
     requestPolicy: "cache-and-network",
     // variables: {
     //   offset,
     // },
   });
-
-  useInterval(() => {
-    reexecuteQuery();
-  }, 1000);
 
   useEffect(() => {
     const gameModels = leaderboardResult.data?.numsGameModels;

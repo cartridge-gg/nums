@@ -109,7 +109,7 @@ pub mod claim_actions {
             let player_id: felt252 = player.into();
             let task_id: felt252 = Task::Claimer.identifier();
             let mut store = StoreTrait::new(world);
-            store.progress(player_id, task_id, capped_amount, starknet::get_block_timestamp());
+            store.progress(player_id, task_id, capped_amount,starknet::get_block_timestamp());
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that

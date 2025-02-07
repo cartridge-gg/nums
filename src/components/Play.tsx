@@ -2,9 +2,10 @@ import { Button, Spinner } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { hash } from "starknet";
+import { hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
+import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
 
 const Play = ({
   isAgain,
@@ -18,12 +19,17 @@ const Play = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
+  const { requestAppchain } = useChain();
   const { playReplay } = useAudio();
 
   const newGame = async () => {
     if (!account) return;
 
     try {
+      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
+        requestAppchain();
+      }
+
       setCreating(true);
       playReplay();
       const { transaction_hash } = await account.execute([

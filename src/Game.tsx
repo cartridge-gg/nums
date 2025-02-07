@@ -21,8 +21,9 @@ import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
+import { hash, num } from "starknet";
+import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 
-const REFRESH_INTERVAL = 1000;
 const MAX_SLOTS = 20;
 
 const GameQuery = graphql(`
@@ -70,6 +71,7 @@ const Game = () => {
   const { account } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
+  const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
 
   const { showTxn, showError } = useToast();
@@ -80,21 +82,27 @@ const Game = () => {
   const [queryResult, executeQuery] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
-    requestPolicy: isOwner ? "network-only" : "cache-and-network",
+    requestPolicy: "cache-and-network",
   });
 
-  useEffect(() => {
-    if (!queryResult.fetching) {
-      const id = setTimeout(
-        () =>
-          executeQuery({
-            requestPolicy: isOwner ? "network-only" : "cache-and-network",
-          }),
-        REFRESH_INTERVAL,
-      );
-      return () => clearTimeout(id);
+  const updateGameState = (
+    slots: number[],
+    nextNum: number,
+    remainingSlots: number,
+  ) => {
+    setSlots(slots);
+    setNextNumber(nextNum);
+    if (remainingSlots !== undefined) {
+      setRemaining(remainingSlots);
     }
-  }, [queryResult.fetching, isOwner, executeQuery]);
+
+    const isGameFinished = isGameOver(slots, nextNum);
+    setIsOver(isGameFinished);
+
+    if (isOwner && isGameFinished) {
+      playNegative();
+    }
+  };
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
@@ -106,29 +114,18 @@ const Game = () => {
     const isOwner =
       (account && gamesModel.player === removeZeros(account.address)) || false;
     setIsOwner(isOwner);
-
-    // update if game progressed
-    if (slotsEdges.length === gamesModel.max_slots! - remaining) {
-      return;
-    }
-
-    setRemaining(gamesModel.remaining_slots || 0);
-    setNextNumber(gamesModel.next_number);
     setReward(gamesModel.reward as number);
+
     const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
     slotsEdges.forEach((edge: any) => {
       newSlots[edge.node.index] = edge.node.number;
     });
 
-    setSlots(newSlots);
-
-    const isOver = isGameOver(newSlots, gamesModel.next_number!);
-    setIsOver(isOver);
-
-    if (isOwner && isOver) {
-      playNegative();
-    }
-
+    updateGameState(
+      newSlots,
+      gamesModel.next_number!,
+      gamesModel.remaining_slots!,
+    );
     setIsLoading(false);
   }, [queryResult, account, playNegative, onOpen]);
 
@@ -143,15 +140,12 @@ const Game = () => {
     playPositive();
     try {
       setIsLoading(true);
+
+      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
+        requestAppchain();
+      }
+
       const { transaction_hash } = await account.execute([
-        // {
-        //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-        //   entrypoint: 'request_random',
-        //   calldata: CallData.compile({
-        //     caller: import.meta.env.VITE_GAME_CONTRACT,
-        //     source: {source_type: 0, address: account.address}
-        //   })
-        // },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
           entrypoint: "set_slot",
@@ -162,8 +156,26 @@ const Game = () => {
       showTxn(transaction_hash, chain?.name);
 
       try {
-        // catch any txn errors (nonce err, etc) and reset state
-        await account.waitForTransaction(transaction_hash);
+        const receipt = await account.waitForTransaction(transaction_hash, {
+          retryInterval: 500,
+        });
+        if (receipt.isSuccess()) {
+          const insertedEvent = receipt.events.find(
+            ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
+          );
+
+          const index = parseInt(insertedEvent?.data[4]!);
+          const inserted = parseInt(insertedEvent?.data[5]!);
+          const next = parseInt(insertedEvent?.data[6]!);
+
+          const newSlots = [...slots];
+          newSlots[index] = inserted;
+
+          updateGameState(newSlots, next, remaining - 1);
+          setIsLoading(false);
+          return true;
+        }
+        throw new Error("transaction error: " + receipt);
       } catch (e) {
         showError(transaction_hash);
         throw new Error("transaction error");
@@ -173,8 +185,6 @@ const Game = () => {
       setIsLoading(false);
       return false;
     }
-
-    return true;
   };
 
   const resetGame = () => {
@@ -236,7 +246,7 @@ const Game = () => {
               }
             }}
           >
-            <NextNumber number={nextNumber!} />
+            <NextNumber number={nextNumber!} isLoading={isLoading} />
           </Text>
           <Grid
             templateRows={[

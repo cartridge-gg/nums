@@ -98,13 +98,18 @@ pub mod claim_actions {
                     .span(),
             )
                 .unwrap_syscall();
-            // FIXME: claim_amount is u64 but task is u32
-        // Update player progression
-        // let player_id: felt252 = player.into();
-        // let task_id: felt252 = Task::Claimer.identifier();
-        // let mut store = StoreTrait::new(world);
-        // store.progress(player_id, task_id, claim_amount.into(),
-        // starknet::get_block_timestamp());
+
+            // Update player progression
+            let capped_amount = if claim_amount > 1_000_000_u64 {
+                1_000_000_u32
+            } else {
+                claim_amount.try_into().unwrap()
+            };
+
+            let player_id: felt252 = player.into();
+            let task_id: felt252 = Task::Claimer.identifier();
+            let mut store = StoreTrait::new(world);
+            store.progress(player_id, task_id, capped_amount,starknet::get_block_timestamp());
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that

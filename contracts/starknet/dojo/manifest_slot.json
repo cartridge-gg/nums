@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0xc0dbfb698c5221a362bafd9e2b63340b5f5e264d5f596aa5e5a60b70ae8ef1",
-      "class_hash": "0x279dcb61681838dcadd036438e48d231c7b002d217e4e4f4cbf286bc50a4ff6",
+      "address": "0xcd4775899ea8816dfa9de981230eabef9ac563f2f583c3b8114a4e8992f836",
+      "class_hash": "0x59796f42ea5549cff8ebfdd95b6f23547afd427eb1a800b339b0c1717c184b1",
       "abi": [
         {
           "type": "impl",
@@ -1311,6 +1311,20 @@
           "interface_name": "nums_starknet::systems::config_actions::IConfigActions"
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u64>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "struct",
           "name": "nums_common::models::config::GameConfig",
           "members": [
@@ -1325,6 +1339,10 @@
             {
               "name": "min_number",
               "type": "core::integer::u16"
+            },
+            {
+              "name": "expiration",
+              "type": "core::option::Option::<core::integer::u64>"
             }
           ]
         },
@@ -1568,8 +1586,8 @@
       ]
     },
     {
-      "address": "0x513a686a41b8e916ba73ef2a4de2ed61ddab19b1225be09ff28f0c7e1c34bdd",
-      "class_hash": "0x77e400082fe61c3d19eeeaef52b2b88dde77893cf44ab39c93b4f8e9d1b8bed",
+      "address": "0x143c56df7514259cd1531a880865fd64c53958333347f0391bcb04862fb902",
+      "class_hash": "0x7a74db93014cac05214df296ad3f806863ed499dffdd9ea19078b3f9116e623",
       "abi": [
         {
           "type": "impl",
@@ -1926,8 +1944,8 @@
       ]
     },
     {
-      "address": "0x35ca141ebbc0ce0cfd4f68abea501a9dbac13d621e2d426dceab7da9a8f7588",
-      "class_hash": "0x369b837b29bff674901d9cffc6022421d0d44131685bec76823cff7bcc882e5",
+      "address": "0x60c82250e2e224cf8c96ffdec5f0fdf12f657847af31ceb3fcb661416987475",
+      "class_hash": "0x182d13fdf73b3856bd3fed8395ee1b507590c6372e0e969f5b64e09392aad58",
       "abi": [
         {
           "type": "impl",
@@ -2232,7 +2250,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6345e4042f60cc80349acc550673312e90fb0f6880b142397a2020016c2197f",
+      "class_hash": "0x2f70c7b5715b096f575561ccc96d28e7b1c4ef8a5e65d3fc73b11d1aa21ca11",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

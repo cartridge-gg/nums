@@ -135,9 +135,6 @@ pub mod game_actions {
             let mut world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('Game config not set');
-            if let Option::Some(expiration) = game_config.expiration {
-                assert!(starknet::get_block_timestamp() < expiration, "Game expired");
-            }
 
             let game_id = world.dispatcher.uuid();
             let player = get_caller_address();

@@ -59,19 +59,6 @@ const LeaderboardQuery = graphql(`
         }
       }
     }
-    numsConfigModels {
-      edges {
-        node {
-          game {
-            Some {
-              expiration {
-                Some
-              }
-            }
-          }
-        }
-      }
-    }
   }
 `);
 
@@ -89,7 +76,6 @@ const Home = () => {
   const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
-  const [gameExpiration, setGameExpiration] = useState<number>();
 
   // const [offset, setOffset] = useState<number>(0);
   const [leaderboardResult] = useQuery({
@@ -103,12 +89,7 @@ const Home = () => {
   useEffect(() => {
     const gameModels = leaderboardResult.data?.numsGameModels;
     const totalsModels = leaderboardResult.data?.numsTotalsModels;
-    const configModels = leaderboardResult.data?.numsConfigModels;
-    if (!gameModels || !totalsModels || !configModels) return;
-
-    const expiration =
-      configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
-    setGameExpiration(parseInt(expiration));
+    if (!gameModels || !totalsModels) return;
 
     const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
     const totalsAddresses =
@@ -225,7 +206,7 @@ const Home = () => {
                 justify="space-between"
                 direction={["column", "column", "row"]}
               >
-                <Timer expiration={gameExpiration} />
+                <Timer hrs={5} mins={5} secs={5} />
                 <Play onReady={(gameId) => navigate(`/${gameId}`)} />
               </Stack>
             </VStack>

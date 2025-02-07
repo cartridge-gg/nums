@@ -1,35 +1,14 @@
 import { HStack, Text } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
 
 export const Timer = ({
-  expiration,
+  hrs,
+  mins,
+  secs,
 }: {
-  expiration: number | undefined | null;
+  hrs: number;
+  mins: number;
+  secs: number;
 }) => {
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-
-  useEffect(() => {
-    if (!expiration) {
-      setTimeLeft(0);
-      return;
-    }
-
-    const calculateTimeLeft = () => {
-      const currentTimeUTC = Math.floor(new Date().getTime() / 1000);
-      const difference = expiration - currentTimeUTC;
-      setTimeLeft(difference > 0 ? difference : 0);
-    };
-
-    calculateTimeLeft(); // Initial calculation
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [expiration]);
-
-  const hrs = Math.floor(timeLeft / 3600);
-  const mins = Math.floor((timeLeft % 3600) / 60);
-  const secs = timeLeft % 60;
-
   return (
     <HStack
       w="full"

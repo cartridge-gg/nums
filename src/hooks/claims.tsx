@@ -67,7 +67,7 @@ export const useClaims = () => {
 
   const updateClaims = useCallback(async () => {
     if (!address) return;
-    console.log("updating claims");
+
     try {
       // Fetch claims data
       const { starknetClaims, appchainClaims } = await fetchClaimsData(address);
@@ -168,7 +168,6 @@ const checkMessageStatus = async (
   provider: Provider,
   messageHash: string,
 ): Promise<Status> => {
-  console.log("checking message status", messageHash);
   try {
     const status = await provider.callContract({
       contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,

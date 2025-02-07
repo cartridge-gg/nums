@@ -76,7 +76,7 @@ const Header = ({
         p="12px"
         bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
       >
-        {!showHome && <LogoIcon />}
+        <LogoIcon />
         <Text
           color="white"
           fontSize="48px"

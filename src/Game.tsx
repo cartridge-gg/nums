@@ -83,7 +83,6 @@ const Game = () => {
   const [queryResult, executeQuery] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
-    requestPolicy: "cache-and-network",
   });
 
   const updateGameState = (
@@ -108,7 +107,7 @@ const Game = () => {
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
-    if (!gamesModel || !slotsEdges) {
+    if (!gamesModel || !slotsEdges || !account) {
       return;
     }
 
@@ -128,7 +127,7 @@ const Game = () => {
       gamesModel.remaining_slots!,
     );
     setIsLoading(false);
-  }, [queryResult, account, playNegative, onOpen]);
+  }, [queryResult, account]);
 
   const setSlot = async (slot: number): Promise<boolean> => {
     if (!account) return false;

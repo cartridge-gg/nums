@@ -260,6 +260,7 @@ const Game = () => {
             gapY={["10px", "10px", "20px"]}
           >
             {slots.map((number, index) => {
+              const legal = isMoveLegal(slots, nextNumber!, index);
               return (
                 <Slot
                   key={index}
@@ -268,6 +269,7 @@ const Game = () => {
                   nextNumber={nextNumber}
                   isOwner={isOwner}
                   disable={isLoading}
+                  legal={legal}
                   onClick={(slot) => setSlot(slot)}
                 />
               );

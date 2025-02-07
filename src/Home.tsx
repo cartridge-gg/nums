@@ -30,7 +30,6 @@ import { CaretIcon } from "./components/icons/Caret";
 import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
-import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 

@@ -1474,7 +1474,7 @@
     },
     {
       "address": "0x226500768d05ce2d96c0da4f76a1b11e4aabd0db2d69e43d428f5a34efafa6a",
-      "class_hash": "0x2adf79b02328d8241be809428174556ebc13f5d36253717cb626ffdc5d6aba1",
+      "class_hash": "0x737c7574cde84914ae2f5d5413a8acbe9eacccecc4275fa8a1ba22ba20ebe7",
       "abi": [
         {
           "type": "impl",
@@ -2325,7 +2325,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x3559787b77b3ce142232733d696123349ce6d3d8373d43ef97b526fef10184d",
+      "class_hash": "0x6bc9a1af04ddfaeb42ec3d368ff655378fdc7aca8af105c9829af3c042c71f0",
       "tag": "nums-Inserted",
       "selector": "0x68a8cf4a301f71be018a6ed94f1991773d5804f7520391049d429ba5aff98cd"
     },

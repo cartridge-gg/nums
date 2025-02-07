@@ -2,35 +2,13 @@ import { useState } from "react";
 import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
+import { REWARDS } from "@/constants";
 
 const enum ShowInfo {
   ABOUT,
   TOKEN,
   REWARD,
 }
-
-const rewards = [
-  { level: 1, reward: 2 },
-  { level: 2, reward: 4 },
-  { level: 3, reward: 8 },
-  { level: 4, reward: 16 },
-  { level: 5, reward: 32 },
-  { level: 6, reward: 64 },
-  { level: 7, reward: 128 },
-  { level: 8, reward: 256 },
-  { level: 9, reward: 512 },
-  { level: 10, reward: 1024 },
-  { level: 11, reward: 2048 },
-  { level: 12, reward: 4096 },
-  { level: 13, reward: 8192 },
-  { level: 14, reward: 16384 },
-  { level: 15, reward: 32768 },
-  { level: 16, reward: 65536 },
-  { level: 17, reward: 131072 },
-  { level: 18, reward: 262144 },
-  { level: 19, reward: 524288 },
-  { level: 20, reward: 1048576 },
-];
 
 const InfoOverlay = ({
   open,
@@ -160,7 +138,7 @@ const InfoOverlay = ({
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {rewards.map(({ level, reward }) => (
+                {REWARDS.map(({ level, reward }) => (
                   <Table.Row key={level}>
                     <Table.Cell>{level}</Table.Cell>
                     <Table.Cell>{reward}</Table.Cell>

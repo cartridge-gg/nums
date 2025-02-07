@@ -46,7 +46,7 @@ export function TotalsProvider({ children }: { children: ReactNode }) {
     if (!totalsResult.fetching) {
       const id = setTimeout(
         () => executeQuery({ requestPolicy: "network-only" }),
-        2000,
+        5000,
       );
       return () => clearTimeout(id);
     }

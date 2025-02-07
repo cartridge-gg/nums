@@ -20,6 +20,7 @@ pub struct GameConfig {
     pub max_slots: u8,
     pub max_number: u16,
     pub min_number: u16,
+    pub expiration: Option<u64>,
 }
 
 #[derive(Drop, Serde, Introspect)]

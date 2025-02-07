@@ -7,6 +7,7 @@ import {
   Spacer,
   useDisclosure,
   Stack,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -76,6 +77,7 @@ const LeaderboardQuery = graphql(`
 `);
 
 const TOP_SCORE_HEADERS = ["Ranking", "Player", "Score", "$NUMS"];
+const MOBILE_TOP_SCORE_HEADERS = ["Ranking", "Player", "Score"];
 const TOTAL_TOKENS_HEADERS = ["Ranking", "Player", "Total $NUMS"];
 
 const Home = () => {
@@ -90,6 +92,7 @@ const Home = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
   const [gameExpiration, setGameExpiration] = useState<number>();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // const [offset, setOffset] = useState<number>(0);
   const [leaderboardResult] = useQuery({
@@ -117,7 +120,7 @@ const Home = () => {
     lookupAddresses([...gameAddresses, ...totalsAddresses]).then(
       (usernames) => {
         if (sortBy === "score") {
-          setHeaders(TOP_SCORE_HEADERS);
+          setHeaders(isMobile ? MOBILE_TOP_SCORE_HEADERS : TOP_SCORE_HEADERS);
           const rows = gameModels.edges!.map((g, i) => ({
             rank: i + 1,
             player:
@@ -250,6 +253,7 @@ interface LeaderboardRowProps {
 }
 
 const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   return (
     <HStack
       w="full"
@@ -272,9 +276,9 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
       </Box>
       {rowData.score !== undefined ? (
         <>
-          <Box flex="1" textAlign="center">
+          {!isMobile && <Box flex="1" textAlign="center">
             <Text>{rowData.score}</Text>
-          </Box>
+          </Box>}
           <Box flex="1" textAlign="center">
             <Text>{rowData.reward}</Text>
           </Box>

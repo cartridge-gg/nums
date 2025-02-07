@@ -78,7 +78,7 @@ const NextNumber = ({
     ? number.toString().padStart(3, "0").split("").map(Number)
     : number.toString().split("").map(Number);
 
-  const delays = digits.map((_, i) => 500 + i * 500);
+  const delays = digits.map((_, i) => i * 250);
 
   return (
     <VStack

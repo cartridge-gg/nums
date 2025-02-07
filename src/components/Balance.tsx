@@ -1,13 +1,11 @@
-import { Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import { Text, useDisclosure } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { Toaster } from "./ui/toaster";
 import RewardsOverlay from "./Rewards";
 import { useTotals } from "@/context/totals";
-import { GiftIcon } from "./icons/Gift";
 
 const Balance = () => {
   const { rewardsEarned, rewardsClaimed } = useTotals();
-  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const claimable = rewardsEarned - rewardsClaimed;
 
@@ -26,18 +24,13 @@ const Balance = () => {
         visual="transparent"
         display={rewardsEarned === 0 ? "none" : "flex"}
         h="48px"
-        w={["48px", "48px", "auto"]}
         bgColor={claimable > 0 ? "green.50" : ""}
         _hover={{
           bgColor: claimable > 0 ? "green.100" : "",
         }}
         onClick={() => onOpenRewards()}
       >
-        {isMobile ? (
-          <GiftIcon />
-        ) : (
-          <Text>{rewardsEarned.toLocaleString()} NUMS</Text>
-        )}
+        <Text>{rewardsEarned.toLocaleString()} NUMS</Text>
       </Button>
     </>
   );

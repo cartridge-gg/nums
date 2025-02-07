@@ -66,9 +66,6 @@ const Header = ({
     }
   }, [controllerConnector]);
 
-  const height = "48px";
-  const width = ["48px", "48px", "auto"];
-
   return (
     <>
       <HStack
@@ -93,22 +90,12 @@ const Header = ({
         </Text>
         <Spacer maxW="20px" />
         {showHome && (
-          <Button
-            visual="transparent"
-            h={height}
-            w={width}
-            onClick={() => navigate("/")}
-          >
+          <Button visual="transparent" h="48px" onClick={() => navigate("/")}>
             <HomeIcon />
           </Button>
         )}
         <Spacer />
-        <Button
-          visual="transparent"
-          h={height}
-          w={width}
-          onClick={() => toggleMute()}
-        >
+        <Button visual="transparent" h="48px" onClick={() => toggleMute()}>
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
         {account && !hideChain && (
@@ -134,21 +121,11 @@ const Header = ({
         {address ? (
           <>
             <Balance />
-            <Button
-              visual="transparent"
-              h={height}
-              w={width}
-              onClick={openProfile}
-            >
+            <Button visual="transparent" h="48px" onClick={openProfile}>
               {address && <ControllerIcon />}
               <Text display={["none", "none", "block"]}>{username}</Text>
             </Button>
-            <Button
-              visual="transparent"
-              h={height}
-              w={width}
-              onClick={() => disconnect()}
-            >
+            <Button visual="transparent" h="48px" onClick={() => disconnect()}>
               <DisconnectIcon />
             </Button>
           </>

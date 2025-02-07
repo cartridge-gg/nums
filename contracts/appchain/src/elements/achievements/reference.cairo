@@ -11,6 +11,8 @@ pub impl Reference of AchievementTrait {
             2 => 'REFERENCE_III',
             3 => 'REFERENCE_IV',
             4 => 'REFERENCE_V',
+            5 => 'REFERENCE_VI',
+            6 => 'REFERENCE_VII',
             _ => '',
         }
     }
@@ -33,6 +35,8 @@ pub impl Reference of AchievementTrait {
             2 => 10,
             3 => 10,
             4 => 10,
+            5 => 10,
+            6 => 10,
             _ => 0,
         }
     }
@@ -50,6 +54,8 @@ pub impl Reference of AchievementTrait {
             2 => 'fa-circle-question',
             3 => 'fa-slot-machine',
             4 => 'fa-siren-on',
+            5 => 'fa-joint',
+            6 => 'fa-face-smirking',
             _ => '',
         }
     }
@@ -62,6 +68,8 @@ pub impl Reference of AchievementTrait {
             2 => 'Achievement not found',
             3 => 'Jackpot!',
             4 => 'Emergency Mode',
+            5 => 'Meme Lord',
+            6 => 'Nice',
             _ => '',
         }
     }
@@ -74,6 +82,8 @@ pub impl Reference of AchievementTrait {
             2 => "Oops... Looks like you took a wrong turn.",
             3 => "Luck is on your side. Keep spinning!",
             4 => "This is not a drill! Time to act fast.",
+            5 => "420 blaze it!",
+            6 => "Oh yeaaah",
             _ => "",
         }
     }
@@ -87,6 +97,8 @@ pub impl Reference of AchievementTrait {
             2 => Task::ReferenceThree.tasks(count),
             3 => Task::ReferenceFour.tasks(count),
             4 => Task::ReferenceFive.tasks(count),
+            5 => Task::ReferenceSix.tasks(count),
+            6 => Task::ReferenceSeven.tasks(count),
             _ => [].span(),
         }
     }

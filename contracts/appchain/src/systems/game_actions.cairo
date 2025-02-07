@@ -307,6 +307,12 @@ pub mod game_actions {
             } else if target_number == 911 {
                 let task_id: felt252 = Task::ReferenceFive.identifier();
                 self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 420 {
+                let task_id: felt252 = Task::ReferenceSix.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
+            } else if target_number == 69 {
+                let task_id: felt252 = Task::ReferenceSeven.identifier();
+                self.achievable.progress(world, player_id, task_id, 1);
             }
 
             // Update achievement progression for the player - Streak tasks

@@ -59,3 +59,27 @@ pub impl ReferenceFive of TaskTrait {
         "Place the number 911"
     }
 }
+
+pub impl ReferenceSix of TaskTrait {
+    #[inline]
+    fn identifier() -> felt252 {
+        'REFERENCE_VI'
+    }
+
+    #[inline]
+    fn description(count: u32) -> ByteArray {
+        "Place the number 420"
+    }
+}
+
+pub impl ReferenceSeven of TaskTrait {
+    #[inline]
+    fn identifier() -> felt252 {
+        'REFERENCE_VII'
+    }
+
+    #[inline]
+    fn description(count: u32) -> ByteArray {
+        "Place the number 69"
+    }
+}

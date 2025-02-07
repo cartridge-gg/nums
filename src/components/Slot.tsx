@@ -8,7 +8,6 @@ const Slot = ({
   nextNumber,
   isOwner,
   disable,
-  legal,
   onClick,
 }: {
   index: number;
@@ -16,7 +15,6 @@ const Slot = ({
   nextNumber?: number | null;
   disable: boolean;
   isOwner: boolean;
-  legal: boolean;
   onClick: (slot: number) => Promise<boolean>;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -26,12 +24,12 @@ const Slot = ({
       return "green.50";
     }
 
-    if ((disable && !number) || !legal) {
+    if (disable && !number) {
       return "purple.50";
     }
 
     return "white";
-  }, [requestedNumber, disable, number, legal]);
+  }, [requestedNumber, disable, number]);
 
   const numberShown = useMemo(() => {
     if (requestedNumber) {
@@ -61,7 +59,7 @@ const Slot = ({
           visual="transparent"
           justifyContent="center"
           color={color}
-          disabled={!isOwner || loading || !!number || disable || !legal}
+          disabled={!isOwner || loading || !!number || disable}
           _hover={{
             color: "orange.50",
           }}

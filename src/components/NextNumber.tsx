@@ -86,6 +86,7 @@ const NextNumber = ({
       h={["60px", "60px", "100px"]}
       align="center"
       lineHeight={["60px", "60px", "100px"]}
+      position="relative"
     >
       <Flex>
         {digits.map((digit, index) => (

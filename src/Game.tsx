@@ -89,6 +89,7 @@ const Game = () => {
     slots: number[],
     nextNum: number,
     remainingSlots: number,
+    reward: number,
   ) => {
     setSlots(slots);
     setNextNumber(nextNum);
@@ -98,6 +99,7 @@ const Game = () => {
 
     const isGameFinished = isGameOver(slots, nextNum);
     setIsOver(isGameFinished);
+    setReward(reward);
 
     if (isOwner && isGameFinished) {
       playNegative();
@@ -114,7 +116,6 @@ const Game = () => {
     const isOwner =
       (account && gamesModel.player === removeZeros(account.address)) || false;
     setIsOwner(isOwner);
-    setReward(gamesModel.reward as number);
 
     const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
     slotsEdges.forEach((edge: any) => {
@@ -125,6 +126,7 @@ const Game = () => {
       newSlots,
       gamesModel.next_number!,
       gamesModel.remaining_slots!,
+      gamesModel.reward!,
     );
     setIsLoading(false);
   }, [queryResult, account]);
@@ -167,11 +169,12 @@ const Game = () => {
           const index = parseInt(insertedEvent?.data[4]!);
           const inserted = parseInt(insertedEvent?.data[5]!);
           const next = parseInt(insertedEvent?.data[6]!);
+          const reward = parseInt(insertedEvent?.data[8]!);
 
           const newSlots = [...slots];
           newSlots[index] = inserted;
 
-          updateGameState(newSlots, next, remaining - 1);
+          updateGameState(newSlots, next, remaining - 1, reward);
           setIsLoading(false);
           return true;
         }

@@ -61,6 +61,7 @@ pub mod game_actions {
         number: u16,
         next_number: u16,
         remaining_slots: u8,
+        game_rewards: u32,
     }
 
     #[derive(Drop, Serde)]
@@ -271,6 +272,7 @@ pub mod game_actions {
                         number: target_number,
                         next_number,
                         remaining_slots: game.remaining_slots,
+                        game_rewards: game.reward,
                     },
                 );
 

@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x32a9215cc231f8a0df0a97e0eb76ff1f484ed68345bf0d0b2223b773383f6f1",
-      "class_hash": "0x47f981df3f4d0c8ca07f24a48f13e4617cf7f200de50f559ce5725c82effdce",
+      "address": "0x190d6588fdcc481cb212b53121968cb663bea3c5f21449a3d148fface39e24e",
+      "class_hash": "0x3424c5d85c495b641192e13a2b58c07315a8366ce5d23e3af0f9b6523fc4f94",
       "abi": [
         {
           "type": "impl",
@@ -1473,8 +1473,8 @@
       ]
     },
     {
-      "address": "0x7d28b369bf76ce2bb3e1e1e0b23c7968ac1b664f981b47b5d8b7e4810225fe5",
-      "class_hash": "0xf8de125b207a480e9fee189b61845b36832e738de7bbe50fd818e6fa00b71",
+      "address": "0x226500768d05ce2d96c0da4f76a1b11e4aabd0db2d69e43d428f5a34efafa6a",
+      "class_hash": "0x7f00860c79768d05104484f9e561da09657ba7f895e302206382ae96873d790",
       "abi": [
         {
           "type": "impl",
@@ -1736,8 +1736,8 @@
       ]
     },
     {
-      "address": "0x217ce7e632a2ba7eb90bf8666b2d4c324bb1e3fd742dc4056a53eb1d2cba20b",
-      "class_hash": "0x3dbff3f78b7577d695c2c5e0d3fc1b590d9b0992261c592a82964a92a96a0c",
+      "address": "0x7af9672e03b1e73f7cc026bf2e4940d50d88660afa217d3058f06e98a26ad64",
+      "class_hash": "0x2363b0569f292986db40a2b119ce625720dcf3e6a4bf48be03e8999ee9c3da5",
       "abi": [
         {
           "type": "impl",
@@ -2062,6 +2062,20 @@
           "state_mutability": "external"
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u64>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "struct",
           "name": "nums_common::models::config::GameConfig",
           "members": [
@@ -2076,6 +2090,10 @@
             {
               "name": "min_number",
               "type": "core::integer::u16"
+            },
+            {
+              "name": "expiration",
+              "type": "core::option::Option::<core::integer::u64>"
             }
           ]
         },
@@ -2263,7 +2281,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6345e4042f60cc80349acc550673312e90fb0f6880b142397a2020016c2197f",
+      "class_hash": "0x2f70c7b5715b096f575561ccc96d28e7b1c4ef8a5e65d3fc73b11d1aa21ca11",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

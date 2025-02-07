@@ -33,7 +33,7 @@ fi
 
 # Piltover address
 STARKNET_MESSENGER_ADDR="0x009dc15b5dd50fa66818c8b44db5bb1cd6cf4d532122c29a340f1d6da906022c"
-NUMS_TOKEN_ADDR="0x035f478323b97513266b7905c55f6695bc66f795c827c6233f6a8590b31ccf19"
+NUMS_TOKEN_ADDR="0x07095377ad4d47a8d3cc903dcacbaf4574394b4e901f317b3f24b2c9403ffd10"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -86,13 +86,15 @@ cd "$STARKNET_DOJO_DIR"
 
 echo "Profile name: $PROFILE_NAME"
 
+GAME_EXPIRATION=$(( $(date +%s) + 86400 )) # Current unix time + 24 hours
+
 # Execute commands based on the provided command
 case "$COMMAND" in
     set_config)
         echo "Config actions address: $CONFIG_ACTIONS_ADDR"
         echo "Appchain handler address: $APPCHAIN_HANDLER_ADDR"
         echo "Appchain claimer address: $APPCHAIN_CLAIMER_ADDR"
-        sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $NUMS_TOKEN_ADDR 20 1 0x2 2 0x4 3 0x8 4 0x10 5 0x20 6 0x40 7 0x80 8 0x100 9 0x200 10 0x400 11 0x800 12 0x1000 13 0x2000 14 0x4000 15 0x8000 16 0x10000 17 0x20000 18 0x40000 19 0x80000 20 0x100000 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+        sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $GAME_EXPIRATION 0 $NUMS_TOKEN_ADDR 20 1 0x2 2 0x4 3 0x8 4 0x10 5 0x20 6 0x40 7 0x80 8 0x100 9 0x200 10 0x400 11 0x800 12 0x1000 13 0x2000 14 0x4000 15 0x8000 16 0x10000 17 0x20000 18 0x40000 19 0x80000 20 0x100000 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         ;;
     create_jackpot)
         TITLE="0x4e756d73204a61636b706f74" # "Nums Jackpot"

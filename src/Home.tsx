@@ -276,9 +276,11 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
       </Box>
       {rowData.score !== undefined ? (
         <>
-          {!isMobile && <Box flex="1" textAlign="center">
-            <Text>{rowData.score}</Text>
-          </Box>}
+          {!isMobile && (
+            <Box flex="1" textAlign="center">
+              <Text>{rowData.score}</Text>
+            </Box>
+          )}
           <Box flex="1" textAlign="center">
             <Text>{rowData.reward}</Text>
           </Box>

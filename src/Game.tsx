@@ -112,7 +112,7 @@ const Game = () => {
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
-    if (!gamesModel || !slotsEdges || !account) {
+    if (!gamesModel || !slotsEdges) {
       return;
     }
 

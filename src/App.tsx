@@ -55,11 +55,9 @@ const policies: SessionPolicies = {
 
 const options: ControllerOptions = {
   policies,
-  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  defaultChainId: constants.StarknetChainId.SN_MAIN,
   chains: [
-    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
     { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_SLOT_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -88,7 +86,7 @@ function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[sepolia, mainnet, slot]}
+      chains={[mainnet]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

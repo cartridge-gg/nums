@@ -1,1 +1,1 @@
-Fully onchain version of the 20 Number Challenge game
+Fully onchain version of the 20 Number Challenge game 

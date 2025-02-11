@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x0631d31b5026f18cf85e76035a7f961d4bea3233dfc6171418e296d9751f61e8"
-NUMS_TOKEN_ADDR="0x07095377ad4d47a8d3cc903dcacbaf4574394b4e901f317b3f24b2c9403ffd10"
+STARKNET_MESSENGER_ADDR="0x647a32cc2a36b5c9f1c2f71980e3fdc8272cfbf11107b80feb2e49eec23c5b3"
+NUMS_TOKEN_ADDR="0x3d6770a0a015910b75480ca20157ecc65d7fdbfdc31f9ff00324efa4eaf2278"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -69,8 +69,25 @@ cd "$APPCHAIN_DOJO_DIR" || {
     exit 1
 }
 
-APPCHAIN_HANDLER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$JSON_FILE")
-APPCHAIN_CLAIMER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
+# Path to the TOML file
+SLOT_JSON_FILE="manifest_slot.json"
+
+# Check if the TOML file exists
+if [ ! -f "$SLOT_JSON_FILE" ]; then
+    echo "Error: slot JSON file not found at $JSON_FILE"
+    exit 1
+fi
+
+APPCHAIN_HANDLER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$SLOT_JSON_FILE")
+APPCHAIN_CLAIMER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$SLOT_JSON_FILE")
+
+
+
+echo "CONFIG_ACTIONS_ADDR: $CONFIG_ACTIONS_ADDR"
+echo "JACKPOT_ACTIONS_ADDR: $JACKPOT_ACTIONS_ADDR"
+echo "MESSAGE_CONSUMERS_ADDR: $MESSAGE_CONSUMERS_ADDR"
+echo "APPCHAIN_HANDLER_ADDR: $APPCHAIN_HANDLER_ADDR"
+echo "APPCHAIN_CLAIMER_ADDR: $APPCHAIN_CLAIMER_ADDR"
 
 if [ -z "$APPCHAIN_HANDLER_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-message_handlers'"

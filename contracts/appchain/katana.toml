@@ -1,8 +1,8 @@
 [messaging]
 chain = "starknet"
-rpc_url = "https://api.cartridge.gg/x/nums-starknet/katana"
-contract_address = "0x0631d31b5026f18cf85e76035a7f961d4bea3233dfc6171418e296d9751f61e8"
-sender_address = "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec"
-private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
+rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
+contract_address = "0x4f292d669441926dced3f575d335a7a935f02dbcf570686d16f87fbda4e462a"
+sender_address = "0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd"
+private_key = "0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78"
 interval = 2
-from_block = 0
+from_block = 515310

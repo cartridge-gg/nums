@@ -11,7 +11,7 @@ fi
 
 COMMAND=$1
 SERVICE=$2
-SLOT_PROJECT="nums-appchain"
+SLOT_PROJECT="nums-appchain-demo"
 
 
 case $COMMAND in

@@ -23,7 +23,7 @@ cd "$TOKENS_DIR" || {
 
 UDC_DEPLOYER_ADDR="0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf"
 NUMS_TOKEN_CLASS="0x0341200f8852fd8dc420bf87e4e94bba15773e882f0cc727c292a1f9f34b4bde"
-STARKNET_L2_RPC="https://api.cartridge.gg/x/nums-starknet/katana"
+STARKNET_L2_RPC="https://api.cartridge.gg/x/nums-starknet-demo/katana"
 
 echo "Message consumers address: $MESSAGE_CONSUMERS_ADDR"
 

@@ -10,7 +10,7 @@ fi
 
 COMMAND=$1
 SERVICE=$2
-SLOT_PROJECT="nums-starknet"
+SLOT_PROJECT="nums-starknet-demo"
 
 
 case $COMMAND in

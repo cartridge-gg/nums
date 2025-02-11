@@ -6,9 +6,9 @@ import useToast from "./toast";
 
 // mock starknet chain id
 export const STARKNET_CHAIN_ID =
-  shortString.encodeShortString("WP_NUMS_STARKNET");
+  shortString.encodeShortString("WP_NUMS_STARKNET_DEMO");
 export const APPCHAIN_CHAIN_ID =
-  shortString.encodeShortString("WP_NUMS_APPCHAIN");
+  shortString.encodeShortString("WP_NUMS_APPCHAIN_DEMO");
 
 const chainName = {
   [STARKNET_CHAIN_ID]: "Starknet Mainnet",

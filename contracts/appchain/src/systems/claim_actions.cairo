@@ -76,7 +76,7 @@ pub mod claim_actions {
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
-                    config.starknet_consumer,
+                    config.starknet_consumer.into(),
                     array![player.into(), claim_id.into(), claim_amount.into()].span(),
                 ),
             };

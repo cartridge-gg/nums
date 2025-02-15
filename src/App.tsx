@@ -98,8 +98,7 @@ const options: ControllerOptions = {
   defaultChainId: APPCHAIN_CHAIN_ID,
   chains: [
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -139,7 +138,7 @@ const appchain: Chain = {
 //     public: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
 //   },
 // };
-
+console.log(sepolia.id)
 function App() {
   return (
     <StarknetConfig

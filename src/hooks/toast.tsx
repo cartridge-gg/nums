@@ -1,6 +1,5 @@
 import { HStack, Image, Link, Spacer } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
-import { formatAddress } from "../utils";
 import { useExplorer } from "@starknet-react/core";
 import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
 import { ExternalIcon } from "@/components/icons/External";
@@ -54,7 +53,7 @@ const useToast = () => {
       title: "Transaction Error",
       description: (
         <Link href={explorer.transaction(hash)}>
-          <strong>{formatAddress(hash)}</strong>
+          <strong>{hash}</strong>
         </Link>
       ),
     });

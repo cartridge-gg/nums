@@ -13,7 +13,7 @@ export const APPCHAIN_CHAIN_ID =
   shortString.encodeShortString("WP_NUMS_APPCHAIN");
 
 const chainName = {
-  //[STARKNET_CHAIN_ID]: "Starknet Mainnet",
+  [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
   [APPCHAIN_CHAIN_ID]: "Nums Chain",
 };
 

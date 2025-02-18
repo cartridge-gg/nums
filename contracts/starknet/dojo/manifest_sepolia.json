@@ -1945,7 +1945,7 @@
     },
     {
       "address": "0x3ce9293fb2d6fc95d8cefa137cee03e0cdfac54c0254a0d2aa43b520efbc057",
-      "class_hash": "0x182d13fdf73b3856bd3fed8395ee1b507590c6372e0e969f5b64e09392aad58",
+      "class_hash": "0x7aa13e6d9fd78a39286da2158ac6766dd140f7c9d9338998b2759b7b39290f",
       "abi": [
         {
           "type": "impl",

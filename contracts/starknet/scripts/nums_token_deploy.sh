@@ -8,7 +8,7 @@ cd "$STARKNET_DOJO_DIR" || {
     exit 1
 }
 
-MESSAGE_CONSUMERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_consumers") | .address' "manifest_slot.json")
+MESSAGE_CONSUMERS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_consumers") | .address' "manifest_sepolia.json")
 
 if [ -z "$MESSAGE_CONSUMERS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-message_consumers'"
@@ -31,5 +31,5 @@ echo "starkli declare target/dev/nums_tokens_NumsToken.contract_class.json --rpc
 
 starkli declare target/dev/nums_tokens_NumsToken.contract_class.json --rpc $STARKNET_L2_RPC --compiler-version 2.9.1
 sleep 1
-starkli invoke $UDC_DEPLOYER_ADDR deployContract $NUMS_TOKEN_CLASS 0x1337 0x0 0x1 $MESSAGE_CONSUMERS_ADDR --rpc $STARKNET_L2_RPC
+starkli invoke $UDC_DEPLOYER_ADDR deployContract $NUMS_TOKEN_CLASS 0x137 0x0 0x1 $MESSAGE_CONSUMERS_ADDR --rpc $STARKNET_L2_RPC
 

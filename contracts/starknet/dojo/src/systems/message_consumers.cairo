@@ -68,7 +68,7 @@ pub mod message_consumers {
             let hash = IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .consume_message_from_appchain(
                     config.appchain_claimer,
-                    array![player.into(), claim_id.into(), amount.into()].span(),
+                    array![starknet::get_contract_address().into(),player.into(), claim_id.into(), amount.into()].span(),
                 );
 
             claims.claim_id = claim_id;

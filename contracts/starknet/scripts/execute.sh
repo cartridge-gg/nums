@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x4a4eaed7b598c500179597411313bbc7f4499d5aabb227f8c22143aa46c0ab2"
-NUMS_TOKEN_ADDR="0x3d6770a0a015910b75480ca20157ecc65d7fdbfdc31f9ff00324efa4eaf2278"
+STARKNET_MESSENGER_ADDR="0x68a4c3ad28a279060897eb02587c4e13a166f52c5b6e5e4966be467cd40409"
+NUMS_TOKEN_ADDR="0x735856330be19e6f39e277ebd39f9312f636b345fba0e44654dd0f5826a5cd0"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -107,7 +107,7 @@ echo "Profile name: $PROFILE_NAME"
 BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-appchain/katana)
 # First convert to Unix timestamp, then add 60 seconds
 BASE_TIME=$(date -d "$(echo $BLOCK_TIME | cut -d'+' -f1)+0000" "+%s")
-GAME_EXPIRATION=$((BASE_TIME + 86400))
+GAME_EXPIRATION=$((BASE_TIME + 1286400))
 
 echo "Game expiration: $GAME_EXPIRATION"
 

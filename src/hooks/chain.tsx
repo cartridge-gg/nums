@@ -4,14 +4,16 @@ import { num, shortString } from "starknet";
 import { Chain } from "@starknet-react/chains";
 import useToast from "./toast";
 
-// mock starknet chain id
-export const STARKNET_CHAIN_ID =
-  shortString.encodeShortString("WP_NUMS_STARKNET");
+// // mock starknet chain id
+// export const STARKNET_CHAIN_ID =
+//   shortString.encodeShortString("WP_NUMS_STARKNET");
+export const SEPOLIA_CHAIN_ID =
+  shortString.encodeShortString("SN_SEPOLIA");
 export const APPCHAIN_CHAIN_ID =
   shortString.encodeShortString("WP_NUMS_APPCHAIN");
 
 const chainName = {
-  [STARKNET_CHAIN_ID]: "Starknet Mainnet",
+  [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
   [APPCHAIN_CHAIN_ID]: "Nums Chain",
 };
 
@@ -61,11 +63,11 @@ const useChain = () => {
 
   const requestStarknet = useCallback(
     async (silent?: boolean) => {
-      if (chain.id === num.toBigInt(STARKNET_CHAIN_ID)) {
+      if (chain.id === num.toBigInt(SEPOLIA_CHAIN_ID)) {
         return;
       }
 
-      await requestChain(STARKNET_CHAIN_ID, silent);
+      await requestChain(SEPOLIA_CHAIN_ID, silent);
     },
     [chain],
   );

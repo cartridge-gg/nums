@@ -17,7 +17,7 @@ SLOT_PROJECT="nums-appchain"
 case $COMMAND in
     "create")
         if [ "$SERVICE" == "katana" ]; then
-            slot d create $SLOT_PROJECT katana --dev --messaging $APPCHAIN_DIR/l3.messaging.json --version preview--a13b3de
+            slot d create $SLOT_PROJECT katana --version preview--67cde31 --provable --block-time 30000
         fi
         if [ "$SERVICE" == "torii" ]; then
             JSON_FILE="$SCRIPT_DIR/../manifest_slot.json"
@@ -38,7 +38,7 @@ case $COMMAND in
                 exit 1
             fi
 
-            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR --config $TOML_FILE --version v1.1.2
+            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/$SLOT_PROJECT/katana --world $WORLD_ADDR --config $TOML_FILE --version v1.2.0
         fi
         ;;
     "delete")

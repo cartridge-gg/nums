@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x06f3be062a02084bdcc6b9d64719e58335fa263df01e689e30248f60e74de22d"
-NUMS_TOKEN_ADDR="0x07095377ad4d47a8d3cc903dcacbaf4574394b4e901f317b3f24b2c9403ffd10"
+STARKNET_MESSENGER_ADDR="0x68a4c3ad28a279060897eb02587c4e13a166f52c5b6e5e4966be467cd40409"
+NUMS_TOKEN_ADDR="0x735856330be19e6f39e277ebd39f9312f636b345fba0e44654dd0f5826a5cd0"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -69,8 +69,25 @@ cd "$APPCHAIN_DOJO_DIR" || {
     exit 1
 }
 
-APPCHAIN_HANDLER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$JSON_FILE")
-APPCHAIN_CLAIMER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
+# Path to the TOML file
+SLOT_JSON_FILE="manifest_slot.json"
+
+# Check if the TOML file exists
+if [ ! -f "$SLOT_JSON_FILE" ]; then
+    echo "Error: slot JSON file not found at $JSON_FILE"
+    exit 1
+fi
+
+APPCHAIN_HANDLER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-message_handlers") | .address' "$SLOT_JSON_FILE")
+APPCHAIN_CLAIMER_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$SLOT_JSON_FILE")
+
+
+
+echo "CONFIG_ACTIONS_ADDR: $CONFIG_ACTIONS_ADDR"
+echo "JACKPOT_ACTIONS_ADDR: $JACKPOT_ACTIONS_ADDR"
+echo "MESSAGE_CONSUMERS_ADDR: $MESSAGE_CONSUMERS_ADDR"
+echo "APPCHAIN_HANDLER_ADDR: $APPCHAIN_HANDLER_ADDR"
+echo "APPCHAIN_CLAIMER_ADDR: $APPCHAIN_CLAIMER_ADDR"
 
 if [ -z "$APPCHAIN_HANDLER_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-message_handlers'"
@@ -90,7 +107,7 @@ echo "Profile name: $PROFILE_NAME"
 BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-appchain/katana)
 # First convert to Unix timestamp, then add 60 seconds
 BASE_TIME=$(date -d "$(echo $BLOCK_TIME | cut -d'+' -f1)+0000" "+%s")
-GAME_EXPIRATION=$((BASE_TIME + 86400))
+GAME_EXPIRATION=$((BASE_TIME + 1286400))
 
 echo "Game expiration: $GAME_EXPIRATION"
 

@@ -23,6 +23,8 @@ starknet = "2.9.2"
 [dev-dependencies]
 dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.1.2" }
 
+[lib_versions]
+
 [features]
 default = []
 

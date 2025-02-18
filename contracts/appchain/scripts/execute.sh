@@ -69,9 +69,8 @@ case "$COMMAND" in
         sozo execute $CLAIM_ACTIONS_ADDR claim_jackpot $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     claim_reward)
-        GAME_ID=$3
         echo "Claiming reward for profile: $PROFILE_NAME"
-        sozo execute $CLAIM_ACTIONS_ADDR claim_reward $GAME_ID --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $CLAIM_ACTIONS_ADDR claim_reward --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     *)
         echo "Error: Unknown command '$COMMAND'"

@@ -55,7 +55,7 @@ export const useClaims = () => {
   const readyToBridge = rewardsEarnedAppchain - rewardsClaimedAppchain;
 
   const provider = new Provider({
-    nodeUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
+    nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
   });
 
   useInterval(

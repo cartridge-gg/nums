@@ -22,6 +22,7 @@ import { formatAddress } from "./utils";
 import { useAccount } from "@starknet-react/core";
 3;
 import Header from "./components/Header";
+import { Tooltip } from "@/components/ui/tooltip";
 import { lookupAddresses } from "@cartridge/controller";
 import { TrophyIcon } from "./components/icons/Trophy";
 import { Button } from "./components/Button";
@@ -154,7 +155,7 @@ const Home = () => {
         <Header hideChain />
         <InfoOverlay open={openInfo} onClose={onCloseInfo} />
         <VStack h="100%" justify="center" pt="40px">
-          <VStack gap="20px" w={["100%", "100%", "600px"]} align="flex-start">
+          <VStack gap="20px" w={["100%", "100%", "800px"]} align="flex-start">
             <HStack w="full" justify="space-between">
               <MenuRoot>
                 <MenuTrigger asChild>
@@ -187,11 +188,12 @@ const Home = () => {
             <Box
               w="full"
               layerStyle="transparent"
-              padding="30px"
+              padding={["10px", "10px", "30px"]}
               bgColor="rgba(0,0,0,0.04)"
             >
               <HStack
                 w="full"
+                px={["0", "0", "20px"]}
                 justify="space-between"
                 fontSize="14px"
                 fontWeight="450"
@@ -199,8 +201,8 @@ const Home = () => {
                 textTransform="uppercase"
               >
                 {headers.map((h, i) => (
-                  <Box key={i} w="full" textAlign="center">
-                    <Text>{h}</Text>
+                  <Box key={i} w="full">
+                    <Text textAlign={["center", "center", "left"]}>{h}</Text>
                   </Box>
                 ))}
               </HStack>
@@ -212,6 +214,8 @@ const Home = () => {
                     rowData={row}
                     isOwn={row.player === account?.address}
                     onClick={() => {
+                      if (sortBy === "tokens") return;
+
                       navigate(`/0x${Number(row.gameId).toString(16)}`);
                     }}
                   />
@@ -224,7 +228,7 @@ const Home = () => {
               </Text>
               <Stack
                 w="full"
-                gap={["20px", "20px", "50px"]}
+                gap={["0", "0", "50px"]}
                 justify="space-between"
                 direction={["column", "column", "row"]}
               >
@@ -254,10 +258,13 @@ interface LeaderboardRowProps {
 
 const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const maxLength = isMobile ? 8 : 14;
+  const textAlign = ["center", "center", "left"];
   return (
     <HStack
       w="full"
       h="30px"
+      px={["0", "0", "20px"]}
       justify="space-between"
       fontWeight="500"
       borderRadius="4px"
@@ -268,29 +275,37 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
       onClick={onClick}
       color={isOwn ? "orange.50" : "white"}
     >
-      <Box flex="1" textAlign="center">
+      <Box flex="1" textAlign={textAlign}>
         <Text>{rowData.rank}</Text>
       </Box>
-      <Box flex="1" textAlign="center">
-        <Text title={rowData.player}>
-          {rowData.player.length > 14
-            ? rowData.player.slice(0, 14) + "..."
-            : rowData.player}
-        </Text>
-      </Box>
+      <Tooltip
+        showArrow
+        openDelay={500}
+        closeDelay={100}
+        content={rowData.player}
+        disabled={rowData.player.length < maxLength}
+      >
+        <Box flex="1" textAlign={textAlign}>
+          <Text>
+            {rowData.player.length > maxLength
+              ? rowData.player.slice(0, maxLength) + "..."
+              : rowData.player}
+          </Text>
+        </Box>
+      </Tooltip>
       {rowData.score !== undefined ? (
         <>
           {!isMobile && (
-            <Box flex="1" textAlign="center">
+            <Box flex="1" textAlign={textAlign}>
               <Text>{rowData.score}</Text>
             </Box>
           )}
-          <Box flex="1" textAlign="center">
+          <Box flex="1" textAlign={textAlign}>
             <Text>{rowData.reward}</Text>
           </Box>
         </>
       ) : (
-        <Box flex="1" textAlign="center">
+        <Box flex="1" textAlign={textAlign}>
           <Text>{rowData.totalTokens}</Text>
         </Box>
       )}

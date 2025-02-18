@@ -392,7 +392,6 @@ const Row = ({
     <HStack
       borderRadius="8px"
       bgColor="rgba(255,255,255,0.04)"
-      p="16px"
       justify="space-between"
       w="full"
       fontSize="16px"
@@ -409,16 +408,17 @@ const Row = ({
         {status}
       </Text>
       <Tooltip
+        showArrow
         content={
           <VStack align="flex-start" p="10px">
-            <Text>Block Submitted: {blockNumber}</Text>
+            <Text>Block Number: {blockNumber}</Text>
             <Text>Currently Processing: {blockProcessing}</Text>
           </VStack>
         }
         openDelay={500}
         closeDelay={100}
       >
-        <Text flex="1" textAlign="center">
+        <Text flex="1" py="16px" textAlign="center">
           {getETA(blockTimestamp)}
         </Text>
       </Tooltip>

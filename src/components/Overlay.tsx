@@ -33,10 +33,10 @@ const Overlay = ({
         w="100%"
         h="100%"
         borderRadius="24px"
-        bg="rgba(0, 0, 0, 0.64)"
+        bg="rgba(0, 0, 0, 0.65)"
         border="2px solid #000000"
         boxShadow="0px 4px 4px rgba(0, 0, 0, 0.25)"
-        backdropFilter="blur(2px)"
+        backdropFilter="blur(6px)"
         pointerEvents="all"
         overflowY="auto"
       >

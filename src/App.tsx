@@ -138,7 +138,7 @@ const appchain: Chain = {
 //     public: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
 //   },
 // };
-console.log(sepolia.id)
+console.log(sepolia.id);
 function App() {
   return (
     <StarknetConfig

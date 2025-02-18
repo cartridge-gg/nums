@@ -48,6 +48,7 @@ export const useClaims = () => {
   const [readyToClaim, setReadyToClaim] = useState(0);
   const [claimed, setClaimed] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [blockProcessing, setBlockProcessing] = useState(0);
   const {
     rewardsEarned: rewardsEarnedAppchain,
     rewardsClaimed: rewardsClaimedAppchain,
@@ -98,6 +99,13 @@ export const useClaims = () => {
         rewardsClaimedAppchain,
       );
 
+      // Get processing block
+      const res = await provider.callContract({
+        contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
+        entrypoint: "get_state",
+      });
+
+      setBlockProcessing(parseInt(res[1]));
       // Update state
       setClaims(processedClaims);
       setBridging(bridgingAmount);
@@ -124,6 +132,7 @@ export const useClaims = () => {
     amountBridging: bridging,
     amountToClaim: readyToClaim,
     amountToBridge: readyToBridge,
+    blockProcessing,
     setAutoRefresh,
     isRefreshing,
   };

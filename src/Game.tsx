@@ -215,7 +215,10 @@ const Game = () => {
             <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
               Game Over
             </Text>
-            <Stack w={["full", "full", "400px"]} direction={["column", "row", "row"]}>
+            <Stack
+              w={["full", "full", "400px"]}
+              direction={["column", "row", "row"]}
+            >
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Score</Text>
                 <Text>{MAX_SLOTS - remaining}</Text>
@@ -225,7 +228,12 @@ const Game = () => {
                 <Text>{reward.toLocaleString()}</Text>
               </VStack>
             </Stack>
-            <Stack pt="32px" direction={["column", "row", "row"]} w={["full", "full", "400px"]} justify="center">
+            <Stack
+              pt="32px"
+              direction={["column", "row", "row"]}
+              w={["full", "full", "400px"]}
+              justify="center"
+            >
               <Button visual="transparent" onClick={() => navigate("/")}>
                 <HomeIcon /> Home
               </Button>

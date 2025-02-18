@@ -1945,7 +1945,7 @@
     },
     {
       "address": "0x3ce9293fb2d6fc95d8cefa137cee03e0cdfac54c0254a0d2aa43b520efbc057",
-      "class_hash": "0x7aa13e6d9fd78a39286da2158ac6766dd140f7c9d9338998b2759b7b39290f",
+      "class_hash": "0x46f25c18017d48007243ce0e9363f930737a45522e08b702e4f0afbfbc1d1d8",
       "abi": [
         {
           "type": "impl",
@@ -2110,6 +2110,17 @@
               "outputs": [
                 {
                   "type": "piltover::messaging::types::MessageToStarknetStatus"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_state",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "(core::felt252, core::felt252, core::felt252)"
                 }
               ],
               "state_mutability": "view"

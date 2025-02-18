@@ -272,7 +272,11 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
         <Text>{rowData.rank}</Text>
       </Box>
       <Box flex="1" textAlign="center">
-        <Text title={rowData.player}>{rowData.player.length > 14 ? rowData.player.slice(0, 14) + '...' : rowData.player}</Text>
+        <Text title={rowData.player}>
+          {rowData.player.length > 14
+            ? rowData.player.slice(0, 14) + "..."
+            : rowData.player}
+        </Text>
       </Box>
       {rowData.score !== undefined ? (
         <>

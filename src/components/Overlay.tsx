@@ -18,7 +18,11 @@ const Overlay = ({
       top="0"
       left="0"
       position="absolute"
-      padding={["80px 10px 10px 10px", "80px 10px 10px 10px", "125px 25px 25px 25px"]}
+      padding={[
+        "80px 10px 10px 10px",
+        "80px 10px 10px 10px",
+        "125px 25px 25px 25px",
+      ]}
       opacity={open ? 1 : 0}
       display={open ? "flex" : "none"}
       transition="opacity 0.2s ease-in-out"

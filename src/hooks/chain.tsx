@@ -7,8 +7,7 @@ import useToast from "./toast";
 // // mock starknet chain id
 // export const STARKNET_CHAIN_ID =
 //   shortString.encodeShortString("WP_NUMS_STARKNET");
-export const SEPOLIA_CHAIN_ID =
-  shortString.encodeShortString("SN_SEPOLIA");
+export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const APPCHAIN_CHAIN_ID =
   shortString.encodeShortString("WP_NUMS_APPCHAIN");
 

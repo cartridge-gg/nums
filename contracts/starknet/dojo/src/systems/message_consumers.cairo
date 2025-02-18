@@ -7,6 +7,7 @@ pub trait IMessageConsumers<T> {
     fn consume_claim_reward(ref self: T, player: ContractAddress, claim_id: u32, amount: u64);
     fn sn_to_appchain_messages(self: @T, message_hash: felt252) -> MessageToAppchainStatus;
     fn appchain_to_sn_messages(self: @T, message_hash: felt252) -> MessageToStarknetStatus;
+    fn get_state(self: @T) -> (felt252, felt252, felt252);
 }
 
 #[dojo::contract]
@@ -99,6 +100,14 @@ pub mod message_consumers {
 
             IMessagingDispatcher { contract_address: config.starknet_messenger }
                 .appchain_to_sn_messages(message_hash)
+        }
+
+        fn get_state(self: @ContractState) -> (felt252, felt252, felt252) {
+            let world = self.world(@"nums");
+            let config: Config = world.read_model(WORLD_RESOURCE);
+
+            IMessagingDispatcher { contract_address: config.starknet_messenger }
+                .get_state()
         }
     }
 }

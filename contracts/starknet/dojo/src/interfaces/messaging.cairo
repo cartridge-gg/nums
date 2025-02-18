@@ -13,4 +13,5 @@ pub trait IMessaging<TState> {
     ) -> MessageHash;
     fn sn_to_appchain_messages(self: @TState, message_hash: felt252) -> MessageToAppchainStatus;
     fn appchain_to_sn_messages(self: @TState, message_hash: felt252) -> MessageToStarknetStatus;
+    fn get_state(self: @TState) -> (felt252, felt252, felt252);
 }

@@ -32,7 +32,7 @@ case $COMMAND in
             fi
 
 
-            slot d create $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/starknet/sepolia --world $WORLD_ADDR --version v1.2.0
+            slot d create --tier epic $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/starknet/sepolia --world $WORLD_ADDR --version v1.2.0
         fi
         ;;
     "delete")

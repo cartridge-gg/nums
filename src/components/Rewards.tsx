@@ -34,6 +34,7 @@ const RewardsOverlay = ({
 
   const {
     claims,
+    blockProcessing,
     amountToBridge,
     amountBridging,
     amountClaimed,
@@ -313,7 +314,11 @@ const RewardsOverlay = ({
           </Text>
         </HStack>
         {Object.values(claims).map((claim) => (
-          <Row key={claim.claimId} {...claim} />
+          <Row
+            key={claim.claimId}
+            {...claim}
+            blockProcessing={blockProcessing}
+          />
         ))}
       </VStack>
     </Overlay>
@@ -357,7 +362,14 @@ const Step = ({
   );
 };
 
-const Row = ({ claimId, amount, status, blockTimestamp }: ClaimData) => {
+const Row = ({
+  claimId,
+  amount,
+  status,
+  blockTimestamp,
+  blockNumber,
+  blockProcessing,
+}: ClaimData & { blockProcessing: number }) => {
   const getETA = (timestamp: number) => {
     if (status === "Claimed" || status === "Ready to Claim") return "-";
 
@@ -396,9 +408,20 @@ const Row = ({ claimId, amount, status, blockTimestamp }: ClaimData) => {
       <Text flex="1" textAlign="center">
         {status}
       </Text>
-      <Text flex="1" textAlign="center">
-        {getETA(blockTimestamp)}
-      </Text>
+      <Tooltip
+        content={
+          <VStack align="flex-start" p="10px">
+            <Text>Block Submitted: {blockNumber}</Text>
+            <Text>Currently Processing: {blockProcessing}</Text>
+          </VStack>
+        }
+        openDelay={500}
+        closeDelay={100}
+      >
+        <Text flex="1" textAlign="center">
+          {getETA(blockTimestamp)}
+        </Text>
+      </Tooltip>
     </HStack>
   );
 };

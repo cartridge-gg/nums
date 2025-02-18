@@ -31,7 +31,7 @@ pub struct KingOfTheHill {
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct ConditionalVictory {
-    pub slots_required: u8
+    pub slots_required: u8,
 }
 
 #[generate_trait]
@@ -46,14 +46,14 @@ pub impl JackpotModeImpl of JackpotModeTrait {
                         extension_time: params.extension_time,
                         king: starknet::contract_address_const::<0x0>(),
                         remaining_slots: max_slots,
-                    }
+                    },
                 )
             },
             JackpotMode::CONDITIONAL_VICTORY(params) => {
                 assert!(params.slots_required <= max_slots, "slots_required exceeds max_slots");
 
                 mode
-            }
+            },
         }
     }
 }

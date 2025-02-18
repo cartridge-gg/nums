@@ -81,6 +81,15 @@ const policies: SessionPolicies = {
         },
       ],
     },
+    [import.meta.env.VITE_VRF_CONTRACT]: {
+      methods: [
+        {
+          name: "Request Random",
+          entrypoint: "request_random",
+          description: "Requests a random number from the VRF contract",
+        },
+      ],
+    },
     ...getSocialPolicies(constants.StarknetChainId.SN_MAIN, { pin: true })
       .contracts,
   },

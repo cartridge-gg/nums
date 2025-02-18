@@ -1,5 +1,8 @@
 pub mod random;
 pub mod token;
+pub mod interfaces {
+    pub mod vrf;
+}
 pub mod models {
     pub mod jackpot;
     pub mod config;

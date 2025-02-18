@@ -1,10 +1,8 @@
 use core::pedersen::pedersen;
 
 use starknet::ContractAddress;
-use starknet::get_contract_address;
-// use cartridge_vrf::IVrfProviderDispatcher;
-// use cartridge_vrf::IVrfProviderDispatcherTrait;
-// use cartridge_vrf::Source;
+use starknet::{get_caller_address, get_contract_address, contract_address_const};
+use crate::interfaces::vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 
 const VRF_PROVIDER_ADDRESS: felt252 =
     0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f;
@@ -22,12 +20,11 @@ pub impl RandomImpl of RandomTrait {
     }
 
     // https://docs.cartridge.gg/vrf/overview
-    // fn new_vrf(world: IWorldDispatcher) -> Random {
-    //     let vrf_provider = IVrfProviderDispatcher { contract_address:
-    //     contract_address_const::<VRF_PROVIDER_ADDRESS>() };
-    //     let seed = vrf_provider.consume_random(Source::Nonce(get_caller_address()));
-    //     Random { world, seed, nonce: 0 }
-    // }
+    fn new_vrf() -> Random {
+        let vrf_provider = IVrfProviderDispatcher { contract_address: contract_address_const::<VRF_PROVIDER_ADDRESS>() };
+        let seed = vrf_provider.consume_random(Source::Nonce(get_caller_address()));
+        Random { seed, nonce: 0 }
+    }
 
     fn next_seed(ref self: Random) -> felt252 {
         self.nonce += 1;
@@ -56,9 +53,9 @@ pub impl RandomImpl of RandomTrait {
     }
 
     fn between<
-        T, +Into<T, u128>, +Into<T, u256>, +TryInto<u128, T>, +PartialOrd<T>, +Copy<T>, +Drop<T>
+        T, +Into<T, u128>, +Into<T, u256>, +TryInto<u128, T>, +PartialOrd<T>, +Copy<T>, +Drop<T>,
     >(
-        ref self: Random, min: T, max: T
+        ref self: Random, min: T, max: T,
     ) -> T {
         let seed: u256 = self.next_seed().into();
 

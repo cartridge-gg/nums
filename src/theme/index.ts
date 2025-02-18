@@ -10,6 +10,7 @@ const theme = createSystem(defaultConfig, {
         {colors.purple.100}
       `,
       color: "white",
+      userSelect: "none",
     },
   },
   theme: {

@@ -43,6 +43,7 @@ export const ShowReward = ({
       transform="translate(-50%, -50%)"
       animation={displayReward > 0 ? `${floatUp} 3s forwards` : "none"}
       opacity={displayReward > 0 ? 1 : 0}
+      pointerEvents="none"
     >
       <Text
         color="green.50"

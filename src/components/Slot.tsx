@@ -58,8 +58,8 @@ const Slot = ({
           {index + 1}.
         </Text>
         <Button
-          w={["80px", "80px", "100px"]}
-          h={["40px", "40px", "50px"]}
+          w={["90px", "90px", "100px"]}
+          h={["36px", "40px", "50px"]}
           fontSize={["22px", "22px", "24px"]}
           visual="transparent"
           justifyContent="center"

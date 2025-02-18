@@ -6,7 +6,7 @@ import {
   Box,
   Container,
   Grid,
-  HStack,
+  Stack,
   Text,
   useDisclosure,
   VStack,
@@ -211,11 +211,11 @@ const Game = () => {
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
-          <VStack boxSize="full" justify="center">
+          <VStack boxSize="full" justify="center" p="20px" position="relative">
             <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
               Game Over
             </Text>
-            <HStack w={["300px", "300px", "400px"]}>
+            <Stack w={["full", "full", "400px"]} direction={["column", "row", "row"]}>
               <VStack layerStyle="transparent" flex="1" align="flex-start">
                 <Text color="purple.50">Score</Text>
                 <Text>{MAX_SLOTS - remaining}</Text>
@@ -224,8 +224,8 @@ const Game = () => {
                 <Text color="purple.50">Nums Rewarded</Text>
                 <Text>{reward.toLocaleString()}</Text>
               </VStack>
-            </HStack>
-            <HStack pt="32px">
+            </Stack>
+            <Stack pt="32px" direction={["column", "row", "row"]} w={["full", "full", "400px"]} justify="center">
               <Button visual="transparent" onClick={() => navigate("/")}>
                 <HomeIcon /> Home
               </Button>
@@ -236,17 +236,17 @@ const Game = () => {
                   resetGame();
                 }}
               />
-            </HStack>
+            </Stack>
           </VStack>
         </Overlay>
         <VStack
           h={["auto", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
-          pt={["100px", "100px", "0"]}
+          pt={["90px", "90px", "0"]}
         >
-          <Text display={["none", "none", "block"]}>The next number is...</Text>
+          <Text display={["none", "none", "block"]}>Your number is...</Text>
           <Box
-            mb={["25px", "25px", "50px"]}
+            mb={["20px", "20px", "50px"]}
             textStyle={["h-md", "h-md", "h-lg"]}
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             lineHeight="100px"

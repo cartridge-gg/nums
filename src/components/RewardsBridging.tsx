@@ -111,7 +111,7 @@ const RewardsOverlay = ({
       >
         <SimpleGrid w="full" columns={[2, 2, 4]} gap="20px">
           <Step
-            title="Ready to Bridge"
+            title="1. Ready to Bridge"
             body={
               <VStack>
                 <HStack>
@@ -159,7 +159,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Bridging"
+            title="2. Bridging"
             body={
               <VStack>
                 <HStack>
@@ -205,7 +205,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Ready to Claim"
+            title="3. Ready to Claim"
             body={
               <VStack>
                 <HStack>
@@ -248,7 +248,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Claimed"
+            title="4. Claimed"
             body={
               <VStack>
                 <HStack>

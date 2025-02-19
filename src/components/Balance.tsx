@@ -1,7 +1,7 @@
 import { Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { Toaster } from "./ui/toaster";
-import RewardsOverlay from "./Rewards";
+import RewardsOverlay from "./RewardsBridging";
 import { useTotals } from "@/context/totals";
 import { GiftIcon } from "./icons/Gift";
 

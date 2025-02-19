@@ -158,11 +158,11 @@ const Game = () => {
       const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: 'request_random',
+          entrypoint: "request_random",
           calldata: CallData.compile({
             caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address }
-          })
+            source: { type: 0, address: account.address },
+          }),
         },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
@@ -219,7 +219,12 @@ const Game = () => {
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
-          <VStack boxSize="full" justify="center" p="20px" position="relative">
+          <VStack
+            boxSize="full"
+            justify="center"
+            position="relative"
+            pointerEvents="none"
+          >
             <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
               Game Over
             </Text>
@@ -241,6 +246,7 @@ const Game = () => {
               direction={["column", "row", "row"]}
               w={["full", "full", "400px"]}
               justify="center"
+              pointerEvents="auto"
             >
               <Button visual="transparent" onClick={() => navigate("/")}>
                 <HomeIcon /> Home

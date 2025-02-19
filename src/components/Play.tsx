@@ -35,11 +35,11 @@ const Play = ({
       const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: 'request_random',
+          entrypoint: "request_random",
           calldata: CallData.compile({
             caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address }
-          })
+            source: { type: 0, address: account.address },
+          }),
         },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,

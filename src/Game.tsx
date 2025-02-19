@@ -34,6 +34,7 @@ const GameQuery = graphql(`
       edges {
         node {
           player
+          game_id
           min_number
           max_number
           max_slots
@@ -77,7 +78,6 @@ const Game = () => {
     Array.from({ length: MAX_SLOTS }, () => 0),
   );
   const [nextNumber, setNextNumber] = useState<number | null>();
-  const [targetSlot, setTargetSlot] = useState<number | null>();
   const [isOver, setIsOver] = useState<boolean>(false);
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -93,13 +93,13 @@ const Game = () => {
   const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
 
-  const { showTxn, showError } = useToast();
+  const { showTxn } = useToast();
   if (!gameId) {
     return <></>;
   }
 
   const entityId = useMemo(() => {
-    if (!account) return;
+    if (!account || !gameId) return;
 
     return hash.computePoseidonHashOnElements([
       num.toHex(parseInt(gameId)),
@@ -107,14 +107,13 @@ const Game = () => {
     ]);
   }, [account, gameId]);
 
-  const [queryResult, executeQuery] = useQuery({
+  const [queryResult] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
   });
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,
-    pause: !entityId,
     variables: { entityId },
   });
 
@@ -128,26 +127,15 @@ const Game = () => {
       // @ts-ignore
       const remaining = entityUpdated.models![0]!.remaining_slots as number;
 
-      const newSlots = [...slots];
-      newSlots[targetSlot!] = nextNumber!;
-      setSlots(newSlots);
-
-      const isGameFinished = isGameOver(slots, next);
-      setIsOver(isGameFinished);
-      setNextNumber(next);
-      setRemaining(remaining);
-      setReward(reward);
-      setTimeout(() => setIsLoading(false), 500);
+      updateGameState(next, remaining, reward);
     }
-  }, [subscriptionResult, targetSlot]);
+  }, [subscriptionResult]);
 
   const updateGameState = (
-    slots: number[],
     nextNum: number,
     remainingSlots: number,
     reward: number,
   ) => {
-    setSlots(slots);
     setNextNumber(nextNum);
     if (remainingSlots !== undefined) {
       setRemaining(remainingSlots);
@@ -160,12 +148,14 @@ const Game = () => {
     if (isOwner && isGameFinished) {
       playNegative();
     }
+
+    setTimeout(() => setIsLoading(false), 500);
   };
 
   useEffect(() => {
     const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
     const slotsEdges = queryResult.data?.numsSlotModels?.edges;
-    if (!gamesModel || !slotsEdges) {
+    if (!gamesModel || !slotsEdges || !account) {
       return;
     }
 
@@ -177,9 +167,9 @@ const Game = () => {
     slotsEdges.forEach((edge: any) => {
       newSlots[edge.node.index] = edge.node.number;
     });
+    setSlots(newSlots);
 
     updateGameState(
-      newSlots,
       gamesModel.next_number!,
       gamesModel.remaining_slots!,
       gamesModel.reward!,
@@ -192,10 +182,6 @@ const Game = () => {
     event: React.MouseEvent<HTMLButtonElement>,
   ): Promise<boolean> => {
     if (!account) return false;
-
-    setPosition({ x: event.clientX, y: event.clientY });
-    setLevel(MAX_SLOTS - remaining + 1);
-    playPositive();
     setIsLoading(true);
 
     try {
@@ -218,50 +204,22 @@ const Game = () => {
           calldata: [gameId, slot.toString()],
         },
       ]);
-
       showTxn(transaction_hash, chain?.name);
-      setTargetSlot(slot);
+
+      playPositive();
+      setPosition({ x: event.clientX, y: event.clientY });
+      setLevel(MAX_SLOTS - remaining + 1);
+
+      const newSlots = [...slots];
+      newSlots[slot] = nextNumber!;
+      setSlots(newSlots);
 
       return true;
-
-      // try {
-      //   const receipt = await account.waitForTransaction(transaction_hash, {
-      //     retryInterval: 500,
-      //   });
-      //   if (receipt.isSuccess()) {
-      //     const insertedEvent = receipt.events.find(
-      //       ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
-      //     );
-
-      //     const index = parseInt(insertedEvent?.data[4]!);
-      //     const inserted = parseInt(insertedEvent?.data[5]!);
-      //     const next = parseInt(insertedEvent?.data[6]!);
-      //     const reward = parseInt(insertedEvent?.data[8]!);
-
-      //     const newSlots = [...slots];
-      //     newSlots[index] = inserted;
-
-      //     updateGameState(newSlots, next, remaining - 1, reward);
-      //     setIsLoading(false);
-      //     return true;
-      //   }
-      //   throw new Error("transaction error: " + receipt);
-      // } catch (e) {
-      //   showError(transaction_hash);
-      //   throw new Error("transaction error");
-      // }
     } catch (e) {
       console.log({ e });
       setIsLoading(false);
       return false;
     }
-  };
-
-  const resetGame = () => {
-    onClose();
-    setSlots([]);
-    setIsOver(false);
-    executeQuery();
   };
 
   return (
@@ -305,8 +263,7 @@ const Game = () => {
               <Play
                 isAgain
                 onReady={(gameId) => {
-                  navigate(`/${gameId}`);
-                  resetGame();
+                  window.location.href = `/${gameId}`;
                 }}
               />
             </Stack>

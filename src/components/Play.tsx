@@ -2,7 +2,7 @@ import { Button, Spinner } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { CallData, hash, num } from "starknet";
+import { hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
@@ -33,14 +33,14 @@ const Play = ({
       setCreating(true);
       playReplay();
       const { transaction_hash } = await account.execute([
-        {
-          contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: "request_random",
-          calldata: CallData.compile({
-            caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address },
-          }),
-        },
+        // {
+        //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,
+        //   entrypoint: "request_random",
+        //   calldata: CallData.compile({
+        //     caller: import.meta.env.VITE_GAME_CONTRACT,
+        //     source: { type: 0, address: account.address },
+        //   }),
+        // },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
           entrypoint: "create_game",

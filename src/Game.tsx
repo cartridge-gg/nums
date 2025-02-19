@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "urql";
-import { useEffect, useState } from "react";
+import { useQuery, useSubscription } from "urql";
+import { useEffect, useMemo, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import {
   Box,
@@ -58,11 +58,26 @@ const GameQuery = graphql(`
   }
 `);
 
+const GameSubscription = graphql(`
+  subscription GameSubscription($entityId: felt252) {
+    entityUpdated(id: $entityId) {
+      models {
+        ... on nums_Game {
+          next_number
+          remaining_slots
+          reward
+        }
+      }
+    }
+  }
+`);
+
 const Game = () => {
   const [slots, setSlots] = useState<number[]>(
     Array.from({ length: MAX_SLOTS }, () => 0),
   );
   const [nextNumber, setNextNumber] = useState<number | null>();
+  const [targetSlot, setTargetSlot] = useState<number | null>();
   const [isOver, setIsOver] = useState<boolean>(false);
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -83,10 +98,48 @@ const Game = () => {
     return <></>;
   }
 
+  const entityId = useMemo(() => {
+    if (!account) return;
+
+    return hash.computePoseidonHashOnElements([
+      num.toHex(parseInt(gameId)),
+      num.toHex(account.address),
+    ]);
+  }, [account, gameId]);
+
   const [queryResult, executeQuery] = useQuery({
     query: GameQuery,
     variables: { gameId: parseInt(gameId) },
   });
+
+  const [subscriptionResult] = useSubscription({
+    query: GameSubscription,
+    pause: !entityId,
+    variables: { entityId },
+  });
+
+  useEffect(() => {
+    const entityUpdated = subscriptionResult.data?.entityUpdated;
+    if (entityUpdated) {
+      // @ts-ignore
+      const next = entityUpdated.models![0]!.next_number as number;
+      // @ts-ignore
+      const reward = entityUpdated.models![0]!.reward as number;
+      // @ts-ignore
+      const remaining = entityUpdated.models![0]!.remaining_slots as number;
+
+      const newSlots = [...slots];
+      newSlots[targetSlot!] = nextNumber!;
+      setSlots(newSlots);
+
+      const isGameFinished = isGameOver(slots, next);
+      setIsOver(isGameFinished);
+      setNextNumber(next);
+      setRemaining(remaining);
+      setReward(reward);
+      setTimeout(() => setIsLoading(false), 500);
+    }
+  }, [subscriptionResult, targetSlot]);
 
   const updateGameState = (
     slots: number[],
@@ -140,17 +193,12 @@ const Game = () => {
   ): Promise<boolean> => {
     if (!account) return false;
 
-    if (!isMoveLegal(slots, nextNumber!, slot)) {
-      playNegative();
-      return false;
-    }
-
     setPosition({ x: event.clientX, y: event.clientY });
     setLevel(MAX_SLOTS - remaining + 1);
     playPositive();
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
+    try {
       if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
         requestAppchain();
       }
@@ -172,33 +220,36 @@ const Game = () => {
       ]);
 
       showTxn(transaction_hash, chain?.name);
+      setTargetSlot(slot);
 
-      try {
-        const receipt = await account.waitForTransaction(transaction_hash, {
-          retryInterval: 500,
-        });
-        if (receipt.isSuccess()) {
-          const insertedEvent = receipt.events.find(
-            ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
-          );
+      return true;
 
-          const index = parseInt(insertedEvent?.data[4]!);
-          const inserted = parseInt(insertedEvent?.data[5]!);
-          const next = parseInt(insertedEvent?.data[6]!);
-          const reward = parseInt(insertedEvent?.data[8]!);
+      // try {
+      //   const receipt = await account.waitForTransaction(transaction_hash, {
+      //     retryInterval: 500,
+      //   });
+      //   if (receipt.isSuccess()) {
+      //     const insertedEvent = receipt.events.find(
+      //       ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
+      //     );
 
-          const newSlots = [...slots];
-          newSlots[index] = inserted;
+      //     const index = parseInt(insertedEvent?.data[4]!);
+      //     const inserted = parseInt(insertedEvent?.data[5]!);
+      //     const next = parseInt(insertedEvent?.data[6]!);
+      //     const reward = parseInt(insertedEvent?.data[8]!);
 
-          updateGameState(newSlots, next, remaining - 1, reward);
-          setIsLoading(false);
-          return true;
-        }
-        throw new Error("transaction error: " + receipt);
-      } catch (e) {
-        showError(transaction_hash);
-        throw new Error("transaction error");
-      }
+      //     const newSlots = [...slots];
+      //     newSlots[index] = inserted;
+
+      //     updateGameState(newSlots, next, remaining - 1, reward);
+      //     setIsLoading(false);
+      //     return true;
+      //   }
+      //   throw new Error("transaction error: " + receipt);
+      // } catch (e) {
+      //   showError(transaction_hash);
+      //   throw new Error("transaction error");
+      // }
     } catch (e) {
       console.log({ e });
       setIsLoading(false);

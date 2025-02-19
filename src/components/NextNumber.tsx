@@ -16,23 +16,16 @@ const SpinningDigit = ({
   delay: number;
   isLoading: boolean;
 }) => {
-  const [displayDigit, setDisplayDigit] = useState(0);
+  const [displayDigit, setDisplayDigit] = useState(digit);
   const [isSpinning, setIsSpinning] = useState(false);
 
   useEffect(() => {
-    if (isLoading) {
-      setIsSpinning(true);
-      const spinInterval = setInterval(() => {
-        setDisplayDigit((prev) => (prev + 1) % 10);
-      }, 100);
+    setIsSpinning(true);
+    const spinInterval = setInterval(() => {
+      setDisplayDigit((prev) => (prev + 1) % 10);
+    }, 100);
 
-      return () => clearInterval(spinInterval);
-    } else {
-      setIsSpinning(true);
-      const spinInterval = setInterval(() => {
-        setDisplayDigit((prev) => (prev + 1) % 10);
-      }, 100);
-
+    if (!isLoading) {
       const stopTimeout = setTimeout(() => {
         clearInterval(spinInterval);
         setIsSpinning(false);
@@ -44,6 +37,8 @@ const SpinningDigit = ({
         clearTimeout(stopTimeout);
       };
     }
+
+    return () => clearInterval(spinInterval);
   }, [digit, delay, isLoading]);
 
   const spinningNumbers = Array.from(

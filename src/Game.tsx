@@ -83,6 +83,7 @@ const Game = () => {
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [player, setPlayer] = useState<string | null>(null);
   const [reward, setReward] = useState<number>(0);
   const [level, setLevel] = useState<number>(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -115,14 +116,11 @@ const Game = () => {
         .then((res) => {
           const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
           const slotsEdges = res.data?.numsSlotModels?.edges;
-          if (!gamesModel || !slotsEdges || !account) {
+          if (!gamesModel || !slotsEdges) {
             return;
           }
 
-          const isOwner =
-            (account && gamesModel.player === removeZeros(account.address)) ||
-            false;
-          setIsOwner(isOwner);
+          setPlayer(gamesModel.player);
 
           const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
           slotsEdges.forEach((edge: any) => {
@@ -141,11 +139,11 @@ const Game = () => {
     [account],
   );
 
+  useEffect(() => queryGame(parseInt(gameId)), []);
   useEffect(() => {
-    if (!account) return;
-
-    queryGame(parseInt(gameId));
-  }, [account]);
+    if (!account || !player) return;
+    setIsOwner(account && player === removeZeros(account.address));
+  }, [account, player]);
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,

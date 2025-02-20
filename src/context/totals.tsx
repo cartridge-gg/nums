@@ -43,7 +43,7 @@ export function TotalsProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    if (!totalsResult.fetching) {
+    if (!totalsResult.fetching && account) {
       const id = setTimeout(
         () => executeQuery({ requestPolicy: "network-only" }),
         5000,

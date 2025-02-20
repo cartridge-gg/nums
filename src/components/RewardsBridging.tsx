@@ -411,8 +411,8 @@ const Row = ({
         showArrow
         content={
           <VStack align="flex-start" p="10px">
-            <Text>Block Number: {blockNumber}</Text>
-            <Text>Currently Processing: {blockProcessing}</Text>
+            <Text>Your message is in block: {blockNumber}</Text>
+            <Text>Last block verified on Starknet: {blockProcessing}</Text>
           </VStack>
         }
         openDelay={500}

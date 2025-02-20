@@ -1,9 +1,5 @@
 import {
   HStack,
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
   Spacer,
   Text,
 } from "@chakra-ui/react";
@@ -13,14 +9,10 @@ import {
   useAccount,
   useConnect,
   useDisconnect,
-  useNetwork,
-  useSwitchChain,
 } from "@starknet-react/core";
-import { capitalize } from "../utils";
-import { constants, num } from "starknet";
 import { LogoIcon } from "./icons/Logo";
 import { HomeIcon } from "./icons/Home";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +23,6 @@ import { SoundOnIcon } from "./icons/SoundOn";
 
 const Header = ({
   showHome,
-  hideChain,
 }: {
   showHome?: boolean;
   hideChain?: boolean;
@@ -39,24 +30,12 @@ const Header = ({
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
-  const { chain, chains } = useNetwork();
-  const { account, address, connector } = useAccount();
+  const { address, connector } = useAccount();
   const { isMuted, toggleMute } = useAudio();
   const [username, setUsername] = useState<string | null>(null);
-  const { switchChain } = useSwitchChain({
-    params: {
-      chainId: constants.StarknetChainId.SN_SEPOLIA,
-    },
-  });
+
   const controllerConnector = connector as never as ControllerConnector;
 
-  const openProfile = useCallback(() => {
-    if (!(connector as ControllerConnector)?.controller) {
-      console.error("Connector not initialized");
-      return;
-    }
-    (connector as ControllerConnector)?.controller.openProfile("achievements");
-  }, [connector]);
 
   useEffect(() => {
     if (controllerConnector) {
@@ -111,26 +90,7 @@ const Header = ({
         >
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
-        {account && !hideChain && (
-          <MenuRoot>
-            <MenuTrigger asChild>
-              <Button>{capitalize(chain.network)}</Button>
-            </MenuTrigger>
-
-            <MenuContent>
-              {chains.map((c) => (
-                <MenuItem
-                  value={c.network}
-                  onClick={() => {
-                    switchChain({ chainId: num.toHex(c.id) });
-                  }}
-                >
-                  {capitalize(c.network)}
-                </MenuItem>
-              ))}
-            </MenuContent>
-          </MenuRoot>
-        )}
+        
         {address ? (
           <>
             <Balance />
@@ -138,7 +98,9 @@ const Header = ({
               visual="transparent"
               h={height}
               w={width}
-              onClick={openProfile}
+              onClick={async () => {
+                (connector as ControllerConnector)?.controller.openProfile("achievements");
+              }}
             >
               {address && <ControllerIcon />}
               <Text display={["none", "none", "block"]}>{username}</Text>

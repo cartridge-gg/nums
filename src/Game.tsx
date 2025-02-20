@@ -26,6 +26,7 @@ import { hash, num } from "starknet";
 import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { AppchainClient } from "./graphql/clients";
+import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 
@@ -110,6 +111,12 @@ const Game = () => {
     return entityId;
   }, [address, gameId]);
 
+  const [subscriptionResult] = useSubscription({
+    query: GameSubscription,
+    variables: { entityId },
+    pause: !entityId,
+  });
+
   const queryGame = useCallback((gameId: number) => {
     AppchainClient.query(GameQuery, { gameId })
       .toPromise()
@@ -142,18 +149,14 @@ const Game = () => {
     if (!address || !player) return;
     const owner = address && player === removeZeros(address);
     setIsOwner(owner);
-
-    if (owner) {
-      const isGameFinished = isGameOver(slots, nextNumber!);
-      setIsOver(isGameFinished);
-    }
   }, [address, player]);
-
-  const [subscriptionResult] = useSubscription({
-    query: GameSubscription,
-    variables: { entityId },
-    pause: !entityId,
-  });
+  useInterval(() => {
+    if (!isOver && isOwner && isGameOver(slots, nextNumber!)) {
+      playNegative();
+      setIsOver(true);
+      setTimeout(()=> onOpen(), 3000);
+    }
+  }, 1000);
 
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
@@ -178,14 +181,7 @@ const Game = () => {
     if (remainingSlots !== undefined) {
       setRemaining(remainingSlots);
     }
-
-    const isGameFinished = isGameOver(slots, nextNum);
-    setIsOver(isGameFinished);
     setReward(reward);
-
-    if (isOwner && isGameFinished) {
-      playNegative();
-    }
 
     setTimeout(() => setIsLoading(false), 500);
   };
@@ -302,11 +298,6 @@ const Game = () => {
             lineHeight="100px"
             color={isOver ? "red" : "inherit"}
             transition="color 3s"
-            onTransitionEnd={() => {
-              if (isOver && isOwner) {
-                onOpen();
-              }
-            }}
           >
             <NextNumber number={nextNumber!} isLoading={isLoading} />
           </Box>

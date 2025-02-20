@@ -196,6 +196,8 @@ const Game = () => {
   ): Promise<boolean> => {
     if (!address) return false;
     setIsLoading(true);
+    playPositive();
+    setPosition({ x: event.clientX, y: event.clientY });
 
     try {
       await requestAppchain(true);
@@ -216,9 +218,6 @@ const Game = () => {
         },
       ]);
       showTxn(transaction_hash, chain?.name);
-
-      playPositive();
-      setPosition({ x: event.clientX, y: event.clientY });
       setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];

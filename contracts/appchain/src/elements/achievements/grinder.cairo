@@ -31,8 +31,8 @@ pub impl Grinder of AchievementTrait {
             0 => 30,
             1 => 40,
             2 => 50,
-            3 => 60,
-            4 => 70,
+            3 => 100,
+            4 => 200,
             _ => 0,
         }
     }

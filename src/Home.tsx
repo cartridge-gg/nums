@@ -151,11 +151,17 @@ const Home = () => {
     <ComingSoon />
   ) : (
     <>
-      <Container h="100vh" maxW="100vw">
+      <Container
+        minH="100vh"
+        maxW="100vw"
+        alignContent={["flex-start", "flex-start", "center"]}
+        p="15px"
+        pt={["100px", "100px", "0px"]}
+      >
         <Header hideChain />
         <InfoOverlay open={openInfo} onClose={onCloseInfo} />
-        <VStack h="100%" justify="center" pt="40px">
-          <VStack gap="20px" w={["100%", "100%", "800px"]} align="flex-start">
+        <VStack>
+          <VStack gap="20px" w={["100%", "100%", "800px"]}>
             <HStack w="full" justify="space-between">
               <MenuRoot>
                 <MenuTrigger asChild>
@@ -228,7 +234,7 @@ const Home = () => {
               </Text>
               <Stack
                 w="full"
-                gap={["0", "0", "50px"]}
+                gap={["25px", "25px", "50px"]}
                 justify="space-between"
                 direction={["column", "column", "row"]}
               >

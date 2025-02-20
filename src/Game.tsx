@@ -92,6 +92,7 @@ const Game = () => {
   const { open, onOpen, onClose } = useDisclosure();
   const { account, address } = useAccount();
   const { gameId } = useParams();
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
@@ -118,7 +119,11 @@ const Game = () => {
   });
 
   const queryGame = useCallback((gameId: number) => {
-    AppchainClient.query(GameQuery, { gameId })
+    AppchainClient.query(
+      GameQuery,
+      { gameId },
+      { requestPolicy: "network-only" },
+    )
       .toPromise()
       .then((res) => {
         const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
@@ -154,13 +159,18 @@ const Game = () => {
     if (!isOver && isOwner && isGameOver(slots, nextNumber!)) {
       playNegative();
       setIsOver(true);
-      setTimeout(()=> onOpen(), 3000);
+      setTimeout(() => onOpen(), 3000);
     }
   }, 1000);
 
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
     if (entityUpdated) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
       // @ts-ignore
       const next = entityUpdated.models![0]!.next_number as number;
       // @ts-ignore
@@ -219,6 +229,12 @@ const Game = () => {
       const newSlots = [...slots];
       newSlots[slot] = nextNumber!;
       setSlots(newSlots);
+
+      // Set timeout to query game if subscription doesn't respond
+      const timeout = setTimeout(() => {
+        queryGame(parseInt(gameId));
+      }, 2000);
+      setTimeoutId(timeout);
 
       return true;
     } catch (e) {

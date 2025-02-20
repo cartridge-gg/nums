@@ -27,7 +27,6 @@ pub mod claim_actions {
 
     use starknet::{ContractAddress, SyscallResultTrait};
     use starknet::syscalls::send_message_to_l1_syscall;
-    const MSG_TO_L2_MAGIC: felt252 = 'MSG';
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -67,7 +66,6 @@ pub mod claim_actions {
 
             let claim_id = world.dispatcher.uuid();
             let block_info = starknet::get_block_info().unbox();
-            let consumer: felt252 = config.starknet_consumer.into();
             let claims = Claims {
                 player,
                 claim_id,
@@ -77,8 +75,8 @@ pub mod claim_actions {
                 block_number: block_info.block_number,
                 message_hash: compute_message_hash_appc_to_sn(
                     starknet::get_contract_address(),
-                    MSG_TO_L2_MAGIC.try_into().unwrap(),
-                    array![consumer, player.into(), claim_id.into(), claim_amount.into()].span(),
+                    config.starknet_consumer,
+                    array![player.into(), claim_id.into(), claim_amount.into()].span(),
                 ),
             };
 
@@ -89,9 +87,8 @@ pub mod claim_actions {
             world.emit_event(@RewardClaimed { claim_id, player, amount: claim_amount });
 
             send_message_to_l1_syscall(
-                MSG_TO_L2_MAGIC,
+                config.starknet_consumer.into(),
                 array![
-                    config.starknet_consumer.into(),
                     player.into(),
                     claim_id.into(),
                     claim_amount.into(),
@@ -171,9 +168,8 @@ pub mod claim_actions {
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
 
             send_message_to_l1_syscall(
-                MSG_TO_L2_MAGIC,
+                config.starknet_consumer.into(),
                 array![
-                    config.starknet_consumer.into(),
                     player.into(),
                     claim_id.into(),
                     jackpot_id.into(),

@@ -151,14 +151,10 @@ const Home = () => {
     <ComingSoon />
   ) : (
     <>
-      <Container maxW="100vw">
+      <Container h="100vh" maxW="100vw">
         <Header hideChain />
         <InfoOverlay open={openInfo} onClose={onCloseInfo} />
-        <VStack
-          h="100%"
-          justify={["flex-start", "flex-start", "center"]}
-          pt={["100px", "100px", "40px"]}
-        >
+        <VStack h="100%" justify="center" pt="40px">
           <VStack gap="20px" w={["100%", "100%", "800px"]} align="flex-start">
             <HStack w="full" justify="space-between">
               <MenuRoot>
@@ -226,21 +222,20 @@ const Home = () => {
                 ))}
               </VStack>
             </Box>
-          </VStack>
-          <Spacer display={["block", "block", "none"]} />
-          <VStack pb="20px" w={["100%", "100%", "800px"]} align="flex-start">
-            <Text color="purple.50" textStyle="faded">
-              Game ends in...
-            </Text>
-            <Stack
-              w="full"
-              gap={["25px", "25px", "50px"]}
-              justify="space-between"
-              direction={["column", "column", "row"]}
-            >
-              <Timer expiration={gameExpiration} />
-              <Play onReady={(gameId) => navigate(`/${gameId}`)} />
-            </Stack>
+            <VStack w="full" align="flex-start">
+              <Text color="purple.50" textStyle="faded">
+                Game ends in...
+              </Text>
+              <Stack
+                w="full"
+                gap={["0", "0", "50px"]}
+                justify="space-between"
+                direction={["column", "column", "row"]}
+              >
+                <Timer expiration={gameExpiration} />
+                <Play onReady={(gameId) => navigate(`/${gameId}`)} />
+              </Stack>
+            </VStack>
           </VStack>
         </VStack>
       </Container>

@@ -9,15 +9,15 @@ import {
 } from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount } from "@starknet-react/core";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { Button } from "./Button";
 import { AllowArray, Call, CallData } from "starknet";
 import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
 import { StarknetColoredIcon } from "./icons/StarknetColored";
-import { ClaimData, useClaims } from "@/hooks/claims";
 import { InfoIcon } from "./icons/Info";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useClaims, ClaimData } from "@/context/claims";
 
 const RewardsOverlay = ({
   open,
@@ -31,20 +31,14 @@ const RewardsOverlay = ({
   const { requestAppchain, requestStarknet } = useChain();
   const { showTxn } = useToast();
   const { address, account } = useAccount();
-
   const {
     claims,
-    blockProcessing,
     amountToBridge,
     amountBridging,
-    amountClaimed,
     amountToClaim,
-    setAutoRefresh,
+    amountClaimed,
+    blockProcessing,
   } = useClaims();
-
-  useEffect(() => {
-    setAutoRefresh(open);
-  }, [open, setAutoRefresh]);
 
   const claimAll = useCallback(async () => {
     if (!account || !Object.keys(claims).length) return;

@@ -18,6 +18,7 @@ import { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
 import { UrqlProvider } from "./context/urql";
+import { ClaimsProvider } from "./context/claims";
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
@@ -27,8 +28,6 @@ const provider = jsonRpcProvider({
         return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
       case appchain:
         return { nodeUrl: import.meta.env.VITE_APPCHAIN_RPC_URL };
-      // case mockStarknet:
-      //   return { nodeUrl: import.meta.env.VITE_MOCK_STARKNET_RPC_URL };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -132,22 +131,6 @@ const appchain: Chain = {
   },
 };
 
-// const mockStarknet: Chain = {
-//   id: num.toBigInt(STARKNET_CHAIN_ID),
-//   network: "Starknet",
-//   name: "Starknet Mainnet",
-//   nativeCurrency: {
-//     name: "Ethereum",
-//     symbol: "ETH",
-//     decimals: 18,
-//     address: import.meta.env.VITE_ETH_ADDRESS,
-//   },
-//   rpcUrls: {
-//     default: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
-//     public: import.meta.env.VITE_MOCK_STARKNET_RPC_URL,
-//   },
-// };
-console.log(sepolia.id);
 function App() {
   return (
     <StarknetConfig
@@ -160,12 +143,14 @@ function App() {
       <UrqlProvider>
         <AudioProvider>
           <TotalsProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/:gameId" element={<Game />} />
-              </Routes>
-            </Router>
+            <ClaimsProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/:gameId" element={<Game />} />
+                </Routes>
+              </Router>
+            </ClaimsProvider>
           </TotalsProvider>
         </AudioProvider>
       </UrqlProvider>

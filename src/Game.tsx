@@ -23,9 +23,10 @@ import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
 import { hash, num } from "starknet";
-import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
+import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { AppchainClient } from "./graphql/clients";
+import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 
@@ -83,13 +84,15 @@ const Game = () => {
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [player, setPlayer] = useState<string | null>(null);
   const [reward, setReward] = useState<number>(0);
   const [level, setLevel] = useState<number>(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { gameId } = useParams();
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
@@ -100,46 +103,14 @@ const Game = () => {
   }
 
   const entityId = useMemo(() => {
-    if (!account || !gameId) return;
-
-    return hash.computePoseidonHashOnElements([
+    if (!address || !gameId) return;
+    const entityId = hash.computePoseidonHashOnElements([
       num.toHex(parseInt(gameId)),
-      num.toHex(account.address),
+      num.toHex(address),
     ]);
-  }, [account, gameId]);
 
-  const queryGame = useCallback((gameId: number)=> {
-    AppchainClient.query(GameQuery, { gameId }).toPromise().then((res) => {
-      const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
-      const slotsEdges = res.data?.numsSlotModels?.edges;
-      if (!gamesModel || !slotsEdges || !account) {
-        return;
-      }
-
-      const isOwner =
-        (account && gamesModel.player === removeZeros(account.address)) || false;
-      setIsOwner(isOwner);
-
-      const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-      slotsEdges.forEach((edge: any) => {
-        newSlots[edge.node.index] = edge.node.number;
-      });
-      setSlots(newSlots);
-
-      updateGameState(
-        gamesModel.next_number!,
-        gamesModel.remaining_slots!,
-        gamesModel.reward!,
-      );
-      setIsLoading(false);
-    })
-  }, [account])
-
-  useEffect(() => {
-    if (!account) return;
-
-    queryGame(parseInt(gameId));
-  }, [account])
+    return entityId;
+  }, [address, gameId]);
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,
@@ -147,9 +118,59 @@ const Game = () => {
     pause: !entityId,
   });
 
+  const queryGame = useCallback((gameId: number) => {
+    AppchainClient.query(
+      GameQuery,
+      { gameId },
+      { requestPolicy: "network-only" },
+    )
+      .toPromise()
+      .then((res) => {
+        const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+        const slotsEdges = res.data?.numsSlotModels?.edges;
+        if (!gamesModel || !slotsEdges) {
+          return;
+        }
+
+        setPlayer(gamesModel.player);
+
+        const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+        slotsEdges.forEach((edge: any) => {
+          newSlots[edge.node.index] = edge.node.number;
+        });
+        setSlots(newSlots);
+
+        updateGameState(
+          gamesModel.next_number!,
+          gamesModel.remaining_slots!,
+          gamesModel.reward!,
+        );
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => queryGame(parseInt(gameId)), []);
+  useEffect(() => {
+    if (!address || !player) return;
+    const owner = address && player === removeZeros(address);
+    setIsOwner(owner);
+  }, [address, player]);
+  useInterval(() => {
+    if (!isOver && isOwner && isGameOver(slots, nextNumber!)) {
+      playNegative();
+      setIsOver(true);
+      setTimeout(() => onOpen(), 3000);
+    }
+  }, 1000);
+
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
     if (entityUpdated) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
       // @ts-ignore
       const next = entityUpdated.models![0]!.next_number as number;
       // @ts-ignore
@@ -170,14 +191,7 @@ const Game = () => {
     if (remainingSlots !== undefined) {
       setRemaining(remainingSlots);
     }
-
-    const isGameFinished = isGameOver(slots, nextNum);
-    setIsOver(isGameFinished);
     setReward(reward);
-
-    if (isOwner && isGameFinished) {
-      playNegative();
-    }
 
     setTimeout(() => setIsLoading(false), 500);
   };
@@ -186,15 +200,15 @@ const Game = () => {
     slot: number,
     event: React.MouseEvent<HTMLButtonElement>,
   ): Promise<boolean> => {
-    if (!account) return false;
+    if (!address) return false;
     setIsLoading(true);
+    playPositive();
+    setPosition({ x: event.clientX, y: event.clientY });
 
     try {
-      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        requestAppchain();
-      }
+      await requestAppchain(true);
 
-      const { transaction_hash } = await account.execute([
+      const { transaction_hash } = await account!.execute([
         // {
         //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,
         //   entrypoint: "request_random",
@@ -210,14 +224,17 @@ const Game = () => {
         },
       ]);
       showTxn(transaction_hash, chain?.name);
-
-      playPositive();
-      setPosition({ x: event.clientX, y: event.clientY });
       setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];
       newSlots[slot] = nextNumber!;
       setSlots(newSlots);
+
+      // Set timeout to query game if subscription doesn't respond
+      const timeout = setTimeout(() => {
+        queryGame(parseInt(gameId));
+      }, 2000);
+      setTimeoutId(timeout);
 
       return true;
     } catch (e) {
@@ -297,11 +314,6 @@ const Game = () => {
             lineHeight="100px"
             color={isOver ? "red" : "inherit"}
             transition="color 3s"
-            onTransitionEnd={() => {
-              if (isOver && isOwner) {
-                onOpen();
-              }
-            }}
           >
             <NextNumber number={nextNumber!} isLoading={isLoading} />
           </Box>

@@ -1,15 +1,25 @@
-import { Text, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+import {
+  Text,
+  useBreakpointValue,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import { Button } from "./Button";
 import { Toaster } from "./ui/toaster";
 import RewardsOverlay from "./RewardsBridging";
-import { useTotals } from "@/context/totals";
 import { GiftIcon } from "./icons/Gift";
+import { useClaims } from "@/context/claims";
+import { Tooltip, TooltipRow } from "./ui/tooltip";
 
 const Balance = () => {
-  const { rewardsEarned, rewardsClaimed } = useTotals();
+  const {
+    amountToClaim,
+    amountToBridge,
+    amountEarned,
+    amountClaimed,
+    amountBridging,
+  } = useClaims();
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  const claimable = rewardsEarned - rewardsClaimed;
 
   const {
     open: openRewards,
@@ -21,24 +31,50 @@ const Balance = () => {
     <>
       <Toaster />
       <RewardsOverlay open={openRewards} onClose={onCloseRewards} />
-      <Button
-        position="relative"
-        visual="transparent"
-        display={rewardsEarned === 0 ? "none" : "flex"}
-        h="48px"
-        w={["48px", "48px", "auto"]}
-        bgColor={claimable > 0 ? "green.50" : ""}
-        _hover={{
-          bgColor: claimable > 0 ? "green.100" : "",
-        }}
-        onClick={() => onOpenRewards()}
+      <Tooltip
+        showArrow
+        content={
+          <>
+            <VStack p="10px" align="flex-start">
+              <TooltipRow
+                label="Ready to Claim"
+                value={amountToClaim}
+                unit="NUMS"
+              />
+              <TooltipRow
+                label="Ready to Bridge"
+                value={amountToBridge}
+                unit="NUMS"
+              />
+              <TooltipRow label="Bridging" value={amountBridging} unit="NUMS" />
+              <TooltipRow
+                label="Starknet Balance"
+                value={amountClaimed}
+                unit="NUMS"
+              />
+            </VStack>
+          </>
+        }
       >
-        {isMobile ? (
-          <GiftIcon />
-        ) : (
-          <Text>{rewardsEarned.toLocaleString()} NUMS</Text>
-        )}
-      </Button>
+        <Button
+          position="relative"
+          visual="transparent"
+          display={amountEarned === 0 ? "none" : "flex"}
+          h="48px"
+          w={["48px", "48px", "auto"]}
+          bgColor={amountToClaim > 0 ? "green.50" : ""}
+          _hover={{
+            bgColor: amountToClaim > 0 ? "green.100" : "",
+          }}
+          onClick={() => onOpenRewards()}
+        >
+          {isMobile ? (
+            <GiftIcon />
+          ) : (
+            <Text>{amountEarned.toLocaleString()} NUMS</Text>
+          )}
+        </Button>
+      </Tooltip>
     </>
   );
 };

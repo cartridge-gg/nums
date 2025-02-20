@@ -1,7 +1,14 @@
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useAccount } from "@starknet-react/core";
 import { AppchainClient, StarknetClient } from "@/graphql/clients";
 import { graphql } from "@/graphql/appchain";
-import { useCallback, useState } from "react";
-import { useAccount } from "@starknet-react/core";
 import { useTotals } from "@/context/totals";
 import { CallData, Provider } from "starknet";
 import { useInterval } from "usehooks-ts";
@@ -27,6 +34,8 @@ const ClaimsQuery = graphql(`
   }
 `);
 
+export type Status = "Bridging" | "Ready to Claim" | "Claimed";
+
 export type ClaimData = {
   claimId: number;
   messageHash: string;
@@ -37,47 +46,56 @@ export type ClaimData = {
   status: Status;
 };
 
-export type Status = "Bridging" | "Ready to Claim" | "Claimed";
 export type MessageHash = string;
 export type Claims = Record<MessageHash, ClaimData>;
 
-export const useClaims = () => {
+export interface ClaimsContextType {
+  claims: Claims;
+  amountEarned: number;
+  amountClaimed: number;
+  amountBridging: number;
+  amountToClaim: number;
+  amountToBridge: number;
+  blockProcessing: number;
+  isRefreshing: boolean;
+  setAutoRefresh: (enabled: boolean) => void;
+}
+
+const ClaimsContext = createContext<ClaimsContextType | undefined>(undefined);
+
+export function ClaimsProvider({ children }: { children: ReactNode }) {
   const { address } = useAccount();
-  const [claims, setClaims] = useState<Claims>({});
-  const [bridging, setBridging] = useState(0);
-  const [readyToClaim, setReadyToClaim] = useState(0);
-  const [claimed, setClaimed] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [blockProcessing, setBlockProcessing] = useState(0);
   const {
     rewardsEarned: rewardsEarnedAppchain,
     rewardsClaimed: rewardsClaimedAppchain,
   } = useTotals();
+
+  // Local state for claims
+  const [claims, setClaims] = useState<Claims>({});
+  const [bridging, setBridging] = useState(0);
+  const [readyToClaim, setReadyToClaim] = useState(0);
+  const [claimed, setClaimed] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(true);
+  const [blockProcessing, setBlockProcessing] = useState(0);
+
   const readyToBridge = rewardsEarnedAppchain - rewardsClaimedAppchain;
 
   const provider = new Provider({
     nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
   });
 
-  useInterval(
-    () => {
-      updateClaims();
-    },
-    isRefreshing ? 5000 : null,
-  );
-
   const updateClaims = useCallback(async () => {
     if (!address) return;
 
     try {
-      // Fetch claims data
+      // Fetch claims data from both Starknet and Appchain
       const { starknetClaims, appchainClaims } = await fetchClaimsData(address);
 
-      // Format claims
+      // Format claims with initial statuses
       const starknetClaimsMap = formatClaims(starknetClaims, "Claimed");
       const appchainClaimsMap = formatClaims(appchainClaims, "Bridging");
 
-      // Merge claims and mark claimed ones
+      // Merge Appchain claims with Starknet ones; if a claim exists on Starknet, mark it as Claimed.
       const initialMergedClaims: Claims = Object.fromEntries(
         Object.entries(appchainClaimsMap).map(([id, claim]) => [
           id,
@@ -87,7 +105,7 @@ export const useClaims = () => {
         ]),
       );
 
-      // Process message statuses in parallel
+      // Process claim statuses in parallel to update any Bridging claims
       const [processedClaims, readyToClaimAmount] = await processClaimsStatuses(
         initialMergedClaims,
         provider,
@@ -97,24 +115,28 @@ export const useClaims = () => {
       const { bridgingAmount, claimedAmount } = calculateTotals(
         starknetClaims,
         rewardsClaimedAppchain,
+        readyToClaimAmount,
       );
 
-      // Get processing block
+      // Query the consumer contract to get the current processing block
       const res = await provider.callContract({
         contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
         entrypoint: "get_state",
       });
-
       setBlockProcessing(parseInt(res[1]));
-      // Update state
+
+      // Update state values
       setClaims(processedClaims);
-      setBridging(bridgingAmount);
+      setBridging(bridgingAmount < 0 ? 0 : bridgingAmount);
       setReadyToClaim(readyToClaimAmount);
       setClaimed(claimedAmount);
     } catch (error) {
       console.error("Error updating claims:", error);
     }
-  }, [address, rewardsEarnedAppchain, rewardsClaimedAppchain]);
+  }, [address, provider, rewardsClaimedAppchain]);
+
+  // Refresh the claims periodically if auto-refresh is enabled.
+  useInterval(() => updateClaims(), isRefreshing && address ? 5000 : null);
 
   const setAutoRefresh = useCallback(
     (enabled: boolean) => {
@@ -126,21 +148,48 @@ export const useClaims = () => {
     [updateClaims],
   );
 
-  return {
-    claims,
-    amountClaimed: claimed,
-    amountBridging: bridging,
-    amountToClaim: readyToClaim,
-    amountToBridge: readyToBridge,
-    blockProcessing,
-    setAutoRefresh,
-    isRefreshing,
-  };
-};
+  // Optionally, update claims immediately when the address changes.
+  useEffect(() => {
+    if (address) {
+      updateClaims();
+    }
+  }, [address]);
+
+  return (
+    <ClaimsContext.Provider
+      value={{
+        claims,
+        amountEarned: rewardsEarnedAppchain,
+        amountClaimed: claimed,
+        amountBridging: bridging,
+        amountToClaim: readyToClaim,
+        amountToBridge: readyToBridge,
+        blockProcessing,
+        isRefreshing,
+        setAutoRefresh,
+      }}
+    >
+      {children}
+    </ClaimsContext.Provider>
+  );
+}
+
+export function useClaims() {
+  const context = useContext(ClaimsContext);
+  if (context === undefined) {
+    throw new Error("useClaims must be used within a ClaimsProvider");
+  }
+  return context;
+}
+
+// ----------------------------------------------------------------------------
+// Helper Functions
+// ----------------------------------------------------------------------------
 
 const calculateTotals = (
   starknetClaimsModels: any[],
   rewardsClaimedAppchain: number,
+  readyToClaimAmount: number,
 ) => {
   const rewardsClaimedStarknet = starknetClaimsModels.reduce(
     (acc, claim) => acc + parseInt(claim!.node!.ty!.TOKEN!.amount!),
@@ -148,7 +197,8 @@ const calculateTotals = (
   );
 
   return {
-    bridgingAmount: rewardsClaimedAppchain - rewardsClaimedStarknet,
+    bridgingAmount:
+      rewardsClaimedAppchain - rewardsClaimedStarknet - readyToClaimAmount,
     claimedAmount: rewardsClaimedStarknet,
   };
 };
@@ -168,8 +218,8 @@ const fetchClaimsData = async (address: string) => {
   ]);
 
   return {
-    starknetClaims: starknetResponse.data?.numsClaimsModels?.edges!,
-    appchainClaims: appchainResponse.data?.numsClaimsModels?.edges!,
+    starknetClaims: starknetResponse.data?.numsClaimsModels?.edges || [],
+    appchainClaims: appchainResponse.data?.numsClaimsModels?.edges || [],
   };
 };
 
@@ -185,7 +235,7 @@ const checkMessageStatus = async (
     });
     return status.length > 1 ? "Ready to Claim" : "Bridging";
   } catch (error) {
-    console.error(`Error checking message status:`, error);
+    console.error("Error checking message status:", error);
     return "Bridging";
   }
 };

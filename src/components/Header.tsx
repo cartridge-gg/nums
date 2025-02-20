@@ -1,15 +1,7 @@
-import {
-  HStack,
-  Spacer,
-  Text,
-} from "@chakra-ui/react";
+import { HStack, Spacer, Text } from "@chakra-ui/react";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-} from "@starknet-react/core";
+import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { LogoIcon } from "./icons/Logo";
 import { HomeIcon } from "./icons/Home";
 import { useEffect, useState } from "react";
@@ -21,12 +13,7 @@ import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
 
-const Header = ({
-  showHome,
-}: {
-  showHome?: boolean;
-  hideChain?: boolean;
-}) => {
+const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
@@ -35,7 +22,6 @@ const Header = ({
   const [username, setUsername] = useState<string | null>(null);
 
   const controllerConnector = connector as never as ControllerConnector;
-
 
   useEffect(() => {
     if (controllerConnector) {
@@ -90,7 +76,7 @@ const Header = ({
         >
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
-        
+
         {address ? (
           <>
             <Balance />
@@ -99,7 +85,9 @@ const Header = ({
               h={height}
               w={width}
               onClick={async () => {
-                (connector as ControllerConnector)?.controller.openProfile("achievements");
+                (connector as ControllerConnector)?.controller.openProfile(
+                  "achievements",
+                );
               }}
             >
               {address && <ControllerIcon />}

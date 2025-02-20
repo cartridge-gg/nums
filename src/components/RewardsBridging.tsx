@@ -9,15 +9,15 @@ import {
 } from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount } from "@starknet-react/core";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { Button } from "./Button";
 import { AllowArray, Call, CallData } from "starknet";
 import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
 import { StarknetColoredIcon } from "./icons/StarknetColored";
-import { ClaimData, useClaims } from "@/hooks/claims";
 import { InfoIcon } from "./icons/Info";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipRow } from "@/components/ui/tooltip";
+import { useClaims, ClaimData } from "@/context/claims";
 
 const RewardsOverlay = ({
   open,
@@ -31,20 +31,14 @@ const RewardsOverlay = ({
   const { requestAppchain, requestStarknet } = useChain();
   const { showTxn } = useToast();
   const { address, account } = useAccount();
-
   const {
     claims,
-    blockProcessing,
     amountToBridge,
     amountBridging,
-    amountClaimed,
     amountToClaim,
-    setAutoRefresh,
+    amountClaimed,
+    blockProcessing,
   } = useClaims();
-
-  useEffect(() => {
-    setAutoRefresh(open);
-  }, [open, setAutoRefresh]);
 
   const claimAll = useCallback(async () => {
     if (!account || !Object.keys(claims).length) return;
@@ -410,10 +404,27 @@ const Row = ({
       <Tooltip
         showArrow
         content={
-          <VStack align="flex-start" p="10px">
-            <Text>Your message is in block: {blockNumber}</Text>
-            <Text>Last block verified on Starknet: {blockProcessing}</Text>
-          </VStack>
+          <>
+            {blockNumber > blockProcessing ? (
+              <>
+                <TooltipRow
+                  label="Your claim is in block"
+                  value={blockNumber}
+                />
+                <TooltipRow
+                  label="Last block verified on Starknet"
+                  value={blockProcessing}
+                />
+              </>
+            ) : (
+              <>
+                <TooltipRow
+                  label="Your claim was verified on block"
+                  value={blockNumber}
+                />
+              </>
+            )}
+          </>
         }
         openDelay={500}
         closeDelay={100}

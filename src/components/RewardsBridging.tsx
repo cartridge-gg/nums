@@ -16,7 +16,7 @@ import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
 import { StarknetColoredIcon } from "./icons/StarknetColored";
 import { InfoIcon } from "./icons/Info";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipRow } from "@/components/ui/tooltip";
 import { useClaims, ClaimData } from "@/context/claims";
 
 const RewardsOverlay = ({
@@ -406,14 +406,23 @@ const Row = ({
         content={
           <>
             {blockNumber > blockProcessing ? (
-              <VStack align="flex-start" p="10px">
-                <Text>Your claim is in block: {blockNumber}</Text>
-                <Text>Last block verified on Starknet: {blockProcessing}</Text>
-              </VStack>
+              <>
+                <TooltipRow
+                  label="Your claim is in block"
+                  value={blockNumber}
+                />
+                <TooltipRow
+                  label="Last block verified on Starknet"
+                  value={blockProcessing}
+                />
+              </>
             ) : (
-              <VStack align="flex-start" p="10px">
-                <Text>Your claim was verified on block: {blockNumber}</Text>
-              </VStack>
+              <>
+                <TooltipRow
+                  label="Your claim was verified on block"
+                  value={blockNumber}
+                />
+              </>
             )}
           </>
         }

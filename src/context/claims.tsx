@@ -127,7 +127,7 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
 
       // Update state values
       setClaims(processedClaims);
-      setBridging(bridgingAmount);
+      setBridging(bridgingAmount < 0 ? 0 : bridgingAmount);
       setReadyToClaim(readyToClaimAmount);
       setClaimed(claimedAmount);
     } catch (error) {

@@ -1,6 +1,4 @@
 import {
-  HStack,
-  Spacer,
   Text,
   useBreakpointValue,
   useDisclosure,
@@ -11,17 +9,7 @@ import { Toaster } from "./ui/toaster";
 import RewardsOverlay from "./RewardsBridging";
 import { GiftIcon } from "./icons/Gift";
 import { useClaims } from "@/context/claims";
-import { Tooltip } from "./ui/tooltip";
-
-const TooltipRow = ({ label, value }: { label: string; value: number }) => {
-  return (
-    <HStack justify="space-between" w="full">
-      <Text>{label}:</Text>
-      <Spacer minW="10px" />
-      <Text>{value.toLocaleString()} NUMS</Text>
-    </HStack>
-  );
-};
+import { Tooltip, TooltipRow } from "./ui/tooltip";
 
 const Balance = () => {
   const {
@@ -48,10 +36,22 @@ const Balance = () => {
         content={
           <>
             <VStack p="10px" align="flex-start">
-              <TooltipRow label="Ready to Claim" value={amountToClaim} />
-              <TooltipRow label="Ready to Bridge" value={amountToBridge} />
-              <TooltipRow label="Bridging" value={amountBridging} />
-              <TooltipRow label="Starknet Balance" value={amountClaimed} />
+              <TooltipRow
+                label="Ready to Claim"
+                value={amountToClaim}
+                unit="NUMS"
+              />
+              <TooltipRow
+                label="Ready to Bridge"
+                value={amountToBridge}
+                unit="NUMS"
+              />
+              <TooltipRow label="Bridging" value={amountBridging} unit="NUMS" />
+              <TooltipRow
+                label="Starknet Balance"
+                value={amountClaimed}
+                unit="NUMS"
+              />
             </VStack>
           </>
         }

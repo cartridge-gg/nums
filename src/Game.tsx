@@ -23,7 +23,7 @@ import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
 import { hash, num } from "starknet";
-import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
+import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { AppchainClient } from "./graphql/clients";
 
@@ -89,7 +89,7 @@ const Game = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { gameId } = useParams();
   const navigate = useNavigate();
   const { requestAppchain } = useChain();
@@ -101,49 +101,53 @@ const Game = () => {
   }
 
   const entityId = useMemo(() => {
-    if (!account || !gameId) return;
-
-    return hash.computePoseidonHashOnElements([
+    if (!address || !gameId) return;
+    const entityId = hash.computePoseidonHashOnElements([
       num.toHex(parseInt(gameId)),
-      num.toHex(account.address),
+      num.toHex(address),
     ]);
-  }, [account, gameId]);
 
-  const queryGame = useCallback(
-    (gameId: number) => {
-      AppchainClient.query(GameQuery, { gameId })
-        .toPromise()
-        .then((res) => {
-          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
-          const slotsEdges = res.data?.numsSlotModels?.edges;
-          if (!gamesModel || !slotsEdges) {
-            return;
-          }
+    return entityId;
+  }, [address, gameId]);
 
-          setPlayer(gamesModel.player);
+  const queryGame = useCallback((gameId: number) => {
+    AppchainClient.query(GameQuery, { gameId })
+      .toPromise()
+      .then((res) => {
+        const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+        const slotsEdges = res.data?.numsSlotModels?.edges;
+        if (!gamesModel || !slotsEdges) {
+          return;
+        }
 
-          const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-          slotsEdges.forEach((edge: any) => {
-            newSlots[edge.node.index] = edge.node.number;
-          });
-          setSlots(newSlots);
+        setPlayer(gamesModel.player);
 
-          updateGameState(
-            gamesModel.next_number!,
-            gamesModel.remaining_slots!,
-            gamesModel.reward!,
-          );
-          setIsLoading(false);
+        const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+        slotsEdges.forEach((edge: any) => {
+          newSlots[edge.node.index] = edge.node.number;
         });
-    },
-    [account],
-  );
+        setSlots(newSlots);
+
+        updateGameState(
+          gamesModel.next_number!,
+          gamesModel.remaining_slots!,
+          gamesModel.reward!,
+        );
+        setIsLoading(false);
+      });
+  }, []);
 
   useEffect(() => queryGame(parseInt(gameId)), []);
   useEffect(() => {
-    if (!account || !player) return;
-    setIsOwner(account && player === removeZeros(account.address));
-  }, [account, player]);
+    if (!address || !player) return;
+    const owner = address && player === removeZeros(address);
+    setIsOwner(owner);
+
+    if (owner) {
+      const isGameFinished = isGameOver(slots, nextNumber!);
+      setIsOver(isGameFinished);
+    }
+  }, [address, player]);
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,
@@ -190,15 +194,13 @@ const Game = () => {
     slot: number,
     event: React.MouseEvent<HTMLButtonElement>,
   ): Promise<boolean> => {
-    if (!account) return false;
+    if (!address) return false;
     setIsLoading(true);
 
     try {
-      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        requestAppchain();
-      }
+      await requestAppchain(true);
 
-      const { transaction_hash } = await account.execute([
+      const { transaction_hash } = await account!.execute([
         // {
         //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,
         //   entrypoint: "request_random",

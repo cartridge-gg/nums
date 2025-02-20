@@ -51,7 +51,6 @@ const Balance = () => {
               <TooltipRow label="Ready to Claim" value={amountToClaim} />
               <TooltipRow label="Ready to Bridge" value={amountToBridge} />
               <TooltipRow label="Bridging" value={amountBridging} />
-              <TooltipRow label="Appchain Balance" value={amountEarned} />
               <TooltipRow label="Starknet Balance" value={amountClaimed} />
             </VStack>
           </>

@@ -115,6 +115,7 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
       const { bridgingAmount, claimedAmount } = calculateTotals(
         starknetClaims,
         rewardsClaimedAppchain,
+        readyToClaimAmount,
       );
 
       // Query the consumer contract to get the current processing block
@@ -188,6 +189,7 @@ export function useClaims() {
 const calculateTotals = (
   starknetClaimsModels: any[],
   rewardsClaimedAppchain: number,
+  readyToClaimAmount: number,
 ) => {
   const rewardsClaimedStarknet = starknetClaimsModels.reduce(
     (acc, claim) => acc + parseInt(claim!.node!.ty!.TOKEN!.amount!),
@@ -195,7 +197,8 @@ const calculateTotals = (
   );
 
   return {
-    bridgingAmount: rewardsClaimedAppchain - rewardsClaimedStarknet,
+    bridgingAmount:
+      rewardsClaimedAppchain - rewardsClaimedStarknet - readyToClaimAmount,
     claimedAmount: rewardsClaimedStarknet,
   };
 };

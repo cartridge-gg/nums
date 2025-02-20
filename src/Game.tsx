@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery, useSubscription } from "urql";
-import { useEffect, useMemo, useState } from "react";
+import { useSubscription } from "urql";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import {
   Box,
@@ -25,6 +25,7 @@ import { useAudio } from "./context/audio";
 import { hash, num } from "starknet";
 import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
+import { AppchainClient } from "./graphql/clients";
 
 const MAX_SLOTS = 20;
 
@@ -107,14 +108,43 @@ const Game = () => {
     ]);
   }, [account, gameId]);
 
-  const [queryResult] = useQuery({
-    query: GameQuery,
-    variables: { gameId: parseInt(gameId) },
-  });
+  const queryGame = useCallback((gameId: number)=> {
+    AppchainClient.query(GameQuery, { gameId }).toPromise().then((res) => {
+      const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+      const slotsEdges = res.data?.numsSlotModels?.edges;
+      if (!gamesModel || !slotsEdges || !account) {
+        return;
+      }
+
+      const isOwner =
+        (account && gamesModel.player === removeZeros(account.address)) || false;
+      setIsOwner(isOwner);
+
+      const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+      slotsEdges.forEach((edge: any) => {
+        newSlots[edge.node.index] = edge.node.number;
+      });
+      setSlots(newSlots);
+
+      updateGameState(
+        gamesModel.next_number!,
+        gamesModel.remaining_slots!,
+        gamesModel.reward!,
+      );
+      setIsLoading(false);
+    })
+  }, [account])
+
+  useEffect(() => {
+    if (!account) return;
+
+    queryGame(parseInt(gameId));
+  }, [account])
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,
     variables: { entityId },
+    pause: !entityId,
   });
 
   useEffect(() => {
@@ -151,31 +181,6 @@ const Game = () => {
 
     setTimeout(() => setIsLoading(false), 500);
   };
-
-  useEffect(() => {
-    const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
-    const slotsEdges = queryResult.data?.numsSlotModels?.edges;
-    if (!gamesModel || !slotsEdges || !account) {
-      return;
-    }
-
-    const isOwner =
-      (account && gamesModel.player === removeZeros(account.address)) || false;
-    setIsOwner(isOwner);
-
-    const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-    slotsEdges.forEach((edge: any) => {
-      newSlots[edge.node.index] = edge.node.number;
-    });
-    setSlots(newSlots);
-
-    updateGameState(
-      gamesModel.next_number!,
-      gamesModel.remaining_slots!,
-      gamesModel.reward!,
-    );
-    setIsLoading(false);
-  }, [queryResult, account]);
 
   const setSlot = async (
     slot: number,
@@ -263,6 +268,15 @@ const Game = () => {
               <Play
                 isAgain
                 onReady={(gameId) => {
+                  // queryGame(parseInt(gameId));
+                  // setSlots([])
+                  // setNextNumber(null);
+                  // setRemaining(0);
+                  // setReward(0);
+                  // setIsOver(false);
+                  // setIsLoading(true);
+                  // onClose();
+                  // navigate(`/${gameId}`);
                   window.location.href = `/${gameId}`;
                 }}
               />

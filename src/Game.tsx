@@ -108,38 +108,44 @@ const Game = () => {
     ]);
   }, [account, gameId]);
 
-  const queryGame = useCallback((gameId: number)=> {
-    AppchainClient.query(GameQuery, { gameId }).toPromise().then((res) => {
-      const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
-      const slotsEdges = res.data?.numsSlotModels?.edges;
-      if (!gamesModel || !slotsEdges || !account) {
-        return;
-      }
+  const queryGame = useCallback(
+    (gameId: number) => {
+      AppchainClient.query(GameQuery, { gameId })
+        .toPromise()
+        .then((res) => {
+          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+          const slotsEdges = res.data?.numsSlotModels?.edges;
+          if (!gamesModel || !slotsEdges || !account) {
+            return;
+          }
 
-      const isOwner =
-        (account && gamesModel.player === removeZeros(account.address)) || false;
-      setIsOwner(isOwner);
+          const isOwner =
+            (account && gamesModel.player === removeZeros(account.address)) ||
+            false;
+          setIsOwner(isOwner);
 
-      const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-      slotsEdges.forEach((edge: any) => {
-        newSlots[edge.node.index] = edge.node.number;
-      });
-      setSlots(newSlots);
+          const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+          slotsEdges.forEach((edge: any) => {
+            newSlots[edge.node.index] = edge.node.number;
+          });
+          setSlots(newSlots);
 
-      updateGameState(
-        gamesModel.next_number!,
-        gamesModel.remaining_slots!,
-        gamesModel.reward!,
-      );
-      setIsLoading(false);
-    })
-  }, [account])
+          updateGameState(
+            gamesModel.next_number!,
+            gamesModel.remaining_slots!,
+            gamesModel.reward!,
+          );
+          setIsLoading(false);
+        });
+    },
+    [account],
+  );
 
   useEffect(() => {
     if (!account) return;
 
     queryGame(parseInt(gameId));
-  }, [account])
+  }, [account]);
 
   const [subscriptionResult] = useSubscription({
     query: GameSubscription,

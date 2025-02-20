@@ -410,10 +410,18 @@ const Row = ({
       <Tooltip
         showArrow
         content={
-          <VStack align="flex-start" p="10px">
-            <Text>Your message is in block: {blockNumber}</Text>
-            <Text>Last block verified on Starknet: {blockProcessing}</Text>
-          </VStack>
+          <>
+            {blockNumber > blockProcessing ? (
+              <VStack align="flex-start" p="10px">
+                <Text>Your claim is in block: {blockNumber}</Text>
+                <Text>Last block verified on Starknet: {blockProcessing}</Text>
+              </VStack>
+            ) : (
+              <VStack align="flex-start" p="10px">
+                <Text>Your claim was verified on block: {blockNumber}</Text>
+              </VStack>
+            )}
+          </>
         }
         openDelay={500}
         closeDelay={100}

@@ -3,6 +3,7 @@ pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn king_me(ref self: T, game_id: u32);
+    fn set_config(ref self: T);
 }
 
 #[dojo::contract]
@@ -10,7 +11,7 @@ pub mod game_actions {
     use achievement::components::achievable::AchievableComponent;
     use core::array::ArrayTrait;
     use nums_common::models::jackpot::{Jackpot, JackpotMode};
-    use nums_common::models::config::{Config, SlotRewardTrait};
+    use nums_common::models::config::{Config, GameConfig, SlotRewardTrait, SlotReward, RewardLevel};
     use nums_common::random::{Random, RandomImpl};
     use nums_common::WORLD_RESOURCE;
     use nums_appchain::models::game::{Game, GameTrait};
@@ -387,6 +388,43 @@ pub mod game_actions {
             let player_id: felt252 = player.into();
             let task_id: felt252 = Task::King.identifier();
             self.achievable.progress(world, player_id, task_id, 1);
+        }
+
+        fn set_config(ref self: ContractState) {
+            let mut world = self.world(@"nums");
+            let config = Config {
+                world_resource: WORLD_RESOURCE,
+                starknet_messenger: starknet::contract_address_const::<0x0>(),
+                starknet_consumer: starknet::contract_address_const::<0x0>(),
+                starknet_config: starknet::contract_address_const::<0x0>(),
+                starknet_jackpot: starknet::contract_address_const::<0x0>(),
+                appchain_handler: starknet::contract_address_const::<0x0>(),
+                appchain_claimer: starknet::contract_address_const::<0x0>(),
+                game: Option::Some(GameConfig {
+                    max_slots: 20,
+                    max_number: 1000,
+                    min_number: 1,
+                    expiration: Option::None,
+                }),
+                reward: Option::Some(SlotReward {
+                    token: starknet::contract_address_const::<0x0>(),
+                    levels: array![
+                        RewardLevel { level: 0, amount: 1 },
+                        RewardLevel { level: 1, amount: 1 },
+                        RewardLevel { level: 2, amount: 1 },
+                        RewardLevel { level: 10, amount: 1 },
+                        RewardLevel { level: 13, amount: 2 },
+                        RewardLevel { level: 14, amount: 4 },
+                        RewardLevel { level: 15, amount: 8 },
+                        RewardLevel { level: 16, amount: 16 },
+                        RewardLevel { level: 17, amount: 32 },
+                        RewardLevel { level: 18, amount: 64 },
+                        RewardLevel { level: 19, amount: 128 },
+                        RewardLevel { level: 20, amount: 256 },
+                    ],
+                }),
+            };
+            world.write_model(@config);
         }
     }
 

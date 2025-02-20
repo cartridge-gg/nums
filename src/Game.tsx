@@ -238,6 +238,7 @@ const Game = () => {
             justify="center"
             position="relative"
             pointerEvents="none"
+            p="20px"
           >
             <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
               Game Over

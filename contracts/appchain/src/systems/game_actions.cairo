@@ -3,52 +3,32 @@ pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn king_me(ref self: T, game_id: u32);
+    fn set_config(ref self: T);
 }
 
 #[dojo::contract]
 pub mod game_actions {
-    use achievement::components::achievable::AchievableComponent;
     use core::array::ArrayTrait;
     use nums_common::models::jackpot::{Jackpot, JackpotMode};
-    use nums_common::models::config::{Config, SlotRewardTrait};
+    use nums_common::models::config::{Config, GameConfig, SlotRewardTrait};
     use nums_common::random::{Random, RandomImpl};
     use nums_common::WORLD_RESOURCE;
     use nums_appchain::models::game::{Game, GameTrait};
     use nums_appchain::models::totals::Totals;
     use nums_appchain::models::slot::Slot;
-    use nums_appchain::elements::achievements::index::{
-        Achievement, AchievementTrait, ACHIEVEMENT_COUNT,
-    };
-    use nums_appchain::elements::tasks::index::{Task, TaskTrait};
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorage};
+    use dojo::world::IWorldDispatcherTrait;
 
     use starknet::{ContractAddress, get_caller_address};
     use super::IGameActions;
 
     // Components
 
-    component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
-    impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
-
-    // Storage
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        achievable: AchievableComponent::Storage,
-    }
 
     // Events
 
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        AchievableEvent: AchievableComponent::Event,
-    }
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -84,35 +64,31 @@ pub mod game_actions {
 
     // Constuctor
 
-    fn dojo_init(self: @ContractState) {
-        // [Event] Emit all Achievement events
-        let mut world: WorldStorage = self.world(@"nums");
-        let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
-        while achievement_id > 0 {
-            let achievement: Achievement = achievement_id.into();
-            self
-                .achievable
-                .create(
-                    world,
-                    id: achievement.identifier(),
-                    hidden: achievement.hidden(),
-                    index: achievement.index(),
-                    points: achievement.points(),
-                    start: 0,
-                    end: 0,
-                    group: achievement.group(),
-                    icon: achievement.icon(),
-                    title: achievement.title(),
-                    description: achievement.description(),
-                    tasks: achievement.tasks(),
-                    data: achievement.data(),
-                );
-            achievement_id -= 1;
-        }
-    }
-
     #[abi(embed_v0)]
     impl GameActionsImpl of IGameActions<ContractState> {
+        fn set_config(ref self: ContractState) {
+            let mut world = self.world(@"nums");
+
+            let config = Config {
+                world_resource: WORLD_RESOURCE,
+                starknet_messenger: starknet::contract_address_const::<0x0>(),
+                starknet_consumer: starknet::contract_address_const::<0x0>(),
+                starknet_config: starknet::contract_address_const::<0x0>(),
+                starknet_jackpot: starknet::contract_address_const::<0x0>(),
+                appchain_handler: starknet::contract_address_const::<0x0>(),
+                appchain_claimer: starknet::contract_address_const::<0x0>(),
+                game: Option::Some(GameConfig {
+                    max_slots: 20,
+                    max_number: 1000,
+                    min_number: 1,
+                    expiration: Option::None,
+                }),
+                reward: Option::None,
+            };
+
+            world.write_model(@config);
+        }
+
         /// Creates a new game instance, initializes its state, and emits a creation event.
         ///
         /// # Returns
@@ -127,7 +103,7 @@ pub mod game_actions {
 
             let game_id = world.dispatcher.uuid();
             let player = get_caller_address();
-            let mut rand = RandomImpl::new();
+            let mut rand = RandomImpl::new_vrf();
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
 
             world
@@ -153,10 +129,6 @@ pub mod game_actions {
                     },
                 );
 
-            // Update achievement progression for the player
-            let player_id: felt252 = player.into();
-            let task_id: felt252 = Task::Grinder.identifier();
-            self.achievable.progress(world, player_id, task_id, 1);
 
             (game_id, next_number)
         }
@@ -223,7 +195,7 @@ pub mod game_actions {
 
             // Update game state
             let target_number = game.next_number;
-            let mut rand = RandomImpl::new();
+            let mut rand = RandomImpl::new_vrf();
             let next_number = next_random(rand, @nums, game.min_number, game.max_number);
 
             game.next_number = next_number;
@@ -257,61 +229,6 @@ pub mod game_actions {
             //         },
             //     );
 
-            // Update achievement progression for the player - Filler tasks
-            let player_id: felt252 = player.into();
-            let filled_slots = nums.len();
-            if filled_slots == 10 {
-                let task_id: felt252 = Task::FillerOne.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if filled_slots == 15 {
-                let task_id: felt252 = Task::FillerTwo.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if filled_slots == 17 {
-                let task_id: felt252 = Task::FillerThree.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if filled_slots == 19 {
-                let task_id: felt252 = Task::FillerFour.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if filled_slots == 20 {
-                let task_id: felt252 = Task::FillerFive.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            }
-
-            // Update achievement progression for the player - Reference tasks
-            if target_number == 21 {
-                let task_id: felt252 = Task::ReferenceOne.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 42 {
-                let task_id: felt252 = Task::ReferenceTwo.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 404 {
-                let task_id: felt252 = Task::ReferenceThree.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 777 {
-                let task_id: felt252 = Task::ReferenceFour.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 911 {
-                let task_id: felt252 = Task::ReferenceFive.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 420 {
-                let task_id: felt252 = Task::ReferenceSix.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if target_number == 69 {
-                let task_id: felt252 = Task::ReferenceSeven.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            }
-
-            // Update achievement progression for the player - Streak tasks
-            if streak == 2 {
-                let task_id: felt252 = Task::StreakerOne.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if streak == 3 {
-                let task_id: felt252 = Task::StreakerTwo.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            } else if streak == 4 {
-                let task_id: felt252 = Task::StreakerThree.identifier();
-                self.achievable.progress(world, player_id, task_id, 1);
-            }
 
             next_number
         }
@@ -364,10 +281,7 @@ pub mod game_actions {
             world.write_model(@jackpot);
             world.emit_event(@KingCrowned { game_id, jackpot_id, player });
 
-            // Update achievement progression for the player
-            let player_id: felt252 = player.into();
-            let task_id: felt252 = Task::King.identifier();
-            self.achievable.progress(world, player_id, task_id, 1);
+
         }
     }
 

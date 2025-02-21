@@ -72,9 +72,13 @@ case "$COMMAND" in
         echo "Claiming reward for profile: $PROFILE_NAME"
         sozo execute $CLAIM_ACTIONS_ADDR claim_reward --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    set_config)
+        echo "Setting config for profile: $PROFILE_NAME"
+        sozo execute $GAME_ACTIONS_ADDR set_config --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+        ;;
     *)
         echo "Error: Unknown command '$COMMAND'"
-        echo "Available commands: create_game, set_slot, king_me, claim_jackpot, claim_reward"
+        echo "Available commands: create_game, set_slot, king_me, claim_jackpot, claim_reward, set_config"
         exit 1
         ;;
 esac

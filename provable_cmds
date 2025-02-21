@@ -3,26 +3,9 @@ katana --chain WP_NUMS_APPCHAIN --sequencing.block-max-cairo-steps 16000000 --bl
 katana init --id WP_NUMS_APPCHAIN --settlement-chain Sepolia --settlement-account-address 0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd --settlement-account-private-key 0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78
 
 
-kubectl exec -n ext-nums-appchain deployment/katana -- \
-  katana init \
-    --id WP_NUMS_APPCHAIN \
-    --settlement-chain Sepolia \
-    --settlement-account-address 0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd \
-    --settlement-account-private-key 0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78
-
-kubectl exec -n ext-nums-appchain deployment/katana -- \
-  katana init \
-    --id WP_NUMS_APPCHAIN \
-    --settlement-chain Sepolia \
-    --settlement-account-address 0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd \
-    --settlement-account-private-key 0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78 
-
-kubectl exec -n ext-nums-appchain deployment/katana -- ls /root
-
 katana --chain WP_NUMS_APPCHAIN --sequencing.block-max-cairo-steps 16000000 --block-time 30000 
 
 
-✓ Deployment successful (0x4fd6c2c5b197704474f1b292b55ef32402fa3f2c623536197271dffd6664451) at block #522825
 
 
 kubectl exec -n ext-nums-appchain deployment/katana -- katana init --id WP_NUMS_APPCHAIN --slot --slot.paymasters 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x1 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x2 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x3 --settlement-chain Sepolia --settlement-account-address 0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd --settlement-account-private-key 0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78 --output-path /data

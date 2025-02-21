@@ -2,7 +2,7 @@ import { Button, Spinner } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { hash, num } from "starknet";
+import { CallData, hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
@@ -104,9 +104,9 @@ const Play = ({
     if (!account) return;
 
     try {
-      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        requestAppchain();
-      }
+      // if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
+      //   requestAppchain();
+      // }
 
       setCreating(true);
       playReplay();

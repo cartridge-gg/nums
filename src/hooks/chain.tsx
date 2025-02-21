@@ -9,7 +9,7 @@ import useToast from "./toast";
 //   shortString.encodeShortString("WP_NUMS_STARKNET");
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const APPCHAIN_CHAIN_ID =
-  shortString.encodeShortString("WP_NUMS_APPCHAIN");
+  shortString.encodeShortString("WP_NUMS_VRF");
 
 const chainName = {
   [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",

@@ -68,23 +68,12 @@ pub mod game_actions {
     #[dojo::event]
     pub struct GameCreated {
         #[key]
-        game_id: u32,
-        #[key]
         player: ContractAddress,
+        game_id: u32,
         max_slots: u8,
         max_number: u16,
         min_number: u16,
         jackpot_id: Option<u32>,
-    }
-
-    #[derive(Drop, Serde)]
-    #[dojo::event]
-    pub struct GameEnded {
-        #[key]
-        game_id: u32,
-        #[key]
-        player: ContractAddress,
-        remaining_slots: u8,
     }
 
     #[derive(Drop, Serde)]
@@ -163,8 +152,8 @@ pub mod game_actions {
             world
                 .emit_event(
                     @GameCreated {
-                        game_id,
                         player,
+                        game_id,
                         max_slots: game_config.max_slots,
                         max_number: game_config.max_number,
                         min_number: game_config.min_number,

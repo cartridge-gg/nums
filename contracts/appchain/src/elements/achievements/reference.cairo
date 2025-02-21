@@ -30,13 +30,13 @@ pub impl Reference of AchievementTrait {
     #[inline]
     fn points(level: u8) -> u16 {
         match level {
-            0 => 20,
-            1 => 20,
-            2 => 20,
-            3 => 20,
-            4 => 20,
-            5 => 420,
-            6 => 69,
+            0 => 10,
+            1 => 10,
+            2 => 10,
+            3 => 10,
+            4 => 10,
+            5 => 10,
+            6 => 10,
             _ => 0,
         }
     }

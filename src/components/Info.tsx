@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { REWARDS } from "@/constants";
-import { Provider, uint256 } from "starknet";
-import { formatUnits } from "ethers";
 
 const enum ShowInfo {
   ABOUT,
@@ -20,24 +18,6 @@ const InfoOverlay = ({
   onClose: () => void;
 }) => {
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
-  const [totalSupply, setTotalSupply] = useState<string>();
-  const provider = new Provider({
-    nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
-  });
-
-  useEffect(() => {
-    const fetchTotalSupply = async () => {
-      const res = await provider.callContract({
-        contractAddress: import.meta.env.VITE_NUMS_ERC20,
-        entrypoint: "total_supply",
-      });
-
-      const totalSupply = uint256.uint256ToBN({ low: res[0], high: res[1] });
-
-      setTotalSupply(formatUnits(totalSupply, 18));
-    };
-    fetchTotalSupply();
-  }, []);
 
   return (
     <Overlay open={open} onClose={onClose}>
@@ -113,7 +93,7 @@ const InfoOverlay = ({
             <Text>
               $Nums is reward token intended to demonstrate the horizontal
               scalability of Validity rollups. Earn $Nums by playing Nums, a
-              game hosted on its own app chain. The better you do the more you
+              game hosted on its own app chain. the better you do the more you
               earn. Rewards are claimable on Starknet mainnet
             </Text>
             <VStack
@@ -132,7 +112,7 @@ const InfoOverlay = ({
               bgColor="rgba(255,255,255,0.04)"
             >
               <Text color="purple.50">Token supply</Text>
-              <Text>{totalSupply}</Text>
+              <Text>320,202,002/∞</Text>
             </VStack>
           </>
         )}

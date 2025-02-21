@@ -129,7 +129,7 @@ const Play = ({
       showTxn(transaction_hash, chain?.name);
 
       // Set timeout to query game if subscription doesn't respond
-      const timeout = window.setTimeout(() => {
+      const timeout = setTimeout(() => {
         queryEvent(entityId!);
       }, 2000);
       setTimeoutId(timeout);

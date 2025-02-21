@@ -165,7 +165,7 @@ const Game = () => {
         setTimeout(() => onOpen(), 3000);
       }
     },
-    !isOver && isOwner ? 1000 : null,
+    !isOver && isOwner ? 2000 : null,
   );
 
   useEffect(() => {
@@ -236,7 +236,7 @@ const Game = () => {
       setSlots(newSlots);
 
       // Set timeout to query game if subscription doesn't respond
-      const timeout = window.setTimeout(() => {
+      const timeout = setTimeout(() => {
         queryGame(parseInt(gameId));
       }, 2000);
       setTimeoutId(timeout);

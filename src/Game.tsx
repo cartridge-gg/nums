@@ -236,7 +236,7 @@ const Game = () => {
       setSlots(newSlots);
 
       // Set timeout to query game if subscription doesn't respond
-      const timeout = setTimeout(() => {
+      const timeout = window.setTimeout(() => {
         queryGame(parseInt(gameId));
       }, 2000);
       setTimeoutId(timeout);

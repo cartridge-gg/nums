@@ -22,10 +22,18 @@ kubectl exec -n ext-nums-appchain deployment/katana -- ls /root
 katana --chain WP_NUMS_APPCHAIN --sequencing.block-max-cairo-steps 16000000 --block-time 30000 
 
 
-✓ Deployment successful (0x5ffc8988d3208907747989d0a7037c594bfc3de86014b4e2f560707966ab763) at block #522825
+✓ Deployment successful (0x4fd6c2c5b197704474f1b292b55ef32402fa3f2c623536197271dffd6664451) at block #522825
 
 
 kubectl exec -n ext-nums-appchain deployment/katana -- katana init --id WP_NUMS_APPCHAIN --slot --slot.paymasters 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x1 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x2 0x1deb38b95acca9ba74a218107ca0ec89f0d8ddf73d9bdecbd322f22bcc2eb45,0x3 --settlement-chain Sepolia --settlement-account-address 0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd --settlement-account-private-key 0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78 --output-path /data
 
 
 starkli declare controller.v1.0.8.contract_class.flat.json --account ~/.starkli_accounts/katana-provable/account.json --keystore ~/.starkli_accounts/katana-provable/keystore.json --fee-token strk --compiler-version 2.9.1
+
+
+sudo docker run --env-file /home/broody/development/saya-env glihm/saya:mock-snos saya persistent start     --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie
+
+starkli invoke 0x3c691454f6dea0aa0e2210deea5d6682103f56509e5c84527cf111c7f04e1e6 set_facts_registry 0x01eda48cc753670a9a00313afd08bac6e1606943d554ea4a6040cd2953d67867 --account ./dev-sepolia.account --keystore ./dev-sepolia.key
+
+
+cargo run --bin saya -- persistent start --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie local

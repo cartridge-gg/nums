@@ -1,11 +1,40 @@
 import { Button, Spinner } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
+import { graphql } from "@/graphql/appchain";
+import { useSubscription } from "urql";
+import { AppchainClient } from "@/graphql/clients";
+import { useParams } from "react-router-dom";
+
+const GameEventQuery = graphql(`
+  query GameEventQuery($entityId: felt252) {
+    eventMessage(id: $entityId) {
+      models {
+        ... on nums_GameCreated {
+          game_id
+        }
+      }
+    }
+  }
+`);
+
+const GameCreatedEvent = graphql(`
+  subscription GameCreatedEvent($entityId: felt252) {
+    eventMessageUpdated(id: $entityId) {
+      models {
+        __typename
+        ... on nums_GameCreated {
+          game_id
+        }
+      }
+    }
+  }
+`);
 
 const Play = ({
   isAgain,
@@ -21,6 +50,53 @@ const Play = ({
   const [creating, setCreating] = useState<boolean>(false);
   const { requestAppchain } = useChain();
   const { playReplay } = useAudio();
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+  const { gameId } = useParams();
+
+  const entityId = useMemo(() => {
+    if (!account) return;
+    const entityId = hash.computePoseidonHashOnElements([
+      num.toHex(account.address),
+    ]);
+
+    return entityId;
+  }, [account]);
+
+  const [subscriptionResult] = useSubscription({
+    query: GameCreatedEvent,
+    variables: { entityId },
+    pause: !entityId,
+  });
+
+  useEffect(() => {
+    if (subscriptionResult.data?.eventMessageUpdated) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
+      const gameId =
+      // @ts-ignore
+        subscriptionResult.data.eventMessageUpdated.models![0]!.game_id;
+      onReady(num.toHex(gameId));
+    }
+  }, [subscriptionResult.data]);
+
+  const queryEvent = useCallback((entityId: string) => {
+    AppchainClient.query(
+      GameEventQuery,
+      { entityId },
+      { requestPolicy: "network-only" },
+    )
+      .toPromise()
+      .then((res) => {
+        // @ts-ignore
+        const newGameId = res.data?.eventMessage.models![0]!.game_id;
+        if (newGameId !== gameId) {
+          onReady(num.toHex(newGameId));
+        }
+      });
+  }, []);
 
   const newGame = async () => {
     if (!account) return;
@@ -50,22 +126,13 @@ const Play = ({
 
       showTxn(transaction_hash, chain?.name);
 
-      const receipt = await account.waitForTransaction(transaction_hash, {
-        retryInterval: 500,
-      });
-
-      if (receipt.isSuccess()) {
-        const createdEvent = receipt.events.find(
-          ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
-        );
-        console.log(createdEvent);
-        onReady(createdEvent?.data[3]!);
-        return;
-      }
+      // Set timeout to query game if subscription doesn't respond
+      const timeout = setTimeout(() => {
+        queryEvent(entityId!);
+      }, 2000);
+      setTimeoutId(timeout);
     } catch (e) {
       console.error(e);
-    } finally {
-      setCreating(false);
     }
   };
 

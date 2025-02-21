@@ -57,6 +57,7 @@ mod NumsToken {
     #[constructor]
     fn constructor(
         ref self: ContractState,
+        owner: ContractAddress,
         rewards_caller: ContractAddress
     ) {
         let name = "Nums";
@@ -64,7 +65,7 @@ mod NumsToken {
 
         self.erc20.initializer(name, symbol);
         self.rewards_caller.write(rewards_caller);
-        self.ownable.initializer(get_caller_address());
+        self.ownable.initializer(owner);
     }
 
     #[abi(embed_v0)]

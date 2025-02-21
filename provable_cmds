@@ -33,7 +33,7 @@ starkli declare controller.v1.0.8.contract_class.flat.json --account ~/.starkli_
 
 sudo docker run --env-file /home/broody/development/saya-env glihm/saya:mock-snos saya persistent start     --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie
 
-starkli invoke 0x3c691454f6dea0aa0e2210deea5d6682103f56509e5c84527cf111c7f04e1e6 set_facts_registry 0x01eda48cc753670a9a00313afd08bac6e1606943d554ea4a6040cd2953d67867 --account ./dev-sepolia.account --keystore ./dev-sepolia.key
+starkli invoke 0xd3ca353aebc53c3907ed6c1882af7064657cdeef0c3f57581ffbb001779d24 set_facts_registry 0x01eda48cc753670a9a00313afd08bac6e1606943d554ea4a6040cd2953d67867 --account ./dev-sepolia.account --keystore ./dev-sepolia.key
 
 
 cargo run --bin saya -- persistent start --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie local

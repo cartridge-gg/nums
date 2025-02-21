@@ -15,9 +15,6 @@ SLOT_PROJECT="nums-starknet"
 
 case $COMMAND in
     "create")
-        if [ "$SERVICE" == "katana" ]; then
-            slot d create $SLOT_PROJECT katana --dev --version v1.2.0
-        fi
         if [ "$SERVICE" == "torii" ]; then
             JSON_FILE="$SCRIPT_DIR/../dojo/manifest_sepolia.json"
             if [ ! -f "$JSON_FILE" ]; then
@@ -37,7 +34,6 @@ case $COMMAND in
         ;;
     "delete")
         slot d delete $SLOT_PROJECT torii -f
-        slot d delete $SLOT_PROJECT katana -f
         ;;
     *)
         echo "Invalid command. Use: $0 [create|delete] <service>"

@@ -1473,8 +1473,8 @@
       ]
     },
     {
-      "address": "0x63d56312b02602cb19f27007acd4ceb87535559d8d71e5b76cd18ffcb89d09b",
-      "class_hash": "0x146db455a0137ced0d6ea4bd3a05f82f0cf548ab6e7640e5cbf88d933a1867c",
+      "address": "0x7f1f581f0e67d83be00a333d8be0e2ef0f5c009f87ae9c483485b9aaa9159ee",
+      "class_hash": "0x9c16470ee9fcada10fe9e59c8ad555ed34baf1fd2b681f277ee82950fbd358",
       "abi": [
         {
           "type": "impl",
@@ -2313,13 +2313,13 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x5d398e9b9fc0b6f4c115aac9f543f2c265d360f6a5e7993b6407c1dde36b5d1",
+      "class_hash": "0xe15657e97288c5d3914a653c907ae2a77e976bdeb530417734405760ccf7b2",
       "tag": "nums-GameCreated",
       "selector": "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
     },
     {
       "members": [],
-      "class_hash": "0x6bc9a1af04ddfaeb42ec3d368ff655378fdc7aca8af105c9829af3c042c71f0",
+      "class_hash": "0x6a6e47bab207df2557edfa17540d87fda3213f37b35397a3a47d6e4eb32e655",
       "tag": "nums-Inserted",
       "selector": "0x68a8cf4a301f71be018a6ed94f1991773d5804f7520391049d429ba5aff98cd"
     },

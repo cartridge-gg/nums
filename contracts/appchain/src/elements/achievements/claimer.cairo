@@ -30,9 +30,9 @@ pub impl Claimer of AchievementTrait {
         match level {
             0 => 30,
             1 => 40,
-            2 => 100,
-            3 => 200,
-            4 => 300,
+            2 => 50,
+            3 => 60,
+            4 => 70,
             _ => 0,
         }
     }
@@ -57,11 +57,11 @@ pub impl Claimer of AchievementTrait {
     #[inline]
     fn title(level: u8) -> felt252 {
         match level {
-            0 => 'Small Fry',
-            1 => 'Rising Tide',
-            2 => 'First Million',
-            3 => 'Double Trouble',
-            4 => 'Triple Crown',
+            0 => 'First Million',
+            1 => 'Double Up',
+            2 => 'Money Machine',
+            3 => 'Rolling in Gold',
+            4 => 'Untouchable',
             _ => '',
         }
     }
@@ -81,11 +81,11 @@ pub impl Claimer of AchievementTrait {
     #[inline]
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {
-            0 => 10_000,
-            1 => 100_000,
-            2 => 1_000_000,
-            3 => 2_000_000,
-            4 => 3_000_000,
+            0 => 1000000,
+            1 => 2000000,
+            2 => 4000000,
+            3 => 8000000,
+            4 => 16000000,
             _ => 0,
         };
         Task::Claimer.tasks(count)

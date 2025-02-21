@@ -28,11 +28,11 @@ pub impl Filler of AchievementTrait {
     #[inline]
     fn points(level: u8) -> u16 {
         match level {
-            0 => 20,
-            1 => 50,
-            2 => 100,
-            3 => 500,
-            4 => 10000,
+            0 => 30,
+            1 => 40,
+            2 => 50,
+            3 => 60,
+            4 => 70,
             _ => 0,
         }
     }
@@ -81,11 +81,11 @@ pub impl Filler of AchievementTrait {
     #[inline]
     fn tasks(level: u8) -> Span<ArcadeTask> {
         match level {
-            0 => Task::FillerOne.tasks(5),
-            1 => Task::FillerTwo.tasks(4),
-            2 => Task::FillerThree.tasks(3),
-            3 => Task::FillerFour.tasks(2),
-            4 => Task::FillerFive.tasks(1),
+            0 => Task::FillerOne.tasks(10),
+            1 => Task::FillerTwo.tasks(15),
+            2 => Task::FillerThree.tasks(17),
+            3 => Task::FillerFour.tasks(19),
+            4 => Task::FillerFive.tasks(20),
             _ => [].span(),
         }
     }

@@ -58,8 +58,8 @@ const Play = ({
         const createdEvent = receipt.events.find(
           ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
         );
-
-        onReady(createdEvent?.data[1]!);
+        console.log(createdEvent);
+        onReady(createdEvent?.data[3]!);
         return;
       }
     } catch (e) {

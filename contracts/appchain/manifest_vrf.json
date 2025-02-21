@@ -1474,7 +1474,7 @@
     },
     {
       "address": "0xe7c4c26ff6d691519375b37792471ddf1d1157425369f414e4413105b903f9",
-      "class_hash": "0x13c1eb48635bfca171ab6d9206b870a46ae7be20571e7beb06a9350b33accc",
+      "class_hash": "0x380811375ac344de8929af76f1f85ae6abd4a7c0ba3445691b59ab721229d4f",
       "abi": [
         {
           "type": "impl",
@@ -1525,13 +1525,6 @@
               "state_mutability": "view"
             }
           ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -1612,6 +1605,13 @@
               "state_mutability": "external"
             }
           ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -1705,12 +1705,6 @@
         },
         {
           "type": "event",
-          "name": "achievement::components::achievable::AchievableComponent::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
           "name": "nums_appchain::systems::game_actions::game_actions::Event",
           "kind": "enum",
           "variants": [
@@ -1723,11 +1717,6 @@
               "name": "WorldProviderEvent",
               "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
               "kind": "nested"
-            },
-            {
-              "name": "AchievableEvent",
-              "type": "achievement::components::achievable::AchievableComponent::Event",
-              "kind": "flat"
             }
           ]
         }

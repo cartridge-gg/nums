@@ -23,7 +23,6 @@ import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
 import { CallData, hash, num } from "starknet";
-import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { AppchainClient } from "./graphql/clients";
 import { useInterval } from "usehooks-ts";
@@ -94,7 +93,6 @@ const Game = () => {
   const { gameId } = useParams();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
 
   const { showTxn } = useToast();

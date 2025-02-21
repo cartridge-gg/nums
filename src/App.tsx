@@ -103,7 +103,7 @@ const profile: ProfileOptions = {
 const options: ControllerOptions = {
   ...profile,
   policies,
-  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  defaultChainId: APPCHAIN_CHAIN_ID,
   chains: [
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
     { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },

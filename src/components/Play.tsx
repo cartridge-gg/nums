@@ -5,7 +5,6 @@ import useToast from "../hooks/toast";
 import { CallData, hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
-import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
 import { graphql } from "@/graphql/appchain";
 import { useSubscription } from "urql";
 import { AppchainClient } from "@/graphql/clients";
@@ -47,8 +46,7 @@ const Play = ({
   const { connect, connectors } = useConnect();
   const { chain } = useNetwork();
   const { showTxn } = useToast();
-  const [creating, setCreating] = useState<boolean>(false);
-  const { requestAppchain } = useChain();
+  const [creating, setCreating] = useState<boolean>(false);;
   const { playReplay } = useAudio();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const { gameId } = useParams();
@@ -111,14 +109,14 @@ const Play = ({
       setCreating(true);
       playReplay();
       const { transaction_hash } = await account.execute([
-        // {
-        //   contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-        //   entrypoint: "request_random",
-        //   calldata: CallData.compile({
-        //     caller: import.meta.env.VITE_GAME_CONTRACT,
-        //     source: { type: 0, address: account.address },
-        //   }),
-        // },
+        {
+          contractAddress: import.meta.env.VITE_VRF_CONTRACT,
+          entrypoint: "request_random",
+          calldata: CallData.compile({
+            caller: import.meta.env.VITE_GAME_CONTRACT,
+            source: { type: 0, address: account.address },
+          }),
+        },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
           entrypoint: "create_game",

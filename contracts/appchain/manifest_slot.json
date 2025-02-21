@@ -1473,8 +1473,8 @@
       ]
     },
     {
-      "address": "0x27b908dc97c1b9683cb8c6dbb4260c602855927f6bbdfc8834ab7b9c17acd59",
-      "class_hash": "0x737c7574cde84914ae2f5d5413a8acbe9eacccecc4275fa8a1ba22ba20ebe7",
+      "address": "0x63d56312b02602cb19f27007acd4ceb87535559d8d71e5b76cd18ffcb89d09b",
+      "class_hash": "0x146db455a0137ced0d6ea4bd3a05f82f0cf548ab6e7640e5cbf88d933a1867c",
       "abi": [
         {
           "type": "impl",
@@ -2313,15 +2313,9 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x12990600f7ff76629388f67db8b846ad09257fbe32efbadb2163008cb8760e6",
+      "class_hash": "0x5d398e9b9fc0b6f4c115aac9f543f2c265d360f6a5e7993b6407c1dde36b5d1",
       "tag": "nums-GameCreated",
       "selector": "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
-    },
-    {
-      "members": [],
-      "class_hash": "0x433f1f6c53e67d898843f9326157e30d44432b0c48970c9717b19d3f0fddb11",
-      "tag": "nums-GameEnded",
-      "selector": "0x19e4faf508bde42b5173705ff6c7925ae27d90c56fb3b47ef7d438cbbdc421e"
     },
     {
       "members": [],

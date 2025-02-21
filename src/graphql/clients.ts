@@ -37,6 +37,6 @@ export const AppchainClient = createClient(
 );
 
 export const StarknetClient = createClient(
-  import.meta.env.VITE_SEPOLIA_GRAPHQL_URL,
-  import.meta.env.VITE_SEPOLIA_GRAPHQL_WS_URL,
+  import.meta.env.VITE_MOCK_STARKNET_GRAPHQL_URL,
+  import.meta.env.VITE_MOCK_STARKNET_GRAPHQL_WS_URL,
 );

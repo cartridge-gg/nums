@@ -54,9 +54,8 @@ pub mod game_actions {
     #[dojo::event]
     pub struct Inserted {
         #[key]
-        game_id: u32,
-        #[key]
         player: ContractAddress,
+        game_id: u32,
         index: u8,
         number: u16,
         next_number: u16,
@@ -70,10 +69,6 @@ pub mod game_actions {
         #[key]
         player: ContractAddress,
         game_id: u32,
-        max_slots: u8,
-        max_number: u16,
-        min_number: u16,
-        jackpot_id: Option<u32>,
     }
 
     #[derive(Drop, Serde)]
@@ -154,10 +149,6 @@ pub mod game_actions {
                     @GameCreated {
                         player,
                         game_id,
-                        max_slots: game_config.max_slots,
-                        max_number: game_config.max_number,
-                        min_number: game_config.min_number,
-                        jackpot_id,
                     },
                 );
 
@@ -255,8 +246,8 @@ pub mod game_actions {
             world
                 .emit_event(
                     @Inserted {
-                        game_id,
                         player,
+                        game_id,
                         index: target_idx,
                         number: target_number,
                         next_number,

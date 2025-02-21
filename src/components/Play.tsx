@@ -76,9 +76,10 @@ const Play = ({
       }
 
       const gameId =
-      // @ts-ignore
+        // @ts-ignore
         subscriptionResult.data.eventMessageUpdated.models![0]!.game_id;
       onReady(num.toHex(gameId));
+      setCreating(false);
     }
   }, [subscriptionResult.data]);
 
@@ -94,6 +95,7 @@ const Play = ({
         const newGameId = res.data?.eventMessage.models![0]!.game_id;
         if (newGameId !== gameId) {
           onReady(num.toHex(newGameId));
+          setCreating(false);
         }
       });
   }, []);

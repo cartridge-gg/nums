@@ -150,18 +150,23 @@ const Game = () => {
   }, []);
 
   useEffect(() => queryGame(parseInt(gameId)), []);
+
   useEffect(() => {
     if (!address || !player) return;
     const owner = address && player === removeZeros(address);
     setIsOwner(owner);
   }, [address, player]);
-  useInterval(() => {
-    if (!isOver && isOwner && isGameOver(slots, nextNumber!)) {
-      playNegative();
-      setIsOver(true);
-      setTimeout(() => onOpen(), 3000);
-    }
-  }, 1000);
+
+  useInterval(
+    () => {
+      if (isGameOver(slots, nextNumber!)) {
+        playNegative();
+        setIsOver(true);
+        setTimeout(() => onOpen(), 3000);
+      }
+    },
+    !isOver && isOwner ? 1000 : null,
+  );
 
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
@@ -286,16 +291,15 @@ const Game = () => {
               <Play
                 isAgain
                 onReady={(gameId) => {
-                  // queryGame(parseInt(gameId));
-                  // setSlots([])
-                  // setNextNumber(null);
-                  // setRemaining(0);
-                  // setReward(0);
-                  // setIsOver(false);
-                  // setIsLoading(true);
-                  // onClose();
-                  // navigate(`/${gameId}`);
-                  window.location.href = `/${gameId}`;
+                  queryGame(parseInt(gameId));
+                  setSlots(Array.from({ length: MAX_SLOTS }));
+                  setNextNumber(null);
+                  setRemaining(0);
+                  setReward(0);
+                  setIsOver(false);
+                  setIsLoading(true);
+                  onClose();
+                  navigate(`/${gameId}`);
                 }}
               />
             </Stack>

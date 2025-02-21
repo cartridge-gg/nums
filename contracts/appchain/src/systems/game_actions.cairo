@@ -54,8 +54,9 @@ pub mod game_actions {
     #[dojo::event]
     pub struct Inserted {
         #[key]
-        player: ContractAddress,
         game_id: u32,
+        #[key]
+        player: ContractAddress,
         index: u8,
         number: u16,
         next_number: u16,
@@ -243,18 +244,18 @@ pub mod game_actions {
             world.write_model(@totals);
             world.write_model(@Slot { game_id, player, index: target_idx, number: target_number });
 
-            world
-                .emit_event(
-                    @Inserted {
-                        player,
-                        game_id,
-                        index: target_idx,
-                        number: target_number,
-                        next_number,
-                        remaining_slots: game.remaining_slots,
-                        game_rewards: game.reward,
-                    },
-                );
+            // world
+            //     .emit_event(
+            //         @Inserted {
+            //             game_id,
+            //             player,
+            //             index: target_idx,
+            //             number: target_number,
+            //             next_number,
+            //             remaining_slots: game.remaining_slots,
+            //             game_rewards: game.reward,
+            //         },
+            //     );
 
             // Update achievement progression for the player - Filler tasks
             let player_id: felt252 = player.into();

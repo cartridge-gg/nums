@@ -26,7 +26,6 @@ import { hash, num } from "starknet";
 import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { AppchainClient } from "./graphql/clients";
-import { useInterval } from "usehooks-ts";
 
 const MAX_SLOTS = 20;
 
@@ -118,36 +117,49 @@ const Game = () => {
     pause: !entityId,
   });
 
-  const queryGame = useCallback((gameId: number) => {
-    AppchainClient.query(
-      GameQuery,
-      { gameId },
-      { requestPolicy: "network-only" },
-    )
-      .toPromise()
-      .then((res) => {
-        const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
-        const slotsEdges = res.data?.numsSlotModels?.edges;
-        if (!gamesModel || !slotsEdges) {
-          return;
-        }
+  const queryGame = useCallback(
+    (gameId: number) => {
+      AppchainClient.query(
+        GameQuery,
+        { gameId },
+        { requestPolicy: "network-only" },
+      )
+        .toPromise()
+        .then((res) => {
+          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+          const slotsEdges = res.data?.numsSlotModels?.edges;
+          if (!gamesModel || !slotsEdges) {
+            return;
+          }
 
-        setPlayer(gamesModel.player);
+          setPlayer(gamesModel.player);
 
-        const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-        slotsEdges.forEach((edge: any) => {
-          newSlots[edge.node.index] = edge.node.number;
+          const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+          slotsEdges.forEach((edge: any) => {
+            newSlots[edge.node.index] = edge.node.number;
+          });
+          setSlots(newSlots);
+
+          if (isGameOver(newSlots, gamesModel.next_number!)) {
+            setIsOver(true);
+
+            if (isOwner) {
+              playNegative();
+              setTimeout(() => onOpen(), 3000);
+            }
+          }
+
+          updateGameState(
+            newSlots,
+            gamesModel.next_number!,
+            gamesModel.remaining_slots!,
+            gamesModel.reward!,
+          );
+          setIsLoading(false);
         });
-        setSlots(newSlots);
-
-        updateGameState(
-          gamesModel.next_number!,
-          gamesModel.remaining_slots!,
-          gamesModel.reward!,
-        );
-        setIsLoading(false);
-      });
-  }, []);
+    },
+    [isOwner],
+  );
 
   useEffect(() => queryGame(parseInt(gameId)), []);
 
@@ -156,17 +168,6 @@ const Game = () => {
     const owner = address && player === removeZeros(address);
     setIsOwner(owner);
   }, [address, player]);
-
-  useInterval(
-    () => {
-      if (isGameOver(slots, nextNumber!)) {
-        playNegative();
-        setIsOver(true);
-        setTimeout(() => onOpen(), 3000);
-      }
-    },
-    !isOver && isOwner ? 2000 : null,
-  );
 
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
@@ -183,23 +184,36 @@ const Game = () => {
       // @ts-ignore
       const remaining = entityUpdated.models![0]!.remaining_slots as number;
 
-      updateGameState(next, remaining, reward);
+      updateGameState(slots, next, remaining, reward);
     }
   }, [subscriptionResult]);
 
-  const updateGameState = (
-    nextNum: number,
-    remainingSlots: number,
-    reward: number,
-  ) => {
-    setNextNumber(nextNum);
-    if (remainingSlots !== undefined) {
-      setRemaining(remainingSlots);
-    }
-    setReward(reward);
+  const updateGameState = useCallback(
+    (
+      slots: number[],
+      nextNum: number,
+      remainingSlots: number,
+      reward: number,
+    ) => {
+      if (isGameOver(slots, nextNum)) {
+        setIsOver(true);
 
-    setTimeout(() => setIsLoading(false), 500);
-  };
+        if (isOwner) {
+          playNegative();
+          setTimeout(() => onOpen(), 3000);
+        }
+      }
+
+      setReward(reward);
+      setNextNumber(nextNum);
+      if (remainingSlots !== undefined) {
+        setRemaining(remainingSlots);
+      }
+
+      setTimeout(() => setIsLoading(false), 500);
+    },
+    [isOwner],
+  );
 
   const setSlot = async (
     slot: number,
@@ -292,7 +306,7 @@ const Game = () => {
                 isAgain
                 onReady={(gameId) => {
                   queryGame(parseInt(gameId));
-                  setSlots(Array.from({ length: MAX_SLOTS }));
+                  setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
                   setNextNumber(null);
                   setRemaining(0);
                   setReward(0);

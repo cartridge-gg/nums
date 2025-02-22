@@ -22,7 +22,7 @@ export const capitalize = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
 
 export function isGameOver(slots: number[], nextNumber: number) {
-  if (slots.length === 0) {
+  if (slots.every((slot) => !slot)) {
     return false;
   }
 

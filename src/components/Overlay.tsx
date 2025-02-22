@@ -39,6 +39,7 @@ const Overlay = ({
         backdropFilter="blur(6px)"
         overflowY="auto"
         pointerEvents="all"
+        position="relative"
       >
         <Button
           position="absolute"

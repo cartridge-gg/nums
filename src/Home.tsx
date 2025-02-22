@@ -154,9 +154,11 @@ const Home = () => {
       <Container
         minH="100vh"
         maxW="100vw"
-        alignContent={["flex-start", "flex-start", "center"]}
+        display="flex"
+        justifyContent="center"
+        alignItems={["flex-start", "flex-start", "center"]}
         p="15px"
-        pt={["100px", "100px", "0px"]}
+        pt={["100px", "100px", "40px"]}
       >
         <Header hideChain />
         <InfoOverlay open={openInfo} onClose={onCloseInfo} />

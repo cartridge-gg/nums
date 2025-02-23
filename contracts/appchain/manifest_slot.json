@@ -1473,7 +1473,7 @@
       ]
     },
     {
-      "address": "0x7f1f581f0e67d83be00a333d8be0e2ef0f5c009f87ae9c483485b9aaa9159ee",
+      "address": "0x4057ea6852973079449b3f99ae8a346a10706a4dd5bd072cbe6c3f97508d5b0",
       "class_hash": "0x7b000ed0ebd4c7c5e59d6f34a32c6863e889b29296a7b7f04921a89504eab43",
       "abi": [
         {
@@ -2319,7 +2319,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6a6e47bab207df2557edfa17540d87fda3213f37b35397a3a47d6e4eb32e655",
+      "class_hash": "0x6bc9a1af04ddfaeb42ec3d368ff655378fdc7aca8af105c9829af3c042c71f0",
       "tag": "nums-Inserted",
       "selector": "0x68a8cf4a301f71be018a6ed94f1991773d5804f7520391049d429ba5aff98cd"
     },

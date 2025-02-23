@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-02212025"
+seed = "nums-02222025"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 # cover_uri = "file://assets/cover.png"
 # icon_uri = "file://assets/icon.png"

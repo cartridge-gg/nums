@@ -127,7 +127,7 @@ pub mod game_actions {
 
             let game_id = world.dispatcher.uuid();
             let player = get_caller_address();
-            let mut rand = RandomImpl::new();
+            let mut rand = RandomImpl::new_vrf();
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
 
             world
@@ -223,7 +223,7 @@ pub mod game_actions {
 
             // Update game state
             let target_number = game.next_number;
-            let mut rand = RandomImpl::new();
+            let mut rand = RandomImpl::new_vrf();
             let next_number = next_random(rand, @nums, game.min_number, game.max_number);
 
             game.next_number = next_number;

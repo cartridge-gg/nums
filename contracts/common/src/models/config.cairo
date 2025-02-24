@@ -17,10 +17,12 @@ pub struct Config {
 
 #[derive(Drop, Serde, Introspect)]
 pub struct GameConfig {
+    pub active: bool,
     pub max_slots: u8,
     pub max_number: u16,
     pub min_number: u16,
     pub expiration: Option<u64>,
+    pub max_games: Option<u32>,
 }
 
 #[derive(Drop, Serde, Introspect)]

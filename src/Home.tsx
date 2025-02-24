@@ -6,7 +6,6 @@ import {
   HStack,
   Spacer,
   useDisclosure,
-  Stack,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import {
@@ -26,12 +25,11 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { lookupAddresses } from "@cartridge/controller";
 import { TrophyIcon } from "./components/icons/Trophy";
 import { Button } from "./components/Button";
-import { Timer } from "./components/Timer";
 import { InfoIcon } from "./components/icons/Info";
 import { CaretIcon } from "./components/icons/Caret";
-import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
+import { VrfRisk } from "./components/VrfRisk";
 
 const MAX_SLOTS = 20;
 
@@ -92,7 +90,7 @@ const Home = () => {
   const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
-  const [gameExpiration, setGameExpiration] = useState<number>();
+  //const [gameExpiration, setGameExpiration] = useState<number>();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   // const [offset, setOffset] = useState<number>(0);
@@ -110,9 +108,9 @@ const Home = () => {
     const configModels = leaderboardResult.data?.numsConfigModels;
     if (!gameModels || !totalsModels || !configModels) return;
 
-    const expiration =
-      configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
-    setGameExpiration(parseInt(expiration));
+    // const expiration =
+    //   configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
+    // setGameExpiration(parseInt(expiration));
 
     const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
     const totalsAddresses =
@@ -162,7 +160,7 @@ const Home = () => {
       >
         <Header hideChain />
         <InfoOverlay open={openInfo} onClose={onCloseInfo} />
-        <VStack>
+        <VStack w="full">
           <VStack gap="20px" w={["100%", "100%", "800px"]}>
             <HStack w="full" justify="space-between">
               <MenuRoot>
@@ -230,7 +228,8 @@ const Home = () => {
                 ))}
               </VStack>
             </Box>
-            <VStack w="full" align="flex-start">
+            <VrfRisk />
+            {/* <VStack w="full" align="flex-start">
               <Text color="purple.50" textStyle="faded">
                 Game ends in...
               </Text>
@@ -243,7 +242,7 @@ const Home = () => {
                 <Timer expiration={gameExpiration} />
                 <Play onReady={(gameId) => navigate(`/${gameId}`)} />
               </Stack>
-            </VStack>
+            </VStack> */}
           </VStack>
         </VStack>
       </Container>

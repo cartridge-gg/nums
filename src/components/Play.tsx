@@ -39,9 +39,11 @@ const GameCreatedEvent = graphql(`
 const Play = ({
   isAgain,
   onReady,
+  ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
+  [key: string]: any;
 }) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
@@ -141,7 +143,12 @@ const Play = ({
   return (
     <>
       {account ? (
-        <Button onClick={newGame} disabled={creating} minW="150px">
+        <Button
+          onClick={newGame}
+          disabled={creating}
+          minW="150px"
+          {...buttonProps}
+        >
           {creating ? (
             <Spinner />
           ) : isAgain ? (
@@ -153,7 +160,10 @@ const Play = ({
           )}
         </Button>
       ) : (
-        <Button onClick={() => connect({ connector: connectors[0] })}>
+        <Button
+          onClick={() => connect({ connector: connectors[0] })}
+          {...buttonProps}
+        >
           Connect
         </Button>
       )}

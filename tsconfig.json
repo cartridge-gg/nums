@@ -25,7 +25,7 @@
         "schemas" : [
           {
             "name": "appchain",
-            "schema": "https://api.cartridge.gg/x/nums-appchain/torii/graphql",
+            "schema": "https://api.cartridge.gg/x/nums-limit/torii/graphql",
             "tadaOutputLocation": "./src/graphql/appchain-env.d.ts",
             "tadaTurboLocation": "./src/graphql/appchain-turbo.ts"
           }, 

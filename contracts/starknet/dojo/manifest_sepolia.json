@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-    "address": "0x68c5d38903d3b6491c3366e6068b404a8cfda8590e5b1ab59ae8b5153ac65c0",
-    "seed": "nums-02322025",
+    "address": "0xdb5afdc41e06db899b9c73a4adc39c168a6f18cfccc6f9294caa4811b58764",
+    "seed": "nums-02422025",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x567b41fb8a8f8dfb3ca2056219ff8497d0a342765064b375facfede55ab9779",
-      "class_hash": "0x59796f42ea5549cff8ebfdd95b6f23547afd427eb1a800b339b0c1717c184b1",
+      "address": "0x7ed7e6fe85071c1706cc60c317ef529218ca20b3e67f364a6cac60844f3ae8d",
+      "class_hash": "0x7dd7039bb5bcf430b230612cd014cc04f06689773c4d40d1b6a34d67ce66501",
       "abi": [
         {
           "type": "impl",
@@ -1312,6 +1312,20 @@
         },
         {
           "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
           "name": "core::option::Option::<core::integer::u64>",
           "variants": [
             {
@@ -1325,9 +1339,27 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u32>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "struct",
           "name": "nums_common::models::config::GameConfig",
           "members": [
+            {
+              "name": "active",
+              "type": "core::bool"
+            },
             {
               "name": "max_slots",
               "type": "core::integer::u8"
@@ -1343,6 +1375,10 @@
             {
               "name": "expiration",
               "type": "core::option::Option::<core::integer::u64>"
+            },
+            {
+              "name": "max_games",
+              "type": "core::option::Option::<core::integer::u32>"
             }
           ]
         },
@@ -1586,8 +1622,8 @@
       ]
     },
     {
-      "address": "0x19cc4ce7d949820a6f45050f5c35bcc024c7f12cf366fdb60f27f2f196e1c36",
-      "class_hash": "0x7a74db93014cac05214df296ad3f806863ed499dffdd9ea19078b3f9116e623",
+      "address": "0x869da5227282ba74f344cc24724badc59701d3b7b65a7f77d220e86f3b5d3c",
+      "class_hash": "0x6701dc2994773bc1a5ca84ec2c76af7dd8bfb919ce71fd68fcbb11612d50e1d",
       "abi": [
         {
           "type": "impl",
@@ -1944,8 +1980,8 @@
       ]
     },
     {
-      "address": "0x337cf15ed78740e04834bf4a229cae97774bb0bbcb085440036a0d81ef4f0d9",
-      "class_hash": "0x212d1a34b8532a7940917e39b8380e8d4c58a2ee29ddd4986dbb5f073f90152",
+      "address": "0x1ddd3f51c5089bd155eb93f08f3e1843b658a017711eb32b6ba33eedba939b4",
+      "class_hash": "0x406fec244444dee6b5b3e5dd2e77c5a34652d8c0c4898693ea7f7940669f007",
       "abi": [
         {
           "type": "impl",
@@ -2261,7 +2297,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2f70c7b5715b096f575561ccc96d28e7b1c4ef8a5e65d3fc73b11d1aa21ca11",
+      "class_hash": "0x3c15e423a1fe5b7f0f8b704d7bfa752d2f2215aa322a9e7ea606bf56494ee1",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

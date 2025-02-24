@@ -14,7 +14,7 @@ pub mod game_actions {
     use nums_common::random::{Random, RandomImpl};
     use nums_common::WORLD_RESOURCE;
     use nums_appchain::models::game::{Game, GameTrait};
-    use nums_appchain::models::totals::Totals;
+    use nums_appchain::models::totals::{Totals, GlobalTotals};
     use nums_appchain::models::slot::Slot;
     use nums_appchain::elements::achievements::index::{
         Achievement, AchievementTrait, ACHIEVEMENT_COUNT,
@@ -121,9 +121,20 @@ pub mod game_actions {
             let mut world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('Game config not set');
+            assert!(game_config.active, "Game is not active");
+
             if let Option::Some(expiration) = game_config.expiration {
                 assert!(starknet::get_block_timestamp() < expiration, "Game expired");
             }
+
+            let mut totals: GlobalTotals = world.read_model(WORLD_RESOURCE);
+            totals.games_played += 1;
+
+            if let Option::Some(max_games) = game_config.max_games {
+                assert!(totals.games_played < max_games, "Max games reached");
+            }
+
+            world.write_model(@totals);
 
             let game_id = world.dispatcher.uuid();
             let player = get_caller_address();

@@ -3,6 +3,8 @@ pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn king_me(ref self: T, game_id: u32);
+    fn set_active(ref self: T, active: bool);
+    fn set_max_games(ref self: T, max_games: u32);
 }
 
 #[dojo::contract]
@@ -379,6 +381,36 @@ pub mod game_actions {
             let player_id: felt252 = player.into();
             let task_id: felt252 = Task::King.identifier();
             self.achievable.progress(world, player_id, task_id, 1);
+        }
+
+        fn set_active(ref self: ContractState, active: bool) {
+            let owner = starknet::get_caller_address();
+            let mut world = self.world(@"nums");
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+            let mut config: Config = world.read_model(WORLD_RESOURCE);
+
+            if let Option::Some(mut game_config) = config.game {
+                game_config.active = active;
+                config.game = Option::Some(game_config);
+                world.write_model(@config);
+            } else {
+                assert!(false, "Game config not set");
+            }
+        }
+
+        fn set_max_games(ref self: ContractState, max_games: u32) {
+            let owner = starknet::get_caller_address();
+            let mut world = self.world(@"nums");
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+            let mut config: Config = world.read_model(WORLD_RESOURCE);
+
+            if let Option::Some(mut game_config) = config.game {
+                game_config.max_games = Option::Some(max_games);
+                config.game = Option::Some(game_config);
+                world.write_model(@config);
+            } else {
+                assert!(false, "Game config not set");
+            }
         }
     }
 

@@ -1474,7 +1474,7 @@
     },
     {
       "address": "0x7aeb5a5d8f6157f94be1185ca377baa07dcd7b5a229e895babee5750354414a",
-      "class_hash": "0x6e402739d7585f792b2e5b8a0da1d99ed84a63b989186278c2bde28b73ba63f",
+      "class_hash": "0x5c5b2d0f8ac3d840eabd917827ccd6e6ae13e415ec43426ab2055f9c15326b",
       "abi": [
         {
           "type": "impl",
@@ -1553,6 +1553,20 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "nums_appchain::systems::game_actions::IGameActions",
           "items": [
@@ -1598,6 +1612,30 @@
               "inputs": [
                 {
                   "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_active",
+              "inputs": [
+                {
+                  "name": "active",
+                  "type": "core::bool"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_max_games",
+              "inputs": [
+                {
+                  "name": "max_games",
                   "type": "core::integer::u32"
                 }
               ],
@@ -1732,6 +1770,8 @@
         "create_game",
         "set_slot",
         "king_me",
+        "set_active",
+        "set_max_games",
         "upgrade"
       ]
     },

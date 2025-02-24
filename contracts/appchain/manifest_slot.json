@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x6c07694f8b83794e17381654ac501ceafd84cb2fa171050d1e9a41d1e18a11f",
-      "class_hash": "0x17174eaf607b513036a9bc509a4093f7cda222fd3dbb3ccff4fb8fd4bfb7af8",
+      "address": "0xea44dd8e971d3af9f99568577bf14b0a80a7f7763fa6281840ab68a8a53ba9",
+      "class_hash": "0x2ae9e7535a55c918fe956970fc160b03188e1f84d07b12b8831ed61c86a0304",
       "abi": [
         {
           "type": "impl",
@@ -1473,8 +1473,8 @@
       ]
     },
     {
-      "address": "0x479895f8b2f1250c7eb28d8055b070942fca49bde45454662f4c9f60529d798",
-      "class_hash": "0x4b9fd93d38db1a0104a365ae3c30fa157840e84365553af7231617a7ea28040",
+      "address": "0x7aeb5a5d8f6157f94be1185ca377baa07dcd7b5a229e895babee5750354414a",
+      "class_hash": "0x5c5b2d0f8ac3d840eabd917827ccd6e6ae13e415ec43426ab2055f9c15326b",
       "abi": [
         {
           "type": "impl",
@@ -1553,6 +1553,20 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "nums_appchain::systems::game_actions::IGameActions",
           "items": [
@@ -1598,6 +1612,30 @@
               "inputs": [
                 {
                   "name": "game_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_active",
+              "inputs": [
+                {
+                  "name": "active",
+                  "type": "core::bool"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_max_games",
+              "inputs": [
+                {
+                  "name": "max_games",
                   "type": "core::integer::u32"
                 }
               ],
@@ -1732,12 +1770,14 @@
         "create_game",
         "set_slot",
         "king_me",
+        "set_active",
+        "set_max_games",
         "upgrade"
       ]
     },
     {
-      "address": "0x7af9672e03b1e73f7cc026bf2e4940d50d88660afa217d3058f06e98a26ad64",
-      "class_hash": "0x2363b0569f292986db40a2b119ce625720dcf3e6a4bf48be03e8999ee9c3da5",
+      "address": "0x14d878f4c728229cd17b36794127d2caad082f2c7c5f585c231211988e97a6f",
+      "class_hash": "0x610725b7d5230ddb4842213ba90e6915ee9545ca042c89f1e8337407424f06",
       "abi": [
         {
           "type": "impl",
@@ -2076,9 +2116,27 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u32>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "struct",
           "name": "nums_common::models::config::GameConfig",
           "members": [
+            {
+              "name": "active",
+              "type": "core::bool"
+            },
             {
               "name": "max_slots",
               "type": "core::integer::u8"
@@ -2094,6 +2152,10 @@
             {
               "name": "expiration",
               "type": "core::option::Option::<core::integer::u64>"
+            },
+            {
+              "name": "max_games",
+              "type": "core::option::Option::<core::integer::u32>"
             }
           ]
         },
@@ -2281,7 +2343,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2f70c7b5715b096f575561ccc96d28e7b1c4ef8a5e65d3fc73b11d1aa21ca11",
+      "class_hash": "0x3c15e423a1fe5b7f0f8b704d7bfa752d2f2215aa322a9e7ea606bf56494ee1",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -2290,6 +2352,12 @@
       "class_hash": "0xbd89bb135169863c4fbee7c2bda364d31c5a33cf3e06dba1f0c3963cbfcde5",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
+    },
+    {
+      "members": [],
+      "class_hash": "0x205fd677e36d424f1be0e5f98e4d8e38a7112abcb03d7996e880f7947ae2219",
+      "tag": "nums-GlobalTotals",
+      "selector": "0xd75b15d623e1cb99c003f8822a75792d68e1be99958a44fec517dffc4e6514"
     },
     {
       "members": [],

@@ -11,13 +11,13 @@ fi
 
 COMMAND=$1
 SERVICE=$2
-SLOT_PROJECT="nums-appchain"
+SLOT_PROJECT="nums-mainnet-appchain"
 
 
 case $COMMAND in
     "create")
         if [ "$SERVICE" == "katana" ]; then
-            slot d create --tier epic $SLOT_PROJECT katana --version preview--f244197 --provable --block-time 30000
+            slot d create --tier epic $SLOT_PROJECT katana --version preview--f244197 --provable
         fi
         if [ "$SERVICE" == "torii" ]; then
             JSON_FILE="$SCRIPT_DIR/../manifest_slot.json"

@@ -368,8 +368,9 @@ const Row = ({
 }: ClaimData & { blockProcessing: number }) => {
   const getETA = (blockProcessing: number, blockNumber: number) => {
     const diff = blockNumber - blockProcessing;
-    if (diff < 0) return "-";
+    if (diff <= 0) return "-";
     const hours = diff * 1;
+    if (hours > 2) return ">2hrs";
     return hours === 1 ? "<1hr" : `${hours}hr`;
   };
 

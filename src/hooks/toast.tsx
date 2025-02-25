@@ -2,7 +2,6 @@ import { HStack, Image, Link, Spacer } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useExplorer } from "@starknet-react/core";
 import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
-import { ExternalIcon } from "@/components/icons/External";
 
 const useToast = () => {
   const explorer = useExplorer();
@@ -20,17 +19,17 @@ const useToast = () => {
     );
   };
 
-  const showTxn = (hash: string, chainName: string) => {
+  const showTxn = (_: string, chainName: string) => {
     toaster.create({
       title: (
         <HStack w="full">
           {chainIcon(chainName)} Transaction Submitted on {chainName} <Spacer />
-          <Link
+          {/* <Link
             href={explorer.transaction(hash)}
             color="rgba(255,255,255,0.48)"
           >
             <ExternalIcon />
-          </Link>
+          </Link> */}
         </HStack>
       ),
     });

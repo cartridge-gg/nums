@@ -37,12 +37,13 @@ const Overlay = ({
         border="2px solid #000000"
         boxShadow="0px 4px 4px rgba(0, 0, 0, 0.25)"
         backdropFilter="blur(6px)"
-        pointerEvents="all"
         overflowY="auto"
+        pointerEvents="all"
+        position="relative"
       >
         <Button
-          visual="transparent"
           position="absolute"
+          visual="transparent"
           top="24px"
           right="24px"
           onClick={() => onClose()}

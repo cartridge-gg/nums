@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { REWARDS } from "@/constants";
+import { Provider } from "starknet";
+
+const provider = new Provider({
+  nodeUrl: "https://api.cartridge.gg/x/starknet/mainnet",
+});
 
 const enum ShowInfo {
   ABOUT,
@@ -18,6 +23,16 @@ const InfoOverlay = ({
   onClose: () => void;
 }) => {
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
+  const [supply, setSupply] = useState<number>(0);
+
+  useEffect(() => {
+    provider
+      .callContract({
+        contractAddress: import.meta.env.VITE_NUMS_ERC20,
+        entrypoint: "totalSupply",
+      })
+      .then((res) => setSupply(parseInt(res[0]) / 10 ** 18));
+  }, []);
 
   return (
     <Overlay open={open} onClose={onClose}>
@@ -71,10 +86,10 @@ const InfoOverlay = ({
                 the Dojo Framework.
               </Text>
               <Text>
-                The goal is simple: place randomly generated numbers in
-                ascending order. Players compete and earn NUMS tokens by placing
-                as many numbers as possilbe with the game ending when the timer
-                reaches zero.
+                The goal is simple: place randomly generated numbers (1 - 1000)
+                in ascending order. Players compete and earn NUMS tokens by
+                placing as many numbers as possilbe with the game ending when
+                the timer reaches zero.
               </Text>
               <Text>The better you do the more you earn!</Text>
             </VStack>
@@ -103,7 +118,17 @@ const InfoOverlay = ({
               bgColor="rgba(255,255,255,0.04)"
             >
               <Text color="purple.50">$NUMS token address</Text>
-              <Text>{import.meta.env.VITE_NUMS_ERC20}</Text>
+              <Text
+                _hover={{ cursor: "pointer" }}
+                onClick={() => {
+                  window.open(
+                    `https://voyager.online/token/${import.meta.env.VITE_NUMS_ERC20}`,
+                    "_blank",
+                  );
+                }}
+              >
+                {import.meta.env.VITE_NUMS_ERC20}
+              </Text>
             </VStack>
             <VStack
               w="full"
@@ -112,7 +137,7 @@ const InfoOverlay = ({
               bgColor="rgba(255,255,255,0.04)"
             >
               <Text color="purple.50">Token supply</Text>
-              <Text>320,202,002/∞</Text>
+              <Text>{supply.toLocaleString()}</Text>
             </VStack>
           </>
         )}

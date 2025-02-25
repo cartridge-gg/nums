@@ -1,4 +1,10 @@
-import { Tooltip as ChakraTooltip, Portal } from "@chakra-ui/react";
+import {
+  Tooltip as ChakraTooltip,
+  HStack,
+  Portal,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import * as React from "react";
 
 export interface TooltipProps extends ChakraTooltip.RootProps {
@@ -44,3 +50,23 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
     );
   },
 );
+
+export const TooltipRow = ({
+  label,
+  value,
+  unit,
+}: {
+  label: string;
+  value: number | string;
+  unit?: string;
+}) => {
+  return (
+    <HStack justify="space-between" w="full">
+      <Text>{label}:</Text>
+      <Spacer minW="10px" />
+      <Text>
+        {value.toLocaleString()} {unit}
+      </Text>
+    </HStack>
+  );
+};

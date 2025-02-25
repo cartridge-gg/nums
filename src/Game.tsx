@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "urql";
-import { useEffect, useState } from "react";
+import { useSubscription } from "urql";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "./utils";
 import {
   Box,
@@ -23,8 +23,9 @@ import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
 import { CallData, hash, num } from "starknet";
-import useChain, { APPCHAIN_CHAIN_ID } from "./hooks/chain";
+import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
+import { AppchainClient } from "./graphql/clients";
 
 const MAX_SLOTS = 20;
 
@@ -34,6 +35,7 @@ const GameQuery = graphql(`
       edges {
         node {
           player
+          game_id
           min_number
           max_number
           max_slots
@@ -58,6 +60,20 @@ const GameQuery = graphql(`
   }
 `);
 
+const GameSubscription = graphql(`
+  subscription GameSubscription($entityId: felt252) {
+    entityUpdated(id: $entityId) {
+      models {
+        ... on nums_Game {
+          next_number
+          remaining_slots
+          reward
+        }
+      }
+    }
+  }
+`);
+
 const Game = () => {
   const [slots, setSlots] = useState<number[]>(
     Array.from({ length: MAX_SLOTS }, () => 0),
@@ -67,102 +83,158 @@ const Game = () => {
   const [remaining, setRemaining] = useState<number>(0);
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [player, setPlayer] = useState<string | null>(null);
   const [reward, setReward] = useState<number>(0);
   const [level, setLevel] = useState<number>(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { chain } = useNetwork();
   const { open, onOpen, onClose } = useDisclosure();
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { gameId } = useParams();
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
 
-  const { showTxn, showError } = useToast();
+  const { showTxn } = useToast();
   if (!gameId) {
     return <></>;
   }
 
-  const [queryResult, executeQuery] = useQuery({
-    query: GameQuery,
-    variables: { gameId: parseInt(gameId) },
+  const entityId = useMemo(() => {
+    if (!address || !gameId) return;
+    const entityId = hash.computePoseidonHashOnElements([
+      num.toHex(parseInt(gameId)),
+      num.toHex(address),
+    ]);
+
+    return entityId;
+  }, [address, gameId]);
+
+  const [subscriptionResult] = useSubscription({
+    query: GameSubscription,
+    variables: { entityId },
+    pause: !entityId,
   });
 
-  const updateGameState = (
-    slots: number[],
-    nextNum: number,
-    remainingSlots: number,
-    reward: number,
-  ) => {
-    setSlots(slots);
-    setNextNumber(nextNum);
-    if (remainingSlots !== undefined) {
-      setRemaining(remainingSlots);
-    }
+  const queryGame = useCallback(
+    (gameId: number) => {
+      AppchainClient.query(
+        GameQuery,
+        { gameId },
+        { requestPolicy: "network-only" },
+      )
+        .toPromise()
+        .then((res) => {
+          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+          const slotsEdges = res.data?.numsSlotModels?.edges;
+          if (!gamesModel || !slotsEdges) {
+            return;
+          }
 
-    const isGameFinished = isGameOver(slots, nextNum);
-    setIsOver(isGameFinished);
-    setReward(reward);
+          setPlayer(gamesModel.player);
 
-    if (isOwner && isGameFinished) {
-      playNegative();
-    }
-  };
+          const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
+          slotsEdges.forEach((edge: any) => {
+            newSlots[edge.node.index] = edge.node.number;
+          });
+          setSlots(newSlots);
+
+          if (isGameOver(newSlots, gamesModel.next_number!)) {
+            setIsOver(true);
+
+            if (isOwner) {
+              playNegative();
+              setTimeout(() => onOpen(), 3000);
+            }
+          }
+
+          updateGameState(
+            newSlots,
+            gamesModel.next_number!,
+            gamesModel.remaining_slots!,
+            gamesModel.reward!,
+          );
+          setIsLoading(false);
+        });
+    },
+    [isOwner],
+  );
+
+  useEffect(() => queryGame(parseInt(gameId)), []);
 
   useEffect(() => {
-    const gamesModel = queryResult.data?.numsGameModels?.edges?.[0]?.node;
-    const slotsEdges = queryResult.data?.numsSlotModels?.edges;
-    if (!gamesModel || !slotsEdges) {
-      return;
+    if (!address || !player) return;
+    const owner = address && player === removeZeros(address);
+    setIsOwner(owner);
+  }, [address, player]);
+
+  useEffect(() => {
+    const entityUpdated = subscriptionResult.data?.entityUpdated;
+    if (entityUpdated) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
+      // @ts-ignore
+      const next = entityUpdated.models![0]!.next_number as number;
+      // @ts-ignore
+      const reward = entityUpdated.models![0]!.reward as number;
+      // @ts-ignore
+      const remaining = entityUpdated.models![0]!.remaining_slots as number;
+
+      updateGameState(slots, next, remaining, reward);
     }
+  }, [subscriptionResult]);
 
-    const isOwner =
-      (account && gamesModel.player === removeZeros(account.address)) || false;
-    setIsOwner(isOwner);
+  const updateGameState = useCallback(
+    (
+      slots: number[],
+      nextNum: number,
+      remainingSlots: number,
+      reward: number,
+    ) => {
+      if (isGameOver(slots, nextNum)) {
+        setIsOver(true);
 
-    const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
-    slotsEdges.forEach((edge: any) => {
-      newSlots[edge.node.index] = edge.node.number;
-    });
+        if (isOwner) {
+          playNegative();
+          setTimeout(() => onOpen(), 3000);
+        }
+      }
 
-    updateGameState(
-      newSlots,
-      gamesModel.next_number!,
-      gamesModel.remaining_slots!,
-      gamesModel.reward!,
-    );
-    setIsLoading(false);
-  }, [queryResult, account]);
+      setReward(reward);
+      setNextNumber(nextNum);
+      if (remainingSlots !== undefined) {
+        setRemaining(remainingSlots);
+      }
+
+      setTimeout(() => setIsLoading(false), 500);
+    },
+    [isOwner],
+  );
 
   const setSlot = async (
     slot: number,
     event: React.MouseEvent<HTMLButtonElement>,
   ): Promise<boolean> => {
-    if (!account) return false;
-
-    if (!isMoveLegal(slots, nextNumber!, slot)) {
-      playNegative();
-      return false;
-    }
-
-    setPosition({ x: event.clientX, y: event.clientY });
-    setLevel(MAX_SLOTS - remaining + 1);
+    if (!address) return false;
+    setIsLoading(true);
     playPositive();
+    setPosition({ x: event.clientX, y: event.clientY });
+
     try {
-      setIsLoading(true);
+      await requestAppchain(true);
 
-      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        requestAppchain();
-      }
-
-      const { transaction_hash } = await account.execute([
+      const { transaction_hash } = await account!.execute([
         {
           contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: 'request_random',
+          entrypoint: "request_random",
           calldata: CallData.compile({
             caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address }
-          })
+            source: { type: 0, address: account!.address },
+          }),
         },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
@@ -170,47 +242,25 @@ const Game = () => {
           calldata: [gameId, slot.toString()],
         },
       ]);
-
       showTxn(transaction_hash, chain?.name);
+      setLevel(MAX_SLOTS - remaining + 1);
 
-      try {
-        const receipt = await account.waitForTransaction(transaction_hash, {
-          retryInterval: 500,
-        });
-        if (receipt.isSuccess()) {
-          const insertedEvent = receipt.events.find(
-            ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
-          );
+      const newSlots = [...slots];
+      newSlots[slot] = nextNumber!;
+      setSlots(newSlots);
 
-          const index = parseInt(insertedEvent?.data[4]!);
-          const inserted = parseInt(insertedEvent?.data[5]!);
-          const next = parseInt(insertedEvent?.data[6]!);
-          const reward = parseInt(insertedEvent?.data[8]!);
+      // Set timeout to query game if subscription doesn't respond
+      const timeout = setTimeout(() => {
+        queryGame(parseInt(gameId));
+      }, 2000);
+      setTimeoutId(timeout);
 
-          const newSlots = [...slots];
-          newSlots[index] = inserted;
-
-          updateGameState(newSlots, next, remaining - 1, reward);
-          setIsLoading(false);
-          return true;
-        }
-        throw new Error("transaction error: " + receipt);
-      } catch (e) {
-        showError(transaction_hash);
-        throw new Error("transaction error");
-      }
+      return true;
     } catch (e) {
       console.log({ e });
       setIsLoading(false);
       return false;
     }
-  };
-
-  const resetGame = () => {
-    onClose();
-    setSlots([]);
-    setIsOver(false);
-    executeQuery();
   };
 
   return (
@@ -219,7 +269,13 @@ const Game = () => {
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header showHome hideChain />
         <Overlay open={open} onClose={onClose}>
-          <VStack boxSize="full" justify="center" p="20px" position="relative">
+          <VStack
+            boxSize="full"
+            justify="center"
+            position="relative"
+            pointerEvents="none"
+            p="20px"
+          >
             <Text fontFamily="Ekamai" fontSize="64px" fontWeight="400">
               Game Over
             </Text>
@@ -241,6 +297,7 @@ const Game = () => {
               direction={["column", "row", "row"]}
               w={["full", "full", "400px"]}
               justify="center"
+              pointerEvents="auto"
             >
               <Button visual="transparent" onClick={() => navigate("/")}>
                 <HomeIcon /> Home
@@ -248,8 +305,15 @@ const Game = () => {
               <Play
                 isAgain
                 onReady={(gameId) => {
+                  queryGame(parseInt(gameId));
+                  setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
+                  setNextNumber(null);
+                  setRemaining(0);
+                  setReward(0);
+                  setIsOver(false);
+                  setIsLoading(true);
+                  onClose();
                   navigate(`/${gameId}`);
-                  resetGame();
                 }}
               />
             </Stack>
@@ -268,11 +332,6 @@ const Game = () => {
             lineHeight="100px"
             color={isOver ? "red" : "inherit"}
             transition="color 3s"
-            onTransitionEnd={() => {
-              if (isOver && isOwner) {
-                onOpen();
-              }
-            }}
           >
             <NextNumber number={nextNumber!} isLoading={isLoading} />
           </Box>

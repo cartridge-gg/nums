@@ -1,5 +1,5 @@
 import { GridItem, HStack, Text } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./Button";
 
 const Slot = ({
@@ -24,8 +24,8 @@ const Slot = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [requestedNumber, setRequestedNumber] = useState<number | null>(null);
-  const color = useMemo(() => {
-    if ((requestedNumber && number !== requestedNumber) || number) {
+  const color = () => {
+    if (number || (requestedNumber && number !== requestedNumber)) {
       return "green.50";
     }
 
@@ -34,9 +34,9 @@ const Slot = ({
     }
 
     return "white";
-  }, [requestedNumber, disable, number, legal]);
+  };
 
-  const numberShown = useMemo(() => {
+  const numberShown = () => {
     if (requestedNumber) {
       return requestedNumber;
     }
@@ -50,7 +50,14 @@ const Slot = ({
     }
 
     return "-";
-  }, [requestedNumber, number, isOwner]);
+  };
+
+  useEffect(() => {
+    if (number === 0) {
+      setRequestedNumber(null);
+    }
+  }, [number]);
+
   return (
     <GridItem>
       <HStack>
@@ -63,7 +70,7 @@ const Slot = ({
           fontSize={["22px", "22px", "24px"]}
           visual="transparent"
           justifyContent="center"
-          color={color}
+          color={color()}
           disabled={!isOwner || loading || !!number || disable || !legal}
           _hover={{
             color: "orange.50",
@@ -81,7 +88,7 @@ const Slot = ({
             setLoading(false);
           }}
         >
-          {numberShown}
+          {numberShown()}
         </Button>
       </HStack>
     </GridItem>

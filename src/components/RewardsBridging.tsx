@@ -9,15 +9,15 @@ import {
 } from "@chakra-ui/react";
 import Overlay from "./Overlay";
 import { useAccount } from "@starknet-react/core";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { Button } from "./Button";
 import { AllowArray, Call, CallData } from "starknet";
 import useChain from "@/hooks/chain";
 import useToast from "@/hooks/toast";
 import { StarknetColoredIcon } from "./icons/StarknetColored";
-import { ClaimData, useClaims } from "@/hooks/claims";
 import { InfoIcon } from "./icons/Info";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipRow } from "@/components/ui/tooltip";
+import { useClaims, ClaimData } from "@/context/claims";
 
 const RewardsOverlay = ({
   open,
@@ -31,20 +31,14 @@ const RewardsOverlay = ({
   const { requestAppchain, requestStarknet } = useChain();
   const { showTxn } = useToast();
   const { address, account } = useAccount();
-
   const {
     claims,
-    blockProcessing,
     amountToBridge,
     amountBridging,
-    amountClaimed,
     amountToClaim,
-    setAutoRefresh,
+    amountClaimed,
+    blockProcessing,
   } = useClaims();
-
-  useEffect(() => {
-    setAutoRefresh(open);
-  }, [open, setAutoRefresh]);
 
   const claimAll = useCallback(async () => {
     if (!account || !Object.keys(claims).length) return;
@@ -111,7 +105,7 @@ const RewardsOverlay = ({
       >
         <SimpleGrid w="full" columns={[2, 2, 4]} gap="20px">
           <Step
-            title="Ready to Bridge"
+            title="1. Ready to Bridge"
             body={
               <VStack>
                 <HStack>
@@ -159,7 +153,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Bridging"
+            title="2. Bridging"
             body={
               <VStack>
                 <HStack>
@@ -196,7 +190,7 @@ const RewardsOverlay = ({
                       color="rgba(255,255,255,0.5)"
                       cursor="pointer"
                     >
-                      <Text>~2 HR</Text> <InfoIcon />{" "}
+                      <InfoIcon />{" "}
                     </HStack>
                   </Tooltip>
                 )}
@@ -205,7 +199,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Ready to Claim"
+            title="3. Ready to Claim"
             body={
               <VStack>
                 <HStack>
@@ -248,7 +242,7 @@ const RewardsOverlay = ({
           />
 
           <Step
-            title="Claimed"
+            title="4. Claimed"
             body={
               <VStack>
                 <HStack>
@@ -284,7 +278,10 @@ const RewardsOverlay = ({
                 visual="transparent"
                 textAlign="center"
                 onClick={() => {
-                  window.open("https://app.ekubo.org", "_blank");
+                  window.open(
+                    "https://app.ekubo.org/?outputCurrency=NUMS&amount=1&inputCurrency=STRK",
+                    "_blank",
+                  );
                 }}
               >
                 <StarknetColoredIcon /> Trade
@@ -366,20 +363,15 @@ const Row = ({
   claimId,
   amount,
   status,
-  blockTimestamp,
   blockNumber,
   blockProcessing,
 }: ClaimData & { blockProcessing: number }) => {
-  const getETA = (timestamp: number) => {
-    if (status === "Claimed" || status === "Ready to Claim") return "-";
-
-    const etaTime = (timestamp + 2 * 60 * 60) * 1000; // Add 2 hours in milliseconds
-    const now = Date.now();
-    const minutesRemaining = (etaTime - now) / (1000 * 60);
-
-    if (minutesRemaining <= 0) return "Unknown";
-    if (minutesRemaining > 60) return `${Math.ceil(minutesRemaining / 60)}hr`;
-    return `${Math.ceil(minutesRemaining)}min`;
+  const getETA = (blockProcessing: number, blockNumber: number) => {
+    const diff = blockNumber - blockProcessing;
+    if (diff <= 0) return "-";
+    const hours = diff * 1;
+    if (hours > 2) return ">2hrs";
+    return hours === 1 ? "<1hr" : `${hours}hr`;
   };
 
   const getStatusColor = (status: string) => {
@@ -410,16 +402,33 @@ const Row = ({
       <Tooltip
         showArrow
         content={
-          <VStack align="flex-start" p="10px">
-            <Text>Block Number: {blockNumber}</Text>
-            <Text>Currently Processing: {blockProcessing}</Text>
-          </VStack>
+          <>
+            {blockNumber > blockProcessing ? (
+              <>
+                <TooltipRow
+                  label="Your claim is in block"
+                  value={blockNumber}
+                />
+                <TooltipRow
+                  label="Last block verified on Starknet"
+                  value={blockProcessing === 0 ? "-" : blockProcessing}
+                />
+              </>
+            ) : (
+              <>
+                <TooltipRow
+                  label="Your claim was verified on block"
+                  value={blockNumber}
+                />
+              </>
+            )}
+          </>
         }
         openDelay={500}
         closeDelay={100}
       >
         <Text flex="1" py="16px" textAlign="center">
-          {getETA(blockTimestamp)}
+          {getETA(blockProcessing, blockNumber)}
         </Text>
       </Tooltip>
     </HStack>

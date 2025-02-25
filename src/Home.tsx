@@ -6,7 +6,6 @@ import {
   HStack,
   Spacer,
   useDisclosure,
-  Stack,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import {
@@ -26,12 +25,11 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { lookupAddresses } from "@cartridge/controller";
 import { TrophyIcon } from "./components/icons/Trophy";
 import { Button } from "./components/Button";
-import { Timer } from "./components/Timer";
 import { InfoIcon } from "./components/icons/Info";
 import { CaretIcon } from "./components/icons/Caret";
-import Play from "./components/Play";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
+import { VrfRisk } from "./components/VrfRisk";
 
 const MAX_SLOTS = 20;
 
@@ -92,7 +90,7 @@ const Home = () => {
   const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
-  const [gameExpiration, setGameExpiration] = useState<number>();
+  //const [gameExpiration, setGameExpiration] = useState<number>();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   // const [offset, setOffset] = useState<number>(0);
@@ -110,9 +108,9 @@ const Home = () => {
     const configModels = leaderboardResult.data?.numsConfigModels;
     if (!gameModels || !totalsModels || !configModels) return;
 
-    const expiration =
-      configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
-    setGameExpiration(parseInt(expiration));
+    // const expiration =
+    //   configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
+    // setGameExpiration(parseInt(expiration));
 
     const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
     const totalsAddresses =
@@ -147,99 +145,100 @@ const Home = () => {
     );
   }, [leaderboardResult, sortBy]);
 
-  return import.meta.env.VITE_VERCEL_ENV === "production" ? (
-    <ComingSoon />
-  ) : (
-    <>
-      <Container h="100vh" maxW="100vw">
-        <Header hideChain />
-        <InfoOverlay open={openInfo} onClose={onCloseInfo} />
-        <VStack h="100%" justify="center" pt="40px">
-          <VStack gap="20px" w={["100%", "100%", "800px"]} align="flex-start">
-            <HStack w="full" justify="space-between">
-              <MenuRoot>
-                <MenuTrigger asChild>
-                  <Button visual="transparent" gap="8px" fontSize="18px">
-                    <TrophyIcon />
-                    {sortBy === "score" ? "Top Score" : "Total Tokens"}
-                    <CaretIcon />
-                  </Button>
-                </MenuTrigger>
-                <MenuContent>
-                  <MenuItem value="score" onClick={() => setSortBy("score")}>
-                    Top Score
-                  </MenuItem>
-                  <MenuItem value="tokens" onClick={() => setSortBy("tokens")}>
-                    Total Tokens
-                  </MenuItem>
-                </MenuContent>
-              </MenuRoot>
-              <HStack>
-                <Button
-                  visual="transparent"
-                  p="8px"
-                  onClick={() => onOpenInfo()}
-                >
-                  <InfoIcon />
+  return (
+    <Container
+      minH="100vh"
+      maxW="100vw"
+      display="flex"
+      justifyContent="center"
+      alignItems={["flex-start", "flex-start", "center"]}
+      p="15px"
+      pt={["100px", "100px", "40px"]}
+    >
+      <Header hideChain />
+      <InfoOverlay open={openInfo} onClose={onCloseInfo} />
+      <VStack w="full">
+        <VStack gap="20px" w={["100%", "100%", "800px"]}>
+          <HStack w="full" justify="space-between">
+            <MenuRoot>
+              <MenuTrigger asChild>
+                <Button visual="transparent" gap="8px" fontSize="18px">
+                  <TrophyIcon />
+                  {sortBy === "score" ? "Top Score" : "Total Tokens"}
+                  <CaretIcon />
                 </Button>
-              </HStack>
+              </MenuTrigger>
+              <MenuContent>
+                <MenuItem value="score" onClick={() => setSortBy("score")}>
+                  Top Score
+                </MenuItem>
+                <MenuItem value="tokens" onClick={() => setSortBy("tokens")}>
+                  Total Tokens
+                </MenuItem>
+              </MenuContent>
+            </MenuRoot>
+            <HStack>
+              <Button visual="transparent" p="8px" onClick={() => onOpenInfo()}>
+                <InfoIcon />
+              </Button>
             </HStack>
+          </HStack>
 
-            <Box
+          <Box
+            w="full"
+            layerStyle="transparent"
+            padding={["10px", "10px", "30px"]}
+            bgColor="rgba(0,0,0,0.04)"
+          >
+            <HStack
               w="full"
-              layerStyle="transparent"
-              padding={["10px", "10px", "30px"]}
-              bgColor="rgba(0,0,0,0.04)"
+              px={["0", "0", "20px"]}
+              justify="space-between"
+              fontSize="14px"
+              fontWeight="450"
+              color="purple.50"
+              textTransform="uppercase"
             >
-              <HStack
-                w="full"
-                px={["0", "0", "20px"]}
-                justify="space-between"
-                fontSize="14px"
-                fontWeight="450"
-                color="purple.50"
-                textTransform="uppercase"
-              >
-                {headers.map((h, i) => (
-                  <Box key={i} w="full">
-                    <Text textAlign={["center", "center", "left"]}>{h}</Text>
-                  </Box>
-                ))}
-              </HStack>
-              <Spacer minH="20px" />
-              <VStack w="full">
-                {rows.map((row) => (
-                  <LeaderboardRow
-                    key={row.rank}
-                    rowData={row}
-                    isOwn={row.player === account?.address}
-                    onClick={() => {
-                      if (sortBy === "tokens") return;
+              {headers.map((h, i) => (
+                <Box key={i} w="full">
+                  <Text textAlign={["center", "center", "left"]}>{h}</Text>
+                </Box>
+              ))}
+            </HStack>
+            <Spacer minH="20px" />
+            <VStack w="full">
+              {rows.map((row) => (
+                <LeaderboardRow
+                  key={row.rank}
+                  rowData={row}
+                  isOwn={row.player === account?.address}
+                  onClick={() => {
+                    if (sortBy === "tokens") return;
 
-                      navigate(`/0x${Number(row.gameId).toString(16)}`);
-                    }}
-                  />
-                ))}
-              </VStack>
-            </Box>
-            <VStack w="full" align="flex-start">
+                    navigate(`/0x${Number(row.gameId).toString(16)}`);
+                  }}
+                />
+              ))}
+            </VStack>
+          </Box>
+          <VrfRisk />
+          {/* <VStack w="full" align="flex-start">
               <Text color="purple.50" textStyle="faded">
                 Game ends in...
               </Text>
               <Stack
                 w="full"
-                gap={["0", "0", "50px"]}
+                gap={["25px", "25px", "50px"]}
                 justify="space-between"
                 direction={["column", "column", "row"]}
               >
                 <Timer expiration={gameExpiration} />
                 <Play onReady={(gameId) => navigate(`/${gameId}`)} />
               </Stack>
-            </VStack>
-          </VStack>
+            </VStack> */}
         </VStack>
-      </Container>
-    </>
+      </VStack>
+    </Container>
   );
 };
 
@@ -313,15 +312,15 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   );
 };
 
-const ComingSoon = () => {
-  return (
-    <Container h="100vh" maxW="100vw">
-      <VStack h="100%" justify="center">
-        <Text textStyle="h-sm">NUMS.GG</Text>
-        <Text>#Soon</Text>
-      </VStack>
-    </Container>
-  );
-};
+// const ComingSoon = () => {
+//   return (
+//     <Container h="100vh" maxW="100vw">
+//       <VStack h="100%" justify="center">
+//         <Text textStyle="h-sm">NUMS.GG</Text>
+//         <Text>#Soon</Text>
+//       </VStack>
+//     </Container>
+//   );
+// };
 
 export default Home;

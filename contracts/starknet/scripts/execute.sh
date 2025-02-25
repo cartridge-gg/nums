@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x259dd1f6cfb2a7fc8dcfe8d45d20e3443808fed482d74f9b7f039d49eef1b92"
-NUMS_TOKEN_ADDR="0x735856330be19e6f39e277ebd39f9312f636b345fba0e44654dd0f5826a5cd0"
+STARKNET_MESSENGER_ADDR="0x5edcd6d607a9f83184fda3462cb7b0bd6dbf41942ecb1fca10d76ebbc06cf"
+NUMS_TOKEN_ADDR="0x00e5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -104,7 +104,7 @@ cd "$STARKNET_DOJO_DIR"
 echo "Profile name: $PROFILE_NAME"
 
 # Get current block time and convert to Unix timestamp, then add 1 minute
-BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-appchain/katana)
+BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-mainnet-appchain/katana)
 # First convert to Unix timestamp, then add 60 seconds
 BASE_TIME=$(date -d "$(echo $BLOCK_TIME | cut -d'+' -f1)+0000" "+%s")
 GAME_EXPIRATION=$((BASE_TIME + 1286400))
@@ -117,7 +117,8 @@ case "$COMMAND" in
         echo "Config actions address: $CONFIG_ACTIONS_ADDR"
         echo "Appchain handler address: $APPCHAIN_HANDLER_ADDR"
         echo "Appchain claimer address: $APPCHAIN_CLAIMER_ADDR"
-        sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $GAME_EXPIRATION 0 $NUMS_TOKEN_ADDR 20 1 0x2 2 0x4 3 0x8 4 0x10 5 0x20 6 0x40 7 0x80 8 0x100 9 0x200 10 0x400 11 0x800 12 0x1000 13 0x2000 14 0x4000 15 0x8000 16 0x10000 17 0x20000 18 0x40000 19 0x80000 20 0x100000 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+        #sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 20 1000 1 0 $GAME_EXPIRATION 0 $NUMS_TOKEN_ADDR 20 1 0x2 2 0x4 3 0x8 4 0x10 5 0x20 6 0x40 7 0x80 8 0x100 9 0x200 10 0x400 11 0x800 12 0x1000 13 0x2000 14 0x4000 15 0x8000 16 0x10000 17 0x20000 18 0x40000 19 0x80000 20 0x100000 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
+        sozo execute $CONFIG_ACTIONS_ADDR set_config 0 $STARKNET_MESSENGER_ADDR $MESSAGE_CONSUMERS_ADDR $CONFIG_ACTIONS_ADDR $JACKPOT_ACTIONS_ADDR $APPCHAIN_HANDLER_ADDR $APPCHAIN_CLAIMER_ADDR 0 1 20 1000 1 1 0 5000 0 $NUMS_TOKEN_ADDR 20 1 0x2 2 0x4 3 0x8 4 0x10 5 0x20 6 0x40 7 0x80 8 0x100 9 0x200 10 0x400 11 0x800 12 0x1000 13 0x2000 14 0x4000 15 0x8000 16 0x10000 17 0x20000 18 0x40000 19 0x80000 20 0x100000 --profile $PROFILE_NAME --world $WORLD_ADDR --fee eth
         ;;
     create_jackpot)
         TITLE="0x4e756d73204a61636b706f74" # "Nums Jackpot"

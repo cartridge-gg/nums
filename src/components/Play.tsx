@@ -1,18 +1,49 @@
 import { Button, Spinner } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
 import { CallData, hash, num } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
+import { graphql } from "@/graphql/appchain";
+import { useSubscription } from "urql";
+import { AppchainClient } from "@/graphql/clients";
+import { useParams } from "react-router-dom";
+
+const GameEventQuery = graphql(`
+  query GameEventQuery($entityId: felt252) {
+    eventMessage(id: $entityId) {
+      models {
+        ... on nums_GameCreated {
+          game_id
+        }
+      }
+    }
+  }
+`);
+
+const GameCreatedEvent = graphql(`
+  subscription GameCreatedEvent($entityId: felt252) {
+    eventMessageUpdated(id: $entityId) {
+      models {
+        __typename
+        ... on nums_GameCreated {
+          game_id
+        }
+      }
+    }
+  }
+`);
 
 const Play = ({
   isAgain,
   onReady,
+  ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
+  [key: string]: any;
 }) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
@@ -21,6 +52,55 @@ const Play = ({
   const [creating, setCreating] = useState<boolean>(false);
   const { requestAppchain } = useChain();
   const { playReplay } = useAudio();
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+  const { gameId } = useParams();
+
+  const entityId = useMemo(() => {
+    if (!account) return;
+    const entityId = hash.computePoseidonHashOnElements([
+      num.toHex(account.address),
+    ]);
+
+    return entityId;
+  }, [account]);
+
+  const [subscriptionResult] = useSubscription({
+    query: GameCreatedEvent,
+    variables: { entityId },
+    pause: !entityId,
+  });
+
+  useEffect(() => {
+    if (subscriptionResult.data?.eventMessageUpdated) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+
+      const gameId =
+        // @ts-ignore
+        subscriptionResult.data.eventMessageUpdated.models![0]!.game_id;
+      onReady(num.toHex(gameId));
+      setCreating(false);
+    }
+  }, [subscriptionResult.data]);
+
+  const queryEvent = useCallback((entityId: string) => {
+    AppchainClient.query(
+      GameEventQuery,
+      { entityId },
+      { requestPolicy: "network-only" },
+    )
+      .toPromise()
+      .then((res) => {
+        // @ts-ignore
+        const newGameId = res.data?.eventMessage.models![0]!.game_id;
+        if (newGameId !== gameId) {
+          onReady(num.toHex(newGameId));
+          setCreating(false);
+        }
+      });
+  }, []);
 
   const newGame = async () => {
     if (!account) return;
@@ -35,11 +115,11 @@ const Play = ({
       const { transaction_hash } = await account.execute([
         {
           contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: 'request_random',
+          entrypoint: "request_random",
           calldata: CallData.compile({
             caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address }
-          })
+            source: { type: 0, address: account.address },
+          }),
         },
         {
           contractAddress: import.meta.env.VITE_GAME_CONTRACT,
@@ -50,29 +130,25 @@ const Play = ({
 
       showTxn(transaction_hash, chain?.name);
 
-      const receipt = await account.waitForTransaction(transaction_hash, {
-        retryInterval: 500,
-      });
-
-      if (receipt.isSuccess()) {
-        const createdEvent = receipt.events.find(
-          ({ keys }) => keys[0] === hash.getSelectorFromName("EventEmitted"),
-        );
-
-        onReady(createdEvent?.data[1]!);
-        return;
-      }
+      // Set timeout to query game if subscription doesn't respond
+      const timeout = setTimeout(() => {
+        queryEvent(entityId!);
+      }, 2000);
+      setTimeoutId(timeout);
     } catch (e) {
       console.error(e);
-    } finally {
-      setCreating(false);
     }
   };
 
   return (
     <>
       {account ? (
-        <Button onClick={newGame} disabled={creating} minW="150px">
+        <Button
+          onClick={newGame}
+          disabled={creating}
+          minW="150px"
+          {...buttonProps}
+        >
           {creating ? (
             <Spinner />
           ) : isAgain ? (
@@ -84,7 +160,10 @@ const Play = ({
           )}
         </Button>
       ) : (
-        <Button onClick={() => connect({ connector: connectors[0] })}>
+        <Button
+          onClick={() => connect({ connector: connectors[0] })}
+          {...buttonProps}
+        >
           Connect
         </Button>
       )}

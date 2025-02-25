@@ -413,7 +413,7 @@ const Row = ({
                 />
                 <TooltipRow
                   label="Last block verified on Starknet"
-                  value={blockProcessing}
+                  value={blockProcessing === 0 ? "-" : blockProcessing}
                 />
               </>
             ) : (

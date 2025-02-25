@@ -123,7 +123,12 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
         contractAddress: import.meta.env.VITE_CONSUMER_CONTRACT,
         entrypoint: "get_state",
       });
-      setBlockProcessing(parseInt(res[1]));
+
+      if (parseInt(res[0]) !== 0) {
+        setBlockProcessing(parseInt(res[1]));
+      } else {
+        setBlockProcessing(0);
+      }
 
       // Update state values
       setClaims(processedClaims);

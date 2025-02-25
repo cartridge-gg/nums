@@ -96,7 +96,7 @@ const policies: SessionPolicies = {
 
 const profile: ProfileOptions = {
   preset: "nums",
-  slot: "nums-appchain",
+  slot: "nums-mainnet-appchain",
   namespace: "nums",
 };
 

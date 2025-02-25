@@ -11,7 +11,7 @@ website = "https://nums.gg"
 default = "nums"
 
 [env]
-rpc_url = "https://api.cartridge.gg/x/nums-mainet-appchain/katana"
+rpc_url = "https://api.cartridge.gg/x/nums-mainnet-appchain/katana"
 account_address = "0x6d19755b067c9bc924da6f9907fa7d8128b8d1ae6850d4860fc5e9d5525a29b"
 keystore_path = "/home/broody/.starkli_accounts/katana-provable/keystore.json"
 # world_address = "0x05f2358c005acf2a63616a32b76a01d632463b84609954ff846998f898a49778"

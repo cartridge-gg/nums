@@ -33,7 +33,18 @@ starkli declare controller.v1.0.8.contract_class.flat.json --account ~/.starkli_
 
 sudo docker run --env-file /home/broody/development/saya-env glihm/saya:mock-snos saya persistent start     --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie
 
-starkli invoke 0xd3ca353aebc53c3907ed6c1882af7064657cdeef0c3f57581ffbb001779d24 set_facts_registry 0x0431975c42ff14f106f587bd15c0be00d496724e44cd01d8b0e7409af3b8c569, --account ./dev-sepolia.account --keystore ./dev-sepolia.key
+starkli invoke 0x3dd7b28f5fb3c8f9b08168a28997b25d5049c6e4af3289051f56fd6b7573eb4 set_facts_registry 0x01eda48cc753670a9a00313afd08bac6e1606943d554ea4a6040cd2953d67867 --account ./dev-sepolia.account --keystore ./dev-sepolia.key
 
 
 cargo run --bin saya -- persistent start --mock-layout-bridge-program-hash 0x193641eb151b0f41674641089952e60bc3aded26e3cf42793655c562b8c3aa0 --mock-snos-from-pie local
+
+starkli declare cartridge_vrf_VrfProvider.contract_class.json --account ~/.starkli_accounts/katana-provable/account.json --keystore ~/.starkli_accounts/katana-provable/keystore.json --compiler-version 2.9.1
+
+starkli invoke 0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf deployContract 0x062daa3ff08f72581e260196cd9629a41265608c243be4e902a46cca33f563a8 0x420 0x0 0x3 0x359a81f67140632ec91c7f9af3fc0b5bca0a898ae0be3f7682585b0f40119a7 0x45b6fd1c58a3a10e27595655c812d09514f7e142c446787eeb1bdc38f57fc50 0xbbaf279d314d31b913c19e3599fe488f3b8006483f00c0e1cacc377a6f1bb4 --account ~/.starkli_accounts/katana-provable/account.json --keystore ~/.starkli_accounts/katana-provable/keystore.json
+
+
+
+// TOKEN
+starkli declare nums_tokens_NumsToken.contract_class.json
+
+starkli deploy 0x033c310430ce63763c6faca4b1d0f489e5e2cfe87c12ba5850255e7088ef75f8 0xdbd8a366db7af2abc9aa5b72c9e357d0ff83dfba2fe5b63cc7ffb5cd0df2cd 0x0337cf15ed78740e04834bf4a229cae97774bb0bbcb085440036a0d81ef4f0d9 --salt 0x1337

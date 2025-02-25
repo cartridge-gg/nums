@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x774067a9257c086c8ae9914579d44eb137d2ce3cd873603a971c3dc30d14ac1"
-NUMS_TOKEN_ADDR="0x07ac9286f71403f4633b169c073e9a61db1239a0945bcdab771a2a3f83772116"
+STARKNET_MESSENGER_ADDR="0x5edcd6d607a9f83184fda3462cb7b0bd6dbf41942ecb1fca10d76ebbc06cf"
+NUMS_TOKEN_ADDR="0x03f48c3b00fb4356d52f2b2a91bae543b74c9aa96464c2132f39b02afd5b6533"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
@@ -104,7 +104,7 @@ cd "$STARKNET_DOJO_DIR"
 echo "Profile name: $PROFILE_NAME"
 
 # Get current block time and convert to Unix timestamp, then add 1 minute
-BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-appchain/katana)
+BLOCK_TIME=$(starkli block-time --rpc https://api.cartridge.gg/x/nums-mainnet-appchain/katana)
 # First convert to Unix timestamp, then add 60 seconds
 BASE_TIME=$(date -d "$(echo $BLOCK_TIME | cut -d'+' -f1)+0000" "+%s")
 GAME_EXPIRATION=$((BASE_TIME + 1286400))

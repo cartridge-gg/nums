@@ -4,7 +4,6 @@ import Play from "./Play";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "./Button";
-import { Tooltip, TooltipRow } from "./ui/tooltip";
 
 type RiskFactor = "Critical" | "High" | "Medium" | "Low";
 

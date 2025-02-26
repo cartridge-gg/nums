@@ -125,8 +125,13 @@ pub mod game_actions {
                 assert!(starknet::get_block_timestamp() < expiration, "Game expired");
             }
 
-            let game_id = world.dispatcher.uuid();
             let player = get_caller_address();
+            let mut totals: Totals = world.read_model(player);
+            totals.games_played += 1;
+
+            world.write_model(@totals);
+
+            let game_id = world.dispatcher.uuid();
             let mut rand = RandomImpl::new_vrf();
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
 

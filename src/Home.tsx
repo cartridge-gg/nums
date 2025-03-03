@@ -145,6 +145,8 @@ const Home = () => {
     );
   }, [leaderboardResult, sortBy]);
 
+  return <ComingSoon />;
+
   return (
     <Container
       minH="100vh"
@@ -312,15 +314,28 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   );
 };
 
-// const ComingSoon = () => {
-//   return (
-//     <Container h="100vh" maxW="100vw">
-//       <VStack h="100%" justify="center">
-//         <Text textStyle="h-sm">NUMS.GG</Text>
-//         <Text>#Soon</Text>
-//       </VStack>
-//     </Container>
-//   );
-// };
+const ComingSoon = () => {
+  return (
+    <Container h="100vh" maxW="100vw">
+      <VStack h="100%" justify="center">
+        <Text textStyle="h-sm">NUMS.GG</Text>
+        <Text fontWeight="500" fontSize="16px">
+          INITIAL SORTING SEQUENCE COMPLETED
+        </Text>
+        <HStack flexDir={["column", "column", "row"]}>
+          <Text color="rgba(255,255,255,0.5)" textAlign="right">
+            Activate notifications at Nums for Phase 2.
+          </Text>
+          <Text
+            onClick={() => window.open("https://x.com/numsgg", "_blank")}
+            _hover={{ cursor: "pointer", textDecoration: "underline" }}
+          >
+            x.com/numsgg
+          </Text>
+        </HStack>
+      </VStack>
+    </Container>
+  );
+};
 
 export default Home;

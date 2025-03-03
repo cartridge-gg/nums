@@ -190,7 +190,7 @@ const RewardsOverlay = ({
                       color="rgba(255,255,255,0.5)"
                       cursor="pointer"
                     >
-                      <Text>~2 HR</Text> <InfoIcon />{" "}
+                      <InfoIcon />{" "}
                     </HStack>
                   </Tooltip>
                 )}
@@ -278,7 +278,10 @@ const RewardsOverlay = ({
                 visual="transparent"
                 textAlign="center"
                 onClick={() => {
-                  window.open("https://app.ekubo.org", "_blank");
+                  window.open(
+                    "https://app.ekubo.org/?outputCurrency=NUMS&amount=1&inputCurrency=STRK",
+                    "_blank",
+                  );
                 }}
               >
                 <StarknetColoredIcon /> Trade
@@ -360,20 +363,15 @@ const Row = ({
   claimId,
   amount,
   status,
-  blockTimestamp,
   blockNumber,
   blockProcessing,
 }: ClaimData & { blockProcessing: number }) => {
-  const getETA = (timestamp: number) => {
-    if (status === "Claimed" || status === "Ready to Claim") return "-";
-
-    const etaTime = (timestamp + 2 * 60 * 60) * 1000; // Add 2 hours in milliseconds
-    const now = Date.now();
-    const minutesRemaining = (etaTime - now) / (1000 * 60);
-
-    if (minutesRemaining <= 0) return "Unknown";
-    if (minutesRemaining > 60) return `${Math.ceil(minutesRemaining / 60)}hr`;
-    return `${Math.ceil(minutesRemaining)}min`;
+  const getETA = (blockProcessing: number, blockNumber: number) => {
+    const diff = blockNumber - blockProcessing;
+    if (diff <= 0) return "-";
+    const hours = diff * 1;
+    if (hours > 2) return ">2hrs";
+    return hours === 1 ? "<1hr" : `${hours}hr`;
   };
 
   const getStatusColor = (status: string) => {
@@ -413,7 +411,7 @@ const Row = ({
                 />
                 <TooltipRow
                   label="Last block verified on Starknet"
-                  value={blockProcessing}
+                  value={blockProcessing === 0 ? "-" : blockProcessing}
                 />
               </>
             ) : (
@@ -430,7 +428,7 @@ const Row = ({
         closeDelay={100}
       >
         <Text flex="1" py="16px" textAlign="center">
-          {getETA(blockTimestamp)}
+          {getETA(blockProcessing, blockNumber)}
         </Text>
       </Tooltip>
     </HStack>

@@ -8,11 +8,15 @@ import useToast from "./toast";
 // export const STARKNET_CHAIN_ID =
 //   shortString.encodeShortString("WP_NUMS_STARKNET");
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
-export const APPCHAIN_CHAIN_ID =
-  shortString.encodeShortString("WP_NUMS_APPCHAIN");
+export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
+
+export const APPCHAIN_CHAIN_ID = shortString.encodeShortString(
+  "WP_NUMS_MAINNET_APPCHAIN",
+);
 
 const chainName = {
   [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
+  [MAINNET_CHAIN_ID]: "Starknet Mainnet",
   [APPCHAIN_CHAIN_ID]: "Nums Chain",
 };
 
@@ -62,11 +66,11 @@ const useChain = () => {
 
   const requestStarknet = useCallback(
     async (silent?: boolean) => {
-      if (chain.id === num.toBigInt(SEPOLIA_CHAIN_ID)) {
+      if (chain.id === num.toBigInt(MAINNET_CHAIN_ID)) {
         return;
       }
 
-      await requestChain(SEPOLIA_CHAIN_ID, silent);
+      await requestChain(MAINNET_CHAIN_ID, silent);
     },
     [chain],
   );

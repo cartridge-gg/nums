@@ -57,7 +57,7 @@ export const TooltipRow = ({
   unit,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   unit?: string;
 }) => {
   return (

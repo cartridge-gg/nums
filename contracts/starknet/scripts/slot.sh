@@ -16,7 +16,7 @@ SLOT_PROJECT="nums-starknet"
 case $COMMAND in
     "create")
         if [ "$SERVICE" == "torii" ]; then
-            JSON_FILE="$SCRIPT_DIR/../dojo/manifest_sepolia.json"
+            JSON_FILE="$SCRIPT_DIR/../dojo/manifest_mainnet.json"
             if [ ! -f "$JSON_FILE" ]; then
                 echo "Error: JSON file not found at $JSON_FILE"
                 exit 1
@@ -29,7 +29,7 @@ case $COMMAND in
             fi
 
 
-            slot d create --tier epic $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/starknet/sepolia --world $WORLD_ADDR --version v1.2.0
+            slot d create --tier epic $SLOT_PROJECT torii --rpc https://api.cartridge.gg/x/starknet/mainnet --world $WORLD_ADDR --indexing.world_block 1180311 --version v1.2.0
         fi
         ;;
     "delete")

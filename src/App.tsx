@@ -72,7 +72,7 @@ function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[appchain, sepolia]}
+      chains={[appchain, mainnet]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

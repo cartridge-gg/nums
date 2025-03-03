@@ -9,7 +9,6 @@ import useToast from "./toast";
 //   shortString.encodeShortString("WP_NUMS_STARKNET");
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
-
 export const APPCHAIN_CHAIN_ID = shortString.encodeShortString(
   "WP_NUMS_MAINNET_APPCHAIN",
 );
@@ -31,9 +30,9 @@ export interface UseChain {
 
 const useChain = () => {
   const [error, setError] = useState<Error>();
-  const { showChainSwitch, showError } = useToast();
+  const { showChainSwitch } = useToast();
   const { chain } = useNetwork();
-  const { switchChainAsync } = useSwitchChain({
+  const { switchChain } = useSwitchChain({
     params: {
       chainId: APPCHAIN_CHAIN_ID,
     },
@@ -47,11 +46,8 @@ const useChain = () => {
       }
 
       try {
-        const res = await switchChainAsync({ chainId });
-        if (!res) {
-          showError("Failed to switch chain");
-          return;
-        }
+        switchChain({ chainId });
+
 
         if (!silent) {
           showChainSwitch(chainName[chainId]);

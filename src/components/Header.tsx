@@ -12,6 +12,7 @@ import Balance from "./Balance";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
+import useChain from "@/hooks/chain";
 
 const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
   const { connect, connectors } = useConnect();
@@ -20,7 +21,8 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
   const { address, connector } = useAccount();
   const { isMuted, toggleMute } = useAudio();
   const [username, setUsername] = useState<string | null>(null);
-
+  const { requestStarknet } = useChain();
+  
   const controllerConnector = connector as never as ControllerConnector;
 
   useEffect(() => {
@@ -85,6 +87,7 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
               h={height}
               w={width}
               onClick={async () => {
+                await requestStarknet(true);
                 (connector as ControllerConnector)?.controller.openProfile(
                   "achievements",
                 );

@@ -12,11 +12,11 @@ importers:
         specifier: ^0.0.74
         version: 0.0.74(@tanstack/react-query@5.29.2(react@18.2.0))(@types/react-dom@18.2.25)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(typescript@5.5.4)
       '@cartridge/connector':
-        specifier: 0.7.0
-        version: 0.7.0(@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4))(open@10.1.0)(starknet@6.11.0)
+        specifier: 0.7.4
+        version: 0.7.4(@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4))(open@10.1.0)(starknet@6.11.0)
       '@cartridge/controller':
-        specifier: 0.7.0
-        version: 0.7.0(open@10.1.0)(starknet@6.11.0)
+        specifier: 0.7.4
+        version: 0.7.4(open@10.1.0)(starknet@6.11.0)
       '@cartridge/presets':
         specifier: ^0.5.2
         version: 0.5.2
@@ -392,16 +392,16 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@cartridge/account-wasm@0.7.0':
-    resolution: {integrity: sha512-s1GHkGFARh/rb9rGk/tbhvJEGXRd0f1iVtv808ta9uEJDFEADc6sZ2UOL6YTDk06KpRIaQe1IjvTzWyObtZfGg==}
+  '@cartridge/account-wasm@0.7.4':
+    resolution: {integrity: sha512-2zuxamHerYI6UnzmfshMhfYlLvjdAxWxZSPBcMfch/M+p8FP1DGJs+Ybkhk52tp8RD3vevVJxMjGD2DtVwGIlg==}
 
-  '@cartridge/connector@0.7.0':
-    resolution: {integrity: sha512-b1OlY+BaxMq8SDyCrfZTKJE0GncHVZg5zT8/4dOwCTFuhCdh9SpOVxFWmF6mce2yqNSOVyt8Rg1xrI5SmHAAUA==}
+  '@cartridge/connector@0.7.4':
+    resolution: {integrity: sha512-v3TnI+nMt20/gXruAKn8uKgdylR2in7mvPmZB594ygy7q9WmeJOoxZAEqfjW5y/bvUAMZHG+qjVvOCehRrK5tQ==}
     peerDependencies:
       '@starknet-react/core': ^3.7
 
-  '@cartridge/controller@0.7.0':
-    resolution: {integrity: sha512-sfThpo3GURRpGrOvMhKNSRwhd6DKlIv9/K7Pky8XFgm7EOn91dsC1vCc47UP72oO9bVLxUupt1Boy6UiCq66Gg==}
+  '@cartridge/controller@0.7.4':
+    resolution: {integrity: sha512-GxfiwcFyqAyj/dxcmPCMXbi/FFK8pIR9zcGqiFHRy5AtFu50qOTZqwyyIZea8QbSjGwDmHg9X5kyw4dmqS01kg==}
     peerDependencies:
       open: ^10.1.0
       starknet: ^6.21.0
@@ -4295,21 +4295,21 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@cartridge/account-wasm@0.7.0': {}
+  '@cartridge/account-wasm@0.7.4': {}
 
-  '@cartridge/connector@0.7.0(@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4))(open@10.1.0)(starknet@6.11.0)':
+  '@cartridge/connector@0.7.4(@starknet-react/core@3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4))(open@10.1.0)(starknet@6.11.0)':
     dependencies:
-      '@cartridge/controller': 0.7.0(open@10.1.0)(starknet@6.11.0)
+      '@cartridge/controller': 0.7.4(open@10.1.0)(starknet@6.11.0)
       '@starknet-react/core': 3.0.3(get-starknet-core@3.2.0(starknet@6.11.0))(react@18.2.0)(starknet@6.11.0)(typescript@5.5.4)
     transitivePeerDependencies:
       - open
       - starknet
 
-  '@cartridge/controller@0.7.0(open@10.1.0)(starknet@6.11.0)':
+  '@cartridge/controller@0.7.4(open@10.1.0)(starknet@6.11.0)':
     dependencies:
-      '@cartridge/account-wasm': 0.7.0
+      '@cartridge/account-wasm': 0.7.4
       '@cartridge/penpal': 6.2.4
-      '@starknet-io/types-js': 0.7.7
+      '@starknet-io/types-js': 0.7.10
       '@telegram-apps/sdk': 2.5.2
       base64url: 3.0.1
       cbor-x: 1.5.9

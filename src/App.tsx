@@ -8,9 +8,10 @@ import {
   Connector,
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
+import { ControllerOptions, ProfileOptions, SessionPolicies } from "@cartridge/controller";
+import { getSocialPolicies } from "@bal7hazar/arcade-sdk";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num } from "starknet";
+import { constants, num } from "starknet";
 import "./fonts.css";
 import { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
@@ -32,6 +33,67 @@ const provider = jsonRpcProvider({
   },
 });
 
+const policies: SessionPolicies = {
+    contracts: {
+      [import.meta.env.VITE_GAME_CONTRACT]: {
+        name: "Nums Game",
+        description: "Nums Game",
+        methods: [
+          {
+            name: "Create Game",
+            entrypoint: "create_game",
+            description: "Creates a new game",
+          },
+          {
+            name: "Set Slot",
+            entrypoint: "set_slot",
+            description: "Sets one slot for the game",
+          },
+          {
+            name: "Request Random",
+            entrypoint: "request_random",
+            description: "Requests a random number from the VRF contract",
+          },
+        ],
+      },
+      [import.meta.env.VITE_CLAIM_CONTRACT]: {
+        methods: [
+          {
+            name: "Claim Appchain Reward",
+            entrypoint: "claim_reward",
+            description: "Claims token rewards on Appchain",
+          },
+          {
+            name: "Claimed on Starknet",
+            entrypoint: "claimed_on_starknet",
+            description: "Specifies that a reward has been claimed on Starknet",
+          },
+        ],
+      },
+      [import.meta.env.VITE_CONSUMER_CONTRACT]: {
+        methods: [
+          {
+            name: "Consume Reward on Starknet",
+            entrypoint: "consume_claim_reward",
+            description: "Consumes a claim reward message on Starknet",
+          },
+        ],
+      },
+      [import.meta.env.VITE_VRF_CONTRACT]: {
+        methods: [
+          {
+            name: "Request Random",
+            entrypoint: "request_random",
+            description: "Requests a random number from the VRF contract",
+          },
+        ],
+      },
+      ...getSocialPolicies(constants.StarknetChainId.SN_SEPOLIA, { pin: true })
+        .contracts,
+    },
+  };
+  
+
 const profile: ProfileOptions = {
   preset: "nums",
   slot: "nums-mainnet-appchain",
@@ -40,10 +102,11 @@ const profile: ProfileOptions = {
 
 const options: ControllerOptions = {
   ...profile,
+  policies,
   defaultChainId: APPCHAIN_CHAIN_ID,
   chains: [
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -72,7 +135,7 @@ function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[appchain, sepolia]}
+      chains={[appchain, mainnet]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}

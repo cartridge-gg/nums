@@ -1,13 +1,8 @@
 {
   "world": {
     "class_hash": "0x4b767fda48530353c2e44e4b9433f4d75c6c9974aaff43ecc00de9455eb71b8",
-<<<<<<< HEAD
-    "address": "0x68c5d38903d3b6491c3366e6068b404a8cfda8590e5b1ab59ae8b5153ac65c0",
-    "seed": "nums-02322025",
-=======
-    "address": "0xdb5afdc41e06db899b9c73a4adc39c168a6f18cfccc6f9294caa4811b58764",
-    "seed": "nums-02422025",
->>>>>>> main
+    "address": "0x34ce03cfd2007c43941aa8033920bdb158752ea7328299fd0cdd4d2476800a2",
+    "seed": "nums-03032025",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -1257,13 +1252,8 @@
   },
   "contracts": [
     {
-<<<<<<< HEAD
-      "address": "0x567b41fb8a8f8dfb3ca2056219ff8497d0a342765064b375facfede55ab9779",
-      "class_hash": "0x59796f42ea5549cff8ebfdd95b6f23547afd427eb1a800b339b0c1717c184b1",
-=======
-      "address": "0x7ed7e6fe85071c1706cc60c317ef529218ca20b3e67f364a6cac60844f3ae8d",
+      "address": "0x34755df2d891e1210c38d3355fd84ef5ac8b23e935d3c4fbf945370a3c9b4f1",
       "class_hash": "0x7dd7039bb5bcf430b230612cd014cc04f06689773c4d40d1b6a34d67ce66501",
->>>>>>> main
       "abi": [
         {
           "type": "impl",
@@ -1632,13 +1622,8 @@
       ]
     },
     {
-<<<<<<< HEAD
-      "address": "0x19cc4ce7d949820a6f45050f5c35bcc024c7f12cf366fdb60f27f2f196e1c36",
-      "class_hash": "0x7a74db93014cac05214df296ad3f806863ed499dffdd9ea19078b3f9116e623",
-=======
-      "address": "0x869da5227282ba74f344cc24724badc59701d3b7b65a7f77d220e86f3b5d3c",
+      "address": "0x46a7ad5d72987053fa1a2cd1cd32722ccfac79502e84251a89cd13a8769d3c9",
       "class_hash": "0x6701dc2994773bc1a5ca84ec2c76af7dd8bfb919ce71fd68fcbb11612d50e1d",
->>>>>>> main
       "abi": [
         {
           "type": "impl",
@@ -1995,13 +1980,8 @@
       ]
     },
     {
-<<<<<<< HEAD
-      "address": "0x337cf15ed78740e04834bf4a229cae97774bb0bbcb085440036a0d81ef4f0d9",
-      "class_hash": "0x212d1a34b8532a7940917e39b8380e8d4c58a2ee29ddd4986dbb5f073f90152",
-=======
-      "address": "0x1ddd3f51c5089bd155eb93f08f3e1843b658a017711eb32b6ba33eedba939b4",
+      "address": "0xcd3a64e3ede0c3e929dd9593341f0a25c4e7f7265fc3b073e8416d8982efa1",
       "class_hash": "0x406fec244444dee6b5b3e5dd2e77c5a34652d8c0c4898693ea7f7940669f007",
->>>>>>> main
       "abi": [
         {
           "type": "impl",

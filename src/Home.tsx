@@ -145,50 +145,6 @@ const Home = () => {
     );
   }, [leaderboardResult, sortBy]);
 
-<<<<<<< HEAD
-  return import.meta.env.VITE_VERCEL_ENV === "production" ? (
-    <ComingSoon />
-  ) : (
-    <>
-      <Container
-        minH="100vh"
-        maxW="100vw"
-        display="flex"
-        justifyContent="center"
-        alignItems={["flex-start", "flex-start", "center"]}
-        p="15px"
-        pt={["100px", "100px", "40px"]}
-      >
-        <Header hideChain />
-        <InfoOverlay open={openInfo} onClose={onCloseInfo} />
-        <VStack>
-          <VStack gap="20px" w={["100%", "100%", "800px"]}>
-            <HStack w="full" justify="space-between">
-              <MenuRoot>
-                <MenuTrigger asChild>
-                  <Button visual="transparent" gap="8px" fontSize="18px">
-                    <TrophyIcon />
-                    {sortBy === "score" ? "Top Score" : "Total Tokens"}
-                    <CaretIcon />
-                  </Button>
-                </MenuTrigger>
-                <MenuContent>
-                  <MenuItem value="score" onClick={() => setSortBy("score")}>
-                    Top Score
-                  </MenuItem>
-                  <MenuItem value="tokens" onClick={() => setSortBy("tokens")}>
-                    Total Tokens
-                  </MenuItem>
-                </MenuContent>
-              </MenuRoot>
-              <HStack>
-                <Button
-                  visual="transparent"
-                  p="8px"
-                  onClick={() => onOpenInfo()}
-                >
-                  <InfoIcon />
-=======
   return (
     <Container
       minH="100vh"
@@ -210,7 +166,6 @@ const Home = () => {
                   <TrophyIcon />
                   {sortBy === "score" ? "Top Score" : "Total Tokens"}
                   <CaretIcon />
->>>>>>> main
                 </Button>
               </MenuTrigger>
               <MenuContent>

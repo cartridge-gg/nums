@@ -32,8 +32,8 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Piltover address
-STARKNET_MESSENGER_ADDR="0x3dd7b28f5fb3c8f9b08168a28997b25d5049c6e4af3289051f56fd6b7573eb4"
-NUMS_TOKEN_ADDR="0x07ac9286f71403f4633b169c073e9a61db1239a0945bcdab771a2a3f83772116"
+STARKNET_MESSENGER_ADDR="0x637188245b447fb88f969b521fc4ad51a9685006a4d0d505fb074a9b918b4d3"
+NUMS_TOKEN_ADDR="0x045c9f1d4d8fc10b54e0c1091bd106a5bc49be83e2c5ab5f05b307ff342e9df9"
 
 CONFIG_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-config_actions") | .address' "$JSON_FILE")
 JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")

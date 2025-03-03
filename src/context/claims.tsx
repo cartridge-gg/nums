@@ -81,7 +81,7 @@ export function ClaimsProvider({ children }: { children: ReactNode }) {
   const readyToBridge = rewardsEarnedAppchain - rewardsClaimedAppchain;
 
   const provider = new Provider({
-    nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL,
+    nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
   });
 
   const updateClaims = useCallback(async () => {

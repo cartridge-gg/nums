@@ -1,12 +1,16 @@
 import { useGlobal } from "@/hooks/global";
 import { HStack, Stack, Text, VStack } from "@chakra-ui/react";
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Play from "./Play";
+import { Button } from "./Button";
 
 type RiskFactor = "Critical" | "High" | "Medium" | "Low";
 
 export const VrfRisk = () => {
   const { gamesPlayed, maxGames, isActive } = useGlobal();
   const [riskFactor, setRiskFactor] = useState<RiskFactor>("Low");
+  const navigate = useNavigate();
 
   const isPaused = useMemo(() => {
     return !isActive || gamesPlayed >= maxGames;
@@ -78,7 +82,7 @@ export const VrfRisk = () => {
             </HStack>
           </HStack>
         </VStack>
-        <VStack
+        {/* <VStack
           align={["center", "center", "flex-end"]}
           w={["100%", "100%", "450px"]}
         >
@@ -96,8 +100,8 @@ export const VrfRisk = () => {
               x.com/numsgg
             </Text>
           </HStack>
-        </VStack>
-        {/* {!isPaused ? (
+        </VStack> */}
+        {!isPaused ? (
           <Play
             onReady={(gameId) => navigate(`/${gameId}`)}
             w={["100%", "100%", "auto"]}
@@ -106,7 +110,7 @@ export const VrfRisk = () => {
           <Button visual="transparent" disabled color="rgba(255,255,255,0.5)">
             Paused!
           </Button>
-        )} */}
+        )}
       </Stack>
     </VStack>
   );

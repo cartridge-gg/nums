@@ -11,7 +11,7 @@ export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
 
 export const APPCHAIN_CHAIN_ID = shortString.encodeShortString(
-  "WP_NUMS_MAINNET_APPCHAIN",
+  "WP_NUMS_APPCHAIN",
 );
 
 const chainName = {

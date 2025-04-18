@@ -10,13 +10,14 @@ import {
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num } from "starknet";
+import { constants, num } from "starknet";
 import "./fonts.css";
 import { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
 import { UrqlProvider } from "./context/urql";
 import { ClaimsProvider } from "./context/claims";
+import StarterPack from "./Starterpack";
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
@@ -40,10 +41,11 @@ const profile: ProfileOptions = {
 
 const options: ControllerOptions = {
   ...profile,
-  defaultChainId: APPCHAIN_CHAIN_ID,
+  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
   chains: [
     { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
     { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
   ],
   tokens: {
     erc20: [import.meta.env.VITE_NUMS_ERC20],
@@ -84,6 +86,7 @@ function App() {
               <Router>
                 <Routes>
                   <Route path="/" element={<Home />} />
+                  <Route path="/starterpack" element={<StarterPack />} />
                   <Route path="/:gameId" element={<Game />} />
                 </Routes>
               </Router>

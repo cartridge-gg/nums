@@ -4,6 +4,9 @@ import { useAccount, useConnect, useExplorer } from "@starknet-react/core";
 import ControllerConnector from "@cartridge/connector/controller";
 import { useState } from "react";
 
+const villagePassAddr =
+  "0x7ce83857ef878e3ccedb48c982c78c6978c5d50483904d07f38834546548aa4";
+
 const StarterPack = () => {
   const explorer = useExplorer();
   const { connect, connectors } = useConnect();
@@ -11,19 +14,15 @@ const StarterPack = () => {
   const controllerConnector = connector as never as ControllerConnector;
   const [starterPacks, setStarterPacks] = useState(0);
   const mintStarterPack = async () => {
-    controllerConnector.controller.openStarterPack("sick-starter-pack");
+    controllerConnector.controller.openStarterPack("eternum-village-pass");
   };
-
-  const sspAddr =
-    "0x033c6426d6e95d706be0e9fa31081cc9990ff1d399ecf22ad3fe0e8ae88b4f81";
 
   setInterval(() => {
     if (!address) return;
 
     controllerConnector.controller.account
       ?.callContract({
-        contractAddress:
-          "0x033c6426d6e95d706be0e9fa31081cc9990ff1d399ecf22ad3fe0e8ae88b4f81",
+        contractAddress: villagePassAddr,
         entrypoint: "balanceOf",
         calldata: [address],
       })
@@ -40,13 +39,14 @@ const StarterPack = () => {
         pt={["90px", "90px", "0"]}
       >
         <VStack>
-          <Link href={explorer.contract(sspAddr)} target="_blank">
+          <Link href={explorer.contract(villagePassAddr)} target="_blank">
             <Image
               boxSize="200px"
-              src="https://static.cartridge.gg/media/ssp.png"
-              alt="Sick Starter Pack"
+              src="https://static.cartridge.gg/media/village-image.png"
+              alt="Eternum Village Pass"
             />
           </Link>
+          <Text>{villagePassAddr}</Text>
 
           {address ? (
             <>

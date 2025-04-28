@@ -34,7 +34,7 @@ const provider = jsonRpcProvider({
 });
 
 const profile: ProfileOptions = {
-  preset: "nums",
+  preset: "eternum",
   slot: "nums-mainnet-appchain",
   namespace: "nums",
 };

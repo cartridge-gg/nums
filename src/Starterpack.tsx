@@ -5,7 +5,7 @@ import ControllerConnector from "@cartridge/connector/controller";
 import { useState } from "react";
 
 const villagePassAddr =
-  "0x7ce83857ef878e3ccedb48c982c78c6978c5d50483904d07f38834546548aa4";
+  "0x7ad410c472c1d61ce318dd617a479c977c85275afbf7991a1e1461ffe626a3d";
 
 const StarterPack = () => {
   const explorer = useExplorer();
@@ -14,7 +14,9 @@ const StarterPack = () => {
   const controllerConnector = connector as never as ControllerConnector;
   const [starterPacks, setStarterPacks] = useState(0);
   const mintStarterPack = async () => {
-    controllerConnector.controller.openStarterPack("eternum-village-pass");
+    controllerConnector.controller.openStarterPack(
+      "eternum-village-pass-mainnet",
+    );
   };
 
   setInterval(() => {
@@ -46,7 +48,9 @@ const StarterPack = () => {
               alt="Eternum Village Pass"
             />
           </Link>
-          <Text>{villagePassAddr}</Text>
+          <Text>
+            <strong>SN_MAIN</strong>: {villagePassAddr}
+          </Text>
 
           {address ? (
             <>

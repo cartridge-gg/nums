@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@bal7hazar/arcade-sdk": "^0.0.74",
-    "@cartridge/connector": "0.7.13-alpha.1",
-    "@cartridge/controller": "0.7.13-alpha.1",
+    "@cartridge/connector": "0.7.14-alpha.2",
+    "@cartridge/controller": "0.7.14-alpha.2",
     "@cartridge/presets": "^0.5.2",
     "@chakra-ui/react": "^3.5.1",
     "@emotion/react": "^11.14.0",

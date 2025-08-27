@@ -1,0 +1,30 @@
+[package]
+name = "nums"
+version = "0.1.0"
+cairo-version = "=2.10.1"
+edition = "2024_07"
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
+build-external-contracts = [
+    "dojo::world::world_contract::world",
+    "achievement::events::index::e_TrophyCreation",
+    "achievement::events::index::e_TrophyProgression",
+]
+
+[dependencies]
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.6.0" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", tag="v1.6.0" }
+piltover = { git = "https://github.com/keep-starknet-strange/piltover", rev = "fb9d988" }
+starknet = "2.10.1"
+
+[dev-dependencies]
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.6.0" }
+
+[features]
+default = []
+
+[profile.slot]
+[profile.mainnet]
+[profile.sepolia]

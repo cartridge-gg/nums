@@ -1,6 +1,7 @@
 pub mod token;
 pub mod random;
 pub mod store;
+pub mod constants;
 
 pub use store::{Store, StoreImpl, StoreTrait};
 
@@ -14,7 +15,7 @@ pub mod systems {
 pub mod models {
     pub mod game;
     pub mod slot;
-    pub mod claims;
+    // pub mod claims;
     pub mod totals;
     pub mod config;
     pub mod jackpot;
@@ -22,7 +23,7 @@ pub mod models {
 
     pub use game::{Game, GameImpl, GameTrait};
     pub use slot::Slot;
-    pub use claims::{Claims, TokenClaim, JackpotClaim, ClaimsType};
+    // pub use claims::{Claims, TokenClaim, JackpotClaim, ClaimsType};
     pub use totals::{Totals, GlobalTotals};
     pub use config::{Config, GameConfig, SlotReward, RewardLevel, SlotRewardImpl, SlotRewardTrait};
     pub use jackpot::{

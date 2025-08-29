@@ -7,7 +7,7 @@ mod MockNumsToken {
     use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use dojo::world::WorldStorageTrait;
-    // use core::num::traits::Pow;
+    use core::num::traits::Pow;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
@@ -18,6 +18,9 @@ mod MockNumsToken {
     // Internal
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
+    impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {
+        const DECIMALS: u8 = 18;
+    }
 
     #[storage]
     struct Storage {
@@ -34,8 +37,7 @@ mod MockNumsToken {
         ERC20Event: ERC20Component::Event,
     }
 
-    // const DECIMALS: u256 = 10_u256.pow(18);
-    const DECIMALS: u256 = 1000000000000000000;
+    const DECIMALS: u256 = 10_u256.pow(18);
 
 
     fn dojo_init(ref self: ContractState) {
@@ -64,27 +66,6 @@ mod MockNumsToken {
         #[external(v0)]
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self.erc20.mint(recipient, amount);
-            // let supply = self.total_supply.read();
-        // self.total_supply.write(supply + amount);
         }
-        // #[external(v0)]
-    // fn name(self: @ContractState) -> felt252 {
-    //     'Mock NUMS'
-    // }
-
-        // #[external(v0)]
-    // fn symbol(self: @ContractState) -> felt252 {
-    //     'mNUMS'
-    // }
-
-        // #[external(v0)]
-    // fn decimals(self: @ContractState) -> u8 {
-    //     18
-    // }
-
-        // #[external(v0)]
-    // fn totalSupply(self: @ContractState) -> u256 {
-    //     self.total_supply.read()
-    // }
     }
 }

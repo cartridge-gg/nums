@@ -1,4 +1,5 @@
-sozo 1.6.0
-katana 1.6.3
-torii 1.6.1
-starkli 0.3.8
+scarb nightly-2025-05-08
+starkli 0.4.1
+sozo 1.7.0-alpha.1
+torii 1.7.0-alpha.2
+katana 1.7.0-alpha.2

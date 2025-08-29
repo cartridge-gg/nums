@@ -1,13 +1,14 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
 pub enum TokenType {
+    #[default]
     ERC20,
     ERC721,
     ERC1155,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Copy, Drop, Serde, PartialEq, Introspect, DojoStore)]
 pub struct Token {
     pub id: Option<u256>, // for erc721 and 1155
     pub address: ContractAddress,

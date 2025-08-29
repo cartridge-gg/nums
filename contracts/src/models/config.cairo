@@ -11,7 +11,7 @@ pub struct Config {
     pub vrf_address: ContractAddress,
 }
 
-#[derive(Copy, Drop, Serde, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect, DojoStore)]
 pub struct GameConfig {
     pub max_slots: u8,
     pub max_number: u16,
@@ -19,13 +19,13 @@ pub struct GameConfig {
     pub entry_cost: u32, 
 }
 
-#[derive(Clone, Drop, Serde, Introspect)]
+#[derive(Clone, Drop, Serde, Introspect, DojoStore)]
 pub struct SlotReward {
     pub token: ContractAddress,
     pub levels: Array<RewardLevel>,
 }
 
-#[derive(Copy, Drop, Serde, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect, DojoStore)]
 pub struct RewardLevel {
     pub level: u8,
     pub amount: u32,

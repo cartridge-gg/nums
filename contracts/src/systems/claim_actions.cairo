@@ -8,13 +8,12 @@ pub trait IClaimActions<T> {
 pub mod claim_actions {
     use super::IClaimActions;
     use core::array::ArrayTrait;
-    use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
     use achievement::store::{StoreTrait as AchievementStoreTrait};
 
     use nums::models::game::{ GameTrait};
-    use nums::models::claims::{Claims, ClaimsType, TokenClaim, JackpotClaim};
+    // use nums::models::claims::{Claims, ClaimsType, TokenClaim, JackpotClaim};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::models::jackpot::{JackpotTrait};
     use nums::{StoreImpl, StoreTrait};
@@ -55,14 +54,14 @@ pub mod claim_actions {
             //  ????
             let claim_id = world.dispatcher.uuid();
             // let block_info = starknet::get_block_info().unbox();
-            let claims = Claims {
-                player, claim_id, ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
-            };
+            // let claims = Claims {
+            //     player, claim_id, ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
+            // };
 
             totals.rewards_claimed += claim_amount;
 
             store.set_totals(@totals);
-            world.write_model(@claims);
+            // world.write_model(@claims);
             world.emit_event(@RewardClaimed { claim_id, player, amount: claim_amount });
 
             // Update player progression
@@ -121,14 +120,14 @@ pub mod claim_actions {
             jackpot.winner = Option::Some(player);
             jackpot.claimed = true;
 
-            let claim_id = world.dispatcher.uuid();
+            let _claim_id = world.dispatcher.uuid();
             // let block_info = starknet::get_block_info().unbox();
-            let claims = Claims {
-                player, claim_id, ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
-            };
+            // let claims = Claims {
+            //     player, claim_id, ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
+            // };
 
             store.set_jackpot(@jackpot);
-            world.write_model(@claims);
+            // world.write_model(@claims);
             world.emit_event(@JackpotClaimed { game_id, jackpot_id, player });
         }
     }

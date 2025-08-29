@@ -22,6 +22,7 @@ pub mod jackpot_actions {
     use nums::models::jackpot::{Jackpot, JackpotMode, KingOfTheHill};
     use nums::WORLD_RESOURCE;
     use nums::{StoreImpl, StoreTrait};
+    use nums::constants::ZERO_ADDRESS;
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
 
@@ -35,6 +36,7 @@ pub mod jackpot_actions {
         jackpot_id: u32,
         token: Option<Token>,
     }
+
 
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {
@@ -74,7 +76,7 @@ pub mod jackpot_actions {
             let mode = JackpotMode::KING_OF_THE_HILL(
                 KingOfTheHill {
                     extension_time,
-                    king: starknet::contract_address_const::<0x0>(),
+                    king: ZERO_ADDRESS,
                     remaining_slots: game_config.max_slots,
                 },
             );

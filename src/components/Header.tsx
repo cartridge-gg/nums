@@ -12,6 +12,7 @@ import Balance from "./Balance";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
+import { NumsBalance } from "./NumsBalance";
 
 const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
   const { connect, connectors } = useConnect();
@@ -68,6 +69,9 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
           </Button>
         )}
         <Spacer />
+        <NumsBalance />
+
+        <Spacer />
         <Button
           visual="transparent"
           h={height}
@@ -79,14 +83,14 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
 
         {address ? (
           <>
-            <Balance />
+            {/* <Balance /> */}
             <Button
               visual="transparent"
               h={height}
               w={width}
               onClick={async () => {
                 (connector as ControllerConnector)?.controller.openProfile(
-                  "achievements",
+                  "achievements"
                 );
               }}
             >

@@ -17,4 +17,9 @@ keystore_path = "/home/broody/.starkli_accounts/sepolia/keystore.json"
 #world_address = "0x00f60d1f50ab993cc9e40cbe27634568ca3ad98e0f004f2920d92ad9340a22d2"
 
 [writers]
-"nums" = ["nums-game_actions", "nums-claim_actions", "nums-config_actions", "nums-jackpot_actions"]
+"nums" = [
+    "nums-game_actions",
+    "nums-claim_actions",
+    "nums-config_actions",
+    "nums-jackpot_actions",
+]

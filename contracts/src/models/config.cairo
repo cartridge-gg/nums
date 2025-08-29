@@ -5,33 +5,27 @@ use starknet::ContractAddress;
 pub struct Config {
     #[key]
     pub world_resource: felt252,
-    pub starknet_messenger: ContractAddress, // piltover contract address
-    pub starknet_consumer: ContractAddress, // starknet message handler address
-    pub starknet_config: ContractAddress, // starknet config actions address
-    pub starknet_jackpot: ContractAddress, // starknet jackpot actions address
-    pub appchain_handler: ContractAddress, // appchain message handler address
-    pub appchain_claimer: ContractAddress, // appchain jackpot contract address
     pub game: Option<GameConfig>,
     pub reward: Option<SlotReward>,
+    pub nums_address: ContractAddress,
+    pub vrf_address: ContractAddress,
 }
 
-#[derive(Copy, Drop, Serde, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect, DojoStore)]
 pub struct GameConfig {
-    pub active: bool,
     pub max_slots: u8,
     pub max_number: u16,
     pub min_number: u16,
-    pub expiration: Option<u64>,
-    pub max_games: Option<u32>,
+    pub entry_cost: u32, 
 }
 
-#[derive(Clone, Drop, Serde, Introspect)]
+#[derive(Clone, Drop, Serde, Introspect, DojoStore)]
 pub struct SlotReward {
     pub token: ContractAddress,
     pub levels: Array<RewardLevel>,
 }
 
-#[derive(Copy, Drop, Serde, Introspect)]
+#[derive(Copy, Drop, Serde, Introspect, DojoStore)]
 pub struct RewardLevel {
     pub level: u8,
     pub amount: u32,

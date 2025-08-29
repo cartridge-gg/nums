@@ -47,13 +47,18 @@ const useToast = () => {
     });
   };
 
-  const showError = (hash: string) => {
+  const showError = (hash?: string, message?: string) => {
     toaster.create({
       title: "Transaction Error",
       description: (
-        <Link href={explorer.transaction(hash)}>
-          <strong>{hash}</strong>
-        </Link>
+        <>
+          {hash && (
+            <Link href={explorer.transaction(hash)}>
+              <strong>{hash}</strong>
+            </Link>
+          )}
+          {message && <div>{message}</div>}
+        </>
       ),
     });
   };

@@ -1,3 +1,4 @@
+import "./fonts.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Game from "./Game";
 import Home from "./Home";
@@ -8,89 +9,122 @@ import {
   Connector,
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
+import { ControllerOptions, SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num } from "starknet";
-import "./fonts.css";
-import { APPCHAIN_CHAIN_ID } from "./hooks/chain";
 import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
 import { UrqlProvider } from "./context/urql";
-import { ClaimsProvider } from "./context/claims";
+import {
+  chains,
+  DEFAULT_CHAIN_ID,
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+  KATANA_CHAIN_ID,
+  katanaChain,
+  SLOT_CHAIN_ID,
+} from "./config";
+import { DojoSdkProviderInitialized } from "./context/dojo";
+import { Toaster } from "./components/ui/toaster";
+
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
       case sepolia:
-        return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
-      case appchain:
-        return { nodeUrl: import.meta.env.VITE_APPCHAIN_RPC_URL };
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
+      case katanaChain:
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
   },
 });
 
-const profile: ProfileOptions = {
-  preset: "nums",
-  slot: "nums-mainnet-appchain",
-  namespace: "nums",
+// const profile: ProfileOptions = {
+// preset: "not_nums",
+// slot: "nums-mainnet-appchain",
+// namespace: "nums",
+// };
+
+const buildPolicies = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+
+  const vrfAddress = getVrfAddress(chain.id);
+  const numsAddress = getNumsAddress(chain.id);
+  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+
+  const policies: SessionPolicies = {
+    contracts: {
+      [vrfAddress]: {
+        methods: [{ entrypoint: "request_random" }],
+      },
+      [numsAddress]: {
+        methods: [{ entrypoint: "approve" }],
+      },
+      [gameAddress]: {
+        methods: [
+          { entrypoint: "create_game" },
+          { entrypoint: "set_slot" },
+          { entrypoint: "king_me" },
+        ],
+      },
+    },
+  };
+
+  if ([KATANA_CHAIN_ID, SLOT_CHAIN_ID].includes(`0x${chain.id.toString(16)}`)) {
+    // @ts-ignore
+    policies.contracts[numsAddress].methods.push({ entrypoint: "mint" });
+  }
+
+  return policies;
 };
 
 const options: ControllerOptions = {
-  ...profile,
-  defaultChainId: APPCHAIN_CHAIN_ID,
+  defaultChainId: DEFAULT_CHAIN_ID,
   chains: [
-    { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_KATANA_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SLOT_RPC_URL },
     { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
+    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
   ],
-  tokens: {
-    erc20: [import.meta.env.VITE_NUMS_ERC20],
-  },
+  policies: buildPolicies(),
+  preset: "nums",
+  namespace: "nums",
+  // tokens: {
+  //   erc20: [import.meta.env.VITE_NUMS_ERC20],
+  // },
 };
 
 const connectors = [new ControllerConnector(options) as never as Connector];
-
-const appchain: Chain = {
-  id: num.toBigInt(APPCHAIN_CHAIN_ID),
-  network: "appchain",
-  name: "Nums Chain",
-  rpcUrls: {
-    default: import.meta.env.VITE_APPCHAIN_RPC_URL,
-    public: import.meta.env.VITE_APPCHAIN_RPC_URL,
-  },
-  nativeCurrency: {
-    name: "Ethereum",
-    symbol: "ETH",
-    decimals: 18,
-    address: import.meta.env.VITE_ETH_ADDRESS,
-  },
-};
 
 function App() {
   return (
     <StarknetConfig
       autoConnect
-      chains={[appchain, sepolia]}
+      chains={[chains[DEFAULT_CHAIN_ID]]}
       connectors={connectors}
       explorer={voyager}
       provider={provider}
     >
-      <UrqlProvider>
-        <AudioProvider>
-          <TotalsProvider>
-            <ClaimsProvider>
+      <DojoSdkProviderInitialized>
+        <UrqlProvider>
+          <AudioProvider>
+            <TotalsProvider>
+              {/* <ClaimsProvider> */}
               <Router>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/:gameId" element={<Game />} />
                 </Routes>
               </Router>
-            </ClaimsProvider>
-          </TotalsProvider>
-        </AudioProvider>
-      </UrqlProvider>
+              {/* </ClaimsProvider> */}
+            </TotalsProvider>
+          </AudioProvider>
+        </UrqlProvider>
+      </DojoSdkProviderInitialized>
+      <Toaster />
     </StarknetConfig>
   );
 }

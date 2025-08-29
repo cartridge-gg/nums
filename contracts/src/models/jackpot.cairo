@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 use nums::token::Token;
+use nums::constants::ZERO_ADDRESS;
 
 #[derive(Copy, Drop, Serde, PartialEq)]
 #[dojo::model]
@@ -16,22 +17,29 @@ pub struct Jackpot {
     pub verified: bool,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
 pub enum JackpotMode {
+    #[default]
     KING_OF_THE_HILL: KingOfTheHill,
     CONDITIONAL_VICTORY: ConditionalVictory,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Copy, Drop, Serde, PartialEq, Introspect, DojoStore)]
 pub struct KingOfTheHill {
     pub extension_time: u64,
     pub remaining_slots: u8,
     pub king: ContractAddress,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
 pub struct ConditionalVictory {
     pub slots_required: u8,
+}
+
+impl DefaultImpl of Default<KingOfTheHill> {
+    fn default() -> KingOfTheHill {
+        KingOfTheHill { extension_time: 0, remaining_slots: 0, king: ZERO_ADDRESS }
+    }
 }
 
 #[generate_trait]
@@ -44,7 +52,7 @@ pub impl JackpotModeImpl of JackpotModeTrait {
                 JackpotMode::KING_OF_THE_HILL(
                     KingOfTheHill {
                         extension_time: params.extension_time,
-                        king: starknet::contract_address_const::<0x0>(),
+                        king: ZERO_ADDRESS,
                         remaining_slots: max_slots,
                     },
                 )

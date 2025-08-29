@@ -26,6 +26,7 @@ mod NumsToken {
 
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+    
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;

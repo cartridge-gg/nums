@@ -21,7 +21,7 @@ const Overlay = ({
       padding={[
         "80px 10px 10px 10px",
         "80px 10px 10px 10px",
-        "125px 25px 25px 25px",
+        "95px 25px 25px 25px",
       ]}
       opacity={open ? 1 : 0}
       display={open ? "flex" : "none"}

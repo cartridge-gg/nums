@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x24d7f9f37c0639991b02281417a501ac013f5f2657e787f390417dabc12fdbd",
-      "class_hash": "0x2303cf0ac400656d71b68fd73777a567b0e0e5bcdd292bfb0db51ccbb5b85aa",
+      "address": "0xb79497ecdc211aa75562ba9879b6631d035213266d597d59378d73590447d",
+      "class_hash": "0x471e2a334b3b9005879e630c6aa8fae7526225ab6889b75bbc26492f57f3702",
       "abi": [
         {
           "type": "impl",
@@ -1389,6 +1389,40 @@
           "state_mutability": "external"
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "reward",
+          "inputs": [
+            {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "amount",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
           "type": "struct",
           "name": "core::integer::u256",
           "members": [
@@ -1417,50 +1451,6 @@
           ],
           "outputs": [],
           "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "name",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::felt252"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "symbol",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::felt252"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "decimals",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::integer::u8"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "totalSupply",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -1519,26 +1509,12 @@
         },
         {
           "type": "impl",
-          "name": "ERC20Impl",
-          "interface_name": "openzeppelin_token::erc20::interface::IERC20"
-        },
-        {
-          "type": "enum",
-          "name": "core::bool",
-          "variants": [
-            {
-              "name": "False",
-              "type": "()"
-            },
-            {
-              "name": "True",
-              "type": "()"
-            }
-          ]
+          "name": "ERC20MixinImpl",
+          "interface_name": "openzeppelin_token::erc20::interface::IERC20Mixin"
         },
         {
           "type": "interface",
-          "name": "openzeppelin_token::erc20::interface::IERC20",
+          "name": "openzeppelin_token::erc20::interface::IERC20Mixin",
           "items": [
             {
               "type": "function",
@@ -1637,6 +1613,90 @@
               "inputs": [
                 {
                   "name": "spender",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "amount",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "symbol",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "decimals",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::integer::u8"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "totalSupply",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::integer::u256"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "balanceOf",
+              "inputs": [
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u256"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "transferFrom",
+              "inputs": [
+                {
+                  "name": "sender",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "recipient",
                   "type": "core::starknet::contract_address::ContractAddress"
                 },
                 {
@@ -1777,11 +1837,13 @@
       "selector": "0x6ca831cf5808385e3399f918dde27bfe7dfb30b597104eb8c322769df6fc68a",
       "systems": [
         "dojo_init",
+        "reward",
         "mint",
         "upgrade",
         "transfer",
         "transfer_from",
-        "approve"
+        "approve",
+        "transferFrom"
       ]
     },
     {
@@ -2468,8 +2530,8 @@
       ]
     },
     {
-      "address": "0x156893088e9be8a1846ff9bf3f96ef46b7ea029193fbf8d52ec677b691361f1",
-      "class_hash": "0x143f2e294be1980f537dd8dfe8033ab428897af8c70c9bd8dabaee8239cb996",
+      "address": "0x5b0109d9844cc7a08d45f9ced8b130fc8e0995094fd05ed7c8ca76b56bfc622",
+      "class_hash": "0x14183598d054854a485b7e0abb553d92ee415f1f5184586822cbfb25570a1cc",
       "abi": [
         {
           "type": "impl",
@@ -2676,8 +2738,8 @@
       ]
     },
     {
-      "address": "0x615ffc611a1ddabe4712adf8d689cdb178c629d31c2587bfc44742cf609c1a9",
-      "class_hash": "0x4c894483e4a686afa0b9acdfcaa26117f9c9b5a716c089d655241702c7c6929",
+      "address": "0x21a6d4e353dbd7ba887a7deedb6c1d482df68bd96365ac4d7a44cc50c73c526",
+      "class_hash": "0x1422c3560e3d6e19685b4221a2a39e5723c962a8ece75c16cbfc20c6a2ec528",
       "abi": [
         {
           "type": "impl",
@@ -2730,9 +2792,32 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::starknet::contract_address::ContractAddress>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "function",
           "name": "dojo_init",
-          "inputs": [],
+          "inputs": [
+            {
+              "name": "nums_address",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "vrf_address",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            }
+          ],
           "outputs": [],
           "state_mutability": "external"
         },
@@ -2755,6 +2840,10 @@
             },
             {
               "name": "min_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "entry_cost",
               "type": "core::integer::u16"
             }
           ]
@@ -2830,6 +2919,14 @@
             {
               "name": "reward",
               "type": "core::option::Option::<nums::models::config::SlotReward>"
+            },
+            {
+              "name": "nums_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "vrf_address",
+              "type": "core::starknet::contract_address::ContractAddress"
             }
           ]
         },
@@ -2959,7 +3056,10 @@
           ]
         }
       ],
-      "init_calldata": [],
+      "init_calldata": [
+        "0x1",
+        "0x1"
+      ],
       "tag": "nums-config_actions",
       "selector": "0x69628b994ad9a66d88c9a0d1fcef1032f329060ed7d29256b142c387f3073d5",
       "systems": [
@@ -2969,8 +3069,8 @@
       ]
     },
     {
-      "address": "0x604c12a12ba28d134092b6f6cc755c300542530e779968b368a5001c9eb716f",
-      "class_hash": "0x699842bbf5084f8060bdc02060ab7c383c72fecbebe821ce359d74dbf108c56",
+      "address": "0x42fed26eea690aa27555744c065b2ffee3687b2906f7cd01d212550d5f3975a",
+      "class_hash": "0x4ae3e2526e11b340f40c6a739b0a9a4c17c35330420ffb8797113e93e917265",
       "abi": [
         {
           "type": "impl",
@@ -3232,8 +3332,8 @@
       ]
     },
     {
-      "address": "0x1393c42b1cb1572c16a781e5aadc9d937e8b4bdba86d0859233040174721443",
-      "class_hash": "0x6cf0f1ff535c7091dcd459be10989389f9c2721953c7578be776c03213aeb68",
+      "address": "0x653540f91030666de85660d8b880b8b8d4bccf4d6e1b5fb526053130bdb47f",
+      "class_hash": "0x6c73662b6dc9a4d7ab4fc302239cf25f2abd7dcda26746267a6657be5473dc6",
       "abi": [
         {
           "type": "impl",
@@ -3571,7 +3671,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x7642c8a28ce744256065b019bf412956b22a636a12c72220e6c44515fd995f2",
+      "class_hash": "0x672aeedf30fd6bed1f49a8b850520f6054258902132139a91f2d406867e5d30",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },

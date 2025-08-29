@@ -1,5 +1,8 @@
 pub mod token;
 pub mod random;
+pub mod store;
+
+pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
     pub mod game_actions;
@@ -16,11 +19,23 @@ pub mod models {
     pub mod config;
     pub mod jackpot;
     pub mod metadata;
+
+    pub use game::{Game, GameImpl, GameTrait};
+    pub use slot::Slot;
+    pub use claims::{Claims, TokenClaim, JackpotClaim, ClaimsType};
+    pub use totals::{Totals, GlobalTotals};
+    pub use config::{Config, GameConfig, SlotReward, RewardLevel, SlotRewardImpl, SlotRewardTrait};
+    pub use jackpot::{
+        Jackpot, JackpotMode, KingOfTheHill, ConditionalVictory, JackpotModeImpl, JackpotModeTrait,
+        JackpotImpl, JackpotTrait,
+    };
+    pub use metadata::{Metadata};
 }
 
 pub mod interfaces {
     pub mod token;
     pub mod vrf;
+    pub mod nums;
 }
 
 pub mod elements {

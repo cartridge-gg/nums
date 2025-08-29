@@ -5,7 +5,7 @@
 mod MockRewardToken {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    // use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 

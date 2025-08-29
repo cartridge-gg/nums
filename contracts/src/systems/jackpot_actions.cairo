@@ -17,12 +17,11 @@ pub trait IJackpotActions<T> {
 pub mod jackpot_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Zero;
-    use nums::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
+    // use nums::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums::token::{Token, TokenType};
-    use nums::models::jackpot::{Jackpot, JackpotMode, ConditionalVictory, KingOfTheHill};
-    use nums::models::config::Config;
+    use nums::models::jackpot::{Jackpot, JackpotMode, KingOfTheHill};
     use nums::WORLD_RESOURCE;
-    use dojo::model::ModelStorage;
+    use nums::{StoreImpl, StoreTrait};
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
 
@@ -47,8 +46,8 @@ pub mod jackpot_actions {
         //     token: Option<Token>,
         // ) -> u32 {
         //     let mut world = self.world(@"nums");
-        //     let config: Config = world.read_model(WORLD_RESOURCE);
-        //     let game_config = config.game.expect('game config not set');
+        //     let mut store = StoreImpl::new(world);
+        //     let game_config = store.game_config();
 
         //     assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
         //     let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
@@ -67,8 +66,10 @@ pub mod jackpot_actions {
             }
 
             let mut world = self.world(@"nums");
-            let config: Config = world.read_model(WORLD_RESOURCE);
-            let game_config = config.game.expect('game config not set');
+            let mut store = StoreImpl::new(world);
+
+            // let config = store.config();
+            let game_config = store.game_config();
 
             let mode = JackpotMode::KING_OF_THE_HILL(
                 KingOfTheHill {
@@ -89,12 +90,15 @@ pub mod jackpot_actions {
         /// (true) or not (false).
         fn verify(ref self: ContractState, jackpot_id: u32, verified: bool) {
             let mut world = self.world(@"nums");
+            let mut store = StoreImpl::new(world);
+
             let owner = get_caller_address();
             assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
-            let mut jackpot: Jackpot = world.read_model(jackpot_id);
+
+            let mut jackpot = store.jackpot(jackpot_id);
             jackpot.verified = verified;
 
-            world.write_model(@jackpot);
+            store.set_jackpot(@jackpot);
         }
     }
 
@@ -113,33 +117,36 @@ pub mod jackpot_actions {
             }
 
             let mut world = self.world(@"nums");
+            let mut store = StoreImpl::new(world);
             let creator = get_caller_address();
             let id = world.dispatcher.uuid();
-            let jackpot = Jackpot {
-                id,
-                title,
-                creator,
-                mode,
-                expiration,
-                token,
-                claimed: false,
-                verified: false,
-                winner: Option::None,
-            };
 
-            world.write_model(@jackpot);
+            store
+                .set_jackpot(
+                    @Jackpot {
+                        id,
+                        title,
+                        creator,
+                        mode,
+                        expiration,
+                        token,
+                        claimed: false,
+                        verified: false,
+                        winner: Option::None,
+                    },
+                );
+
             world.emit_event(@JackpotCreated { jackpot_id: id, token });
-            let config: Config = world.read_model(WORLD_RESOURCE);
+            // let config = store.config();
 
             if let Option::Some(token) = token {
                 assert(token.ty == TokenType::ERC20, 'only ERC20 supported');
                 assert(token.total.is_non_zero(), 'total cannot be zero');
-
                 // // message_consumers.cairo is what will transfer jackpot
-                // ITokenDispatcher { contract_address: token.address }
-                //     .transferFrom(
-                //         get_caller_address(), config.starknet_consumer.clone(), token.total,
-                //     );
+            // ITokenDispatcher { contract_address: token.address }
+            //     .transferFrom(
+            //         get_caller_address(), config.starknet_consumer.clone(), token.total,
+            //     );
             }
 
             id

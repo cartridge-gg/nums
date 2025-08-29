@@ -7,8 +7,8 @@ pub struct Config {
     pub world_resource: felt252,
     pub game: Option<GameConfig>,
     pub reward: Option<SlotReward>,
-    // pub nums: IERC20Dispatcher,
-    // pub vrf_address: ContractAddress,
+    pub nums_address: ContractAddress,
+    pub vrf_address: ContractAddress,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
@@ -16,6 +16,7 @@ pub struct GameConfig {
     pub max_slots: u8,
     pub max_number: u16,
     pub min_number: u16,
+    pub entry_cost: u16,
 }
 
 #[derive(Clone, Drop, Serde, Introspect)]

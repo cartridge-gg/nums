@@ -59,19 +59,19 @@ const LeaderboardQuery = graphql(`
         }
       }
     }
-    numsConfigModels {
-      edges {
-        node {
-          game {
-            Some {
-              expiration {
-                Some
-              }
-            }
-          }
-        }
-      }
-    }
+    # numsConfigModels {
+    #   edges {
+    #     node {
+    #       game {
+    #         Some {
+    #           expiration {
+    #             Some
+    #           }
+    #         }
+    #       }
+    #     }
+    #   }
+    # }
   }
 `);
 
@@ -90,27 +90,18 @@ const Home = () => {
   const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
-  //const [gameExpiration, setGameExpiration] = useState<number>();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // const [offset, setOffset] = useState<number>(0);
   const [leaderboardResult] = useQuery({
     query: LeaderboardQuery,
     requestPolicy: "cache-and-network",
-    // variables: {
-    //   offset,
-    // },
+   
   });
 
   useEffect(() => {
     const gameModels = leaderboardResult.data?.numsGameModels;
     const totalsModels = leaderboardResult.data?.numsTotalsModels;
-    const configModels = leaderboardResult.data?.numsConfigModels;
-    if (!gameModels || !totalsModels || !configModels) return;
-
-    // const expiration =
-    //   configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
-    // setGameExpiration(parseInt(expiration));
+    if (!gameModels || !totalsModels) return;
 
     const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
     const totalsAddresses =
@@ -141,11 +132,11 @@ const Home = () => {
           }));
           setRows(rows);
         }
-      },
+      }
     );
   }, [leaderboardResult, sortBy]);
 
-  return <ComingSoon />;
+  // return <ComingSoon />;
 
   return (
     <Container
@@ -153,9 +144,9 @@ const Home = () => {
       maxW="100vw"
       display="flex"
       justifyContent="center"
-      alignItems={["flex-start", "flex-start", "center"]}
+      alignItems={"flex-start"}
       p="15px"
-      pt={["100px", "100px", "40px"]}
+      pt={["100px", "100px", "120px"]}
     >
       <Header hideChain />
       <InfoOverlay open={openInfo} onClose={onCloseInfo} />

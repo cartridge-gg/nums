@@ -6,19 +6,33 @@ import {
 } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { Toaster } from "./ui/toaster";
-import RewardsOverlay from "./RewardsBridging";
+// import RewardsOverlay from "./RewardsBridging";
 import { GiftIcon } from "./icons/Gift";
-import { useClaims } from "@/context/claims";
+// import { useClaims } from "@/context/claims";
 import { Tooltip, TooltipRow } from "./ui/tooltip";
 
 const Balance = () => {
+  // const {
+  //   amountToClaim,
+  //   amountToBridge,
+  //   amountEarned,
+  //   amountClaimed,
+  //   amountBridging,
+  // } = useClaims();
+
   const {
     amountToClaim,
     amountToBridge,
     amountEarned,
     amountClaimed,
     amountBridging,
-  } = useClaims();
+  } = {
+    amountToClaim: 0,
+    amountToBridge: 0,
+    amountEarned: 0,
+    amountClaimed: 0,
+    amountBridging: 0,
+  };
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const {
@@ -30,7 +44,7 @@ const Balance = () => {
   return (
     <>
       <Toaster />
-      <RewardsOverlay open={openRewards} onClose={onCloseRewards} />
+      {/* <RewardsOverlay open={openRewards} onClose={onCloseRewards} /> */}
       <Tooltip
         showArrow
         content={

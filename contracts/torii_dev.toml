@@ -1,0 +1,17 @@
+world_address = "0x01e3369181d2dd236399011784e24794e559492dea1f922c58459e4b69c68e3c"
+
+[server]
+http_cors_origins = ["*"]
+
+[indexing]
+controllers = true
+index_pending = true
+polling_interval = 1000
+max_concurrent_tasks = 2
+contracts = [
+    "ERC20:0x061fad3da9b9f812c67a6cf9881cd431ba3cdaf37af66246e6a38c03c0694228",
+]
+
+
+[sql]
+historical = ["nums-TrophyProgression"]

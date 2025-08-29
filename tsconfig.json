@@ -21,20 +21,21 @@
     "noFallthroughCasesInSwitch": true,
     "plugins": [ 
       { 
+        // not ok
         "name": "gql.tada/ts-plugin",
         "schemas" : [
           {
-            "name": "appchain",
-            "schema": "https://api.cartridge.gg/x/nums-limit/torii/graphql",
-            "tadaOutputLocation": "./src/graphql/appchain-env.d.ts",
-            "tadaTurboLocation": "./src/graphql/appchain-turbo.ts"
+            "name": "katana",
+            "schema": "https://localhost:8080/graphql/schema",
+            "tadaOutputLocation": "./src/graphql/katana-env.d.ts",
+            "tadaTurboLocation": "./src/graphql/katana-turbo.ts"
           }, 
-          {
-            "name": "starknet",
-            "schema": "https://api.cartridge.gg/x/nums-starknet/torii/graphql",
-            "tadaOutputLocation": "./src/graphql/starknet-env.d.ts",
-            "tadaTurboLocation": "./src/graphql/starknet-turbo.ts"
-          }
+          // {
+          //   "name": "starknet",
+          //   "schema": "https://api.cartridge.gg/x/nums-starknet/torii/graphql",
+          //   "tadaOutputLocation": "./src/graphql/starknet-env.d.ts",
+          //   "tadaTurboLocation": "./src/graphql/starknet-turbo.ts"
+          // }
         ]
       } 
     ],

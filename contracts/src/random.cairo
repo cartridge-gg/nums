@@ -5,7 +5,7 @@ use starknet::{get_caller_address, get_contract_address, contract_address_const}
 use crate::interfaces::vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 
 const VRF_PROVIDER_ADDRESS: felt252 =
-    0x7ed472bdde3b19a5cf2334ad0f368426272f477938270b1b04259f159bdc0e2;
+    0x0326ce49e9e05b75cc1959056cb3dfa2f9d12f39ec28b1dc71776bf644cee2e4;
 
 #[derive(Copy, Drop, Serde)]
 pub struct Random {

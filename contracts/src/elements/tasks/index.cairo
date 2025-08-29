@@ -35,7 +35,7 @@ pub enum Task {
 
 #[generate_trait]
 pub impl TaskImpl of TaskTrait {
-    #[inline]
+    
     fn identifier(self: Task) -> felt252 {
         match self {
             Task::None => 0,
@@ -60,7 +60,7 @@ pub impl TaskImpl of TaskTrait {
         }
     }
 
-    #[inline]
+    
     fn description(self: Task, count: u32) -> ByteArray {
         match self {
             Task::None => "",
@@ -85,7 +85,7 @@ pub impl TaskImpl of TaskTrait {
         }
     }
 
-    #[inline]
+    
     fn tasks(self: Task, count: u32) -> Span<ArcadeTask> {
         let task_id: felt252 = self.identifier();
         let description: ByteArray = self.description(count);
@@ -94,7 +94,7 @@ pub impl TaskImpl of TaskTrait {
 }
 
 impl IntoTaskU8 of core::traits::Into<Task, u8> {
-    #[inline]
+    
     fn into(self: Task) -> u8 {
         match self {
             Task::None => 0,
@@ -121,7 +121,7 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
 }
 
 impl IntoU8Task of core::traits::Into<u8, Task> {
-    #[inline]
+    
     fn into(self: u8) -> Task {
         let card: felt252 = self.into();
         match card {

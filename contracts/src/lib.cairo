@@ -51,4 +51,10 @@ pub mod tests {
     pub mod test_game;
 }
 
+pub mod mocks {
+    pub mod nums;
+    pub mod reward;
+    pub mod vrf;
+}
+
 pub const WORLD_RESOURCE: felt252 = 0;

@@ -3,7 +3,10 @@ import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { REWARDS } from "@/constants";
-import { Provider } from "starknet";
+import { Provider, uint256 } from "starknet";
+import useChain from "@/hooks/chain";
+import { getNumsAddress } from "@/config";
+import { useAccount, useProvider } from "@starknet-react/core";
 
 const provider = new Provider({
   nodeUrl: "https://api.cartridge.gg/x/starknet/mainnet",
@@ -24,25 +27,57 @@ const InfoOverlay = ({
 }) => {
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
   const [supply, setSupply] = useState<number>(0);
+  const { chain } = useChain();
+  const { account } = useAccount();
+  const { provider } = useProvider();
+  const numsContractAddress = getNumsAddress(chain.id);
 
   useEffect(() => {
     provider
       .callContract({
-        contractAddress: import.meta.env.VITE_NUMS_ERC20,
+        contractAddress: numsContractAddress,
         entrypoint: "totalSupply",
+        calldata: [],
       })
-      .then((res) => setSupply(parseInt(res[0]) / 10 ** 18));
-  }, []);
+      .then((res) => {
+        const supply = uint256.uint256ToBN({
+          low: res[0],
+          high: res[1],
+        });
+
+        setSupply(Number(supply / 10n ** 18n));
+      });
+  }, [account]);
+
+  const mintMockNums = async () => {
+    if (!account?.address) return false;
+
+    try {
+      // await requestAppchain(true);
+      const numsAddress = getNumsAddress(chain.id);
+      const { transaction_hash } = await account!.execute([
+        {
+          contractAddress: numsAddress,
+          entrypoint: "mint",
+          calldata: [account.address, uint256.bnToUint256(1_000n * 10n ** 18n)],
+        },
+      ]);
+
+      return true;
+    } catch (e) {
+      console.log({ e });
+      return false;
+    }
+  };
 
   return (
     <Overlay open={open} onClose={onClose}>
       <VStack
-        w={["100%", "100%", "60%"]}
+        w={["100%", "100%", "580px"]}
         h="full"
         align="flex-start"
         gap="40px"
         p="30px"
-        pt="100px"
       >
         <HStack>
           <Button
@@ -122,12 +157,12 @@ const InfoOverlay = ({
                 _hover={{ cursor: "pointer" }}
                 onClick={() => {
                   window.open(
-                    `https://voyager.online/token/${import.meta.env.VITE_NUMS_ERC20}`,
-                    "_blank",
+                    `https://voyager.online/token/${numsContractAddress}`,
+                    "_blank"
                   );
                 }}
               >
-                {import.meta.env.VITE_NUMS_ERC20}
+                {numsContractAddress}
               </Text>
             </VStack>
             <VStack
@@ -139,6 +174,8 @@ const InfoOverlay = ({
               <Text color="purple.50">Token supply</Text>
               <Text>{supply.toLocaleString()}</Text>
             </VStack>
+
+            <Button onClick={() => mintMockNums()}>Mint</Button>
           </>
         )}
         {showInfo === ShowInfo.REWARD && (

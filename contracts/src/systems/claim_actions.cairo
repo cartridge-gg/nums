@@ -13,8 +13,6 @@ pub mod claim_actions {
     use dojo::world::IWorldDispatcherTrait;
     use achievement::store::StoreTrait;
 
-    use piltover::messaging::hash::compute_message_hash_appc_to_sn;
-
     use nums::models::game::{Game, GameTrait};
     use nums::models::totals::Totals;
     use nums::models::slot::Slot;
@@ -56,19 +54,9 @@ pub mod claim_actions {
             assert(claim_amount > 0, 'nothing to claim');
 
             let claim_id = world.dispatcher.uuid();
-            let block_info = starknet::get_block_info().unbox();
+            // let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
-                player,
-                claim_id,
-                claimed_on_starknet: false,
-                ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
-                block_timestamp: block_info.block_timestamp,
-                block_number: block_info.block_number,
-                message_hash: compute_message_hash_appc_to_sn(
-                    starknet::get_contract_address(),
-                    config.starknet_consumer,
-                    array![player.into(), claim_id.into(), claim_amount.into()].span(),
-                ),
+                player, claim_id, ty: ClaimsType::TOKEN(TokenClaim { amount: claim_amount }),
             };
 
             totals.rewards_claimed += claim_amount;
@@ -87,7 +75,10 @@ pub mod claim_actions {
             let player_id: felt252 = player.into();
             let task_id: felt252 = Task::Claimer.identifier();
             let mut store = StoreTrait::new(world);
-            store.progress(player_id, task_id, capped_amount.into(), starknet::get_block_timestamp());
+            store
+                .progress(
+                    player_id, task_id, capped_amount.into(), starknet::get_block_timestamp(),
+                );
         }
 
         /// Claims the jackpot for a specific game. Ensures that the player is authorized and that
@@ -128,19 +119,9 @@ pub mod claim_actions {
             jackpot.claimed = true;
 
             let claim_id = world.dispatcher.uuid();
-            let block_info = starknet::get_block_info().unbox();
+            // let block_info = starknet::get_block_info().unbox();
             let claims = Claims {
-                player,
-                claim_id,
-                claimed_on_starknet: false,
-                ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
-                block_number: block_info.block_number,
-                block_timestamp: block_info.block_timestamp,
-                message_hash: compute_message_hash_appc_to_sn(
-                    starknet::get_contract_address(),
-                    config.starknet_consumer,
-                    array![player.into(), claim_id.into(), jackpot_id.into()].span(),
-                ),
+                player, claim_id, ty: ClaimsType::JACKPOT(JackpotClaim { id: jackpot.id }),
             };
 
             world.write_model(@jackpot);

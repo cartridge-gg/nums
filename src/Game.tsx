@@ -22,10 +22,11 @@ import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
-import { CallData, hash, num } from "starknet";
+import { hash, num } from "starknet";
 import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
-import { AppchainClient } from "./graphql/clients";
+import { graphQlClients } from "./graphql/clients";
+import { getContractAddress, getVrfAddress } from "./config";
 
 const MAX_SLOTS = 20;
 
@@ -76,7 +77,7 @@ const GameSubscription = graphql(`
 
 const Game = () => {
   const [slots, setSlots] = useState<number[]>(
-    Array.from({ length: MAX_SLOTS }, () => 0),
+    Array.from({ length: MAX_SLOTS }, () => 0)
   );
   const [nextNumber, setNextNumber] = useState<number | null>();
   const [isOver, setIsOver] = useState<boolean>(false);
@@ -119,11 +120,8 @@ const Game = () => {
 
   const queryGame = useCallback(
     (gameId: number) => {
-      AppchainClient.query(
-        GameQuery,
-        { gameId },
-        { requestPolicy: "network-only" },
-      )
+      graphQlClients[num.toHex(chain.id)]
+        .query(GameQuery, { gameId }, { requestPolicy: "network-only" })
         .toPromise()
         .then((res) => {
           const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
@@ -153,12 +151,12 @@ const Game = () => {
             newSlots,
             gamesModel.next_number!,
             gamesModel.remaining_slots!,
-            gamesModel.reward!,
+            gamesModel.reward!
           );
           setIsLoading(false);
         });
     },
-    [isOwner],
+    [isOwner]
   );
 
   useEffect(() => queryGame(parseInt(gameId)), []);
@@ -193,7 +191,7 @@ const Game = () => {
       slots: number[],
       nextNum: number,
       remainingSlots: number,
-      reward: number,
+      reward: number
     ) => {
       if (isGameOver(slots, nextNum)) {
         setIsOver(true);
@@ -212,12 +210,12 @@ const Game = () => {
 
       setTimeout(() => setIsLoading(false), 500);
     },
-    [isOwner],
+    [isOwner]
   );
 
   const setSlot = async (
     slot: number,
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLButtonElement>
   ): Promise<boolean> => {
     if (!address) return false;
     setIsLoading(true);
@@ -225,19 +223,19 @@ const Game = () => {
     setPosition({ x: event.clientX, y: event.clientY });
 
     try {
-      await requestAppchain(true);
-
+      const vrfAddress = getVrfAddress(chain.id);
+      const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
       const { transaction_hash } = await account!.execute([
+        // {
+        //   contractAddress: vrfAddress,
+        //   entrypoint: "request_random",
+        //   calldata: CallData.compile({
+        //     caller: gameAddress,
+        //     source: { type: 0, address: account!.address },
+        //   }),
+        // },
         {
-          contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: "request_random",
-          calldata: CallData.compile({
-            caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account!.address },
-          }),
-        },
-        {
-          contractAddress: import.meta.env.VITE_GAME_CONTRACT,
+          contractAddress: gameAddress,
           entrypoint: "set_slot",
           calldata: [gameId, slot.toString()],
         },

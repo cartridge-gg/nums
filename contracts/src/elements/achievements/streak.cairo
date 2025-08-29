@@ -3,7 +3,7 @@ use nums::elements::achievements::interface::{
 };
 
 pub impl Streak of AchievementTrait {
-    #[inline]
+    
     fn identifier(level: u8) -> felt252 {
         match level {
             0 => 'STREAK_I',
@@ -13,17 +13,17 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-    #[inline]
+    
     fn index(level: u8) -> u8 {
         level
     }
 
-    #[inline]
+    
     fn hidden(level: u8) -> bool {
         false
     }
 
-    #[inline]
+    
     fn points(level: u8) -> u16 {
         match level {
             0 => 25,
@@ -33,12 +33,12 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-    #[inline]
+    
     fn group() -> felt252 {
         'Streak'
     }
 
-    #[inline]
+    
     fn icon(level: u8) -> felt252 {
         match level {
             0 => 'fa-circle-2',
@@ -48,7 +48,7 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-    #[inline]
+    
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Double Trouble',
@@ -58,7 +58,7 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-    #[inline]
+    
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "Coincidence or strategy? Either way, it's a streak!",
@@ -68,7 +68,7 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-    #[inline]
+    
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = 1;
         match level {

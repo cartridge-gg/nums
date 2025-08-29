@@ -6,9 +6,9 @@ pub trait IJackpotActions<T> {
     fn create_king_of_the_hill(
         ref self: T, title: felt252, expiration: u64, extension_time: u64, token: Option<Token>,
     ) -> u32;
-    fn create_conditional_victory(
-        ref self: T, title: felt252, expiration: u64, slots_required: u8, token: Option<Token>,
-    ) -> u32;
+    // fn create_conditional_victory(
+    //     ref self: T, title: felt252, expiration: u64, slots_required: u8, token: Option<Token>,
+    // ) -> u32;
     fn verify(ref self: T, jackpot_id: u32, verified: bool);
 }
 
@@ -39,21 +39,21 @@ pub mod jackpot_actions {
 
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {
-        fn create_conditional_victory(
-            ref self: ContractState,
-            title: felt252,
-            expiration: u64,
-            slots_required: u8,
-            token: Option<Token>,
-        ) -> u32 {
-            let mut world = self.world(@"nums");
-            let config: Config = world.read_model(WORLD_RESOURCE);
-            let game_config = config.game.expect('game config not set');
+        // fn create_conditional_victory(
+        //     ref self: ContractState,
+        //     title: felt252,
+        //     expiration: u64,
+        //     slots_required: u8,
+        //     token: Option<Token>,
+        // ) -> u32 {
+        //     let mut world = self.world(@"nums");
+        //     let config: Config = world.read_model(WORLD_RESOURCE);
+        //     let game_config = config.game.expect('game config not set');
 
-            assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
-            let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
-            self._create(title, mode, expiration, token)
-        }
+        //     assert(slots_required <= game_config.max_slots, 'cannot require > max slots');
+        //     let mode = JackpotMode::CONDITIONAL_VICTORY(ConditionalVictory { slots_required });
+        //     self._create(title, mode, expiration, token)
+        // }
 
         fn create_king_of_the_hill(
             ref self: ContractState,
@@ -81,7 +81,7 @@ pub mod jackpot_actions {
         }
 
         /// Verifies or unverifies a jackpot as legitimate.
-        /// Only the game owner can call this function to mark a jackpot as verified or not.
+        /// Only the WORLD owner can call this function to mark a jackpot as verified or not.
         ///
         /// # Arguments
         /// * `jackpot_id` - The identifier of the jackpot to verify.
@@ -108,6 +108,7 @@ pub mod jackpot_actions {
             token: Option<Token>,
         ) -> u32 {
             if expiration > 0 {
+                // TODO: add min delay
                 assert!(expiration > get_block_timestamp(), "Expiration already passed")
             }
 
@@ -134,11 +135,11 @@ pub mod jackpot_actions {
                 assert(token.ty == TokenType::ERC20, 'only ERC20 supported');
                 assert(token.total.is_non_zero(), 'total cannot be zero');
 
-                // message_consumers.cairo is what will transfer jackpot
-                ITokenDispatcher { contract_address: token.address }
-                    .transferFrom(
-                        get_caller_address(), config.starknet_consumer.clone(), token.total,
-                    );
+                // // message_consumers.cairo is what will transfer jackpot
+                // ITokenDispatcher { contract_address: token.address }
+                //     .transferFrom(
+                //         get_caller_address(), config.starknet_consumer.clone(), token.total,
+                //     );
             }
 
             id

@@ -3,8 +3,8 @@ pub trait IGameActions<T> {
     fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     fn king_me(ref self: T, game_id: u32);
-    fn set_active(ref self: T, active: bool);
-    fn set_max_games(ref self: T, max_games: u32);
+    // fn set_active(ref self: T, active: bool);
+    // fn set_max_games(ref self: T, max_games: u32);
 }
 
 #[dojo::contract]
@@ -18,9 +18,7 @@ pub mod game_actions {
     use nums::models::game::{Game, GameTrait};
     use nums::models::totals::{Totals, GlobalTotals};
     use nums::models::slot::Slot;
-    use nums::elements::achievements::index::{
-        Achievement, AchievementTrait, ACHIEVEMENT_COUNT,
-    };
+    use nums::elements::achievements::index::{Achievement, AchievementTrait, ACHIEVEMENT_COUNT};
     use nums::elements::tasks::index::{Task, TaskTrait};
 
     use dojo::model::ModelStorage;
@@ -123,18 +121,18 @@ pub mod game_actions {
             let mut world = self.world(@"nums");
             let config: Config = world.read_model(WORLD_RESOURCE);
             let game_config = config.game.expect('Game config not set');
-            assert!(game_config.active, "Game is not active");
+            // assert!(game_config.active, "Game is not active");
 
-            if let Option::Some(expiration) = game_config.expiration {
-                assert!(starknet::get_block_timestamp() < expiration, "Game expired");
-            }
+            // if let Option::Some(expiration) = game_config.expiration {
+            //     assert!(starknet::get_block_timestamp() < expiration, "Game expired");
+            // }
 
             let mut global_totals: GlobalTotals = world.read_model(WORLD_RESOURCE);
             global_totals.games_played += 1;
 
-            if let Option::Some(max_games) = game_config.max_games {
-                assert!(global_totals.games_played < max_games, "Max games reached");
-            }
+            // if let Option::Some(max_games) = game_config.max_games {
+            //     assert!(global_totals.games_played < max_games, "Max games reached");
+            // }
 
             let player = get_caller_address();
             let mut totals: Totals = world.read_model(player);
@@ -162,13 +160,7 @@ pub mod game_actions {
                     },
                 );
 
-            world
-                .emit_event(
-                    @GameCreated {
-                        player,
-                        game_id,
-                    },
-                );
+            world.emit_event(@GameCreated { player, game_id });
 
             // Update achievement progression for the player
             let player_id: felt252 = player.into();
@@ -387,35 +379,35 @@ pub mod game_actions {
             self.achievable.progress(world, player_id, task_id, 1);
         }
 
-        fn set_active(ref self: ContractState, active: bool) {
-            let owner = starknet::get_caller_address();
-            let mut world = self.world(@"nums");
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
-            let mut config: Config = world.read_model(WORLD_RESOURCE);
+        // fn set_active(ref self: ContractState, active: bool) {
+        //     let owner = starknet::get_caller_address();
+        //     let mut world = self.world(@"nums");
+        //     assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+        //     let mut config: Config = world.read_model(WORLD_RESOURCE);
 
-            if let Option::Some(mut game_config) = config.game {
-                game_config.active = active;
-                config.game = Option::Some(game_config);
-                world.write_model(@config);
-            } else {
-                assert!(false, "Game config not set");
-            }
-        }
+        //     if let Option::Some(mut game_config) = config.game {
+        //         game_config.active = active;
+        //         config.game = Option::Some(game_config);
+        //         world.write_model(@config);
+        //     } else {
+        //         assert!(false, "Game config not set");
+        //     }
+        // }
 
-        fn set_max_games(ref self: ContractState, max_games: u32) {
-            let owner = starknet::get_caller_address();
-            let mut world = self.world(@"nums");
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
-            let mut config: Config = world.read_model(WORLD_RESOURCE);
+        // fn set_max_games(ref self: ContractState, max_games: u32) {
+        //     let owner = starknet::get_caller_address();
+        //     let mut world = self.world(@"nums");
+        //     assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+        //     let mut config: Config = world.read_model(WORLD_RESOURCE);
 
-            if let Option::Some(mut game_config) = config.game {
-                game_config.max_games = Option::Some(max_games);
-                config.game = Option::Some(game_config);
-                world.write_model(@config);
-            } else {
-                assert!(false, "Game config not set");
-            }
-        }
+        //     if let Option::Some(mut game_config) = config.game {
+        //         game_config.max_games = Option::Some(max_games);
+        //         config.game = Option::Some(game_config);
+        //         world.write_model(@config);
+        //     } else {
+        //         assert!(false, "Game config not set");
+        //     }
+        // }
     }
 
     /// Generates a random `u16` number between `min` and `max` that is not already present in the

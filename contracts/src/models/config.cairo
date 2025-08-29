@@ -16,7 +16,7 @@ pub struct GameConfig {
     pub max_slots: u8,
     pub max_number: u16,
     pub min_number: u16,
-    pub entry_cost: u16,
+    pub entry_cost: u32, 
 }
 
 #[derive(Clone, Drop, Serde, Introspect)]

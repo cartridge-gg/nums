@@ -3,14 +3,10 @@ import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { REWARDS } from "@/constants";
-import { Provider, uint256 } from "starknet";
+import { uint256 } from "starknet";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
-
-const provider = new Provider({
-  nodeUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-});
 
 const enum ShowInfo {
   ABOUT,
@@ -59,7 +55,7 @@ const InfoOverlay = ({
         {
           contractAddress: numsAddress,
           entrypoint: "mint",
-          calldata: [account.address, uint256.bnToUint256(1_000n * 10n ** 18n)],
+          calldata: [account.address, uint256.bnToUint256(10_000n * 10n ** 18n)],
         },
       ]);
 

@@ -4,6 +4,10 @@ version = "0.1.0"
 cairo-version = "=2.10.1"
 edition = "2024_07"
 
+[scripts]
+build="sozo -P dev build && sozo -P dev bindgen --binding-target typescript --output-dir ../src/bindings/"
+
+
 [[target.starknet-contract]]
 sierra = true
 casm = true

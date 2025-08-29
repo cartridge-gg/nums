@@ -24,6 +24,8 @@ import {
   katanaChain,
   SLOT_CHAIN_ID,
 } from "./config";
+import { DojoSdkProviderInitialized } from "./context/dojo";
+import { Toaster } from "./components/ui/toaster";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -58,6 +60,9 @@ const buildPolicies = () => {
       [vrfAddress]: {
         methods: [{ entrypoint: "request_random" }],
       },
+      [numsAddress]: {
+        methods: [{ entrypoint: "approve" }],
+      },
       [gameAddress]: {
         methods: [
           { entrypoint: "create_game" },
@@ -70,9 +75,7 @@ const buildPolicies = () => {
 
   if ([KATANA_CHAIN_ID, SLOT_CHAIN_ID].includes(`0x${chain.id.toString(16)}`)) {
     // @ts-ignore
-    policies.contracts[numsAddress] = {
-      methods: [{ entrypoint: "mint" }],
-    };
+    policies.contracts[numsAddress].methods.push({ entrypoint: "mint" });
   }
 
   return policies;
@@ -105,20 +108,23 @@ function App() {
       explorer={voyager}
       provider={provider}
     >
-      <UrqlProvider>
-        <AudioProvider>
-          <TotalsProvider>
-            {/* <ClaimsProvider> */}
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/:gameId" element={<Game />} />
-              </Routes>
-            </Router>
-            {/* </ClaimsProvider> */}
-          </TotalsProvider>
-        </AudioProvider>
-      </UrqlProvider>
+      <DojoSdkProviderInitialized>
+        <UrqlProvider>
+          <AudioProvider>
+            <TotalsProvider>
+              {/* <ClaimsProvider> */}
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/:gameId" element={<Game />} />
+                </Routes>
+              </Router>
+              {/* </ClaimsProvider> */}
+            </TotalsProvider>
+          </AudioProvider>
+        </UrqlProvider>
+      </DojoSdkProviderInitialized>
+      <Toaster />
     </StarknetConfig>
   );
 }

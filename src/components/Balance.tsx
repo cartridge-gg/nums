@@ -5,7 +5,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Button } from "./Button";
-import { Toaster } from "./ui/toaster";
+
+
 // import RewardsOverlay from "./RewardsBridging";
 import { GiftIcon } from "./icons/Gift";
 // import { useClaims } from "@/context/claims";
@@ -43,7 +44,6 @@ const Balance = () => {
 
   return (
     <>
-      <Toaster />
       {/* <RewardsOverlay open={openRewards} onClose={onCloseRewards} /> */}
       <Tooltip
         showArrow

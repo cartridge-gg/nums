@@ -17,11 +17,12 @@ pub mod game_actions {
     use nums::elements::achievements::index::{Achievement, AchievementTrait, ACHIEVEMENT_COUNT};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::{StoreImpl, StoreTrait};
+    use nums::interfaces::nums::INumsTokenDispatcherTrait;
 
     use dojo::event::EventStorage;
     use dojo::world::{IWorldDispatcherTrait, WorldStorage};
 
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use super::IGameActions;
 
     // Components
@@ -78,6 +79,9 @@ pub mod game_actions {
         player: ContractAddress,
     }
 
+    // const DECIMALS: u256 = 10_u256.pow(18);
+    const DECIMALS: u256 = 1000000000000000000;
+
     // Constuctor
 
     fn dojo_init(self: @ContractState) {
@@ -118,8 +122,14 @@ pub mod game_actions {
             let mut store = StoreImpl::new(world);
             let player = get_caller_address();
 
-            // let config = store.config();
             let game_config = store.game_config();
+
+            // transfer entry_cost token from player to this contract
+            // player must approve this contract to spend entry_cost nums
+            let nums_disp = store.nums_disp();
+            let entry_cost = DECIMALS * game_config.entry_cost.into();
+            nums_disp.transfer_from(player, get_contract_address(), entry_cost);
+            // TODO : keep track of contract balance
 
             let mut global_totals = store.global_totals();
             global_totals.games_played += 1;
@@ -152,8 +162,6 @@ pub mod game_actions {
             world.emit_event(@GameCreated { player, game_id });
 
             // Update achievement progression for the player
-            // let player_id: felt252 = player.into();
-            // let task_id: felt252 = Task::Grinder.identifier();
             self.achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
 
             (game_id, next_number)

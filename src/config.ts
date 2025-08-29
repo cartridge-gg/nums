@@ -5,6 +5,7 @@ import manifestSlot from "../contracts/manifest_slot.json";
 import manifestSepolia from "../contracts/manifest_dev.json"; // todo: updata when built
 import manifestMainnet from "../contracts/manifest_dev.json"; // todo: updata when built
 import { Chain, mainnet, sepolia } from "@starknet-react/chains";
+import { createDojoConfig } from "@dojoengine/core";
 
 export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN;
 export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
@@ -86,10 +87,41 @@ export const manifests = {
 };
 
 export const chains = {
-  [SEPOLIA_CHAIN_ID]: mainnet,
-  [MAINNET_CHAIN_ID]: sepolia,
+  [SEPOLIA_CHAIN_ID]: sepolia,
+  [MAINNET_CHAIN_ID]: mainnet,
   [SLOT_CHAIN_ID]: slotChain,
   [KATANA_CHAIN_ID]: katanaChain,
+};
+
+const dojoConfigDev = createDojoConfig({
+  rpcUrl: import.meta.env.VITE_KATANA_RPC_URL,
+  toriiUrl: import.meta.env.VITE_KATANA_GRAPHQL_URL.replace("/graphql", ""),
+  manifest: manifestDev,
+});
+
+const dojoConfigSlot = createDojoConfig({
+  rpcUrl: import.meta.env.VITE_SLOT_RPC_URL,
+  toriiUrl: import.meta.env.VITE_SLOT_GRAPHQL_URL.replace("/graphql", ""),
+  manifest: manifestSlot,
+});
+
+const dojoConfigSepolia = createDojoConfig({
+  rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
+  toriiUrl: import.meta.env.VITE_SEPOLIA_GRAPHQL_URL.replace("/graphql", ""),
+  manifest: manifestSlot,
+});
+
+const dojoConfigMainnet = createDojoConfig({
+  rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
+  toriiUrl: import.meta.env.VITE_MAINNET_GRAPHQL_URL.replace("/graphql", ""),
+  manifest: manifestSlot,
+});
+
+export const dojoConfigs = {
+  [SEPOLIA_CHAIN_ID]: dojoConfigSepolia,
+  [MAINNET_CHAIN_ID]: dojoConfigMainnet,
+  [SLOT_CHAIN_ID]: dojoConfigSlot,
+  [KATANA_CHAIN_ID]: dojoConfigDev,
 };
 
 export const getContractAddress = (
@@ -114,7 +146,6 @@ export const getVrfAddress = (chainId: bigint) => {
   if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, "nums", "MockVRF");
 };
-
 
 export const getNumsAddress = (chainId: bigint) => {
   const decodedChainId = shortString.decodeShortString(

@@ -22,11 +22,11 @@ import Slot from "./components/Slot";
 import NextNumber from "./components/NextNumber";
 import { graphql } from "./graphql/appchain";
 import { useAudio } from "./context/audio";
-import { hash, num } from "starknet";
+import { hash, num, uint256 } from "starknet";
 import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { graphQlClients } from "./graphql/clients";
-import { getContractAddress, getVrfAddress } from "./config";
+import { getContractAddress, getNumsAddress, getVrfAddress } from "./config";
 
 const MAX_SLOTS = 20;
 
@@ -224,6 +224,7 @@ const Game = () => {
 
     try {
       const vrfAddress = getVrfAddress(chain.id);
+      const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
       const { transaction_hash } = await account!.execute([
         // {
@@ -234,13 +235,14 @@ const Game = () => {
         //     source: { type: 0, address: account!.address },
         //   }),
         // },
+       
         {
           contractAddress: gameAddress,
           entrypoint: "set_slot",
           calldata: [gameId, slot.toString()],
         },
       ]);
-      showTxn(transaction_hash, chain?.name);
+      // showTxn(transaction_hash, chain?.name);
       setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];

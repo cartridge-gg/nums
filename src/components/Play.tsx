@@ -2,7 +2,7 @@ import { Button, Spinner } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { hash, num } from "starknet";
+import { CallData, hash, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain from "@/hooks/chain";
@@ -10,7 +10,13 @@ import { graphql } from "@/graphql/appchain";
 import { useSubscription } from "urql";
 import { graphQlClients } from "@/graphql/clients";
 import { useParams } from "react-router-dom";
-import { getContractAddress, getVrfAddress } from "@/config";
+import {
+  chainName,
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+} from "@/config";
+import { useExecuteCall } from "@/hooks/useExecuteCall";
 
 const GameEventQuery = graphql(`
   query GameEventQuery($entityId: felt252) {
@@ -55,6 +61,7 @@ const Play = ({
   const { playReplay } = useAudio();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const { gameId } = useParams();
+  const { execute } = useExecuteCall();
 
   const entityId = useMemo(() => {
     if (!account) return;
@@ -108,30 +115,40 @@ const Play = ({
       playReplay();
 
       const vrfAddress = getVrfAddress(chain.id);
+      const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
-      const { transaction_hash } = await account.execute([
-        // {
-        //   contractAddress: vrfAddress,
-        //   entrypoint: "request_random",
-        //   calldata: CallData.compile({
-        //     caller: gameAddress,
-        //     source: { type: 0, address: account.address },
-        //   }),
-        // },
-        {
-          contractAddress: gameAddress,
-          entrypoint: "create_game",
-          calldata: [1], // no jackpot yet
-        },
-      ]);
+      const { receipt } = await execute(
+        [
+          // {
+          //   contractAddress: vrfAddress,
+          //   entrypoint: "request_random",
+          //   calldata: CallData.compile({
+          //     caller: gameAddress,
+          //     source: { type: 0, address: account.address },
+          //   }),
+          // },
+          {
+            contractAddress: numsAddress,
+            entrypoint: "approve",
+            calldata: [gameAddress, uint256.bnToUint256(1_000n * 10n ** 18n)],
+          },
+          {
+            contractAddress: gameAddress,
+            entrypoint: "create_game",
+            calldata: [0x1], // Option::None no jackpot yet
+          },
+        ],
+        (r) => {
+          // showTxn(r, chain?.name);
 
-      showTxn(transaction_hash, chain?.name);
-
-      // Set timeout to query game if subscription doesn't respond
-      const timeout = setTimeout(() => {
-        queryEvent(entityId!);
-      }, 2000);
-      setTimeoutId(timeout);
+          // Set timeout to query game if subscription doesn't respond
+          const timeout = setTimeout(() => {
+            queryEvent(entityId!);
+          }, 2000);
+          setTimeoutId(timeout);
+        }
+      );
+      setCreating(false);
     } catch (e) {
       console.error(e);
     }

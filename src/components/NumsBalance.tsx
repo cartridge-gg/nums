@@ -1,6 +1,6 @@
 import { getNumsAddress } from "@/config";
 import useChain from "@/hooks/chain";
-import { useTokens } from "@dojoengine/sdk/react";
+import { useTokens } from "@/hooks/useTokens";
 import { useAccount } from "@starknet-react/core";
 import { useMemo } from "react";
 
@@ -10,10 +10,13 @@ export const NumsBalance = () => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
 
-  const { tokens, balances, getBalance, toDecimal } = useTokens({
-    accountAddresses: [account?.address || "0x0"],
-    contractAddresses: [numsAddress],
-  });
+  const { tokens, balances, getBalance, toDecimal } = useTokens(
+    {
+      accountAddresses: [account?.address || "0x0"],
+      contractAddresses: [numsAddress],
+    },
+    true
+  );
 
   const numsBalance = useMemo(() => {
     //

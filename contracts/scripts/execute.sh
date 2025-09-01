@@ -27,6 +27,9 @@ fi
 # Find the address where tag = "nums-game_actions"
 GAME_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-game_actions") | .address' "$JSON_FILE")
 CLAIM_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
+JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
+
+REWARD_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-MockRewardToken") | .address' "$JSON_FILE")
 
 if [ -z "$GAME_ACTIONS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-game_actions'"
@@ -43,6 +46,13 @@ fi
 
 # Execute commands based on the provided command
 case "$COMMAND" in
+    create_king_of_the_hill)
+        EXPIRATION=$(($(date +%s) + 600))
+        EXTENSION=100
+        echo $EXPIRATION
+        echo "Creating king of the hill for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR create_king_of_the_hill sstr:"King of the hill"  $EXPIRATION $EXTENSION 0x1 --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR create_game 1 --profile $PROFILE_NAME --world $WORLD_ADDR

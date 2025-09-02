@@ -23,6 +23,7 @@ import {
   KATANA_CHAIN_ID,
   katanaChain,
   SLOT_CHAIN_ID,
+  slotChain,
 } from "./config";
 import { DojoSdkProviderInitialized } from "./context/dojo";
 import { Toaster } from "./components/ui/toaster";
@@ -35,6 +36,8 @@ const provider = jsonRpcProvider({
       case sepolia:
         return { nodeUrl: chain.rpcUrls.default.http[0] };
       case katanaChain:
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
+      case slotChain:
         return { nodeUrl: chain.rpcUrls.default.http[0] };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
@@ -81,14 +84,14 @@ const buildPolicies = () => {
   return policies;
 };
 
+const buildChains = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+  return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+};
+
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
-  chains: [
-    { rpcUrl: import.meta.env.VITE_KATANA_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_SLOT_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL },
-  ],
+  chains: buildChains(),
   policies: buildPolicies(),
   preset: "nums",
   namespace: "nums",

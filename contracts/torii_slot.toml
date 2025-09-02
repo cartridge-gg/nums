@@ -1,0 +1,19 @@
+world_address = "0x01f30a29542716316310dd98ab07b27bb527196ef4bedb9129a7b39b8a175b70"
+rpc = "https://api.cartridge.gg/x/nums2/katana"
+
+[server]
+http_cors_origins = ["*"]
+
+[indexing]
+controllers = true
+index_pending = true
+polling_interval = 1000
+max_concurrent_tasks = 2
+contracts = [
+    "ERC20:0x01b427f95aef59cb93b3750eeaaf70a954a4449073be037c78386728691bc0f4", # NUMS
+    "ERC20:0x0548f2c8fce6dd8c1bc41122a2adbc6e823134e88fdd01194d4dc6a0105a1ea1", # REW
+]
+
+
+[sql]
+historical = ["nums-TrophyProgression"]

@@ -14,7 +14,7 @@ export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
 
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
-export const SLOT_CHAIN_ID = shortString.encodeShortString("WP_NUMS");
+export const SLOT_CHAIN_ID = shortString.encodeShortString("WP_NUMS2");
 export const KATANA_CHAIN_ID = shortString.encodeShortString("KATANA");
 
 export const ETH_CONTRACT_ADDRESS =

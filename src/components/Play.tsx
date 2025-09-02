@@ -138,7 +138,7 @@ const Play = ({
             calldata: [0x1], // Option::None no jackpot yet
           },
         ],
-        (r) => {
+        (_receipt) => {
           // showTxn(r, chain?.name);
 
           // Set timeout to query game if subscription doesn't respond

@@ -2,6 +2,30 @@ use starknet::ContractAddress;
 use nums::token::Token;
 use nums::constants::ZERO_ADDRESS;
 
+
+
+// #[derive(Copy, Drop, Serde, PartialEq)]
+// #[dojo::model]
+// pub struct PerpNumsJackpot {
+//     #[key]
+//     pub id: u32,
+//     pub nums_balance: u256,
+//     pub winner: Option<ContractAddress>,
+// }
+
+
+// #[derive(Copy, Drop, Serde, PartialEq)]
+// #[dojo::model]
+// pub struct TokenJackpot {
+//     #[key]
+//     pub id: u32,
+//     pub nums_balance: u256,
+//     pub token: Option<Token>,
+//     pub mode: JackpotMode,
+
+// }
+
+
 #[derive(Copy, Drop, Serde, PartialEq)]
 #[dojo::model]
 pub struct Jackpot {
@@ -95,3 +119,5 @@ pub impl JackpotImpl of JackpotTrait {
         }
     }
 }
+
+

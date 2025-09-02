@@ -17,6 +17,7 @@ pub struct GameConfig {
     pub max_number: u16,
     pub min_number: u16,
     pub entry_cost: u32, 
+    // pub max_duration: u16,
 }
 
 #[derive(Clone, Drop, Serde, Introspect, DojoStore)]

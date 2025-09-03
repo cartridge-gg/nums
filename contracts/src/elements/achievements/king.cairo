@@ -1,9 +1,6 @@
-use nums::elements::achievements::interface::{
-    AchievementTrait, ArcadeTask, Task, TaskTrait,
-};
+use nums::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
 
 pub impl King of AchievementTrait {
-    
     fn identifier(level: u8) -> felt252 {
         match level {
             0 => 'KOTH_I',
@@ -15,17 +12,17 @@ pub impl King of AchievementTrait {
         }
     }
 
-    
+
     fn index(level: u8) -> u8 {
         level
     }
 
-    
+
     fn hidden(level: u8) -> bool {
         false
     }
 
-    
+
     fn points(level: u8) -> u16 {
         match level {
             0 => 30,
@@ -37,12 +34,12 @@ pub impl King of AchievementTrait {
         }
     }
 
-    
+
     fn group() -> felt252 {
         'King of the Hill'
     }
 
-    
+
     fn icon(level: u8) -> felt252 {
         match level {
             0 => 'fa-chess-pawn',
@@ -54,7 +51,7 @@ pub impl King of AchievementTrait {
         }
     }
 
-    
+
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Lucky',
@@ -66,7 +63,7 @@ pub impl King of AchievementTrait {
         }
     }
 
-    
+
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "Better lucky than good!",
@@ -78,7 +75,7 @@ pub impl King of AchievementTrait {
         }
     }
 
-    
+
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {
             0 => 5,

@@ -27,6 +27,8 @@ import {
 } from "./config";
 import { DojoSdkProviderInitialized } from "./context/dojo";
 import { Toaster } from "./components/ui/toaster";
+import { JackpotProvider } from "./context/jackpots";
+import { GameProvider } from "./context/game";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -104,31 +106,37 @@ const connectors = [new ControllerConnector(options) as never as Connector];
 
 function App() {
   return (
-    <StarknetConfig
-      autoConnect
-      chains={[chains[DEFAULT_CHAIN_ID]]}
-      connectors={connectors}
-      explorer={voyager}
-      provider={provider}
-    >
-      <DojoSdkProviderInitialized>
-        <UrqlProvider>
-          <AudioProvider>
-            <TotalsProvider>
-              {/* <ClaimsProvider> */}
-              <Router>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/:gameId" element={<Game />} />
-                </Routes>
-              </Router>
-              {/* </ClaimsProvider> */}
-            </TotalsProvider>
-          </AudioProvider>
-        </UrqlProvider>
-      </DojoSdkProviderInitialized>
+    <>
+      <StarknetConfig
+        autoConnect
+        chains={[chains[DEFAULT_CHAIN_ID]]}
+        connectors={connectors}
+        explorer={voyager}
+        provider={provider}
+      >
+        <DojoSdkProviderInitialized>
+          <UrqlProvider>
+            <AudioProvider>
+              <GameProvider>
+                <JackpotProvider>
+                  {/* <TotalsProvider> */}
+                  {/* <ClaimsProvider> */}
+                  <Router>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/:gameId" element={<Game />} />
+                    </Routes>
+                  </Router>
+                  {/* </ClaimsProvider> */}
+                  {/* </TotalsProvider> */}
+                </JackpotProvider>
+              </GameProvider>
+            </AudioProvider>
+          </UrqlProvider>
+        </DojoSdkProviderInitialized>
+      </StarknetConfig>
       <Toaster />
-    </StarknetConfig>
+    </>
   );
 }
 

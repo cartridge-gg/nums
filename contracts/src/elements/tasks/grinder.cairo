@@ -1,12 +1,11 @@
 use nums::elements::tasks::interface::TaskTrait;
 
 pub impl Grinder of TaskTrait {
-    
     fn identifier() -> felt252 {
         'GRINDER'
     }
 
-    
+
     fn description(count: u32) -> ByteArray {
         match count {
             0 => "",

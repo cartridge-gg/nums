@@ -1,7 +1,6 @@
 #[dojo::contract]
 mod MockVRF {
     use starknet::ContractAddress;
-
     use crate::interfaces::vrf::Source;
     use crate::random::RandomImpl;
     // fn dojo_init(ref self: ContractState) {}

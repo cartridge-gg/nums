@@ -1,4 +1,5 @@
 use core::array::ArrayTrait;
+use nums::{Store, StoreImpl, StoreTrait};
 use starknet::ContractAddress;
 
 #[derive(Copy, Drop, Serde)]
@@ -14,7 +15,7 @@ pub struct Game {
     pub remaining_slots: u8,
     pub next_number: u16,
     pub reward: u32,
-    pub jackpot_id: Option<u32>,
+    pub jackpot_id: u32,
 }
 
 #[generate_trait]
@@ -28,21 +29,59 @@ pub impl GameImpl of GameTrait {
     /// # Returns
     /// A boolean value indicating whether the elements in the slots array are in ascending order.
     fn is_valid(self: @Game, nums: @Array<u16>) -> bool {
-        let mut idx = nums.len();
-        let mut valid = true;
-        loop {
-            idx -= 1;
-            if idx == 0 {
-                break;
-            }
+        let len = nums.len();
+        if len == 1 {
+            return true;
+        }
 
-            if *nums.at(idx) < *nums.at(idx - 1) {
+        let mut valid = true;
+        let mut idx = 0;
+
+        while idx < (len - 1) {
+            if *nums.at(idx) > *nums.at(idx + 1) {
                 valid = false;
                 break;
             }
-        };
+            idx += 1;
+        }
 
         valid
+    }
+
+    fn is_game_over(self: @Game, ref store: Store) -> bool {
+        if *self.remaining_slots == 0 {
+            return true;
+        }
+
+        let next_number = *self.next_number;
+        let mut max_slots = *self.max_slots;
+        let mut idx = 0;
+
+        let mut slot = store.slot(*self.game_id, *self.player, idx);
+        let mut prev_number = 0;
+
+        while idx < (max_slots - 1) {
+            let next_slot = store.slot(*self.game_id, *self.player, idx + 1);
+
+            if slot.number == 0 && next_number < next_slot.number && next_number > prev_number {
+                return false;
+            }
+            if slot.number != 0 && next_number < slot.number {
+                return true;
+            }
+
+            prev_number = slot.number;
+            slot = next_slot;
+            idx += 1
+        }
+        // check if last slot is empty
+
+        println!("slot: {:?}", slot);
+        if slot.number == 0 && next_number > prev_number {
+            return false;
+        }
+
+        true
     }
 
     fn level(self: @Game) -> u8 {

@@ -7,14 +7,11 @@ pub trait IConfigActions<T> {
 
 #[dojo::contract]
 pub mod config_actions {
-    use super::IConfigActions;
-    use starknet::ContractAddress;
+    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use nums::models::config::{Config, GameConfig};
-    use nums::{StoreImpl, StoreTrait};
-    use nums::WORLD_RESOURCE;
-
-    use dojo::world::IWorldDispatcherTrait;
-    use dojo::world::{WorldStorageTrait};
+    use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
+    use starknet::ContractAddress;
+    use super::IConfigActions;
 
     fn dojo_init(
         ref self: ContractState,
@@ -42,7 +39,7 @@ pub mod config_actions {
                     world_resource: 0,
                     game: Option::Some(
                         GameConfig {
-                            max_slots: 20, max_number: 1000, min_number: 0, entry_cost: 1_000,
+                            max_slots: 20, max_number: 1000, min_number: 1, entry_cost: 1_000,
                         },
                     ),
                     reward: Option::None,

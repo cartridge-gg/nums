@@ -3,10 +3,11 @@ import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import { REWARDS } from "@/constants";
-import { uint256 } from "starknet";
+import { num, uint256 } from "starknet";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
+import { useTokens } from "@/hooks/useTokens";
 
 const enum ShowInfo {
   ABOUT,
@@ -26,7 +27,12 @@ const InfoOverlay = ({
   const { chain } = useChain();
   const { account } = useAccount();
   const { provider } = useProvider();
-  const numsContractAddress = getNumsAddress(chain.id);
+  const numsContractAddress = num.toHex64(getNumsAddress(chain.id));
+
+  // const res = useTokens({
+  //   contractAddresses: [numsContractAddress],
+  // });
+  // console.log(res);
 
   useEffect(() => {
     provider
@@ -55,7 +61,10 @@ const InfoOverlay = ({
         {
           contractAddress: numsAddress,
           entrypoint: "mint",
-          calldata: [account.address, uint256.bnToUint256(10_000n * 10n ** 18n)],
+          calldata: [
+            account.address,
+            uint256.bnToUint256(10_000n * 10n ** 18n),
+          ],
         },
       ]);
 

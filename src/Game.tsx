@@ -6,6 +6,7 @@ import {
   Box,
   Container,
   Grid,
+  HStack,
   Stack,
   Text,
   useDisclosure,
@@ -27,6 +28,8 @@ import useChain from "./hooks/chain";
 import { ShowReward } from "./components/ShowReward";
 import { graphQlClients } from "./graphql/clients";
 import { getContractAddress, getNumsAddress, getVrfAddress } from "./config";
+import { JackpotInfos } from "./components/JackpotInfos";
+import { useExecuteCall } from "./hooks/useExecuteCall";
 
 const MAX_SLOTS = 20;
 
@@ -43,6 +46,7 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
+          jackpot_id
         }
       }
     }
@@ -94,8 +98,9 @@ const Game = () => {
   const { gameId } = useParams();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
+  const [game, setGame] = useState<any>();
+  const { execute } = useExecuteCall();
 
   const { showTxn } = useToast();
   if (!gameId) {
@@ -124,13 +129,14 @@ const Game = () => {
         .query(GameQuery, { gameId }, { requestPolicy: "network-only" })
         .toPromise()
         .then((res) => {
-          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+          const gameModel = res.data?.numsGameModels?.edges?.[0]?.node;
           const slotsEdges = res.data?.numsSlotModels?.edges;
-          if (!gamesModel || !slotsEdges) {
+          if (!gameModel || !slotsEdges) {
             return;
           }
 
-          setPlayer(gamesModel.player);
+          setGame(gameModel);
+          setPlayer(gameModel.player);
 
           const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
           slotsEdges.forEach((edge: any) => {
@@ -138,7 +144,7 @@ const Game = () => {
           });
           setSlots(newSlots);
 
-          if (isGameOver(newSlots, gamesModel.next_number!)) {
+          if (isGameOver(newSlots, gameModel.next_number!)) {
             setIsOver(true);
 
             if (isOwner) {
@@ -149,9 +155,9 @@ const Game = () => {
 
           updateGameState(
             newSlots,
-            gamesModel.next_number!,
-            gamesModel.remaining_slots!,
-            gamesModel.reward!
+            gameModel.next_number!,
+            gameModel.remaining_slots!,
+            gameModel.reward!
           );
           setIsLoading(false);
         });
@@ -226,22 +232,25 @@ const Game = () => {
       const vrfAddress = getVrfAddress(chain.id);
       const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
-      const { transaction_hash } = await account!.execute([
-        // {
-        //   contractAddress: vrfAddress,
-        //   entrypoint: "request_random",
-        //   calldata: CallData.compile({
-        //     caller: gameAddress,
-        //     source: { type: 0, address: account!.address },
-        //   }),
-        // },
-       
-        {
-          contractAddress: gameAddress,
-          entrypoint: "set_slot",
-          calldata: [gameId, slot.toString()],
-        },
-      ]);
+      const { receipt } = await execute(
+        [
+          // {
+          //   contractAddress: vrfAddress,
+          //   entrypoint: "request_random",
+          //   calldata: CallData.compile({
+          //     caller: gameAddress,
+          //     source: { type: 0, address: account!.address },
+          //   }),
+          // },
+
+          {
+            contractAddress: gameAddress,
+            entrypoint: "set_slot",
+            calldata: [gameId, slot.toString()],
+          },
+        ],
+        (_receipt) => {}
+      );
       // showTxn(transaction_hash, chain?.name);
       setLevel(MAX_SLOTS - remaining + 1);
 
@@ -267,7 +276,7 @@ const Game = () => {
     <>
       <Container h="100vh" maxW="100vw">
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
-        <Header showHome hideChain />
+        <Header />
         <Overlay open={open} onClose={onClose}>
           <VStack
             boxSize="full"
@@ -324,17 +333,22 @@ const Game = () => {
           justify={["flex-start", "flex-start", "center"]}
           pt={["90px", "90px", "0"]}
         >
-          <Text display={["none", "none", "block"]}>Your number is...</Text>
-          <Box
-            mb={["20px", "20px", "50px"]}
-            textStyle={["h-md", "h-md", "h-lg"]}
-            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
-            lineHeight="100px"
-            color={isOver ? "red" : "inherit"}
-            transition="color 3s"
-          >
-            <NextNumber number={nextNumber!} isLoading={isLoading} />
-          </Box>
+          <HStack>
+            <VStack>
+              <Text display={["none", "none", "block"]}>Your number is...</Text>
+              <Box
+                mb={["20px", "20px", "50px"]}
+                textStyle={["h-md", "h-md", "h-lg"]}
+                textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+                lineHeight="100px"
+                color={isOver ? "red" : "inherit"}
+                transition="color 3s"
+              >
+                <NextNumber number={nextNumber!} isLoading={isLoading} />
+              </Box>
+            </VStack>
+            <JackpotInfos jackpotId={game?.jackpot_id} />
+          </HStack>
           <Grid
             templateRows={[
               "repeat(10, 1fr)",

@@ -1,123 +1,333 @@
+use dojo::world::{IWorldDispatcherTrait, WorldStorage, WorldStorageTrait};
+use nums::constants::{ONE_YEAR, ZERO_ADDRESS};
+use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+use nums::store::{Store, StoreImpl, StoreTrait};
+// use nums::interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
+use nums::token::{Token, TokenType};
 use starknet::ContractAddress;
-use nums::token::Token;
-use nums::constants::ZERO_ADDRESS;
+use crate::constants::ONE_DAY;
 
 
+impl CloneOptionToken of Clone<Option<Token>> {
+    fn clone(self: @Option<Token>) -> Option<Token> {
+        match self {
+            Option::Some(t) => Option::Some(t.clone()),
+            Option::None => Option::None,
+        }
+    }
+}
 
-// #[derive(Copy, Drop, Serde, PartialEq)]
-// #[dojo::model]
-// pub struct PerpNumsJackpot {
-//     #[key]
-//     pub id: u32,
-//     pub nums_balance: u256,
-//     pub winner: Option<ContractAddress>,
-// }
-
-
-// #[derive(Copy, Drop, Serde, PartialEq)]
-// #[dojo::model]
-// pub struct TokenJackpot {
-//     #[key]
-//     pub id: u32,
-//     pub nums_balance: u256,
-//     pub token: Option<Token>,
-//     pub mode: JackpotMode,
-
-// }
+#[derive(Drop, Serde, PartialEq)]
+pub struct CreateJackpotFactoryParams {
+    pub token: Option<Token>,
+    pub mode: JackpotMode,
+    pub timing_mode: TimingMode,
+    pub initial_duration: u64,
+    pub extension_duration: u64,
+    pub min_slots: u8,
+    pub max_winners: u8,
+}
 
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Drop, Serde, PartialEq)]
+#[dojo::model]
+pub struct JackpotFactory {
+    #[key]
+    pub id: u32,
+    pub token: Option<Token>,
+    pub mode: JackpotMode,
+    pub timing_mode: TimingMode,
+    pub initial_duration: u64,
+    pub extension_duration: u64,
+    pub min_slots: u8,
+    pub max_winners: u8,
+    //
+    pub current_jackpot_id: Option<u32>,
+    pub remaining_count: Option<u8> // None = infinite
+}
+
+
+#[derive(Drop, Serde, PartialEq)]
 #[dojo::model]
 pub struct Jackpot {
     #[key]
     pub id: u32,
-    pub title: felt252,
-    pub creator: ContractAddress,
-    pub mode: JackpotMode,
-    pub expiration: u64,
+    pub factory_id: u32,
+    pub nums_balance: u256,
     pub token: Option<Token>,
-    pub winner: Option<ContractAddress>,
-    pub claimed: bool,
-    pub verified: bool,
+    pub mode: JackpotMode,
+    pub created_at: u64,
+    pub end_at: u64,
+    pub best_score: u8,
+    pub total_winners: u8,
 }
+
+#[derive(Drop, Serde, PartialEq)]
+#[dojo::model]
+pub struct JackpotWinner {
+    #[key]
+    pub jackpot_id: u32,
+    #[key]
+    pub index: u8,
+    pub player: ContractAddress,
+    pub claimed: bool,
+}
+
+#[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
+pub enum TimingMode {
+    #[default]
+    TimeLimited,
+    Perpetual,
+}
+
 
 #[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
 pub enum JackpotMode {
     #[default]
-    KING_OF_THE_HILL: KingOfTheHill,
-    CONDITIONAL_VICTORY: ConditionalVictory,
+    KingOfTheHill,
+    ConditionalVictory,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect, DojoStore)]
-pub struct KingOfTheHill {
-    pub extension_time: u64,
-    pub remaining_slots: u8,
-    pub king: ContractAddress,
-}
-
-#[derive(Copy, Drop, Serde, PartialEq, Default, Introspect, DojoStore)]
-pub struct ConditionalVictory {
-    pub slots_required: u8,
-}
-
-impl DefaultImpl of Default<KingOfTheHill> {
-    fn default() -> KingOfTheHill {
-        KingOfTheHill { extension_time: 0, remaining_slots: 0, king: ZERO_ADDRESS }
-    }
-}
 
 #[generate_trait]
-pub impl JackpotModeImpl of JackpotModeTrait {
-    fn new(mode: JackpotMode, max_slots: u8, expiration: u64) -> JackpotMode {
-        match mode {
-            JackpotMode::KING_OF_THE_HILL(params) => {
-                assert!(expiration != 0, "King of the Hill must have expiration");
+pub impl JackpotFactoryImpl of JackpotFactoryTrait {
+    fn new(
+        ref world: WorldStorage,
+        jackpot_actions_addr: ContractAddress,
+        params: CreateJackpotFactoryParams,
+    ) -> JackpotFactory {
+        let mut params = params;
+        let id = world.dispatcher.uuid();
+        let caller = starknet::get_caller_address();
 
-                JackpotMode::KING_OF_THE_HILL(
-                    KingOfTheHill {
-                        extension_time: params.extension_time,
-                        king: ZERO_ADDRESS,
-                        remaining_slots: max_slots,
-                    },
-                )
-            },
-            JackpotMode::CONDITIONAL_VICTORY(params) => {
-                assert!(params.slots_required <= max_slots, "slots_required exceeds max_slots");
+        // TODO: set right figures here
+        // assert!(params.min_slots > 10 && params.min_slots < 21, "invalid min_slot");
+        assert!(params.min_slots > 4 && params.min_slots < 21, "invalid min_slot");
+        assert!(params.max_winners > 0 && params.max_winners < 11, "invalid max_winners");
 
-                mode
+        match params.timing_mode {
+            TimingMode::TimeLimited => {
+                assert!(
+                    params.initial_duration > 200 && params.initial_duration < ONE_YEAR,
+                    "invalid initial_duration",
+                );
+                assert!(
+                    params.extension_duration > 100 && params.extension_duration < ONE_DAY,
+                    "invalid extension_duration",
+                );
             },
+            TimingMode::Perpetual => {
+                params.initial_duration = 0;
+                params.extension_duration = 0;
+            },
+        }
+
+        let mut remaining_count = 0;
+        if let Option::Some(token) = @params.token {
+            match token.ty {
+                TokenType::ERC20(config) => {
+                    assert!(*config.count > 0, "invalid count");
+                    assert!(*config.amount > 0, "invalid amount");
+                    // assert!(params.max_winners < 11, "max 10 max_winners");
+
+                    let amount_by_count = *config.amount / (*config.count).into();
+                    let total = amount_by_count * (*config.count).into();
+                    assert!(total == *config.amount, "count must be amount divisor");
+
+                    remaining_count = *config.count;
+
+                    // transfer from caller to jackpot_actions_addr
+                    IERC20Dispatcher { contract_address: *token.address }
+                        .transfer_from(caller, jackpot_actions_addr, *config.amount);
+                },
+                TokenType::ERC721(_config) => {
+                    panic!(
+                        "ERC721 not handled yet",
+                    ); // assert!(config.ids.len() > 0, "invalid ids");
+                    // remaining_count = config.ids.len();
+                // assert!(params.max_winners == 1, "max 1 max_winners");
+                },
+                TokenType::ERC1155(_config) => {
+                    panic!("ERC1155 not handled yet"); // assert!(
+                    //     config.ids.len() == config.amounts.len(),
+                //     "mismatchin array len ids, amounts",
+                // );
+                // assert!(config.ids.len() > 0, "invalid ids");
+                // assert!(params.max_winners == 1, "max 1 max_winners");
+                // remaining_count = config.ids.len();
+                },
+            }
+
+            assert!(remaining_count > 0, "invalid remaining_count");
+        }
+
+        let remaining_count = if params.token.is_some() {
+            Option::Some(remaining_count)
+        } else {
+            Option::None
+        };
+
+        JackpotFactory {
+            id,
+            token: params.token,
+            mode: params.mode,
+            timing_mode: params.timing_mode,
+            initial_duration: params.initial_duration,
+            extension_duration: params.extension_duration,
+            min_slots: params.min_slots,
+            max_winners: params.max_winners,
+            //
+            current_jackpot_id: Option::None,
+            remaining_count: remaining_count.try_into().unwrap(),
+        }
+    }
+
+    fn create_jackpot(
+        ref self: JackpotFactory, ref world: WorldStorage, ref store: Store,
+    ) -> Jackpot {
+        let id = world.dispatcher.uuid();
+
+        if self.remaining_count.is_some() {
+            let value = self.remaining_count.unwrap();
+            self.remaining_count = Option::Some(value - 1);
+        }
+        self.current_jackpot_id = Option::Some(id);
+
+        let created_at = starknet::get_block_timestamp();
+        let end_at = match self.timing_mode {
+            TimingMode::TimeLimited => { created_at + self.initial_duration },
+            TimingMode::Perpetual => { created_at + ONE_YEAR },
+        };
+
+        let jackpot = Jackpot {
+            factory_id: self.id,
+            id,
+            nums_balance: 0,
+            token: self.token.clone(),
+            mode: self.mode,
+            created_at,
+            end_at,
+            best_score: 0,
+            total_winners: 0,
+        };
+
+        store.set_jackpot(@jackpot);
+        store.set_jackpot_factory(@self);
+
+        jackpot
+    }
+
+    fn can_create_jackpot(self: @JackpotFactory, ref store: Store) -> bool {
+        // check current jackpot has ended
+        if let Option::Some(current_jackpot_id) = self.current_jackpot_id {
+            let jackpot = store.jackpot(*current_jackpot_id);
+            if !jackpot.has_ended(ref store) {
+                return false;
+            }
+        }
+
+        match self.timing_mode {
+            // check if there is remaing jackpot to be created
+            TimingMode::TimeLimited => {
+                if self.remaining_count.is_some() {
+                    (*self.remaining_count).unwrap() > 0
+                } else {
+                    true
+                }
+            },
+            TimingMode::Perpetual => { true },
         }
     }
 }
 
 #[generate_trait]
 pub impl JackpotImpl of JackpotTrait {
-    /// Determines if the Jackpot can be claimed based on the current game state.
-    ///
-    /// # Arguments
-    /// * `self` - A reference to the Jackpot struct.
-    /// * `nums` - An array of numbers representing the current game state.
-    ///
-    /// # Returns
-    /// * `bool` - True if the Jackpot can be claimed, false otherwise.
-    fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
-        match self.mode {
-            JackpotMode::CONDITIONAL_VICTORY(condition) => {
-                if nums.len() >= (*condition.slots_required).into() {
-                    return true;
-                }
+    fn exists(self: @Jackpot) -> bool {
+        *self.factory_id > 0
+    }
 
-                return false;
-            },
-            JackpotMode::KING_OF_THE_HILL(condition) => {
-                if *condition.king == starknet::get_caller_address() {
-                    return true;
-                }
+    fn has_ended(self: @Jackpot, ref store: Store) -> bool {
+        let mut factory = store.jackpot_factory(*self.factory_id);
 
-                return false;
-            },
+        if *self.total_winners == factory.max_winners {
+            return true;
         }
+
+        let now = starknet::get_block_timestamp();
+        if now >= *self.end_at {
+            return true;
+        }
+
+        false
     }
 }
+// #[derive(Copy, Drop, Serde, PartialEq)]
+// #[dojo::model]
+// pub struct Jackpot {
+//     #[key]
+//     pub factory_id: u32,
+//     #[key]
+//     pub id: u32,
+//     pub title: felt252,
+//     pub creator: ContractAddress,
+//     pub mode: JackpotMode,
+//     pub expiration: u64,
+//     pub token: Option<Token>,
+//     pub winner: Option<ContractAddress>,
+//     pub claimed: bool,
+//     pub verified: bool,
+// }
+
+// #[generate_trait]
+// pub impl JackpotModeImpl of JackpotModeTrait {
+//     fn new(mode: JackpotMode, max_slots: u8, expiration: u64) -> JackpotMode {
+//         match mode {
+//             JackpotMode::KingOfTheHill(params) => {
+//                 assert!(expiration != 0, "King of the Hill must have expiration");
+
+//                 JackpotMode::KingOfTheHill(
+//                     KingOfTheHillConfig { extension_time: params.extension_time // king:
+//                     ZERO_ADDRESS, // remaining_slots: max_slots,
+//                     },
+//                 )
+//             },
+//             JackpotMode::ConditionalVictory(params) => {
+//                 assert!(params.slots_required <= max_slots, "slots_required exceeds max_slots");
+
+//                 mode
+//             },
+//         }
+//     }
+// }
+
+// #[generate_trait]
+// pub impl JackpotImpl of JackpotTrait {
+//     /// Determines if the Jackpot can be claimed based on the current game state.
+//     ///
+//     /// # Arguments
+//     /// * `self` - A reference to the Jackpot struct.
+//     /// * `nums` - An array of numbers representing the current game state.
+//     ///
+//     /// # Returns
+//     /// * `bool` - True if the Jackpot can be claimed, false otherwise.
+//     fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
+//         match self.mode {
+//             JackpotMode::ConditionalVictory(condition) => {
+//                 if nums.len() >= (*condition.slots_required).into() {
+//                     return true;
+//                 }
+
+//                 return false;
+//             },
+//             JackpotMode::KingOfTheHill(condition) => {
+//                 // if *condition.king == starknet::get_caller_address() {
+//                 //     return true;
+//                 // }
+
+//                 return false;
+//             },
+//         }
+//     }
+// }
 
 

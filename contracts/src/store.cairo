@@ -1,10 +1,9 @@
-use starknet::ContractAddress;
 use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
-
-use crate::models::{Config, Game, Slot, GameConfig, Jackpot, Totals, GlobalTotals};
-use crate::interfaces::nums::{INumsTokenDispatcher};
-use crate::interfaces::vrf::{IVrfProviderDispatcher};
+use starknet::ContractAddress;
+use crate::interfaces::nums::INumsTokenDispatcher;
+use crate::interfaces::vrf::IVrfProviderDispatcher;
+use crate::models::{Config, Game, GameConfig, Jackpot, JackpotFactory, JackpotWinner, Slot};
 
 #[derive(Drop)]
 pub struct Store {
@@ -64,6 +63,18 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(slot)
     }
 
+
+    // jackpot factory
+
+    fn jackpot_factory(ref self: Store, factory_id: u32) -> JackpotFactory {
+        self.world.read_model((factory_id,))
+    }
+
+    fn set_jackpot_factory(ref self: Store, factory: @JackpotFactory) {
+        self.world.write_model(factory)
+    }
+
+
     // jackpot
 
     fn jackpot(ref self: Store, jackpot_id: u32) -> Jackpot {
@@ -74,25 +85,13 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(jackpot)
     }
 
-    // totals
+    // jackpot winner
 
-    fn totals(ref self: Store, player: ContractAddress) -> Totals {
-        self.world.read_model((player,))
+    fn jackpot_winner(ref self: Store, jackpot_id: u32, index: u8) -> JackpotWinner {
+        self.world.read_model((jackpot_id, index))
     }
 
-    fn set_totals(ref self: Store, totals: @Totals) {
-        self.world.write_model(totals)
-    }
-
-    // global totals
-
-    fn global_totals(ref self: Store) -> GlobalTotals {
-        self.world.read_model((0))
-    }
-
-    fn set_global_totals(ref self: Store, totals: GlobalTotals) {
-        let mut totals = totals;
-        totals.world_resource = 0;
-        self.world.write_model(@totals)
+    fn set_jackpot_winner(ref self: Store, jackpot_winner: @JackpotWinner) {
+        self.world.write_model(jackpot_winner)
     }
 }

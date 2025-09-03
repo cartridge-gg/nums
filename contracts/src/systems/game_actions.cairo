@@ -1,28 +1,28 @@
 #[starknet::interface]
 pub trait IGameActions<T> {
-    fn create_game(ref self: T, jackpot_id: Option<u32>) -> (u32, u16);
+    fn create_game(ref self: T, jackpot_id: u32) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
-    fn king_me(ref self: T, game_id: u32);
+    // fn king_me(ref self: T, game_id: u32);
 }
 
 #[dojo::contract]
 pub mod game_actions {
     use achievement::components::achievable::AchievableComponent;
     use core::array::ArrayTrait;
-    use nums::models::jackpot::{JackpotMode};
-    use nums::models::config::{SlotRewardTrait};
-    use nums::random::{Random, RandomImpl};
-    use nums::models::game::{Game, GameTrait};
-    use nums::models::slot::Slot;
-    use nums::elements::achievements::index::{Achievement, AchievementTrait, ACHIEVEMENT_COUNT};
-    use nums::elements::tasks::index::{Task, TaskTrait};
-    use nums::{StoreImpl, StoreTrait};
-    use nums::interfaces::nums::INumsTokenDispatcherTrait;
-
+    use core::num::traits::Pow;
     use dojo::event::EventStorage;
     use dojo::world::{IWorldDispatcherTrait, WorldStorage};
-
+    use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
+    use nums::elements::tasks::index::{Task, TaskTrait};
+    use nums::interfaces::nums::INumsTokenDispatcherTrait;
+    use nums::models::config::SlotRewardTrait;
+    use nums::models::game::{Game, GameTrait};
+    use nums::models::jackpot::{JackpotImpl, JackpotTrait};
+    use nums::models::slot::Slot;
+    use nums::random::{Random, RandomImpl};
+    use nums::{StoreImpl, StoreTrait};
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
+    use crate::models::JackpotFactoryTrait;
     use super::IGameActions;
 
     // Components
@@ -79,14 +79,14 @@ pub mod game_actions {
         player: ContractAddress,
     }
 
-    // const DECIMALS: u256 = 10_u256.pow(18);
-    const DECIMALS: u256 = 1000000000000000000;
+    const DECIMALS: u256 = 10_u256.pow(18);
+    // const DECIMALS: u256 = 1000000000000000000;
 
     // Constuctor
 
     fn dojo_init(self: @ContractState) {
         // [Event] Emit all Achievement events
-        let mut world: WorldStorage = self.world(@"nums");
+        let mut world = self.world(@"nums");
         let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
         while achievement_id > 0 {
             let achievement: Achievement = achievement_id.into();
@@ -117,28 +117,48 @@ pub mod game_actions {
         ///
         /// # Returns
         /// A tuple containing the game ID and the first random number for the game.
-        fn create_game(ref self: ContractState, jackpot_id: Option<u32>) -> (u32, u16) {
+        fn create_game(ref self: ContractState, jackpot_id: u32) -> (u32, u16) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
             let player = get_caller_address();
 
             let game_config = store.game_config();
+            let mut jackpot = store.jackpot(jackpot_id);
+            let mut factory = store.jackpot_factory(jackpot.factory_id);
+
+            assert!(jackpot.exists(), "invalid jackpot");
+            let mut jackpot_id = jackpot_id;
+
+            let has_ended = jackpot.has_ended(ref store);
+            let can_create = factory.can_create_jackpot(ref store);
+
+            println!("has_ended: {}", has_ended);
+            println!("can_create: {}", can_create);
+
+            if has_ended {
+                if can_create {
+                    let new_jackpot = factory.create_jackpot(ref world, ref store);
+                    jackpot_id = new_jackpot.id;
+                    jackpot = store.jackpot(jackpot_id);
+                    factory = store.jackpot_factory(jackpot.factory_id);
+                } else {
+                    assert!(
+                        false,
+                        "This jackpot has ended, and the factory cannot initialize a new jackpot",
+                    );
+                }
+            }
 
             // transfer entry_cost token from player to this contract
             // player must approve this contract to spend entry_cost nums
             let nums_disp = store.nums_disp();
             let entry_cost = DECIMALS * game_config.entry_cost.into();
             nums_disp.transfer_from(player, get_contract_address(), entry_cost);
-            // TODO : keep track of contract balance
 
-            let mut global_totals = store.global_totals();
-            global_totals.games_played += 1;
-
-            let mut totals = store.totals(player);
-            totals.games_played += 1;
-
-            store.set_global_totals(global_totals);
-            store.set_totals(@totals);
+            // TODO: handle splitting / burning % of entry_cost
+            // keep track of jackpot balance
+            jackpot.nums_balance += entry_cost;
+            store.set_jackpot(@jackpot);
 
             let game_id = world.dispatcher.uuid();
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -182,7 +202,10 @@ pub mod game_actions {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
             let mut game = store.game(game_id, player);
+            let mut jackpot = store.jackpot(game.jackpot_id);
+            let mut factory = store.jackpot_factory(jackpot.factory_id);
 
+            assert!(!jackpot.has_ended(ref store), "Jackpot has ended");
             assert!(game.player == player, "Unauthorized player");
             assert!(target_idx < game.max_slots, "Invalid slot");
 
@@ -191,7 +214,7 @@ pub mod game_actions {
             let mut prev_num = 0;
             let mut nums = ArrayTrait::<u16>::new();
             let mut idx = 0_u8;
-            loop {
+            while idx < game.max_slots {
                 let slot = store.slot(game_id, player, idx);
                 if slot.number != 0 {
                     // Check if we're trying to insert into a filled slot
@@ -203,7 +226,7 @@ pub mod game_actions {
                         streak += 1;
                     } else {
                         streak = 1;
-                    };
+                    }
                     prev_num = slot.number;
                 }
 
@@ -215,15 +238,12 @@ pub mod game_actions {
                         streak += 1;
                     } else {
                         streak = 1;
-                    };
+                    }
                     prev_num = game.next_number;
                 }
 
                 idx += 1_u8;
-                if idx == game.max_slots {
-                    break;
-                }
-            };
+            }
 
             // Check ordering of new nums array
             assert!(game.is_valid(@nums), "Invalid game state");
@@ -236,20 +256,49 @@ pub mod game_actions {
             game.next_number = next_number;
             game.remaining_slots -= 1;
 
-            let mut totals = store.totals(player);
-            totals.slots_filled += 1;
-
             let config = store.config();
+
             // Slot reward
             if let Option::Some(reward_config) = config.reward {
                 let (_, amount) = reward_config.compute(game.level());
                 game.reward += amount;
-                totals.rewards_earned += amount.into();
             }
 
             store.set_game(@game);
-            store.set_totals(@totals);
             store.set_slot(@Slot { game_id, player, index: target_idx, number: target_number });
+
+            // check if game is over
+            let is_game_over = game.is_game_over(ref store);
+            let score = game.level();
+            let has_min_score = score >= factory.min_slots;
+            let is_equal = score == jackpot.best_score;
+            let is_better = score > jackpot.best_score;
+
+            println!("is_game_over : {}", is_game_over);
+            println!("score : {}", score);
+            println!("has_min_score : {}", has_min_score);
+            println!("is_equal : {}", is_equal);
+            println!("is_better : {}", is_better);
+
+            if is_game_over && has_min_score && (is_equal || is_better) {
+                let mut jackpot_winner = store.jackpot_winner(jackpot.id, jackpot.total_winners);
+                jackpot_winner.player = player;
+
+                if is_equal {
+                    jackpot.total_winners += 1;
+                }
+                if is_better {
+                    jackpot.total_winners = 1;
+                    jackpot.best_score = score;
+                }
+
+                if jackpot.end_at + factory.extension_duration > jackpot.end_at {
+                    jackpot.end_at += factory.extension_duration;
+                }
+
+                store.set_jackpot_winner(@jackpot_winner);
+                store.set_jackpot(@jackpot);
+            }
 
             // world
             //     .emit_event(
@@ -307,59 +356,59 @@ pub mod game_actions {
 
             next_number
         }
-
         /// Attempts to crown the caller as the new king in a King of the Hill jackpot.
-        ///
-        /// This function allows a player to claim the position of "king" in a King of the Hill
-        /// jackpot game. It verifies that the game is associated with a King of the Hill
-        /// jackpot, updates the current king, and potentially extends the jackpot's expiration
-        /// time.
-        ///
-        /// The remaining_slots mechanism ensures that each new king must have fewer or equal
-        /// remaining slots compared to the previous king. This creates a progressively more
-        /// challenging game as it continues.
-        ///
-        /// # Arguments
-        /// * `game_id` - The identifier of the game associated with the jackpot.
-        fn king_me(ref self: ContractState, game_id: u32) {
-            let mut world = self.world(@"nums");
-            let mut store = StoreImpl::new(world);
-            let player = get_caller_address();
-            let game = store.game(game_id, player);
-            let jackpot_id = game.jackpot_id.expect('Jackpot not defined');
-            let mut jackpot = store.jackpot(jackpot_id);
+    ///
+    /// This function allows a player to claim the position of "king" in a King of the Hill
+    /// jackpot game. It verifies that the game is associated with a King of the Hill
+    /// jackpot, updates the current king, and potentially extends the jackpot's expiration
+    /// time.
+    ///
+    /// The remaining_slots mechanism ensures that each new king must have fewer or equal
+    /// remaining slots compared to the previous king. This creates a progressively more
+    /// challenging game as it continues.
+    ///
+    /// # Arguments
+    /// * `game_id` - The identifier of the game associated with the jackpot.
+    // fn king_me(ref self: ContractState, game_id: u32) {
+    //     let mut world = self.world(@"nums");
+    //     let mut store = StoreImpl::new(world);
+    //     let player = get_caller_address();
+    //     let game = store.game(game_id, player);
+    //     let jackpot_id = game.jackpot_id.expect('Jackpot not defined');
+    //     let mut jackpot = store.jackpot(jackpot_id);
 
-            let mut king_of_the_hill = match jackpot.mode {
-                JackpotMode::KING_OF_THE_HILL(koth) => koth,
-                _ => panic!("Not a King of the Hill jackpot"),
-            };
+        //     let mut king_of_the_hill = match jackpot.mode {
+    //         JackpotMode::KING_OF_THE_HILL(koth) => koth,
+    //         _ => panic!("Not a King of the Hill jackpot"),
+    //     };
 
-            assert(jackpot.expiration > starknet::get_block_timestamp(), 'Jackpot already expired');
-            assert(
-                game.remaining_slots < king_of_the_hill.remaining_slots
-                    || (game.remaining_slots == king_of_the_hill.remaining_slots
-                        && player != king_of_the_hill.king),
-                'No improvement or already king',
-            );
+        //     assert(jackpot.expiration > starknet::get_block_timestamp(), 'Jackpot already
+    //     expired');
+    //     assert(
+    //         game.remaining_slots < king_of_the_hill.remaining_slots
+    //             || (game.remaining_slots == king_of_the_hill.remaining_slots
+    //                 && player != king_of_the_hill.king),
+    //         'No improvement or already king',
+    //     );
 
-            king_of_the_hill.king = player;
-            king_of_the_hill.remaining_slots = game.remaining_slots;
+        //     king_of_the_hill.king = player;
+    //     king_of_the_hill.remaining_slots = game.remaining_slots;
 
-            if king_of_the_hill.extension_time > 0 {
-                let new_expiration = jackpot.expiration + king_of_the_hill.extension_time;
-                if new_expiration > jackpot.expiration {
-                    jackpot.expiration = new_expiration;
-                }
-            }
+        //     if king_of_the_hill.extension_time > 0 {
+    //         let new_expiration = jackpot.expiration + king_of_the_hill.extension_time;
+    //         if new_expiration > jackpot.expiration {
+    //             jackpot.expiration = new_expiration;
+    //         }
+    //     }
 
-            // Update the jackpot with the new king
-            jackpot.mode = JackpotMode::KING_OF_THE_HILL(king_of_the_hill);
-            store.set_jackpot(@jackpot);
-            world.emit_event(@KingCrowned { game_id, jackpot_id, player });
+        //     // Update the jackpot with the new king
+    //     jackpot.mode = JackpotMode::KING_OF_THE_HILL(king_of_the_hill);
+    //     store.set_jackpot(@jackpot);
+    //     world.emit_event(@KingCrowned { game_id, jackpot_id, player });
 
-            // Update achievement progression for the player
-            self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
-        }
+        //     // Update achievement progression for the player
+    //     self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
+    // }
     }
 
     /// Generates a random `u16` number between `min` and `max` that is not already present in the
@@ -379,18 +428,15 @@ pub mod game_actions {
         let random = rand.between::<u16>(min, max);
         let mut reroll = false;
         let mut idx = 0_u32;
-        loop {
-            if idx == nums.len() {
-                break;
-            }
 
+        while idx < nums.len() {
             if *nums.at(idx) == random {
                 reroll = true;
                 break;
             }
 
             idx += 1;
-        };
+        }
 
         match reroll {
             true => next_random(rand, nums, min, max),

@@ -1,4 +1,4 @@
-use achievement::types::task::{Task as ArcadeTask};
+use achievement::types::task::Task as ArcadeTask;
 use nums::elements::achievements;
 
 // Constants
@@ -46,7 +46,6 @@ pub enum Achievement {
 
 #[generate_trait]
 pub impl AchievementImpl of AchievementTrait {
-    
     fn identifier(self: Achievement) -> felt252 {
         match self {
             Achievement::None => 0,
@@ -83,7 +82,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn hidden(self: Achievement) -> bool {
         match self {
             Achievement::None => true,
@@ -120,7 +119,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn index(self: Achievement) -> u8 {
         match self {
             Achievement::None => 0,
@@ -157,7 +156,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn points(self: Achievement) -> u16 {
         match self {
             Achievement::None => 0,
@@ -194,7 +193,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn group(self: Achievement) -> felt252 {
         match self {
             Achievement::None => 0,
@@ -231,7 +230,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn icon(self: Achievement) -> felt252 {
         match self {
             Achievement::None => 0,
@@ -268,7 +267,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn title(self: Achievement) -> felt252 {
         match self {
             Achievement::None => 0,
@@ -305,7 +304,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn description(self: Achievement) -> ByteArray {
         match self {
             Achievement::None => "",
@@ -342,7 +341,7 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn tasks(self: Achievement) -> Span<ArcadeTask> {
         match self {
             Achievement::None => [].span(),
@@ -379,14 +378,13 @@ pub impl AchievementImpl of AchievementTrait {
         }
     }
 
-    
+
     fn data(self: Achievement) -> ByteArray {
         ""
     }
 }
 
 impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
-    
     fn into(self: Achievement) -> u8 {
         match self {
             Achievement::None => 0,
@@ -425,7 +423,6 @@ impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
 }
 
 impl IntoU8Achievement of core::traits::Into<u8, Achievement> {
-    
     fn into(self: u8) -> Achievement {
         let card: felt252 = self.into();
         match card {

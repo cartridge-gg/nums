@@ -1,9 +1,6 @@
-use nums::elements::achievements::interface::{
-    AchievementTrait, ArcadeTask, Task, TaskTrait,
-};
+use nums::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
 
 pub impl Claimer of AchievementTrait {
-    
     fn identifier(level: u8) -> felt252 {
         match level {
             0 => 'CLAIMER_I',
@@ -15,17 +12,17 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-    
+
     fn index(level: u8) -> u8 {
         level
     }
 
-    
+
     fn hidden(level: u8) -> bool {
         false
     }
 
-    
+
     fn points(level: u8) -> u16 {
         match level {
             0 => 30,
@@ -37,12 +34,12 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-    
+
     fn group() -> felt252 {
         'Claimer'
     }
 
-    
+
     fn icon(level: u8) -> felt252 {
         match level {
             0 => 'fa-shrimp',
@@ -54,7 +51,7 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-    
+
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'First Million',
@@ -66,7 +63,7 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-    
+
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "The first step to fortune. Just a few more to go!",
@@ -78,7 +75,7 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-    
+
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {
             0 => 1000000,

@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-pub trait INumsToken<T> {
+pub trait IERC20<T> {
     // IERC20Metadata
     fn decimals(self: @T) -> u8;
     fn name(self: @T) -> felt252;
@@ -19,6 +19,4 @@ pub trait INumsToken<T> {
     ) -> bool;
 
     fn total_supply(self: @T) -> u256;
-    // amount is in 10*18 units
-    fn reward(ref self: T, recipient: ContractAddress, amount: u64) -> bool;
 }

@@ -1,7 +1,5 @@
 use core::pedersen::pedersen;
-
-use starknet::ContractAddress;
-use starknet::{get_caller_address, get_contract_address};
+use starknet::{ContractAddress, get_caller_address, get_contract_address};
 use crate::interfaces::vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 
 

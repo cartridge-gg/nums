@@ -11,12 +11,11 @@ pub trait INumsToken<TContractState> {
 #[starknet::contract]
 mod NumsToken {
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use starknet::{ContractAddress, ClassHash, get_caller_address};
-    
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ClassHash, ContractAddress, get_caller_address};
 
     const DECIMALS: u256 = 1000000000000000000;
 
@@ -26,7 +25,7 @@ mod NumsToken {
 
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    
+
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
@@ -57,9 +56,7 @@ mod NumsToken {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState,
-        owner: ContractAddress,
-        rewards_caller: ContractAddress
+        ref self: ContractState, owner: ContractAddress, rewards_caller: ContractAddress,
     ) {
         let name = "Nums";
         let symbol = "NUMS";
@@ -72,7 +69,10 @@ mod NumsToken {
     #[abi(embed_v0)]
     impl NumsTokenImpl of super::INumsToken<ContractState> {
         fn reward(ref self: ContractState, recipient: ContractAddress, amount: u64) -> bool {
-            assert!(self.rewards_caller.read() == get_caller_address(), "Only the reward caller can mint tokens");
+            assert!(
+                self.rewards_caller.read() == get_caller_address(),
+                "Only the reward caller can mint tokens",
+            );
             self.erc20.mint(recipient, amount.into() * DECIMALS);
             true
         }

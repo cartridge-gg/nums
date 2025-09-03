@@ -17,6 +17,7 @@ import {
   getVrfAddress,
 } from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
+import { useJackpots } from "@/context/jackpots";
 
 const GameEventQuery = graphql(`
   query GameEventQuery($entityId: felt252) {
@@ -62,6 +63,7 @@ const Play = ({
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const { gameId } = useParams();
   const { execute } = useExecuteCall();
+  const { jackpots } = useJackpots();
 
   const entityId = useMemo(() => {
     if (!account) return;
@@ -107,8 +109,18 @@ const Play = ({
       });
   }, []);
 
+  const latestJackpot = useMemo(() => {
+    if (!jackpots || jackpots.length === 0) return undefined;
+    return jackpots.sort((a, b) => Number(b.id) - Number(a.id))[0];
+  }, [jackpots]);
+
+  console.log("latestJackpot",latestJackpot)
   const newGame = async () => {
     if (!account) return;
+    if (!latestJackpot) {
+      alert("not jackpot found");
+      return;
+    }
 
     try {
       setCreating(true);
@@ -135,17 +147,16 @@ const Play = ({
           {
             contractAddress: gameAddress,
             entrypoint: "create_game",
-            calldata: [0x1], // Option::None no jackpot yet
+            calldata: [latestJackpot.id],
           },
         ],
         (_receipt) => {
           // showTxn(r, chain?.name);
-
           // Set timeout to query game if subscription doesn't respond
-          const timeout = setTimeout(() => {
-            queryEvent(entityId!);
-          }, 2000);
-          setTimeoutId(timeout);
+          // const timeout = setTimeout(() => {
+          //   queryEvent(entityId!);
+          // }, 2000);
+          // setTimeoutId(timeout);
         }
       );
       setCreating(false);

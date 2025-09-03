@@ -346,7 +346,7 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_actions_createGame_calldata = (jackpotId: CairoOption<BigNumberish>): DojoCall => {
+	const build_game_actions_createGame_calldata = (jackpotId: BigNumberish): DojoCall => {
 		return {
 			contractName: "game_actions",
 			entrypoint: "create_game",
@@ -354,32 +354,11 @@ export function setupWorld(provider: DojoProvider) {
 		};
 	};
 
-	const game_actions_createGame = async (snAccount: Account | AccountInterface, jackpotId: CairoOption<BigNumberish>) => {
+	const game_actions_createGame = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish) => {
 		try {
 			return await provider.execute(
 				snAccount,
 				build_game_actions_createGame_calldata(jackpotId),
-				"nums",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_game_actions_kingMe_calldata = (gameId: BigNumberish): DojoCall => {
-		return {
-			contractName: "game_actions",
-			entrypoint: "king_me",
-			calldata: [gameId],
-		};
-	};
-
-	const game_actions_kingMe = async (snAccount: Account | AccountInterface, gameId: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_game_actions_kingMe_calldata(gameId),
 				"nums",
 			);
 		} catch (error) {
@@ -409,40 +388,21 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_jackpot_actions_createKingOfTheHill_calldata = (title: BigNumberish, expiration: BigNumberish, extensionTime: BigNumberish, token: CairoOption<BigNumberish>): DojoCall => {
+	// @ts-ignore
+	const build_jackpot_actions_createJackpotFactory_calldata = (params: models.CreateJackpotFactoryParams): DojoCall => {
 		return {
 			contractName: "jackpot_actions",
-			entrypoint: "create_king_of_the_hill",
-			calldata: [title, expiration, extensionTime, token],
+			entrypoint: "create_jackpot_factory",
+			calldata: [params],
 		};
 	};
 
-	const jackpot_actions_createKingOfTheHill = async (snAccount: Account | AccountInterface, title: BigNumberish, expiration: BigNumberish, extensionTime: BigNumberish, token: CairoOption<BigNumberish>) => {
+	// @ts-ignore
+	const jackpot_actions_createJackpotFactory = async (snAccount: Account | AccountInterface, params: models.CreateJackpotFactoryParams) => {
 		try {
 			return await provider.execute(
 				snAccount,
-				build_jackpot_actions_createKingOfTheHill_calldata(title, expiration, extensionTime, token),
-				"nums",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_jackpot_actions_verify_calldata = (jackpotId: BigNumberish, verified: boolean): DojoCall => {
-		return {
-			contractName: "jackpot_actions",
-			entrypoint: "verify",
-			calldata: [jackpotId, verified],
-		};
-	};
-
-	const jackpot_actions_verify = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish, verified: boolean) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_jackpot_actions_verify_calldata(jackpotId, verified),
+				build_jackpot_actions_createJackpotFactory_calldata(params),
 				"nums",
 			);
 		} catch (error) {
@@ -501,16 +461,12 @@ export function setupWorld(provider: DojoProvider) {
 		game_actions: {
 			createGame: game_actions_createGame,
 			buildCreateGameCalldata: build_game_actions_createGame_calldata,
-			kingMe: game_actions_kingMe,
-			buildKingMeCalldata: build_game_actions_kingMe_calldata,
 			setSlot: game_actions_setSlot,
 			buildSetSlotCalldata: build_game_actions_setSlot_calldata,
 		},
 		jackpot_actions: {
-			createKingOfTheHill: jackpot_actions_createKingOfTheHill,
-			buildCreateKingOfTheHillCalldata: build_jackpot_actions_createKingOfTheHill_calldata,
-			verify: jackpot_actions_verify,
-			buildVerifyCalldata: build_jackpot_actions_verify_calldata,
+			createJackpotFactory: jackpot_actions_createJackpotFactory,
+			buildCreateJackpotFactoryCalldata: build_jackpot_actions_createJackpotFactory_calldata,
 		},
 	};
 }

@@ -9,7 +9,7 @@ build="sozo -P dev build && sozo -P dev bindgen --binding-target typescript --ou
 
 slot_migrate = "sozo -P slot migrate"
 slot_katana = "slot d create -t pro --team cartridge nums2 katana --config ./katana_dev.toml"
-slot_torii = "slot d create -t pro --team cartridge nums2 torii --version v1.7.0-alpha.3 --config ./torii_slot.toml"
+slot_torii = "slot d create -t pro --team cartridge nums2 torii --version v1.7.0-alpha.4 --config ./torii_slot.toml"
 
 [[target.starknet-contract]]
 sierra = true

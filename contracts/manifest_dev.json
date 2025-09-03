@@ -2681,8 +2681,8 @@
       ]
     },
     {
-      "address": "0x5dcc6993af0443c08b46fb1068bd911c7f52fa0bada1f5a1180098595d7d18b",
-      "class_hash": "0x2a66b9d613ffcce7ba8c1747287905454df898675065b498594e0828733215d",
+      "address": "0x545c916fd45c97f85f5a99fa46f0dcc3417deac591705432f3322f6e4e8780c",
+      "class_hash": "0x5bbbdefa606f7d85c81d262908e7387be90cca1f85882b77489dabedd18465a",
       "abi": [
         {
           "type": "impl",
@@ -2889,8 +2889,8 @@
       ]
     },
     {
-      "address": "0x384b803e93846dc09c0e863883a7f67644c8c46e93f51d57f6dc08b125c0b93",
-      "class_hash": "0x77f8f8ef2705c471f08b52646234f64bab84e94c6fceda8a1a8047413d842aa",
+      "address": "0xa566f6119de0b54ca3052a140b69379adb3af5f2654edc720789d45ec4637a",
+      "class_hash": "0x174ce00904e374ac5b240f69e075a9cffd02701c56381063e1ccb192db2aff9",
       "abi": [
         {
           "type": "impl",
@@ -3220,8 +3220,8 @@
       ]
     },
     {
-      "address": "0x79c2c541e3ea9728116a99de4228d24a3f690504621a7d612f1f9020c4fbd1a",
-      "class_hash": "0x12c6653553d8cfaf15e66445d6ba8d93b87ed2498f3ac3c7873cae762300dc3",
+      "address": "0x2a1b4ce34bb5abae5da8d5990ae7b4108344d5b780886d76fb8b5601d8bb445",
+      "class_hash": "0xe29bccc7c012ee3de473a3010cdf6fc69e4ca115db62d5d11ffb29d727c02e",
       "abi": [
         {
           "type": "impl",
@@ -3286,20 +3286,6 @@
           "interface_name": "nums::systems::game_actions::IGameActions"
         },
         {
-          "type": "enum",
-          "name": "core::option::Option::<core::integer::u32>",
-          "variants": [
-            {
-              "name": "Some",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "None",
-              "type": "()"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "nums::systems::game_actions::IGameActions",
           "items": [
@@ -3309,7 +3295,7 @@
               "inputs": [
                 {
                   "name": "jackpot_id",
-                  "type": "core::option::Option::<core::integer::u32>"
+                  "type": "core::integer::u32"
                 }
               ],
               "outputs": [
@@ -3337,18 +3323,6 @@
                   "type": "core::integer::u16"
                 }
               ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "king_me",
-              "inputs": [
-                {
-                  "name": "game_id",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
               "state_mutability": "external"
             }
           ]
@@ -3478,13 +3452,12 @@
       "systems": [
         "create_game",
         "set_slot",
-        "king_me",
         "upgrade"
       ]
     },
     {
-      "address": "0x394b9c11843057931f1a1bc18a4c70e3ac3eb5c0f6a44a0ea3470f1f45bd8d1",
-      "class_hash": "0x48ffd3d52d6b4cfdb4961b2c741b1fd5e1ba1837b3ca9b6e036a9427a79623e",
+      "address": "0x75e5110d59c8355c7becb3c65440ac460b14aacc075872855b1d98235674d84",
+      "class_hash": "0xa8c52a998dda5c168d95db59554485ca89b29d019262bea8e65e89a7fb336c",
       "abi": [
         {
           "type": "impl",
@@ -3537,6 +3510,13 @@
           ]
         },
         {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
+        },
+        {
           "type": "impl",
           "name": "JackpotActions",
           "interface_name": "nums::systems::jackpot_actions::IJackpotActions"
@@ -3556,16 +3536,40 @@
           ]
         },
         {
-          "type": "enum",
-          "name": "core::option::Option::<core::integer::u256>",
-          "variants": [
+          "type": "struct",
+          "name": "nums::token::TokenTypeERC20",
+          "members": [
             {
-              "name": "Some",
+              "name": "amount",
               "type": "core::integer::u256"
             },
             {
-              "name": "None",
-              "type": "()"
+              "name": "count",
+              "type": "core::integer::u8"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums::token::TokenTypeERC721",
+          "members": [
+            {
+              "name": "ids",
+              "type": "core::array::Array::<core::integer::u256>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums::token::TokenTypeERC1155",
+          "members": [
+            {
+              "name": "ids",
+              "type": "core::array::Array::<core::integer::u256>"
+            },
+            {
+              "name": "amounts",
+              "type": "core::array::Array::<core::integer::u256>"
             }
           ]
         },
@@ -3575,15 +3579,15 @@
           "variants": [
             {
               "name": "ERC20",
-              "type": "()"
+              "type": "nums::token::TokenTypeERC20"
             },
             {
               "name": "ERC721",
-              "type": "()"
+              "type": "nums::token::TokenTypeERC721"
             },
             {
               "name": "ERC1155",
-              "type": "()"
+              "type": "nums::token::TokenTypeERC1155"
             }
           ]
         },
@@ -3592,20 +3596,12 @@
           "name": "nums::token::Token",
           "members": [
             {
-              "name": "id",
-              "type": "core::option::Option::<core::integer::u256>"
-            },
-            {
               "name": "address",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
               "name": "ty",
               "type": "nums::token::TokenType"
-            },
-            {
-              "name": "total",
-              "type": "core::integer::u256"
             }
           ]
         },
@@ -3625,15 +3621,63 @@
         },
         {
           "type": "enum",
-          "name": "core::bool",
+          "name": "nums::models::jackpot::JackpotMode",
           "variants": [
             {
-              "name": "False",
+              "name": "KingOfTheHill",
               "type": "()"
             },
             {
-              "name": "True",
+              "name": "ConditionalVictory",
               "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "nums::models::jackpot::TimingMode",
+          "variants": [
+            {
+              "name": "TimeLimited",
+              "type": "()"
+            },
+            {
+              "name": "Perpetual",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "nums::models::jackpot::CreateJackpotFactoryParams",
+          "members": [
+            {
+              "name": "token",
+              "type": "core::option::Option::<nums::token::Token>"
+            },
+            {
+              "name": "mode",
+              "type": "nums::models::jackpot::JackpotMode"
+            },
+            {
+              "name": "timing_mode",
+              "type": "nums::models::jackpot::TimingMode"
+            },
+            {
+              "name": "initial_duration",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "extension_duration",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "min_slots",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "max_winners",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -3643,56 +3687,17 @@
           "items": [
             {
               "type": "function",
-              "name": "create_king_of_the_hill",
+              "name": "create_jackpot_factory",
               "inputs": [
                 {
-                  "name": "title",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "expiration",
-                  "type": "core::integer::u64"
-                },
-                {
-                  "name": "extension_time",
-                  "type": "core::integer::u64"
-                },
-                {
-                  "name": "token",
-                  "type": "core::option::Option::<nums::token::Token>"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::integer::u32"
-                }
-              ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "verify",
-              "inputs": [
-                {
-                  "name": "jackpot_id",
-                  "type": "core::integer::u32"
-                },
-                {
-                  "name": "verified",
-                  "type": "core::bool"
+                  "name": "params",
+                  "type": "nums::models::jackpot::CreateJackpotFactoryParams"
                 }
               ],
               "outputs": [],
               "state_mutability": "external"
             }
           ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -3806,8 +3811,7 @@
       "tag": "nums-jackpot_actions",
       "selector": "0x54db86b66f3061f4a01801b930c1aede2b50f8aec7607f687dd93331753f65f",
       "systems": [
-        "create_king_of_the_hill",
-        "verify",
+        "create_jackpot_factory",
         "upgrade"
       ]
     }
@@ -3822,21 +3826,27 @@
     },
     {
       "members": [],
-      "class_hash": "0x2797ab640fce7b3b10ead39f03dd726917434339cf83f4a32e1cc735bdbf932",
+      "class_hash": "0x77712deba563a7a115811bf9ccd9ddd0f6d4308aa70f6dfcb6bb4f3ed414eaa",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
     },
     {
       "members": [],
-      "class_hash": "0x12a93c46d6beddffbf8ce9d58f8ff46acf4d8546b5d34ff0d4ae0ab0efea897",
-      "tag": "nums-GlobalTotals",
-      "selector": "0xd75b15d623e1cb99c003f8822a75792d68e1be99958a44fec517dffc4e6514"
+      "class_hash": "0x69f1babf41db281caa43b22e2ecae74862c6935422b597ea574173a5f2f9a3f",
+      "tag": "nums-Jackpot",
+      "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
-      "class_hash": "0x4325240060de26066c695b6554459b4a47c8d1505fc3e370f70d5a77f7cfd08",
-      "tag": "nums-Jackpot",
-      "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
+      "class_hash": "0x6dada26cb81570b97dd479d3789faff723810040ac85ea1258aba126c0f6e0b",
+      "tag": "nums-JackpotFactory",
+      "selector": "0x2fe8f9ccb1b1f87825eae6305d181d77cc41744904d5adb87f26b076ab2465"
+    },
+    {
+      "members": [],
+      "class_hash": "0x5b2941329c65858f567c7b040d1152f27532ac9184209518d77dd876eec0c8",
+      "tag": "nums-JackpotWinner",
+      "selector": "0x1ed10ea87ef8d5ce51e4af2ac90667bb97ea1f3a11ab56740cbaadf26d257e0"
     },
     {
       "members": [],
@@ -3849,12 +3859,6 @@
       "class_hash": "0x8450b1fe9469120c9333ecc67bd364cfe9b1c30130c6c2f86499f9f776cb1b",
       "tag": "nums-Slot",
       "selector": "0x7ef98499230873bdd2e86ae7ae452adaddfdd8da2d352d8af8d02f1af9af5aa"
-    },
-    {
-      "members": [],
-      "class_hash": "0x72363988a8b188e5f5e7d1dca06ae78ecca90ed60b60f05b55240230e004f6c",
-      "tag": "nums-Totals",
-      "selector": "0x293104e49f49ee445423ae4b6ed9cbcc84ce3e5a27466264fee006dea23bfa6"
     }
   ],
   "events": [
@@ -3878,7 +3882,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x39e9f4047d10ef0b3680e7525652dc2a97d2ca0e716e345a22fde8671636b24",
+      "class_hash": "0xce26af70ca9575b4323d8f0911595694abc18085c27fab8dd75f8c41c823e9",
       "tag": "nums-JackpotCreated",
       "selector": "0x2316c6700328c1de9b2bf8e664b6119789a104f0d9f865acba568281247589"
     },

@@ -39,7 +39,7 @@ export const useExecuteCall = () => {
           tx = await provider.execute(
             account,
             callOrCallsOrPromise as AllowArray<Call | DojoCall>,
-            "pm"
+            "nums"
           );
         }
 

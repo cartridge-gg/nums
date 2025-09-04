@@ -1,17 +1,15 @@
 import { useCallback, useState } from "react";
 import { useNetwork, useSwitchChain } from "@starknet-react/core";
-import { num, shortString } from "starknet";
+import { num } from "starknet";
 import { Chain } from "@starknet-react/chains";
 import useToast from "./toast";
 import { chainName, KATANA_CHAIN_ID, MAINNET_CHAIN_ID } from "@/config";
 
-// export useChain interface
 export interface UseChain {
   chain: Chain;
   error: Error | undefined;
   requestChain: (chainId: string, silent?: boolean) => void;
   requestStarknet: (silent?: boolean) => void;
-  requestAppchain: (silent?: boolean) => void;
 }
 
 const useChain = () => {
@@ -60,23 +58,11 @@ const useChain = () => {
     [chain]
   );
 
-  const requestAppchain = useCallback(
-    async (silent?: boolean) => {
-      if (chain.id === num.toBigInt(KATANA_CHAIN_ID)) {
-        return;
-      }
-
-      await requestChain(KATANA_CHAIN_ID, silent);
-    },
-    [chain]
-  );
-
   return {
     chain,
     error,
     requestChain,
     requestStarknet,
-    requestAppchain,
   };
 };
 

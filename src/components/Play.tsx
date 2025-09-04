@@ -1,8 +1,8 @@
-import { Button, Spinner } from "@chakra-ui/react";
+import { Button, Spinner, VStack, Text, HStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { CallData, hash, num, uint256 } from "starknet";
+import { BigNumberish, CallData, hash, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import useChain from "@/hooks/chain";
@@ -18,6 +18,7 @@ import {
 } from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
 import { useJackpots } from "@/context/jackpots";
+import { useConfig } from "@/context/config";
 
 const GameEventQuery = graphql(`
   query GameEventQuery($entityId: felt252) {
@@ -47,10 +48,14 @@ const GameCreatedEvent = graphql(`
 const Play = ({
   isAgain,
   onReady,
+  jackpotId,
+  label,
   ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
+  jackpotId?: BigNumberish;
+  label?: string;
   [key: string]: any;
 }) => {
   const { account } = useAccount();
@@ -58,12 +63,12 @@ const Play = ({
   const { chain } = useNetwork();
   const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const { requestAppchain } = useChain();
   const { playReplay } = useAudio();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const { gameId } = useParams();
   const { execute } = useExecuteCall();
   const { jackpots } = useJackpots();
+  const { config } = useConfig();
 
   const entityId = useMemo(() => {
     if (!account) return;
@@ -114,7 +119,8 @@ const Play = ({
     return jackpots.sort((a, b) => Number(b.id) - Number(a.id))[0];
   }, [jackpots]);
 
-  console.log("latestJackpot",latestJackpot)
+  // console.log("latestJackpot",latestJackpot)
+
   const newGame = async () => {
     if (!account) return;
     if (!latestJackpot) {
@@ -129,6 +135,10 @@ const Play = ({
       const vrfAddress = getVrfAddress(chain.id);
       const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+
+      const selectedJackpotId = jackpotId
+        ? Number(jackpotId)
+        : latestJackpot.id;
       const { receipt } = await execute(
         [
           // {
@@ -147,7 +157,7 @@ const Play = ({
           {
             contractAddress: gameAddress,
             entrypoint: "create_game",
-            calldata: [latestJackpot.id],
+            calldata: [selectedJackpotId],
           },
         ],
         (_receipt) => {
@@ -174,15 +184,24 @@ const Play = ({
           minW="150px"
           {...buttonProps}
         >
-          {creating ? (
-            <Spinner />
-          ) : isAgain ? (
-            <>
-              <RefreshIcon /> Play Again
-            </>
-          ) : (
-            "Play!"
-          )}
+          <VStack alignItems="center" gap={0}>
+            <HStack>
+              {creating ? (
+                <Spinner />
+              ) : isAgain ? (
+                <>
+                  <RefreshIcon /> Play Again
+                </>
+              ) : label ? (
+                <>{label}</>
+              ) : (
+                "Play!"
+              )}
+            </HStack>
+            <Text fontSize="12px">
+              {config?.game.entry_cost.toLocaleString()} NMUS
+            </Text>
+          </VStack>
         </Button>
       ) : (
         <Button

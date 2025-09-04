@@ -10,12 +10,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
-import { TokenBalance } from "./TokenBalance";
 import { useGames } from "@/context/game";
-import { JackpotInfos } from "./JackpotInfos";
-import { getContractAddress, getNumsAddress } from "@/config";
 import useChain from "@/hooks/chain";
 import { useDojoSdk } from "@/hooks/dojo";
+import { TimeCountdown } from "./TimeCountdown";
 
 const Header = () => {
   const { connect, connectors } = useConnect();
@@ -31,12 +29,8 @@ const Header = () => {
   const { sdk } = useDojoSdk();
   const { chain } = useChain();
 
-  const numsAddress = getNumsAddress(chain.id);
-  const rewardAddress = getContractAddress(
-    chain.id,
-    "nums",
-    "MockRewardToken"
-  );
+  // const numsAddress = getNumsAddress(chain.id);
+  // const rewardAddress = getContractAddress(chain.id, "nums", "MockRewardToken");
 
   useEffect(() => {
     if (controllerConnector) {
@@ -60,15 +54,22 @@ const Header = () => {
       <HStack
         w="full"
         position="absolute"
+        zIndex="99"
         top="0"
         left="0"
         p="12px"
         bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
       >
-        <HStack cursor="pointer" onClick={() => navigate("/")}>
+        <HStack
+          cursor="pointer"
+          onClick={() => navigate("/")}
+          color="white"
+          _hover={{
+            color: "purple.200",
+          }}
+        >
           <LogoIcon />
           <Text
-            color="white"
             fontSize="48px"
             textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
             fontWeight="400"
@@ -80,23 +81,14 @@ const Header = () => {
           </Text>
         </HStack>
         <Spacer maxW="20px" />
-        {/* {showHome && (
-          <Button
-            visual="transparent"
-            h={height}
-            w={width}
-            onClick={() => navigate("/")}
-          >
-            <HomeIcon />
-          </Button>
-        )} */}
-        <Spacer />
 
-        <VStack alignItems="flex-end">
-          <TokenBalance contractAddress={numsAddress} symbol="NUMS" />
-          <TokenBalance contractAddress={rewardAddress} symbol=" REW" />
-        </VStack>
-        {/* {game && <JackpotInfos jackpotId={game?.jackpot_id} />} */}
+        <Spacer />
+        {game && (
+          <TimeCountdown
+            timestampSec={game.expires_at}
+            gameOver={game.game_over}
+          />
+        )}
 
         <Spacer />
         <Button

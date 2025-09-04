@@ -18,7 +18,6 @@ pub enum TokenType {
 #[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]
 pub struct TokenTypeERC20 {
     pub amount: u256,
-    pub count: u8,
 }
 
 #[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]

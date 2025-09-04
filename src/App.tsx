@@ -2,6 +2,7 @@ import "./fonts.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Game from "./Game";
 import Home from "./Home";
+import Selection from "./Selection";
 import {
   StarknetConfig,
   voyager,
@@ -11,7 +12,6 @@ import {
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
 import { ControllerOptions, SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
 import { UrqlProvider } from "./context/urql";
 import {
@@ -29,6 +29,8 @@ import { DojoSdkProviderInitialized } from "./context/dojo";
 import { Toaster } from "./components/ui/toaster";
 import { JackpotProvider } from "./context/jackpots";
 import { GameProvider } from "./context/game";
+import { ConfigProvider } from "./context/config";
+import { ControllersProvider } from "./hooks/controllers";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -47,18 +49,17 @@ const provider = jsonRpcProvider({
   },
 });
 
-// const profile: ProfileOptions = {
-// preset: "not_nums",
-// slot: "nums-mainnet-appchain",
-// namespace: "nums",
-// };
-
 const buildPolicies = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
 
   const vrfAddress = getVrfAddress(chain.id);
   const numsAddress = getNumsAddress(chain.id);
   const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+  const jackpotAddress = getContractAddress(
+    chain.id,
+    "nums",
+    "jackpot_actions"
+  );
 
   const policies: SessionPolicies = {
     contracts: {
@@ -69,11 +70,10 @@ const buildPolicies = () => {
         methods: [{ entrypoint: "approve" }],
       },
       [gameAddress]: {
-        methods: [
-          { entrypoint: "create_game" },
-          { entrypoint: "set_slot" },
-          { entrypoint: "king_me" },
-        ],
+        methods: [{ entrypoint: "create_game" }, { entrypoint: "set_slot" }],
+      },
+      [jackpotAddress]: {
+        methods: [{ entrypoint: "claim_jackpot" }],
       },
     },
   };
@@ -91,15 +91,21 @@ const buildChains = () => {
   return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
 };
 
+const buildTokens = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+  const numsAddress = getNumsAddress(chain.id);
+  return {
+    erc20: [numsAddress],
+  };
+};
+
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
   policies: buildPolicies(),
   preset: "nums",
   namespace: "nums",
-  // tokens: {
-  //   erc20: [import.meta.env.VITE_NUMS_ERC20],
-  // },
+  tokens: buildTokens(),
 };
 
 const connectors = [new ControllerConnector(options) as never as Connector];
@@ -117,20 +123,25 @@ function App() {
         <DojoSdkProviderInitialized>
           <UrqlProvider>
             <AudioProvider>
-              <GameProvider>
-                <JackpotProvider>
-                  {/* <TotalsProvider> */}
-                  {/* <ClaimsProvider> */}
-                  <Router>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/:gameId" element={<Game />} />
-                    </Routes>
-                  </Router>
-                  {/* </ClaimsProvider> */}
-                  {/* </TotalsProvider> */}
-                </JackpotProvider>
-              </GameProvider>
+              <ConfigProvider>
+                <ControllersProvider>
+                  <GameProvider>
+                    <JackpotProvider>
+                      {/* <TotalsProvider> */}
+                      {/* <ClaimsProvider> */}
+                      <Router>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/:gameId" element={<Game />} />
+                          <Route path="/selection" element={<Selection />} />
+                        </Routes>
+                      </Router>
+                      {/* </ClaimsProvider> */}
+                      {/* </TotalsProvider> */}
+                    </JackpotProvider>
+                  </GameProvider>
+                </ControllersProvider>
+              </ConfigProvider>
             </AudioProvider>
           </UrqlProvider>
         </DojoSdkProviderInitialized>

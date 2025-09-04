@@ -15,7 +15,7 @@ pub mod game_actions {
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
-    use nums::models::config::SlotRewardTrait;
+    use nums::models::config::{ConfigImpl, ConfigTrait};
     use nums::models::game::{Game, GameTrait};
     use nums::models::jackpot::{JackpotImpl, JackpotTrait};
     use nums::models::slot::Slot;
@@ -164,6 +164,7 @@ pub mod game_actions {
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
 
+            let now = starknet::get_block_timestamp();
             store
                 .set_game(
                     @Game {
@@ -176,6 +177,8 @@ pub mod game_actions {
                         next_number,
                         reward: 0,
                         jackpot_id,
+                        expires_at: now + game_config.game_duration,
+                        game_over: false,
                     },
                 );
 
@@ -204,7 +207,9 @@ pub mod game_actions {
             let mut game = store.game(game_id, player);
             let mut jackpot = store.jackpot(game.jackpot_id);
             let mut factory = store.jackpot_factory(jackpot.factory_id);
+            let config = store.config();
 
+            assert!(!game.has_expired(), "Game has expired");
             assert!(!jackpot.has_ended(ref store), "Jackpot has ended");
             assert!(game.player == player, "Unauthorized player");
             assert!(target_idx < game.max_slots, "Invalid slot");
@@ -254,20 +259,13 @@ pub mod game_actions {
             let next_number = next_random(rand, @nums, game.min_number, game.max_number);
 
             game.next_number = next_number;
+            game.reward += config.get_reward(game.level());
             game.remaining_slots -= 1;
-
-            let config = store.config();
-
-            // Slot reward
-            if let Option::Some(reward_config) = config.reward {
-                let (_, amount) = reward_config.compute(game.level());
-                game.reward += amount;
-            }
 
             store.set_game(@game);
             store.set_slot(@Slot { game_id, player, index: target_idx, number: target_number });
 
-            // check if game is over
+            // Handle game over, jackpot winners
             let is_game_over = game.is_game_over(ref store);
             let score = game.level();
             let has_min_score = score >= factory.min_slots;
@@ -280,6 +278,8 @@ pub mod game_actions {
             println!("is_equal : {}", is_equal);
             println!("is_better : {}", is_better);
 
+            jackpot.best_score = score;
+
             if is_game_over && has_min_score && (is_equal || is_better) {
                 let mut jackpot_winner = store.jackpot_winner(jackpot.id, jackpot.total_winners);
                 jackpot_winner.player = player;
@@ -289,29 +289,24 @@ pub mod game_actions {
                 }
                 if is_better {
                     jackpot.total_winners = 1;
-                    jackpot.best_score = score;
                 }
 
                 if jackpot.end_at + factory.extension_duration > jackpot.end_at {
                     jackpot.end_at += factory.extension_duration;
                 }
 
+                // todo: check not already in the list ?
                 store.set_jackpot_winner(@jackpot_winner);
                 store.set_jackpot(@jackpot);
             }
 
-            // world
-            //     .emit_event(
-            //         @Inserted {
-            //             game_id,
-            //             player,
-            //             index: target_idx,
-            //             number: target_number,
-            //             next_number,
-            //             remaining_slots: game.remaining_slots,
-            //             game_rewards: game.reward,
-            //         },
-            //     );
+            if is_game_over {
+                // mint nums rewards
+                store.nums_disp().reward(player, game.reward.into());
+
+                game.game_over = true;
+                store.set_game(@game);
+            }
 
             // Update achievement progression for the player - Filler tasks
             let player_id: felt252 = player.into();

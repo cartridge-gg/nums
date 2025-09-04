@@ -11,6 +11,7 @@ pub mod config_actions {
     use nums::models::config::{Config, GameConfig};
     use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
     use starknet::ContractAddress;
+    use crate::constants::ONE_MINUTE;
     use super::IConfigActions;
 
     fn dojo_init(
@@ -37,14 +38,19 @@ pub mod config_actions {
             .set_config(
                 Config {
                     world_resource: 0,
-                    game: Option::Some(
-                        GameConfig {
-                            max_slots: 20, max_number: 1000, min_number: 1, entry_cost: 1_000,
-                        },
-                    ),
-                    reward: Option::None,
                     nums_address,
                     vrf_address,
+                    game: GameConfig {
+                        max_slots: 20,
+                        min_number: 1,
+                        max_number: 1000,
+                        entry_cost: 1000,
+                        game_duration: 3 * ONE_MINUTE,
+                    },
+                    reward: array![
+                        1, 1, 1, 2, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
+                        16384, 32768, 65536,
+                    ],
                 },
             )
     }
@@ -57,7 +63,6 @@ pub mod config_actions {
 
             let owner = starknet::get_caller_address();
             assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
-            // assert!(config.world_resource == WORLD_RESOURCE, "Invalid config state");
 
             store.set_config(config);
         }

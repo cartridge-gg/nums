@@ -30,6 +30,9 @@ import { CaretIcon } from "./components/icons/Caret";
 import InfoOverlay from "./components/Info";
 import { graphql } from "./graphql/appchain";
 import { VrfRisk } from "./components/VrfRisk";
+import Play from "./components/Play";
+import { MintNums } from "./components/MintNums";
+import { Footer } from "./components/Footer";
 
 const MAX_SLOTS = 20;
 
@@ -50,28 +53,6 @@ const LeaderboardQuery = graphql(`
         }
       }
     }
-    # numsTotalsModels(order: { direction: DESC, field: REWARDS_EARNED }) {
-    #   totalCount
-    #   edges {
-    #     node {
-    #       player
-    #       rewards_earned
-    #     }
-    #   }
-    # }
-    # numsConfigModels {
-    #   edges {
-    #     node {
-    #       game {
-    #         Some {
-    #           expiration {
-    #             Some
-    #           }
-    #         }
-    #       }
-    #     }
-    #   }
-    # }
   }
 `);
 
@@ -217,23 +198,19 @@ const Home = () => {
               ))}
             </VStack>
           </Box>
-          <VrfRisk />
-          {/* <VStack w="full" align="flex-start">
-              <Text color="purple.50" textStyle="faded">
-                Game ends in...
-              </Text>
-              <Stack
-                w="full"
-                gap={["25px", "25px", "50px"]}
-                justify="space-between"
-                direction={["column", "column", "row"]}
-              >
-                <Timer expiration={gameExpiration} />
-                <Play onReady={(gameId) => navigate(`/${gameId}`)} />
-              </Stack>
-            </VStack> */}
+
+          <HStack w="full" alignItems="flex-start">
+            <Button onClick={() => navigate("/selection")}>Select Jackpot</Button>
+            <Play
+              onReady={(gameId) => navigate(`/${gameId}`)}
+              w={["100%", "100%", "auto"]}
+            />
+            <MintNums />
+          </HStack>
         </VStack>
       </VStack>
+
+      <Footer />
     </Container>
   );
 };

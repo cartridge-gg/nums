@@ -388,7 +388,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	// @ts-ignore
+	const build_jackpot_actions_claimJackpot_calldata = (jackpotId: BigNumberish): DojoCall => {
+		return {
+			contractName: "jackpot_actions",
+			entrypoint: "claim_jackpot",
+			calldata: [jackpotId],
+		};
+	};
+
+	const jackpot_actions_claimJackpot = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_jackpot_actions_claimJackpot_calldata(jackpotId),
+				"nums",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_jackpot_actions_createJackpotFactory_calldata = (params: models.CreateJackpotFactoryParams): DojoCall => {
 		return {
 			contractName: "jackpot_actions",
@@ -397,7 +417,6 @@ export function setupWorld(provider: DojoProvider) {
 		};
 	};
 
-	// @ts-ignore
 	const jackpot_actions_createJackpotFactory = async (snAccount: Account | AccountInterface, params: models.CreateJackpotFactoryParams) => {
 		try {
 			return await provider.execute(
@@ -465,6 +484,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildSetSlotCalldata: build_game_actions_setSlot_calldata,
 		},
 		jackpot_actions: {
+			claimJackpot: jackpot_actions_claimJackpot,
+			buildClaimJackpotCalldata: build_jackpot_actions_claimJackpot_calldata,
 			createJackpotFactory: jackpot_actions_createJackpotFactory,
 			buildCreateJackpotFactoryCalldata: build_jackpot_actions_createJackpotFactory_calldata,
 		},

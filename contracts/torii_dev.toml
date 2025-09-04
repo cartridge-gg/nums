@@ -9,7 +9,7 @@ index_pending = true
 polling_interval = 1000
 max_concurrent_tasks = 2
 contracts = [
-    "ERC20:0x01b427f95aef59cb93b3750eeaaf70a954a4449073be037c78386728691bc0f4", # NUMS
+    "ERC20:0x03a4cae10a63d2e744b44a4ae1ff72f8eddfe0635b85895cf03eb80c0df9ac00", # NUMS
     "ERC20:0x0548f2c8fce6dd8c1bc41122a2adbc6e823134e88fdd01194d4dc6a0105a1ea1", # REW
 ]
 

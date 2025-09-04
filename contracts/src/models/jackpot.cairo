@@ -19,6 +19,7 @@ impl CloneOptionToken of Clone<Option<Token>> {
 
 #[derive(Drop, Serde, PartialEq)]
 pub struct CreateJackpotFactoryParams {
+    pub name: ByteArray,
     pub token: Option<Token>,
     pub mode: JackpotMode,
     pub timing_mode: TimingMode,
@@ -26,6 +27,7 @@ pub struct CreateJackpotFactoryParams {
     pub extension_duration: u64,
     pub min_slots: u8,
     pub max_winners: u8,
+    pub jackpot_count: u8,
 }
 
 
@@ -34,6 +36,8 @@ pub struct CreateJackpotFactoryParams {
 pub struct JackpotFactory {
     #[key]
     pub id: u32,
+    pub name: ByteArray,
+    pub creator: ContractAddress,
     pub token: Option<Token>,
     pub mode: JackpotMode,
     pub timing_mode: TimingMode,
@@ -69,6 +73,7 @@ pub struct JackpotWinner {
     pub jackpot_id: u32,
     #[key]
     pub index: u8,
+    // pub game_id: u32,
     pub player: ContractAddress,
     pub claimed: bool,
 }
@@ -94,6 +99,7 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
     fn new(
         ref world: WorldStorage,
         jackpot_actions_addr: ContractAddress,
+        creator: ContractAddress,
         params: CreateJackpotFactoryParams,
     ) -> JackpotFactory {
         let mut params = params;
@@ -122,23 +128,18 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
             },
         }
 
-        let mut remaining_count = 0;
         if let Option::Some(token) = @params.token {
             match token.ty {
                 TokenType::ERC20(config) => {
-                    assert!(*config.count > 0, "invalid count");
+                    assert!(params.jackpot_count > 0, "invalid jackpot_count");
                     assert!(*config.amount > 0, "invalid amount");
                     // assert!(params.max_winners < 11, "max 10 max_winners");
 
-                    let amount_by_count = *config.amount / (*config.count).into();
-                    let total = amount_by_count * (*config.count).into();
-                    assert!(total == *config.amount, "count must be amount divisor");
-
-                    remaining_count = *config.count;
+                    let total_amount = (*config.amount).into() * params.jackpot_count.into();
 
                     // transfer from caller to jackpot_actions_addr
                     IERC20Dispatcher { contract_address: *token.address }
-                        .transfer_from(caller, jackpot_actions_addr, *config.amount);
+                        .transfer_from(caller, jackpot_actions_addr, total_amount);
                 },
                 TokenType::ERC721(_config) => {
                     panic!(
@@ -157,18 +158,18 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
                 // remaining_count = config.ids.len();
                 },
             }
-
-            assert!(remaining_count > 0, "invalid remaining_count");
         }
 
         let remaining_count = if params.token.is_some() {
-            Option::Some(remaining_count)
+            Option::Some(params.jackpot_count)
         } else {
             Option::None
         };
 
         JackpotFactory {
             id,
+            name: params.name,
+            creator,
             token: params.token,
             mode: params.mode,
             timing_mode: params.timing_mode,
@@ -249,7 +250,8 @@ pub impl JackpotImpl of JackpotTrait {
     fn has_ended(self: @Jackpot, ref store: Store) -> bool {
         let mut factory = store.jackpot_factory(*self.factory_id);
 
-        if *self.total_winners == factory.max_winners {
+        if *self.mode == JackpotMode::ConditionalVictory
+            && *self.total_winners == factory.max_winners {
             return true;
         }
 
@@ -259,6 +261,19 @@ pub impl JackpotImpl of JackpotTrait {
         }
 
         false
+    }
+
+    fn claimable(self: @Jackpot, player: ContractAddress) -> u256 {
+        let total_winners = *self.total_winners;
+
+        let mut claimable = 0;
+        let mut i = 0;
+
+        // TODO
+
+        // while i < total_winners {}
+
+        claimable
     }
 }
 // #[derive(Copy, Drop, Serde, PartialEq)]

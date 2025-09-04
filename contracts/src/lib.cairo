@@ -18,7 +18,7 @@ pub mod models {
     pub mod jackpot;
     pub mod metadata;
     pub mod slot;
-    pub use config::{Config, GameConfig, RewardLevel, SlotReward, SlotRewardImpl, SlotRewardTrait};
+    pub use config::{Config, GameConfig, ConfigImpl, ConfigTrait};
 
     pub use game::{Game, GameImpl, GameTrait};
     pub use jackpot::{

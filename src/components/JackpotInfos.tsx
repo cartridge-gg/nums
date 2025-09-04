@@ -31,8 +31,7 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
           const values = (token.ty as CairoCustomEnum).variant[
             "ERC20"
           ] as TokenTypeERC20;
-          const amount_by_jackpot =
-            BigInt(values.amount) / BigInt(values.count) / 10n ** 18n;
+          const amount_by_jackpot = BigInt(values.amount) / 10n ** 18n;
           return amount_by_jackpot.toLocaleString();
           break;
         default:

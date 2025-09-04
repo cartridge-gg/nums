@@ -4,13 +4,7 @@ use nums::models::jackpot::CreateJackpotFactoryParams;
 #[starknet::interface]
 pub trait IJackpotActions<T> {
     fn create_jackpot_factory(ref self: T, params: CreateJackpotFactoryParams);
-    // fn create_king_of_the_hill(
-//     ref self: T, title: felt252, expiration: u64, extension_time: u64, token: Option<Token>,
-// ) -> u32;
-// fn create_conditional_victory(
-//     ref self: T, title: felt252, expiration: u64, slots_required: u8, token: Option<Token>,
-// ) -> u32;
-// fn verify(ref self: T, jackpot_id: u32, verified: bool);
+    fn claim_jackpot(ref self: T, jackpot_id: u32);
 }
 
 
@@ -22,7 +16,7 @@ pub mod jackpot_actions {
     // use nums::constants::ZERO_ADDRESS;
     // use nums::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
     use nums::models::jackpot::{
-        JackpotFactory, JackpotFactoryImpl, JackpotFactoryTrait, JackpotMode, TimingMode,
+        JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotMode, JackpotTrait, TimingMode,
     };
     use nums::token::{Token, TokenType};
     use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
@@ -43,22 +37,29 @@ pub mod jackpot_actions {
         let mut store = StoreImpl::new(world);
         let jackpot_actions_addr = starknet::get_contract_address();
 
+        // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
+        // deployer account
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+
         // consume uuid = zero
         let _uuid = world.dispatcher.uuid();
 
         // create a perpetual nums jackpot factory
         let params = CreateJackpotFactoryParams {
+            name: "Perp Nums Jackpot",
             token: Option::None,
             mode: JackpotMode::ConditionalVictory,
             timing_mode: TimingMode::Perpetual,
             initial_duration: 0,
             extension_duration: 0,
             max_winners: 1,
-            min_slots: 13 // TODO: set right figure
+            min_slots: 8, // TODO: set right figure
+            jackpot_count: 0,
         };
 
-        // create factory
-        let mut factory = JackpotFactoryImpl::new(ref world, jackpot_actions_addr, params);
+        let mut factory = JackpotFactoryImpl::new(
+            ref world, jackpot_actions_addr, deployer_account, params,
+        );
         let mut jackpot = factory.create_jackpot(ref world, ref store);
 
         store.set_jackpot_factory(@factory);
@@ -70,14 +71,31 @@ pub mod jackpot_actions {
         fn create_jackpot_factory(ref self: ContractState, params: CreateJackpotFactoryParams) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
+            let creator = starknet::get_caller_address();
             let jackpot_actions_addr = starknet::get_contract_address();
 
             // create factory & transfer rewards to this contract
-            let mut factory = JackpotFactoryImpl::new(ref world, jackpot_actions_addr, params);
+            let mut factory = JackpotFactoryImpl::new(
+                ref world, jackpot_actions_addr, creator, params,
+            );
             let mut jackpot = factory.create_jackpot(ref world, ref store);
 
             store.set_jackpot_factory(@factory);
             store.set_jackpot(@jackpot);
+        }
+
+
+        fn claim_jackpot(ref self: ContractState, jackpot_id: u32) {
+            let mut world = self.world(@"nums");
+            let mut store = StoreImpl::new(world);
+            let player = get_caller_address();
+
+            let mut jackpot = store.jackpot(jackpot_id);
+            assert!(jackpot.has_ended(ref store), "jackpot has not ended");
+
+            let claimable = jackpot.claimable(player);
+            assert!(claimable > 0, "nothing to claim");
+            // TODO
         }
         /// Verifies or unverifies a jackpot as legitimate.
     /// Only the WORLD owner can call this function to mark a jackpot as verified or not.

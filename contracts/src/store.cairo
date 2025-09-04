@@ -16,16 +16,7 @@ pub impl StoreImpl of StoreTrait {
         Store { world }
     }
 
-    // config
-
-    fn config(ref self: Store) -> Config {
-        self.world.read_model((0))
-    }
-
-    fn game_config(ref self: Store) -> GameConfig {
-        let config = self.config();
-        config.game.expect('GameConfig not set')
-    }
+    //  disp
 
     fn nums_disp(ref self: Store) -> INumsTokenDispatcher {
         let config = self.config();
@@ -37,9 +28,22 @@ pub impl StoreImpl of StoreTrait {
         IVrfProviderDispatcher { contract_address: config.vrf_address }
     }
 
+    // config
+
+    fn config(ref self: Store) -> Config {
+        self.world.read_model((0))
+    }
+
+    fn game_config(ref self: Store) -> GameConfig {
+        let config = self.config();
+        config.game
+    }
+
+
     fn set_config(ref self: Store, config: Config) {
         let mut config = config;
         config.world_resource = 0;
+        assert!(config.game.max_slots.into() == config.reward.len(), "max_slots len != reward len");
         self.world.write_model(@config)
     }
 

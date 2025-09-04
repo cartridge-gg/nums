@@ -1,18 +1,9 @@
-import { Game, Jackpot, JackpotFactory } from "@/bindings";
+import { Game } from "@/bindings";
 import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
-import { Controller } from "@dojoengine/torii-client";
 import { useAccount } from "@starknet-react/core";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { BigNumberish, num } from "starknet";
+import { createContext, useCallback, useContext, useMemo } from "react";
 
 type GameProviderProps = {
   children: React.ReactNode;
@@ -37,11 +28,10 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       .withClause(
         new ClauseBuilder()
           .keys(["nums-Game"], [undefined, account?.address], "FixedLen")
-
           .build()
       )
-      .addOrderBy("game_id", "Desc")
-      .withLimit(10)
+      .addOrderBy("nums-Game.game_id", "Desc")
+      .withLimit(5)
       .includeHashedKeys();
   }, [account?.address]);
 
@@ -54,9 +44,9 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       return Object.values(gamesItems[key] as Game[]);
     });
 
-    if (games) {
-      console.log("games", games);
-    }
+    // if (games) {
+    //   console.log("games", games);
+    // }
 
     return {
       games,

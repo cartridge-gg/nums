@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
-import { REWARDS } from "@/constants";
 import { num, uint256 } from "starknet";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
-import { useTokens } from "@/hooks/useTokens";
+import { useConfig } from "@/context/config";
 
 const enum ShowInfo {
   ABOUT,
@@ -27,6 +26,7 @@ const InfoOverlay = ({
   const { chain } = useChain();
   const { account } = useAccount();
   const { provider } = useProvider();
+  const { config } = useConfig();
   const numsContractAddress = num.toHex64(getNumsAddress(chain.id));
 
   // const res = useTokens({
@@ -50,30 +50,6 @@ const InfoOverlay = ({
         setSupply(Number(supply / 10n ** 18n));
       });
   }, [account]);
-
-  const mintMockNums = async () => {
-    if (!account?.address) return false;
-
-    try {
-      // await requestAppchain(true);
-      const numsAddress = getNumsAddress(chain.id);
-      const { transaction_hash } = await account!.execute([
-        {
-          contractAddress: numsAddress,
-          entrypoint: "mint",
-          calldata: [
-            account.address,
-            uint256.bnToUint256(10_000n * 10n ** 18n),
-          ],
-        },
-      ]);
-
-      return true;
-    } catch (e) {
-      console.log({ e });
-      return false;
-    }
-  };
 
   return (
     <Overlay open={open} onClose={onClose}>
@@ -179,8 +155,6 @@ const InfoOverlay = ({
               <Text color="purple.50">Token supply</Text>
               <Text>{supply.toLocaleString()}</Text>
             </VStack>
-
-            <Button onClick={() => mintMockNums()}>Mint</Button>
           </>
         )}
         {showInfo === ShowInfo.REWARD && (
@@ -205,10 +179,10 @@ const InfoOverlay = ({
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {REWARDS.map(({ level, reward }) => (
+                {config?.reward.map((reward, level) => (
                   <Table.Row key={level}>
-                    <Table.Cell>{level}</Table.Cell>
-                    <Table.Cell>{reward}</Table.Cell>
+                    <Table.Cell>{level + 1}</Table.Cell>
+                    <Table.Cell>{reward.toLocaleString()}</Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>

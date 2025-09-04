@@ -7,6 +7,7 @@ import {
   Container,
   Grid,
   HStack,
+  Spacer,
   Stack,
   Text,
   useDisclosure,
@@ -30,6 +31,10 @@ import { graphQlClients } from "./graphql/clients";
 import { getContractAddress, getNumsAddress, getVrfAddress } from "./config";
 import { JackpotInfos } from "./components/JackpotInfos";
 import { useExecuteCall } from "./hooks/useExecuteCall";
+import { GameInfos } from "./components/GameInfos";
+import { Footer } from "./components/Footer";
+import { useGames } from "./context/game";
+import { useJackpots } from "./context/jackpots";
 
 const MAX_SLOTS = 20;
 
@@ -47,6 +52,7 @@ const GameQuery = graphql(`
           next_number
           reward
           jackpot_id
+          expires_at
         }
       }
     }
@@ -101,6 +107,15 @@ const Game = () => {
   const { playPositive, playNegative } = useAudio();
   const [game, setGame] = useState<any>();
   const { execute } = useExecuteCall();
+
+  const { getJackpotById, getFactoryById, getWinnersById } = useJackpots();
+  const { getGameById } = useGames();
+
+  const gameFromStore = getGameById(Number(gameId));
+
+  const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
+  const factory = getFactoryById(jackpot?.factory_id || 0);
+  const winners = getWinnersById(gameFromStore?.jackpot_id || 0);
 
   const { showTxn } = useToast();
   if (!gameId) {
@@ -277,7 +292,8 @@ const Game = () => {
       <Container h="100vh" maxW="100vw">
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header />
-        <Overlay open={open} onClose={onClose}>
+
+        {/* <Overlay open={open} onClose={onClose}>
           <VStack
             boxSize="full"
             justify="center"
@@ -313,6 +329,7 @@ const Game = () => {
               </Button>
               <Play
                 isAgain
+                jackpotId={jackpot?.id}
                 onReady={(gameId) => {
                   queryGame(parseInt(gameId));
                   setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
@@ -327,15 +344,17 @@ const Game = () => {
               />
             </Stack>
           </VStack>
-        </Overlay>
+        </Overlay> */}
+
         <VStack
           h={["auto", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
           pt={["90px", "90px", "0"]}
+          gap={3}
         >
           <HStack>
             <VStack>
-              <Text display={["none", "none", "block"]}>Your number is...</Text>
+              {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
               <Box
                 mb={["20px", "20px", "50px"]}
                 textStyle={["h-md", "h-md", "h-lg"]}
@@ -347,7 +366,8 @@ const Game = () => {
                 <NextNumber number={nextNumber!} isLoading={isLoading} />
               </Box>
             </VStack>
-            <JackpotInfos jackpotId={game?.jackpot_id} />
+            {/* <JackpotInfos jackpotId={game?.jackpot_id} /> */}
+            {/* <GameInfos game={game} /> */}
           </HStack>
           <Grid
             templateRows={[
@@ -357,7 +377,7 @@ const Game = () => {
             ]}
             autoFlow="column"
             gapX="60px"
-            gapY={["10px", "10px", "20px"]}
+            gapY={["10px", "10px", "10px"]}
           >
             {slots.map((number, index) => {
               const legal = isMoveLegal(slots, nextNumber!, index);
@@ -375,7 +395,30 @@ const Game = () => {
               );
             })}
           </Grid>
+          <Box mt={6} visibility={isOver ? "visible" : "hidden"}>
+            <Play
+              isAgain
+              jackpotId={jackpot?.id}
+              onReady={(gameId) => {
+                queryGame(parseInt(gameId));
+                setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
+                setNextNumber(null);
+                setRemaining(0);
+                setReward(0);
+                setIsOver(false);
+                setIsLoading(true);
+                onClose();
+                navigate(`/${gameId}`);
+              }}
+            />
+          </Box>
         </VStack>
+        <Footer
+          game={gameFromStore}
+          jackpot={jackpot}
+          winners={winners}
+          factory={factory}
+        />
       </Container>
     </>
   );

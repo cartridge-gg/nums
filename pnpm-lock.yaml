@@ -53,9 +53,6 @@ importers:
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.1)
-      add:
-        specifier: ^2.0.6
-        version: 2.0.6
       framer-motion:
         specifier: ^11.1.1
         version: 11.1.1(@emotion/is-prop-valid@1.3.1)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -80,6 +77,9 @@ importers:
       react:
         specifier: ^19.1.0
         version: 19.1.1
+      react-countdown:
+        specifier: ^2.3.6
+        version: 2.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-dom:
         specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
@@ -2073,9 +2073,6 @@ packages:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-
-  add@2.0.6:
-    resolution: {integrity: sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q==}
 
   aes-js@4.0.0-beta.5:
     resolution: {integrity: sha512-G965FqalsNyrPqgEGON7nIx1e/OVENSgiEIzyC63haUMuvNnwIgIjMs52hlTCKhkBny7A2ORNlfY9Zu+jmGk1Q==}
@@ -4185,6 +4182,12 @@ packages:
   raw-body@2.5.2:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
+
+  react-countdown@2.3.6:
+    resolution: {integrity: sha512-ZfX6S08Hb6x6W6eCn1hMDvxPICI/T30fd+gaeVTCR/2cGZ2WJ3f26e4ImNIMX1fHkopJrUdnRpWXP13/D39+gg==}
+    peerDependencies:
+      react: '>= 15'
+      react-dom: '>= 15'
 
   react-dom@19.1.1:
     resolution: {integrity: sha512-Dlq/5LAZgF0Gaz6yiqZCf6VCcZs1ghAJyrsu84Q/GT0gV+mCxbfmKNoGRKBYMJ8IEdGPqu49YWXD02GCknEDkw==}
@@ -8459,8 +8462,6 @@ snapshots:
   acorn@8.15.0:
     optional: true
 
-  add@2.0.6: {}
-
   aes-js@4.0.0-beta.5: {}
 
   agent-base@7.1.3: {}
@@ -10856,6 +10857,12 @@ snapshots:
       http-errors: 2.0.0
       iconv-lite: 0.4.24
       unpipe: 1.0.0
+
+  react-countdown@2.3.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      prop-types: 15.8.1
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   react-dom@19.1.1(react@19.1.1):
     dependencies:

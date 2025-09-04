@@ -44,7 +44,7 @@ mod MockNumsToken {
         self.erc20.initializer("Mock NUMS", "mNUMS");
 
         let mut world = self.world(@"nums");
-        let rewards_caller = world.dns_address(@"claim_actions").expect('claim_actions not found!');
+        let rewards_caller = world.dns_address(@"game_actions").expect('claim_actions not found!');
 
         self.rewards_caller.write(rewards_caller);
     }

@@ -1,14 +1,14 @@
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
-import { CairoCustomEnum, BigNumberish, CairoOption } from 'starknet';
+import { CairoCustomEnum, BigNumberish } from 'starknet';
 
 // Type definition for `nums::models::config::Config` struct
 export interface Config {
 	world_resource: BigNumberish;
-	game: any;
-	reward: any;
 	nums_address: string;
 	vrf_address: string;
+	game: GameConfig;
+	reward: Array<BigNumberish>;
 }
 
 // Type definition for `nums::models::config::GameConfig` struct
@@ -17,18 +17,7 @@ export interface GameConfig {
 	max_number: BigNumberish;
 	min_number: BigNumberish;
 	entry_cost: BigNumberish;
-}
-
-// Type definition for `nums::models::config::RewardLevel` struct
-export interface RewardLevel {
-	level: BigNumberish;
-	amount: BigNumberish;
-}
-
-// Type definition for `nums::models::config::SlotReward` struct
-export interface SlotReward {
-	token: string;
-	levels: Array<RewardLevel>;
+	game_duration: BigNumberish;
 }
 
 // Type definition for `nums::models::game::Game` struct
@@ -42,6 +31,8 @@ export interface Game {
 	next_number: BigNumberish;
 	reward: BigNumberish;
 	jackpot_id: BigNumberish;
+	expires_at: BigNumberish;
+	game_over: boolean;
 }
 
 // Type definition for `nums::models::jackpot::Jackpot` struct
@@ -49,7 +40,7 @@ export interface Jackpot {
 	id: BigNumberish;
 	factory_id: BigNumberish;
 	nums_balance: BigNumberish;
-	token: any;
+	token: option;
 	mode: JackpotModeEnum;
 	created_at: BigNumberish;
 	end_at: BigNumberish;
@@ -60,15 +51,17 @@ export interface Jackpot {
 // Type definition for `nums::models::jackpot::JackpotFactory` struct
 export interface JackpotFactory {
 	id: BigNumberish;
-	token: any;
+	name: string;
+	creator: string;
+	token: option;
 	mode: JackpotModeEnum;
 	timing_mode: TimingModeEnum;
 	initial_duration: BigNumberish;
 	extension_duration: BigNumberish;
 	min_slots: BigNumberish;
 	max_winners: BigNumberish;
-	current_jackpot_id: any;
-	remaining_count: any;
+	current_jackpot_id: option;
+	remaining_count: option;
 }
 
 // Type definition for `nums::models::jackpot::JackpotWinner` struct
@@ -109,7 +102,6 @@ export interface TokenTypeERC1155 {
 // Type definition for `nums::token::TokenTypeERC20` struct
 export interface TokenTypeERC20 {
 	amount: BigNumberish;
-	count: BigNumberish;
 }
 
 // Type definition for `nums::token::TokenTypeERC721` struct
@@ -189,7 +181,7 @@ export interface KingCrowned {
 // Type definition for `nums::systems::jackpot_actions::jackpot_actions::JackpotCreated` struct
 export interface JackpotCreated {
 	jackpot_id: BigNumberish;
-	token: any;
+	token: option;
 }
 
 // Type definition for `nums::models::jackpot::JackpotMode` enum
@@ -225,8 +217,6 @@ export interface SchemaType extends ISchemaType {
 	nums: {
 		Config: Config,
 		GameConfig: GameConfig,
-		RewardLevel: RewardLevel,
-		SlotReward: SlotReward,
 		Game: Game,
 		Jackpot: Jackpot,
 		JackpotFactory: JackpotFactory,
@@ -252,24 +242,17 @@ export const schema: SchemaType = {
 	nums: {
 		Config: {
 			world_resource: 0,
-			game: undefined,
-			reward: undefined,
 			nums_address: "",
 			vrf_address: "",
+		game: { max_slots: 0, max_number: 0, min_number: 0, entry_cost: 0, game_duration: 0, },
+			reward: [0],
 		},
 		GameConfig: {
 			max_slots: 0,
 			max_number: 0,
 			min_number: 0,
 			entry_cost: 0,
-		},
-		RewardLevel: {
-			level: 0,
-			amount: 0,
-		},
-		SlotReward: {
-			token: "",
-			levels: [{ level: 0, amount: 0, }],
+			game_duration: 0,
 		},
 		Game: {
 			game_id: 0,
@@ -281,12 +264,14 @@ export const schema: SchemaType = {
 			next_number: 0,
 			reward: 0,
 			jackpot_id: 0,
+			expires_at: 0,
+			game_over: false,
 		},
 		Jackpot: {
 			id: 0,
 			factory_id: 0,
 		nums_balance: 0,
-			token: undefined,
+			token: option,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -297,7 +282,9 @@ export const schema: SchemaType = {
 		},
 		JackpotFactory: {
 			id: 0,
-			token: undefined,
+		name: "",
+			creator: "",
+			token: option,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -308,8 +295,8 @@ export const schema: SchemaType = {
 			extension_duration: 0,
 			min_slots: 0,
 			max_winners: 0,
-			current_jackpot_id: undefined,
-			remaining_count: undefined,
+			current_jackpot_id: option,
+			remaining_count: option,
 		},
 		JackpotWinner: {
 			jackpot_id: 0,
@@ -331,7 +318,7 @@ export const schema: SchemaType = {
 		Token: {
 			address: "",
 		ty: new CairoCustomEnum({ 
-				ERC20: { amount: 0, count: 0, },
+				ERC20: { amount: 0, },
 				ERC721: undefined,
 				ERC1155: undefined, }),
 		},
@@ -341,7 +328,6 @@ export const schema: SchemaType = {
 		},
 		TokenTypeERC20: {
 		amount: 0,
-			count: 0,
 		},
 		TokenTypeERC721: {
 			ids: [0],
@@ -401,15 +387,13 @@ export const schema: SchemaType = {
 		},
 		JackpotCreated: {
 			jackpot_id: 0,
-			token: undefined,
+			token: option,
 		},
 	},
 };
 export enum ModelsMapping {
 	Config = 'nums-Config',
 	GameConfig = 'nums-GameConfig',
-	RewardLevel = 'nums-RewardLevel',
-	SlotReward = 'nums-SlotReward',
 	Game = 'nums-Game',
 	Jackpot = 'nums-Jackpot',
 	JackpotFactory = 'nums-JackpotFactory',

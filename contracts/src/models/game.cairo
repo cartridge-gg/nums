@@ -16,6 +16,8 @@ pub struct Game {
     pub next_number: u16,
     pub reward: u32,
     pub jackpot_id: u32,
+    pub expires_at: u64,
+    pub game_over: bool,
 }
 
 #[generate_trait]
@@ -46,6 +48,10 @@ pub impl GameImpl of GameTrait {
         }
 
         valid
+    }
+
+    fn has_expired(self: @Game) -> bool {
+        starknet::get_block_timestamp() >= *self.expires_at
     }
 
     fn is_game_over(self: @Game, ref store: Store) -> bool {

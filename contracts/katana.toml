@@ -1,8 +1,0 @@
-[messaging]
-chain = "starknet"
-rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-contract_address = "0x4f292d669441926dced3f575d335a7a935f02dbcf570686d16f87fbda4e462a"
-sender_address = "0x4ba5ae775eb7da75f092b3b30b03bce15c3476337ef5f9e3cdf18db7a7534bd"
-private_key = "0x02a61a292ec9b72fe2ab6a3a11c731952ea352760aa6da8ffa9ec6e3b7f85b78"
-interval = 2
-from_block = 515310

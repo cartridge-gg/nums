@@ -1,20 +1,17 @@
 #[cfg(test)]
 mod tests {
     use dojo::model::ModelStorage;
-    use dojo::world::{WorldStorageTrait, WorldStorage};
+    use dojo::world::{WorldStorage, WorldStorageTrait};
     use dojo_cairo_test::{
-        spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef,
-        WorldStorageTestTrait,
+        ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
+        spawn_test_world,
     };
-
-    use nums::{
-        systems::{
-            game_actions::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
-        },
-        models::{
-            game::{Game, GameTrait, m_Game}, slot::m_Slot, name::{Name, m_Name},
-            config::{Config, GameConfig, m_Config},
-        },
+    use nums::models::config::{Config, GameConfig, m_Config};
+    use nums::models::game::{Game, GameTrait, m_Game};
+    use nums::models::name::{Name, m_Name};
+    use nums::models::slot::m_Slot;
+    use nums::systems::game_actions::{
+        IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
     };
 
     fn namespace_def() -> NamespaceDef {

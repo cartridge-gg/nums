@@ -1,9 +1,6 @@
-use nums::elements::achievements::interface::{
-    AchievementTrait, ArcadeTask, Task, TaskTrait,
-};
+use nums::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
 
 pub impl Reference of AchievementTrait {
-    #[inline]
     fn identifier(level: u8) -> felt252 {
         match level {
             0 => 'REFERENCE_I',
@@ -17,17 +14,17 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    #[inline]
+
     fn index(level: u8) -> u8 {
         0
     }
 
-    #[inline]
+
     fn hidden(level: u8) -> bool {
         true
     }
 
-    #[inline]
+
     fn points(level: u8) -> u16 {
         match level {
             0 => 10,
@@ -41,12 +38,12 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    #[inline]
+
     fn group() -> felt252 {
         'Numbers'
     }
 
-    #[inline]
+
     fn icon(level: u8) -> felt252 {
         match level {
             0 => 'fa-cards',
@@ -60,7 +57,7 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    #[inline]
+
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Blackjack Master',
@@ -74,7 +71,7 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    #[inline]
+
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "Hit or stand, you know how to play the odds.",
@@ -88,7 +85,7 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    #[inline]
+
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = 1;
         match level {

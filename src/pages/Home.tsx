@@ -17,19 +17,22 @@ import {
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "./utils";
+import { formatAddress } from "../utils";
 import { useAccount } from "@starknet-react/core";
 3;
-import Header from "./components/Header";
+import Header from "../components/Header";
 import { Tooltip } from "@/components/ui/tooltip";
 import { lookupAddresses } from "@cartridge/controller";
-import { TrophyIcon } from "./components/icons/Trophy";
-import { Button } from "./components/Button";
-import { InfoIcon } from "./components/icons/Info";
-import { CaretIcon } from "./components/icons/Caret";
-import InfoOverlay from "./components/Info";
-import { graphql } from "./graphql/appchain";
-import { VrfRisk } from "./components/VrfRisk";
+import { TrophyIcon } from "../components/icons/Trophy";
+import { Button } from "../components/Button";
+import { InfoIcon } from "../components/icons/Info";
+import { CaretIcon } from "../components/icons/Caret";
+import InfoOverlay from "../components/Info";
+import { graphql } from "../graphql/appchain";
+import { VrfRisk } from "../components/VrfRisk";
+import Play from "../components/Play";
+import { MintNums } from "../components/MintNums";
+import { Footer } from "../components/Footer";
 
 const MAX_SLOTS = 20;
 
@@ -47,28 +50,6 @@ const LeaderboardQuery = graphql(`
           player
           remaining_slots
           reward
-        }
-      }
-    }
-    numsTotalsModels(order: { direction: DESC, field: REWARDS_EARNED }) {
-      totalCount
-      edges {
-        node {
-          player
-          rewards_earned
-        }
-      }
-    }
-    numsConfigModels {
-      edges {
-        node {
-          game {
-            Some {
-              expiration {
-                Some
-              }
-            }
-          }
         }
       }
     }
@@ -90,62 +71,56 @@ const Home = () => {
   const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
   const [rows, setRows] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
-  //const [gameExpiration, setGameExpiration] = useState<number>();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  // const [offset, setOffset] = useState<number>(0);
   const [leaderboardResult] = useQuery({
     query: LeaderboardQuery,
     requestPolicy: "cache-and-network",
-    // variables: {
-    //   offset,
-    // },
   });
 
   useEffect(() => {
     const gameModels = leaderboardResult.data?.numsGameModels;
-    const totalsModels = leaderboardResult.data?.numsTotalsModels;
-    const configModels = leaderboardResult.data?.numsConfigModels;
-    if (!gameModels || !totalsModels || !configModels) return;
-
-    // const expiration =
-    //   configModels.edges![0]!.node!.game!.Some?.expiration?.Some!;
-    // setGameExpiration(parseInt(expiration));
+    // const totalsModels = leaderboardResult.data?.numsTotalsModels;
+    if (
+      !gameModels
+      // || !totalsModels
+    )
+      return;
 
     const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
-    const totalsAddresses =
-      totalsModels.edges!.map((t) => t!.node!.player!) || [];
+    // const totalsAddresses =
+    //   totalsModels.edges!.map((t) => t!.node!.player!) || [];
 
-    lookupAddresses([...gameAddresses, ...totalsAddresses]).then(
-      (usernames) => {
-        if (sortBy === "score") {
-          setHeaders(isMobile ? MOBILE_TOP_SCORE_HEADERS : TOP_SCORE_HEADERS);
-          const rows = gameModels.edges!.map((g, i) => ({
-            rank: i + 1,
-            player:
-              usernames.get(g!.node!.player!) ??
-              formatAddress(g!.node!.player!),
-            score: MAX_SLOTS - g!.node!.remaining_slots!,
-            reward: g!.node!.reward!.toLocaleString(),
-            gameId: g!.node!.game_id,
-          }));
-          setRows(rows);
-        } else {
-          setHeaders(TOTAL_TOKENS_HEADERS);
-          const rows = totalsModels.edges!.map((t, i) => ({
-            rank: i + 1,
-            player:
-              usernames.get(t!.node!.player!) ??
-              formatAddress(t!.node!.player!),
-            totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
-          }));
-          setRows(rows);
-        }
-      },
-    );
+    lookupAddresses([
+      ...gameAddresses,
+      //  ...totalsAddresses
+    ]).then((usernames) => {
+      if (sortBy === "score") {
+        setHeaders(isMobile ? MOBILE_TOP_SCORE_HEADERS : TOP_SCORE_HEADERS);
+        const rows = gameModels.edges!.map((g, i) => ({
+          rank: i + 1,
+          player:
+            usernames.get(g!.node!.player!) ?? formatAddress(g!.node!.player!),
+          score: MAX_SLOTS - g!.node!.remaining_slots!,
+          reward: g!.node!.reward!.toLocaleString(),
+          gameId: g!.node!.game_id,
+        }));
+        setRows(rows);
+      } else {
+        setHeaders(TOTAL_TOKENS_HEADERS);
+        // const rows = totalsModels.edges!.map((t, i) => ({
+        //   rank: i + 1,
+        //   player:
+        //     usernames.get(t!.node!.player!) ??
+        //     formatAddress(t!.node!.player!),
+        //   totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
+        // }));
+        // setRows(rows);
+      }
+    });
   }, [leaderboardResult, sortBy]);
 
-  return <ComingSoon />;
+  // return <ComingSoon />;
 
   return (
     <Container
@@ -153,11 +128,11 @@ const Home = () => {
       maxW="100vw"
       display="flex"
       justifyContent="center"
-      alignItems={["flex-start", "flex-start", "center"]}
+      alignItems={"flex-start"}
       p="15px"
-      pt={["100px", "100px", "40px"]}
+      pt={["100px", "100px", "120px"]}
     >
-      <Header hideChain />
+      <Header />
       <InfoOverlay open={openInfo} onClose={onCloseInfo} />
       <VStack w="full">
         <VStack gap="20px" w={["100%", "100%", "800px"]}>
@@ -223,23 +198,20 @@ const Home = () => {
               ))}
             </VStack>
           </Box>
-          <VrfRisk />
-          {/* <VStack w="full" align="flex-start">
-              <Text color="purple.50" textStyle="faded">
-                Game ends in...
-              </Text>
-              <Stack
-                w="full"
-                gap={["25px", "25px", "50px"]}
-                justify="space-between"
-                direction={["column", "column", "row"]}
-              >
-                <Timer expiration={gameExpiration} />
-                <Play onReady={(gameId) => navigate(`/${gameId}`)} />
-              </Stack>
-            </VStack> */}
+
+          <HStack w="full" alignItems="flex-start">
+            <Button onClick={() => navigate("/factories")}>Factories</Button>
+            <Button onClick={() => navigate("/selection")}>Select Jackpot</Button>
+            <Play
+              onReady={(gameId) => navigate(`/${gameId}`)}
+              w={["100%", "100%", "auto"]}
+            />
+            <MintNums />
+          </HStack>
         </VStack>
       </VStack>
+
+      <Footer />
     </Container>
   );
 };
@@ -314,28 +286,28 @@ const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
   );
 };
 
-const ComingSoon = () => {
-  return (
-    <Container h="100vh" maxW="100vw">
-      <VStack h="100%" justify="center">
-        <Text textStyle="h-sm">NUMS.GG</Text>
-        <Text fontWeight="500" fontSize="16px">
-          INITIAL SORTING SEQUENCE COMPLETED
-        </Text>
-        <HStack flexDir={["column", "column", "row"]}>
-          <Text color="rgba(255,255,255,0.5)" textAlign="right">
-            Activate notifications at Nums for Phase 2.
-          </Text>
-          <Text
-            onClick={() => window.open("https://x.com/numsgg", "_blank")}
-            _hover={{ cursor: "pointer", textDecoration: "underline" }}
-          >
-            x.com/numsgg
-          </Text>
-        </HStack>
-      </VStack>
-    </Container>
-  );
-};
+// const ComingSoon = () => {
+//   return (
+//     <Container h="100vh" maxW="100vw">
+//       <VStack h="100%" justify="center">
+//         <Text textStyle="h-sm">NUMS.GG</Text>
+//         <Text fontWeight="500" fontSize="16px">
+//           INITIAL SORTING SEQUENCE COMPLETED
+//         </Text>
+//         <HStack flexDir={["column", "column", "row"]}>
+//           <Text color="rgba(255,255,255,0.5)" textAlign="right">
+//             Activate notifications at Nums for Phase 2.
+//           </Text>
+//           <Text
+//             onClick={() => window.open("https://x.com/numsgg", "_blank")}
+//             _hover={{ cursor: "pointer", textDecoration: "underline" }}
+//           >
+//             x.com/numsgg
+//           </Text>
+//         </HStack>
+//       </VStack>
+//     </Container>
+//   );
+// };
 
 export default Home;

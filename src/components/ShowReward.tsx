@@ -1,4 +1,4 @@
-import { REWARDS } from "@/constants";
+import { useConfig } from "@/context/config";
 import { Box, Text } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useEffect, useState } from "react";
@@ -25,12 +25,15 @@ export const ShowReward = ({
 }) => {
   const [displayReward, setDisplayReward] = useState(0);
   const [key, setKey] = useState(0);
+  const { config } = useConfig();
 
   useEffect(() => {
     if (level > 0) {
-      const reward = REWARDS[level - 1].reward;
-      setDisplayReward(reward);
-      setKey((prev) => prev + 1);
+      const reward = config?.reward[level - 1];
+      if (reward) {
+        setDisplayReward(Number(reward));
+        setKey((prev) => prev + 1);
+      }
     }
   }, [level]);
 

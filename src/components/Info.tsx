@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import Overlay from "./Overlay";
 import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
-import { REWARDS } from "@/constants";
-import { Provider } from "starknet";
-
-const provider = new Provider({
-  nodeUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-});
+import { num, uint256 } from "starknet";
+import useChain from "@/hooks/chain";
+import { getNumsAddress } from "@/config";
+import { useAccount, useProvider } from "@starknet-react/core";
+import { useConfig } from "@/context/config";
 
 const enum ShowInfo {
   ABOUT,
@@ -24,25 +23,42 @@ const InfoOverlay = ({
 }) => {
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
   const [supply, setSupply] = useState<number>(0);
+  const { chain } = useChain();
+  const { account } = useAccount();
+  const { provider } = useProvider();
+  const { config } = useConfig();
+  const numsContractAddress = num.toHex64(getNumsAddress(chain.id));
+
+  // const res = useTokens({
+  //   contractAddresses: [numsContractAddress],
+  // });
+  // console.log(res);
 
   useEffect(() => {
     provider
       .callContract({
-        contractAddress: import.meta.env.VITE_NUMS_ERC20,
+        contractAddress: numsContractAddress,
         entrypoint: "totalSupply",
+        calldata: [],
       })
-      .then((res) => setSupply(parseInt(res[0]) / 10 ** 18));
-  }, []);
+      .then((res) => {
+        const supply = uint256.uint256ToBN({
+          low: res[0],
+          high: res[1],
+        });
+
+        setSupply(Number(supply / 10n ** 18n));
+      });
+  }, [account]);
 
   return (
     <Overlay open={open} onClose={onClose}>
       <VStack
-        w={["100%", "100%", "60%"]}
+        w={["100%", "100%", "580px"]}
         h="full"
         align="flex-start"
         gap="40px"
         p="30px"
-        pt="100px"
       >
         <HStack>
           <Button
@@ -122,12 +138,12 @@ const InfoOverlay = ({
                 _hover={{ cursor: "pointer" }}
                 onClick={() => {
                   window.open(
-                    `https://voyager.online/token/${import.meta.env.VITE_NUMS_ERC20}`,
-                    "_blank",
+                    `https://voyager.online/token/${numsContractAddress}`,
+                    "_blank"
                   );
                 }}
               >
-                {import.meta.env.VITE_NUMS_ERC20}
+                {numsContractAddress}
               </Text>
             </VStack>
             <VStack
@@ -163,10 +179,10 @@ const InfoOverlay = ({
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {REWARDS.map(({ level, reward }) => (
+                {config?.reward.map((reward, level) => (
                   <Table.Row key={level}>
-                    <Table.Cell>{level}</Table.Cell>
-                    <Table.Cell>{reward}</Table.Cell>
+                    <Table.Cell>{level + 1}</Table.Cell>
+                    <Table.Cell>{reward.toLocaleString()}</Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>

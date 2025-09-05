@@ -1,31 +1,42 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useSubscription } from "urql";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { isGameOver, isMoveLegal, removeZeros } from "./utils";
+import { isGameOver, isMoveLegal, removeZeros } from "../utils";
 import {
   Box,
   Container,
   Grid,
+  HStack,
+  Spacer,
   Stack,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { Button } from "./components/Button";
+import { Button } from "../components/Button";
 import { useAccount, useNetwork } from "@starknet-react/core";
-import useToast from "./hooks/toast";
-import Header from "./components/Header";
-import Overlay from "./components/Overlay";
-import { HomeIcon } from "./components/icons/Home";
-import Play from "./components/Play";
-import Slot from "./components/Slot";
-import NextNumber from "./components/NextNumber";
-import { graphql } from "./graphql/appchain";
-import { useAudio } from "./context/audio";
-import { CallData, hash, num } from "starknet";
-import useChain from "./hooks/chain";
-import { ShowReward } from "./components/ShowReward";
-import { AppchainClient } from "./graphql/clients";
+import useToast from "../hooks/toast";
+import Header from "../components/Header";
+import Overlay from "../components/Overlay";
+import { HomeIcon } from "../components/icons/Home";
+import Play from "../components/Play";
+import Slot from "../components/Slot";
+import NextNumber from "../components/NextNumber";
+import { graphql } from "../graphql/appchain";
+import { useAudio } from "../context/audio";
+import { hash, num, uint256 } from "starknet";
+import useChain from "../hooks/chain";
+import { ShowReward } from "../components/ShowReward";
+import { graphQlClients } from "../graphql/clients";
+import { getContractAddress, getNumsAddress, getVrfAddress } from "../config";
+import { JackpotInfos } from "../components/JackpotInfos";
+import { useExecuteCall } from "../hooks/useExecuteCall";
+import { GameInfos } from "../components/GameInfos";
+import { Footer } from "../components/Footer";
+import { useGames } from "../context/game";
+import { useJackpots } from "../context/jackpots";
+import { TimeCountdown } from "../components/TimeCountdown";
+import Confetti from "react-confetti";
 
 const MAX_SLOTS = 20;
 
@@ -42,6 +53,9 @@ const GameQuery = graphql(`
           remaining_slots
           next_number
           reward
+          jackpot_id
+          expires_at
+          game_over
         }
       }
     }
@@ -76,7 +90,7 @@ const GameSubscription = graphql(`
 
 const Game = () => {
   const [slots, setSlots] = useState<number[]>(
-    Array.from({ length: MAX_SLOTS }, () => 0),
+    Array.from({ length: MAX_SLOTS }, () => 0)
   );
   const [nextNumber, setNextNumber] = useState<number | null>();
   const [isOver, setIsOver] = useState<boolean>(false);
@@ -93,8 +107,18 @@ const Game = () => {
   const { gameId } = useParams();
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { requestAppchain } = useChain();
   const { playPositive, playNegative } = useAudio();
+  const [game, setGame] = useState<any>();
+  const { execute } = useExecuteCall();
+
+  const { getJackpotById, getFactoryById, getWinnersById } = useJackpots();
+  const { getGameById } = useGames();
+
+  const gameFromStore = getGameById(Number(gameId));
+
+  const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
+  const factory = getFactoryById(jackpot?.factory_id || 0);
+  const winners = getWinnersById(gameFromStore?.jackpot_id || 0);
 
   const { showTxn } = useToast();
   if (!gameId) {
@@ -119,20 +143,18 @@ const Game = () => {
 
   const queryGame = useCallback(
     (gameId: number) => {
-      AppchainClient.query(
-        GameQuery,
-        { gameId },
-        { requestPolicy: "network-only" },
-      )
+      graphQlClients[num.toHex(chain.id)]
+        .query(GameQuery, { gameId }, { requestPolicy: "network-only" })
         .toPromise()
         .then((res) => {
-          const gamesModel = res.data?.numsGameModels?.edges?.[0]?.node;
+          const gameModel = res.data?.numsGameModels?.edges?.[0]?.node;
           const slotsEdges = res.data?.numsSlotModels?.edges;
-          if (!gamesModel || !slotsEdges) {
+          if (!gameModel || !slotsEdges) {
             return;
           }
 
-          setPlayer(gamesModel.player);
+          setGame(gameModel);
+          setPlayer(gameModel.player);
 
           const newSlots: number[] = Array.from({ length: MAX_SLOTS }, () => 0);
           slotsEdges.forEach((edge: any) => {
@@ -140,7 +162,7 @@ const Game = () => {
           });
           setSlots(newSlots);
 
-          if (isGameOver(newSlots, gamesModel.next_number!)) {
+          if (isGameOver(newSlots, gameModel.next_number!)) {
             setIsOver(true);
 
             if (isOwner) {
@@ -151,14 +173,14 @@ const Game = () => {
 
           updateGameState(
             newSlots,
-            gamesModel.next_number!,
-            gamesModel.remaining_slots!,
-            gamesModel.reward!,
+            gameModel.next_number!,
+            gameModel.remaining_slots!,
+            gameModel.reward!
           );
           setIsLoading(false);
         });
     },
-    [isOwner],
+    [isOwner]
   );
 
   useEffect(() => queryGame(parseInt(gameId)), []);
@@ -193,7 +215,7 @@ const Game = () => {
       slots: number[],
       nextNum: number,
       remainingSlots: number,
-      reward: number,
+      reward: number
     ) => {
       if (isGameOver(slots, nextNum)) {
         setIsOver(true);
@@ -212,12 +234,12 @@ const Game = () => {
 
       setTimeout(() => setIsLoading(false), 500);
     },
-    [isOwner],
+    [isOwner]
   );
 
   const setSlot = async (
     slot: number,
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLButtonElement>
   ): Promise<boolean> => {
     if (!address) return false;
     setIsLoading(true);
@@ -225,24 +247,27 @@ const Game = () => {
     setPosition({ x: event.clientX, y: event.clientY });
 
     try {
-      await requestAppchain(true);
+      const vrfAddress = getVrfAddress(chain.id);
+      const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+      const { receipt } = await execute(
+        [
+          // {
+          //   contractAddress: vrfAddress,
+          //   entrypoint: "request_random",
+          //   calldata: CallData.compile({
+          //     caller: gameAddress,
+          //     source: { type: 0, address: account!.address },
+          //   }),
+          // },
 
-      const { transaction_hash } = await account!.execute([
-        {
-          contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-          entrypoint: "request_random",
-          calldata: CallData.compile({
-            caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account!.address },
-          }),
-        },
-        {
-          contractAddress: import.meta.env.VITE_GAME_CONTRACT,
-          entrypoint: "set_slot",
-          calldata: [gameId, slot.toString()],
-        },
-      ]);
-      showTxn(transaction_hash, chain?.name);
+          {
+            contractAddress: gameAddress,
+            entrypoint: "set_slot",
+            calldata: [gameId, slot.toString()],
+          },
+        ],
+        (_receipt) => {}
+      );
       setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];
@@ -267,8 +292,9 @@ const Game = () => {
     <>
       <Container h="100vh" maxW="100vw">
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
-        <Header showHome hideChain />
-        <Overlay open={open} onClose={onClose}>
+        <Header />
+
+        {/* <Overlay open={open} onClose={onClose}>
           <VStack
             boxSize="full"
             justify="center"
@@ -304,6 +330,7 @@ const Game = () => {
               </Button>
               <Play
                 isAgain
+                jackpotId={jackpot?.id}
                 onReady={(gameId) => {
                   queryGame(parseInt(gameId));
                   setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
@@ -318,23 +345,38 @@ const Game = () => {
               />
             </Stack>
           </VStack>
-        </Overlay>
+        </Overlay> */}
+
         <VStack
           h={["auto", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
-          pt={["90px", "90px", "0"]}
+          pt={["60px", "60px", "0"]}
+          gap={3}
         >
-          <Text display={["none", "none", "block"]}>Your number is...</Text>
-          <Box
-            mb={["20px", "20px", "50px"]}
-            textStyle={["h-md", "h-md", "h-lg"]}
-            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
-            lineHeight="100px"
-            color={isOver ? "red" : "inherit"}
-            transition="color 3s"
-          >
-            <NextNumber number={nextNumber!} isLoading={isLoading} />
-          </Box>
+          <HStack>
+            <VStack>
+              {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
+
+              {game && (
+                <TimeCountdown
+                  timestampSec={game.expires_at}
+                  gameOver={game.game_over}
+                />
+              )}
+              <Box
+                mb={["20px", "20px", "30px"]}
+                textStyle={["h-md", "h-md", "h-lg"]}
+                textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+                lineHeight="100px"
+                color={isOver ? "red" : "inherit"}
+                transition="color 3s"
+              >
+                <NextNumber number={nextNumber!} isLoading={isLoading} />
+              </Box>
+            </VStack>
+            {/* <JackpotInfos jackpotId={game?.jackpot_id} /> */}
+            {/* <GameInfos game={game} /> */}
+          </HStack>
           <Grid
             templateRows={[
               "repeat(10, 1fr)",
@@ -343,7 +385,7 @@ const Game = () => {
             ]}
             autoFlow="column"
             gapX="60px"
-            gapY={["10px", "10px", "20px"]}
+            gapY={["10px", "10px", "10px"]}
           >
             {slots.map((number, index) => {
               const legal = isMoveLegal(slots, nextNumber!, index);
@@ -361,7 +403,32 @@ const Game = () => {
               );
             })}
           </Grid>
+          <Box mt={6} visibility={isOver ? "visible" : "hidden"}>
+            <Play
+              isAgain
+              jackpotId={jackpot?.id}
+              onReady={(gameId) => {
+                queryGame(parseInt(gameId));
+                setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
+                setNextNumber(null);
+                setRemaining(0);
+                setReward(0);
+                setIsOver(false);
+                setIsLoading(true);
+                onClose();
+                navigate(`/${gameId}`);
+              }}
+            />
+          </Box>
         </VStack>
+        <Footer
+          game={gameFromStore}
+          jackpot={jackpot}
+          winners={winners}
+          factory={factory}
+        />
+
+        {/* <Confetti /> */}
       </Container>
     </>
   );

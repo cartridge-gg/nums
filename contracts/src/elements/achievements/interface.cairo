@@ -1,4 +1,4 @@
-pub use achievement::types::task::{Task as ArcadeTask};
+pub use achievement::types::task::Task as ArcadeTask;
 pub use nums::elements::tasks::index::{Task, TaskTrait};
 
 pub trait AchievementTrait {

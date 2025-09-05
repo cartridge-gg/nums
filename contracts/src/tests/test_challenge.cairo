@@ -1,26 +1,23 @@
 #[cfg(test)]
 mod tests {
     use dojo::model::ModelStorage;
-    use dojo::world::{WorldStorageTrait, WorldStorage};
+    use dojo::world::{WorldStorage, WorldStorageTrait};
     use dojo_cairo_test::{
-        spawn_test_world, NamespaceDef, TestResource, ContractDef, ContractDefTrait,
-        WorldStorageTestTrait,
+        ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
+        spawn_test_world,
     };
-
+    use nums::models::challenge::challenge::{Challenge, m_Challenge};
+    use nums::models::challenge::mode::ChallengeMode;
+    use nums::models::config::{Config, GameConfig, m_Config};
+    use nums::models::game::m_Game;
+    use nums::models::slot::m_Slot;
+    use nums::systems::challenge_actions::{
+        IChallengeActionsDispatcher, IChallengeActionsDispatcherTrait, challenge_actions,
+    };
+    use nums::systems::game_actions::{
+        IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
+    };
     use starknet::ContractAddress;
-
-    use nums::{
-        systems::{
-            game_actions::{game_actions, IGameActionsDispatcher, IGameActionsDispatcherTrait},
-            challenge_actions::{
-                challenge_actions, IChallengeActionsDispatcher, IChallengeActionsDispatcherTrait,
-            },
-        },
-        models::{
-            game::m_Game, slot::m_Slot, config::{m_Config, Config, GameConfig},
-            challenge::challenge::{m_Challenge, Challenge}, challenge::mode::ChallengeMode,
-        },
-    };
 
     const START_BLOCK_TIME: u64 = 100;
     const EXTENSION_TIME: u64 = 100;

@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums"
+seed = "nums-alpha"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 # cover_uri = "file://assets/cover.png"
 # icon_uri = "file://assets/icon.png"
@@ -11,10 +11,21 @@ website = "https://nums.gg"
 default = "nums"
 
 [env]
-rpc_url = "https://api.cartridge.gg/x/nums-mainnet-appchain/katana"
-account_address = "0x6d19755b067c9bc924da6f9907fa7d8128b8d1ae6850d4860fc5e9d5525a29b"
-keystore_path = "/home/broody/.starkli_accounts/katana-provable/keystore.json"
-# world_address = "0x05f2358c005acf2a63616a32b76a01d632463b84609954ff846998f898a49778"
+rpc_url = "https://api.cartridge.gg/x/nums2/katana"
+account_address = "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec"
+private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
+#world_address = "0x05f2358c005acf2a63616a32b76a01d632463b84609954ff846998f898a49778"
 
 [writers]
-"nums" = ["nums-game_actions", "nums-claim_actions", "nums-message_handlers"]
+"nums" = [
+    "nums-game_actions",
+    "nums-claim_actions",
+    "nums-config_actions",
+    "nums-jackpot_actions",
+]
+
+[init_call_args]
+"nums-config_actions" = [
+    "0x1", # nums_address = Option::None
+    "0x1", # vrf_address  = Option::None
+]

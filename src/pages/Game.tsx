@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useSubscription } from "urql";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { isGameOver, isMoveLegal, removeZeros } from "./utils";
+import { isGameOver, isMoveLegal, removeZeros } from "../utils";
 import {
   Box,
   Container,
@@ -13,28 +13,30 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { Button } from "./components/Button";
+import { Button } from "../components/Button";
 import { useAccount, useNetwork } from "@starknet-react/core";
-import useToast from "./hooks/toast";
-import Header from "./components/Header";
-import Overlay from "./components/Overlay";
-import { HomeIcon } from "./components/icons/Home";
-import Play from "./components/Play";
-import Slot from "./components/Slot";
-import NextNumber from "./components/NextNumber";
-import { graphql } from "./graphql/appchain";
-import { useAudio } from "./context/audio";
+import useToast from "../hooks/toast";
+import Header from "../components/Header";
+import Overlay from "../components/Overlay";
+import { HomeIcon } from "../components/icons/Home";
+import Play from "../components/Play";
+import Slot from "../components/Slot";
+import NextNumber from "../components/NextNumber";
+import { graphql } from "../graphql/appchain";
+import { useAudio } from "../context/audio";
 import { hash, num, uint256 } from "starknet";
-import useChain from "./hooks/chain";
-import { ShowReward } from "./components/ShowReward";
-import { graphQlClients } from "./graphql/clients";
-import { getContractAddress, getNumsAddress, getVrfAddress } from "./config";
-import { JackpotInfos } from "./components/JackpotInfos";
-import { useExecuteCall } from "./hooks/useExecuteCall";
-import { GameInfos } from "./components/GameInfos";
-import { Footer } from "./components/Footer";
-import { useGames } from "./context/game";
-import { useJackpots } from "./context/jackpots";
+import useChain from "../hooks/chain";
+import { ShowReward } from "../components/ShowReward";
+import { graphQlClients } from "../graphql/clients";
+import { getContractAddress, getNumsAddress, getVrfAddress } from "../config";
+import { JackpotInfos } from "../components/JackpotInfos";
+import { useExecuteCall } from "../hooks/useExecuteCall";
+import { GameInfos } from "../components/GameInfos";
+import { Footer } from "../components/Footer";
+import { useGames } from "../context/game";
+import { useJackpots } from "../context/jackpots";
+import { TimeCountdown } from "../components/TimeCountdown";
+import Confetti from "react-confetti";
 
 const MAX_SLOTS = 20;
 
@@ -53,6 +55,7 @@ const GameQuery = graphql(`
           reward
           jackpot_id
           expires_at
+          game_over
         }
       }
     }
@@ -245,7 +248,6 @@ const Game = () => {
 
     try {
       const vrfAddress = getVrfAddress(chain.id);
-      const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
       const { receipt } = await execute(
         [
@@ -266,7 +268,6 @@ const Game = () => {
         ],
         (_receipt) => {}
       );
-      // showTxn(transaction_hash, chain?.name);
       setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];
@@ -349,14 +350,21 @@ const Game = () => {
         <VStack
           h={["auto", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
-          pt={["90px", "90px", "0"]}
+          pt={["60px", "60px", "0"]}
           gap={3}
         >
           <HStack>
             <VStack>
               {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
+
+              {game && (
+                <TimeCountdown
+                  timestampSec={game.expires_at}
+                  gameOver={game.game_over}
+                />
+              )}
               <Box
-                mb={["20px", "20px", "50px"]}
+                mb={["20px", "20px", "30px"]}
                 textStyle={["h-md", "h-md", "h-lg"]}
                 textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
                 lineHeight="100px"
@@ -419,6 +427,8 @@ const Game = () => {
           winners={winners}
           factory={factory}
         />
+
+        {/* <Confetti /> */}
       </Container>
     </>
   );

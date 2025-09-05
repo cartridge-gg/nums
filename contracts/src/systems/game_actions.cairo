@@ -11,7 +11,7 @@ pub mod game_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Pow;
     use dojo::event::EventStorage;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorage};
+    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
@@ -47,42 +47,53 @@ pub mod game_actions {
         AchievableEvent: AchievableComponent::Event,
     }
 
-    #[derive(Drop, Serde)]
-    #[dojo::event]
-    pub struct Inserted {
-        #[key]
-        game_id: u32,
-        #[key]
-        player: ContractAddress,
-        index: u8,
-        number: u16,
-        next_number: u16,
-        remaining_slots: u8,
-        game_rewards: u32,
-    }
+    // #[derive(Drop, Serde)]
+    // #[dojo::event]
+    // pub struct Inserted {
+    //     #[key]
+    //     game_id: u32,
+    //     #[key]
+    //     player: ContractAddress,
+    //     index: u8,
+    //     number: u16,
+    //     next_number: u16,
+    //     remaining_slots: u8,
+    //     game_rewards: u32,
+    // }
 
     #[derive(Drop, Serde)]
     #[dojo::event]
     pub struct GameCreated {
         #[key]
         player: ContractAddress,
+        #[key]
+        jackpot_id: u32,
         game_id: u32,
     }
 
     #[derive(Drop, Serde)]
     #[dojo::event]
-    pub struct KingCrowned {
+    pub struct NewWinner {
         #[key]
-        game_id: u32,
+        player: ContractAddress,
         #[key]
         jackpot_id: u32,
-        player: ContractAddress,
+        game_id: u32,
+        score: u8,
     }
 
-    const DECIMALS: u256 = 10_u256.pow(18);
-    // const DECIMALS: u256 = 1000000000000000000;
+    // #[derive(Drop, Serde)]
+    // #[dojo::event]
+    // pub struct KingCrowned {
+    //     #[key]
+    //     game_id: u32,
+    //     #[key]
+    //     jackpot_id: u32,
+    //     player: ContractAddress,
+    // }
 
-    // Constuctor
+    const DECIMALS: u256 = 10_u256.pow(18);
+
 
     fn dojo_init(self: @ContractState) {
         // [Event] Emit all Achievement events
@@ -135,29 +146,50 @@ pub mod game_actions {
             println!("has_ended: {}", has_ended);
             println!("can_create: {}", can_create);
 
-            if has_ended {
-                if can_create {
-                    let new_jackpot = factory.create_jackpot(ref world, ref store);
-                    jackpot_id = new_jackpot.id;
-                    jackpot = store.jackpot(jackpot_id);
-                    factory = store.jackpot_factory(jackpot.factory_id);
-                } else {
-                    assert!(
-                        false,
-                        "This jackpot has ended, and the factory cannot initialize a new jackpot",
-                    );
-                }
-            }
+            assert!(!has_ended, "this jackpot has ended");
+            // // attempt to create new jackpot from jackpot_factory
+            // if has_ended {
+            //     if can_create {
+            //         let new_jackpot = factory.create_jackpot(ref world, ref store);
+            //         jackpot_id = new_jackpot.id;
+            //         jackpot = store.jackpot(jackpot_id);
+            //         factory = store.jackpot_factory(jackpot.factory_id);
+            //     } else {
+            //         assert!(
+            //             false,
+            //             "This jackpot has ended, and the factory cannot initialize a new
+            //             jackpot",
+            //         );
+            //     }
+            // }
 
             // transfer entry_cost token from player to this contract
             // player must approve this contract to spend entry_cost nums
             let nums_disp = store.nums_disp();
             let entry_cost = DECIMALS * game_config.entry_cost.into();
+
+            // split / burn / transfer
+            let burn_pct = 50; // TODO: config or auto adjust
+
+            let to_burn = entry_cost * burn_pct / 100;
+            let to_jackpot = entry_cost - to_burn;
+
+            println!("to_jackpot: {}", to_jackpot);
+            println!("to_burn: {}", to_burn);
+
+            // transfer to this contract
             nums_disp.transfer_from(player, get_contract_address(), entry_cost);
 
-            // TODO: handle splitting / burning % of entry_cost
+            // transfer to jackpot_actions & burn
+            let jackpot_actions_addr = world
+                .dns_address(@"jackpot_actions")
+                .expect('jackpot_actions not found');
+
+            nums_disp.transfer(jackpot_actions_addr, to_jackpot);
+            nums_disp.burn(to_burn);
+
             // keep track of jackpot balance
-            jackpot.nums_balance += entry_cost;
+            jackpot.nums_balance += to_jackpot;
             store.set_jackpot(@jackpot);
 
             let game_id = world.dispatcher.uuid();
@@ -182,7 +214,7 @@ pub mod game_actions {
                     },
                 );
 
-            world.emit_event(@GameCreated { player, game_id });
+            world.emit_event(@GameCreated { player, game_id, jackpot_id });
 
             // Update achievement progression for the player
             self.achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
@@ -217,7 +249,7 @@ pub mod game_actions {
             // Build up nums array and insert target
             let mut streak = 1;
             let mut prev_num = 0;
-            let mut nums = ArrayTrait::<u16>::new();
+            let mut nums = array![];
             let mut idx = 0_u8;
             while idx < game.max_slots {
                 let slot = store.slot(game_id, player, idx);
@@ -278,12 +310,11 @@ pub mod game_actions {
             println!("is_equal : {}", is_equal);
             println!("is_better : {}", is_better);
 
-            jackpot.best_score = score;
+            if score > jackpot.best_score {
+                jackpot.best_score = score;
+            }
 
             if is_game_over && has_min_score && (is_equal || is_better) {
-                let mut jackpot_winner = store.jackpot_winner(jackpot.id, jackpot.total_winners);
-                jackpot_winner.player = player;
-
                 if is_equal {
                     jackpot.total_winners += 1;
                 }
@@ -291,14 +322,22 @@ pub mod game_actions {
                     jackpot.total_winners = 1;
                 }
 
+                let mut jackpot_winner = store
+                    .jackpot_winner(jackpot.id, jackpot.total_winners - 1);
+                jackpot_winner.player = player;
+
                 if jackpot.end_at + factory.extension_duration > jackpot.end_at {
                     jackpot.end_at += factory.extension_duration;
                 }
 
                 // todo: check not already in the list ?
                 store.set_jackpot_winner(@jackpot_winner);
-                store.set_jackpot(@jackpot);
+
+                world.emit_event(@NewWinner { jackpot_id: jackpot.id, player, game_id, score });
+                // self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
             }
+
+            store.set_jackpot(@jackpot);
 
             if is_game_over {
                 // mint nums rewards
@@ -306,7 +345,13 @@ pub mod game_actions {
 
                 game.game_over = true;
                 store.set_game(@game);
+
+                // check if should init next jackpot
+                if factory.can_create_jackpot(ref store) {
+                    factory.create_jackpot(ref world, ref store);
+                }
             }
+
 
             // Update achievement progression for the player - Filler tasks
             let player_id: felt252 = player.into();
@@ -351,59 +396,6 @@ pub mod game_actions {
 
             next_number
         }
-        /// Attempts to crown the caller as the new king in a King of the Hill jackpot.
-    ///
-    /// This function allows a player to claim the position of "king" in a King of the Hill
-    /// jackpot game. It verifies that the game is associated with a King of the Hill
-    /// jackpot, updates the current king, and potentially extends the jackpot's expiration
-    /// time.
-    ///
-    /// The remaining_slots mechanism ensures that each new king must have fewer or equal
-    /// remaining slots compared to the previous king. This creates a progressively more
-    /// challenging game as it continues.
-    ///
-    /// # Arguments
-    /// * `game_id` - The identifier of the game associated with the jackpot.
-    // fn king_me(ref self: ContractState, game_id: u32) {
-    //     let mut world = self.world(@"nums");
-    //     let mut store = StoreImpl::new(world);
-    //     let player = get_caller_address();
-    //     let game = store.game(game_id, player);
-    //     let jackpot_id = game.jackpot_id.expect('Jackpot not defined');
-    //     let mut jackpot = store.jackpot(jackpot_id);
-
-        //     let mut king_of_the_hill = match jackpot.mode {
-    //         JackpotMode::KING_OF_THE_HILL(koth) => koth,
-    //         _ => panic!("Not a King of the Hill jackpot"),
-    //     };
-
-        //     assert(jackpot.expiration > starknet::get_block_timestamp(), 'Jackpot already
-    //     expired');
-    //     assert(
-    //         game.remaining_slots < king_of_the_hill.remaining_slots
-    //             || (game.remaining_slots == king_of_the_hill.remaining_slots
-    //                 && player != king_of_the_hill.king),
-    //         'No improvement or already king',
-    //     );
-
-        //     king_of_the_hill.king = player;
-    //     king_of_the_hill.remaining_slots = game.remaining_slots;
-
-        //     if king_of_the_hill.extension_time > 0 {
-    //         let new_expiration = jackpot.expiration + king_of_the_hill.extension_time;
-    //         if new_expiration > jackpot.expiration {
-    //             jackpot.expiration = new_expiration;
-    //         }
-    //     }
-
-        //     // Update the jackpot with the new king
-    //     jackpot.mode = JackpotMode::KING_OF_THE_HILL(king_of_the_hill);
-    //     store.set_jackpot(@jackpot);
-    //     world.emit_event(@KingCrowned { game_id, jackpot_id, player });
-
-        //     // Update achievement progression for the player
-    //     self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
-    // }
     }
 
     /// Generates a random `u16` number between `min` and `max` that is not already present in the

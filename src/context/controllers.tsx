@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { BigNumberish } from "starknet";
-import { useDojoSdk } from "./dojo";
+import { useDojoSdk } from "../hooks/dojo";
 
 type ControllersProviderProps = {
   children: React.ReactNode;

@@ -1479,8 +1479,8 @@
   },
   "contracts": [
     {
-      "address": "0x3a4cae10a63d2e744b44a4ae1ff72f8eddfe0635b85895cf03eb80c0df9ac00",
-      "class_hash": "0x1962a31522f8546defc06a2783628133c6d892b0ce5a166ecbe091478328e39",
+      "address": "0x1426bbd61aa8ba32a1534014059429a02399825f0686c58385b4cd51d0fc8b1",
+      "class_hash": "0x25912dc64bb08775bade4ef9973266d032cb3c1921aa36e801a4a10a12049c4",
       "abi": [
         {
           "type": "impl",
@@ -1595,6 +1595,18 @@
               "name": "recipient",
               "type": "core::starknet::contract_address::ContractAddress"
             },
+            {
+              "name": "amount",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "burn",
+          "inputs": [
             {
               "name": "amount",
               "type": "core::integer::u256"
@@ -1990,6 +2002,7 @@
         "dojo_init",
         "reward",
         "mint",
+        "burn",
         "upgrade",
         "transfer",
         "transfer_from",
@@ -2681,216 +2694,8 @@
       ]
     },
     {
-      "address": "0x545c916fd45c97f85f5a99fa46f0dcc3417deac591705432f3322f6e4e8780c",
-      "class_hash": "0x5bbbdefa606f7d85c81d262908e7387be90cca1f85882b77489dabedd18465a",
-      "abi": [
-        {
-          "type": "impl",
-          "name": "claim_actions__ContractImpl",
-          "interface_name": "dojo::contract::interface::IContract"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::interface::IContract",
-          "items": []
-        },
-        {
-          "type": "impl",
-          "name": "DojoDeployedContractImpl",
-          "interface_name": "dojo::meta::interface::IDeployedResource"
-        },
-        {
-          "type": "struct",
-          "name": "core::byte_array::ByteArray",
-          "members": [
-            {
-              "name": "data",
-              "type": "core::array::Array::<core::bytes_31::bytes31>"
-            },
-            {
-              "name": "pending_word",
-              "type": "core::felt252"
-            },
-            {
-              "name": "pending_word_len",
-              "type": "core::integer::u32"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::meta::interface::IDeployedResource",
-          "items": [
-            {
-              "type": "function",
-              "name": "dojo_name",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "ClaimActionsImpl",
-          "interface_name": "nums::systems::claim_actions::IClaimActions"
-        },
-        {
-          "type": "interface",
-          "name": "nums::systems::claim_actions::IClaimActions",
-          "items": [
-            {
-              "type": "function",
-              "name": "claim_reward",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "claim_jackpot",
-              "inputs": [
-                {
-                  "name": "game_id",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
-        },
-        {
-          "type": "impl",
-          "name": "WorldProviderImpl",
-          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
-        },
-        {
-          "type": "struct",
-          "name": "dojo::world::iworld::IWorldDispatcher",
-          "members": [
-            {
-              "name": "contract_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::world_provider::IWorldProvider",
-          "items": [
-            {
-              "type": "function",
-              "name": "world_dispatcher",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "dojo::world::iworld::IWorldDispatcher"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "UpgradeableImpl",
-          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
-        },
-        {
-          "type": "interface",
-          "name": "dojo::contract::components::upgradeable::IUpgradeable",
-          "items": [
-            {
-              "type": "function",
-              "name": "upgrade",
-              "inputs": [
-                {
-                  "name": "new_class_hash",
-                  "type": "core::starknet::class_hash::ClassHash"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "constructor",
-          "name": "constructor",
-          "inputs": []
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-          "kind": "struct",
-          "members": [
-            {
-              "name": "class_hash",
-              "type": "core::starknet::class_hash::ClassHash",
-              "kind": "data"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "Upgraded",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
-              "kind": "nested"
-            }
-          ]
-        },
-        {
-          "type": "event",
-          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-          "kind": "enum",
-          "variants": []
-        },
-        {
-          "type": "event",
-          "name": "nums::systems::claim_actions::claim_actions::Event",
-          "kind": "enum",
-          "variants": [
-            {
-              "name": "UpgradeableEvent",
-              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-              "kind": "nested"
-            },
-            {
-              "name": "WorldProviderEvent",
-              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-              "kind": "nested"
-            }
-          ]
-        }
-      ],
-      "init_calldata": [],
-      "tag": "nums-claim_actions",
-      "selector": "0x3b1c88d497d2baa39da6ca44d1ddd75ac5fc782b723e92dcc01c9f56b15a057",
-      "systems": [
-        "claim_reward",
-        "claim_jackpot",
-        "upgrade"
-      ]
-    },
-    {
-      "address": "0x4c53aa3a989ac0745fcad18c56c296efac9ee837f7fb281cafd27771b9c128",
-      "class_hash": "0x3e414a19d4730514a39d9edcfb37b660209cc45e56f4c5fa384d9f992fa24da",
+      "address": "0x121804f4e307ed468325010f61c876b2952eacb4bddefc5cae423bd31073c55",
+      "class_hash": "0x43aa12d17c130ea292ab1e70a3f47583144e5a98e859abc0d2c455dc6e63d9f",
       "abi": [
         {
           "type": "impl",
@@ -3168,8 +2973,8 @@
       ]
     },
     {
-      "address": "0x33e7cb9b1bb95b9f51521ef7d5fa92931d6eeaf67dd221ba4e1d7da5c52ed8b",
-      "class_hash": "0x4850f7a89a227ff4efb3530eef8fdfa34037b36089596affa66efbb25625187",
+      "address": "0x26e1b4eadf3544f38171bd52e7038f0e8afbee36941d56190da8e10f6c847f",
+      "class_hash": "0x16695e5b6d805d15d6e6f31cfc2d19cd7225b15badeb8a7736e07735972dfdb",
       "abi": [
         {
           "type": "impl",
@@ -3404,8 +3209,8 @@
       ]
     },
     {
-      "address": "0x23a3fa07ece19dc9db80f0fd14fb3fa0e53ee58eda724d5b7136292a9398917",
-      "class_hash": "0x31905956639661626d4ce0b054ea7a8571237f38d9a4bf4acd3103955185807",
+      "address": "0x6a1aa14604d7b315d54ad5d93876579d26f7779fc0cd5f389fc9df4268c9ef",
+      "class_hash": "0x78aac6e5771d9bc0c101a64e057c97e01d006417c01f163c2efa8034fca6cff",
       "abi": [
         {
           "type": "impl",
@@ -3660,6 +3465,30 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "next_jackpot",
+              "inputs": [
+                {
+                  "name": "factory_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "rescue_jackpot",
+              "inputs": [
+                {
+                  "name": "jackpot_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -3777,6 +3606,8 @@
       "systems": [
         "create_jackpot_factory",
         "claim_jackpot",
+        "next_jackpot",
+        "rescue_jackpot",
         "upgrade"
       ]
     }
@@ -3829,21 +3660,9 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x64c860610b369e480c8e57807d9bf731f30d59120acaf7363c06b4f6ba3ec4",
+      "class_hash": "0x6dc51d87cb1144ccdbb0586096e00fca2ae15252f43cfbfa05e5ab65d470c66",
       "tag": "nums-GameCreated",
       "selector": "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
-    },
-    {
-      "members": [],
-      "class_hash": "0xb508772f068ccf56fc43680b8fa253f6ff9d9c4e93ac6b2590d158932b4ace",
-      "tag": "nums-Inserted",
-      "selector": "0x68a8cf4a301f71be018a6ed94f1991773d5804f7520391049d429ba5aff98cd"
-    },
-    {
-      "members": [],
-      "class_hash": "0x296aba9783abadf41ba0409709e49e6a872eea1c534a28fa9b5e0014ce4ba03",
-      "tag": "nums-JackpotClaimed",
-      "selector": "0x175ae38739f53db95298ea994d0391bb4f789681601f4cf16fdc20414bff6f"
     },
     {
       "members": [],
@@ -3853,15 +3672,9 @@
     },
     {
       "members": [],
-      "class_hash": "0x64d5b11cacfd99361601b0febbfe955fd2c13ed59caed3ef6a158de188516a7",
-      "tag": "nums-KingCrowned",
-      "selector": "0x7d4f8f724ffe9ff34050a58ee7ba63e5277fff6f3731f3606e96c64c46d7959"
-    },
-    {
-      "members": [],
-      "class_hash": "0x260d0bbece5e3917035adb7224a800e84ab0738d2f371fd6cf5f1e6cb71a7c8",
-      "tag": "nums-RewardClaimed",
-      "selector": "0x50747aeeb809b835b94582572edbc2834497b6ba5c8164e857352ac6c0ef959"
+      "class_hash": "0x731502e78c3626f19c1839fb4d2cf0738c169f2e402802fa6ae7348c777ad75",
+      "tag": "nums-NewWinner",
+      "selector": "0x52732757eca20c1f95ce3e86721429e3e1ac1a5d2e2db9ffb035c3d95e17877"
     },
     {
       "members": [],

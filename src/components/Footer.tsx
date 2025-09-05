@@ -11,7 +11,7 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { TokenBalance } from "./TokenBalance";
-import { getNumsAddress } from "@/config";
+import { getContractAddress, getNumsAddress } from "@/config";
 import useChain from "@/hooks/chain";
 import {
   Game,
@@ -24,9 +24,10 @@ import { useMemo, useState } from "react";
 import { CairoCustomEnum } from "starknet";
 import { LogoIcon } from "./icons/Logo";
 import { TimeAgo } from "./ui/time-ago";
-import { useControllers } from "@/hooks/controllers";
+import { useControllers } from "@/context/controllers";
 import { shortAddress } from "@/utils/address";
 import { InfoIcon } from "./icons/Info";
+import { getAddress } from "@starknet-react/core";
 
 export const Footer = ({
   game,
@@ -41,6 +42,7 @@ export const Footer = ({
 }) => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
+  const rewardAddress = getContractAddress(chain.id, "nums", "MockRewardToken");
   const { controllers, findController } = useControllers();
 
   const { numsBalance, tokenBalance } = useMemo(() => {
@@ -194,9 +196,12 @@ export const Footer = ({
       )}
 
       <Spacer maxW="20px" />
-      <Text fontFamily="Ekamai" fontSize="16px">
-        <TokenBalance contractAddress={numsAddress} symbol="NUMS" />
-      </Text>
+      <Box fontFamily="Ekamai" fontSize="16px">
+        <VStack alignItems="flex-end">
+          <TokenBalance contractAddress={numsAddress} symbol="NUMS" />
+          <TokenBalance contractAddress={rewardAddress} symbol=" REW" />
+        </VStack>
+      </Box>
     </HStack>
   );
 };

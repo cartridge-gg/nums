@@ -57,7 +57,7 @@ const Header = () => {
         zIndex="99"
         top="0"
         left="0"
-        p="12px"
+        p="4px 12px"
         bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
       >
         <HStack
@@ -81,14 +81,6 @@ const Header = () => {
           </Text>
         </HStack>
         <Spacer maxW="20px" />
-
-        <Spacer />
-        {game && (
-          <TimeCountdown
-            timestampSec={game.expires_at}
-            gameOver={game.game_over}
-          />
-        )}
 
         <Spacer />
         <Button

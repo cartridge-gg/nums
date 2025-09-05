@@ -430,6 +430,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_jackpot_actions_rescueJackpot_calldata = (jackpotId: BigNumberish): DojoCall => {
+		return {
+			contractName: "jackpot_actions",
+			entrypoint: "rescue_jackpot",
+			calldata: [jackpotId],
+		};
+	};
+
+	const jackpot_actions_rescueJackpot = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_jackpot_actions_rescueJackpot_calldata(jackpotId),
+				"nums",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 
 
 	return {
@@ -488,6 +509,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildClaimJackpotCalldata: build_jackpot_actions_claimJackpot_calldata,
 			createJackpotFactory: jackpot_actions_createJackpotFactory,
 			buildCreateJackpotFactoryCalldata: build_jackpot_actions_createJackpotFactory_calldata,
+			rescueJackpot: jackpot_actions_rescueJackpot,
+			buildRescueJackpotCalldata: build_jackpot_actions_rescueJackpot_calldata,
 		},
 	};
 }

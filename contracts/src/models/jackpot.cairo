@@ -1,11 +1,13 @@
-use dojo::world::{IWorldDispatcherTrait, WorldStorage, WorldStorageTrait};
-use nums::constants::{ONE_YEAR, ZERO_ADDRESS};
+use dojo::world::{IWorldDispatcherTrait, WorldStorage};
+use nums::constants::ONE_YEAR;
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+use nums::interfaces::nums::INumsTokenDispatcherTrait;
 use nums::store::{Store, StoreImpl, StoreTrait};
 // use nums::interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
 use nums::token::{Token, TokenType};
 use starknet::ContractAddress;
 use crate::constants::ONE_DAY;
+use super::jackpot;
 
 
 impl CloneOptionToken of Clone<Option<Token>> {
@@ -263,19 +265,58 @@ pub impl JackpotImpl of JackpotTrait {
         false
     }
 
-    fn claimable(self: @Jackpot, player: ContractAddress) -> u256 {
+    fn claim(self: @Jackpot, ref store: Store, player: ContractAddress) -> bool {
+        let mut has_claim = false;
         let total_winners = *self.total_winners;
+        let nums_share = *self.nums_balance / total_winners.into();
 
-        let mut claimable = 0;
+        let mut claimable_nums = 0_u256;
+        let mut claimable_token = 0_u256;
+
         let mut i = 0;
 
-        // TODO
+        while i < total_winners {
+            let mut winner = store.jackpot_winner(*self.id, i);
+            if winner.player == player && !winner.claimed {
+                has_claim = true;
+                claimable_nums += nums_share;
 
-        // while i < total_winners {}
+                if let Option::Some(token) = self.token {
+                    match token.ty {
+                        TokenType::ERC20(erc_20) => {
+                            let token_share = *erc_20.amount / total_winners.into();
+                            claimable_token += token_share;
+                        },
+                        _ => { panic!("not handled") },
+                    }
+                }
+                winner.claimed = true;
+                store.set_jackpot_winner(@winner);
+            }
+            i += 1;
+        }
 
-        claimable
+        println!("claimable_nums : {}", claimable_nums);
+        println!("claimable_token : {}", claimable_token);
+
+        if claimable_nums > 0 {
+            store.nums_disp().transfer(player, claimable_nums);
+        }
+        if claimable_token > 0 {
+            let token = self.token.clone();
+            let erc_20_disp = IERC20Dispatcher { contract_address: token.unwrap().address };
+            erc_20_disp.transfer(player, claimable_token);
+        }
+
+        has_claim
     }
 }
+// #[derive(Drop, Serde, PartialEq)]
+// pub struct Claimable {
+//     pub nums_amount: u256,
+//     pub token: Option<Token>,
+// }
+
 // #[derive(Copy, Drop, Serde, PartialEq)]
 // #[dojo::model]
 // pub struct Jackpot {

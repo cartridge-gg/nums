@@ -5,11 +5,11 @@ http_cors_origins = ["*"]
 
 [indexing]
 controllers = true
-index_pending = true
-polling_interval = 1000
+pending = true
+polling_interval = 250
 max_concurrent_tasks = 2
 contracts = [
-    "ERC20:0x03a4cae10a63d2e744b44a4ae1ff72f8eddfe0635b85895cf03eb80c0df9ac00", # NUMS
+    "ERC20:0x01426bbd61aa8ba32a1534014059429a02399825f0686c58385b4cd51d0fc8b1", # NUMS
     "ERC20:0x0548f2c8fce6dd8c1bc41122a2adbc6e823134e88fdd01194d4dc6a0105a1ea1", # REW
 ]
 

@@ -21,4 +21,5 @@ pub trait INumsToken<T> {
     fn total_supply(self: @T) -> u256;
     // amount is in 10*18 units
     fn reward(ref self: T, recipient: ContractAddress, amount: u64) -> bool;
+    fn burn(ref self: T, amount: u256);
 }

@@ -70,14 +70,24 @@ const Play = ({
   const { jackpots } = useJackpots();
   const { config } = useConfig();
 
+  const latestJackpot = useMemo(() => {
+    if (!jackpots || jackpots.length === 0) return undefined;
+    return jackpots.sort((a, b) => Number(b.id) - Number(a.id))[0];
+  }, [jackpots]);
+
+  const selectedJackpotId = useMemo(() => {
+    return (jackpotId ? Number(jackpotId) : latestJackpot?.id) || 0;
+  }, [latestJackpot, jackpotId]);
+
   const entityId = useMemo(() => {
     if (!account) return;
     const entityId = hash.computePoseidonHashOnElements([
       num.toHex(account.address),
+      num.toHex(selectedJackpotId),
     ]);
 
     return entityId;
-  }, [account]);
+  }, [account, selectedJackpotId]);
 
   const [subscriptionResult] = useSubscription({
     query: GameCreatedEvent,
@@ -92,9 +102,10 @@ const Play = ({
         setTimeoutId(null);
       }
 
-      const gameId =
-        // @ts-ignore
-        subscriptionResult.data.eventMessageUpdated.models![0]!.game_id;
+      // @ts-ignore
+      const gameId = subscriptionResult.data.eventMessageUpdated.models!.find(
+        (i) => i!.__typename === "nums_GameCreated"
+      )!.game_id!;
       onReady(num.toHex(gameId));
       setCreating(false);
     }
@@ -114,11 +125,6 @@ const Play = ({
       });
   }, []);
 
-  const latestJackpot = useMemo(() => {
-    if (!jackpots || jackpots.length === 0) return undefined;
-    return jackpots.sort((a, b) => Number(b.id) - Number(a.id))[0];
-  }, [jackpots]);
-
   // console.log("latestJackpot",latestJackpot)
 
   const newGame = async () => {
@@ -136,9 +142,6 @@ const Play = ({
       const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
 
-      const selectedJackpotId = jackpotId
-        ? Number(jackpotId)
-        : latestJackpot.id;
       const { receipt } = await execute(
         [
           // {

@@ -17,22 +17,22 @@ import {
 import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "./utils";
+import { formatAddress } from "../utils";
 import { useAccount } from "@starknet-react/core";
 3;
-import Header from "./components/Header";
+import Header from "../components/Header";
 import { Tooltip } from "@/components/ui/tooltip";
 import { lookupAddresses } from "@cartridge/controller";
-import { TrophyIcon } from "./components/icons/Trophy";
-import { Button } from "./components/Button";
-import { InfoIcon } from "./components/icons/Info";
-import { CaretIcon } from "./components/icons/Caret";
-import InfoOverlay from "./components/Info";
-import { graphql } from "./graphql/appchain";
-import { VrfRisk } from "./components/VrfRisk";
-import Play from "./components/Play";
-import { MintNums } from "./components/MintNums";
-import { Footer } from "./components/Footer";
+import { TrophyIcon } from "../components/icons/Trophy";
+import { Button } from "../components/Button";
+import { InfoIcon } from "../components/icons/Info";
+import { CaretIcon } from "../components/icons/Caret";
+import InfoOverlay from "../components/Info";
+import { graphql } from "../graphql/appchain";
+import { VrfRisk } from "../components/VrfRisk";
+import Play from "../components/Play";
+import { MintNums } from "../components/MintNums";
+import { Footer } from "../components/Footer";
 
 const MAX_SLOTS = 20;
 
@@ -200,6 +200,7 @@ const Home = () => {
           </Box>
 
           <HStack w="full" alignItems="flex-start">
+            <Button onClick={() => navigate("/factories")}>Factories</Button>
             <Button onClick={() => navigate("/selection")}>Select Jackpot</Button>
             <Play
               onReady={(gameId) => navigate(`/${gameId}`)}

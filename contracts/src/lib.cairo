@@ -6,7 +6,6 @@ pub mod token;
 pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
-    pub mod claim_actions;
     pub mod config_actions;
     pub mod game_actions;
     pub mod jackpot_actions;

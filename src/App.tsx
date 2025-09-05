@@ -1,8 +1,8 @@
 import "./fonts.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Game from "./Game";
-import Home from "./Home";
-import Selection from "./Selection";
+import Game from "./pages/Game";
+import Home from "./pages/Home";
+import Selection from "./pages/Selection";
 import {
   StarknetConfig,
   voyager,
@@ -30,7 +30,8 @@ import { Toaster } from "./components/ui/toaster";
 import { JackpotProvider } from "./context/jackpots";
 import { GameProvider } from "./context/game";
 import { ConfigProvider } from "./context/config";
-import { ControllersProvider } from "./hooks/controllers";
+import { ControllersProvider } from "./context/controllers";
+import Factories from "./pages/Factories";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -73,7 +74,10 @@ const buildPolicies = () => {
         methods: [{ entrypoint: "create_game" }, { entrypoint: "set_slot" }],
       },
       [jackpotAddress]: {
-        methods: [{ entrypoint: "claim_jackpot" }],
+        methods: [
+          { entrypoint: "claim_jackpot" },
+          { entrypoint: "next_jackpot" },
+        ],
       },
     },
   };
@@ -134,6 +138,7 @@ function App() {
                           <Route path="/" element={<Home />} />
                           <Route path="/:gameId" element={<Game />} />
                           <Route path="/selection" element={<Selection />} />
+                          <Route path="/factories" element={<Factories />} />
                         </Routes>
                       </Router>
                       {/* </ClaimsProvider> */}

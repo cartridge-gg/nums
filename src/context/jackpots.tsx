@@ -16,6 +16,7 @@ type JackpotProviderState = {
   getJackpotById: (id: BigNumberish) => Jackpot | undefined;
   getFactoryById: (id: BigNumberish) => JackpotFactory | undefined;
   getWinnersById: (id: BigNumberish) => JackpotWinner[] | undefined;
+  getClaimableByUser: (address: BigNumberish) => Jackpot[] | undefined;
 };
 
 const JackpotProviderContext = createContext<JackpotProviderState | undefined>(
@@ -108,6 +109,22 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
     [winners, jackpots]
   );
 
+  const getClaimableByUser = useCallback(
+    (address: BigNumberish) => {
+      return winners
+        .filter((i) => BigInt(i.player) === BigInt(address) && !i.claimed)
+        .flatMap((i) => {
+          const jackpot = getJackpotById(i.jackpot_id);
+          if (i.index < (jackpot?.total_winners || 0n)) {
+            return [jackpot];
+          } else {
+            return [];
+          }
+        });
+    },
+    [winners, jackpots]
+  );
+
   return (
     <JackpotProviderContext.Provider
       {...props}
@@ -118,6 +135,7 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
         getJackpotById,
         getFactoryById,
         getWinnersById,
+        getClaimableByUser,
       }}
     >
       {children}

@@ -67,5 +67,10 @@ mod MockNumsToken {
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self.erc20.mint(recipient, amount);
         }
+
+        #[external(v0)]
+        fn burn(ref self: ContractState, amount: u256) {
+            self.erc20.burn(get_caller_address(), amount)
+        }
     }
 }

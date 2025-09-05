@@ -5,22 +5,21 @@ use nums::models::jackpot::CreateJackpotFactoryParams;
 pub trait IJackpotActions<T> {
     fn create_jackpot_factory(ref self: T, params: CreateJackpotFactoryParams);
     fn claim_jackpot(ref self: T, jackpot_id: u32);
+    fn next_jackpot(ref self: T, factory_id: u32);
+    fn rescue_jackpot(ref self: T, jackpot_id: u32);
 }
 
 
 #[dojo::contract]
 pub mod jackpot_actions {
-    // use core::num::traits::Zero;
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
-    // use nums::constants::ZERO_ADDRESS;
-    // use nums::interfaces::token::{ITokenDispatcher, ITokenDispatcherTrait};
+    use nums::interfaces::nums::INumsTokenDispatcherTrait;
     use nums::models::jackpot::{
         JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotMode, JackpotTrait, TimingMode,
     };
-    use nums::token::{Token, TokenType};
-    use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
-    use starknet::{get_block_timestamp, get_caller_address};
+    use nums::token::Token;
+    use nums::{StoreImpl, StoreTrait};
     use super::*;
 
     #[derive(Drop, Serde)]
@@ -31,6 +30,24 @@ pub mod jackpot_actions {
         token: Option<Token>,
     }
 
+    //   #[derive(Drop, Serde)]
+    // #[dojo::event]
+    // pub struct JackpotClaimed {
+    //     #[key]
+    //     game_id: u32,
+    //     #[key]
+    //     jackpot_id: u32,
+    //     player: ContractAddress,
+    // }
+
+    // #[derive(Drop, Serde)]
+    // #[dojo::event]
+    // pub struct RewardClaimed {
+    //     #[key]
+    //     claim_id: u32,
+    //     player: ContractAddress,
+    //     amount: u64,
+    // }
 
     fn dojo_init(self: @ContractState) {
         let mut world = self.world(@"nums");
@@ -69,6 +86,7 @@ pub mod jackpot_actions {
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {
         fn create_jackpot_factory(ref self: ContractState, params: CreateJackpotFactoryParams) {
+            //TODO: restrict creation or verify by admin
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
             let creator = starknet::get_caller_address();
@@ -84,18 +102,47 @@ pub mod jackpot_actions {
             store.set_jackpot(@jackpot);
         }
 
+        fn next_jackpot(ref self: ContractState, factory_id: u32) {
+            let mut world = self.world(@"nums");
+            let mut store = StoreImpl::new(world);
+            let mut factory = store.jackpot_factory(factory_id);
+
+            let can_create = factory.can_create_jackpot(ref store);
+            assert!(can_create, "cannot create jackpot");
+
+            factory.create_jackpot(ref world, ref store);
+        }
+
 
         fn claim_jackpot(ref self: ContractState, jackpot_id: u32) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
-            let player = get_caller_address();
+            let player = starknet::get_caller_address();
 
             let mut jackpot = store.jackpot(jackpot_id);
             assert!(jackpot.has_ended(ref store), "jackpot has not ended");
 
-            let claimable = jackpot.claimable(player);
-            assert!(claimable > 0, "nothing to claim");
+            let has_claimed = jackpot.claim(ref store, player);
+            assert!(has_claimed, "nothing to claim");
             // TODO
+        }
+
+        fn rescue_jackpot(ref self: ContractState, jackpot_id: u32) {
+            let mut world = self.world(@"nums");
+            let mut store = StoreImpl::new(world);
+            let caller = starknet::get_caller_address();
+
+            let mut jackpot = store.jackpot(jackpot_id);
+            let factory = store.jackpot_factory(jackpot.factory_id);
+
+            assert!(jackpot.has_ended(ref store), "jackpot has not ended");
+            assert!(jackpot.total_winners == 0, "jackpot has winner");
+            assert!(factory.creator == caller, "caller is not creator");
+
+            // burn nums
+            store.nums_disp().burn(jackpot.nums_balance);
+            // TODO: rescue token
+
         }
         /// Verifies or unverifies a jackpot as legitimate.
     /// Only the WORLD owner can call this function to mark a jackpot as verified or not.

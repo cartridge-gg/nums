@@ -157,25 +157,16 @@ export interface RewardClaimed {
 // Type definition for `nums::systems::game_actions::game_actions::GameCreated` struct
 export interface GameCreated {
 	player: string;
-	game_id: BigNumberish;
-}
-
-// Type definition for `nums::systems::game_actions::game_actions::Inserted` struct
-export interface Inserted {
-	game_id: BigNumberish;
-	player: string;
-	index: BigNumberish;
-	number: BigNumberish;
-	next_number: BigNumberish;
-	remaining_slots: BigNumberish;
-	game_rewards: BigNumberish;
-}
-
-// Type definition for `nums::systems::game_actions::game_actions::KingCrowned` struct
-export interface KingCrowned {
-	game_id: BigNumberish;
 	jackpot_id: BigNumberish;
+	game_id: BigNumberish;
+}
+
+// Type definition for `nums::systems::game_actions::game_actions::NewWinner` struct
+export interface NewWinner {
 	player: string;
+	jackpot_id: BigNumberish;
+	game_id: BigNumberish;
+	score: BigNumberish;
 }
 
 // Type definition for `nums::systems::jackpot_actions::jackpot_actions::JackpotCreated` struct
@@ -233,8 +224,7 @@ export interface SchemaType extends ISchemaType {
 		JackpotClaimed: JackpotClaimed,
 		RewardClaimed: RewardClaimed,
 		GameCreated: GameCreated,
-		Inserted: Inserted,
-		KingCrowned: KingCrowned,
+		NewWinner: NewWinner,
 		JackpotCreated: JackpotCreated,
 	},
 }
@@ -369,21 +359,14 @@ export const schema: SchemaType = {
 		},
 		GameCreated: {
 			player: "",
-			game_id: 0,
-		},
-		Inserted: {
-			game_id: 0,
-			player: "",
-			index: 0,
-			number: 0,
-			next_number: 0,
-			remaining_slots: 0,
-			game_rewards: 0,
-		},
-		KingCrowned: {
-			game_id: 0,
 			jackpot_id: 0,
+			game_id: 0,
+		},
+		NewWinner: {
 			player: "",
+			jackpot_id: 0,
+			game_id: 0,
+			score: 0,
 		},
 		JackpotCreated: {
 			jackpot_id: 0,
@@ -413,7 +396,6 @@ export enum ModelsMapping {
 	JackpotClaimed = 'nums-JackpotClaimed',
 	RewardClaimed = 'nums-RewardClaimed',
 	GameCreated = 'nums-GameCreated',
-	Inserted = 'nums-Inserted',
-	KingCrowned = 'nums-KingCrowned',
+	NewWinner = 'nums-NewWinner',
 	JackpotCreated = 'nums-JackpotCreated',
 }

@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/notV4l/arcade?branch=dojo_1.7.0-alpha.1#2ef24ef92d5db0113144e79575dc34616734e26f"
+source = "git+https://github.com/cartridge-gg/arcade?branch=dojo_1.7.0-alpha.2#3d55291e647e5d6d2201216c1194560efeb60076"
 dependencies = [
  "dojo",
  "dojo_macros",
@@ -12,24 +12,24 @@ dependencies = [
 
 [[package]]
 name = "dojo"
-version = "1.6.0-alpha.1"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.1#67aeb9f49c6b8c30b1850badd065c9192617c3b2"
+version = "1.7.0-alpha.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.2#a064752fff355f325cf0b00828d236b399333432"
 dependencies = [
  "dojo_macros",
 ]
 
 [[package]]
 name = "dojo_cairo_test"
-version = "1.6.0-alpha.1"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.1#67aeb9f49c6b8c30b1850badd065c9192617c3b2"
+version = "1.7.0-alpha.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.2#a064752fff355f325cf0b00828d236b399333432"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
 name = "dojo_macros"
-version = "1.6.0-alpha.1"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.1#67aeb9f49c6b8c30b1850badd065c9192617c3b2"
+version = "1.7.0-alpha.2"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.2#a064752fff355f325cf0b00828d236b399333432"
 
 [[package]]
 name = "nums"

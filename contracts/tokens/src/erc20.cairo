@@ -6,6 +6,7 @@ pub trait INumsToken<TContractState> {
     fn set_rewards_caller(ref self: TContractState, caller: ContractAddress);
     fn renounce_ownership(ref self: TContractState);
     fn owner(ref self: TContractState) -> ContractAddress;
+    fn burn(ref self: TContractState, amount: u256);
 }
 
 #[starknet::contract]
@@ -88,6 +89,9 @@ mod NumsToken {
 
         fn owner(ref self: ContractState) -> ContractAddress {
             self.ownable.owner()
+        }
+        fn burn(ref self: ContractState, amount: u256) {
+            self.erc20.burn(amount);
         }
     }
 

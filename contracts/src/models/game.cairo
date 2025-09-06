@@ -81,8 +81,6 @@ pub impl GameImpl of GameTrait {
             idx += 1
         }
         // check if last slot is empty
-
-        println!("slot: {:?}", slot);
         if slot.number == 0 && next_number > prev_number {
             return false;
         }

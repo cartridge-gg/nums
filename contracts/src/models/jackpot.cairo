@@ -188,6 +188,14 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
     fn create_jackpot(
         ref self: JackpotFactory, ref world: WorldStorage, ref store: Store,
     ) -> Jackpot {
+        let now  =starknet::get_block_timestamp();
+        
+        if let Option::Some(current_jackpot_id) = self.current_jackpot_id {
+            let mut jackpot_to_archive = store.jackpot(current_jackpot_id);
+            jackpot_to_archive.end_at = now;
+            store.set_jackpot(@jackpot_to_archive);
+        }
+
         let id = world.dispatcher.uuid();
 
         if self.remaining_count.is_some() {
@@ -196,7 +204,7 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
         }
         self.current_jackpot_id = Option::Some(id);
 
-        let created_at = starknet::get_block_timestamp();
+        let created_at = now;
         let end_at = match self.timing_mode {
             TimingMode::TimeLimited => { created_at + self.initial_duration },
             TimingMode::Perpetual => { created_at + ONE_YEAR },

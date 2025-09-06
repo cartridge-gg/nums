@@ -64,7 +64,7 @@ case "$COMMAND" in
         EXTENSION_DURATION="120"
         MIN_SLOT="5"
         MAX_WINNERS="3"
-        JACKPOT_COUNT="10"
+        JACKPOT_COUNT="3"
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"

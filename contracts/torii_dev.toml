@@ -15,4 +15,4 @@ contracts = [
 
 
 [sql]
-historical = ["nums-TrophyProgression"]
+historical = ["nums-TrophyProgression", "nums-GameCreated"]

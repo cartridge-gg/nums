@@ -16,7 +16,7 @@ type JackpotProviderState = {
   getJackpotById: (id: BigNumberish) => Jackpot | undefined;
   getFactoryById: (id: BigNumberish) => JackpotFactory | undefined;
   getWinnersById: (id: BigNumberish) => JackpotWinner[] | undefined;
-  getClaimableByUser: (address: BigNumberish) => Jackpot[] | undefined;
+  getClaimableByUser: (address: BigNumberish) => Jackpot[];
 };
 
 const JackpotProviderContext = createContext<JackpotProviderState | undefined>(
@@ -30,6 +30,7 @@ const jackpotFactoriesQuery = new ToriiQueryBuilder()
       .keys(["nums-JackpotFactory"], [undefined], "FixedLen")
       .build()
   )
+  .withLimit(1_000)
   .includeHashedKeys();
 
 const jackpotsQuery = new ToriiQueryBuilder()
@@ -37,6 +38,7 @@ const jackpotsQuery = new ToriiQueryBuilder()
   .withClause(
     new ClauseBuilder().keys(["nums-Jackpot"], [undefined], "FixedLen").build()
   )
+  .withLimit(1_000)
   .includeHashedKeys();
 
 const jackpotWinnersQuery = new ToriiQueryBuilder()
@@ -46,7 +48,7 @@ const jackpotWinnersQuery = new ToriiQueryBuilder()
       .keys(["nums-JackpotWinner"], [undefined, undefined], "FixedLen")
       .build()
   )
-  .withLimit(1_000)
+  .withLimit(10_000)
   .includeHashedKeys();
 
 export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
@@ -135,6 +137,7 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
         getJackpotById,
         getFactoryById,
         getWinnersById,
+        // @ts-ignore
         getClaimableByUser,
       }}
     >

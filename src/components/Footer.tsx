@@ -58,7 +58,6 @@ export const Footer = ({
             "ERC20"
           ] as TokenTypeERC20;
           tokenBalance = BigInt(values.amount) / 10n ** 18n;
-          //   return amount_by_jackpot.toLocaleString();
           break;
         default:
           break;
@@ -198,8 +197,8 @@ export const Footer = ({
       <Spacer maxW="20px" />
       <Box fontFamily="Ekamai" fontSize="16px">
         <VStack alignItems="flex-end">
-          <TokenBalance contractAddress={numsAddress} symbol="NUMS" />
-          <TokenBalance contractAddress={rewardAddress} symbol=" REW" />
+          <TokenBalance contractAddress={numsAddress} />
+          <TokenBalance contractAddress={rewardAddress} />
         </VStack>
       </Box>
     </HStack>

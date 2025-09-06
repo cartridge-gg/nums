@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Jackpot, TokenTypeERC20 } from "../bindings";
 import { CairoCustomEnum } from "starknet";
 import { useAccount } from "@starknet-react/core";
-import { Claim } from "../components/Claim";
+import { useClaim } from "../hooks/useClaim";
 import { NextJackpot } from "../components/NextJackpot";
 
 const isJackpotActive = (jackpot: Jackpot) => {
@@ -138,13 +138,13 @@ const Selection = () => {
                       </>
                     )}
 
-                    {active && (
+                    {/* {active && (
                       <Play
                         onReady={(gameId) => navigate(`/${gameId}`)}
                         w={["100%", "100%", "auto"]}
                         jackpotId={jackpot.id}
                       />
-                    )}
+                    )} */}
                     {/* {!active &&
                       ((factory.remaining_count.isSome() &&
                         factory.remaining_count.unwrap() > 0) ||
@@ -152,13 +152,13 @@ const Selection = () => {
                     <NextJackpot factoryId={factory.id} />
                     {/* )} */}
 
-                    {canClaim && <Claim jackpotId={jackpot.id} />}
+                    {/* {canClaim && <useClaim jackpotId={jackpot.id} />}
                     {!canClaim && (
                       <>
                         Not claimable / already claimed
-                        <Claim jackpotId={jackpot.id} />
+                        <useClaim jackpotId={jackpot.id} />
                       </>
-                    )}
+                    )} */}
                   </GridItem>
                 );
               })}

@@ -4,13 +4,14 @@ import { useTokens } from "@/hooks/useTokens";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useMemo } from "react";
 import { num } from "starknet";
+import { TokenBalanceUi } from "./ui/token-balance";
 
 export const TokenBalance = ({
   contractAddress,
-  symbol,
+  // symbol,
 }: {
   contractAddress: string;
-  symbol: string;
+  // symbol: string;
 }) => {
   const { account } = useAccount();
 
@@ -22,7 +23,7 @@ export const TokenBalance = ({
     true
   );
 
-  const numsBalance = useMemo(() => {
+  const balance = useMemo(() => {
     if (!account) return 0;
 
     const token = tokens.find(
@@ -48,9 +49,5 @@ export const TokenBalance = ({
   }, [balances, tokens, getBalance, toDecimal, account]);
 
   if (!account) return null;
-  return (
-    <div>
-      {numsBalance.toLocaleString()} {symbol}
-    </div>
-  );
+  return <TokenBalanceUi address={contractAddress} balance={balance} />;
 };

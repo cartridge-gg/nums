@@ -8,7 +8,7 @@ import { BigNumberish } from "starknet";
 
 const TimeUp = () => (
   <Text
-    fontSize="24px"
+    fontSize="36px"
     fontFamily="Ekamai"
     textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)"
     color="red"
@@ -18,7 +18,7 @@ const TimeUp = () => (
 );
 const GameOver = () => (
   <Text
-    fontSize="24px"
+    fontSize="36px"
     fontFamily="Ekamai"
     textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)"
     color="red"

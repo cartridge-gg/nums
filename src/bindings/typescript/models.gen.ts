@@ -140,20 +140,6 @@ export interface Task {
 	description: string;
 }
 
-// Type definition for `nums::systems::claim_actions::claim_actions::JackpotClaimed` struct
-export interface JackpotClaimed {
-	game_id: BigNumberish;
-	jackpot_id: BigNumberish;
-	player: string;
-}
-
-// Type definition for `nums::systems::claim_actions::claim_actions::RewardClaimed` struct
-export interface RewardClaimed {
-	claim_id: BigNumberish;
-	player: string;
-	amount: BigNumberish;
-}
-
 // Type definition for `nums::systems::game_actions::game_actions::GameCreated` struct
 export interface GameCreated {
 	player: string;
@@ -167,6 +153,8 @@ export interface NewWinner {
 	jackpot_id: BigNumberish;
 	game_id: BigNumberish;
 	score: BigNumberish;
+	is_equal: boolean;
+	has_ended: boolean;
 }
 
 // Type definition for `nums::systems::jackpot_actions::jackpot_actions::JackpotCreated` struct
@@ -221,8 +209,6 @@ export interface SchemaType extends ISchemaType {
 		TrophyCreation: TrophyCreation,
 		TrophyProgression: TrophyProgression,
 		Task: Task,
-		JackpotClaimed: JackpotClaimed,
-		RewardClaimed: RewardClaimed,
 		GameCreated: GameCreated,
 		NewWinner: NewWinner,
 		JackpotCreated: JackpotCreated,
@@ -347,16 +333,6 @@ export const schema: SchemaType = {
 			total: 0,
 		description: "",
 		},
-		JackpotClaimed: {
-			game_id: 0,
-			jackpot_id: 0,
-			player: "",
-		},
-		RewardClaimed: {
-			claim_id: 0,
-			player: "",
-			amount: 0,
-		},
 		GameCreated: {
 			player: "",
 			jackpot_id: 0,
@@ -367,6 +343,8 @@ export const schema: SchemaType = {
 			jackpot_id: 0,
 			game_id: 0,
 			score: 0,
+			is_equal: false,
+			has_ended: false,
 		},
 		JackpotCreated: {
 			jackpot_id: 0,
@@ -393,8 +371,6 @@ export enum ModelsMapping {
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyProgression = 'achievement-TrophyProgression',
 	Task = 'achievement-Task',
-	JackpotClaimed = 'nums-JackpotClaimed',
-	RewardClaimed = 'nums-RewardClaimed',
 	GameCreated = 'nums-GameCreated',
 	NewWinner = 'nums-NewWinner',
 	JackpotCreated = 'nums-JackpotCreated',

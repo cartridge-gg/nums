@@ -48,29 +48,24 @@ const useToast = () => {
   };
 
   const showError = (_hash?: string, message?: string) => {
-    toaster.create({
-      title: `Error: ${message}`,
-      // WHY DAFUQ
-      //  (
-      //   <>
-      //     <HStack>
-      //       <div>Transaction Error</div>
-      //       {/* {hash && (
-      //         <Link href={explorer.transaction(hash)}>
-      //           <strong>{hash}</strong>
-      //         </Link>
-      //       )}
-      //       {message && <div>{message}</div>} */}
-      //     </HStack>
-      //   </>
-      // ),
+    toaster.error({
+      title: "Error",
+      description: message,
     });
   };
+
+  const showMessage = (message: string) => {
+    toaster.create({
+      title: message,
+    });
+  };
+
 
   return {
     showChainSwitch,
     showTxn,
     showError,
+    showMessage,
   };
 };
 

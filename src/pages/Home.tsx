@@ -7,6 +7,7 @@ import {
   Spacer,
   useDisclosure,
   useBreakpointValue,
+  ScrollArea,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -14,51 +15,28 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { useQuery } from "urql";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { formatAddress } from "../utils";
 import { useAccount } from "@starknet-react/core";
-3;
 import Header from "../components/Header";
 import { Tooltip } from "@/components/ui/tooltip";
-import { lookupAddresses } from "@cartridge/controller";
 import { TrophyIcon } from "../components/icons/Trophy";
 import { Button } from "../components/Button";
 import { InfoIcon } from "../components/icons/Info";
 import { CaretIcon } from "../components/icons/Caret";
 import InfoOverlay from "../components/Info";
-import { graphql } from "../graphql/appchain";
-import { VrfRisk } from "../components/VrfRisk";
-import Play from "../components/Play";
 import { MintNums } from "../components/MintNums";
 import { Footer } from "../components/Footer";
-
-const MAX_SLOTS = 20;
-
-const LeaderboardQuery = graphql(`
-  query Games($offset: Int) {
-    numsGameModels(
-      order: { direction: ASC, field: REMAINING_SLOTS }
-      limit: 10
-      offset: $offset
-    ) {
-      totalCount
-      edges {
-        node {
-          game_id
-          player
-          remaining_slots
-          reward
-        }
-      }
-    }
-  }
-`);
-
-const TOP_SCORE_HEADERS = ["Ranking", "Player", "Score", "$NUMS"];
-const MOBILE_TOP_SCORE_HEADERS = ["Ranking", "Player", "Score"];
-const TOTAL_TOKENS_HEADERS = ["Ranking", "Player", "Total $NUMS"];
+import { useJackpots } from "@/context/jackpots";
+import { Jackpot, JackpotFactory, TokenTypeERC20 } from "@/bindings";
+import { TokenBalanceUi } from "@/components/ui/token-balance";
+import useChain from "@/hooks/chain";
+import { getNumsAddress } from "@/config";
+import { useControllers } from "@/context/controllers";
+import { shortAddress } from "@/utils/address";
+import { LuCrown } from "react-icons/lu";
+import { useClaim } from "@/hooks/useClaim";
+import { CairoCustomEnum } from "starknet";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -68,59 +46,32 @@ const Home = () => {
     onClose: onCloseInfo,
   } = useDisclosure();
   const { account } = useAccount();
-  const [headers, setHeaders] = useState<string[]>(TOP_SCORE_HEADERS);
-  const [rows, setRows] = useState<any[]>([]);
-  const [sortBy, setSortBy] = useState<"score" | "tokens">("score");
+  const { chain } = useChain();
+  const numsAddress = getNumsAddress(chain.id);
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const { findController } = useControllers();
+  const { claim } = useClaim();
 
-  const [leaderboardResult] = useQuery({
-    query: LeaderboardQuery,
-    requestPolicy: "cache-and-network",
-  });
+  const { jackpots, jackpotFactories, getWinnersById } = useJackpots();
+
+  const [selectedFactory, setSelectedFactory] = useState<JackpotFactory>();
+  const [selectedJackpots, setSelectedJackpots] = useState<Jackpot[]>([]);
+  // return <ComingSoon />;
 
   useEffect(() => {
-    const gameModels = leaderboardResult.data?.numsGameModels;
-    // const totalsModels = leaderboardResult.data?.numsTotalsModels;
-    if (
-      !gameModels
-      // || !totalsModels
-    )
-      return;
+    if (jackpotFactories && jackpotFactories.length > 0 && !selectedFactory) {
+      setSelectedFactory(jackpotFactories[0]);
+    }
+  }, [jackpotFactories]);
 
-    const gameAddresses = gameModels.edges!.map((g) => g!.node!.player!) || [];
-    // const totalsAddresses =
-    //   totalsModels.edges!.map((t) => t!.node!.player!) || [];
-
-    lookupAddresses([
-      ...gameAddresses,
-      //  ...totalsAddresses
-    ]).then((usernames) => {
-      if (sortBy === "score") {
-        setHeaders(isMobile ? MOBILE_TOP_SCORE_HEADERS : TOP_SCORE_HEADERS);
-        const rows = gameModels.edges!.map((g, i) => ({
-          rank: i + 1,
-          player:
-            usernames.get(g!.node!.player!) ?? formatAddress(g!.node!.player!),
-          score: MAX_SLOTS - g!.node!.remaining_slots!,
-          reward: g!.node!.reward!.toLocaleString(),
-          gameId: g!.node!.game_id,
-        }));
-        setRows(rows);
-      } else {
-        setHeaders(TOTAL_TOKENS_HEADERS);
-        // const rows = totalsModels.edges!.map((t, i) => ({
-        //   rank: i + 1,
-        //   player:
-        //     usernames.get(t!.node!.player!) ??
-        //     formatAddress(t!.node!.player!),
-        //   totalTokens: parseInt(t!.node!.rewards_earned!).toLocaleString(),
-        // }));
-        // setRows(rows);
-      }
-    });
-  }, [leaderboardResult, sortBy]);
-
-  // return <ComingSoon />;
+  useEffect(() => {
+    if (selectedFactory) {
+      const filtered = (jackpots || []).filter(
+        (i) => i.factory_id === selectedFactory.id
+      );
+      setSelectedJackpots(filtered);
+    }
+  }, [selectedFactory, jackpots]);
 
   return (
     <Container
@@ -141,17 +92,22 @@ const Home = () => {
               <MenuTrigger asChild>
                 <Button visual="transparent" gap="8px" fontSize="18px">
                   <TrophyIcon />
-                  {sortBy === "score" ? "Top Score" : "Total Tokens"}
+                  {selectedFactory?.name}
                   <CaretIcon />
                 </Button>
               </MenuTrigger>
               <MenuContent>
-                <MenuItem value="score" onClick={() => setSortBy("score")}>
-                  Top Score
-                </MenuItem>
-                <MenuItem value="tokens" onClick={() => setSortBy("tokens")}>
-                  Total Tokens
-                </MenuItem>
+                {jackpotFactories?.map((factory, idx) => {
+                  return (
+                    <MenuItem
+                      key={idx}
+                      value={factory.id.toString()}
+                      onClick={() => setSelectedFactory(factory)}
+                    >
+                      {factory.name}
+                    </MenuItem>
+                  );
+                })}
               </MenuContent>
             </MenuRoot>
             <HStack>
@@ -176,36 +132,124 @@ const Home = () => {
               color="purple.50"
               textTransform="uppercase"
             >
-              {headers.map((h, i) => (
-                <Box key={i} w="full">
-                  <Text textAlign={["center", "center", "left"]}>{h}</Text>
-                </Box>
-              ))}
+              <Box w="full">ID</Box>
+              <Box minW="100px" textAlign="center">
+                Best Score
+              </Box>
+              <Box w="full" textAlign="center">
+                Winner(s)
+              </Box>
+              <Box minW="150px" textAlign="right">
+                Rewards
+              </Box>
             </HStack>
             <Spacer minH="20px" />
-            <VStack w="full">
-              {rows.map((row) => (
-                <LeaderboardRow
-                  key={row.rank}
-                  rowData={row}
-                  isOwn={row.player === account?.address}
-                  onClick={() => {
-                    if (sortBy === "tokens") return;
 
-                    navigate(`/0x${Number(row.gameId).toString(16)}`);
-                  }}
-                />
-              ))}
-            </VStack>
+            <ScrollArea.Root maxH="calc(100vh - 440px)" w="full">
+              <ScrollArea.Viewport>
+                <ScrollArea.Content paddingEnd="6">
+                  <VStack w="full" gap={6}>
+                    {selectedFactory &&
+                      selectedJackpots.slice(0, 10).map((jackpot, idx) => {
+                        const winners = getWinnersById(jackpot?.id)?.map(
+                          (winner) => {
+                            const controller = findController(winner.player);
+                            const name = controller
+                              ? controller.username
+                              : shortAddress(winner.player);
+                            const isOwn =
+                              BigInt(winner.player) ===
+                              BigInt(account?.address || 0);
+                            return {
+                              ...winner,
+                              name,
+                              isOwn,
+                            };
+                          }
+                        );
+
+                        let tokenBalance = 0n;
+
+                        if (jackpot?.token.isSome()) {
+                          const token = jackpot.token.unwrap();
+                          switch (
+                            (token.ty as CairoCustomEnum).activeVariant()
+                          ) {
+                            case "ERC20":
+                              const values = (token.ty as CairoCustomEnum)
+                                .variant["ERC20"] as TokenTypeERC20;
+                              tokenBalance = BigInt(values.amount) / 10n ** 18n;
+                              break;
+                            default:
+                              break;
+                          }
+                        }
+
+                        return (
+                          <HStack key={idx} w="full" alignItems="flex-start">
+                            <Box w="full">
+                              {selectedFactory.name} #{jackpot.id.toString()}
+                            </Box>
+                            <Box minW="100px" textAlign="center">
+                              {jackpot.best_score.toString()}
+                            </Box>
+                            <Box w="full">
+                              <VStack gap="0">
+                                <>
+                                  {winners?.map((winner, idx) => {
+                                    return (
+                                      <HStack key={idx}>
+                                        {winner.name}{" "}
+                                        {winner.isOwn && (
+                                          <LuCrown
+                                            color={
+                                              winner.claimed ? "orange" : "gold"
+                                            }
+                                            cursor="pointer"
+                                            onClick={() => claim(jackpot.id)}
+                                          />
+                                        )}
+                                      </HStack>
+                                    );
+                                  })}
+                                  {!winners ||
+                                    (winners.length === 0 && (
+                                      <div>[YOUR NAME HERE]</div>
+                                    ))}
+                                </>
+                              </VStack>
+                            </Box>
+                            <Box minW="150px" justifyItems="flex-end">
+                              <VStack alignItems="flex-end">
+                                <TokenBalanceUi
+                                  balance={
+                                    BigInt(jackpot.nums_balance) / 10n ** 18n
+                                  }
+                                  address={numsAddress}
+                                />
+                                {tokenBalance > 0 && (
+                                  <TokenBalanceUi
+                                    balance={BigInt(tokenBalance)}
+                                    address={jackpot.token.unwrap().address}
+                                  />
+                                )}
+                              </VStack>
+                            </Box>
+                          </HStack>
+                        );
+                      })}
+                  </VStack>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar>
+                <ScrollArea.Thumb />
+              </ScrollArea.Scrollbar>
+              <ScrollArea.Corner />
+            </ScrollArea.Root>
           </Box>
 
-          <HStack w="full" alignItems="flex-start">
-            <Button onClick={() => navigate("/factories")}>Factories</Button>
-            <Button onClick={() => navigate("/selection")}>Select Jackpot</Button>
-            <Play
-              onReady={(gameId) => navigate(`/${gameId}`)}
-              w={["100%", "100%", "auto"]}
-            />
+          <HStack w="full" justifyContent="center" gap={6}>
+            <Button onClick={() => navigate("/factories")}>Play Nums</Button>
             <MintNums />
           </HStack>
         </VStack>
@@ -215,99 +259,5 @@ const Home = () => {
     </Container>
   );
 };
-
-interface LeaderboardRowProps {
-  rowData: {
-    rank: number;
-    player: string;
-    score?: number;
-    reward?: string;
-    totalTokens?: string;
-    gameId: string;
-  };
-  isOwn?: boolean;
-  onClick: () => void;
-}
-
-const LeaderboardRow = ({ rowData, isOwn, onClick }: LeaderboardRowProps) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
-  const maxLength = isMobile ? 8 : 14;
-  const textAlign = ["center", "center", "left"];
-  return (
-    <HStack
-      w="full"
-      h="30px"
-      px={["0", "0", "20px"]}
-      justify="space-between"
-      fontWeight="500"
-      borderRadius="4px"
-      _hover={{
-        cursor: "pointer",
-        bgColor: "rgba(255,255,255,0.08)",
-      }}
-      onClick={onClick}
-      color={isOwn ? "orange.50" : "white"}
-    >
-      <Box flex="1" textAlign={textAlign}>
-        <Text>{rowData.rank}</Text>
-      </Box>
-      <Tooltip
-        showArrow
-        openDelay={500}
-        closeDelay={100}
-        content={rowData.player}
-        disabled={rowData.player.length < maxLength}
-      >
-        <Box flex="1" textAlign={textAlign}>
-          <Text>
-            {rowData.player.length > maxLength
-              ? rowData.player.slice(0, maxLength) + "..."
-              : rowData.player}
-          </Text>
-        </Box>
-      </Tooltip>
-      {rowData.score !== undefined ? (
-        <>
-          {!isMobile && (
-            <Box flex="1" textAlign={textAlign}>
-              <Text>{rowData.score}</Text>
-            </Box>
-          )}
-          <Box flex="1" textAlign={textAlign}>
-            <Text>{rowData.reward}</Text>
-          </Box>
-        </>
-      ) : (
-        <Box flex="1" textAlign={textAlign}>
-          <Text>{rowData.totalTokens}</Text>
-        </Box>
-      )}
-    </HStack>
-  );
-};
-
-// const ComingSoon = () => {
-//   return (
-//     <Container h="100vh" maxW="100vw">
-//       <VStack h="100%" justify="center">
-//         <Text textStyle="h-sm">NUMS.GG</Text>
-//         <Text fontWeight="500" fontSize="16px">
-//           INITIAL SORTING SEQUENCE COMPLETED
-//         </Text>
-//         <HStack flexDir={["column", "column", "row"]}>
-//           <Text color="rgba(255,255,255,0.5)" textAlign="right">
-//             Activate notifications at Nums for Phase 2.
-//           </Text>
-//           <Text
-//             onClick={() => window.open("https://x.com/numsgg", "_blank")}
-//             _hover={{ cursor: "pointer", textDecoration: "underline" }}
-//           >
-//             x.com/numsgg
-//           </Text>
-//         </HStack>
-//       </VStack>
-//     </Container>
-//   );
-// };
 
 export default Home;

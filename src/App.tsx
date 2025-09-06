@@ -131,8 +131,6 @@ function App() {
                 <ControllersProvider>
                   <GameProvider>
                     <JackpotProvider>
-                      {/* <TotalsProvider> */}
-                      {/* <ClaimsProvider> */}
                       <Router>
                         <Routes>
                           <Route path="/" element={<Home />} />
@@ -141,8 +139,6 @@ function App() {
                           <Route path="/factories" element={<Factories />} />
                         </Routes>
                       </Router>
-                      {/* </ClaimsProvider> */}
-                      {/* </TotalsProvider> */}
                     </JackpotProvider>
                   </GameProvider>
                 </ControllersProvider>

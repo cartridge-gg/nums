@@ -283,48 +283,6 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_claim_actions_claimJackpot_calldata = (gameId: BigNumberish): DojoCall => {
-		return {
-			contractName: "claim_actions",
-			entrypoint: "claim_jackpot",
-			calldata: [gameId],
-		};
-	};
-
-	const claim_actions_claimJackpot = async (snAccount: Account | AccountInterface, gameId: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_claim_actions_claimJackpot_calldata(gameId),
-				"nums",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_claim_actions_claimReward_calldata = (): DojoCall => {
-		return {
-			contractName: "claim_actions",
-			entrypoint: "claim_reward",
-			calldata: [],
-		};
-	};
-
-	const claim_actions_claimReward = async (snAccount: Account | AccountInterface) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_claim_actions_claimReward_calldata(),
-				"nums",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
 	const build_config_actions_setConfig_calldata = (config: models.Config): DojoCall => {
 		return {
 			contractName: "config_actions",
@@ -346,19 +304,19 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_actions_createGame_calldata = (jackpotId: BigNumberish): DojoCall => {
+	const build_game_actions_createGame_calldata = (factoryId: BigNumberish): DojoCall => {
 		return {
 			contractName: "game_actions",
 			entrypoint: "create_game",
-			calldata: [jackpotId],
+			calldata: [factoryId],
 		};
 	};
 
-	const game_actions_createGame = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish) => {
+	const game_actions_createGame = async (snAccount: Account | AccountInterface, factoryId: BigNumberish) => {
 		try {
 			return await provider.execute(
 				snAccount,
-				build_game_actions_createGame_calldata(jackpotId),
+				build_game_actions_createGame_calldata(factoryId),
 				"nums",
 			);
 		} catch (error) {
@@ -430,6 +388,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_jackpot_actions_nextJackpot_calldata = (factoryId: BigNumberish): DojoCall => {
+		return {
+			contractName: "jackpot_actions",
+			entrypoint: "next_jackpot",
+			calldata: [factoryId],
+		};
+	};
+
+	const jackpot_actions_nextJackpot = async (snAccount: Account | AccountInterface, factoryId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_jackpot_actions_nextJackpot_calldata(factoryId),
+				"nums",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_jackpot_actions_rescueJackpot_calldata = (jackpotId: BigNumberish): DojoCall => {
 		return {
 			contractName: "jackpot_actions",
@@ -488,12 +467,6 @@ export function setupWorld(provider: DojoProvider) {
 			transferFrom: MockRewardToken_transferFrom,
 			buildTransferFromCalldata: build_MockRewardToken_transferFrom_calldata,
 		},
-		claim_actions: {
-			claimJackpot: claim_actions_claimJackpot,
-			buildClaimJackpotCalldata: build_claim_actions_claimJackpot_calldata,
-			claimReward: claim_actions_claimReward,
-			buildClaimRewardCalldata: build_claim_actions_claimReward_calldata,
-		},
 		config_actions: {
 			setConfig: config_actions_setConfig,
 			buildSetConfigCalldata: build_config_actions_setConfig_calldata,
@@ -509,6 +482,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildClaimJackpotCalldata: build_jackpot_actions_claimJackpot_calldata,
 			createJackpotFactory: jackpot_actions_createJackpotFactory,
 			buildCreateJackpotFactoryCalldata: build_jackpot_actions_createJackpotFactory_calldata,
+			nextJackpot: jackpot_actions_nextJackpot,
+			buildNextJackpotCalldata: build_jackpot_actions_nextJackpot_calldata,
 			rescueJackpot: jackpot_actions_rescueJackpot,
 			buildRescueJackpotCalldata: build_jackpot_actions_rescueJackpot_calldata,
 		},

@@ -1,138 +1,89 @@
 import { Button, Spinner, VStack, Text, HStack } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
-import { BigNumberish, CallData, hash, num, uint256 } from "starknet";
+import { BigNumberish, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
-import useChain from "@/hooks/chain";
-import { graphql } from "@/graphql/appchain";
-import { useSubscription } from "urql";
-import { graphQlClients } from "@/graphql/clients";
 import { useParams } from "react-router-dom";
-import {
-  chainName,
-  getContractAddress,
-  getNumsAddress,
-  getVrfAddress,
-} from "@/config";
+import { getContractAddress, getNumsAddress, getVrfAddress } from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
 import { useJackpots } from "@/context/jackpots";
 import { useConfig } from "@/context/config";
-
-const GameEventQuery = graphql(`
-  query GameEventQuery($entityId: felt252) {
-    eventMessage(id: $entityId) {
-      models {
-        ... on nums_GameCreated {
-          game_id
-        }
-      }
-    }
-  }
-`);
-
-const GameCreatedEvent = graphql(`
-  subscription GameCreatedEvent($entityId: felt252) {
-    eventMessageUpdated(id: $entityId) {
-      models {
-        __typename
-        ... on nums_GameCreated {
-          game_id
-        }
-      }
-    }
-  }
-`);
+import { useDojoSdk } from "@/hooks/dojo";
+import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
+import { GameCreated } from "@/bindings";
 
 const Play = ({
   isAgain,
   onReady,
-  jackpotId,
+  factoryId,
   label,
   ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
-  jackpotId?: BigNumberish;
+  factoryId: BigNumberish;
   label?: string;
   [key: string]: any;
 }) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
   const { chain } = useNetwork();
-  const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
   const { playReplay } = useAudio();
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const { gameId } = useParams();
   const { execute } = useExecuteCall();
-  const { jackpots } = useJackpots();
   const { config } = useConfig();
+  const { sdk } = useDojoSdk();
+  const subscriptionRef = useRef<any>(null);
 
-  const latestJackpot = useMemo(() => {
-    if (!jackpots || jackpots.length === 0) return undefined;
-    return jackpots.sort((a, b) => Number(b.id) - Number(a.id))[0];
-  }, [jackpots]);
-
-  const selectedJackpotId = useMemo(() => {
-    return (jackpotId ? Number(jackpotId) : latestJackpot?.id) || 0;
-  }, [latestJackpot, jackpotId]);
-
-  const entityId = useMemo(() => {
-    if (!account) return;
-    const entityId = hash.computePoseidonHashOnElements([
-      num.toHex(account.address),
-      num.toHex(selectedJackpotId),
-    ]);
-
-    return entityId;
-  }, [account, selectedJackpotId]);
-
-  const [subscriptionResult] = useSubscription({
-    query: GameCreatedEvent,
-    variables: { entityId },
-    pause: !entityId,
-  });
+  const gameCreatedQuery = useMemo(() => {
+    return new ToriiQueryBuilder()
+      .withEntityModels(["nums-GameCreated"])
+      .withClause(
+        new ClauseBuilder()
+          .keys(
+            ["nums-GameCreated"],
+            [account?.address || "0", undefined],
+            "FixedLen"
+          )
+          .build()
+      )
+      .includeHashedKeys();
+  }, [account]);
 
   useEffect(() => {
-    if (subscriptionResult.data?.eventMessageUpdated) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        setTimeoutId(null);
-      }
-
-      // @ts-ignore
-      const gameId = subscriptionResult.data.eventMessageUpdated.models!.find(
-        (i) => i!.__typename === "nums_GameCreated"
-      )!.game_id!;
-      onReady(num.toHex(gameId));
-      setCreating(false);
-    }
-  }, [subscriptionResult.data]);
-
-  const queryEvent = useCallback((entityId: string) => {
-    graphQlClients[num.toHex(chain.id)]
-      .query(GameEventQuery, { entityId }, { requestPolicy: "network-only" })
-      .toPromise()
-      .then((res) => {
-        // @ts-ignore
-        const newGameId = res.data?.eventMessage.models![0]!.game_id;
-        if (newGameId !== gameId) {
-          onReady(num.toHex(newGameId));
-          setCreating(false);
+    const initAsync = async () => {
+      if (subscriptionRef.current) {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
         }
+      }
+      const [items, subscription] = await sdk.subscribeEventQuery({
+        query: gameCreatedQuery,
+        callback: (res) => {
+          const gameCreated = res.data![0].models.nums
+            .GameCreated as GameCreated;
+
+          onReady(num.toHex(gameCreated.game_id));
+        },
       });
-  }, []);
 
-  // console.log("latestJackpot",latestJackpot)
+      subscriptionRef.current = subscription;
+    };
 
-  const newGame = async () => {
+    initAsync();
+
+    // return () => {
+    //   if (subscriptionRef.current) {
+    //     subscriptionRef.current.cancel();
+    //   }
+    // };
+  }, [gameCreatedQuery]);
+
+  const createGame = async () => {
     if (!account) return;
-    if (!latestJackpot) {
-      alert("not jackpot found");
-      return;
-    }
 
     try {
       setCreating(true);
@@ -160,17 +111,10 @@ const Play = ({
           {
             contractAddress: gameAddress,
             entrypoint: "create_game",
-            calldata: [selectedJackpotId],
+            calldata: [factoryId],
           },
         ],
-        (_receipt) => {
-          // showTxn(r, chain?.name);
-          // Set timeout to query game if subscription doesn't respond
-          // const timeout = setTimeout(() => {
-          //   queryEvent(entityId!);
-          // }, 2000);
-          // setTimeoutId(timeout);
-        }
+        (_receipt) => {}
       );
       setCreating(false);
     } catch (e) {
@@ -182,7 +126,7 @@ const Play = ({
     <>
       {account ? (
         <Button
-          onClick={newGame}
+          onClick={createGame}
           disabled={creating}
           minW="150px"
           {...buttonProps}

@@ -1,6 +1,6 @@
 #[starknet::interface]
 pub trait IGameActions<T> {
-    fn create_game(ref self: T, jackpot_id: u32) -> (u32, u16);
+    fn create_game(ref self: T, factory_id: u32) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
     // fn king_me(ref self: T, game_id: u32);
 }
@@ -80,6 +80,8 @@ pub mod game_actions {
         jackpot_id: u32,
         game_id: u32,
         score: u8,
+        is_equal: bool,
+        has_ended: bool,
     }
 
     // #[derive(Drop, Serde)]
@@ -128,40 +130,29 @@ pub mod game_actions {
         ///
         /// # Returns
         /// A tuple containing the game ID and the first random number for the game.
-        fn create_game(ref self: ContractState, jackpot_id: u32) -> (u32, u16) {
+        fn create_game(ref self: ContractState, factory_id: u32) -> (u32, u16) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
             let player = get_caller_address();
 
             let game_config = store.game_config();
-            let mut jackpot = store.jackpot(jackpot_id);
-            let mut factory = store.jackpot_factory(jackpot.factory_id);
+            let mut factory = store.jackpot_factory(factory_id);
 
-            assert!(jackpot.exists(), "invalid jackpot");
-            let mut jackpot_id = jackpot_id;
+            let mut jackpot = if let Option::Some(current_jackpot_id) = factory.current_jackpot_id {
+                let jackpot = store.jackpot(current_jackpot_id);
+                if !jackpot.has_ended(ref store) {
+                    jackpot
+                } else if factory.can_create_jackpot(ref store) {
+                    factory.create_jackpot(ref world, ref store)
+                } else {
+                    panic!("not jackpot left");
+                }
+            } else if factory.can_create_jackpot(ref store) {
+                factory.create_jackpot(ref world, ref store)
+            } else {
+                panic!("not jackpot left");
+            };
 
-            let has_ended = jackpot.has_ended(ref store);
-            let can_create = factory.can_create_jackpot(ref store);
-
-            println!("has_ended: {}", has_ended);
-            println!("can_create: {}", can_create);
-
-            assert!(!has_ended, "this jackpot has ended");
-            // // attempt to create new jackpot from jackpot_factory
-            // if has_ended {
-            //     if can_create {
-            //         let new_jackpot = factory.create_jackpot(ref world, ref store);
-            //         jackpot_id = new_jackpot.id;
-            //         jackpot = store.jackpot(jackpot_id);
-            //         factory = store.jackpot_factory(jackpot.factory_id);
-            //     } else {
-            //         assert!(
-            //             false,
-            //             "This jackpot has ended, and the factory cannot initialize a new
-            //             jackpot",
-            //         );
-            //     }
-            // }
 
             // transfer entry_cost token from player to this contract
             // player must approve this contract to spend entry_cost nums
@@ -208,13 +199,13 @@ pub mod game_actions {
                         min_number: game_config.min_number,
                         next_number,
                         reward: 0,
-                        jackpot_id,
+                        jackpot_id: jackpot.id,
                         expires_at: now + game_config.game_duration,
                         game_over: false,
                     },
                 );
 
-            world.emit_event(@GameCreated { player, game_id, jackpot_id });
+            world.emit_event(@GameCreated { player, game_id, jackpot_id: jackpot.id });
 
             // Update achievement progression for the player
             self.achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
@@ -333,7 +324,14 @@ pub mod game_actions {
                 // todo: check not already in the list ?
                 store.set_jackpot_winner(@jackpot_winner);
 
-                world.emit_event(@NewWinner { jackpot_id: jackpot.id, player, game_id, score });
+                let has_ended = jackpot.has_ended(ref store);
+
+                world
+                    .emit_event(
+                        @NewWinner {
+                            jackpot_id: jackpot.id, player, game_id, score, is_equal, has_ended,
+                        },
+                    );
                 // self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
             }
 
@@ -351,7 +349,6 @@ pub mod game_actions {
                     factory.create_jackpot(ref world, ref store);
                 }
             }
-
 
             // Update achievement progression for the player - Filler tasks
             let player_id: felt252 = player.into();

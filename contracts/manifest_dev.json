@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x1ddae36975b866283e2eb337bdf7811157f7aab5f830742d56d99596ffed02d",
-      "class_hash": "0x2f6a30240ee51b54302688a0d31d28f5b21c1e5196261950daa32a36ea5a079",
+      "address": "0x1ecfb5767ba8af9d1d8b49d3a9d98b60ecabbe9f59414ae3e156fe449bc0801",
+      "class_hash": "0x49d66a27ac9f1eccab7a5382fb1ad13cd8b9e740fe98db9c699da7dbefabe83",
       "abi": [
         {
           "type": "impl",
@@ -2973,8 +2973,8 @@
       ]
     },
     {
-      "address": "0x3229af3dcecf67d17fbf3372a827647191d79a4bc899017b96254a905064fe3",
-      "class_hash": "0x7359d703a8191eb6f965c921bac68223e4768094601100ba38980ab1eaaf9fb",
+      "address": "0x1b705397408d73c3379764e9e4d3638ece617ade28b2d705a9260c479cd75f",
+      "class_hash": "0x4bbfc6751b9003c806ebacd6a7e881908973f9a2fcf2b90aaf16a471eaa5184",
       "abi": [
         {
           "type": "impl",
@@ -3047,7 +3047,7 @@
               "name": "create_game",
               "inputs": [
                 {
-                  "name": "jackpot_id",
+                  "name": "factory_id",
                   "type": "core::integer::u32"
                 }
               ],
@@ -3209,8 +3209,8 @@
       ]
     },
     {
-      "address": "0x325e39ddd6dfcfd50d758b39eccbe0f38c81093b3b7491214951fa693a6ea3",
-      "class_hash": "0x63b43fbf606ddfbb3abce25669fb125818ca514f2d5816296dbf4022abe5f64",
+      "address": "0x4110f4d3d3455caf6c1e6df9815b9aa555301f6ed343a289c6d3f8cd5827bdc",
+      "class_hash": "0x60a4a6bedc393efc8d3bf677d63850b71c4a7ee45fc0ec8b3d445c3d23f5c7c",
       "abi": [
         {
           "type": "impl",
@@ -3672,7 +3672,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x5a7f6611c76d376aea2e0714906d01e64d05846caeab4ac4dcdd72e0f9a95c4",
+      "class_hash": "0x196b47458da278af121c862670a070b6b2e076b147007a909aef01145aaa36b",
       "tag": "nums-NewWinner",
       "selector": "0x52732757eca20c1f95ce3e86721429e3e1ac1a5d2e2db9ffb035c3d95e17877"
     },

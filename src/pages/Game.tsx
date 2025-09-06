@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useSubscription } from "urql";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isGameOver, isMoveLegal, removeZeros } from "../utils";
 import {
   Box,
@@ -8,6 +8,7 @@ import {
   Grid,
   HStack,
   Spacer,
+  Spinner,
   Stack,
   Text,
   useDisclosure,
@@ -15,28 +16,26 @@ import {
 } from "@chakra-ui/react";
 import { Button } from "../components/Button";
 import { useAccount, useNetwork } from "@starknet-react/core";
-import useToast from "../hooks/toast";
 import Header from "../components/Header";
-import Overlay from "../components/Overlay";
-import { HomeIcon } from "../components/icons/Home";
 import Play from "../components/Play";
 import Slot from "../components/Slot";
 import NextNumber from "../components/NextNumber";
 import { graphql } from "../graphql/appchain";
 import { useAudio } from "../context/audio";
 import { hash, num, uint256 } from "starknet";
-import useChain from "../hooks/chain";
 import { ShowReward } from "../components/ShowReward";
 import { graphQlClients } from "../graphql/clients";
 import { getContractAddress, getNumsAddress, getVrfAddress } from "../config";
-import { JackpotInfos } from "../components/JackpotInfos";
 import { useExecuteCall } from "../hooks/useExecuteCall";
-import { GameInfos } from "../components/GameInfos";
 import { Footer } from "../components/Footer";
 import { useGames } from "../context/game";
 import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
+import { useDojoSdk } from "@/hooks/dojo";
+import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
+import { NewWinner } from "@/bindings";
+import { useClaim } from "@/hooks/useClaim";
 
 const MAX_SLOTS = 20;
 
@@ -110,6 +109,15 @@ const Game = () => {
   const { playPositive, playNegative } = useAudio();
   const [game, setGame] = useState<any>();
   const { execute } = useExecuteCall();
+  const { sdk } = useDojoSdk();
+  const subscriptionRef = useRef<any>(null);
+
+  const [canClaim, setCanClaim] = useState(false);
+  const {
+    claim,
+    isLoading: isClaiming,
+    isSuccess: isClaimingSuccessful,
+  } = useClaim();
 
   const { getJackpotById, getFactoryById, getWinnersById } = useJackpots();
   const { getGameById } = useGames();
@@ -120,10 +128,59 @@ const Game = () => {
   const factory = getFactoryById(jackpot?.factory_id || 0);
   const winners = getWinnersById(gameFromStore?.jackpot_id || 0);
 
-  const { showTxn } = useToast();
-  if (!gameId) {
-    return <></>;
-  }
+  const gameEventsQuery = useMemo(() => {
+    return new ToriiQueryBuilder()
+      .withEntityModels(["nums-GameCreated", "nums-NewWinner"])
+      .withClause(
+        new ClauseBuilder()
+          .keys(
+            ["nums-GameCreated", "nums-NewWinner"],
+            [undefined, BigInt(jackpot?.id || 0).toString()],
+            "FixedLen"
+          )
+          .build()
+      )
+      .includeHashedKeys();
+  }, [account]);
+
+  useEffect(() => {
+    const initAsync = async () => {
+      if (!account) return;
+
+      if (subscriptionRef.current) {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
+        }
+      }
+      const [items, subscription] = await sdk.subscribeEventQuery({
+        query: gameEventsQuery,
+        callback: (res) => {
+          const newWinner = res.data![0].models.nums.NewWinner as NewWinner;
+          if (
+            newWinner &&
+            newWinner.has_ended &&
+            BigInt(newWinner.player) === BigInt(account?.address || 0)
+          ) {
+            setCanClaim(true);
+          }
+        },
+      });
+
+      subscriptionRef.current = subscription;
+    };
+
+    initAsync();
+
+    // return () => {
+    //   if (subscriptionRef.current) {
+    //     subscriptionRef.current.cancel();
+    //   }
+    // };
+  }, [gameEventsQuery, account]);
+
+  //
+  //
+  //
 
   const entityId = useMemo(() => {
     if (!address || !gameId) return;
@@ -165,10 +222,10 @@ const Game = () => {
           if (isGameOver(newSlots, gameModel.next_number!)) {
             setIsOver(true);
 
-            if (isOwner) {
-              playNegative();
-              setTimeout(() => onOpen(), 3000);
-            }
+            // if (isOwner) {
+            //   playNegative();
+            //   setTimeout(() => onOpen(), 3000);
+            // }
           }
 
           updateGameState(
@@ -288,14 +345,18 @@ const Game = () => {
     }
   };
 
+  if (!gameId || !jackpot || !factory) {
+    return null;
+  }
+
   return (
     <>
       <Container h="100vh" maxW="100vw">
         {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
         <Header />
 
-        {/* <Overlay open={open} onClose={onClose}>
-          <VStack
+        {/* <Overlay open={true} onClose={onClose}>
+           <VStack
             boxSize="full"
             justify="center"
             position="relative"
@@ -345,8 +406,8 @@ const Game = () => {
               />
             </Stack>
           </VStack>
-        </Overlay> */}
-
+        </Overlay>
+ */}
         <VStack
           h={["auto", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
@@ -356,11 +417,10 @@ const Game = () => {
           <HStack>
             <VStack>
               {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
-
               {game && (
                 <TimeCountdown
-                  timestampSec={game.expires_at}
-                  gameOver={game.game_over}
+                  timestampSec={gameFromStore?.expires_at}
+                  gameOver={gameFromStore?.game_over}
                 />
               )}
               <Box
@@ -374,8 +434,6 @@ const Game = () => {
                 <NextNumber number={nextNumber!} isLoading={isLoading} />
               </Box>
             </VStack>
-            {/* <JackpotInfos jackpotId={game?.jackpot_id} /> */}
-            {/* <GameInfos game={game} /> */}
           </HStack>
           <Grid
             templateRows={[
@@ -404,21 +462,32 @@ const Game = () => {
             })}
           </Grid>
           <Box mt={6} visibility={isOver ? "visible" : "hidden"}>
-            <Play
-              isAgain
-              jackpotId={jackpot?.id}
-              onReady={(gameId) => {
-                queryGame(parseInt(gameId));
-                setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
-                setNextNumber(null);
-                setRemaining(0);
-                setReward(0);
-                setIsOver(false);
-                setIsLoading(true);
-                onClose();
-                navigate(`/${gameId}`);
-              }}
-            />
+            <>
+              {!canClaim && (
+                <Play
+                  isAgain
+                  factoryId={jackpot!.factory_id}
+                  onReady={(gameId) => {
+                    queryGame(parseInt(gameId));
+                    setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
+                    setNextNumber(null);
+                    setRemaining(0);
+                    setReward(0);
+                    setIsOver(false);
+                    setIsLoading(true);
+                    setCanClaim(false);
+                    onClose();
+                    navigate(`/${gameId}`);
+                  }}
+                />
+              )}
+
+              {canClaim && !isClaimingSuccessful && (
+                <Button onClick={() => claim( jackpot.id )}>
+                  {isClaiming ? <Spinner /> : "Claim Jackpot!"}
+                </Button>
+              )}
+            </>
           </Box>
         </VStack>
         <Footer
@@ -428,7 +497,7 @@ const Game = () => {
           factory={factory}
         />
 
-        {/* <Confetti /> */}
+        {canClaim && !isClaimingSuccessful && <Confetti />}
       </Container>
     </>
   );

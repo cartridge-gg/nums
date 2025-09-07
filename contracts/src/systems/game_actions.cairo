@@ -11,6 +11,7 @@ pub mod game_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Pow;
     use dojo::event::EventStorage;
+    use dojo::storage::storage::next_index_in_chunk;
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
@@ -82,6 +83,8 @@ pub mod game_actions {
         score: u8,
         is_equal: bool,
         has_ended: bool,
+        extension_time: u64,
+        replaced_winner: Option<ContractAddress>,
     }
 
     // #[derive(Drop, Serde)]
@@ -153,7 +156,6 @@ pub mod game_actions {
                 panic!("not jackpot left");
             };
 
-
             // transfer entry_cost token from player to this contract
             // player must approve this contract to spend entry_cost nums
             let nums_disp = store.nums_disp();
@@ -183,9 +185,10 @@ pub mod game_actions {
             jackpot.nums_balance += to_jackpot;
             store.set_jackpot(@jackpot);
 
-            let game_id = world.dispatcher.uuid();
+            let game_id = store.next_id('Game');
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
+            // let next_number = 1;
 
             let now = starknet::get_block_timestamp();
             store
@@ -280,6 +283,7 @@ pub mod game_actions {
             let target_number = game.next_number;
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let next_number = next_random(rand, @nums, game.min_number, game.max_number);
+            // let next_number = game.level().into() + 2;
 
             game.next_number = next_number;
             game.reward += config.get_reward(game.level());
@@ -306,30 +310,21 @@ pub mod game_actions {
             }
 
             if is_game_over && has_min_score && (is_equal || is_better) {
-                if is_equal {
-                    jackpot.total_winners += 1;
-                }
-                if is_better {
-                    jackpot.total_winners = 1;
-                }
-
-                let mut jackpot_winner = store
-                    .jackpot_winner(jackpot.id, jackpot.total_winners - 1);
-                jackpot_winner.player = player;
-
-                if jackpot.end_at + factory.extension_duration > jackpot.end_at {
-                    jackpot.end_at += factory.extension_duration;
-                }
-
-                // todo: check not already in the list ?
-                store.set_jackpot_winner(@jackpot_winner);
-
+                let replaced_winner = jackpot.add_winner(ref store, player, is_equal, is_better);
+                let extension_time = jackpot.extend_time(ref store);
                 let has_ended = jackpot.has_ended(ref store);
 
                 world
                     .emit_event(
                         @NewWinner {
-                            jackpot_id: jackpot.id, player, game_id, score, is_equal, has_ended,
+                            jackpot_id: jackpot.id,
+                            player,
+                            game_id,
+                            score,
+                            is_equal,
+                            has_ended,
+                            extension_time,
+                            replaced_winner,
                         },
                     );
                 // self.achievable.progress(world, player.into(), Task::King.identifier(), 1);

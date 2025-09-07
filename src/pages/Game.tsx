@@ -34,8 +34,13 @@ import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
 import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
-import { NewWinner } from "@/bindings";
+import { GameCreated, NewWinner } from "@/bindings";
 import { useClaim } from "@/hooks/useClaim";
+import { useJackpotEvents } from "@/hooks/useJackpotEvents";
+import useToast from "@/hooks/toast";
+import { useControllers } from "@/context/controllers";
+import { shortAddress } from "@/utils/address";
+import { humanDuration } from "@/utils/duration";
 
 const MAX_SLOTS = 20;
 
@@ -111,6 +116,8 @@ const Game = () => {
   const { execute } = useExecuteCall();
   const { sdk } = useDojoSdk();
   const subscriptionRef = useRef<any>(null);
+  const { showMessage, showJackpotEvent } = useToast();
+  const { findController } = useControllers();
 
   const [canClaim, setCanClaim] = useState(false);
   const {
@@ -122,61 +129,68 @@ const Game = () => {
   const { getJackpotById, getFactoryById, getWinnersById } = useJackpots();
   const { getGameById } = useGames();
 
-  const gameFromStore = getGameById(Number(gameId));
+  const gameFromStore = getGameById(Number(gameId!));
+  console.log("gameFromStore", gameFromStore);
 
   const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
   const factory = getFactoryById(jackpot?.factory_id || 0);
   const winners = getWinnersById(gameFromStore?.jackpot_id || 0);
 
-  const gameEventsQuery = useMemo(() => {
-    return new ToriiQueryBuilder()
-      .withEntityModels(["nums-GameCreated", "nums-NewWinner"])
-      .withClause(
-        new ClauseBuilder()
-          .keys(
-            ["nums-GameCreated", "nums-NewWinner"],
-            [undefined, BigInt(jackpot?.id || 0).toString()],
-            "FixedLen"
-          )
-          .build()
-      )
-      .includeHashedKeys();
-  }, [account]);
+  const onJackpotEvent = useCallback(
+    (type: string, event: any) => {
+      // console.log(type, event);
+      // console.log(typeof event);
 
-  useEffect(() => {
-    const initAsync = async () => {
-      if (!account) return;
+      switch (type) {
+        case "NewWinner":
+          {
+            const newWinner = event as NewWinner;
 
-      if (subscriptionRef.current) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.cancel();
-        }
-      }
-      const [items, subscription] = await sdk.subscribeEventQuery({
-        query: gameEventsQuery,
-        callback: (res) => {
-          const newWinner = res.data![0].models.nums.NewWinner as NewWinner;
-          if (
-            newWinner &&
-            newWinner.has_ended &&
-            BigInt(newWinner.player) === BigInt(account?.address || 0)
-          ) {
-            setCanClaim(true);
+            if (
+              newWinner &&
+              newWinner.has_ended &&
+              BigInt(newWinner.player) === BigInt(account?.address || 0)
+            ) {
+              setCanClaim(true);
+            }
+
+            const controller = findController(newWinner.player);
+            const username = controller
+              ? controller.username
+              : shortAddress(newWinner.player);
+
+            showJackpotEvent(
+              "New Winner",
+              `${username} scored ${newWinner.score}`
+            );
+            if (Number(newWinner.extension_time) > 0) {
+              const duration = humanDuration(Number(newWinner.extension_time));
+              showJackpotEvent("Time Extension", `${duration}`);
+            }
           }
-        },
-      });
 
-      subscriptionRef.current = subscription;
-    };
+          break;
+        case "GameCreated":
+          {
+            const gameCreated = event as GameCreated;
+            const controller = findController(gameCreated.player);
+            const username = controller
+              ? controller.username
+              : shortAddress(gameCreated.player);
 
-    initAsync();
+            if (BigInt(gameCreated.player) !== BigInt(account?.address || 0))
+              showJackpotEvent(
+                "New challenger",
+                `${username} has joined the competition`
+              );
+          }
+          break;
+      }
+    },
+    [account, setCanClaim]
+  );
 
-    // return () => {
-    //   if (subscriptionRef.current) {
-    //     subscriptionRef.current.cancel();
-    //   }
-    // };
-  }, [gameEventsQuery, account]);
+  useJackpotEvents(jackpot?.id || 0, onJackpotEvent);
 
   //
   //
@@ -240,7 +254,7 @@ const Game = () => {
     [isOwner]
   );
 
-  useEffect(() => queryGame(parseInt(gameId)), []);
+  useEffect(() => queryGame(parseInt(gameId!)), []);
 
   useEffect(() => {
     if (!address || !player) return;
@@ -320,7 +334,7 @@ const Game = () => {
           {
             contractAddress: gameAddress,
             entrypoint: "set_slot",
-            calldata: [gameId, slot.toString()],
+            calldata: [gameId!, slot.toString()],
           },
         ],
         (_receipt) => {}
@@ -333,7 +347,7 @@ const Game = () => {
 
       // Set timeout to query game if subscription doesn't respond
       const timeout = setTimeout(() => {
-        queryGame(parseInt(gameId));
+        queryGame(parseInt(gameId!));
       }, 2000);
       setTimeoutId(timeout);
 
@@ -419,7 +433,7 @@ const Game = () => {
               {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
               {game && (
                 <TimeCountdown
-                  timestampSec={gameFromStore?.expires_at}
+                  timestampSec={gameFromStore?.expires_at || 0}
                   gameOver={gameFromStore?.game_over}
                 />
               )}
@@ -483,7 +497,7 @@ const Game = () => {
               )}
 
               {canClaim && !isClaimingSuccessful && (
-                <Button onClick={() => claim( jackpot.id )}>
+                <Button onClick={() => claim(jackpot.id)}>
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>
               )}

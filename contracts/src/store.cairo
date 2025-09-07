@@ -3,7 +3,9 @@ use dojo::world::WorldStorage;
 use starknet::ContractAddress;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::{Config, Game, GameConfig, Jackpot, JackpotFactory, JackpotWinner, Slot};
+use crate::models::{
+    Config, Game, GameConfig, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot,
+};
 
 #[derive(Drop)]
 pub struct Store {
@@ -14,6 +16,14 @@ pub struct Store {
 pub impl StoreImpl of StoreTrait {
     fn new(world: WorldStorage) -> Store {
         Store { world }
+    }
+
+    // identifiers
+    fn next_id(ref self: Store, typ: felt252) -> u32 {
+        let mut identifier: Identifier = self.world.read_model((typ));
+        identifier.id += 1;
+        self.world.write_model(@identifier);
+        identifier.id
     }
 
     //  disp

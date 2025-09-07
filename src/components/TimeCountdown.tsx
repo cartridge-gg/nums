@@ -29,12 +29,12 @@ const GameOver = () => (
 
 // Renderer callback with condition
 const renderer = ({
-  hours,
+  // hours,
   minutes,
   seconds,
   completed,
 }: {
-  hours: number;
+  // hours: number;
   minutes: number;
   seconds: number;
   completed: boolean;

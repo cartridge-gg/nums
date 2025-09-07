@@ -58,13 +58,13 @@ case "$COMMAND" in
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
-        # INITIAL_DURATION="7200"
-        # EXTENSION_DURATION="300"
-        INITIAL_DURATION="300"
-        EXTENSION_DURATION="120"
+        INITIAL_DURATION="7200"
+        EXTENSION_DURATION="3600"
+        # INITIAL_DURATION="300"
+        # EXTENSION_DURATION="120"
         MIN_SLOT="5"
         MAX_WINNERS="3"
-        JACKPOT_COUNT="3"
+        JACKPOT_COUNT="10"
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"

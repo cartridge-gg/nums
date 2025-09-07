@@ -67,9 +67,11 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
       return Object.values(jackpotsItems[key] as Jackpot[]);
     });
 
-    const factories = Object.keys(factoriesItems).flatMap((key) => {
-      return Object.values(factoriesItems[key] as JackpotFactory[]);
-    });
+    const factories = Object.keys(factoriesItems)
+      .flatMap((key) => {
+        return Object.values(factoriesItems[key] as JackpotFactory[]);
+      })
+      .sort((a, b) => Number(b.id) - Number(a.id));
 
     const winners = Object.keys(winnersItems).flatMap((key) => {
       return Object.values(winnersItems[key] as JackpotWinner[]);

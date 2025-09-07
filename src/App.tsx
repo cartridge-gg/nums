@@ -26,7 +26,7 @@ import {
   slotChain,
 } from "./config";
 import { DojoSdkProviderInitialized } from "./context/dojo";
-import { Toaster } from "./components/ui/toaster";
+import { JackpotToaster, Toaster } from "./components/ui/toaster";
 import { JackpotProvider } from "./context/jackpots";
 import { GameProvider } from "./context/game";
 import { ConfigProvider } from "./context/config";
@@ -147,6 +147,7 @@ function App() {
           </UrqlProvider>
         </DojoSdkProviderInitialized>
       </StarknetConfig>
+      <JackpotToaster />
       <Toaster />
     </>
   );

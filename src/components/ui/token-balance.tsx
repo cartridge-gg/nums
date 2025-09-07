@@ -28,7 +28,7 @@ export const TokenBalanceUi = ({
     <HStack fontFamily="Ekamai" fontSize="16px">
       {balance.toLocaleString()}
       {isNums && <LogoIcon w={24} h={24} />}
-      {isStrk && <Image src="/public/tokens/strk.png" w="24px" h="24px" />}
+      {isStrk && <Image src="/tokens/strk.png" w="24px" h="24px" />}
       {!isNums && !isStrk && <LuCircleHelp />}
     </HStack>
   );

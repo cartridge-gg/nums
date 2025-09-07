@@ -140,7 +140,7 @@ const Home = () => {
                 Winner(s)
               </Box>
               <Box minW="150px" textAlign="right">
-                Rewards
+                Rewards to share
               </Box>
             </HStack>
             <Spacer minH="20px" />
@@ -150,7 +150,9 @@ const Home = () => {
                 <ScrollArea.Content paddingEnd="6">
                   <VStack w="full" gap={6}>
                     {selectedFactory &&
-                      selectedJackpots.slice(0, 10).map((jackpot, idx) => {
+                      selectedJackpots
+                      .sort((a,b)=> Number(b.id) - Number(a.id))
+                      .slice(0, 10).map((jackpot, idx) => {
                         const winners = getWinnersById(jackpot?.id)?.map(
                           (winner) => {
                             const controller = findController(winner.player);

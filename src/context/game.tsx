@@ -31,7 +31,7 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
           .build()
       )
       .addOrderBy("nums-Game.game_id", "Desc")
-      .withLimit(5)
+      .withLimit(1_000)
       .includeHashedKeys();
   }, [account?.address]);
 

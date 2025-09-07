@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x1ecfb5767ba8af9d1d8b49d3a9d98b60ecabbe9f59414ae3e156fe449bc0801",
-      "class_hash": "0x49d66a27ac9f1eccab7a5382fb1ad13cd8b9e740fe98db9c699da7dbefabe83",
+      "address": "0x4d7efe9fca2245a93ddaea8d9acee688792ca22036dda94db73d9cd91433728",
+      "class_hash": "0x65027942972746b14385b9764d2a5e718635542c199359f6e8c8e79b68178be",
       "abi": [
         {
           "type": "impl",
@@ -2973,8 +2973,8 @@
       ]
     },
     {
-      "address": "0x1b705397408d73c3379764e9e4d3638ece617ade28b2d705a9260c479cd75f",
-      "class_hash": "0x4bbfc6751b9003c806ebacd6a7e881908973f9a2fcf2b90aaf16a471eaa5184",
+      "address": "0x64ae42f33c7a7c5adcf8797979e95481b29097b03670339da8c13ec8e3872ce",
+      "class_hash": "0x728d301fcfc280a5d0a275563eddf3a67bb5de1b97a7b9d963bdb467db162e3",
       "abi": [
         {
           "type": "impl",
@@ -3209,8 +3209,8 @@
       ]
     },
     {
-      "address": "0x4110f4d3d3455caf6c1e6df9815b9aa555301f6ed343a289c6d3f8cd5827bdc",
-      "class_hash": "0x60a4a6bedc393efc8d3bf677d63850b71c4a7ee45fc0ec8b3d445c3d23f5c7c",
+      "address": "0x11d12b62167e7815bf7b0b85f63952779c0ab0084db20b7733369139a4beab9",
+      "class_hash": "0x4f8d553526da6f7309e74405cb08b97795bc9b29fc8d6288fb66a6326346b9c",
       "abi": [
         {
           "type": "impl",
@@ -3628,7 +3628,13 @@
     },
     {
       "members": [],
-      "class_hash": "0x18677bd0f15936ff92198d1385f63dc4b165b78929fc2dbae0c3c94f01ebd18",
+      "class_hash": "0x49c536978648d21e39e4a66687a9fc8998b75b82a051e9a0ca68452a989abc4",
+      "tag": "nums-Identifier",
+      "selector": "0x385507d29e391eacca2e9b0148e6d01890807f738824cac349264ad313d0158"
+    },
+    {
+      "members": [],
+      "class_hash": "0x2eb549404ecc3972369792d71e361fa4159dd0b48d41279a7ef6a31c109ea66",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
@@ -3666,13 +3672,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2db4b1158c73b02b587a267f39a06e4b6398ec5503f525a31909e45f084fed2",
-      "tag": "nums-JackpotCreated",
-      "selector": "0x2316c6700328c1de9b2bf8e664b6119789a104f0d9f865acba568281247589"
-    },
-    {
-      "members": [],
-      "class_hash": "0x196b47458da278af121c862670a070b6b2e076b147007a909aef01145aaa36b",
+      "class_hash": "0x61324bb8da748d5f37db97aafcb76bbdefbd27807a3d3bb29c7219a813e6303",
       "tag": "nums-NewWinner",
       "selector": "0x52732757eca20c1f95ce3e86721429e3e1ac1a5d2e2db9ffb035c3d95e17877"
     },

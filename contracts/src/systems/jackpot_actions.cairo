@@ -22,13 +22,13 @@ pub mod jackpot_actions {
     use nums::{StoreImpl, StoreTrait};
     use super::*;
 
-    #[derive(Drop, Serde)]
-    #[dojo::event]
-    pub struct JackpotCreated {
-        #[key]
-        jackpot_id: u32,
-        token: Option<Token>,
-    }
+    // #[derive(Drop, Serde)]
+    // #[dojo::event]
+    // pub struct JackpotCreated {
+    //     #[key]
+    //     jackpot_id: u32,
+    //     token: Option<Token>,
+    // }
 
     //   #[derive(Drop, Serde)]
     // #[dojo::event]
@@ -58,8 +58,8 @@ pub mod jackpot_actions {
         // deployer account
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
 
-        // consume uuid = zero
-        let _uuid = world.dispatcher.uuid();
+        // // consume uuid = zero
+        // let _uuid = world.dispatcher.uuid();
 
         // create a perpetual nums jackpot factory
         let params = CreateJackpotFactoryParams {
@@ -75,7 +75,7 @@ pub mod jackpot_actions {
         };
 
         let mut factory = JackpotFactoryImpl::new(
-            ref world, jackpot_actions_addr, deployer_account, params,
+            ref world, ref store, jackpot_actions_addr, deployer_account, params,
         );
         let mut jackpot = factory.create_jackpot(ref world, ref store);
 
@@ -94,7 +94,7 @@ pub mod jackpot_actions {
 
             // create factory & transfer rewards to this contract
             let mut factory = JackpotFactoryImpl::new(
-                ref world, jackpot_actions_addr, creator, params,
+                ref world, ref store, jackpot_actions_addr, creator, params,
             );
             let mut jackpot = factory.create_jackpot(ref world, ref store);
 
@@ -166,53 +166,6 @@ pub mod jackpot_actions {
     }
 
     #[generate_trait]
-    pub impl InternalImpl of InternalTrait { // fn _create(
-    //     self: @ContractState,
-    //     title: felt252,
-    //     mode: JackpotMode,
-    //     expiration: u64,
-    //     token: Option<Token>,
-    // ) -> u32 {
-    //     if expiration > 0 {
-    //         // TODO: add min delay
-    //         assert!(expiration > get_block_timestamp(), "Expiration already passed")
-    //     }
-
-    //     let mut world = self.world(@"nums");
-    //     let mut store = StoreImpl::new(world);
-    //     let creator = get_caller_address();
-    //     let id = world.dispatcher.uuid();
-
-    //     store
-    //         .set_jackpot(
-    //             @Jackpot {
-    //                 id,
-    //                 title,
-    //                 creator,
-    //                 mode,
-    //                 expiration,
-    //                 token,
-    //                 claimed: false,
-    //                 verified: false,
-    //                 winner: Option::None,
-    //             },
-    //         );
-
-    //     world.emit_event(@JackpotCreated { jackpot_id: id, token });
-    //     // let config = store.config();
-
-    //     if let Option::Some(token) = token {
-    //         assert(token.ty == TokenType::ERC20, 'only ERC20 supported');
-    //         assert(token.total.is_non_zero(), 'total cannot be zero');
-    //         // // message_consumers.cairo is what will transfer jackpot
-    //     // ITokenDispatcher { contract_address: token.address }
-    //     //     .transferFrom(
-    //     //         get_caller_address(), config.starknet_consumer.clone(), token.total,
-    //     //     );
-    //     }
-
-    //     id
-    // }
-    }
+    pub impl InternalImpl of InternalTrait {}
 }
 

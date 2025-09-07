@@ -14,12 +14,14 @@ pub mod systems {
 pub mod models {
     pub mod config;
     pub mod game;
+    pub mod identifier;
     pub mod jackpot;
     pub mod metadata;
     pub mod slot;
-    pub use config::{Config, GameConfig, ConfigImpl, ConfigTrait};
 
+    pub use config::{Config, ConfigImpl, ConfigTrait, GameConfig};
     pub use game::{Game, GameImpl, GameTrait};
+    pub use identifier::Identifier;
     pub use jackpot::{
         CreateJackpotFactoryParams, Jackpot, JackpotFactory, JackpotFactoryImpl,
         JackpotFactoryTrait, JackpotMode, JackpotWinner, TimingMode,

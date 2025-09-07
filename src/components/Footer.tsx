@@ -175,7 +175,7 @@ export const Footer = ({
             {tokenBalance !== undefined && tokenBalance > 0 && (
               <HStack fontFamily="Ekamai" fontSize="16px">
                 {tokenBalance.toLocaleString()}
-                <Image src="/public/tokens/strk.png" w="24px" h="24px" />
+                <Image src="/tokens/strk.png" w="24px" h="24px" />
               </HStack>
             )}
           </VStack>

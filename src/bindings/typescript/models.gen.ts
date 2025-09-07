@@ -35,17 +35,25 @@ export interface Game {
 	game_over: boolean;
 }
 
+// Type definition for `nums::models::identifier::Identifier` struct
+export interface Identifier {
+	typ: BigNumberish;
+	id: BigNumberish;
+}
+
 // Type definition for `nums::models::jackpot::Jackpot` struct
 export interface Jackpot {
 	id: BigNumberish;
 	factory_id: BigNumberish;
 	nums_balance: BigNumberish;
-	token: option;
+	token: any;
 	mode: JackpotModeEnum;
 	created_at: BigNumberish;
 	end_at: BigNumberish;
 	best_score: BigNumberish;
 	total_winners: BigNumberish;
+	last_winner_index: BigNumberish;
+	extension_count: BigNumberish;
 }
 
 // Type definition for `nums::models::jackpot::JackpotFactory` struct
@@ -53,15 +61,15 @@ export interface JackpotFactory {
 	id: BigNumberish;
 	name: string;
 	creator: string;
-	token: option;
+	token: any;
 	mode: JackpotModeEnum;
 	timing_mode: TimingModeEnum;
 	initial_duration: BigNumberish;
 	extension_duration: BigNumberish;
 	min_slots: BigNumberish;
 	max_winners: BigNumberish;
-	current_jackpot_id: option;
-	remaining_count: option;
+	current_jackpot_id: any;
+	remaining_count: any;
 }
 
 // Type definition for `nums::models::jackpot::JackpotWinner` struct
@@ -155,12 +163,8 @@ export interface NewWinner {
 	score: BigNumberish;
 	is_equal: boolean;
 	has_ended: boolean;
-}
-
-// Type definition for `nums::systems::jackpot_actions::jackpot_actions::JackpotCreated` struct
-export interface JackpotCreated {
-	jackpot_id: BigNumberish;
-	token: option;
+	extension_time: BigNumberish;
+	replaced_winner: any;
 }
 
 // Type definition for `nums::models::jackpot::JackpotMode` enum
@@ -197,6 +201,7 @@ export interface SchemaType extends ISchemaType {
 		Config: Config,
 		GameConfig: GameConfig,
 		Game: Game,
+		Identifier: Identifier,
 		Jackpot: Jackpot,
 		JackpotFactory: JackpotFactory,
 		JackpotWinner: JackpotWinner,
@@ -211,7 +216,6 @@ export interface SchemaType extends ISchemaType {
 		Task: Task,
 		GameCreated: GameCreated,
 		NewWinner: NewWinner,
-		JackpotCreated: JackpotCreated,
 	},
 }
 export const schema: SchemaType = {
@@ -243,11 +247,15 @@ export const schema: SchemaType = {
 			expires_at: 0,
 			game_over: false,
 		},
+		Identifier: {
+			typ: 0,
+			id: 0,
+		},
 		Jackpot: {
 			id: 0,
 			factory_id: 0,
 		nums_balance: 0,
-			token: option,
+			token: undefined,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -255,12 +263,14 @@ export const schema: SchemaType = {
 			end_at: 0,
 			best_score: 0,
 			total_winners: 0,
+			last_winner_index: 0,
+			extension_count: 0,
 		},
 		JackpotFactory: {
 			id: 0,
 		name: "",
 			creator: "",
-			token: option,
+			token: undefined,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -271,8 +281,8 @@ export const schema: SchemaType = {
 			extension_duration: 0,
 			min_slots: 0,
 			max_winners: 0,
-			current_jackpot_id: option,
-			remaining_count: option,
+			current_jackpot_id: undefined,
+			remaining_count: undefined,
 		},
 		JackpotWinner: {
 			jackpot_id: 0,
@@ -345,10 +355,8 @@ export const schema: SchemaType = {
 			score: 0,
 			is_equal: false,
 			has_ended: false,
-		},
-		JackpotCreated: {
-			jackpot_id: 0,
-			token: option,
+			extension_time: 0,
+			replaced_winner: undefined,
 		},
 	},
 };
@@ -356,6 +364,7 @@ export enum ModelsMapping {
 	Config = 'nums-Config',
 	GameConfig = 'nums-GameConfig',
 	Game = 'nums-Game',
+	Identifier = 'nums-Identifier',
 	Jackpot = 'nums-Jackpot',
 	JackpotFactory = 'nums-JackpotFactory',
 	JackpotMode = 'nums-JackpotMode',
@@ -373,5 +382,4 @@ export enum ModelsMapping {
 	Task = 'achievement-Task',
 	GameCreated = 'nums-GameCreated',
 	NewWinner = 'nums-NewWinner',
-	JackpotCreated = 'nums-JackpotCreated',
 }

@@ -1,5 +1,5 @@
 import { HStack, Image, Link, Spacer } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
+import { jackpotToaster, toaster } from "@/components/ui/toaster";
 import { useExplorer } from "@starknet-react/core";
 import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
 
@@ -48,7 +48,7 @@ const useToast = () => {
   };
 
   const showError = (_hash?: string, message?: string) => {
-    toaster.error({
+    toaster.create({
       title: "Error",
       description: message,
     });
@@ -60,12 +60,19 @@ const useToast = () => {
     });
   };
 
+  const showJackpotEvent = (title: string, description: string) => {
+    jackpotToaster.create({
+      title,
+      description,
+    });
+  };
 
   return {
     showChainSwitch,
     showTxn,
     showError,
     showMessage,
+    showJackpotEvent,
   };
 };
 

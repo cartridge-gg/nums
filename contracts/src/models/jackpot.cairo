@@ -1,3 +1,4 @@
+use core::num::traits::{Pow, Zero};
 use dojo::world::{IWorldDispatcherTrait, WorldStorage};
 use nums::constants::ONE_YEAR;
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -66,6 +67,8 @@ pub struct Jackpot {
     pub end_at: u64,
     pub best_score: u8,
     pub total_winners: u8,
+    pub last_winner_index: u8,
+    pub extension_count: u8,
 }
 
 #[derive(Drop, Serde, PartialEq)]
@@ -100,12 +103,13 @@ pub enum JackpotMode {
 pub impl JackpotFactoryImpl of JackpotFactoryTrait {
     fn new(
         ref world: WorldStorage,
+        ref store: Store,
         jackpot_actions_addr: ContractAddress,
         creator: ContractAddress,
         params: CreateJackpotFactoryParams,
     ) -> JackpotFactory {
         let mut params = params;
-        let id = world.dispatcher.uuid();
+        let id = store.next_id('JackpotFactory');
         let caller = starknet::get_caller_address();
 
         // TODO: set right figures here
@@ -188,15 +192,15 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
     fn create_jackpot(
         ref self: JackpotFactory, ref world: WorldStorage, ref store: Store,
     ) -> Jackpot {
-        let now  =starknet::get_block_timestamp();
-        
+        let now = starknet::get_block_timestamp();
+
         if let Option::Some(current_jackpot_id) = self.current_jackpot_id {
             let mut jackpot_to_archive = store.jackpot(current_jackpot_id);
             jackpot_to_archive.end_at = now;
             store.set_jackpot(@jackpot_to_archive);
         }
 
-        let id = world.dispatcher.uuid();
+        let id = store.next_id('Jackpot');
 
         if self.remaining_count.is_some() {
             let value = self.remaining_count.unwrap();
@@ -220,6 +224,8 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
             end_at,
             best_score: 0,
             total_winners: 0,
+            extension_count: 0,
+            last_winner_index: self.max_winners - 1,
         };
 
         store.set_jackpot(@jackpot);
@@ -271,6 +277,58 @@ pub impl JackpotImpl of JackpotTrait {
         }
 
         false
+    }
+
+    fn add_winner(
+        ref self: Jackpot,
+        ref store: Store,
+        player: ContractAddress,
+        is_equal: bool,
+        is_better: bool,
+    ) -> Option<ContractAddress> {
+        let mut factory = store.jackpot_factory(self.factory_id);
+        let max_winners = factory.max_winners;
+
+        let winner_idx = if is_equal {
+            (self.last_winner_index + 1) % max_winners
+        } else {
+            0
+        };
+
+        if is_equal && self.total_winners < max_winners {
+            self.total_winners += 1;
+        }
+        if is_better {
+            self.total_winners = 1;
+        }
+
+        let mut jackpot_winner = store.jackpot_winner(self.id, winner_idx);
+
+        let has_replaced = if !jackpot_winner.player.is_zero() && is_equal {
+            Option::Some(jackpot_winner.player)
+        } else {
+            Option::None
+        };
+
+        self.last_winner_index = winner_idx;
+        jackpot_winner.player = player;
+        store.set_jackpot_winner(@jackpot_winner);
+
+        has_replaced
+    }
+
+    fn extend_time(ref self: Jackpot, ref store: Store) -> u64 {
+        let mut factory = store.jackpot_factory(self.factory_id);
+
+        if factory.extension_duration > 0 {
+            self.extension_count += 1;
+            let divisor = 2_u64.pow(self.extension_count.into());
+            let extension_time = factory.extension_duration / divisor;
+            self.end_at += extension_time;
+            extension_time
+        } else {
+            0
+        }
     }
 
     fn claim(self: @Jackpot, ref store: Store, player: ContractAddress) -> bool {

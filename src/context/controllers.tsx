@@ -57,6 +57,8 @@ export function ControllersProvider({
     refreshControllers();
   }, []);
 
+  if (!controllers) return null;
+
   return (
     <ControllersProviderContext.Provider
       {...props}

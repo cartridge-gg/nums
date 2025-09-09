@@ -46,7 +46,7 @@ export interface Jackpot {
 	id: BigNumberish;
 	factory_id: BigNumberish;
 	nums_balance: BigNumberish;
-	token: any;
+	token: option;
 	mode: JackpotModeEnum;
 	created_at: BigNumberish;
 	end_at: BigNumberish;
@@ -61,15 +61,15 @@ export interface JackpotFactory {
 	id: BigNumberish;
 	name: string;
 	creator: string;
-	token: any;
+	token: option;
 	mode: JackpotModeEnum;
 	timing_mode: TimingModeEnum;
 	initial_duration: BigNumberish;
 	extension_duration: BigNumberish;
 	min_slots: BigNumberish;
 	max_winners: BigNumberish;
-	current_jackpot_id: any;
-	remaining_count: any;
+	current_jackpot_id: option;
+	remaining_count: option;
 }
 
 // Type definition for `nums::models::jackpot::JackpotWinner` struct
@@ -164,7 +164,7 @@ export interface NewWinner {
 	is_equal: boolean;
 	has_ended: boolean;
 	extension_time: BigNumberish;
-	replaced_winner: any;
+	replaced_winner: option;
 }
 
 // Type definition for `nums::models::jackpot::JackpotMode` enum
@@ -255,7 +255,7 @@ export const schema: SchemaType = {
 			id: 0,
 			factory_id: 0,
 		nums_balance: 0,
-			token: undefined,
+			token: option,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -270,7 +270,7 @@ export const schema: SchemaType = {
 			id: 0,
 		name: "",
 			creator: "",
-			token: undefined,
+			token: option,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
 				ConditionalVictory: undefined, }),
@@ -281,8 +281,8 @@ export const schema: SchemaType = {
 			extension_duration: 0,
 			min_slots: 0,
 			max_winners: 0,
-			current_jackpot_id: undefined,
-			remaining_count: undefined,
+			current_jackpot_id: option,
+			remaining_count: option,
 		},
 		JackpotWinner: {
 			jackpot_id: 0,
@@ -356,7 +356,7 @@ export const schema: SchemaType = {
 			is_equal: false,
 			has_ended: false,
 			extension_time: 0,
-			replaced_winner: undefined,
+			replaced_winner: option,
 		},
 	},
 };

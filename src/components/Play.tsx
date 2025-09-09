@@ -1,4 +1,4 @@
-import { Button, Spinner, VStack, Text, HStack } from "@chakra-ui/react";
+import { Button, Spinner, VStack, Text, HStack, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import useToast from "../hooks/toast";
@@ -131,7 +131,7 @@ const Play = ({
           minW="150px"
           {...buttonProps}
         >
-          <VStack alignItems="center" gap={0}>
+          <HStack alignItems="center" gap={3}>
             <HStack>
               {creating ? (
                 <Spinner />
@@ -145,10 +145,9 @@ const Play = ({
                 "Play!"
               )}
             </HStack>
-            <Text fontSize="12px">
-              {config?.game.entry_cost.toLocaleString()} NMUS
-            </Text>
-          </VStack>
+            <Box w="5px" h="18px" borderRight="solid 2px" borderColor="white" opacity={0.5}></Box>
+            <Text>{config?.game.entry_cost.toLocaleString()} NUMS</Text>
+          </HStack>
         </Button>
       ) : (
         <Button

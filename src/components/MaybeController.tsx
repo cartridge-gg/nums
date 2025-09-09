@@ -17,7 +17,8 @@ export function MaybeController({
     const controller = findController(address);
 
     if (controller) {
-      setUsername(`${controller.username} (${shortAddress(address)})`);
+      // setUsername(`${controller.username} (${shortAddress(address)})`);
+      setUsername(`${controller.username}`);
     } else {
       let short = address;
       try {

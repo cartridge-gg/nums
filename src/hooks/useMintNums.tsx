@@ -1,19 +1,16 @@
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import useChain from "@/hooks/chain";
-import chain from "@/hooks/chain";
 import { useAccount } from "@starknet-react/core";
+import { useCallback } from "react";
 import { num, uint256 } from "starknet";
-import { Button } from "./Button";
-import { useState } from "react";
 
-export const MintNums = () => {
+export const useMintNums = () => {
   const { account } = useAccount();
   const { chain } = useChain();
 
-  const mintMockNums = async () => {
-    if (!account?.address) return false;
-
+  const mintMockNums = useCallback(async () => {
     try {
+      if (!account?.address) return false;
       const numsAddress = getNumsAddress(chain.id);
       const { transaction_hash } = await account!.execute([
         {
@@ -31,9 +28,10 @@ export const MintNums = () => {
       console.log({ e });
       return false;
     }
+  }, [account]);
+
+
+  return {
+    mintMockNums,
   };
-
-  if (chain.id === num.toBigInt(MAINNET_CHAIN_ID)) return null;
-
-  return <Button onClick={() => mintMockNums()}>Mint</Button>;
 };

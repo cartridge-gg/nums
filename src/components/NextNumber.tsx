@@ -53,7 +53,7 @@ const SpinningDigit = ({
 
   return (
     <Box
-      w={["40px", "40px", "60px"]}
+      w={["20px", "40px", "60px"]}
       animation={isSpinning ? `${spin} 0.1s infinite` : undefined}
       transition="transform 0.1s ease-out"
       transform={isSpinning ? "translateY(-0.1em)" : "translateY(0)"}
@@ -83,9 +83,9 @@ const NextNumber = ({
   return (
     <VStack
       overflowY="hidden"
-      h={["60px", "60px", "100px"]}
+      h={["40px", "60px", "100px"]}
       align="center"
-      lineHeight={["60px", "60px", "100px"]}
+      lineHeight={["40px", "60px", "100px"]}
       position="relative"
     >
       <Flex>

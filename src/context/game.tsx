@@ -4,6 +4,7 @@ import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
 import { createContext, useCallback, useContext, useMemo } from "react";
+import { BigNumberish } from "starknet";
 
 type GameProviderProps = {
   children: React.ReactNode;
@@ -11,7 +12,8 @@ type GameProviderProps = {
 
 type GameProviderState = {
   games?: Game[];
-  getGameById: (id: number) => Game | undefined;
+  getGameById: (id: BigNumberish) => Game | undefined;
+  getGameByJackpotId: (jackpotId: BigNumberish) => Game[] | undefined;
 };
 
 const GameProviderContext = createContext<GameProviderState | undefined>(
@@ -54,8 +56,14 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
   }, [gamesItems]);
 
   const getGameById = useCallback(
-    (id: Number) => {
+    (id: BigNumberish) => {
       return games.find((i) => i.game_id === id);
+    },
+    [games]
+  );
+  const getGameByJackpotId = useCallback(
+    (jackpotId: BigNumberish) => {
+      return games.filter((i) => i.jackpot_id === jackpotId);
     },
     [games]
   );
@@ -66,6 +74,7 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       value={{
         games,
         getGameById,
+        getGameByJackpotId,
       }}
     >
       {children}

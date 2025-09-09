@@ -28,6 +28,8 @@ import { useControllers } from "@/context/controllers";
 import { shortAddress } from "@/utils/address";
 import { InfoIcon } from "./icons/Info";
 import { getAddress } from "@starknet-react/core";
+import { TimeCountdown } from "./TimeCountdown";
+import { JackpotDetails } from "./JackpotDetails";
 
 export const Footer = ({
   game,
@@ -96,94 +98,11 @@ export const Footer = ({
       p="8px"
       bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
     >
-      {game && (
-        <>
-          <VStack gap={0} alignItems="flex-start">
-            <HStack>
-              <Text fontFamily="Ekamai" fontSize="24px">
-                {factory?.name}
-              </Text>
-              <Popover.Root
-                positioning={{ placement: "top" }}
-                open={open}
-                onOpenChange={(e) => setOpen(e.open)}
-              >
-                <Popover.Trigger cursor="pointer">
-                  <InfoIcon />
-                </Popover.Trigger>
-                <Portal>
-                  <Popover.Positioner>
-                    <Popover.Content bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}">
-                      <Popover.Arrow />
-                      <Popover.Body>
-                        <>
-                          <VStack>
-                            {/* @ts-ignore */}
-                            {jackpot?.mode === "ConditionalVictory" && (
-                              <Text>
-                                First player to fill{" "}
-                                {factory?.min_slots.toString()} slots win the
-                                jackpot!
-                              </Text>
-                            )}
-                            {/* @ts-ignore */}
-                            {jackpot?.mode === "KingOfTheHill" && (
-                              <VStack alignItems="flex-start">
-                                <Text>
-                                  Become the King of the Hill and earn special
-                                  prizes!{" "}
-                                </Text>
-                                <Text>
-                                  Max winners: {factory?.max_winners.toString()}
-                                </Text>
-                                <Text>
-                                  Min slots: {factory?.min_slots.toString()}
-                                </Text>
-                              </VStack>
-                            )}
-                          </VStack>
-                        </>
-                      </Popover.Body>
-                    </Popover.Content>
-                  </Popover.Positioner>
-                </Portal>
-              </Popover.Root>
-            </HStack>
-            <HStack>
-              <Text>End: </Text>
-              <TimeAgo date={new Date(Number(jackpot?.end_at || 0) * 1_000)} />
-            </HStack>
-          </VStack>
+      {game && jackpot && <JackpotDetails jackpotId={jackpot.id} w="full"/>}
 
-          <Spacer maxW="20px" />
-          <VStack gap={0} alignItems="flex-start">
-            <Text fontFamily="Ekamai" fontSize="24px">
-              Best score: {jackpot?.best_score.toString()}
-            </Text>
-            <Text>Current Winner(s) : {winnersNames}</Text>
-          </VStack>
-          <Spacer maxW="40px" />
-          <VStack
-            gap={0}
-            alignItems="flex-end"
-            justify="flex-start"
-            fontSize="18px"
-          >
-            <HStack fontFamily="Ekamai" fontSize="16px">
-              {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
-            </HStack>
-            {tokenBalance !== undefined && tokenBalance > 0 && (
-              <HStack fontFamily="Ekamai" fontSize="16px">
-                {tokenBalance.toLocaleString()}
-                <Image src="/tokens/strk.png" w="24px" h="24px" />
-              </HStack>
-            )}
-          </VStack>
-        </>
-      )}
-      <Spacer />
+      {/* <Spacer /> */}
 
-      {game && (
+      {/* {game && (
         <VStack gap={0} alignItems="center">
           <Text w="auto" fontSize="xs">
             LVL {Number(game.max_slots) - Number(game.remaining_slots)}
@@ -192,15 +111,61 @@ export const Footer = ({
             + {game?.reward.toLocaleString()} NUMS
           </Text>
         </VStack>
-      )}
+      )} */}
 
-      <Spacer maxW="20px" />
+      {/* <Spacer maxW="20px" />
       <Box fontFamily="Ekamai" fontSize="16px">
         <VStack alignItems="flex-end">
           <TokenBalance contractAddress={numsAddress} />
           <TokenBalance contractAddress={rewardAddress} />
         </VStack>
-      </Box>
+      </Box> */}
     </HStack>
   );
 };
+
+// <Popover.Root
+//               positioning={{ placement: "top" }}
+//               open={open}
+//               onOpenChange={(e) => setOpen(e.open)}
+//             >
+//               <Popover.Trigger cursor="pointer">
+//                 <InfoIcon />
+//               </Popover.Trigger>
+//               <Portal>
+//                 <Popover.Positioner>
+//                   <Popover.Content bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}">
+//                     <Popover.Arrow />
+//                     <Popover.Body>
+//                       <>
+//                         <VStack>
+//                           {/* @ts-ignore */}
+//                           {jackpot?.mode === "ConditionalVictory" && (
+//                             <Text>
+//                               First player to fill{" "}
+//                               {factory?.min_slots.toString()} slots win the
+//                               jackpot!
+//                             </Text>
+//                           )}
+//                           {/* @ts-ignore */}
+//                           {jackpot?.mode === "KingOfTheHill" && (
+//                             <VStack alignItems="flex-start">
+//                               <Text>
+//                                 Become the King of the Hill and earn special
+//                                 prizes!{" "}
+//                               </Text>
+//                               <Text>
+//                                 Max winners: {factory?.max_winners.toString()}
+//                               </Text>
+//                               <Text>
+//                                 Min slots: {factory?.min_slots.toString()}
+//                               </Text>
+//                             </VStack>
+//                           )}
+//                         </VStack>
+//                       </>
+//                     </Popover.Body>
+//                   </Popover.Content>
+//                 </Popover.Positioner>
+//               </Portal>
+//             </Popover.Root>

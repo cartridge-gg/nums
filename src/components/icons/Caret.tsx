@@ -2,7 +2,7 @@ import { Icon, IconProps } from "@chakra-ui/react";
 
 export const CaretIcon = ({ props }: { props?: IconProps }) => {
   return (
-    <Icon boxSize="24px" {...props}>
+    <Icon boxSize="18px" {...props}>
       <svg
         viewBox="0 0 24 24"
         filter="drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.25))"

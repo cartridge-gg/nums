@@ -130,7 +130,6 @@ const Game = () => {
   const { getGameById } = useGames();
 
   const gameFromStore = getGameById(Number(gameId!));
-  console.log("gameFromStore", gameFromStore);
 
   const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
   const factory = getFactoryById(jackpot?.factory_id || 0);
@@ -429,17 +428,18 @@ const Game = () => {
           gap={3}
         >
           <HStack>
-            <VStack>
+            <VStack gap={["0px", "0.5rem", "1rem"]}>
               {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
               {game && (
                 <TimeCountdown
+                  fontSize={["16px", "20px", "36px"]}
                   timestampSec={gameFromStore?.expires_at || 0}
                   gameOver={gameFromStore?.game_over}
                 />
               )}
               <Box
-                mb={["20px", "20px", "30px"]}
-                textStyle={["h-md", "h-md", "h-lg"]}
+                mb={["10px", "20px", "30px"]}
+                textStyle={["h-sm", "h-md", "h-lg"]}
                 textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
                 lineHeight="100px"
                 color={isOver ? "red" : "inherit"}
@@ -457,7 +457,7 @@ const Game = () => {
             ]}
             autoFlow="column"
             gapX="60px"
-            gapY={["10px", "10px", "10px"]}
+            gapY={["4px", "10px", "10px"]}
           >
             {slots.map((number, index) => {
               const legal = isMoveLegal(slots, nextNumber!, index);
@@ -475,9 +475,23 @@ const Game = () => {
               );
             })}
           </Grid>
-          <Box mt={6} visibility={isOver ? "visible" : "hidden"}>
+          <Box
+            mt={["0", "10px", "20px"]}
+            // visibility={isOver ? "visible" : "hidden"}
+          >
             <>
-              {!canClaim && (
+              {!isOver && gameFromStore && (
+                <VStack gap={0} alignItems="center">
+                  <Text w="auto" fontSize="xs">
+                    LVL {Number(gameFromStore.max_slots) - Number(gameFromStore.remaining_slots)}
+                  </Text>
+                  <Text w="auto" fontFamily="Ekamai" fontSize="16px">
+                    + {gameFromStore?.reward.toLocaleString()} NUMS
+                  </Text>
+                </VStack>
+              )}
+
+              {isOver && !canClaim && (
                 <Play
                   isAgain
                   factoryId={jackpot!.factory_id}
@@ -496,7 +510,7 @@ const Game = () => {
                 />
               )}
 
-              {canClaim && !isClaimingSuccessful && (
+              {isOver && canClaim && !isClaimingSuccessful && (
                 <Button onClick={() => claim(jackpot.id)}>
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>

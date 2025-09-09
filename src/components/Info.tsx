@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
 import Overlay from "./Overlay";
-import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  HStack,
+  Spacer,
+  Table,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { Button } from "./Button";
 import { num, uint256 } from "starknet";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
 import { useConfig } from "@/context/config";
+import { Scrollable } from "./ui/scrollable";
 
 const enum ShowInfo {
   ABOUT,
@@ -171,23 +180,37 @@ const InfoOverlay = ({
               Each time you successfully place a number, you earn $NUM rewards
               based on the following structure:
             </Text>
-            <Table.Root size="sm" variant="outline" borderRadius="5px">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Level</Table.ColumnHeader>
-                  <Table.ColumnHeader>$NUMS</Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {config?.reward.map((reward, level) => (
-                  <Table.Row key={level}>
-                    <Table.Cell>{level + 1}</Table.Cell>
-                    <Table.Cell>{reward.toLocaleString()}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-            <Spacer minH="50px" />
+            <Scrollable maxH="400px">
+              <Box px="10px">
+                <Table.Root size="sm" variant="outline" borderRadius="5px">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Level</Table.ColumnHeader>
+                      <Table.ColumnHeader>$NUMS</Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {config?.reward
+                      .map((i, idx) => {
+                        return {
+                          level: idx + 1,
+                          amount: i,
+                        };
+                      })
+                      .sort((a, b) => b.level - a.level)
+                      .map((reward) => (
+                        <Table.Row key={reward.level} mx={"10px"}>
+                          <Table.Cell>{reward.level}</Table.Cell>
+                          <Table.Cell>
+                            {reward.amount.toLocaleString()}
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                  </Table.Body>
+                </Table.Root>
+                <Spacer minH="50px" />
+              </Box>
+            </Scrollable>
           </>
         )}
       </VStack>

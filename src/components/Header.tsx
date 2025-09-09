@@ -10,10 +10,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
-import { useGames } from "@/context/game";
+import { TokenBalance } from "./TokenBalance";
 import useChain from "@/hooks/chain";
-import { useDojoSdk } from "@/hooks/dojo";
-import { TimeCountdown } from "./TimeCountdown";
+import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
+import { useMintNums } from "@/hooks/useMintNums";
+import { num } from "starknet";
 
 const Header = () => {
   const { connect, connectors } = useConnect();
@@ -26,11 +27,10 @@ const Header = () => {
 
   const controllerConnector = connector as never as ControllerConnector;
 
-  const { sdk } = useDojoSdk();
   const { chain } = useChain();
-
-  // const numsAddress = getNumsAddress(chain.id);
-  // const rewardAddress = getContractAddress(chain.id, "nums", "MockRewardToken");
+  const numsAddress = getNumsAddress(chain.id);
+  const { mintMockNums } = useMintNums();
+  const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
   useEffect(() => {
     if (controllerConnector) {
@@ -42,12 +42,6 @@ const Header = () => {
 
   const height = ["48px", "48px", "48px"];
   const width = ["48px", "48px", "auto"];
-
-  const { getGameById, games } = useGames();
-
-  const game = useMemo(() => {
-    return getGameById(Number(gameId));
-  }, [getGameById, games, gameId]);
 
   return (
     <>
@@ -92,9 +86,22 @@ const Header = () => {
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
 
+        <Button
+          visual="transparent"
+          h={height}
+          w="auto"
+          cursor={!isMainnet ? "pointer" : "default"}
+          onClick={() => {
+            if (!isMainnet) {
+              mintMockNums();
+            }
+          }}
+        >
+          <TokenBalance contractAddress={numsAddress} />
+        </Button>
+
         {address ? (
           <>
-            {/* <Balance /> */}
             <Button
               visual="transparent"
               h={height}

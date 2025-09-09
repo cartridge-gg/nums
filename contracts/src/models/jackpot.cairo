@@ -78,8 +78,8 @@ pub struct JackpotWinner {
     pub jackpot_id: u32,
     #[key]
     pub index: u8,
-    // pub game_id: u32,
     pub player: ContractAddress,
+    pub game_id: u32,
     pub claimed: bool,
 }
 
@@ -115,7 +115,7 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
         // TODO: set right figures here
         // assert!(params.min_slots > 10 && params.min_slots < 21, "invalid min_slot");
         assert!(params.min_slots > 4 && params.min_slots < 21, "invalid min_slot");
-        assert!(params.max_winners > 0 && params.max_winners < 11, "invalid max_winners");
+        assert!(params.max_winners > 0 && params.max_winners < 100, "invalid max_winners");
 
         match params.timing_mode {
             TimingMode::TimeLimited => {
@@ -123,10 +123,10 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
                     params.initial_duration > 200 && params.initial_duration < ONE_YEAR,
                     "invalid initial_duration",
                 );
-                assert!(
-                    params.extension_duration > 100 && params.extension_duration < ONE_DAY,
-                    "invalid extension_duration",
-                );
+                // assert!(
+                //     params.extension_duration > 100 && params.extension_duration < ONE_DAY,
+                //     "invalid extension_duration",
+                // );
             },
             TimingMode::Perpetual => {
                 params.initial_duration = 0;
@@ -282,6 +282,7 @@ pub impl JackpotImpl of JackpotTrait {
     fn add_winner(
         ref self: Jackpot,
         ref store: Store,
+        game_id: u32,
         player: ContractAddress,
         is_equal: bool,
         is_better: bool,
@@ -312,6 +313,7 @@ pub impl JackpotImpl of JackpotTrait {
 
         self.last_winner_index = winner_idx;
         jackpot_winner.player = player;
+        jackpot_winner.game_id = game_id;
         store.set_jackpot_winner(@jackpot_winner);
 
         has_replaced

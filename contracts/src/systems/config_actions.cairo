@@ -8,10 +8,9 @@ pub trait IConfigActions<T> {
 #[dojo::contract]
 pub mod config_actions {
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
-    use nums::models::config::{Config, GameConfig};
+    use nums::models::config::{Config, DefaultGameConfig,DefaultGameRewardTrait};
     use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
     use starknet::ContractAddress;
-    use crate::constants::ONE_MINUTE;
     use super::IConfigActions;
 
     fn dojo_init(
@@ -40,17 +39,8 @@ pub mod config_actions {
                     world_resource: 0,
                     nums_address,
                     vrf_address,
-                    game: GameConfig {
-                        max_slots: 20,
-                        min_number: 1,
-                        max_number: 1000,
-                        entry_cost: 1000,
-                        game_duration: 3 * ONE_MINUTE,
-                    },
-                    reward: array![
-                        21, 21, 21, 21, 21, 21, 21, 210, 210, 210, 210, 210, 210, 210, 2121, 2121,
-                        2121, 2121, 2121, 21212,
-                    ],
+                    game: DefaultGameConfig::default(),
+                    reward: DefaultGameRewardTrait::default(),
                 },
             )
     }

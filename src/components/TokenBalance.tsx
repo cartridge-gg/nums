@@ -2,9 +2,12 @@ import useChain from "@/hooks/chain";
 import { useDojoSdk } from "@/hooks/dojo";
 import { useTokens } from "@/hooks/useTokens";
 import { useAccount } from "@starknet-react/core";
-import { useEffect, useMemo } from "react";
-import { num } from "starknet";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { num, uint256 } from "starknet";
 import { TokenBalanceUi } from "./ui/token-balance";
+import { ShowReward } from "./ShowReward";
+import { ShowDiff } from "./ShowDiff";
+import { Box } from "@chakra-ui/react";
 
 export const TokenBalance = ({
   contractAddress,
@@ -23,6 +26,10 @@ export const TokenBalance = ({
     true
   );
 
+  const prevBalanceRef = useRef<number | undefined>(undefined);
+  const balanceDiff = useRef<{ value: number }>({ value: 0 });
+  // const [balanceDiff, setBalanceDiff] = useState(0);
+
   const balance = useMemo(() => {
     if (!account) return 0;
 
@@ -34,8 +41,17 @@ export const TokenBalance = ({
     const balance = getBalance(token);
     if (!balance) return 0;
 
-    return toDecimal(token, balance);
+    const balanceScaled = toDecimal(token, balance);
 
+    const diff = Math.round(balanceScaled - (prevBalanceRef.current || 0));
+    // setBalanceDiff((prevBalanceRef.current || 0) - balanceScaled);
+
+    if (diff !== 0) {
+      balanceDiff.current = { value: diff };
+      prevBalanceRef.current = balanceScaled;
+    }
+
+    return balanceScaled;
     // console.log(balances)
 
     // const balance = balances.find(
@@ -49,5 +65,10 @@ export const TokenBalance = ({
   }, [balances, tokens, getBalance, toDecimal, account]);
 
   if (!account) return null;
-  return <TokenBalanceUi address={contractAddress} balance={balance} />;
+  return (
+    <Box position="relative">
+      <TokenBalanceUi address={contractAddress} balance={balance} />
+      <ShowDiff x={"-30px"} y={"20px"} obj={balanceDiff.current} />
+    </Box>
+  );
 };

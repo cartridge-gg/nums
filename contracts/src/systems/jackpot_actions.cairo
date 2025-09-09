@@ -18,7 +18,6 @@ pub mod jackpot_actions {
     use nums::models::jackpot::{
         JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotMode, JackpotTrait, TimingMode,
     };
-    use nums::token::Token;
     use nums::{StoreImpl, StoreTrait};
     use super::*;
 
@@ -57,9 +56,6 @@ pub mod jackpot_actions {
         // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
         // deployer account
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
-
-        // // consume uuid = zero
-        // let _uuid = world.dispatcher.uuid();
 
         // create a perpetual nums jackpot factory
         let params = CreateJackpotFactoryParams {

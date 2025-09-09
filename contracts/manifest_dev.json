@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x4d7efe9fca2245a93ddaea8d9acee688792ca22036dda94db73d9cd91433728",
-      "class_hash": "0x65027942972746b14385b9764d2a5e718635542c199359f6e8c8e79b68178be",
+      "address": "0x34f0996f27562856a16dca32f47b0ca9e1b45aba145f51fc50bf24c4a0fb6cd",
+      "class_hash": "0x1702377383d5ef1a4ec4cfa7e9b47b418c9ed745529d8762aa5c18f125e6f72",
       "abi": [
         {
           "type": "impl",
@@ -2973,8 +2973,8 @@
       ]
     },
     {
-      "address": "0x64ae42f33c7a7c5adcf8797979e95481b29097b03670339da8c13ec8e3872ce",
-      "class_hash": "0x728d301fcfc280a5d0a275563eddf3a67bb5de1b97a7b9d963bdb467db162e3",
+      "address": "0xc2734b4723bb5f042d01b4e81b170ea4d4ea4ce6c325d77459cf37b7d13ec8",
+      "class_hash": "0x69b62a8b9563e67d675a9c3a99f03fa9605ad9baa2a3a2cda531be4796ba1a8",
       "abi": [
         {
           "type": "impl",
@@ -3209,8 +3209,8 @@
       ]
     },
     {
-      "address": "0x11d12b62167e7815bf7b0b85f63952779c0ab0084db20b7733369139a4beab9",
-      "class_hash": "0x4f8d553526da6f7309e74405cb08b97795bc9b29fc8d6288fb66a6326346b9c",
+      "address": "0x213b7a9f22c39491c04419a0acccc55ea4256a008c401b0bedc771f8b397d1a",
+      "class_hash": "0x3f5ea58892eca10d9a573f55198fc93b71008201b8e931d37af23892b4b52a8",
       "abi": [
         {
           "type": "impl",
@@ -3646,7 +3646,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2496e67911877f12766a6148420a91dda013d36dcfaaf05c50f828a75cc0ab1",
+      "class_hash": "0x52986d536a9a1a420701a4003689eacaee93ca50d460bed821b1e1b5b311c23",
       "tag": "nums-JackpotWinner",
       "selector": "0x1ed10ea87ef8d5ce51e4af2ac90667bb97ea1f3a11ab56740cbaadf26d257e0"
     },

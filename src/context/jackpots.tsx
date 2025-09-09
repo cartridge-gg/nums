@@ -15,7 +15,7 @@ type JackpotProviderState = {
   jackpotWinners?: JackpotWinner[];
   getJackpotById: (id: BigNumberish) => Jackpot | undefined;
   getFactoryById: (id: BigNumberish) => JackpotFactory | undefined;
-  getWinnersById: (id: BigNumberish) => JackpotWinner[] | undefined;
+  getWinnersByJackpotId: (id: BigNumberish) => JackpotWinner[] | undefined;
   getClaimableByUser: (address: BigNumberish) => Jackpot[];
 };
 
@@ -101,7 +101,7 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
     },
     [factories]
   );
-  const getWinnersById = useCallback(
+  const getWinnersByJackpotId = useCallback(
     (id: BigNumberish) => {
       const jackpot = getJackpotById(id);
       if (!jackpot) return undefined;
@@ -138,7 +138,7 @@ export function JackpotProvider({ children, ...props }: JackpotProviderProps) {
         jackpotWinners: winners,
         getJackpotById,
         getFactoryById,
-        getWinnersById,
+        getWinnersByJackpotId,
         // @ts-ignore
         getClaimableByUser,
       }}

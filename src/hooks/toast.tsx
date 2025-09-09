@@ -1,4 +1,4 @@
-import { HStack, Image, Link, Spacer } from "@chakra-ui/react";
+import { HStack, Image, Link, Spacer, VStack } from "@chakra-ui/react";
 import { jackpotToaster, toaster } from "@/components/ui/toaster";
 import { useExplorer } from "@starknet-react/core";
 import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
@@ -60,10 +60,20 @@ const useToast = () => {
     });
   };
 
-  const showJackpotEvent = (title: string, description: string) => {
+  const showJackpotEvent = (
+    title: string,
+    description: string,
+    color = "purple.50"
+  ) => {
     jackpotToaster.create({
-      title,
-      description,
+      description: (
+        <VStack gap={0} alignItems="flex-start">
+          <HStack textStyle="h-sm" fontSize="20px" color={color}>
+            {title}
+          </HStack>
+          <HStack fontSize="14px">{description}</HStack>
+        </VStack>
+      ),
     });
   };
 

@@ -86,20 +86,21 @@ const Header = () => {
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
 
-        <Button
-          visual="transparent"
-          h={height}
-          w="auto"
-          cursor={!isMainnet ? "pointer" : "default"}
-          onClick={() => {
-            if (!isMainnet) {
-              mintMockNums();
-            }
-          }}
-        >
-          <TokenBalance contractAddress={numsAddress} />
-        </Button>
-
+        {address && (
+          <Button
+            visual="transparent"
+            h={height}
+            w="auto"
+            cursor={!isMainnet ? "pointer" : "default"}
+            onClick={() => {
+              if (!isMainnet) {
+                mintMockNums();
+              }
+            }}
+          >
+            <TokenBalance contractAddress={numsAddress} />
+          </Button>
+        )}
         {address ? (
           <>
             <Button

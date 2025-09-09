@@ -11,8 +11,7 @@ pub mod game_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Pow;
     use dojo::event::EventStorage;
-    use dojo::storage::storage::next_index_in_chunk;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
+    use dojo::world::{WorldStorageTrait};
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
@@ -310,7 +309,8 @@ pub mod game_actions {
             }
 
             if is_game_over && has_min_score && (is_equal || is_better) {
-                let replaced_winner = jackpot.add_winner(ref store, player, is_equal, is_better);
+                let replaced_winner = jackpot
+                    .add_winner(ref store, game_id, player, is_equal, is_better);
                 let extension_time = jackpot.extend_time(ref store);
                 let has_ended = jackpot.has_ended(ref store);
 

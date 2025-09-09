@@ -126,14 +126,14 @@ const Game = () => {
     isSuccess: isClaimingSuccessful,
   } = useClaim();
 
-  const { getJackpotById, getFactoryById, getWinnersById } = useJackpots();
+  const { getJackpotById, getFactoryById, getWinnersByJackpotId } = useJackpots();
   const { getGameById } = useGames();
 
   const gameFromStore = getGameById(Number(gameId!));
 
   const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
   const factory = getFactoryById(jackpot?.factory_id || 0);
-  const winners = getWinnersById(gameFromStore?.jackpot_id || 0);
+  const winners = getWinnersByJackpotId(gameFromStore?.jackpot_id || 0);
 
   const onJackpotEvent = useCallback(
     (type: string, event: any) => {
@@ -158,10 +158,20 @@ const Game = () => {
               ? controller.username
               : shortAddress(newWinner.player);
 
-            showJackpotEvent(
-              "New Winner",
-              `${username} scored ${newWinner.score}`
-            );
+            if (newWinner.is_equal) {
+              showJackpotEvent(
+                "New Winner",
+                `${username} scored ${newWinner.score}`,
+                "orange"
+              );
+            } else {
+              showJackpotEvent(
+                "New Highscore",
+                `${username} scored ${newWinner.score}`,
+                "orange"
+              );
+            }
+
             if (Number(newWinner.extension_time) > 0) {
               const duration = humanDuration(Number(newWinner.extension_time));
               showJackpotEvent("Time Extension", `${duration}`);
@@ -235,10 +245,10 @@ const Game = () => {
           if (isGameOver(newSlots, gameModel.next_number!)) {
             setIsOver(true);
 
-            // if (isOwner) {
-            //   playNegative();
-            //   setTimeout(() => onOpen(), 3000);
-            // }
+            if (isOwner) {
+              playNegative();
+              // setTimeout(() => onOpen(), 3000);
+            }
           }
 
           updateGameState(
@@ -479,16 +489,18 @@ const Game = () => {
             mt={["0", "10px", "20px"]}
             // visibility={isOver ? "visible" : "hidden"}
           >
-            <>
+            <VStack h="40px">
               {!isOver && gameFromStore && (
-                <VStack gap={0} alignItems="center">
+                <HStack gap={3} alignItems="center">
                   <Text w="auto" fontSize="xs">
-                    LVL {Number(gameFromStore.max_slots) - Number(gameFromStore.remaining_slots)}
+                    LVL{" "}
+                    {Number(gameFromStore.max_slots) -
+                      Number(gameFromStore.remaining_slots)}
                   </Text>
                   <Text w="auto" fontFamily="Ekamai" fontSize="16px">
                     + {gameFromStore?.reward.toLocaleString()} NUMS
                   </Text>
-                </VStack>
+                </HStack>
               )}
 
               {isOver && !canClaim && (
@@ -515,7 +527,7 @@ const Game = () => {
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>
               )}
-            </>
+            </VStack>
           </Box>
         </VStack>
         <Footer

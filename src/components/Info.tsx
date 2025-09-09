@@ -208,7 +208,7 @@ const InfoOverlay = ({
                       ))}
                   </Table.Body>
                 </Table.Root>
-                <Spacer minH="50px" />
+                <Spacer minH="20px" />
               </Box>
             </Scrollable>
           </>

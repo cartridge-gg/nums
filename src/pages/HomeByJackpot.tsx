@@ -51,7 +51,7 @@ const Home = () => {
   const { findController } = useControllers();
   const { claim } = useClaim();
 
-  const { jackpots, jackpotFactories, getWinnersById } = useJackpots();
+  const { jackpots, jackpotFactories, getWinnersByJackpotId } = useJackpots();
 
   const [selectedFactory, setSelectedFactory] = useState<JackpotFactory>();
   const [selectedJackpots, setSelectedJackpots] = useState<Jackpot[]>([]);
@@ -153,7 +153,7 @@ const Home = () => {
                         .sort((a, b) => Number(b.id) - Number(a.id))
                         .slice(0, 10)
                         .map((jackpot, idx) => {
-                          const winners = getWinnersById(jackpot?.id)?.map(
+                          const winners = getWinnersByJackpotId(jackpot?.id)?.map(
                             (winner) => {
                               const controller = findController(winner.player);
                               const name = controller

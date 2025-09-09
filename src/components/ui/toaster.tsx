@@ -56,6 +56,8 @@ export const Toaster = () => {
 export const jackpotToaster = createToaster({
   placement: "bottom-start",
   overlap: false,
+  duration: 5_000,
+  gap: 0,
   max: 10,
   offsets: {
     top: "",
@@ -76,6 +78,8 @@ export const JackpotToaster = () => {
             border="none"
             boxShadow="none"
             color="white"
+            padding={0}
+            paddingBottom="10px"
             display={["none", "none", "flex"]}
           >
             {toast.type === "loading" ? (

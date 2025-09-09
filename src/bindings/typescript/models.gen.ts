@@ -77,6 +77,7 @@ export interface JackpotWinner {
 	jackpot_id: BigNumberish;
 	index: BigNumberish;
 	player: string;
+	game_id: BigNumberish;
 	claimed: boolean;
 }
 
@@ -288,6 +289,7 @@ export const schema: SchemaType = {
 			jackpot_id: 0,
 			index: 0,
 			player: "",
+			game_id: 0,
 			claimed: false,
 		},
 		Metadata: {

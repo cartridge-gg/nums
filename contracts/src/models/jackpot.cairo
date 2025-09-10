@@ -3,11 +3,11 @@ use dojo::world::{IWorldDispatcherTrait, WorldStorage};
 use nums::constants::ONE_YEAR;
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use nums::interfaces::nums::INumsTokenDispatcherTrait;
+use nums::models::{DefaultGameConfig, DefaultGameRewardImpl, GameConfig};
 use nums::store::{Store, StoreImpl, StoreTrait};
 // use nums::interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
 use nums::token::{Token, TokenType};
 use starknet::ContractAddress;
-use crate::constants::ONE_DAY;
 use super::jackpot;
 
 
@@ -23,6 +23,8 @@ impl CloneOptionToken of Clone<Option<Token>> {
 #[derive(Drop, Serde, PartialEq)]
 pub struct CreateJackpotFactoryParams {
     pub name: ByteArray,
+    pub game_config: Option<GameConfig>,
+    pub rewards: Option<Array<u32>>,
     pub token: Option<Token>,
     pub mode: JackpotMode,
     pub timing_mode: TimingMode,
@@ -41,6 +43,8 @@ pub struct JackpotFactory {
     pub id: u32,
     pub name: ByteArray,
     pub creator: ContractAddress,
+    pub game_config: GameConfig,
+    pub rewards: Array<u32>,
     pub token: Option<Token>,
     pub mode: JackpotMode,
     pub timing_mode: TimingMode,
@@ -124,9 +128,9 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
                     "invalid initial_duration",
                 );
                 // assert!(
-                //     params.extension_duration > 100 && params.extension_duration < ONE_DAY,
-                //     "invalid extension_duration",
-                // );
+            //     params.extension_duration > 100 && params.extension_duration < ONE_DAY,
+            //     "invalid extension_duration",
+            // );
             },
             TimingMode::Perpetual => {
                 params.initial_duration = 0;
@@ -172,10 +176,17 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
             Option::None
         };
 
+        let game_config = params.game_config.unwrap_or_default();
+        let rewards = params.rewards.unwrap_or(DefaultGameRewardImpl::default());
+
+        assert!(game_config.max_slots.into() == rewards.len(), "max_slots len != rewards len");
+
         JackpotFactory {
             id,
             name: params.name,
             creator,
+            game_config,
+            rewards,
             token: params.token,
             mode: params.mode,
             timing_mode: params.timing_mode,
@@ -255,6 +266,10 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
             TimingMode::Perpetual => { true },
         }
     }
+
+    fn get_reward(self: @JackpotFactory, level: u8) -> u32 {
+        *self.rewards.at(level.into())
+    }
 }
 
 #[generate_trait]
@@ -262,6 +277,8 @@ pub impl JackpotImpl of JackpotTrait {
     fn exists(self: @Jackpot) -> bool {
         *self.factory_id > 0
     }
+
+   
 
     fn has_ended(self: @Jackpot, ref store: Store) -> bool {
         let mut factory = store.jackpot_factory(*self.factory_id);

@@ -7,17 +7,6 @@ export interface Config {
 	world_resource: BigNumberish;
 	nums_address: string;
 	vrf_address: string;
-	game: GameConfig;
-	reward: Array<BigNumberish>;
-}
-
-// Type definition for `nums::models::config::GameConfig` struct
-export interface GameConfig {
-	max_slots: BigNumberish;
-	max_number: BigNumberish;
-	min_number: BigNumberish;
-	entry_cost: BigNumberish;
-	game_duration: BigNumberish;
 }
 
 // Type definition for `nums::models::game::Game` struct
@@ -33,6 +22,15 @@ export interface Game {
 	jackpot_id: BigNumberish;
 	expires_at: BigNumberish;
 	game_over: boolean;
+}
+
+// Type definition for `nums::models::game_config::GameConfig` struct
+export interface GameConfig {
+	max_slots: BigNumberish;
+	max_number: BigNumberish;
+	min_number: BigNumberish;
+	entry_cost: BigNumberish;
+	game_duration: BigNumberish;
 }
 
 // Type definition for `nums::models::identifier::Identifier` struct
@@ -61,6 +59,8 @@ export interface JackpotFactory {
 	id: BigNumberish;
 	name: string;
 	creator: string;
+	game_config: GameConfig;
+	rewards: Array<BigNumberish>;
 	token: option;
 	mode: JackpotModeEnum;
 	timing_mode: TimingModeEnum;
@@ -200,8 +200,8 @@ export type TokenTypeEnum = CairoCustomEnum;
 export interface SchemaType extends ISchemaType {
 	nums: {
 		Config: Config,
-		GameConfig: GameConfig,
 		Game: Game,
+		GameConfig: GameConfig,
 		Identifier: Identifier,
 		Jackpot: Jackpot,
 		JackpotFactory: JackpotFactory,
@@ -225,15 +225,6 @@ export const schema: SchemaType = {
 			world_resource: 0,
 			nums_address: "",
 			vrf_address: "",
-		game: { max_slots: 0, max_number: 0, min_number: 0, entry_cost: 0, game_duration: 0, },
-			reward: [0],
-		},
-		GameConfig: {
-			max_slots: 0,
-			max_number: 0,
-			min_number: 0,
-			entry_cost: 0,
-			game_duration: 0,
 		},
 		Game: {
 			game_id: 0,
@@ -247,6 +238,13 @@ export const schema: SchemaType = {
 			jackpot_id: 0,
 			expires_at: 0,
 			game_over: false,
+		},
+		GameConfig: {
+			max_slots: 0,
+			max_number: 0,
+			min_number: 0,
+			entry_cost: 0,
+			game_duration: 0,
 		},
 		Identifier: {
 			typ: 0,
@@ -271,6 +269,8 @@ export const schema: SchemaType = {
 			id: 0,
 		name: "",
 			creator: "",
+		game_config: { max_slots: 0, max_number: 0, min_number: 0, entry_cost: 0, game_duration: 0, },
+			rewards: [0],
 			token: option,
 		mode: new CairoCustomEnum({ 
 					KingOfTheHill: "",
@@ -364,8 +364,8 @@ export const schema: SchemaType = {
 };
 export enum ModelsMapping {
 	Config = 'nums-Config',
-	GameConfig = 'nums-GameConfig',
 	Game = 'nums-Game',
+	GameConfig = 'nums-GameConfig',
 	Identifier = 'nums-Identifier',
 	Jackpot = 'nums-Jackpot',
 	JackpotFactory = 'nums-JackpotFactory',

@@ -12,18 +12,18 @@ import { useJackpots } from "@/context/jackpots";
 import { useConfig } from "@/context/config";
 import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
-import { GameCreated } from "@/bindings";
+import { GameCreated, JackpotFactory } from "@/bindings";
 
 const Play = ({
   isAgain,
   onReady,
-  factoryId,
+  factory,
   label,
   ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
-  factoryId: BigNumberish;
+  factory: JackpotFactory;
   label?: string;
   [key: string]: any;
 }) => {
@@ -111,7 +111,7 @@ const Play = ({
           {
             contractAddress: gameAddress,
             entrypoint: "create_game",
-            calldata: [factoryId],
+            calldata: [factory.id],
           },
         ],
         (_receipt) => {}
@@ -146,7 +146,7 @@ const Play = ({
               )}
             </HStack>
             <Box w="5px" h="18px" borderRight="solid 2px" borderColor="white" opacity={0.5}></Box>
-            <Text>{config?.game.entry_cost.toLocaleString()} NUMS</Text>
+            <Text>{factory.game_config.entry_cost.toLocaleString()} NUMS</Text>
           </HStack>
         </Button>
       ) : (

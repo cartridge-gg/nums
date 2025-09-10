@@ -3,9 +3,7 @@ use dojo::world::WorldStorage;
 use starknet::ContractAddress;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::{
-    Config, Game, GameConfig, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot,
-};
+use crate::models::{Config, Game, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot};
 
 #[derive(Drop)]
 pub struct Store {
@@ -44,16 +42,9 @@ pub impl StoreImpl of StoreTrait {
         self.world.read_model((0))
     }
 
-    fn game_config(ref self: Store) -> GameConfig {
-        let config = self.config();
-        config.game
-    }
-
-
     fn set_config(ref self: Store, config: Config) {
         let mut config = config;
         config.world_resource = 0;
-        assert!(config.game.max_slots.into() == config.reward.len(), "max_slots len != reward len");
         self.world.write_model(@config)
     }
 

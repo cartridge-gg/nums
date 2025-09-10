@@ -55,6 +55,8 @@ case "$COMMAND" in
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
+        GAME_CONFIG="0x1" # Option::None
+        REWARDS="0x1" # Option::None
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
@@ -68,7 +70,31 @@ case "$COMMAND" in
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
-        ../../dojo/target/release/sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #1" $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #1" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
+    create_jackpot_factory_2)
+
+        echo "Minting 100_000 reward tokens..."
+        sozo execute $REWARD_ADDR mint $DEPLYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        echo "Approving jackpot_actions to spend..."
+        sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+
+        GAME_CONFIG="0x0 20 20 1 420 120" # Option::Some()
+        REWARDS="0x1" # Option::None
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
+        JACKPOT_MODE="0x0" # KingOfTheHill
+        TIMING="0x0" # TimeLimited
+        # INITIAL_DURATION="7200"
+        # EXTENSION_DURATION="3600"
+        INITIAL_DURATION="300"
+        EXTENSION_DURATION="0"
+        MIN_SLOT="5"
+        MAX_WINNERS="99"
+        JACKPOT_COUNT="10"
+       
+        echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
+        echo "Creating jackpot factory for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #2" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"

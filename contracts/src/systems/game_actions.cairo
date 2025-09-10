@@ -11,11 +11,10 @@ pub mod game_actions {
     use core::array::ArrayTrait;
     use core::num::traits::Pow;
     use dojo::event::EventStorage;
-    use dojo::world::{WorldStorageTrait};
+    use dojo::world::WorldStorageTrait;
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
-    use nums::models::config::{ConfigImpl, ConfigTrait};
     use nums::models::game::{Game, GameTrait};
     use nums::models::jackpot::{JackpotImpl, JackpotTrait};
     use nums::models::slot::Slot;
@@ -135,9 +134,10 @@ pub mod game_actions {
         fn create_game(ref self: ContractState, factory_id: u32) -> (u32, u16) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
+            let mut factory = store.jackpot_factory(factory_id);
             let player = get_caller_address();
 
-            let game_config = store.game_config();
+            let game_config = factory.game_config;
             let mut factory = store.jackpot_factory(factory_id);
 
             let mut jackpot = if let Option::Some(current_jackpot_id) = factory.current_jackpot_id {
@@ -187,7 +187,6 @@ pub mod game_actions {
             let game_id = store.next_id('Game');
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let next_number = rand.between::<u16>(game_config.min_number, game_config.max_number);
-            // let next_number = 1;
 
             let now = starknet::get_block_timestamp();
             store
@@ -232,7 +231,7 @@ pub mod game_actions {
             let mut game = store.game(game_id, player);
             let mut jackpot = store.jackpot(game.jackpot_id);
             let mut factory = store.jackpot_factory(jackpot.factory_id);
-            let config = store.config();
+            // let config = store.config();
 
             assert!(!game.has_expired(), "Game has expired");
             assert!(!jackpot.has_ended(ref store), "Jackpot has ended");
@@ -281,12 +280,14 @@ pub mod game_actions {
             // Update game state
             let target_number = game.next_number;
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let next_number = next_random(rand, @nums, game.min_number, game.max_number);
-            // let next_number = game.level().into() + 2;
 
-            game.next_number = next_number;
-            game.reward += config.get_reward(game.level());
+            game.reward += factory.get_reward(game.level());
             game.remaining_slots -= 1;
+
+            if game.remaining_slots > 0 {
+                let next_number = next_random(rand, @nums, game.min_number, game.max_number);
+                game.next_number = next_number;
+            }
 
             store.set_game(@game);
             store.set_slot(@Slot { game_id, player, index: target_idx, number: target_number });
@@ -386,7 +387,7 @@ pub mod game_actions {
                 self.achievable.progress(world, player_id, Task::StreakerThree.identifier(), 1);
             }
 
-            next_number
+            game.next_number
         }
     }
 

@@ -375,7 +375,7 @@ const Game = () => {
   return (
     <>
       <Container h="100vh" maxW="100vw">
-        {isOwner && <ShowReward level={level} x={position.x} y={position.y} />}
+        {isOwner && <ShowReward amount={Number(factory.rewards[level-1])} x={position.x} y={position.y} />}
         <Header />
 
         {/* <Overlay open={true} onClose={onClose}>
@@ -506,7 +506,7 @@ const Game = () => {
               {isOver && !canClaim && (
                 <Play
                   isAgain
-                  factoryId={jackpot!.factory_id}
+                  factory={factory}
                   onReady={(gameId) => {
                     queryGame(parseInt(gameId));
                     setSlots(Array.from({ length: MAX_SLOTS }, () => 0));

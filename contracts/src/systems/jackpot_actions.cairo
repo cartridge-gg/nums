@@ -60,6 +60,8 @@ pub mod jackpot_actions {
         // create a perpetual nums jackpot factory
         let params = CreateJackpotFactoryParams {
             name: "Perp Nums Jackpot",
+            game_config: Option::None,
+            rewards: Option::None,
             token: Option::None,
             mode: JackpotMode::ConditionalVictory,
             timing_mode: TimingMode::Perpetual,

@@ -5,7 +5,6 @@ import { useAccount } from "@starknet-react/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, uint256 } from "starknet";
 import { TokenBalanceUi } from "./ui/token-balance";
-import { ShowReward } from "./ShowReward";
 import { ShowDiff } from "./ShowDiff";
 import { Box } from "@chakra-ui/react";
 

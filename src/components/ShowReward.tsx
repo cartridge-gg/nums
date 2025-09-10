@@ -15,27 +15,23 @@ const floatUp = keyframes`
 `;
 
 export const ShowReward = ({
-  level,
+  amount,
   x,
   y,
 }: {
-  level: number;
+  amount: number;
   x: number;
   y: number;
 }) => {
   const [displayReward, setDisplayReward] = useState(0);
   const [key, setKey] = useState(0);
-  const { config } = useConfig();
 
   useEffect(() => {
-    if (level > 0) {
-      const reward = config?.reward[level - 1];
-      if (reward) {
-        setDisplayReward(Number(reward));
-        setKey((prev) => prev + 1);
-      }
+    if (amount > 0) {
+      setDisplayReward(Number(amount));
+      setKey((prev) => prev + 1);
     }
-  }, [level]);
+  }, [amount]);
 
   return (
     <Box

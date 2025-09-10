@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x34f0996f27562856a16dca32f47b0ca9e1b45aba145f51fc50bf24c4a0fb6cd",
-      "class_hash": "0x1702377383d5ef1a4ec4cfa7e9b47b418c9ed745529d8762aa5c18f125e6f72",
+      "address": "0x1bce8649585bb775e2cca6bdc203c3f8afcafb8a3fdcfa4929fe542b8758a3a",
+      "class_hash": "0x18fa8ce56bbf52cd62647b15dabd372cea96f578c4571096200560c9b6abf3b",
       "abi": [
         {
           "type": "impl",
@@ -2784,32 +2784,6 @@
         },
         {
           "type": "struct",
-          "name": "nums::models::config::GameConfig",
-          "members": [
-            {
-              "name": "max_slots",
-              "type": "core::integer::u8"
-            },
-            {
-              "name": "max_number",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "min_number",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "entry_cost",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "game_duration",
-              "type": "core::integer::u64"
-            }
-          ]
-        },
-        {
-          "type": "struct",
           "name": "nums::models::config::Config",
           "members": [
             {
@@ -2823,14 +2797,6 @@
             {
               "name": "vrf_address",
               "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "game",
-              "type": "nums::models::config::GameConfig"
-            },
-            {
-              "name": "reward",
-              "type": "core::array::Array::<core::integer::u32>"
             }
           ]
         },
@@ -2973,8 +2939,8 @@
       ]
     },
     {
-      "address": "0xc2734b4723bb5f042d01b4e81b170ea4d4ea4ce6c325d77459cf37b7d13ec8",
-      "class_hash": "0x69b62a8b9563e67d675a9c3a99f03fa9605ad9baa2a3a2cda531be4796ba1a8",
+      "address": "0x23fc4e9615f4f9e63835925639937c819fe425752483cc28143c395e565ca26",
+      "class_hash": "0x6ab0270e5760a3817ad9321eb91ee3da610cb8f13314293dad839133ec8b86b",
       "abi": [
         {
           "type": "impl",
@@ -3209,8 +3175,8 @@
       ]
     },
     {
-      "address": "0x213b7a9f22c39491c04419a0acccc55ea4256a008c401b0bedc771f8b397d1a",
-      "class_hash": "0x3f5ea58892eca10d9a573f55198fc93b71008201b8e931d37af23892b4b52a8",
+      "address": "0x340ed9627119241822b284fc3396355d5364ad48d9e7d3e851e90ab8041fcab",
+      "class_hash": "0x59dd8bdc00d7e9b9f38dda136a36b2df99cb73434992c17c10b52545da4cc88",
       "abi": [
         {
           "type": "impl",
@@ -3273,6 +3239,60 @@
           "type": "impl",
           "name": "JackpotActions",
           "interface_name": "nums::systems::jackpot_actions::IJackpotActions"
+        },
+        {
+          "type": "struct",
+          "name": "nums::models::game_config::GameConfig",
+          "members": [
+            {
+              "name": "max_slots",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "max_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "min_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "entry_cost",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "game_duration",
+              "type": "core::integer::u64"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<nums::models::game_config::GameConfig>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "nums::models::game_config::GameConfig"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<core::array::Array::<core::integer::u32>>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::array::Array::<core::integer::u32>"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
         },
         {
           "type": "struct",
@@ -3403,6 +3423,14 @@
             {
               "name": "name",
               "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "game_config",
+              "type": "core::option::Option::<nums::models::game_config::GameConfig>"
+            },
+            {
+              "name": "rewards",
+              "type": "core::option::Option::<core::array::Array::<core::integer::u32>>"
             },
             {
               "name": "token",
@@ -3616,7 +3644,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0xf502975941b5b6c7204c2f29092e6cb5f0afb4b561ac907700444f9f38307e",
+      "class_hash": "0x86f7926e3f1d37d353ba3cc2edc7d35d62a0f59c83c6845d9ab3fa063f3e79",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -3640,7 +3668,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x4c31273a7c2d9a0b2d4299960aa89ba6e5b8cd6f069e0cc9ee4d817948b83e8",
+      "class_hash": "0x40c4dfaf9717eaceef16257197c2d658cd7e6479115d80c840aee9158238243",
       "tag": "nums-JackpotFactory",
       "selector": "0x2fe8f9ccb1b1f87825eae6305d181d77cc41744904d5adb87f26b076ab2465"
     },

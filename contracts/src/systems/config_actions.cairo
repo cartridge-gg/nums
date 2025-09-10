@@ -8,7 +8,7 @@ pub trait IConfigActions<T> {
 #[dojo::contract]
 pub mod config_actions {
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
-    use nums::models::config::{Config, DefaultGameConfig,DefaultGameRewardTrait};
+    use nums::models::config::{Config};
     use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
     use starknet::ContractAddress;
     use super::IConfigActions;
@@ -39,8 +39,6 @@ pub mod config_actions {
                     world_resource: 0,
                     nums_address,
                     vrf_address,
-                    game: DefaultGameConfig::default(),
-                    reward: DefaultGameRewardTrait::default(),
                 },
             )
     }

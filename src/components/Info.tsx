@@ -16,6 +16,7 @@ import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
 import { useConfig } from "@/context/config";
 import { Scrollable } from "./ui/scrollable";
+import { JackpotFactory } from "@/bindings";
 
 const enum ShowInfo {
   ABOUT,
@@ -26,9 +27,11 @@ const enum ShowInfo {
 const InfoOverlay = ({
   open,
   onClose,
+  factory,
 }: {
   open: boolean;
   onClose: () => void;
+  factory?: JackpotFactory;
 }) => {
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
   const [supply, setSupply] = useState<number>(0);
@@ -190,7 +193,7 @@ const InfoOverlay = ({
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {config?.reward
+                    {factory?.rewards
                       .map((i, idx) => {
                         return {
                           level: idx + 1,

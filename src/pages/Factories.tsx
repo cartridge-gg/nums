@@ -140,7 +140,7 @@ const Factories = () => {
                       <Play
                         onReady={(gameId) => navigate(`/${gameId}`)}
                         w={["100%", "100%", "auto"]}
-                        factoryId={factory.id}
+                        factory={factory}
                       />
                     </VStack>
                   </GridItem>
@@ -197,7 +197,7 @@ const Factories = () => {
                       <Play
                         onReady={(gameId) => navigate(`/${gameId}`)}
                         w={["100%", "100%", "auto"]}
-                        factoryId={factory.id}
+                        factory={factory}
                       />
                     </VStack>
                   </VStack>

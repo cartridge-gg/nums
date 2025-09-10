@@ -58,7 +58,6 @@ const Home = () => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const { findController } = useControllers();
   const { claim } = useClaim();
 
   const { jackpots, jackpotFactories, getWinnersByJackpotId } = useJackpots();
@@ -125,7 +124,7 @@ const Home = () => {
       pt={["70px", "100px", "120px"]}
     >
       <Header />
-      <InfoOverlay open={openInfo} onClose={onCloseInfo} />
+      <InfoOverlay open={openInfo} onClose={onCloseInfo} factory={selectedFactory}/>
       <VStack w="full">
         <VStack gap="16px" w={["100%", "100%", "800px"]}>
           <HStack w="full" justify="space-between">
@@ -187,7 +186,7 @@ const Home = () => {
                 <Play
                   onReady={(gameId) => navigate(`/${gameId}`)}
                   w={["100%", "100%", "auto"]}
-                  factoryId={selectedFactory?.id}
+                  factory={selectedFactory}
                 />
               )}
               <Button visual="transparent" p="8px" onClick={() => onOpenInfo()}>
@@ -352,7 +351,7 @@ const Home = () => {
               <Play
                 onReady={(gameId) => navigate(`/${gameId}`)}
                 w={["100%", "100%", "auto"]}
-                factoryId={selectedFactory?.id}
+                factory={selectedFactory}
               />
             )}
             {/* <Button onClick={() => navigate("/factories")}>Play Nums</Button> */}

@@ -79,8 +79,8 @@ case "$COMMAND" in
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
-        GAME_CONFIG="0x0 20 20 1 420 120" # Option::Some()
-        REWARDS="0x1" # Option::None
+        GAME_CONFIG="0x0 20 20 1 420 120" # Option::Some
+        REWARDS="0x0 20 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20" # Option::Some
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
@@ -94,7 +94,7 @@ case "$COMMAND" in
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #2" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"Rigged Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"

@@ -23,7 +23,7 @@ export const useExecuteCall = () => {
       onSuccess?: (r: any) => void
     ) => {
       if (!account) {
-        showError(undefined, "Account not connected!");
+        showError("Not Connected", "Please connect your account");
         return { receipt: undefined };
       }
 
@@ -53,8 +53,8 @@ export const useExecuteCall = () => {
 
         onSuccess && onSuccess(receipt);
       } catch (e: any) {
-        console.log("execute error:", e);
-        showError(undefined, tryBetterErrorMsg(e));
+        console.log(e);
+        showError("Execution Error", tryBetterErrorMsg(e));
         return { receipt: undefined };
       }
 

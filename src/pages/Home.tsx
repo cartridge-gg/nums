@@ -124,7 +124,11 @@ const Home = () => {
       pt={["70px", "100px", "120px"]}
     >
       <Header />
-      <InfoOverlay open={openInfo} onClose={onCloseInfo} factory={selectedFactory}/>
+      <InfoOverlay
+        open={openInfo}
+        onClose={onCloseInfo}
+        factory={selectedFactory}
+      />
       <VStack w="full">
         <VStack gap="16px" w={["100%", "100%", "800px"]}>
           <HStack w="full" justify="space-between">
@@ -274,12 +278,8 @@ const Home = () => {
                             #{idx + 1}
                           </Table.Cell>
                           <Table.Cell>
-                            <MaybeController address={game.player} />
-                          </Table.Cell>
-                          <Table.Cell>
                             <HStack>
-                              {Number(game.max_slots) -
-                                Number(game.remaining_slots)}
+                              <MaybeController address={game.player} />
                               {isWinner && (
                                 <LuCrown
                                   cursor="pointer"
@@ -288,6 +288,10 @@ const Home = () => {
                                 />
                               )}
                             </HStack>
+                          </Table.Cell>
+                          <Table.Cell>
+                            {Number(game.max_slots) -
+                              Number(game.remaining_slots)}
                           </Table.Cell>
                           <Table.Cell fontWeight="normal">
                             <VStack alignItems="flex-end">

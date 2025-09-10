@@ -59,7 +59,7 @@ const Header = () => {
           onClick={() => navigate("/")}
           color="white"
           _hover={{
-            color: "purple.200",
+            opacity: 0.5,
           }}
         >
           <LogoIcon />

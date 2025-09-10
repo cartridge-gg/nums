@@ -28,6 +28,7 @@ const theme = createSystem(defaultConfig, {
         purple: {
           50: { value: "#bbaaee" },
           100: { value: "#9e84e9" },
+          200: { value: "#7360aa" },
         },
         orange: {
           50: { value: "#fc945a" },

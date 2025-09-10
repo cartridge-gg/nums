@@ -346,19 +346,19 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_jackpot_actions_claimJackpot_calldata = (jackpotId: BigNumberish): DojoCall => {
+	const build_jackpot_actions_claimJackpot_calldata = (jackpotId: BigNumberish, indexes: Array<BigNumberish>): DojoCall => {
 		return {
 			contractName: "jackpot_actions",
 			entrypoint: "claim_jackpot",
-			calldata: [jackpotId],
+			calldata: [jackpotId, indexes],
 		};
 	};
 
-	const jackpot_actions_claimJackpot = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish) => {
+	const jackpot_actions_claimJackpot = async (snAccount: Account | AccountInterface, jackpotId: BigNumberish, indexes: Array<BigNumberish>) => {
 		try {
 			return await provider.execute(
 				snAccount,
-				build_jackpot_actions_claimJackpot_calldata(jackpotId),
+				build_jackpot_actions_claimJackpot_calldata(jackpotId, indexes),
 				"nums",
 			);
 		} catch (error) {

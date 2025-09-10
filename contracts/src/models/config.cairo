@@ -7,6 +7,6 @@ pub struct Config {
     pub world_resource: felt252,
     pub nums_address: ContractAddress,
     pub vrf_address: ContractAddress,
-   
+    pub burn_pct: u8,
 }
 

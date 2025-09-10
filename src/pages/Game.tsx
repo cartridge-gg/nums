@@ -523,7 +523,8 @@ const Game = () => {
               )}
 
               {isOver && canClaim && !isClaimingSuccessful && (
-                <Button onClick={() => claim(jackpot.id)}>
+                // if canClaim, there is only one winner possible so index is 0
+                <Button onClick={() => claim(jackpot.id, [0])}>
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>
               )}

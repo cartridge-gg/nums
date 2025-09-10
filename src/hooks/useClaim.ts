@@ -17,7 +17,7 @@ export const useClaim = () => {
   const { showMessage } = useToast();
 
   const claim = useCallback(
-    async (jackpotId: BigNumberish) => {
+    async (jackpotId: BigNumberish, indexes: number[]) => {
       if (!account?.address) return false;
 
       setIsLoading(true);
@@ -33,7 +33,7 @@ export const useClaim = () => {
             {
               contractAddress: jackpotActionsAddress,
               entrypoint: "claim_jackpot",
-              calldata: [jackpotId],
+              calldata: [jackpotId, indexes],
             },
           ],
           (_receipt) => {

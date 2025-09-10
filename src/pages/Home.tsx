@@ -215,139 +215,113 @@ const Home = () => {
             padding={["10px", "10px", "10px 30px"]}
             bgColor="rgba(0,0,0,0.04)"
           >
-            <Table.Root size="sm" variant="outline" border="0" boxShadow="none">
-              <Table.Header bg="transparent">
-                <Table.Row bg="transparent" border="0" opacity={0.5}>
-                  <Table.ColumnHeader
-                    color="white"
-                    borderBottomWidth={0}
-                    w="70px"
-                  >
-                    RANK
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader color="white" borderBottomWidth={0}>
-                    PLAYER
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader
-                    color="white"
-                    borderBottomWidth={0}
-                    w="70px"
-                  >
-                    SCORE
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader
-                    color="white"
-                    borderBottomWidth={0}
-                    textAlign="right"
-                  >
-                    $NUMS
-                  </Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {games &&
-                  games
-                    .sort(
-                      (a, b) =>
-                        Number(a.remaining_slots) - Number(b.remaining_slots)
-                    )
-                    .slice(0, 100)
-                    .map((game, idx) => {
-                      const isOwn =
-                        BigInt(game.player) === BigInt(account?.address || 0);
+            <Scrollable maxH="calc(100vh - 350px)">
+              <Table.Root
+                size="sm"
+                variant="outline"
+                border="0"
+                boxShadow="none"
+                overflow="visible"
+                stickyHeader
+              >
+                <Table.Header bg="purple.200">
+                  <Table.Row border="0" bg="purple.200">
+                    <Table.ColumnHeader
+                      color="white"
+                      borderBottomWidth={0}
+                      w="70px"
+                      opacity={0.5}
+                    >
+                      RANK
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader
+                      color="white"
+                      borderBottomWidth={0}
+                      opacity={0.5}
+                    >
+                      PLAYER
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader
+                      color="white"
+                      borderBottomWidth={0}
+                      opacity={0.5}
+                      w="70px"
+                    >
+                      SCORE
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader
+                      color="white"
+                      borderBottomWidth={0}
+                      opacity={0.5}
+                      textAlign="right"
+                    >
+                      $NUMS
+                    </Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {games &&
+                    games
+                      .sort(
+                        (a, b) =>
+                          Number(a.remaining_slots) - Number(b.remaining_slots)
+                      )
+                      .slice(0, 100)
+                      .map((game, idx) => {
+                        const isOwn =
+                          BigInt(game.player) === BigInt(account?.address || 0);
 
-                      const isWinner = winners.find(
-                        (i) => BigInt(i.game_id) === BigInt(game.game_id)
-                      );
+                        const isWinner = winners.find(
+                          (i) => BigInt(i.game_id) === BigInt(game.game_id)
+                        );
 
-                      const hasClaimed = isWinner?.claimed;
+                        const hasClaimed = isWinner?.claimed;
 
-                      return (
-                        <Table.Row
-                          key={idx}
-                          borderBottomWidth="0px"
-                          fontWeight="bold"
-                          color={isOwn ? "orange.50" : "white"}
-                        >
-                          <Table.Cell
-                            cursor="pointer"
-                            onClick={() =>
-                              navigate(`/${num.toHex(game.game_id)}`)
-                            }
+                        return (
+                          <Table.Row
+                            key={idx}
+                            borderBottomWidth="0px"
+                            fontWeight="bold"
+                            color={isOwn ? "orange.50" : "white"}
                           >
-                            #{idx + 1}
-                          </Table.Cell>
-                          <Table.Cell>
-                            <HStack>
-                              <MaybeController address={game.player} />
-                              {isWinner && (
-                                <LuCrown
-                                  cursor="pointer"
-                                  color={hasClaimed ? "orange" : "gold"}
-                                  onClick={() => claim(game.jackpot_id)}
+                            <Table.Cell
+                              cursor="pointer"
+                              onClick={() =>
+                                navigate(`/${num.toHex(game.game_id)}`)
+                              }
+                            >
+                              #{idx + 1}
+                            </Table.Cell>
+                            <Table.Cell>
+                              <HStack>
+                                <MaybeController address={game.player} />
+                                {isWinner && (
+                                  <LuCrown
+                                    cursor="pointer"
+                                    color={hasClaimed ? "orange" : "gold"}
+                                    onClick={() => claim(game.jackpot_id, [isWinner.index])}
+                                  />
+                                )}
+                              </HStack>
+                            </Table.Cell>
+                            <Table.Cell>
+                              {Number(game.max_slots) -
+                                Number(game.remaining_slots)}
+                            </Table.Cell>
+                            <Table.Cell fontWeight="normal">
+                              <VStack alignItems="flex-end">
+                                <TokenBalanceUi
+                                  balance={game.reward}
+                                  address={numsAddress}
                                 />
-                              )}
-                            </HStack>
-                          </Table.Cell>
-                          <Table.Cell>
-                            {Number(game.max_slots) -
-                              Number(game.remaining_slots)}
-                          </Table.Cell>
-                          <Table.Cell fontWeight="normal">
-                            <VStack alignItems="flex-end">
-                              <TokenBalanceUi
-                                balance={game.reward}
-                                address={numsAddress}
-                              />
-                            </VStack>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })}
-              </Table.Body>
-            </Table.Root>
-
-            {/* <Scrollable maxH="calc(100vh - 380px)">
-              <VStack w="full" gap={3}>
-                {games &&
-                  games
-                    .sort(
-                      (a, b) =>
-                        Number(a.remaining_slots) - Number(b.remaining_slots)
-                    )
-                    .slice(0, 100)
-                    .map((game, idx) => {
-                      return (
-                        <HStack key={idx} w="full" alignItems="flex-start">
-                          <Box
-                            minW="50px"
-                            cursor="pointer"
-                            onClick={() =>
-                              navigate(`/${num.toHex(game.game_id)}`)
-                            }
-                          >
-                            #{idx + 1}
-                          </Box>
-                          <Box w="full" justifyItems="flex-start">
-                            <MaybeController address={game.player} />
-                          </Box>
-                          <Box minW="50px" textAlign="right">
-                            {Number(game.max_slots) -
-                              Number(game.remaining_slots)}
-                          </Box>
-                          <Box minW="100px" justifyItems="flex-end">
-                            <VStack alignItems="flex-end">
-                              <TokenBalanceUi
-                                balance={game.reward}
-                                address={numsAddress}
-                              />
-                            </VStack>
-                          </Box>
-                        </HStack>
-                      );
-                    })}
-              </VStack>
-            </Scrollable> */}
+                              </VStack>
+                            </Table.Cell>
+                          </Table.Row>
+                        );
+                      })}
+                </Table.Body>
+              </Table.Root>
+            </Scrollable>
           </Box>
 
           <HStack w="full" justifyContent="center" gap={6}>

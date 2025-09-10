@@ -96,6 +96,10 @@ case "$COMMAND" in
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
         sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"Rigged Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
+    rescue_jackpot)
+        echo "Rescue jackpot for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR rescue_jackpot $3 --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR create_game 1 --profile $PROFILE_NAME --world $WORLD_ADDR

@@ -31,7 +31,6 @@ export const ShowDiff = ({
   const firstRender = useRef(true);
 
   useEffect(() => {
-    console.log("firstRender.current", firstRender.current);
     if (!firstRender.current) {
       setAnim(true);
       setTimeout(() => setAnim(false), 3_000);
@@ -45,7 +44,6 @@ export const ShowDiff = ({
       position="absolute"
       left={x}
       top={y}
-      // transform="translate(-50%, -50%)"
       animation={anim ? `${floatUpSlow} 3s forwards` : "none"}
       animationStyle="slide-fade-out"
       opacity={anim ? 1 : 0}

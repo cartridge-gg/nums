@@ -17,6 +17,7 @@ pub mod config_actions {
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
+        burn_pct: u8
     ) {
         let mut world = self.world(@"nums");
         let mut store = StoreImpl::new(world);
@@ -39,6 +40,7 @@ pub mod config_actions {
                     world_resource: 0,
                     nums_address,
                     vrf_address,
+                    burn_pct,
                 },
             )
     }

@@ -45,6 +45,7 @@ pub impl StoreImpl of StoreTrait {
     fn set_config(ref self: Store, config: Config) {
         let mut config = config;
         config.world_resource = 0;
+        assert!(config.burn_pct < 101, "invalid burn pct");
         self.world.write_model(@config)
     }
 

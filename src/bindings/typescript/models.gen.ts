@@ -7,6 +7,7 @@ export interface Config {
 	world_resource: BigNumberish;
 	nums_address: string;
 	vrf_address: string;
+	burn_pct: BigNumberish;
 }
 
 // Type definition for `nums::models::game::Game` struct
@@ -52,6 +53,7 @@ export interface Jackpot {
 	total_winners: BigNumberish;
 	last_winner_index: BigNumberish;
 	extension_count: BigNumberish;
+	rescued: boolean;
 }
 
 // Type definition for `nums::models::jackpot::JackpotFactory` struct
@@ -225,6 +227,7 @@ export const schema: SchemaType = {
 			world_resource: 0,
 			nums_address: "",
 			vrf_address: "",
+			burn_pct: 0,
 		},
 		Game: {
 			game_id: 0,
@@ -264,6 +267,7 @@ export const schema: SchemaType = {
 			total_winners: 0,
 			last_winner_index: 0,
 			extension_count: 0,
+			rescued: false,
 		},
 		JackpotFactory: {
 			id: 0,

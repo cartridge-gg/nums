@@ -10,10 +10,8 @@ import { Box } from "@chakra-ui/react";
 
 export const TokenBalance = ({
   contractAddress,
-  // symbol,
 }: {
   contractAddress: string;
-  // symbol: string;
 }) => {
   const { account } = useAccount();
 
@@ -27,7 +25,6 @@ export const TokenBalance = ({
 
   const prevBalanceRef = useRef<number | undefined>(undefined);
   const balanceDiff = useRef<{ value: number }>({ value: 0 });
-  // const [balanceDiff, setBalanceDiff] = useState(0);
 
   const balance = useMemo(() => {
     if (!account) return 0;
@@ -43,7 +40,6 @@ export const TokenBalance = ({
     const balanceScaled = toDecimal(token, balance);
 
     const diff = Math.round(balanceScaled - (prevBalanceRef.current || 0));
-    // setBalanceDiff((prevBalanceRef.current || 0) - balanceScaled);
 
     if (diff !== 0) {
       balanceDiff.current = { value: diff };

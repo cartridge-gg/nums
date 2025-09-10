@@ -4,7 +4,7 @@ use nums::models::jackpot::CreateJackpotFactoryParams;
 #[starknet::interface]
 pub trait IJackpotActions<T> {
     fn create_jackpot_factory(ref self: T, params: CreateJackpotFactoryParams);
-    fn claim_jackpot(ref self: T, jackpot_id: u32);
+    fn claim_jackpot(ref self: T, jackpot_id: u32, indexes: Array<u8>);
     fn next_jackpot(ref self: T, factory_id: u32);
     fn rescue_jackpot(ref self: T, jackpot_id: u32);
 }
@@ -14,30 +14,14 @@ pub trait IJackpotActions<T> {
 pub mod jackpot_actions {
     use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
+    use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
     use nums::models::jackpot::{
         JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotMode, JackpotTrait, TimingMode,
     };
+    use nums::token::TokenType;
     use nums::{StoreImpl, StoreTrait};
     use super::*;
-
-    // #[derive(Drop, Serde)]
-    // #[dojo::event]
-    // pub struct JackpotCreated {
-    //     #[key]
-    //     jackpot_id: u32,
-    //     token: Option<Token>,
-    // }
-
-    //   #[derive(Drop, Serde)]
-    // #[dojo::event]
-    // pub struct JackpotClaimed {
-    //     #[key]
-    //     game_id: u32,
-    //     #[key]
-    //     jackpot_id: u32,
-    //     player: ContractAddress,
-    // }
 
     // #[derive(Drop, Serde)]
     // #[dojo::event]
@@ -112,7 +96,7 @@ pub mod jackpot_actions {
         }
 
 
-        fn claim_jackpot(ref self: ContractState, jackpot_id: u32) {
+        fn claim_jackpot(ref self: ContractState, jackpot_id: u32, indexes: Array<u8>) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
             let player = starknet::get_caller_address();
@@ -120,9 +104,8 @@ pub mod jackpot_actions {
             let mut jackpot = store.jackpot(jackpot_id);
             assert!(jackpot.has_ended(ref store), "jackpot has not ended");
 
-            let has_claimed = jackpot.claim(ref store, player);
+            let has_claimed = jackpot.claim(ref store, indexes, player);
             assert!(has_claimed, "nothing to claim");
-            // TODO
         }
 
         fn rescue_jackpot(ref self: ContractState, jackpot_id: u32) {
@@ -133,14 +116,29 @@ pub mod jackpot_actions {
             let mut jackpot = store.jackpot(jackpot_id);
             let factory = store.jackpot_factory(jackpot.factory_id);
 
+            assert!(!jackpot.rescued, "jackpot already rescued");
             assert!(jackpot.has_ended(ref store), "jackpot has not ended");
             assert!(jackpot.total_winners == 0, "jackpot has winner");
             assert!(factory.creator == caller, "caller is not creator");
 
+            jackpot.rescued = true;
+            store.set_jackpot(@jackpot);
+
             // burn nums
             store.nums_disp().burn(jackpot.nums_balance);
-            // TODO: rescue token
 
+            // rescue token
+            if let Option::Some(token) = @jackpot.token {
+                match token.ty {
+                    TokenType::ERC20(config) => {
+                        // transfer from jackpot_actions_addr to caller
+                        IERC20Dispatcher { contract_address: *token.address }
+                            .transfer(caller, *config.amount);
+                    },
+                    TokenType::ERC721(_config) => { panic!("ERC721 not handled yet"); },
+                    TokenType::ERC1155(_config) => { panic!("ERC1155 not handled yet"); },
+                }
+            }
         }
         /// Verifies or unverifies a jackpot as legitimate.
     /// Only the WORLD owner can call this function to mark a jackpot as verified or not.

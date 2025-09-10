@@ -46,20 +46,6 @@ pub mod game_actions {
         AchievableEvent: AchievableComponent::Event,
     }
 
-    // #[derive(Drop, Serde)]
-    // #[dojo::event]
-    // pub struct Inserted {
-    //     #[key]
-    //     game_id: u32,
-    //     #[key]
-    //     player: ContractAddress,
-    //     index: u8,
-    //     number: u16,
-    //     next_number: u16,
-    //     remaining_slots: u8,
-    //     game_rewards: u32,
-    // }
-
     #[derive(Drop, Serde)]
     #[dojo::event]
     pub struct GameCreated {
@@ -84,16 +70,6 @@ pub mod game_actions {
         extension_time: u64,
         replaced_winner: Option<ContractAddress>,
     }
-
-    // #[derive(Drop, Serde)]
-    // #[dojo::event]
-    // pub struct KingCrowned {
-    //     #[key]
-    //     game_id: u32,
-    //     #[key]
-    //     jackpot_id: u32,
-    //     player: ContractAddress,
-    // }
 
     const DECIMALS: u256 = 10_u256.pow(18);
 
@@ -134,6 +110,7 @@ pub mod game_actions {
         fn create_game(ref self: ContractState, factory_id: u32) -> (u32, u16) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
+            let config = store.config();
             let mut factory = store.jackpot_factory(factory_id);
             let player = get_caller_address();
 
@@ -161,9 +138,7 @@ pub mod game_actions {
             let entry_cost = DECIMALS * game_config.entry_cost.into();
 
             // split / burn / transfer
-            let burn_pct = 50; // TODO: config or auto adjust
-
-            let to_burn = entry_cost * burn_pct / 100;
+            let to_burn = entry_cost * config.burn_pct.into() / 100;
             let to_jackpot = entry_cost - to_burn;
 
             println!("to_jackpot: {}", to_jackpot);
@@ -231,7 +206,6 @@ pub mod game_actions {
             let mut game = store.game(game_id, player);
             let mut jackpot = store.jackpot(game.jackpot_id);
             let mut factory = store.jackpot_factory(jackpot.factory_id);
-            // let config = store.config();
 
             assert!(!game.has_expired(), "Game has expired");
             assert!(!jackpot.has_ended(ref store), "Jackpot has ended");

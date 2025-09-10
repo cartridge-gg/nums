@@ -2695,7 +2695,7 @@
     },
     {
       "address": "0x1bce8649585bb775e2cca6bdc203c3f8afcafb8a3fdcfa4929fe542b8758a3a",
-      "class_hash": "0x18fa8ce56bbf52cd62647b15dabd372cea96f578c4571096200560c9b6abf3b",
+      "class_hash": "0xdc1623e46316e61104d7b28ab2399c65f1b56a1d992fa2ae807e4700fcf001",
       "abi": [
         {
           "type": "impl",
@@ -2797,6 +2797,10 @@
             {
               "name": "vrf_address",
               "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "burn_pct",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -2940,7 +2944,7 @@
     },
     {
       "address": "0x23fc4e9615f4f9e63835925639937c819fe425752483cc28143c395e565ca26",
-      "class_hash": "0x6ab0270e5760a3817ad9321eb91ee3da610cb8f13314293dad839133ec8b86b",
+      "class_hash": "0x2bc777f540c1a0f0326d4dee01b5130ff963de60921e39dc202541b43cbd798",
       "abi": [
         {
           "type": "impl",
@@ -3176,7 +3180,7 @@
     },
     {
       "address": "0x340ed9627119241822b284fc3396355d5364ad48d9e7d3e851e90ab8041fcab",
-      "class_hash": "0x59dd8bdc00d7e9b9f38dda136a36b2df99cb73434992c17c10b52545da4cc88",
+      "class_hash": "0x51a3f18f809aa37a6278993a2e8666c71bc88aca13037d293b2cd13cfc43f57",
       "abi": [
         {
           "type": "impl",
@@ -3489,6 +3493,10 @@
                 {
                   "name": "jackpot_id",
                   "type": "core::integer::u32"
+                },
+                {
+                  "name": "indexes",
+                  "type": "core::array::Array::<core::integer::u8>"
                 }
               ],
               "outputs": [],
@@ -3644,7 +3652,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x86f7926e3f1d37d353ba3cc2edc7d35d62a0f59c83c6845d9ab3fa063f3e79",
+      "class_hash": "0x3b6ff20b54a3414e35ee9a32e5f3d1ba08f900cb5a7b0305752bf0622bc9de3",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -3662,7 +3670,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2eb549404ecc3972369792d71e361fa4159dd0b48d41279a7ef6a31c109ea66",
+      "class_hash": "0x55fe944a270f6554e5d507947b88d1fb1796401284d1d133559551a73a92de9",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },

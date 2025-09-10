@@ -55,7 +55,7 @@ export const JackpotDetails = ({
     <HStack {...props}>
       <VStack gap={0} alignItems="flex-start">
         <HStack>
-          <Text fontFamily="Ekamai" fontSize="24px">
+          <Text fontFamily="Ekamai" fontSize="24px" /*title={`#${jackpot.id}`}*/>
             {factory?.name}
           </Text>
         </HStack>
@@ -74,7 +74,7 @@ export const JackpotDetails = ({
         fontSize="18px"
         h="full"
       >
-        <HStack fontFamily="Ekamai" fontSize="16px">
+        <HStack fontFamily="Ekamai" fontSize="16px" >
           {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
         </HStack>
         {tokenBalance !== undefined && tokenBalance > 0 && (

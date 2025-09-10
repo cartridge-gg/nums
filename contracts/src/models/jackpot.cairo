@@ -73,6 +73,7 @@ pub struct Jackpot {
     pub total_winners: u8,
     pub last_winner_index: u8,
     pub extension_count: u8,
+    pub rescued: bool,
 }
 
 #[derive(Drop, Serde, PartialEq)]
@@ -237,6 +238,7 @@ pub impl JackpotFactoryImpl of JackpotFactoryTrait {
             total_winners: 0,
             extension_count: 0,
             last_winner_index: self.max_winners - 1,
+            rescued: false,
         };
 
         store.set_jackpot(@jackpot);
@@ -278,7 +280,6 @@ pub impl JackpotImpl of JackpotTrait {
         *self.factory_id > 0
     }
 
-   
 
     fn has_ended(self: @Jackpot, ref store: Store) -> bool {
         let mut factory = store.jackpot_factory(*self.factory_id);
@@ -350,7 +351,9 @@ pub impl JackpotImpl of JackpotTrait {
         }
     }
 
-    fn claim(self: @Jackpot, ref store: Store, player: ContractAddress) -> bool {
+    fn claim(
+        self: @Jackpot, ref store: Store, indexes: Array<u8>, player: ContractAddress,
+    ) -> bool {
         let mut has_claim = false;
         let total_winners = *self.total_winners;
         let nums_share = *self.nums_balance / total_winners.into();
@@ -358,10 +361,15 @@ pub impl JackpotImpl of JackpotTrait {
         let mut claimable_nums = 0_u256;
         let mut claimable_token = 0_u256;
 
+        let indexes_len = indexes.len();
         let mut i = 0;
+        while i < indexes_len {
+            let index = *indexes.at(i);
+            assert!(index < total_winners, "invalid index");
 
-        while i < total_winners {
-            let mut winner = store.jackpot_winner(*self.id, i);
+            let mut winner = store.jackpot_winner(*self.id, index);
+            assert!(!winner.claimed, "already claimed");
+
             if winner.player == player && !winner.claimed {
                 has_claim = true;
                 claimable_nums += nums_share;

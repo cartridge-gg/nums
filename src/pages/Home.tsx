@@ -337,7 +337,7 @@ const Home = () => {
                               <HStack>
                                 <MaybeController address={game.player} />
                                 {isWinner &&
-                                  (Number(selectedJackpot.end_at)*1_000) <
+                                  Number(selectedJackpot.end_at) * 1_000 <
                                     Date.now() && (
                                     <HoverCard.Root
                                       positioning={{ placement: "top-start" }}
@@ -370,15 +370,20 @@ const Home = () => {
                                               }
                                               address={numsAddress}
                                             />
-                                            <TokenBalanceUi
-                                              balance={
-                                                rewardsByWinner?.token || 0
-                                              }
-                                              address={
-                                                rewardsByWinner?.tokenAddress ||
-                                                0
-                                              }
-                                            />
+                                            {rewardsByWinner &&
+                                              BigInt(
+                                                rewardsByWinner.token || 0
+                                              ) > 0n && (
+                                                <TokenBalanceUi
+                                                  balance={
+                                                    rewardsByWinner?.token || 0
+                                                  }
+                                                  address={
+                                                    rewardsByWinner?.tokenAddress ||
+                                                    0
+                                                  }
+                                                />
+                                              )}
                                           </VStack>
                                         </HoverCard.Content>
                                       </HoverCard.Positioner>

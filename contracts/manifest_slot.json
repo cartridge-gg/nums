@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x7d4639752e808eb50456db06fe0918d3b3ca8534200a28d2d98b89818b2d7e1",
-      "class_hash": "0x1000c4e5f9c5a82088cc18d5edcac10afc04da83f6e6a6fd10edb801564087",
+      "address": "0xfa0d13b71d128b40bdf411dd0743069a89360d7cd0a3e2ec2d4504272bb9cf",
+      "class_hash": "0x53aab6c19e1bccd660fb6801c1ba399bfbff17f6f27dbb0a73cd06d5f5ec597",
       "abi": [
         {
           "type": "impl",
@@ -2772,6 +2772,10 @@
             {
               "name": "vrf_address",
               "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "burn_pct",
+              "type": "core::integer::u8"
             }
           ],
           "outputs": [],
@@ -2781,32 +2785,6 @@
           "type": "impl",
           "name": "ConfigActions",
           "interface_name": "nums::systems::config_actions::IConfigActions"
-        },
-        {
-          "type": "struct",
-          "name": "nums::models::config::GameConfig",
-          "members": [
-            {
-              "name": "max_slots",
-              "type": "core::integer::u8"
-            },
-            {
-              "name": "max_number",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "min_number",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "entry_cost",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "game_duration",
-              "type": "core::integer::u64"
-            }
-          ]
         },
         {
           "type": "struct",
@@ -2825,12 +2803,8 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
-              "name": "game",
-              "type": "nums::models::config::GameConfig"
-            },
-            {
-              "name": "reward",
-              "type": "core::array::Array::<core::integer::u32>"
+              "name": "burn_pct",
+              "type": "core::integer::u8"
             }
           ]
         },
@@ -2962,7 +2936,8 @@
       ],
       "init_calldata": [
         "0x1",
-        "0x1"
+        "0x1",
+        "50"
       ],
       "tag": "nums-config_actions",
       "selector": "0x69628b994ad9a66d88c9a0d1fcef1032f329060ed7d29256b142c387f3073d5",
@@ -2973,8 +2948,8 @@
       ]
     },
     {
-      "address": "0x5a4640a89b0c1abe68f4ec28ebdb18a5e5555200f339c2b6bcf06483d7262d0",
-      "class_hash": "0x69bcc3e5f0704ba37450e785ca27129c26182462d4c38387cf4f8d8bc8bdfad",
+      "address": "0x29b6dde52260c94d3fca261c2a934a87b483a41c27eaac81a832bccf91b0c96",
+      "class_hash": "0x2bc777f540c1a0f0326d4dee01b5130ff963de60921e39dc202541b43cbd798",
       "abi": [
         {
           "type": "impl",
@@ -3209,8 +3184,8 @@
       ]
     },
     {
-      "address": "0x11d12b62167e7815bf7b0b85f63952779c0ab0084db20b7733369139a4beab9",
-      "class_hash": "0x4f8d553526da6f7309e74405cb08b97795bc9b29fc8d6288fb66a6326346b9c",
+      "address": "0x2f1370b66381ea3a14afd5a354400452ad2a75440c697b101b13399a057b498",
+      "class_hash": "0x30e1142fa2960d6f23ba581a2224a36338bee2560e6e8773c77a7df4a9b10",
       "abi": [
         {
           "type": "impl",
@@ -3273,6 +3248,60 @@
           "type": "impl",
           "name": "JackpotActions",
           "interface_name": "nums::systems::jackpot_actions::IJackpotActions"
+        },
+        {
+          "type": "struct",
+          "name": "nums::models::game_config::GameConfig",
+          "members": [
+            {
+              "name": "max_slots",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "max_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "min_number",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "entry_cost",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "game_duration",
+              "type": "core::integer::u64"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<nums::models::game_config::GameConfig>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "nums::models::game_config::GameConfig"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<core::array::Array::<core::integer::u32>>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::array::Array::<core::integer::u32>"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
         },
         {
           "type": "struct",
@@ -3405,6 +3434,14 @@
               "type": "core::byte_array::ByteArray"
             },
             {
+              "name": "game_config",
+              "type": "core::option::Option::<nums::models::game_config::GameConfig>"
+            },
+            {
+              "name": "rewards",
+              "type": "core::option::Option::<core::array::Array::<core::integer::u32>>"
+            },
+            {
               "name": "token",
               "type": "core::option::Option::<nums::token::Token>"
             },
@@ -3461,6 +3498,10 @@
                 {
                   "name": "jackpot_id",
                   "type": "core::integer::u32"
+                },
+                {
+                  "name": "indexes",
+                  "type": "core::array::Array::<core::integer::u8>"
                 }
               ],
               "outputs": [],
@@ -3616,7 +3657,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0xf502975941b5b6c7204c2f29092e6cb5f0afb4b561ac907700444f9f38307e",
+      "class_hash": "0x3b6ff20b54a3414e35ee9a32e5f3d1ba08f900cb5a7b0305752bf0622bc9de3",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
@@ -3634,19 +3675,19 @@
     },
     {
       "members": [],
-      "class_hash": "0x2eb549404ecc3972369792d71e361fa4159dd0b48d41279a7ef6a31c109ea66",
+      "class_hash": "0x55fe944a270f6554e5d507947b88d1fb1796401284d1d133559551a73a92de9",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
-      "class_hash": "0x4c31273a7c2d9a0b2d4299960aa89ba6e5b8cd6f069e0cc9ee4d817948b83e8",
+      "class_hash": "0x40c4dfaf9717eaceef16257197c2d658cd7e6479115d80c840aee9158238243",
       "tag": "nums-JackpotFactory",
       "selector": "0x2fe8f9ccb1b1f87825eae6305d181d77cc41744904d5adb87f26b076ab2465"
     },
     {
       "members": [],
-      "class_hash": "0x2496e67911877f12766a6148420a91dda013d36dcfaaf05c50f828a75cc0ab1",
+      "class_hash": "0x52986d536a9a1a420701a4003689eacaee93ca50d460bed821b1e1b5b311c23",
       "tag": "nums-JackpotWinner",
       "selector": "0x1ed10ea87ef8d5ce51e4af2ac90667bb97ea1f3a11ab56740cbaadf26d257e0"
     },

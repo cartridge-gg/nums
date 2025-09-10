@@ -34,12 +34,10 @@ import { JackpotDetails } from "./JackpotDetails";
 export const Footer = ({
   game,
   jackpot,
-  factory,
   winners,
 }: {
   game?: Game;
   jackpot?: Jackpot;
-  factory?: JackpotFactory;
   winners?: JackpotWinner[];
 }) => {
   const { chain } = useChain();
@@ -98,6 +96,7 @@ export const Footer = ({
       p="8px"
       bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
     >
+      {/* @ts-ignore */}
       {game && jackpot && <JackpotDetails jackpotId={jackpot.id} w="full"/>}
 
       {/* <Spacer /> */}

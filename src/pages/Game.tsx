@@ -535,7 +535,6 @@ const Game = () => {
           game={gameFromStore}
           jackpot={jackpot}
           winners={winners}
-          factory={factory}
         />
 
         {canClaim && !isClaimingSuccessful && <Confetti />}

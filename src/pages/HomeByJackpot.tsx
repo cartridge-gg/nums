@@ -211,7 +211,7 @@ const Home = () => {
                                                   : "gold"
                                               }
                                               cursor="pointer"
-                                              onClick={() => claim(jackpot.id)}
+                                              onClick={() => claim(jackpot.id, [winner.index])}
                                             />
                                           )}
                                         </HStack>

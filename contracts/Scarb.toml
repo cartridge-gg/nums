@@ -21,14 +21,14 @@ build-external-contracts = [
 ]
 
 [dependencies]
-achievement = { git = "https://github.com/cartridge-gg/arcade", branch="dojo_1.7.0-alpha.2" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", branch="dojo_1.7.0-alpha.3" }
 starknet = "2.12.1"
 openzeppelin = "2.0.0"
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.2" }
-dojo_macros = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.2" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.3" }
+dojo_macros = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.3" }
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.7.0-alpha.2" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.7.0-alpha.3" }
 
 [features]
 default = []

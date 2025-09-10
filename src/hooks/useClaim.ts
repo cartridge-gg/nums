@@ -17,7 +17,7 @@ export const useClaim = () => {
   const { showMessage } = useToast();
 
   const claim = useCallback(
-    async (jackpotId: BigNumberish, indexes: number[]) => {
+    async (jackpotId: BigNumberish, indexes: BigNumberish[]) => {
       if (!account?.address) return false;
 
       setIsLoading(true);

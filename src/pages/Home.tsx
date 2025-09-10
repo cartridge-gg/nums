@@ -8,6 +8,8 @@ import {
   useDisclosure,
   useBreakpointValue,
   Table,
+  HoverCard,
+  Heading,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -30,22 +32,26 @@ import {
   Jackpot,
   JackpotFactory,
   JackpotWinner,
+  Token,
   TokenTypeERC20,
 } from "@/bindings";
 import { TokenBalanceUi } from "@/components/ui/token-balance";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
-import { useControllers } from "@/context/controllers";
-import { shortAddress } from "@/utils/address";
 import { LuCrown } from "react-icons/lu";
 import { useClaim } from "@/hooks/useClaim";
-import { CairoCustomEnum, num } from "starknet";
+import { BigNumberish, CairoCustomEnum, num } from "starknet";
 import { JackpotDetails } from "@/components/JackpotDetails";
 import Play from "@/components/Play";
 import { Scrollable } from "@/components/ui/scrollable";
 import { useGames } from "@/context/game";
 import { MaybeController } from "@/components/MaybeController";
-import useToast from "@/hooks/toast";
+
+interface WinnersRewards {
+  nums: BigNumberish;
+  token?: BigNumberish;
+  tokenAddress?: string;
+}
 
 const Home = () => {
   const navigate = useNavigate();
@@ -72,6 +78,7 @@ const Home = () => {
     (Jackpot & { computedId: number }) | undefined
   >(undefined);
   const [games, setGames] = useState<Game[]>([]);
+  const [rewardsByWinner, setRewardsByWinner] = useState<WinnersRewards>();
 
   useEffect(() => {
     if (jackpotFactories && jackpotFactories.length > 0 && !selectedFactory) {
@@ -112,6 +119,39 @@ const Home = () => {
       setWinners(winners);
     }
   }, [selectedJackpot, account]);
+
+  useEffect(() => {
+    if (selectedJackpot) {
+      const totalWinners =
+        BigInt(selectedJackpot.total_winners) > 0
+          ? BigInt(selectedJackpot.total_winners)
+          : 1n;
+
+      let tokenBalance = 0n;
+      let tokenAddress = undefined;
+      if (selectedJackpot?.token.isSome()) {
+        //
+        const token = selectedJackpot.token.unwrap() as Token;
+        switch ((token.ty as CairoCustomEnum).activeVariant()) {
+          case "ERC20":
+            const values = (token.ty as CairoCustomEnum).variant[
+              "ERC20"
+            ] as TokenTypeERC20;
+            tokenBalance = BigInt(values.amount);
+            tokenAddress = token.address;
+            break;
+        }
+      }
+
+      const rewardsByWinner = {
+        nums: BigInt(selectedJackpot.nums_balance) / totalWinners / 10n ** 18n,
+        token: BigInt(tokenBalance) / totalWinners / 10n ** 18n,
+        tokenAddress,
+      };
+
+      setRewardsByWinner(rewardsByWinner);
+    }
+  }, [selectedJackpot]);
 
   return (
     <Container
@@ -260,7 +300,8 @@ const Home = () => {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {games &&
+                  {selectedJackpot &&
+                    games &&
                     games
                       .sort(
                         (a, b) =>
@@ -295,13 +336,54 @@ const Home = () => {
                             <Table.Cell>
                               <HStack>
                                 <MaybeController address={game.player} />
-                                {isWinner && (
-                                  <LuCrown
-                                    cursor="pointer"
-                                    color={hasClaimed ? "orange" : "gold"}
-                                    onClick={() => claim(game.jackpot_id, [isWinner.index])}
-                                  />
-                                )}
+                                {isWinner &&
+                                  (Number(selectedJackpot.end_at)*1_000) <
+                                    Date.now() && (
+                                    <HoverCard.Root
+                                      positioning={{ placement: "top-start" }}
+                                    >
+                                      <HoverCard.Trigger asChild>
+                                        <LuCrown
+                                          cursor="pointer"
+                                          color={hasClaimed ? "orange" : "gold"}
+                                          onClick={() =>
+                                            claim(game.jackpot_id, [
+                                              isWinner.index,
+                                            ])
+                                          }
+                                        />
+                                      </HoverCard.Trigger>
+                                      <HoverCard.Positioner>
+                                        <HoverCard.Content
+                                          bg="purple.200"
+                                          color="white"
+                                        >
+                                          <Heading fontWeight="normal">
+                                            {isWinner.claimed
+                                              ? "Claimed !"
+                                              : "Claimable"}
+                                          </Heading>
+                                          <VStack gap={0} alignItems="flex-end">
+                                            <TokenBalanceUi
+                                              balance={
+                                                rewardsByWinner?.nums || 0
+                                              }
+                                              address={numsAddress}
+                                            />
+                                            <TokenBalanceUi
+                                              balance={
+                                                rewardsByWinner?.token || 0
+                                              }
+                                              address={
+                                                rewardsByWinner?.tokenAddress ||
+                                                0
+                                              }
+                                            />
+                                          </VStack>
+                                        </HoverCard.Content>
+                                      </HoverCard.Positioner>
+                                    </HoverCard.Root>
+                                  )}
                               </HStack>
                             </Table.Cell>
                             <Table.Cell>

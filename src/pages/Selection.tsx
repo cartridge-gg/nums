@@ -44,10 +44,9 @@ const Selection = () => {
   const { execute } = useExecuteCall();
   const { jackpots, jackpotFactories, getFactoryById, getClaimableByUser } =
     useJackpots();
-  const navigate = useNavigate();
 
   const claimable = getClaimableByUser(account?.address || 0);
-  console.log(claimable);
+  // console.log(claimable);
 
   if (!jackpots) return null;
   return (

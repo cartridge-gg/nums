@@ -7,6 +7,7 @@ import {
   Spacer,
   Table,
   Text,
+  useBreakpointValue,
   VStack,
 } from "@chakra-ui/react";
 import { Button } from "./Button";
@@ -17,6 +18,7 @@ import { useAccount, useProvider } from "@starknet-react/core";
 import { useConfig } from "@/context/config";
 import { Scrollable } from "./ui/scrollable";
 import { JackpotFactory } from "@/bindings";
+import { shortAddress } from "@/utils/address";
 
 const enum ShowInfo {
   ABOUT,
@@ -33,18 +35,13 @@ const InfoOverlay = ({
   onClose: () => void;
   factory?: JackpotFactory;
 }) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
   const [supply, setSupply] = useState<number>(0);
   const { chain } = useChain();
   const { account } = useAccount();
   const { provider } = useProvider();
-  const { config } = useConfig();
   const numsContractAddress = num.toHex64(getNumsAddress(chain.id));
-
-  // const res = useTokens({
-  //   contractAddresses: [numsContractAddress],
-  // });
-  // console.log(res);
 
   useEffect(() => {
     provider
@@ -115,7 +112,7 @@ const InfoOverlay = ({
               </Text>
               <Text>
                 The goal is simple: place randomly generated numbers (1 - 1000)
-                in ascending order. Players compete and earn NUMS tokens by
+                in ascending order. Players compete and earn $NUMS tokens by
                 placing as many numbers as possilbe with the game ending when
                 the timer reaches zero.
               </Text>
@@ -134,8 +131,8 @@ const InfoOverlay = ({
               TOKEN DETAILS
             </Heading>
             <Text>
-              $Nums is reward token intended to demonstrate the horizontal
-              scalability of Validity rollups. Earn $Nums by playing Nums, a
+              $NUMS is reward token intended to demonstrate the horizontal
+              scalability of Validity rollups. Earn $NUMS by playing Nums, a
               game hosted on its own app chain. the better you do the more you
               earn. Rewards are claimable on Starknet mainnet
             </Text>
@@ -155,7 +152,9 @@ const InfoOverlay = ({
                   );
                 }}
               >
-                {numsContractAddress}
+                {isMobile
+                  ? shortAddress(numsContractAddress)
+                  : numsContractAddress}
               </Text>
             </VStack>
             <VStack
@@ -183,7 +182,7 @@ const InfoOverlay = ({
               Each time you successfully place a number, you earn $NUM rewards
               based on the following structure:
             </Text>
-            <Scrollable maxH="400px">
+            <Scrollable maxH={["220px", "380px"]}>
               <Box px="10px">
                 <Table.Root size="sm" variant="outline" borderRadius="5px">
                   <Table.Header>

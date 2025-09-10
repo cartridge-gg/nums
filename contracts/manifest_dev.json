@@ -2694,8 +2694,8 @@
       ]
     },
     {
-      "address": "0x1bce8649585bb775e2cca6bdc203c3f8afcafb8a3fdcfa4929fe542b8758a3a",
-      "class_hash": "0xdc1623e46316e61104d7b28ab2399c65f1b56a1d992fa2ae807e4700fcf001",
+      "address": "0xfa0d13b71d128b40bdf411dd0743069a89360d7cd0a3e2ec2d4504272bb9cf",
+      "class_hash": "0x53aab6c19e1bccd660fb6801c1ba399bfbff17f6f27dbb0a73cd06d5f5ec597",
       "abi": [
         {
           "type": "impl",
@@ -2772,6 +2772,10 @@
             {
               "name": "vrf_address",
               "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "burn_pct",
+              "type": "core::integer::u8"
             }
           ],
           "outputs": [],
@@ -2932,7 +2936,8 @@
       ],
       "init_calldata": [
         "0x1",
-        "0x1"
+        "0x1",
+        "50"
       ],
       "tag": "nums-config_actions",
       "selector": "0x69628b994ad9a66d88c9a0d1fcef1032f329060ed7d29256b142c387f3073d5",
@@ -2943,7 +2948,7 @@
       ]
     },
     {
-      "address": "0x23fc4e9615f4f9e63835925639937c819fe425752483cc28143c395e565ca26",
+      "address": "0x29b6dde52260c94d3fca261c2a934a87b483a41c27eaac81a832bccf91b0c96",
       "class_hash": "0x2bc777f540c1a0f0326d4dee01b5130ff963de60921e39dc202541b43cbd798",
       "abi": [
         {
@@ -3179,8 +3184,8 @@
       ]
     },
     {
-      "address": "0x340ed9627119241822b284fc3396355d5364ad48d9e7d3e851e90ab8041fcab",
-      "class_hash": "0x51a3f18f809aa37a6278993a2e8666c71bc88aca13037d293b2cd13cfc43f57",
+      "address": "0x2f1370b66381ea3a14afd5a354400452ad2a75440c697b101b13399a057b498",
+      "class_hash": "0x30e1142fa2960d6f23ba581a2224a36338bee2560e6e8773c77a7df4a9b10",
       "abi": [
         {
           "type": "impl",

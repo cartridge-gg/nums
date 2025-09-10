@@ -1,5 +1,13 @@
 import { useJackpots } from "@/context/jackpots";
-import { HStack, Spacer, VStack, Text, Image, StackProps, ChakraProviderProps } from "@chakra-ui/react";
+import {
+  HStack,
+  Spacer,
+  VStack,
+  Text,
+  Image,
+  StackProps,
+  ChakraProviderProps,
+} from "@chakra-ui/react";
 import { ComponentProps, CSSProperties, useEffect, useMemo } from "react";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";
 import { TimeAgo } from "./ui/time-ago";
@@ -9,10 +17,12 @@ import { TimeCountdown } from "./TimeCountdown";
 
 export const JackpotDetails = ({
   jackpotId,
+  computedId,
   ...props
 }: {
   jackpotId: BigNumberish;
-  props?: ComponentProps<'div'>
+  computedId?: number;
+  props?: ComponentProps<"div">;
 }) => {
   const { getJackpotById, getFactoryById } = useJackpots();
 
@@ -55,8 +65,11 @@ export const JackpotDetails = ({
     <HStack {...props}>
       <VStack gap={0} alignItems="flex-start">
         <HStack>
-          <Text fontFamily="Ekamai" fontSize="24px" /*title={`#${jackpot.id}`}*/>
-            {factory?.name}
+          <Text
+            fontFamily="Ekamai"
+            fontSize={["20px", "24px"]} /*title={`#${jackpot.id}`}*/
+          >
+            {factory?.name} {computedId ? `#${computedId}` : ""}
           </Text>
         </HStack>
         <HStack w="full" justifyContent="space-between">
@@ -74,7 +87,7 @@ export const JackpotDetails = ({
         fontSize="18px"
         h="full"
       >
-        <HStack fontFamily="Ekamai" fontSize="16px" >
+        <HStack fontFamily="Ekamai" fontSize="16px">
           {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
         </HStack>
         {tokenBalance !== undefined && tokenBalance > 0 && (

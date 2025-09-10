@@ -175,7 +175,13 @@ const Home = () => {
             <HStack>
               <MenuRoot>
                 <MenuTrigger asChild>
-                  <Button visual="transparent" gap="8px" fontSize="18px">
+                  <Button
+                    visual="transparent"
+                    gap="8px"
+                    height="40px"
+                    padding={["4px 8px", "8px 16px"]}
+                    fontSize={["14px", "18px"]}
+                  >
                     <TrophyIcon />
                     {selectedFactory?.name}
                     <CaretIcon />
@@ -201,7 +207,13 @@ const Home = () => {
 
               <MenuRoot>
                 <MenuTrigger asChild>
-                  <Button visual="transparent" gap="8px" fontSize="18px">
+                  <Button
+                    visual="transparent"
+                    gap="8px"
+                    height="40px"
+                    padding={["4px 8px", "8px 16px"]}
+                    fontSize={["14px", "18px"]}
+                  >
                     #{selectedJackpot?.computedId}
                     <CaretIcon />
                   </Button>
@@ -246,7 +258,7 @@ const Home = () => {
               padding={["10px", "10px", "10px 30px"]}
               bgColor="rgba(0,0,0,0.04)"
             >
-              <JackpotDetails jackpotId={selectedJackpot.id} />
+              <JackpotDetails jackpotId={selectedJackpot.id} computedId={selectedJackpot.computedId} />
             </Box>
           )}
           <Box
@@ -269,10 +281,10 @@ const Home = () => {
                     <Table.ColumnHeader
                       color="white"
                       borderBottomWidth={0}
-                      w="70px"
+                      w={["40px", "70px"]}
                       opacity={0.5}
                     >
-                      RANK
+                      {isMobile ? "#" : "RANK"}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader
                       color="white"
@@ -285,7 +297,7 @@ const Home = () => {
                       color="white"
                       borderBottomWidth={0}
                       opacity={0.5}
-                      w="70px"
+                      w={["55px", "70px"]}
                     >
                       SCORE
                     </Table.ColumnHeader>
@@ -335,7 +347,7 @@ const Home = () => {
                             </Table.Cell>
                             <Table.Cell>
                               <HStack>
-                                <MaybeController address={game.player} />
+                                <MaybeController address={game.player}  />
                                 {isWinner &&
                                   Number(selectedJackpot.end_at) * 1_000 <
                                     Date.now() && (
@@ -391,7 +403,7 @@ const Home = () => {
                                   )}
                               </HStack>
                             </Table.Cell>
-                            <Table.Cell>
+                            <Table.Cell textAlign="center">
                               {Number(game.max_slots) -
                                 Number(game.remaining_slots)}
                             </Table.Cell>

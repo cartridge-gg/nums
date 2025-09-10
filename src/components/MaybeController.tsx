@@ -1,15 +1,9 @@
 import { useControllers } from "@/context/controllers";
 import { shortAddress } from "@/utils/address";
+import { Box } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
-export function MaybeController({
-  address,
-  className,
-  ...props
-}: {
-  address: string;
-  className?: string;
-}) {
+export function MaybeController({ address, ...props }: { address: string }) {
   const { findController } = useControllers();
   const [username, setUsername] = useState("");
 
@@ -30,8 +24,8 @@ export function MaybeController({
   }, [address]);
 
   return (
-    <div className={className} {...props}>
+    <Box {...props} whiteSpace="nowrap" maxW={["130px", "200px"]} textOverflow="ellipsis" overflow="hidden">
       {username}
-    </div>
+    </Box>
   );
 }

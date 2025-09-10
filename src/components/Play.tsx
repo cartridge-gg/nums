@@ -39,13 +39,15 @@ const Play = ({
   const subscriptionRef = useRef<any>(null);
 
   const gameCreatedQuery = useMemo(() => {
+    if (!account) return undefined;
+
     return new ToriiQueryBuilder()
       .withEntityModels(["nums-GameCreated"])
       .withClause(
         new ClauseBuilder()
           .keys(
             ["nums-GameCreated"],
-            [account?.address || "0", undefined],
+            [num.toHex64(account.address), undefined],
             "FixedLen"
           )
           .build()
@@ -61,26 +63,30 @@ const Play = ({
         }
       }
       const [items, subscription] = await sdk.subscribeEventQuery({
-        query: gameCreatedQuery,
+        query: gameCreatedQuery!,
         callback: (res) => {
           const gameCreated = res.data![0].models.nums
             .GameCreated as GameCreated;
 
-          onReady(num.toHex(gameCreated.game_id));
+          if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
+            onReady(num.toHex(gameCreated.game_id));
+          }
         },
       });
 
       subscriptionRef.current = subscription;
     };
 
-    initAsync();
+    if (account && gameCreatedQuery) {
+      initAsync();
+    }
 
     // return () => {
     //   if (subscriptionRef.current) {
     //     subscriptionRef.current.cancel();
     //   }
     // };
-  }, [gameCreatedQuery]);
+  }, [gameCreatedQuery, account]);
 
   const createGame = async () => {
     if (!account) return;
@@ -145,7 +151,13 @@ const Play = ({
                 "Play!"
               )}
             </HStack>
-            <Box w="5px" h="18px" borderRight="solid 2px" borderColor="white" opacity={0.5}></Box>
+            <Box
+              w="5px"
+              h="18px"
+              borderRight="solid 2px"
+              borderColor="white"
+              opacity={0.5}
+            ></Box>
             <Text>{factory.game_config.entry_cost.toLocaleString()} NUMS</Text>
           </HStack>
         </Button>

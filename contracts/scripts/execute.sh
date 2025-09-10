@@ -60,17 +60,17 @@ case "$COMMAND" in
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
-        # INITIAL_DURATION="7200"
-        # EXTENSION_DURATION="3600"
-        INITIAL_DURATION="300"
+        INITIAL_DURATION="10800"
         EXTENSION_DURATION="0"
+        # INITIAL_DURATION="300"
+        # EXTENSION_DURATION="0"
         MIN_SLOT="5"
         MAX_WINNERS="99"
         JACKPOT_COUNT="10"
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #1" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #3" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_jackpot_factory_2)
 

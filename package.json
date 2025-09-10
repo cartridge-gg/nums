@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 1337",
+    "prod": "vite --port 13337 --mode production",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

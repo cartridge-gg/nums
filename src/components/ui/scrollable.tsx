@@ -1,15 +1,16 @@
-import { ScrollArea } from "@chakra-ui/react";
+import { ScrollArea, ScrollAreaRootProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 
 export const Scrollable = ({
-  maxH,
+  // maxH,
   children,
+  ...props
 }: {
-  maxH?: string;
+  // maxH?: string;
   children: ReactNode;
-}) => {
+} & ScrollAreaRootProps) => {
   return (
-    <ScrollArea.Root overflow="visible" maxH={maxH} w="full">
+    <ScrollArea.Root overflow="visible" w="full" {...props}>
       <ScrollArea.Viewport>
         <ScrollArea.Content
         //  paddingStart="6" paddingEnd="6"

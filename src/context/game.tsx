@@ -4,7 +4,7 @@ import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { BigNumberish } from "starknet";
+import { BigNumberish, num } from "starknet";
 
 type GameProviderProps = {
   children: React.ReactNode;
@@ -29,11 +29,16 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       .withEntityModels(["nums-Game"])
       .withClause(
         new ClauseBuilder()
-          .keys(["nums-Game"], [undefined, account?.address], "FixedLen")
+          .keys(
+            ["nums-Game"],
+            [undefined, undefined],
+            // [undefined, num.toHex64(account?.address || 0)],
+            "FixedLen"
+          )
           .build()
       )
       .addOrderBy("nums-Game.game_id", "Desc")
-      .withLimit(1_000)
+      .withLimit(50_000)
       .includeHashedKeys();
   }, [account?.address]);
 

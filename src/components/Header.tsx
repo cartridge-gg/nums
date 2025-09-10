@@ -40,8 +40,8 @@ const Header = () => {
     }
   }, [controllerConnector]);
 
-  const height = ["48px", "48px", "48px"];
-  const width = ["48px", "48px", "auto"];
+  const height = ["40px", "48px", "48px"];
+  const width = ["40px", "48px", "auto"];
 
   return (
     <>
@@ -89,6 +89,7 @@ const Header = () => {
         {address && (
           <Button
             visual="transparent"
+            position="relative"
             h={height}
             w="auto"
             cursor={!isMainnet ? "pointer" : "default"}
@@ -98,7 +99,9 @@ const Header = () => {
               }
             }}
           >
+
             <TokenBalance contractAddress={numsAddress} />
+            {!isMainnet && <Text position="absolute" fontSize="10px" bottom="2px" right="16px">Mint</Text>}
           </Button>
         )}
         {address ? (

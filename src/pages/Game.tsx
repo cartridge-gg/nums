@@ -33,7 +33,6 @@ import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
 import { useDojoSdk } from "@/hooks/dojo";
-import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { GameCreated, NewWinner } from "@/bindings";
 import { useClaim } from "@/hooks/useClaim";
 import { useJackpotEvents } from "@/hooks/useJackpotEvents";
@@ -126,7 +125,8 @@ const Game = () => {
     isSuccess: isClaimingSuccessful,
   } = useClaim();
 
-  const { getJackpotById, getFactoryById, getWinnersByJackpotId } = useJackpots();
+  const { getJackpotById, getFactoryById, getWinnersByJackpotId } =
+    useJackpots();
   const { getGameById } = useGames();
 
   const gameFromStore = getGameById(Number(gameId!));
@@ -375,7 +375,13 @@ const Game = () => {
   return (
     <>
       <Container h="100vh" maxW="100vw">
-        {isOwner && <ShowReward amount={Number(factory.rewards[level-1])} x={position.x} y={position.y} />}
+        {isOwner && (
+          <ShowReward
+            amount={Number(factory.rewards[level - 1])}
+            x={position.x}
+            y={position.y}
+          />
+        )}
         <Header />
 
         {/* <Overlay open={true} onClose={onClose}>
@@ -441,11 +447,13 @@ const Game = () => {
             <VStack gap={["0px", "0.5rem", "1rem"]}>
               {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
               {game && (
-                <TimeCountdown
-                  fontSize={["16px", "20px", "36px"]}
-                  timestampSec={gameFromStore?.expires_at || 0}
-                  gameOver={gameFromStore?.game_over}
-                />
+                <>
+                  <TimeCountdown
+                    fontSize={["16px", "20px", "36px"]}
+                    timestampSec={gameFromStore?.expires_at || 0}
+                    gameOver={gameFromStore?.game_over}
+                  />
+                </>
               )}
               <Box
                 mb={["10px", "20px", "30px"]}
@@ -531,11 +539,7 @@ const Game = () => {
             </VStack>
           </Box>
         </VStack>
-        <Footer
-          game={gameFromStore}
-          jackpot={jackpot}
-          winners={winners}
-        />
+        <Footer game={gameFromStore} jackpot={jackpot} winners={winners} />
 
         {canClaim && !isClaimingSuccessful && <Confetti />}
       </Container>

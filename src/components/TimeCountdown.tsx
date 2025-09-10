@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import Countdown from "react-countdown";
 import { BigNumberish } from "starknet";
 
-const TimeUp = () => <Text color="red">Time Up !</Text>;
+const TimeUp = () => <Text color="red">Time's Up !</Text>;
 const GameOver = () => <Text color="red">Game Over !</Text>;
 
 // Renderer callback with condition
@@ -37,7 +37,7 @@ const renderer = ({
 export const TimeCountdown = ({
   timestampSec,
   gameOver,
-  fontSize = ["16px", "16px", "16px"],
+  fontSize = ["14px", "16px", "16px"],
 }: {
   timestampSec: BigNumberish;
   gameOver?: boolean;

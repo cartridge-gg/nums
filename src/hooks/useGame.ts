@@ -11,7 +11,6 @@ export const useGame = (gameId?: string) => {
   const subscriptionRef = useRef<any>(null);
 
   const gameQuery = useMemo(() => {
-    console.log(gameId);
     return (
       new ToriiQueryBuilder()
         // .withEntityModels(["nums-Game", "nums-Slot"])
@@ -46,17 +45,14 @@ export const useGame = (gameId?: string) => {
           subscriptionRef.current.cancel();
         }
       }
-      console.log(gameQuery);
       const [items, subscription] = await sdk.subscribeEntityQuery({
         query: gameQuery,
         callback: (res) => {
-          console.log(res);
           const game = res.data![0].models.nums.Game as Game;
         },
       });
       subscriptionRef.current = subscription;
 
-      console.log(items);
       const games = items.getItems();
       if (!games || games.length === 0) return;
 

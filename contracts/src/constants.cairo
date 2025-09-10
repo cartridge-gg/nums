@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+pub const WORLD_RESOURCE: felt252 = 0;
 
 pub const ZERO_ADDRESS: ContractAddress = 0.try_into().unwrap();
 

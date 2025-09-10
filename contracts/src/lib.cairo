@@ -76,4 +76,3 @@ pub mod mocks {
     pub mod vrf;
 }
 
-pub const WORLD_RESOURCE: felt252 = 0;

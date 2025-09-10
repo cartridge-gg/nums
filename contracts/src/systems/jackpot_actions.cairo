@@ -12,7 +12,7 @@ pub trait IJackpotActions<T> {
 
 #[dojo::contract]
 pub mod jackpot_actions {
-    use dojo::event::EventStorage;
+    // use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
     use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
@@ -21,6 +21,8 @@ pub mod jackpot_actions {
     };
     use nums::token::TokenType;
     use nums::{StoreImpl, StoreTrait};
+    use nums::constants::WORLD_RESOURCE;
+    
     use super::*;
 
     // #[derive(Drop, Serde)]
@@ -68,8 +70,12 @@ pub mod jackpot_actions {
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {
         fn create_jackpot_factory(ref self: ContractState, params: CreateJackpotFactoryParams) {
-            //TODO: restrict creation or verify by admin
             let mut world = self.world(@"nums");
+
+            // only world owner can create
+            let creator = starknet::get_caller_address();
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, creator), "Unauthorized caller");
+
             let mut store = StoreImpl::new(world);
             let creator = starknet::get_caller_address();
             let jackpot_actions_addr = starknet::get_contract_address();

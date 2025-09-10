@@ -9,7 +9,8 @@ pub trait IConfigActions<T> {
 pub mod config_actions {
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use nums::models::config::{Config};
-    use nums::{StoreImpl, StoreTrait, WORLD_RESOURCE};
+    use nums::{StoreImpl, StoreTrait};
+    use nums::constants::WORLD_RESOURCE;
     use starknet::ContractAddress;
     use super::IConfigActions;
 
@@ -51,8 +52,8 @@ pub mod config_actions {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);
 
-            let owner = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+            let caller = starknet::get_caller_address();
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
 
             store.set_config(config);
         }

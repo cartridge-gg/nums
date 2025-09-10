@@ -1,5 +1,5 @@
 use core::num::traits::{Pow, Zero};
-use dojo::world::{IWorldDispatcherTrait, WorldStorage};
+use dojo::world::WorldStorage;
 use nums::constants::ONE_YEAR;
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use nums::interfaces::nums::INumsTokenDispatcherTrait;

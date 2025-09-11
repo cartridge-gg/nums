@@ -9,10 +9,7 @@ pub struct Game {
     pub game_id: u32,
     #[key]
     pub player: ContractAddress,
-    pub max_slots: u8,
-    pub max_number: u16,
-    pub min_number: u16,
-    pub remaining_slots: u8,
+    pub level: u8,
     pub next_number: u16,
     pub reward: u32,
     pub jackpot_id: u32,
@@ -55,12 +52,19 @@ pub impl GameImpl of GameTrait {
     }
 
     fn is_game_over(self: @Game, ref store: Store) -> bool {
-        if *self.remaining_slots == 0 {
+       
+
+        let jackpot = store.jackpot(*self.jackpot_id);
+        let factory = store.jackpot_factory(jackpot.factory_id);
+
+        if *self.level == factory.game_config.max_slots {
             return true;
         }
 
+        let max_slots = factory.game_config.max_slots;
+
         let next_number = *self.next_number;
-        let mut max_slots = *self.max_slots;
+        let mut max_slots = max_slots;
         let mut idx = 0;
 
         let mut slot = store.slot(*self.game_id, *self.player, idx);
@@ -87,8 +91,5 @@ pub impl GameImpl of GameTrait {
 
         true
     }
-
-    fn level(self: @Game) -> u8 {
-        (*self.max_slots - *self.remaining_slots)
-    }
+   
 }

@@ -2948,8 +2948,8 @@
       ]
     },
     {
-      "address": "0x29b6dde52260c94d3fca261c2a934a87b483a41c27eaac81a832bccf91b0c96",
-      "class_hash": "0x2bc777f540c1a0f0326d4dee01b5130ff963de60921e39dc202541b43cbd798",
+      "address": "0x8f984446bcde3614d0497a618181a7ee633ff7be7b46e56208a932ee91efc0",
+      "class_hash": "0x7d7bb3d03056da3402cfa717be8c1fe5fef030a9fd913ea023e1b101bf1ee37",
       "abi": [
         {
           "type": "impl",
@@ -3663,7 +3663,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x43658c7bf6b4ebefa0d6de56c87fb667d3fcfbf0be3e3d6d2c18b06728c0b29",
+      "class_hash": "0x757eadfd41a1780f3792c503000b4120b97463ca063c1e8b3809b0d8da9f73",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
     },

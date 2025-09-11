@@ -367,7 +367,6 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	// @ts-ignore
 	const build_jackpot_actions_createJackpotFactory_calldata = (params: models.CreateJackpotFactoryParams): DojoCall => {
 		return {
 			contractName: "jackpot_actions",
@@ -376,7 +375,6 @@ export function setupWorld(provider: DojoProvider) {
 		};
 	};
 
-	// @ts-ignore
 	const jackpot_actions_createJackpotFactory = async (snAccount: Account | AccountInterface, params: models.CreateJackpotFactoryParams) => {
 		try {
 			return await provider.execute(

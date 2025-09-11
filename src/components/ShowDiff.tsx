@@ -55,7 +55,7 @@ export const ShowDiff = ({
         fontSize="16px"
         textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
       >
-        {obj.value > 0 && "+"}
+        {obj.value > 0 && "+ "}
         {obj.value.toLocaleString()}
       </Text>
     </Box>

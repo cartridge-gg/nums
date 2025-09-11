@@ -50,10 +50,7 @@ const GameQuery = graphql(`
         node {
           player
           game_id
-          min_number
-          max_number
-          max_slots
-          remaining_slots
+          level
           next_number
           reward
           jackpot_id
@@ -83,7 +80,7 @@ const GameSubscription = graphql(`
       models {
         ... on nums_Game {
           next_number
-          remaining_slots
+          level
           reward
         }
       }
@@ -254,7 +251,7 @@ const Game = () => {
           updateGameState(
             newSlots,
             gameModel.next_number!,
-            gameModel.remaining_slots!,
+            gameModel.level!,
             gameModel.reward!
           );
           setIsLoading(false);
@@ -284,19 +281,14 @@ const Game = () => {
       // @ts-ignore
       const reward = entityUpdated.models![0]!.reward as number;
       // @ts-ignore
-      const remaining = entityUpdated.models![0]!.remaining_slots as number;
+      const level = entityUpdated.models![0]!.level as number;
 
-      updateGameState(slots, next, remaining, reward);
+      updateGameState(slots, next, level, reward);
     }
   }, [subscriptionResult]);
 
   const updateGameState = useCallback(
-    (
-      slots: number[],
-      nextNum: number,
-      remainingSlots: number,
-      reward: number
-    ) => {
+    (slots: number[], nextNum: number, level: number, reward: number) => {
       if (isGameOver(slots, nextNum)) {
         setIsOver(true);
 
@@ -308,13 +300,13 @@ const Game = () => {
 
       setReward(reward);
       setNextNumber(nextNum);
-      if (remainingSlots !== undefined) {
-        setRemaining(remainingSlots);
+      if (level !== undefined) {
+        setRemaining(Number(factory?.game_config.max_slots) - level);
       }
 
       setTimeout(() => setIsLoading(false), 500);
     },
-    [isOwner]
+    [isOwner, factory]
   );
 
   const setSlot = async (
@@ -501,9 +493,7 @@ const Game = () => {
               {!isOver && gameFromStore && (
                 <HStack gap={3} alignItems="center">
                   <Text w="auto" fontSize="xs">
-                    LVL{" "}
-                    {Number(gameFromStore.max_slots) -
-                      Number(gameFromStore.remaining_slots)}
+                    LVL {gameFromStore.level.toString()}
                   </Text>
                   <Text w="auto" fontFamily="Ekamai" fontSize="16px">
                     + {gameFromStore?.reward.toLocaleString()} NUMS

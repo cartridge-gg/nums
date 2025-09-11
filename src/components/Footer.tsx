@@ -41,50 +41,7 @@ export const Footer = ({
   winners?: JackpotWinner[];
 }) => {
   const { chain } = useChain();
-  const numsAddress = getNumsAddress(chain.id);
-  const rewardAddress = getContractAddress(chain.id, "nums", "MockRewardToken");
-  const { controllers, findController } = useControllers();
 
-  const { numsBalance, tokenBalance } = useMemo(() => {
-    let tokenBalance = 0n;
-
-    if (jackpot?.token.isSome()) {
-      //
-      const token = jackpot.token.unwrap();
-
-      switch ((token.ty as CairoCustomEnum).activeVariant()) {
-        case "ERC20":
-          const values = (token.ty as CairoCustomEnum).variant[
-            "ERC20"
-          ] as TokenTypeERC20;
-          tokenBalance = BigInt(values.amount) / 10n ** 18n;
-          break;
-        default:
-          break;
-      }
-    }
-
-    const numsBalance = BigInt(jackpot?.nums_balance || 0) / 10n ** 18n;
-
-    return {
-      name,
-      numsBalance,
-      tokenBalance,
-    };
-  }, [jackpot]);
-
-  const winnersNames = useMemo(() => {
-    if (winners?.length === 0) return "None";
-    return winners
-      ?.map((i) => {
-        const controller = findController(i.player);
-        const name = controller ? controller.username : shortAddress(i.player);
-        return name;
-      })
-      .join(", ");
-  }, [winners]);
-
-  const [open, setOpen] = useState(false);
   return (
     <HStack
       position="absolute"
@@ -97,28 +54,7 @@ export const Footer = ({
       bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
     >
       {/* @ts-ignore */}
-      {game && jackpot && <JackpotDetails jackpotId={jackpot.id} w="full"/>}
-
-      {/* <Spacer /> */}
-
-      {/* {game && (
-        <VStack gap={0} alignItems="center">
-          <Text w="auto" fontSize="xs">
-            LVL {Number(game.max_slots) - Number(game.remaining_slots)}
-          </Text>
-          <Text w="auto" fontFamily="Ekamai" fontSize="16px">
-            + {game?.reward.toLocaleString()} NUMS
-          </Text>
-        </VStack>
-      )} */}
-
-      {/* <Spacer maxW="20px" />
-      <Box fontFamily="Ekamai" fontSize="16px">
-        <VStack alignItems="flex-end">
-          <TokenBalance contractAddress={numsAddress} />
-          <TokenBalance contractAddress={rewardAddress} />
-        </VStack>
-      </Box> */}
+      {game && jackpot && <JackpotDetails jackpotId={jackpot.id} w="full" />}
     </HStack>
   );
 };

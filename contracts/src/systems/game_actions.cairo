@@ -169,10 +169,7 @@ pub mod game_actions {
                     @Game {
                         game_id,
                         player,
-                        max_slots: game_config.max_slots,
-                        remaining_slots: game_config.max_slots,
-                        max_number: game_config.max_number,
-                        min_number: game_config.min_number,
+                        level: 0,
                         next_number,
                         reward: 0,
                         jackpot_id: jackpot.id,
@@ -210,14 +207,14 @@ pub mod game_actions {
             assert!(!game.has_expired(), "Game has expired");
             assert!(!jackpot.has_ended(ref store), "Jackpot has ended");
             assert!(game.player == player, "Unauthorized player");
-            assert!(target_idx < game.max_slots, "Invalid slot");
+            assert!(target_idx < factory.game_config.max_slots, "Invalid slot");
 
             // Build up nums array and insert target
             let mut streak = 1;
             let mut prev_num = 0;
             let mut nums = array![];
             let mut idx = 0_u8;
-            while idx < game.max_slots {
+            while idx < factory.game_config.max_slots {
                 let slot = store.slot(game_id, player, idx);
                 if slot.number != 0 {
                     // Check if we're trying to insert into a filled slot
@@ -255,11 +252,13 @@ pub mod game_actions {
             let target_number = game.next_number;
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
 
-            game.reward += factory.get_reward(game.level());
-            game.remaining_slots -= 1;
+            game.reward += factory.get_reward(game.level);
+            game.level += 1;
 
-            if game.remaining_slots > 0 {
-                let next_number = next_random(rand, @nums, game.min_number, game.max_number);
+            if game.level < factory.game_config.max_slots {
+                let next_number = next_random(
+                    rand, @nums, factory.game_config.min_number, factory.game_config.max_number,
+                );
                 game.next_number = next_number;
             }
 
@@ -268,7 +267,7 @@ pub mod game_actions {
 
             // Handle game over, jackpot winners
             let is_game_over = game.is_game_over(ref store);
-            let score = game.level();
+            let score = game.level;
             let has_min_score = score >= factory.min_slots;
             let is_equal = score == jackpot.best_score;
             let is_better = score > jackpot.best_score;

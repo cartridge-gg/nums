@@ -77,7 +77,7 @@ const Home = () => {
   const [selectedJackpot, setSelectedJackpot] = useState<
     (Jackpot & { computedId: number }) | undefined
   >(undefined);
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<(Game & { rank?: number })[]>([]);
   const [rewardsByWinner, setRewardsByWinner] = useState<WinnersRewards>();
 
   useEffect(() => {
@@ -109,6 +109,7 @@ const Home = () => {
   useEffect(() => {
     if (selectedJackpot) {
       const games = getGameByJackpotId(selectedJackpot.id);
+
       setGames(games || []);
     }
   }, [selectedJackpot, getGameByJackpotId]);
@@ -170,7 +171,7 @@ const Home = () => {
         factory={selectedFactory}
       />
       <VStack w="full">
-        <VStack gap="16px" w={["100%", "100%", "800px"]}>
+        <VStack gap={["8px","16px"]} w={["100%", "100%", "800px"]}>
           <HStack w="full" justify="space-between">
             <HStack>
               <MenuRoot>
@@ -258,7 +259,10 @@ const Home = () => {
               padding={["10px", "10px", "10px 30px"]}
               bgColor="rgba(0,0,0,0.04)"
             >
-              <JackpotDetails jackpotId={selectedJackpot.id} computedId={selectedJackpot.computedId} />
+              <JackpotDetails
+                jackpotId={selectedJackpot.id}
+                computedId={selectedJackpot.computedId}
+              />
             </Box>
           )}
           <Box
@@ -267,7 +271,7 @@ const Home = () => {
             padding={["10px", "10px", "10px 30px"]}
             bgColor="rgba(0,0,0,0.04)"
           >
-            <Scrollable maxH="calc(100vh - 350px)">
+            <Scrollable maxH={["calc(100vh - 380px)", "calc(100vh - 350px)"]}>
               <Table.Root
                 size="sm"
                 variant="outline"
@@ -314,110 +318,100 @@ const Home = () => {
                 <Table.Body>
                   {selectedJackpot &&
                     games &&
-                    games
-                      .sort(
-                        (a, b) =>
-                          Number(a.remaining_slots) - Number(b.remaining_slots)
-                      )
-                      .slice(0, 100)
-                      .map((game, idx) => {
-                        const isOwn =
-                          BigInt(game.player) === BigInt(account?.address || 0);
+                    games.slice(0, 100).map((game, idx) => {
+                      const isOwn =
+                        BigInt(game.player) === BigInt(account?.address || 0);
 
-                        const isWinner = winners.find(
-                          (i) => BigInt(i.game_id) === BigInt(game.game_id)
-                        );
+                      const isWinner = winners.find(
+                        (i) => BigInt(i.game_id) === BigInt(game.game_id)
+                      );
 
-                        const hasClaimed = isWinner?.claimed;
+                      const hasClaimed = isWinner?.claimed;
 
-                        return (
-                          <Table.Row
-                            key={idx}
-                            borderBottomWidth="0px"
-                            fontWeight="bold"
-                            color={isOwn ? "orange.50" : "white"}
+                      return (
+                        <Table.Row
+                          key={idx}
+                          borderBottomWidth="0px"
+                          fontWeight="bold"
+                          color={isOwn ? "orange.50" : "white"}
+                        >
+                          <Table.Cell
+                            cursor="pointer"
+                            onClick={() =>
+                              navigate(`/${num.toHex(game.game_id)}`)
+                            }
                           >
-                            <Table.Cell
-                              cursor="pointer"
-                              onClick={() =>
-                                navigate(`/${num.toHex(game.game_id)}`)
-                              }
-                            >
-                              #{idx + 1}
-                            </Table.Cell>
-                            <Table.Cell>
-                              <HStack>
-                                <MaybeController address={game.player}  />
-                                {isWinner &&
-                                  Number(selectedJackpot.end_at) * 1_000 <
-                                    Date.now() && (
-                                    <HoverCard.Root
-                                      positioning={{ placement: "top-start" }}
-                                    >
-                                      <HoverCard.Trigger asChild>
-                                        <LuCrown
-                                          cursor="pointer"
-                                          color={hasClaimed ? "orange" : "gold"}
-                                          onClick={() =>
-                                            claim(game.jackpot_id, [
-                                              isWinner.index,
-                                            ])
-                                          }
-                                        />
-                                      </HoverCard.Trigger>
-                                      <HoverCard.Positioner>
-                                        <HoverCard.Content
-                                          bg="purple.200"
-                                          color="white"
-                                        >
-                                          <Heading fontWeight="normal">
-                                            {isWinner.claimed
-                                              ? "Claimed !"
-                                              : "Claimable"}
-                                          </Heading>
-                                          <VStack gap={0} alignItems="flex-end">
-                                            <TokenBalanceUi
-                                              balance={
-                                                rewardsByWinner?.nums || 0
-                                              }
-                                              address={numsAddress}
-                                            />
-                                            {rewardsByWinner &&
-                                              BigInt(
-                                                rewardsByWinner.token || 0
-                                              ) > 0n && (
-                                                <TokenBalanceUi
-                                                  balance={
-                                                    rewardsByWinner?.token || 0
-                                                  }
-                                                  address={
-                                                    rewardsByWinner?.tokenAddress ||
-                                                    0
-                                                  }
-                                                />
-                                              )}
-                                          </VStack>
-                                        </HoverCard.Content>
-                                      </HoverCard.Positioner>
-                                    </HoverCard.Root>
-                                  )}
-                              </HStack>
-                            </Table.Cell>
-                            <Table.Cell textAlign="center">
-                              {Number(game.max_slots) -
-                                Number(game.remaining_slots)}
-                            </Table.Cell>
-                            <Table.Cell fontWeight="normal">
-                              <VStack alignItems="flex-end">
-                                <TokenBalanceUi
-                                  balance={game.reward}
-                                  address={numsAddress}
-                                />
-                              </VStack>
-                            </Table.Cell>
-                          </Table.Row>
-                        );
-                      })}
+                            #{game.rank}
+                          </Table.Cell>
+                          <Table.Cell>
+                            <HStack>
+                              <MaybeController address={game.player} />
+                              {isWinner &&
+                                Number(selectedJackpot.end_at) * 1_000 <
+                                  Date.now() && (
+                                  <HoverCard.Root
+                                    positioning={{ placement: "top-start" }}
+                                  >
+                                    <HoverCard.Trigger asChild>
+                                      <LuCrown
+                                        cursor="pointer"
+                                        color={hasClaimed ? "orange" : "gold"}
+                                        onClick={() =>
+                                          claim(game.jackpot_id, [
+                                            isWinner.index,
+                                          ])
+                                        }
+                                      />
+                                    </HoverCard.Trigger>
+                                    <HoverCard.Positioner>
+                                      <HoverCard.Content
+                                        bg="purple.200"
+                                        color="white"
+                                      >
+                                        <Heading fontWeight="normal">
+                                          {isWinner.claimed
+                                            ? "Claimed !"
+                                            : "Claimable"}
+                                        </Heading>
+                                        <VStack gap={0} alignItems="flex-end">
+                                          <TokenBalanceUi
+                                            balance={rewardsByWinner?.nums || 0}
+                                            address={numsAddress}
+                                          />
+                                          {rewardsByWinner &&
+                                            BigInt(rewardsByWinner.token || 0) >
+                                              0n && (
+                                              <TokenBalanceUi
+                                                balance={
+                                                  rewardsByWinner?.token || 0
+                                                }
+                                                address={
+                                                  rewardsByWinner?.tokenAddress ||
+                                                  0
+                                                }
+                                              />
+                                            )}
+                                        </VStack>
+                                      </HoverCard.Content>
+                                    </HoverCard.Positioner>
+                                  </HoverCard.Root>
+                                )}
+                            </HStack>
+                          </Table.Cell>
+                          <Table.Cell textAlign="center">
+                            {game.level.toString()}
+                          </Table.Cell>
+                          <Table.Cell fontWeight="normal">
+                            <VStack alignItems="flex-end">
+                              <TokenBalanceUi
+                                balance={game.reward}
+                                address={numsAddress}
+                              />
+                            </VStack>
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
                 </Table.Body>
               </Table.Root>
             </Scrollable>

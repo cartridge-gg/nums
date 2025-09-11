@@ -13,7 +13,9 @@ type GameProviderProps = {
 type GameProviderState = {
   games?: Game[];
   getGameById: (id: BigNumberish) => Game | undefined;
-  getGameByJackpotId: (jackpotId: BigNumberish) => Game[] | undefined;
+  getGameByJackpotId: (
+    jackpotId: BigNumberish
+  ) => (Game & { rank: number })[] | undefined;
 };
 
 const GameProviderContext = createContext<GameProviderState | undefined>(
@@ -68,7 +70,27 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
   );
   const getGameByJackpotId = useCallback(
     (jackpotId: BigNumberish) => {
-      return games.filter((i) => i.jackpot_id === jackpotId);
+      const filtered = games.filter((i) => i.jackpot_id === jackpotId);
+      const sorted = filtered.sort((a, b) => Number(b.level) - Number(a.level));
+      let rank = 1;
+      const ranked = sorted.map((item, idx) => {
+        if (idx === 0) {
+          return {
+            ...item,
+            rank,
+          };
+        } else {
+          if (sorted[idx - 1].level != sorted[idx].level) {
+            rank += 1;
+          }
+          return {
+            ...item,
+            rank,
+          };
+        }
+      }, 1);
+
+      return ranked;
     },
     [games]
   );

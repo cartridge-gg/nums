@@ -43,9 +43,9 @@ export const useClaim = () => {
           }
         );
       } catch (e) {
+        console.log(e);
+      } finally {
         setIsLoading(false);
-
-        console.log({ e });
       }
     },
     [account]

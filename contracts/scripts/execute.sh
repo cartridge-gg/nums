@@ -70,7 +70,7 @@ case "$COMMAND" in
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot #3" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_jackpot_factory_2)
 

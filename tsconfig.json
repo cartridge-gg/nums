@@ -19,31 +19,23 @@
     // "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "plugins": [ 
-      { 
-        // not ok
+    "plugins": [
+      {
         "name": "gql.tada/ts-plugin",
-        "schemas" : [
+        "schemas": [
           {
             "name": "katana",
             "schema": "https://localhost:8080/graphql/schema",
             "tadaOutputLocation": "./src/graphql/katana-env.d.ts",
             "tadaTurboLocation": "./src/graphql/katana-turbo.ts"
-          }, 
-          // {
-          //   "name": "starknet",
-          //   "schema": "https://api.cartridge.gg/x/nums-starknet/torii/graphql",
-          //   "tadaOutputLocation": "./src/graphql/starknet-env.d.ts",
-          //   "tadaTurboLocation": "./src/graphql/starknet-turbo.ts"
-          // }
+          }
         ]
-      } 
+      }
     ],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }],
-
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

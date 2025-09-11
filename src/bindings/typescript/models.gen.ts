@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
 import { CairoCustomEnum, BigNumberish } from 'starknet';

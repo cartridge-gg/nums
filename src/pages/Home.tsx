@@ -10,6 +10,7 @@ import {
   Table,
   HoverCard,
   Heading,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -18,7 +19,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount } from "@starknet-react/core";
 import Header from "../components/Header";
 import { TrophyIcon } from "../components/icons/Trophy";
@@ -64,9 +65,14 @@ const Home = () => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const { claim } = useClaim();
+  const { claim, isLoading: isClaiming } = useClaim();
 
-  const { jackpots, jackpotFactories, getWinnersByJackpotId } = useJackpots();
+  const {
+    jackpots,
+    jackpotFactories,
+    getWinnersByJackpotId,
+    getClaimableByUser,
+  } = useJackpots();
   const { getGameByJackpotId } = useGames();
 
   const [winners, setWinners] = useState<JackpotWinner[]>([]);
@@ -121,6 +127,13 @@ const Home = () => {
     }
   }, [selectedJackpot, account]);
 
+  const claimable = useMemo(() => {
+    if (!account) return [];
+    return winners.filter(
+      (i) => BigInt(i.player) === BigInt(account.address) && !i.claimed
+    );
+  }, [winners, account]);
+
   useEffect(() => {
     if (selectedJackpot) {
       const totalWinners =
@@ -154,6 +167,10 @@ const Home = () => {
     }
   }, [selectedJackpot]);
 
+  const isJackpotOver = useMemo(()=> {
+    return Number(selectedJackpot?.end_at) * 1_000 <= Date.now()
+  },[selectedJackpot])
+
   return (
     <Container
       minH="100vh"
@@ -171,7 +188,7 @@ const Home = () => {
         factory={selectedFactory}
       />
       <VStack w="full">
-        <VStack gap={["8px","16px"]} w={["100%", "100%", "800px"]}>
+        <VStack gap={["8px", "16px"]} w={["100%", "100%", "800px"]}>
           <HStack w="full" justify="space-between">
             <HStack>
               <MenuRoot>
@@ -239,6 +256,19 @@ const Home = () => {
             </HStack>
 
             <HStack>
+              {selectedJackpot && isJackpotOver && claimable && claimable.length > 0 && (
+                <Button
+                  onClick={() => {
+                    claim(
+                      selectedJackpot.id,
+                      claimable.map((i) => i.index)
+                    );
+                  }}
+                >
+                  {isClaiming ? <Spinner /> : <LuCrown />}
+                  {isMobile ? "" : "Claim"}
+                </Button>
+              )}
               {!isMobile && selectedFactory && (
                 <Play
                   onReady={(gameId) => navigate(`/${gameId}`)}
@@ -246,6 +276,7 @@ const Home = () => {
                   factory={selectedFactory}
                 />
               )}
+
               <Button visual="transparent" p="8px" onClick={() => onOpenInfo()}>
                 <InfoIcon />
               </Button>
@@ -340,10 +371,12 @@ const Home = () => {
                             onClick={() =>
                               navigate(`/${num.toHex(game.game_id)}`)
                             }
+                            padding={["3px", "6px"]}
                           >
                             #{game.rank}
                           </Table.Cell>
-                          <Table.Cell>
+
+                          <Table.Cell padding={["3px", "6px"]}>
                             <HStack>
                               <MaybeController address={game.player} />
                               {isWinner &&
@@ -398,10 +431,16 @@ const Home = () => {
                                 )}
                             </HStack>
                           </Table.Cell>
-                          <Table.Cell textAlign="center">
+                          <Table.Cell
+                            textAlign="center"
+                            padding={["3px", "6px"]}
+                          >
                             {game.level.toString()}
                           </Table.Cell>
-                          <Table.Cell fontWeight="normal">
+                          <Table.Cell
+                            fontWeight="normal"
+                            padding={["3px", "6px"]}
+                          >
                             <VStack alignItems="flex-end">
                               <TokenBalanceUi
                                 balance={game.reward}

@@ -163,7 +163,7 @@ const Selection = () => {
               })}
           </Grid>
         </VStack>
-        <Footer game={undefined} jackpot={undefined} winners={undefined} />
+        <Footer game={undefined} jackpot={undefined}  />
       </Container>
     </>
   );

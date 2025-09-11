@@ -32,7 +32,6 @@ import { useGames } from "../context/game";
 import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
-import { useDojoSdk } from "@/hooks/dojo";
 import { GameCreated, NewWinner } from "@/bindings";
 import { useClaim } from "@/hooks/useClaim";
 import { useJackpotEvents } from "@/hooks/useJackpotEvents";
@@ -40,6 +39,7 @@ import useToast from "@/hooks/toast";
 import { useControllers } from "@/context/controllers";
 import { shortAddress } from "@/utils/address";
 import { humanDuration } from "@/utils/duration";
+import { HomeIcon } from "@/components/icons/Home";
 
 const MAX_SLOTS = 20;
 
@@ -110,8 +110,6 @@ const Game = () => {
   const { playPositive, playNegative } = useAudio();
   const [game, setGame] = useState<any>();
   const { execute } = useExecuteCall();
-  const { sdk } = useDojoSdk();
-  const subscriptionRef = useRef<any>(null);
   const { showMessage, showJackpotEvent } = useToast();
   const { findController } = useControllers();
 
@@ -131,6 +129,9 @@ const Game = () => {
   const jackpot = getJackpotById(gameFromStore?.jackpot_id || 0);
   const factory = getFactoryById(jackpot?.factory_id || 0);
   const winners = getWinnersByJackpotId(gameFromStore?.jackpot_id || 0);
+
+  const isJackpotOver = Number(jackpot?.end_at) * 1_000 <= Date.now();
+  const isGameOverTime = Number(game?.expires_at) * 1_000 <= Date.now();
 
   const onJackpotEvent = useCallback(
     (type: string, event: any) => {
@@ -251,7 +252,7 @@ const Game = () => {
           updateGameState(
             newSlots,
             gameModel.next_number!,
-            gameModel.level!,
+            gameModel.level! as number,
             gameModel.reward!
           );
           setIsLoading(false);
@@ -301,6 +302,7 @@ const Game = () => {
       setReward(reward);
       setNextNumber(nextNum);
       if (level !== undefined) {
+        setLevel(level);
         setRemaining(Number(factory?.game_config.max_slots) - level);
       }
 
@@ -340,7 +342,6 @@ const Game = () => {
         ],
         (_receipt) => {}
       );
-      setLevel(MAX_SLOTS - remaining + 1);
 
       const newSlots = [...slots];
       newSlots[slot] = nextNumber!;
@@ -490,7 +491,7 @@ const Game = () => {
             // visibility={isOver ? "visible" : "hidden"}
           >
             <VStack h="40px">
-              {!isOver && gameFromStore && (
+              {/* {!isOver && !isJackpotOver && gameFromStore && (
                 <HStack gap={3} alignItems="center">
                   <Text w="auto" fontSize="xs">
                     LVL {gameFromStore.level.toString()}
@@ -499,9 +500,9 @@ const Game = () => {
                     + {gameFromStore?.reward.toLocaleString()} NUMS
                   </Text>
                 </HStack>
-              )}
+              )} */}
 
-              {isOver && !canClaim && (
+              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim && (
                 <Play
                   isAgain
                   factory={factory}
@@ -520,6 +521,12 @@ const Game = () => {
                 />
               )}
 
+              {(isOver || isGameOverTime) && isJackpotOver && !canClaim && (
+                <Button visual="transparent" onClick={() => navigate("/")}>
+                  <HomeIcon /> Home
+                </Button>
+              )}
+
               {isOver && canClaim && !isClaimingSuccessful && (
                 // if canClaim, there is only one winner possible so index is 0
                 <Button onClick={() => claim(jackpot.id, [0])}>
@@ -529,7 +536,7 @@ const Game = () => {
             </VStack>
           </Box>
         </VStack>
-        <Footer game={gameFromStore} jackpot={jackpot} winners={winners} />
+        <Footer game={gameFromStore} jackpot={jackpot} />
 
         {canClaim && !isClaimingSuccessful && <Confetti />}
       </Container>

@@ -16,13 +16,14 @@ export const useJackpotEvents = (
   const subscriptionRef = useRef<any>(null);
 
   const jackpotEventsQuery = useMemo(() => {
+    if (!jackpotId) return undefined;
     return new ToriiQueryBuilder()
       .withEntityModels(["nums-GameCreated", "nums-NewWinner"])
       .withClause(
         new ClauseBuilder()
           .keys(
             ["nums-GameCreated", "nums-NewWinner"],
-            [undefined, BigInt(jackpotId || 0).toString()],
+            [undefined, BigInt(jackpotId).toString()],
             "FixedLen"
           )
           .build()
@@ -33,13 +34,15 @@ export const useJackpotEvents = (
   useEffect(() => {
     const initAsync = async () => {
       if (subscriptionRef.current) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.cancel();
-        }
+        return;
+        // if (subscriptionRef.current) {
+        //   subscriptionRef.current.cancel();
+        // }
       }
       const [items, subscription] = await sdk.subscribeEventQuery({
-        query: jackpotEventsQuery,
+        query: jackpotEventsQuery!,
         callback: (res) => {
+          console.log(res);
           const newWinner = res.data![0].models.nums.NewWinner as NewWinner;
           const gameCreated = res.data![0].models.nums
             .GameCreated as GameCreated;
@@ -52,7 +55,7 @@ export const useJackpotEvents = (
       subscriptionRef.current = subscription;
     };
 
-    if (account) {
+    if (account && jackpotEventsQuery) {
       initAsync();
     }
   }, [jackpotEventsQuery, account]);

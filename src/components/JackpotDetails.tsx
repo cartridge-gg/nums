@@ -11,16 +11,18 @@ import {
 import { ComponentProps, CSSProperties, useEffect, useMemo } from "react";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";
 import { TimeAgo } from "./ui/time-ago";
-import { TokenTypeERC20 } from "@/bindings";
+import { Game, TokenTypeERC20 } from "@/bindings";
 import { LogoIcon } from "./icons/Logo";
 import { TimeCountdown } from "./TimeCountdown";
 
 export const JackpotDetails = ({
   jackpotId,
+  game,
   computedId,
   ...props
 }: {
   jackpotId: BigNumberish;
+  game?: Game;
   computedId?: number;
   props?: ComponentProps<"div">;
 }) => {
@@ -63,22 +65,36 @@ export const JackpotDetails = ({
   if (!jackpot || !factory) return null;
   return (
     <HStack {...props}>
-      <VStack gap={0} alignItems="flex-start">
-        <HStack>
-          <Text
-            fontFamily="Ekamai"
-            fontSize={["20px", "24px"]} /*title={`#${jackpot.id}`}*/
-          >
-            {factory?.name} {computedId ? `#${computedId}` : ""}
-          </Text>
-        </HStack>
-        <HStack w="full" justifyContent="space-between">
-          <Text>Ends in: </Text>
-          <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
-        </HStack>
-      </VStack>
-
-      <Spacer minW="20px" />
+      <HStack>
+        <VStack gap={0} alignItems="flex-start">
+          <HStack>
+            <Text
+              fontFamily="Ekamai"
+              fontSize={["20px", "24px"]} /*title={`#${jackpot.id}`}*/
+            >
+              {factory?.name} {computedId ? `#${computedId}` : ""}
+            </Text>
+          </HStack>
+          <HStack w="full" justifyContent="space-between">
+            <Text>Ends in: </Text>
+            <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
+          </HStack>
+        </VStack>
+        {game && (
+          <>
+            <Spacer minW="20px" />
+            <VStack gap={0} alignItems="flex-start">
+              <Text w="auto" fontSize="xs" lineHeight="24px">
+                LVL {game.level.toString()}
+              </Text>
+              <Text w="auto" fontFamily="Ekamai" fontSize="16px">
+                + {game?.reward.toLocaleString()} NUMS
+              </Text>
+            </VStack>
+          </>
+        )}
+      </HStack>
+      <Spacer minW="0px" />
 
       <VStack
         gap={0}

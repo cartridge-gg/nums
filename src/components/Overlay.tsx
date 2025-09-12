@@ -14,7 +14,8 @@ const Overlay = ({
   return (
     <HStack
       w="100vw"
-      h="100vh"
+      // h="100vh"
+      h={["100dvh", "100vh"]}
       top="0"
       left="0"
       position="absolute"

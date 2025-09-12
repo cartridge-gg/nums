@@ -173,7 +173,8 @@ const Home = () => {
 
   return (
     <Container
-      minH="100vh"
+      // minH="100vh"
+      h={["100dvh","100vh"]}
       maxW="100vw"
       display="flex"
       justifyContent="center"
@@ -302,7 +303,7 @@ const Home = () => {
             padding={["10px", "10px", "10px 30px"]}
             bgColor="rgba(0,0,0,0.04)"
           >
-            <Scrollable maxH={["calc(100vh - 380px)", "calc(100vh - 350px)"]}>
+            <Scrollable maxH={["calc(100dvh - 300px)", "calc(100vh - 350px)"]}>
               <Table.Root
                 size="sm"
                 variant="outline"

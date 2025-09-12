@@ -64,7 +64,7 @@ export const JackpotDetails = ({
 
   if (!jackpot || !factory) return null;
   return (
-    <HStack {...props}>
+    <HStack  {...props}>
       <HStack>
         <VStack gap={0} alignItems="flex-start">
           <HStack>
@@ -87,7 +87,12 @@ export const JackpotDetails = ({
               <Text w="auto" fontSize="xs" lineHeight="24px">
                 LVL {game.level.toString()}
               </Text>
-              <Text w="auto" fontFamily="Ekamai" fontSize="16px">
+              <Text
+                w="auto"
+                fontFamily="Ekamai"
+                fontSize="16px"
+                display={["none", "flex"]}
+              >
                 + {game?.reward.toLocaleString()} NUMS
               </Text>
             </VStack>

@@ -367,7 +367,7 @@ const Game = () => {
 
   return (
     <>
-      <Container h="100vh" maxW="100vw">
+      <Container h={["100dvh", "100vh"]} maxW="100vw">
         {isOwner && (
           <ShowReward
             amount={Number(factory.rewards[level - 1])}
@@ -431,35 +431,33 @@ const Game = () => {
         </Overlay>
  */}
         <VStack
-          h={["auto", "auto", "full"]}
+          h={["calc(100dvh - 120px)", "auto", "full"]}
           justify={["flex-start", "flex-start", "center"]}
           pt={["60px", "60px", "0"]}
           gap={3}
         >
-          <HStack>
-            <VStack gap={["0px", "0.5rem", "1rem"]}>
-              {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
-              {game && (
-                <>
-                  <TimeCountdown
-                    fontSize={["16px", "20px", "36px"]}
-                    timestampSec={gameFromStore?.expires_at || 0}
-                    gameOver={gameFromStore?.game_over}
-                  />
-                </>
-              )}
-              <Box
-                mb={["10px", "20px", "30px"]}
-                textStyle={["h-sm", "h-md", "h-lg"]}
-                textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
-                lineHeight="100px"
-                color={isOver ? "red" : "inherit"}
-                transition="color 3s"
-              >
-                <NextNumber number={nextNumber!} isLoading={isLoading} />
-              </Box>
-            </VStack>
-          </HStack>
+          <VStack gap={["0px", "0.5rem", "1rem"]}>
+            {/* <Text display={["none", "none", "block"]}>Your number is...</Text> */}
+            {game && (
+              <>
+                <TimeCountdown
+                  fontSize={["16px", "20px", "36px"]}
+                  timestampSec={gameFromStore?.expires_at || 0}
+                  gameOver={gameFromStore?.game_over}
+                />
+              </>
+            )}
+            <Box
+              mb={["10px", "20px", "30px"]}
+              textStyle={["h-sm", "h-md", "h-lg"]}
+              textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+              lineHeight="100px"
+              color={isOver ? "red" : "inherit"}
+              transition="color 3s"
+            >
+              <NextNumber number={nextNumber!} isLoading={isLoading} />
+            </Box>
+          </VStack>
           <Grid
             templateRows={[
               "repeat(10, 1fr)",

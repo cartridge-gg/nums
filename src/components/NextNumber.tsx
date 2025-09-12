@@ -83,9 +83,9 @@ const NextNumber = ({
   return (
     <VStack
       overflowY="hidden"
-      h={["40px", "60px", "100px"]}
+      h={["36px", "60px", "100px"]}
       align="center"
-      lineHeight={["40px", "60px", "100px"]}
+      lineHeight={["36px", "60px", "100px"]}
       position="relative"
     >
       <Flex>

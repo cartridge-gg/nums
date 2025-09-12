@@ -66,7 +66,7 @@ const Slot = ({
         </Text>
         <Button
           w={["80px", "90px", "100px"]}
-          h={["32px", "40px", "50px"]}
+          h={["calc((100dvh - 300px) / 10)", "40px", "50px"]}
           fontSize={["22px", "22px", "24px"]}
           visual="transparent"
           justifyContent="center"

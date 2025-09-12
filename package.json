@@ -68,6 +68,7 @@
     "ts-jest": "^29.2.5",
     "typescript": "^5.5.4",
     "vite": "^5.2.0",
+    "vite-plugin-pwa": "^1.0.3",
     "vite-plugin-static-copy": "^2.2.0",
     "vite-tsconfig-paths": "^5.1.4"
   },

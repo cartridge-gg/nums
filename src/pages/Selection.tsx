@@ -51,7 +51,7 @@ const Selection = () => {
   if (!jackpots) return null;
   return (
     <>
-      <Container h="100vh" maxW="100vw">
+      <Container h={["100dvh","100vh"]} maxW="100vw">
         <Header />
 
         <VStack

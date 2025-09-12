@@ -1,18 +1,20 @@
 import { Button, Spinner, VStack, Text, HStack, Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
-import useToast from "../hooks/toast";
-import { BigNumberish, num, uint256 } from "starknet";
+import { Call, CallData, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
 import { useParams } from "react-router-dom";
-import { getContractAddress, getNumsAddress, getVrfAddress } from "@/config";
+import {
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+  MAINNET_CHAIN_ID,
+  SEPOLIA_CHAIN_ID,
+} from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
-import { useJackpots } from "@/context/jackpots";
-import { useConfig } from "@/context/config";
 import { useDojoSdk } from "@/hooks/dojo";
-import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
-import { GameCreated, JackpotFactory } from "@/bindings";
+import { JackpotFactory } from "@/bindings";
 
 const Play = ({
   isAgain,
@@ -34,59 +36,59 @@ const Play = ({
   const { playReplay } = useAudio();
   const { gameId } = useParams();
   const { execute } = useExecuteCall();
-  const { config } = useConfig();
   const { sdk } = useDojoSdk();
-  const subscriptionRef = useRef<any>(null);
 
-  const gameCreatedQuery = useMemo(() => {
-    if (!account) return undefined;
+  // const subscriptionRef = useRef<any>(null);
+  // const gameCreatedQuery = useMemo(() => {
+  //   if (!account) return undefined;
 
-    return new ToriiQueryBuilder()
-      .withEntityModels(["nums-GameCreated"])
-      .withClause(
-        new ClauseBuilder()
-          .keys(
-            ["nums-GameCreated"],
-            [num.toHex64(account.address), undefined],
-            "FixedLen"
-          )
-          .build()
-      )
-      .includeHashedKeys();
-  }, [account]);
+  //   return new ToriiQueryBuilder()
+  //     .withEntityModels(["nums-GameCreated"])
+  //     .withClause(
+  //       new ClauseBuilder()
+  //         .keys(
+  //           ["nums-GameCreated"],
+  //           [num.toHex64(account.address), undefined],
+  //           "FixedLen"
+  //         )
+  //         .build()
+  //     )
+  //     .includeHashedKeys();
+  // }, [account]);
 
-  useEffect(() => {
-    const initAsync = async () => {
-      if (subscriptionRef.current) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.cancel();
-        }
-      }
-      const [items, subscription] = await sdk.subscribeEventQuery({
-        query: gameCreatedQuery!,
-        callback: (res) => {
-          const gameCreated = res.data![0].models.nums
-            .GameCreated as GameCreated;
+  // useEffect(() => {
+  //   const initAsync = async () => {
+  //     if (subscriptionRef.current) {
+  //       if (subscriptionRef.current) {
+  //         subscriptionRef.current.cancel();
+  //       }
+  //     }
+  //     const [items, subscription] = await sdk.subscribeEventQuery({
+  //       query: gameCreatedQuery!,
+  //       callback: (res) => {
+  //         const gameCreated = res.data![0].models.nums
+  //           .GameCreated as GameCreated;
 
-          if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
-            onReady(num.toHex(gameCreated.game_id));
-          }
-        },
-      });
+  //         if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
+  //           console.log("onReady subs");
+  //           onReady(num.toHex(gameCreated.game_id));
+  //         }
+  //       },
+  //     });
 
-      subscriptionRef.current = subscription;
-    };
+  //     subscriptionRef.current = subscription;
+  //   };
 
-    if (account && gameCreatedQuery) {
-      initAsync();
-    }
+  //   if (account && gameCreatedQuery) {
+  //     initAsync();
+  //   }
 
-    // return () => {
-    //   if (subscriptionRef.current) {
-    //     subscriptionRef.current.cancel();
-    //   }
-    // };
-  }, [gameCreatedQuery, account]);
+  //   // return () => {
+  //   //   if (subscriptionRef.current) {
+  //   //     subscriptionRef.current.cancel();
+  //   //   }
+  //   // };
+  // }, [gameCreatedQuery, account]);
 
   const createGame = async () => {
     if (!account) return;
@@ -99,29 +101,59 @@ const Play = ({
       const numsAddress = getNumsAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
 
-      const { receipt } = await execute(
-        [
-          // {
-          //   contractAddress: vrfAddress,
-          //   entrypoint: "request_random",
-          //   calldata: CallData.compile({
-          //     caller: gameAddress,
-          //     source: { type: 0, address: account.address },
-          //   }),
-          // },
+      const calls: Call[] = [];
+
+      if (
+        [MAINNET_CHAIN_ID, SEPOLIA_CHAIN_ID].includes(
+          `0x${chain.id.toString(16)}`
+        )
+      ) {
+        calls.push({
+          contractAddress: vrfAddress,
+          entrypoint: "request_random",
+          calldata: CallData.compile({
+            caller: gameAddress,
+            source: { type: 0, address: gameAddress },
+          }),
+        });
+      }
+
+      calls.push(
+        ...[
           {
             contractAddress: numsAddress,
             entrypoint: "approve",
-            calldata: [gameAddress, uint256.bnToUint256(1_000n * 10n ** 18n)],
+            calldata: [
+              gameAddress,
+              uint256.bnToUint256(
+                BigInt(factory.game_config.entry_cost) * 10n ** 18n
+              ),
+            ],
           },
           {
             contractAddress: gameAddress,
             entrypoint: "create_game",
             calldata: [factory.id],
           },
-        ],
-        (_receipt) => {}
+        ]
       );
+
+      const { receipt } = await execute(calls, (receipt) => {
+        const gameCreatedSelector = BigInt(
+          "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
+        );
+        if (receipt) {
+          const gameCreatedEvent = receipt.events.find(
+            (i: any) => BigInt(i.keys[1]) === gameCreatedSelector
+          );
+          if (gameCreatedEvent) {
+            console.log("onReady receipt");
+            setTimeout(() => {
+              onReady(num.toHex(gameCreatedEvent.data[4]));
+            }, 1_000);
+          }
+        }
+      });
       setCreating(false);
     } catch (e) {
       console.error(e);

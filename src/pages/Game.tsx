@@ -22,10 +22,16 @@ import Slot from "../components/Slot";
 import NextNumber from "../components/NextNumber";
 import { graphql } from "../graphql/appchain";
 import { useAudio } from "../context/audio";
-import { hash, num, uint256 } from "starknet";
+import { CallData, hash, num, uint256 } from "starknet";
 import { ShowReward } from "../components/ShowReward";
 import { graphQlClients } from "../graphql/clients";
-import { getContractAddress, getNumsAddress, getVrfAddress } from "../config";
+import {
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+  MAINNET_CHAIN_ID,
+  SEPOLIA_CHAIN_ID,
+} from "../config";
 import { useExecuteCall } from "../hooks/useExecuteCall";
 import { Footer } from "../components/Footer";
 import { useGames } from "../context/game";
@@ -323,25 +329,29 @@ const Game = () => {
     try {
       const vrfAddress = getVrfAddress(chain.id);
       const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
-      const { receipt } = await execute(
-        [
-          // {
-          //   contractAddress: vrfAddress,
-          //   entrypoint: "request_random",
-          //   calldata: CallData.compile({
-          //     caller: gameAddress,
-          //     source: { type: 0, address: account!.address },
-          //   }),
-          // },
 
-          {
-            contractAddress: gameAddress,
-            entrypoint: "set_slot",
-            calldata: [gameId!, slot.toString()],
-          },
-        ],
-        (_receipt) => {}
-      );
+      const calls = [];
+      if (
+        [MAINNET_CHAIN_ID, SEPOLIA_CHAIN_ID].includes(
+          `0x${chain.id.toString(16)}`
+        )
+      ) {
+        calls.push({
+          contractAddress: vrfAddress,
+          entrypoint: "request_random",
+          calldata: CallData.compile({
+            caller: gameAddress,
+            source: { type: 0, address: gameAddress },
+          }),
+        });
+      }
+
+      calls.push({
+        contractAddress: gameAddress,
+        entrypoint: "set_slot",
+        calldata: [gameId!, slot.toString()],
+      });
+      const { receipt } = await execute(calls, (_receipt) => {});
 
       const newSlots = [...slots];
       newSlots[slot] = nextNumber!;

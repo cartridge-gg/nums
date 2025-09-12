@@ -1,5 +1,5 @@
 use core::pedersen::pedersen;
-use starknet::{ContractAddress, get_caller_address, get_contract_address};
+use starknet::{ContractAddress, get_contract_address};
 use crate::interfaces::vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 
 
@@ -17,7 +17,7 @@ pub impl RandomImpl of RandomTrait {
 
     // https://docs.cartridge.gg/vrf/overview
     fn new_vrf(vrf_provider_disp: IVrfProviderDispatcher) -> Random {
-        let seed = vrf_provider_disp.consume_random(Source::Nonce(get_caller_address()));
+        let seed = vrf_provider_disp.consume_random(Source::Nonce(get_contract_address()));
         Random { seed, nonce: 0 }
     }
 

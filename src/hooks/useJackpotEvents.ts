@@ -42,7 +42,6 @@ export const useJackpotEvents = (
       const [items, subscription] = await sdk.subscribeEventQuery({
         query: jackpotEventsQuery!,
         callback: (res) => {
-          console.log(res);
           const newWinner = res.data![0].models.nums.NewWinner as NewWinner;
           const gameCreated = res.data![0].models.nums
             .GameCreated as GameCreated;

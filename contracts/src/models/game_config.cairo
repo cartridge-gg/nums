@@ -22,7 +22,7 @@ pub impl DefaultGameConfig of Default<GameConfig> {
         GameConfig {
             max_slots: 20,
             min_number: 1,
-            max_number: 1000,
+            max_number: 999,
             entry_cost: 1000,
             game_duration: 3 * ONE_MINUTE,
         }

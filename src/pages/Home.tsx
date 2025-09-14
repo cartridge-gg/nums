@@ -47,6 +47,7 @@ import Play from "@/components/Play";
 import { Scrollable } from "@/components/ui/scrollable";
 import { useGames } from "@/context/game";
 import { MaybeController } from "@/components/MaybeController";
+import GetNums from "@/components/GetNums";
 
 interface WinnersRewards {
   nums: BigNumberish;
@@ -167,14 +168,14 @@ const Home = () => {
     }
   }, [selectedJackpot]);
 
-  const isJackpotOver = useMemo(()=> {
-    return Number(selectedJackpot?.end_at) * 1_000 <= Date.now()
-  },[selectedJackpot])
+  const isJackpotOver = useMemo(() => {
+    return Number(selectedJackpot?.end_at) * 1_000 <= Date.now();
+  }, [selectedJackpot]);
 
   return (
     <Container
       // minH="100vh"
-      h={["100dvh","100vh"]}
+      h={["100dvh", "100vh"]}
       maxW="100vw"
       display="flex"
       justifyContent="center"
@@ -257,25 +258,31 @@ const Home = () => {
             </HStack>
 
             <HStack>
-              {selectedJackpot && isJackpotOver && claimable && claimable.length > 0 && (
-                <Button
-                  onClick={() => {
-                    claim(
-                      selectedJackpot.id,
-                      claimable.map((i) => i.index)
-                    );
-                  }}
-                >
-                  {isClaiming ? <Spinner /> : <LuCrown />}
-                  {isMobile ? "" : "Claim"}
-                </Button>
-              )}
+              {selectedJackpot &&
+                isJackpotOver &&
+                claimable &&
+                claimable.length > 0 && (
+                  <Button
+                    onClick={() => {
+                      claim(
+                        selectedJackpot.id,
+                        claimable.map((i) => i.index)
+                      );
+                    }}
+                  >
+                    {isClaiming ? <Spinner /> : <LuCrown />}
+                    {isMobile ? "" : "Claim"}
+                  </Button>
+                )}
               {!isMobile && selectedFactory && (
-                <Play
-                  onReady={(gameId) => navigate(`/${gameId}`)}
-                  w={["100%", "100%", "auto"]}
-                  factory={selectedFactory}
-                />
+                <>
+                  <GetNums />
+                  <Play
+                    onReady={(gameId) => navigate(`/${gameId}`)}
+                    w={["100%", "100%", "auto"]}
+                    factory={selectedFactory}
+                  />
+                </>
               )}
 
               <Button visual="transparent" p="8px" onClick={() => onOpenInfo()}>
@@ -303,7 +310,7 @@ const Home = () => {
             padding={["10px", "10px", "10px 30px"]}
             bgColor="rgba(0,0,0,0.04)"
           >
-            <Scrollable maxH={["calc(100dvh - 300px)", "calc(100vh - 350px)"]}>
+            <Scrollable maxH={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}>
               <Table.Root
                 size="sm"
                 variant="outline"
@@ -457,16 +464,19 @@ const Home = () => {
             </Scrollable>
           </Box>
 
-          <HStack w="full" justifyContent="center" gap={6}>
+          <VStack w="full" justifyContent="center" gap={1}>
             {isMobile && selectedFactory && (
-              <Play
-                onReady={(gameId) => navigate(`/${gameId}`)}
-                w={["100%", "100%", "auto"]}
-                factory={selectedFactory}
-              />
+              <>
+                <Play
+                  onReady={(gameId) => navigate(`/${gameId}`)}
+                  w={["100%", "100%", "auto"]}
+                  factory={selectedFactory}
+                />
+                <GetNums w="full" />
+              </>
             )}
             {/* <Button onClick={() => navigate("/factories")}>Play Nums</Button> */}
-          </HStack>
+          </VStack>
         </VStack>
       </VStack>
     </Container>

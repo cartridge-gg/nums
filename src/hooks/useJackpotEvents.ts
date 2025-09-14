@@ -34,11 +34,9 @@ export const useJackpotEvents = (
   useEffect(() => {
     const initAsync = async () => {
       if (subscriptionRef.current) {
-        return;
-        // if (subscriptionRef.current) {
-        //   subscriptionRef.current.cancel();
-        // }
+        subscriptionRef.current = null;
       }
+      
       const [items, subscription] = await sdk.subscribeEventQuery({
         query: jackpotEventsQuery!,
         callback: (res) => {

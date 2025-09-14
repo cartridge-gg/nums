@@ -62,10 +62,9 @@ const Play = ({
   useEffect(() => {
     const initAsync = async () => {
       if (subscriptionRef.current) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.cancel();
-        }
+        subscriptionRef.current = null;
       }
+
       const [items, subscription] = await sdk.subscribeEventQuery({
         query: gameCreatedQuery!,
         callback: (res) => {
@@ -140,8 +139,8 @@ const Play = ({
         ]
       );
 
-      const { receipt } = await execute(calls, (receipt) => {
-        console.log(receipt);
+      const { receipt } = await execute(calls, (_receipt) => {
+        // // console.log(receipt);
         // const gameCreatedSelector = BigInt(
         //   "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
         // );

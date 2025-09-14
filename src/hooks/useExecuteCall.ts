@@ -1,4 +1,4 @@
-import { DojoCall } from "@dojoengine/core";
+import { DojoCall, DojoProvider } from "@dojoengine/core";
 import { useAccount } from "@starknet-react/core";
 import { useCallback } from "react";
 import {
@@ -6,6 +6,7 @@ import {
   Call,
   GetTransactionReceiptResponse,
   InvokeFunctionResponse,
+  RpcProvider,
 } from "starknet";
 import { useDojoSdk } from "./dojo";
 import useToast from "./toast";
@@ -43,13 +44,21 @@ export const useExecuteCall = () => {
           );
         }
 
-        receipt = await provider?.provider.waitForTransaction(
+        // receipt = await provider?.provider.waitForTransaction(
+        //   tx.transaction_hash,
+        //   {
+        //     retryInterval: 500,
+        //     successStates: ["PRE_CONFIRMED", "ACCEPTED_ON_L2", "ACCEPTED_ON_L1"]
+        //   }
+        // );
+
+        // @ts-ignore
+        receipt = await waitForTransaction(
+          provider.provider,
           tx.transaction_hash,
-          {
-            retryInterval: 250,
-            successStates: ["PRE_CONFIRMED", "ACCEPTED_ON_L2", "ACCEPTED_ON_L1"]
-          }
+          5
         );
+
         checkTxReceipt(receipt);
 
         onSuccess && onSuccess(receipt);
@@ -71,6 +80,31 @@ export const useExecuteCall = () => {
   return {
     execute,
   };
+};
+
+export const waitForTransaction = async (
+  provider: RpcProvider,
+  txHash: string,
+  maxRetry: number
+) => {
+  let receipt = undefined;
+  while (maxRetry > 0) {
+    try {
+      receipt = await provider.waitForTransaction(txHash, {
+        retryInterval: 200,
+        successStates: ["PRE_CONFIRMED", "ACCEPTED_ON_L2", "ACCEPTED_ON_L1"],
+      });
+      return receipt;
+    } catch (e) {
+      console.log("waitForTransaction error", maxRetry, e);
+      if (maxRetry === 0) {
+        throw e;
+      }
+    }
+
+    maxRetry -= 1;
+  }
+  return undefined
 };
 
 export const tryBetterErrorMsg = (msg: string): string => {

@@ -37,9 +37,9 @@ const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: chain.rpcUrls.default.http[0] };
+        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
       case sepolia:
-        return { nodeUrl: chain.rpcUrls.default.http[0] };
+        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
       case katanaChain:
         return { nodeUrl: chain.rpcUrls.default.http[0] };
       case slotChain:
@@ -92,7 +92,18 @@ const buildPolicies = () => {
 
 const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
-  return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+  switch (chain) {
+    case mainnet:
+      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+    case sepolia:
+      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+    case katanaChain:
+      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+    case slotChain:
+      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+    default:
+      throw new Error(`Unsupported chain: ${chain.network}`);
+  }
 };
 
 const buildTokens = () => {

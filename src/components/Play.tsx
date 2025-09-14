@@ -14,17 +14,20 @@ import {
 } from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
 import { useDojoSdk } from "@/hooks/dojo";
-import { JackpotFactory } from "@/bindings";
+import { GameCreated, JackpotFactory } from "@/bindings";
+import { ToriiQueryBuilder, ClauseBuilder } from "@dojoengine/sdk";
 
 const Play = ({
   isAgain,
   onReady,
+  onClick,
   factory,
   label,
   ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
+  onClick?: () => void;
   factory: JackpotFactory;
   label?: string;
   [key: string]: any;
@@ -38,57 +41,56 @@ const Play = ({
   const { execute } = useExecuteCall();
   const { sdk } = useDojoSdk();
 
-  // const subscriptionRef = useRef<any>(null);
-  // const gameCreatedQuery = useMemo(() => {
-  //   if (!account) return undefined;
+  const subscriptionRef = useRef<any>(null);
+  const gameCreatedQuery = useMemo(() => {
+    if (!account) return undefined;
 
-  //   return new ToriiQueryBuilder()
-  //     .withEntityModels(["nums-GameCreated"])
-  //     .withClause(
-  //       new ClauseBuilder()
-  //         .keys(
-  //           ["nums-GameCreated"],
-  //           [num.toHex64(account.address), undefined],
-  //           "FixedLen"
-  //         )
-  //         .build()
-  //     )
-  //     .includeHashedKeys();
-  // }, [account]);
+    return new ToriiQueryBuilder()
+      .withEntityModels(["nums-GameCreated"])
+      .withClause(
+        new ClauseBuilder()
+          .keys(
+            ["nums-GameCreated"],
+            [num.toHex64(account.address), undefined],
+            "FixedLen"
+          )
+          .build()
+      )
+      .includeHashedKeys();
+  }, [account]);
 
-  // useEffect(() => {
-  //   const initAsync = async () => {
-  //     if (subscriptionRef.current) {
-  //       if (subscriptionRef.current) {
-  //         subscriptionRef.current.cancel();
-  //       }
-  //     }
-  //     const [items, subscription] = await sdk.subscribeEventQuery({
-  //       query: gameCreatedQuery!,
-  //       callback: (res) => {
-  //         const gameCreated = res.data![0].models.nums
-  //           .GameCreated as GameCreated;
+  useEffect(() => {
+    const initAsync = async () => {
+      if (subscriptionRef.current) {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
+        }
+      }
+      const [items, subscription] = await sdk.subscribeEventQuery({
+        query: gameCreatedQuery!,
+        callback: (res) => {
+          const gameCreated = res.data![0].models.nums
+            .GameCreated as GameCreated;
 
-  //         if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
-  //           console.log("onReady subs");
-  //           onReady(num.toHex(gameCreated.game_id));
-  //         }
-  //       },
-  //     });
+          if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
+            onReady(num.toHex(gameCreated.game_id));
+          }
+        },
+      });
 
-  //     subscriptionRef.current = subscription;
-  //   };
+      subscriptionRef.current = subscription;
+    };
 
-  //   if (account && gameCreatedQuery) {
-  //     initAsync();
-  //   }
+    if (account && gameCreatedQuery) {
+      initAsync();
+    }
 
-  //   // return () => {
-  //   //   if (subscriptionRef.current) {
-  //   //     subscriptionRef.current.cancel();
-  //   //   }
-  //   // };
-  // }, [gameCreatedQuery, account]);
+    // return () => {
+    //   if (subscriptionRef.current) {
+    //     subscriptionRef.current.cancel();
+    //   }
+    // };
+  }, [gameCreatedQuery, account]);
 
   const createGame = async () => {
     if (!account) return;
@@ -139,20 +141,21 @@ const Play = ({
       );
 
       const { receipt } = await execute(calls, (receipt) => {
-        const gameCreatedSelector = BigInt(
-          "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
-        );
-        if (receipt) {
-          const gameCreatedEvent = receipt.events.find(
-            (i: any) => BigInt(i.keys[1]) === gameCreatedSelector
-          );
-          if (gameCreatedEvent) {
-            console.log("onReady receipt");
-            setTimeout(() => {
-              onReady(num.toHex(gameCreatedEvent.data[4]));
-            }, 1_000);
-          }
-        }
+        console.log(receipt);
+        // const gameCreatedSelector = BigInt(
+        //   "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
+        // );
+        // if (receipt) {
+        //   const gameCreatedEvent = receipt.events.find(
+        //     (i: any) => i.keys.length > 2 && BigInt(i.keys[1]) === gameCreatedSelector
+        //   );
+        //   if (gameCreatedEvent) {
+        //     console.log("onReady receipt");
+        //     setTimeout(() => {
+        //       onReady(num.toHex(gameCreatedEvent.data[4]));
+        //     }, 1_000);
+        //   }
+        // }
       });
       setCreating(false);
     } catch (e) {
@@ -164,7 +167,10 @@ const Play = ({
     <>
       {account ? (
         <Button
-          onClick={createGame}
+          onClick={() => {
+            onClick && onClick();
+            createGame();
+          }}
           disabled={creating}
           minW="150px"
           {...buttonProps}

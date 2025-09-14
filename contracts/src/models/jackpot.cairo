@@ -389,8 +389,8 @@ pub impl JackpotImpl of JackpotTrait {
             i += 1;
         }
 
-        println!("claimable_nums : {}", claimable_nums);
-        println!("claimable_token : {}", claimable_token);
+        // println!("claimable_nums : {}", claimable_nums);
+        // println!("claimable_token : {}", claimable_token);
 
         if claimable_nums > 0 {
             store.nums_disp().transfer(player, claimable_nums);

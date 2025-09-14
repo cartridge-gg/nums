@@ -1,0 +1,23 @@
+world_address = "0x04c665b44ab9c0bd450d1af2f1c419851cdc282ddddf6ff7ea69a894307afe95"
+rpc = "https://api.cartridge.gg/x/starknet/sepolia"
+
+[server]
+http_cors_origins = ["*"]
+
+[grpc]
+optimistic = false
+
+[indexing]
+world_block = 2010600
+controllers = true
+pending = true
+polling_interval = 250
+max_concurrent_tasks = 2
+contracts = [
+    "ERC20:0x054bf5fa5a7afb3be96d9af1acb80be5c498888927fc0f7126a8876c65c9fa73", # NUMS
+    "ERC20:0x052823c16e573387eed5d55d10073dc8e333af69a1ccdf27876717f19dc9164e", # REW
+]
+
+
+[sql]
+historical = ["nums-TrophyProgression"]

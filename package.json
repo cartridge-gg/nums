@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@bal7hazar/arcade-sdk": "^0.0.74",
-    "@cartridge/connector": "0.10.0",
-    "@cartridge/controller": "0.10.0",
+    "@cartridge/connector": "0.10.2",
+    "@cartridge/controller": "0.10.2",
     "@cartridge/presets": "^0.5.2",
     "@chakra-ui/react": "^3.26.0",
     "@dojoengine/core": "1.7.0",

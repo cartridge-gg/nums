@@ -2,7 +2,7 @@ import { num, shortString } from "starknet";
 
 import manifestDev from "../contracts/manifest_dev.json";
 import manifestSlot from "../contracts/manifest_slot.json";
-import manifestSepolia from "../contracts/manifest_dev.json"; // todo: updata when built
+import manifestSepolia from "../contracts/manifest_sepolia.json"; // todo: updata when built
 import manifestMainnet from "../contracts/manifest_dev.json"; // todo: updata when built
 import { Chain, mainnet, sepolia } from "@starknet-react/chains";
 import { createDojoConfig } from "@dojoengine/core";

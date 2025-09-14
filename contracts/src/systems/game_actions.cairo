@@ -141,8 +141,8 @@ pub mod game_actions {
             let to_burn = entry_cost * config.burn_pct.into() / 100;
             let to_jackpot = entry_cost - to_burn;
 
-            println!("to_jackpot: {}", to_jackpot);
-            println!("to_burn: {}", to_burn);
+            // println!("to_jackpot: {}", to_jackpot);
+            // println!("to_burn: {}", to_burn);
 
             // transfer to this contract
             nums_disp.transfer_from(player, get_contract_address(), entry_cost);
@@ -272,11 +272,11 @@ pub mod game_actions {
             let is_equal = score == jackpot.best_score;
             let is_better = score > jackpot.best_score;
 
-            println!("is_game_over : {}", is_game_over);
-            println!("score : {}", score);
-            println!("has_min_score : {}", has_min_score);
-            println!("is_equal : {}", is_equal);
-            println!("is_better : {}", is_better);
+            // println!("is_game_over : {}", is_game_over);
+            // println!("score : {}", score);
+            // println!("has_min_score : {}", has_min_score);
+            // println!("is_equal : {}", is_equal);
+            // println!("is_better : {}", is_better);
 
             if score > jackpot.best_score {
                 jackpot.best_score = score;

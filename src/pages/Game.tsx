@@ -108,10 +108,8 @@ const Game = () => {
   const [level, setLevel] = useState<number>(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { chain } = useNetwork();
-  const { open, onOpen, onClose } = useDisclosure();
   const { account, address } = useAccount();
   const { gameId } = useParams();
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { playPositive, playNegative } = useAudio();
   const [game, setGame] = useState<any>();
@@ -246,15 +244,6 @@ const Game = () => {
           });
           setSlots(newSlots);
 
-          if (isGameOver(newSlots, gameModel.next_number!)) {
-            setIsOver(true);
-
-            if (isOwner) {
-              playNegative();
-              // setTimeout(() => onOpen(), 3000);
-            }
-          }
-
           updateGameState(
             newSlots,
             gameModel.next_number!,
@@ -267,7 +256,7 @@ const Game = () => {
     [isOwner]
   );
 
-  useEffect(() => queryGame(parseInt(gameId!)), []);
+  useEffect(() => queryGame(parseInt(gameId!)), [gameId]);
 
   useEffect(() => {
     if (!address || !player) return;
@@ -278,11 +267,6 @@ const Game = () => {
   useEffect(() => {
     const entityUpdated = subscriptionResult.data?.entityUpdated;
     if (entityUpdated) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        setTimeoutId(null);
-      }
-
       // @ts-ignore
       const next = entityUpdated.models![0]!.next_number as number;
       // @ts-ignore
@@ -296,13 +280,18 @@ const Game = () => {
 
   const updateGameState = useCallback(
     (slots: number[], nextNum: number, level: number, reward: number) => {
+      console.log("updateGameState");
+      console.log(nextNum, slots);
       if (isGameOver(slots, nextNum)) {
+        console.log("isGameOver: 1");
+
         setIsOver(true);
 
         if (isOwner) {
           playNegative();
-          setTimeout(() => onOpen(), 3000);
         }
+      } else {
+        console.log("isGameOver: 0");
       }
 
       setReward(reward);
@@ -351,17 +340,15 @@ const Game = () => {
         entrypoint: "set_slot",
         calldata: [gameId!, slot.toString()],
       });
-      const { receipt } = await execute(calls, (_receipt) => {});
-
-      const newSlots = [...slots];
-      newSlots[slot] = nextNumber!;
-      setSlots(newSlots);
-
-      // Set timeout to query game if subscription doesn't respond
-      const timeout = setTimeout(() => {
-        queryGame(parseInt(gameId!));
-      }, 2000);
-      setTimeoutId(timeout);
+      const { receipt } = await execute(calls, (receipt) => {
+        if (receipt) {
+          const newSlots = [...slots];
+          newSlots[slot] = nextNumber!;
+          setSlots(newSlots);
+        } else {
+          queryGame(parseInt(gameId!));
+        }
+      });
 
       return true;
     } catch (e) {
@@ -510,20 +497,28 @@ const Game = () => {
                 </HStack>
               )} */}
 
+              <HStack>
+                <div>isOver: {isOver ? "1" : "0"}</div>
+                <div>isGameOverTime: {isGameOverTime ? "1" : "0"}</div>
+                <div>isJackpotOver: {isJackpotOver ? "1" : "0"}</div>
+                <div>canClaim: {canClaim ? "1" : "0"}</div>
+              </HStack>
+
               {(isOver || isGameOverTime) && !isJackpotOver && !canClaim && (
                 <Play
                   isAgain
                   factory={factory}
-                  onReady={(gameId) => {
-                    queryGame(parseInt(gameId));
+                  onClick={() => {
                     setSlots(Array.from({ length: MAX_SLOTS }, () => 0));
-                    setNextNumber(null);
                     setRemaining(0);
                     setReward(0);
-                    setIsOver(false);
                     setIsLoading(true);
                     setCanClaim(false);
-                    onClose();
+                  }}
+                  onReady={(gameId) => {
+                    setIsOver(false);
+                    // setNextNumber(null);
+                    // queryGame(parseInt(gameId));
                     navigate(`/${gameId}`);
                   }}
                 />

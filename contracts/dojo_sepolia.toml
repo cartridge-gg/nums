@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-02422025"
+seed = "nums-alpha"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 # cover_uri = "file://assets/cover.png"
 # icon_uri = "file://assets/icon.png"
@@ -11,15 +11,22 @@ website = "https://nums.gg"
 default = "nums"
 
 [env]
-rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-account_address = "0x054f2b25070d70d49f1c1f7c10Ef2639889fDAc15894D3FBa1a03caF5603eCA3"
-keystore_path = "/home/broody/.starkli_accounts/sepolia/keystore.json"
+rpc_url = "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_9/Cp62DWBCr32b4lnkqVAZ08V7fPGFpisQ"
+# rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
+account_address = "0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc"
+keystore_path = "../../../dev_accounts/nums_key"
 #world_address = "0x00f60d1f50ab993cc9e40cbe27634568ca3ad98e0f004f2920d92ad9340a22d2"
 
+skip_contracts = ["nums-MockVRF"]
+
 [writers]
-"nums" = [
-    "nums-game_actions",
-    "nums-claim_actions",
-    "nums-config_actions",
-    "nums-jackpot_actions",
+"nums" = ["nums-game_actions", "nums-config_actions", "nums-jackpot_actions"]
+
+[init_call_args]
+"nums-config_actions" = [
+    "0x1",                                                                # nums_address = Option::None
+    "0x0",                                                                # Option::Some
+    "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address 
+    "50",                                                                 # burn_pct
 ]
+

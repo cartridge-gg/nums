@@ -46,7 +46,8 @@ export const useExecuteCall = () => {
         receipt = await provider?.provider.waitForTransaction(
           tx.transaction_hash,
           {
-            retryInterval: 200,
+            retryInterval: 250,
+            successStates: ["PRE_CONFIRMED", "ACCEPTED_ON_L2", "ACCEPTED_ON_L1"]
           }
         );
         checkTxReceipt(receipt);
@@ -54,7 +55,11 @@ export const useExecuteCall = () => {
         onSuccess && onSuccess(receipt);
       } catch (e: any) {
         console.log(e);
-        showError("Execution Error", tryBetterErrorMsg(e));
+        if (e.message) {
+          showError("Execution Error", tryBetterErrorMsg(e.message));
+        } else {
+          showError("Execution Error", tryBetterErrorMsg(e));
+        }
         return { receipt: undefined };
       }
 

@@ -1,7 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isMoveLegal } from "../utils";
-import { Box, Container, Grid, Spinner, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Container,
+  Grid,
+  HStack,
+  Spinner,
+  useBreakpointValue,
+  VStack,
+} from "@chakra-ui/react";
 import { Button } from "../components/Button";
 import { useAccount, useNetwork } from "@starknet-react/core";
 import Header from "../components/Header";
@@ -44,6 +52,7 @@ const Game = () => {
   const { execute } = useExecuteCall();
   const { showMessage, showJackpotEvent } = useToast();
   const { findController } = useControllers();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const [canClaim, setCanClaim] = useState(false);
   const {
@@ -64,75 +73,83 @@ const Game = () => {
   const isGameOverTime = Number(game?.expires_at) * 1_000 <= Date.now();
   const isOver = game?.game_over;
 
-  const onJackpotEvent = useCallback(
-    (type: string, event: any) => {
-      // console.log(type, event);
-      // console.log(typeof event);
+  // const onJackpotEvent = useCallback(
+  //   (type: string, event: any) => {
+  //     // console.log(type, event);
+  //     // console.log(typeof event);
 
-      switch (type) {
-        case "NewWinner":
-          {
-            const newWinner = event as NewWinner;
+  //     switch (type) {
+  //       case "NewWinner":
+  //         {
+  //           const newWinner = event as NewWinner;
 
-            if (
-              newWinner &&
-              newWinner.has_ended &&
-              BigInt(newWinner.player) === BigInt(account?.address || 0)
-            ) {
-              setCanClaim(true);
-            }
+  //           if (
+  //             newWinner &&
+  //             newWinner.has_ended &&
+  //             BigInt(newWinner.player) === BigInt(account?.address || 0)
+  //           ) {
+  //             setCanClaim(true);
+  //           }
 
-            const controller = findController(newWinner.player);
-            const username = controller
-              ? controller.username
-              : shortAddress(newWinner.player);
+  //           const controller = findController(newWinner.player);
+  //           const username = controller
+  //             ? controller.username
+  //             : shortAddress(newWinner.player);
 
-            if (newWinner.is_equal) {
-              showJackpotEvent(
-                "New Winner",
-                `${username} scored ${newWinner.score}`,
-                "orange"
-              );
-            } else {
-              showJackpotEvent(
-                "New Highscore",
-                `${username} scored ${newWinner.score}`,
-                "orange"
-              );
-            }
+  //           if (newWinner.is_equal) {
+  //             showJackpotEvent(
+  //               "New Winner",
+  //               `${username} scored ${newWinner.score}`,
+  //               "orange"
+  //             );
+  //           } else {
+  //             showJackpotEvent(
+  //               "New Highscore",
+  //               `${username} scored ${newWinner.score}`,
+  //               "orange"
+  //             );
+  //           }
 
-            if (Number(newWinner.extension_time) > 0) {
-              const duration = humanDuration(Number(newWinner.extension_time));
-              showJackpotEvent("Time Extension", `${duration}`);
-            }
-          }
+  //           if (Number(newWinner.extension_time) > 0) {
+  //             const duration = humanDuration(Number(newWinner.extension_time));
+  //             showJackpotEvent("Time Extension", `${duration}`);
+  //           }
+  //         }
 
-          break;
-        case "GameCreated":
-          {
-            const gameCreated = event as GameCreated;
-            const controller = findController(gameCreated.player);
-            const username = controller
-              ? controller.username
-              : shortAddress(gameCreated.player);
+  //         break;
+  //       case "GameCreated":
+  //         {
+  //           const gameCreated = event as GameCreated;
+  //           const controller = findController(gameCreated.player);
+  //           const username = controller
+  //             ? controller.username
+  //             : shortAddress(gameCreated.player);
 
-            if (BigInt(gameCreated.player) !== BigInt(account?.address || 0))
-              showJackpotEvent(
-                "New challenger",
-                `${username} has joined the competition`
-              );
-          }
-          break;
-      }
-    },
-    [account, setCanClaim]
-  );
+  //           if (BigInt(gameCreated.player) !== BigInt(account?.address || 0))
+  //             showJackpotEvent(
+  //               "New challenger",
+  //               `${username} has joined the competition`
+  //             );
+  //         }
+  //         break;
+  //     }
+  //   },
+  //   [account, setCanClaim]
+  // );
 
-  useJackpotEvents(jackpot?.id || 0, onJackpotEvent);
+  // useJackpotEvents(jackpot?.id || 0, onJackpotEvent);
 
   //
   //
   //
+
+  useEffect(() => {
+    if (game?.game_over) {
+      setTimeout(() => {
+        playNegative();
+      }, 500);
+    }
+  }, [game]);
 
   useEffect(() => {
     const initAsync = async () => {
@@ -277,7 +294,7 @@ const Game = () => {
             mt={["0", "10px", "20px"]}
             // visibility={isOver ? "visible" : "hidden"}
           >
-            <VStack h="40px">
+            <HStack h="40px">
               {/* {!isOver && !isJackpotOver && gameFromStore && (
                 <HStack gap={3} alignItems="center">
                   <Text w="auto" fontSize="xs">
@@ -289,27 +306,38 @@ const Game = () => {
                 </HStack>
               )} */}
 
-              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim && (
-                <Play
-                  isAgain
-                  factory={factory}
-                  onClick={() => {
-                    clearSlots();
+              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim ? (
+                <>
+                  <Play
+                    isAgain
+                    factory={factory}
+                    onClick={() => {
+                      clearSlots();
 
-                    setIsLoading(true);
-                    setCanClaim(false);
-                  }}
-                  onReady={(gameId) => {
-                    navigate(`/${gameId}`);
-                  }}
-                />
-              )}
-
-              {(isOver || isGameOverTime) && isJackpotOver && !canClaim && (
+                      setIsLoading(true);
+                      setCanClaim(false);
+                    }}
+                    onReady={(gameId) => {
+                      navigate(`/${gameId}`);
+                    }}
+                  />
+                  {!isMobile && (
+                    <Button visual="transparent" onClick={() => navigate("/")}>
+                      <HomeIcon /> Home
+                    </Button>
+                  )}
+                </>
+              ) : (
                 <Button visual="transparent" onClick={() => navigate("/")}>
                   <HomeIcon /> Home
                 </Button>
               )}
+
+              {/* {(isOver || isGameOverTime) && isJackpotOver && !canClaim && (
+                <Button visual="transparent" onClick={() => navigate("/")}>
+                  <HomeIcon /> Home
+                </Button>
+              )} */}
 
               {isOver && canClaim && !isClaimingSuccessful && (
                 // if canClaim, there is only one winner possible so index is 0
@@ -317,7 +345,7 @@ const Game = () => {
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>
               )}
-            </VStack>
+            </HStack>
           </Box>
         </VStack>
         <Footer game={game} jackpot={jackpot} />

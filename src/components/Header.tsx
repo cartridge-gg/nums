@@ -130,6 +130,7 @@ const Header = () => {
           </>
         ) : (
           <Button
+          h={["40px", "48px"]}
             onClick={() => {
               connect({ connector: connectors[0] });
             }}

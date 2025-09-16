@@ -1,5 +1,5 @@
-import { Button, Spinner, VStack, Text, HStack, Box } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Spinner, VStack, Text, HStack, Box } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import { Call, CallData, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
@@ -16,6 +16,9 @@ import { useExecuteCall } from "@/hooks/useExecuteCall";
 import { useDojoSdk } from "@/hooks/dojo";
 import { GameCreated, JackpotFactory } from "@/bindings";
 import { ToriiQueryBuilder, ClauseBuilder } from "@dojoengine/sdk";
+import { useToken } from "@/hooks/useToken";
+import useToast from "@/hooks/toast";
+import { Button } from "./Button";
 
 const Play = ({
   isAgain,
@@ -37,11 +40,20 @@ const Play = ({
   const { chain } = useNetwork();
   const [creating, setCreating] = useState<boolean>(false);
   const { playReplay } = useAudio();
-  const { gameId } = useParams();
   const { execute } = useExecuteCall();
   const { sdk } = useDojoSdk();
+  const { showError } = useToast();
 
   const subscriptionRef = useRef<any>(null);
+
+  const vrfAddress = getVrfAddress(chain.id);
+  const numsAddress = getNumsAddress(chain.id);
+  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+
+  const { balance: numsBalance } = useToken(numsAddress);
+
+  const isPoor = numsBalance < Number(factory.game_config.entry_cost);
+
   const gameCreatedQuery = useMemo(() => {
     if (!account) return undefined;
 
@@ -59,48 +71,40 @@ const Play = ({
       .includeHashedKeys();
   }, [account]);
 
-  useEffect(() => {
-    const initAsync = async () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current = null;
-      }
-
-      const [items, subscription] = await sdk.subscribeEventQuery({
-        query: gameCreatedQuery!,
-        callback: (res) => {
-          const gameCreated = res.data![0].models.nums
-            .GameCreated as GameCreated;
-
-          if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
-            onReady(num.toHex(gameCreated.game_id));
-          }
-        },
-      });
-
-      subscriptionRef.current = subscription;
-    };
-
-    if (account && gameCreatedQuery) {
-      initAsync();
+  const initSubscription = useCallback(async () => {
+    if (subscriptionRef.current) {
+      subscriptionRef.current = null;
     }
 
-    // return () => {
-    //   if (subscriptionRef.current) {
-    //     subscriptionRef.current.cancel();
-    //   }
-    // };
+    const [items, subscription] = await sdk.subscribeEventQuery({
+      query: gameCreatedQuery!,
+      callback: (res) => {
+        const gameCreated = res.data![0].models.nums.GameCreated as GameCreated;
+
+        if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
+          onReady(num.toHex(gameCreated.game_id));
+        }
+      },
+    });
+
+    subscriptionRef.current = subscription;
   }, [gameCreatedQuery, account]);
+
+  useEffect(() => {
+    if (account && gameCreatedQuery) {
+      initSubscription();
+    }
+  }, [gameCreatedQuery, account, initSubscription]);
 
   const createGame = async () => {
     if (!account) return;
 
     try {
       setCreating(true);
-      playReplay();
 
-      const vrfAddress = getVrfAddress(chain.id);
-      const numsAddress = getNumsAddress(chain.id);
-      const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+      await initSubscription();
+
+      playReplay();
 
       const calls: Call[] = [];
 
@@ -167,10 +171,13 @@ const Play = ({
       {account ? (
         <Button
           onClick={() => {
+            if (isPoor) {
+              return showError(undefined, "Too poor");
+            }
             onClick && onClick();
             createGame();
           }}
-          disabled={creating}
+          disabled={creating || isPoor}
           minW="150px"
           {...buttonProps}
         >

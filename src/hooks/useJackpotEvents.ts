@@ -36,7 +36,7 @@ export const useJackpotEvents = (
       if (subscriptionRef.current) {
         subscriptionRef.current = null;
       }
-      
+     
       const [items, subscription] = await sdk.subscribeEventQuery({
         query: jackpotEventsQuery!,
         callback: (res) => {

@@ -54,7 +54,7 @@ pub mod jackpot_actions {
             initial_duration: 0,
             extension_duration: 0,
             max_winners: 1,
-            min_slots: 8, // TODO: set right figure
+            min_slots: 13, // TODO: set right figure
             jackpot_count: 0,
         };
 

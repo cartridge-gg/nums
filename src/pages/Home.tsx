@@ -198,9 +198,9 @@ const Home = () => {
                   <Button
                     visual="transparent"
                     gap="8px"
-                    height="40px"
-                    padding={["4px 8px", "8px 16px"]}
-                    fontSize={["14px", "18px"]}
+                    height="36px"
+                    padding={["4px 8px", "6px 12px"]}
+                    fontSize={["14px", "16px"]}
                   >
                     <TrophyIcon />
                     {selectedFactory?.name}
@@ -230,9 +230,9 @@ const Home = () => {
                   <Button
                     visual="transparent"
                     gap="8px"
-                    height="40px"
-                    padding={["4px 8px", "8px 16px"]}
-                    fontSize={["14px", "18px"]}
+                    height="36px"
+                    padding={["4px 8px", "6px 12px"]}
+                    fontSize={["14px", "16px"]}
                   >
                     #{selectedJackpot?.computedId}
                     <CaretIcon />
@@ -285,7 +285,7 @@ const Home = () => {
                 </>
               )}
 
-              <Button visual="transparent" p="8px" onClick={() => onOpenInfo()}>
+              <Button visual="transparent" p="6px" onClick={() => onOpenInfo()}>
                 <InfoIcon />
               </Button>
             </HStack>
@@ -310,7 +310,10 @@ const Home = () => {
             padding={["10px", "10px", "10px 30px"]}
             bgColor="rgba(0,0,0,0.04)"
           >
-            <Scrollable maxH={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}>
+            <Scrollable
+              maxH={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}
+              h={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}
+            >
               <Table.Root
                 size="sm"
                 variant="outline"

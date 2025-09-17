@@ -3,11 +3,11 @@
 
 #[dojo::contract]
 mod MockNumsToken {
-    use core::num::traits::Pow;
     use dojo::world::WorldStorageTrait;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
+    use nums::constants::DECIMALS;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
@@ -37,7 +37,6 @@ mod MockNumsToken {
         ERC20Event: ERC20Component::Event,
     }
 
-    const DECIMALS: u256 = 10_u256.pow(18);
 
 
     fn dojo_init(ref self: ContractState) {

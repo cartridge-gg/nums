@@ -2948,8 +2948,8 @@
       ]
     },
     {
-      "address": "0xf096bb9149bf9e97d31637a64d3871053ce036ec13d049501e1bf4e863d065",
-      "class_hash": "0x6a2d2ff73710a2e1e5568fb15fe84777dc5af4b949ad0135bcccb8861fef28e",
+      "address": "0x2c5b75c6768165181a4401f5f02f99e7a2925f4063169b2f136b754689bd880",
+      "class_hash": "0x1e98d978cae662e0edb7e0b7583f39fa9ffe848c64055e1037959b25bd0a04d",
       "abi": [
         {
           "type": "impl",
@@ -3184,8 +3184,8 @@
       ]
     },
     {
-      "address": "0x4856477e7f8d98787c2f2440fa5199b3363498aa6b0d5c5d2cd2220ac01395d",
-      "class_hash": "0x7a47ddd8e746a631e3f4137deb8714e878ccaec36fd51300cbe18de6fd39d84",
+      "address": "0x6e8713b8098490d6f3e2fb0e068670f8d9d9037f04905ad76ab76e2adb7e53",
+      "class_hash": "0x321a500b8df623fa5689b649189046e52de58b47ca4fac84718d973beed08a8",
       "abi": [
         {
           "type": "impl",
@@ -3236,13 +3236,6 @@
               "state_mutability": "view"
             }
           ]
-        },
-        {
-          "type": "function",
-          "name": "dojo_init",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "view"
         },
         {
           "type": "impl",
@@ -3532,6 +3525,13 @@
               "state_mutability": "external"
             }
           ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
         },
         {
           "type": "impl",

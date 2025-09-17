@@ -1,8 +1,11 @@
+use core::num::traits::Pow;
 use starknet::ContractAddress;
 
 pub const WORLD_RESOURCE: felt252 = 0;
 
 pub const ZERO_ADDRESS: ContractAddress = 0.try_into().unwrap();
+
+pub const DECIMALS: u256 = 10_u256.pow(18);
 
 pub const ONE_MINUTE: u64 = 60;
 pub const ONE_HOUR: u64 = 60 * ONE_MINUTE;

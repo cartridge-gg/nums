@@ -1,6 +1,8 @@
+use achievement::store::StoreTrait as AchievementStoreTrait;
 use core::num::traits::{Pow, Zero};
 use dojo::world::WorldStorage;
-use nums::constants::ONE_YEAR;
+use nums::constants::{DECIMALS, ONE_YEAR};
+use nums::elements::tasks::index::{Task, TaskTrait};
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use nums::interfaces::nums::INumsTokenDispatcherTrait;
 use nums::models::{DefaultGameConfig, DefaultGameRewardImpl, GameConfig};
@@ -9,7 +11,6 @@ use nums::store::{Store, StoreImpl, StoreTrait};
 use nums::token::{Token, TokenType};
 use starknet::ContractAddress;
 use super::jackpot;
-
 
 impl CloneOptionToken of Clone<Option<Token>> {
     fn clone(self: @Option<Token>) -> Option<Token> {
@@ -352,7 +353,11 @@ pub impl JackpotImpl of JackpotTrait {
     }
 
     fn claim(
-        self: @Jackpot, ref store: Store, indexes: Array<u8>, player: ContractAddress,
+        self: @Jackpot,
+        ref world: WorldStorage,
+        ref store: Store,
+        indexes: Array<u8>,
+        player: ContractAddress,
     ) -> bool {
         let mut has_claim = false;
         let total_winners = *self.total_winners;
@@ -394,6 +399,15 @@ pub impl JackpotImpl of JackpotTrait {
 
         if claimable_nums > 0 {
             store.nums_disp().transfer(player, claimable_nums);
+
+            let achievement_store = AchievementStoreTrait::new(world);
+            achievement_store
+                .progress(
+                    player.into(),
+                    Task::Claimer.identifier(),
+                    (claimable_nums / DECIMALS).try_into().unwrap(),
+                    starknet::get_block_timestamp(),
+                );
         }
         if claimable_token > 0 {
             let token = self.token.clone();
@@ -404,79 +418,5 @@ pub impl JackpotImpl of JackpotTrait {
         has_claim
     }
 }
-// #[derive(Drop, Serde, PartialEq)]
-// pub struct Claimable {
-//     pub nums_amount: u256,
-//     pub token: Option<Token>,
-// }
-
-// #[derive(Copy, Drop, Serde, PartialEq)]
-// #[dojo::model]
-// pub struct Jackpot {
-//     #[key]
-//     pub factory_id: u32,
-//     #[key]
-//     pub id: u32,
-//     pub title: felt252,
-//     pub creator: ContractAddress,
-//     pub mode: JackpotMode,
-//     pub expiration: u64,
-//     pub token: Option<Token>,
-//     pub winner: Option<ContractAddress>,
-//     pub claimed: bool,
-//     pub verified: bool,
-// }
-
-// #[generate_trait]
-// pub impl JackpotModeImpl of JackpotModeTrait {
-//     fn new(mode: JackpotMode, max_slots: u8, expiration: u64) -> JackpotMode {
-//         match mode {
-//             JackpotMode::KingOfTheHill(params) => {
-//                 assert!(expiration != 0, "King of the Hill must have expiration");
-
-//                 JackpotMode::KingOfTheHill(
-//                     KingOfTheHillConfig { extension_time: params.extension_time // king:
-//                     ZERO_ADDRESS, // remaining_slots: max_slots,
-//                     },
-//                 )
-//             },
-//             JackpotMode::ConditionalVictory(params) => {
-//                 assert!(params.slots_required <= max_slots, "slots_required exceeds max_slots");
-
-//                 mode
-//             },
-//         }
-//     }
-// }
-
-// #[generate_trait]
-// pub impl JackpotImpl of JackpotTrait {
-//     /// Determines if the Jackpot can be claimed based on the current game state.
-//     ///
-//     /// # Arguments
-//     /// * `self` - A reference to the Jackpot struct.
-//     /// * `nums` - An array of numbers representing the current game state.
-//     ///
-//     /// # Returns
-//     /// * `bool` - True if the Jackpot can be claimed, false otherwise.
-//     fn can_claim(self: @Jackpot, nums: @Array<u16>) -> bool {
-//         match self.mode {
-//             JackpotMode::ConditionalVictory(condition) => {
-//                 if nums.len() >= (*condition.slots_required).into() {
-//                     return true;
-//                 }
-
-//                 return false;
-//             },
-//             JackpotMode::KingOfTheHill(condition) => {
-//                 // if *condition.king == starknet::get_caller_address() {
-//                 //     return true;
-//                 // }
-
-//                 return false;
-//             },
-//         }
-//     }
-// }
 
 

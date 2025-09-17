@@ -14,25 +14,14 @@ pub trait IJackpotActions<T> {
 pub mod jackpot_actions {
     // use dojo::event::EventStorage;
     use dojo::world::IWorldDispatcherTrait;
+    use nums::constants::WORLD_RESOURCE;
     use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
-    use nums::models::jackpot::{
-        JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotMode, JackpotTrait, TimingMode,
-    };
+    use nums::models::jackpot::{JackpotFactoryImpl, JackpotFactoryTrait, JackpotImpl, JackpotTrait};
     use nums::token::TokenType;
     use nums::{StoreImpl, StoreTrait};
-    use nums::constants::WORLD_RESOURCE;
-    
     use super::*;
 
-    // #[derive(Drop, Serde)]
-    // #[dojo::event]
-    // pub struct RewardClaimed {
-    //     #[key]
-    //     claim_id: u32,
-    //     player: ContractAddress,
-    //     amount: u64,
-    // }
 
     // fn dojo_init(self: @ContractState) {
     //     let mut world = self.world(@"nums");
@@ -110,7 +99,7 @@ pub mod jackpot_actions {
             let mut jackpot = store.jackpot(jackpot_id);
             assert!(jackpot.has_ended(ref store), "jackpot has not ended");
 
-            let has_claimed = jackpot.claim(ref store, indexes, player);
+            let has_claimed = jackpot.claim(ref world, ref store, indexes, player);
             assert!(has_claimed, "nothing to claim");
         }
 

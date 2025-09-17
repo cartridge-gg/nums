@@ -301,7 +301,7 @@ pub mod game_actions {
                             replaced_winner,
                         },
                     );
-                // self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
+                self.achievable.progress(world, player.into(), Task::King.identifier(), 1);
             }
 
             store.set_jackpot(@jackpot);
@@ -309,6 +309,8 @@ pub mod game_actions {
             if is_game_over {
                 // mint nums rewards
                 store.nums_disp().reward(player, game.reward.into());
+
+                self.achievable.progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
 
                 game.game_over = true;
                 store.set_game(@game);

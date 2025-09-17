@@ -38,8 +38,8 @@ fi
 
 WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
 
-DEPLYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
-DEPLYER_ADDR_SEPOLIA=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
+DEPLOYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
+DEPLOYER_ADDR_SEPOLIA=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
 
 # Check if WorldContract address was found
 if [ -z "$WORLD_ADDR" ]; then
@@ -52,22 +52,20 @@ case "$COMMAND" in
     create_jackpot_factory)
 
         echo "Minting 100_000 reward tokens..."
-        sozo execute $REWARD_ADDR mint $DEPLYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
         GAME_CONFIG="0x1" # Option::None
         REWARDS="0x1" # Option::None
-        TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:1000000000000000000000" # 1_000 / jackpot
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
-        INITIAL_DURATION="10800"
+        INITIAL_DURATION="14400" # 4h
         EXTENSION_DURATION="0"
-        # INITIAL_DURATION="300"
-        # EXTENSION_DURATION="0"
         MIN_SLOT="5"
         MAX_WINNERS="99"
-        JACKPOT_COUNT="10"
+        JACKPOT_COUNT="12"
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
@@ -76,7 +74,7 @@ case "$COMMAND" in
     create_jackpot_factory_2)
 
         echo "Minting 100_000 reward tokens..."
-        sozo execute $REWARD_ADDR mint $DEPLYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
@@ -85,8 +83,6 @@ case "$COMMAND" in
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
-        # INITIAL_DURATION="7200"
-        # EXTENSION_DURATION="3600"
         INITIAL_DURATION="300"
         EXTENSION_DURATION="0"
         MIN_SLOT="5"

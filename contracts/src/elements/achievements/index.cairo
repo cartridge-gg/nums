@@ -3,9 +3,7 @@ use nums::elements::achievements;
 
 // Constants
 
-// TODO: Enable the king of the hill achievements
-// pub const ACHIEVEMENT_COUNT: u8 = 30;
-pub const ACHIEVEMENT_COUNT: u8 = 25;
+pub const ACHIEVEMENT_COUNT: u8 = 30;
 
 // Typ
 

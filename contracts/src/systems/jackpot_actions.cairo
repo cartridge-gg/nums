@@ -34,38 +34,38 @@ pub mod jackpot_actions {
     //     amount: u64,
     // }
 
-    fn dojo_init(self: @ContractState) {
-        let mut world = self.world(@"nums");
-        let mut store = StoreImpl::new(world);
-        let jackpot_actions_addr = starknet::get_contract_address();
+    // fn dojo_init(self: @ContractState) {
+    //     let mut world = self.world(@"nums");
+    //     let mut store = StoreImpl::new(world);
+    //     let jackpot_actions_addr = starknet::get_contract_address();
 
-        // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
-        // deployer account
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+    //     // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
+    //     // deployer account
+    //     let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
 
-        // create a perpetual nums jackpot factory
-        let params = CreateJackpotFactoryParams {
-            name: "Perp Nums Jackpot",
-            game_config: Option::None,
-            rewards: Option::None,
-            token: Option::None,
-            mode: JackpotMode::ConditionalVictory,
-            timing_mode: TimingMode::Perpetual,
-            initial_duration: 0,
-            extension_duration: 0,
-            max_winners: 1,
-            min_slots: 13, // TODO: set right figure
-            jackpot_count: 0,
-        };
+    //     // create a perpetual nums jackpot factory
+    //     let params = CreateJackpotFactoryParams {
+    //         name: "Perp Nums Jackpot",
+    //         game_config: Option::None,
+    //         rewards: Option::None,
+    //         token: Option::None,
+    //         mode: JackpotMode::ConditionalVictory,
+    //         timing_mode: TimingMode::Perpetual,
+    //         initial_duration: 0,
+    //         extension_duration: 0,
+    //         max_winners: 1,
+    //         min_slots: 13, // TODO: set right figure
+    //         jackpot_count: 0,
+    //     };
 
-        let mut factory = JackpotFactoryImpl::new(
-            ref world, ref store, jackpot_actions_addr, deployer_account, params,
-        );
-        let mut jackpot = factory.create_jackpot(ref world, ref store);
+    //     let mut factory = JackpotFactoryImpl::new(
+    //         ref world, ref store, jackpot_actions_addr, deployer_account, params,
+    //     );
+    //     let mut jackpot = factory.create_jackpot(ref world, ref store);
 
-        store.set_jackpot_factory(@factory);
-        store.set_jackpot(@jackpot);
-    }
+    //     store.set_jackpot_factory(@factory);
+    //     store.set_jackpot(@jackpot);
+    // }
 
     #[abi(embed_v0)]
     impl JackpotActions of IJackpotActions<ContractState> {

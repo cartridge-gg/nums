@@ -120,6 +120,7 @@ const options: ControllerOptions = {
   policies: buildPolicies(),
   preset: "nums",
   namespace: "nums",
+  slot:"nums2-sepolia",
   tokens: buildTokens(),
 };
 

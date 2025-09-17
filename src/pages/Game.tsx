@@ -30,13 +30,10 @@ import { Footer } from "../components/Footer";
 import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
-import { GameCreated, NewWinner } from "@/bindings";
 import { useClaim } from "@/hooks/useClaim";
 import { useJackpotEvents } from "@/hooks/useJackpotEvents";
 import useToast from "@/hooks/toast";
 import { useControllers } from "@/context/controllers";
-import { shortAddress } from "@/utils/address";
-import { humanDuration } from "@/utils/duration";
 import { HomeIcon } from "@/components/icons/Home";
 import { useGame } from "@/hooks/useGame";
 
@@ -204,7 +201,8 @@ const Game = () => {
 
       return true;
     } catch (e) {
-      console.log({ e });
+      console.log(e);
+      refresh();
       setIsLoading(false);
       return false;
     } finally {
@@ -306,7 +304,7 @@ const Game = () => {
                 </HStack>
               )} */}
 
-              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim ? (
+              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim && (
                 <>
                   <Play
                     isAgain
@@ -327,10 +325,6 @@ const Game = () => {
                     </Button>
                   )}
                 </>
-              ) : (
-                <Button visual="transparent" onClick={() => navigate("/")}>
-                  <HomeIcon /> Home
-                </Button>
               )}
 
               {/* {(isOver || isGameOverTime) && isJackpotOver && !canClaim && (

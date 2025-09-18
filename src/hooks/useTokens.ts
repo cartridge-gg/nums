@@ -7,6 +7,7 @@ import { useDojoSDK } from "@dojoengine/sdk/react";
 import type { Subscription, Token, TokenBalance } from "@dojoengine/torii-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deepEqual } from "../utils/deepEqual";
+import { num } from "starknet";
 
 export function useTokens(
   request: GetTokenRequest & GetTokenBalanceRequest,
@@ -29,9 +30,15 @@ export function useTokens(
   }, []);
 
   const fetchTokens = useCallback(async () => {
+    // const tokens = await sdk.getTokens({});
+
     const tokens = await sdk.getTokens({
-      contractAddresses: request.contractAddresses ?? [],
-      tokenIds: request.tokenIds ?? [],
+      contractAddresses: request.contractAddresses
+        ? request.contractAddresses.map((i: any) => num.toHex64(i))
+        : [],
+      tokenIds: request.tokenIds
+        ? request.tokenIds.map((i: any) => num.toHex64(i))
+        : [],
     });
     setTokens(tokens.items);
   }, [sdk]);
@@ -39,9 +46,15 @@ export function useTokens(
   const fetchTokenBalances = useCallback(async () => {
     if (!requestRef.current) return;
     const [tokenBalances, subscription] = await sdk.subscribeTokenBalance({
-      contractAddresses: requestRef.current.contractAddresses ?? [],
-      accountAddresses: requestRef.current.accountAddresses ?? [],
-      tokenIds: request.tokenIds ?? [],
+      contractAddresses: requestRef.current.contractAddresses
+        ? requestRef.current.contractAddresses.map((i: any) => num.toHex64(i))
+        : [],
+      accountAddresses: requestRef.current.accountAddresses
+        ? requestRef.current.accountAddresses.map((i: any) => num.toHex64(i))
+        : [],
+      tokenIds: requestRef.current.tokenIds
+        ? requestRef.current.tokenIds.map((i: any) => num.toHex64(i))
+        : [],
       callback: ({ data, error }: SubscriptionCallbackArgs<TokenBalance>) => {
         if (error) {
           console.error(error);

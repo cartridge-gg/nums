@@ -178,6 +178,7 @@ const Play = ({
             createGame();
           }}
           disabled={creating || isPoor}
+          opacity={isPoor ? 0.5: 1}
           minW="150px"
           {...buttonProps}
         >

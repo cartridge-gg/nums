@@ -1,4 +1,4 @@
-world_address = "0x04c665b44ab9c0bd450d1af2f1c419851cdc282ddddf6ff7ea69a894307afe95"
+world_address = "0x064d73e9e1700f93993de030279c1cd75c3ecd343415abbe7ffb8be583043d71"
 
 [server]
 http_cors_origins = ["*"]
@@ -9,8 +9,8 @@ pending = true
 polling_interval = 250
 max_concurrent_tasks = 2
 contracts = [
-    "ERC20:0x054bf5fa5a7afb3be96d9af1acb80be5c498888927fc0f7126a8876c65c9fa73", # NUMS
-    "ERC20:0x052823c16e573387eed5d55d10073dc8e333af69a1ccdf27876717f19dc9164e", # REW
+    "ERC20:0x07bd91449b6e9353f86108a08dada25a60b972c8df7129c37db90ed36a98b3e0", # NUMS
+    "ERC20:0x021cc7efa83fd4a9b2ea9166ee224e9c778bdf2c54ab15bd60ef840bac8f2247", # REW
 ]
 
 

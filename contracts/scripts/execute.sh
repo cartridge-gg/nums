@@ -52,7 +52,7 @@ case "$COMMAND" in
     create_jackpot_factory)
 
         echo "Minting 100_000 reward tokens..."
-        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
@@ -69,7 +69,7 @@ case "$COMMAND" in
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
-        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot 2" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_jackpot_factory_2)
 

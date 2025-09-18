@@ -29,3 +29,8 @@ skip_contracts = ["nums-MockVRF"]
     "50",                                                                 # burn_pct
 ]
 
+"nums-claim_actions" = [
+    "0x1", # nums_address = Option::None
+    "0x0", # Option::Some
+    "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8", # forwarder_address
+]

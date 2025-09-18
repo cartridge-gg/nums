@@ -58,7 +58,7 @@ case "$COMMAND" in
 
         GAME_CONFIG="0x1" # Option::None
         REWARDS="0x1" # Option::None
-        TOKEN="0x0 $REWARD_ADDR 0x0 u256:1000000000000000000000" # 1_000 / jackpot
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:2000000000000000000000" # 2_000 / jackpot
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
         INITIAL_DURATION="14400" # 4h

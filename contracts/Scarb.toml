@@ -1,8 +1,18 @@
 [package]
 name = "nums"
 version = "0.1.0"
-cairo-version = "=2.10.1"
+cairo-version = "2.12.1"
 edition = "2024_07"
+
+[scripts]
+build="sozo -P dev build && sozo -P dev bindgen --binding-target typescript --output-dir ../src/bindings/"
+
+slot_migrate = "sozo -P slot migrate"
+slot_katana = "slot d create -t pro --team cartridge nums2 katana --config ./katana_dev.toml"
+slot_torii = "slot d create -t pro --team cartridge nums2 torii --version v1.7.0-alpha.6 --config ./torii_slot.toml"
+
+
+sepolia_torii = "slot d create -t pro --team cartridge nums2-sepolia torii --version v1.7.0-alpha.6 --config ./torii_sepolia.toml"
 
 [[target.starknet-contract]]
 sierra = true
@@ -14,13 +24,14 @@ build-external-contracts = [
 ]
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.6.0" }
-achievement = { git = "https://github.com/cartridge-gg/arcade", tag="v1.6.0" }
-piltover = { git = "https://github.com/keep-starknet-strange/piltover", rev = "fb9d988" }
-starknet = "2.10.1"
+achievement = { git = "https://github.com/cartridge-gg/arcade" }
+starknet = "2.12.1"
+openzeppelin = "2.0.0"
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.4" }
+dojo_macros = { git = "https://github.com/dojoengine/dojo", tag = "v1.7.0-alpha.4" }
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.6.0" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.7.0-alpha.4" }
 
 [features]
 default = []

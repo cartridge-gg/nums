@@ -1,4 +1,4 @@
-import { HStack, VStack } from "@chakra-ui/react";
+import { Box, Flex, HStack, VStack } from "@chakra-ui/react";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./Button";
 
@@ -14,23 +14,25 @@ const Overlay = ({
   return (
     <HStack
       w="100vw"
-      h="100vh"
+      // h="100vh"
+      h={["100dvh", "100vh"]}
       top="0"
       left="0"
       position="absolute"
       padding={[
         "80px 10px 10px 10px",
         "80px 10px 10px 10px",
-        "125px 25px 25px 25px",
+        "95px 25px 25px 25px",
       ]}
       opacity={open ? 1 : 0}
       display={open ? "flex" : "none"}
       transition="opacity 0.2s ease-in-out"
       pointerEvents="none"
       zIndex="1000"
+      justifyContent="center"
     >
       <VStack
-        w="100%"
+        // w="100%"
         h="100%"
         borderRadius="24px"
         bg="rgba(0, 0, 0, 0.65)"
@@ -44,13 +46,22 @@ const Overlay = ({
         <Button
           position="absolute"
           visual="transparent"
-          top="24px"
-          right="24px"
+          width={["30px", "40px"]}
+          height={["30px", "40px"]}
+          top={["16px", "24px"]}
+          right={["16px", "24px"]}
           onClick={() => onClose()}
         >
           <CloseIcon />
         </Button>
-        {children}
+        <Flex
+          w="full"
+          alignItems="center"
+          justifyContent="center"
+          mt={["30px", "0px"]}
+        >
+          {children}
+        </Flex>
       </VStack>
     </HStack>
   );

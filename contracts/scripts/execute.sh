@@ -27,6 +27,9 @@ fi
 # Find the address where tag = "nums-game_actions"
 GAME_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-game_actions") | .address' "$JSON_FILE")
 CLAIM_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-claim_actions") | .address' "$JSON_FILE")
+JACKPOT_ACTIONS_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-jackpot_actions") | .address' "$JSON_FILE")
+
+REWARD_ADDR=$(jq -r '.contracts[] | select(.tag == "nums-MockRewardToken") | .address' "$JSON_FILE")
 
 if [ -z "$GAME_ACTIONS_ADDR" ]; then
     echo "Error: Could not find address for tag 'nums-game_actions'"
@@ -34,6 +37,9 @@ if [ -z "$GAME_ACTIONS_ADDR" ]; then
 fi
 
 WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
+
+DEPLOYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
+DEPLOYER_ADDR_SEPOLIA=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
 
 # Check if WorldContract address was found
 if [ -z "$WORLD_ADDR" ]; then
@@ -43,6 +49,55 @@ fi
 
 # Execute commands based on the provided command
 case "$COMMAND" in
+    create_jackpot_factory)
+
+        # echo "Minting 100_000 reward tokens..."
+        # sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        # echo "Approving jackpot_actions to spend..."
+        # sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+
+       # GAME_CONFIG="0x1" # Option::None
+        GAME_CONFIG="0x0 20 999 1 2000 180" # Option::Some
+        REWARDS="0x1" # Option::None
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:1000000000000000000000" # 1_000 STRK / jackpot
+        JACKPOT_MODE="0x0" # KingOfTheHill
+        TIMING="0x0" # TimeLimited
+        INITIAL_DURATION="14400" # 4h
+        EXTENSION_DURATION="0"
+        MIN_SLOT="5"
+        MAX_WINNERS="99"
+        JACKPOT_COUNT="12"
+       
+        echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
+        echo "Creating jackpot factory for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
+    create_jackpot_factory_2)
+
+        echo "Minting 100_000 reward tokens..."
+        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        echo "Approving jackpot_actions to spend..."
+        sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+
+        GAME_CONFIG="0x0 20 20 1 420 120" # Option::Some
+        REWARDS="0x0 20 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20" # Option::Some
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:10000000000000000000000"
+        JACKPOT_MODE="0x0" # KingOfTheHill
+        TIMING="0x0" # TimeLimited
+        INITIAL_DURATION="300"
+        EXTENSION_DURATION="0"
+        MIN_SLOT="5"
+        MAX_WINNERS="99"
+        JACKPOT_COUNT="10"
+       
+        echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
+        echo "Creating jackpot factory for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"Rigged Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
+    rescue_jackpot)
+        echo "Rescue jackpot for profile: $PROFILE_NAME"
+        sozo execute $JACKPOT_ACTIONS_ADDR rescue_jackpot $3 --profile $PROFILE_NAME --world $WORLD_ADDR
+        ;;
     create_game)
         echo "Creating game for profile: $PROFILE_NAME"
         sozo execute $GAME_ACTIONS_ADDR create_game 1 --profile $PROFILE_NAME --world $WORLD_ADDR

@@ -2,6 +2,5 @@
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "cairo1.enableLanguageServer": true,
-    "cairo1.enableScarb": true,
-    "cairo1.languageServerPath": "${userHome}/.dojo/bin/dojo-language-server"
+    "cairo1.enableScarb": true
 }

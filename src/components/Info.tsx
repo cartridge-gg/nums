@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import Overlay from "./Overlay";
-import { Heading, HStack, Spacer, Table, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  HStack,
+  Spacer,
+  Table,
+  Text,
+  useBreakpointValue,
+  VStack,
+} from "@chakra-ui/react";
 import { Button } from "./Button";
-import { REWARDS } from "@/constants";
-import { Provider } from "starknet";
-
-const provider = new Provider({
-  nodeUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-});
+import { num, uint256 } from "starknet";
+import useChain from "@/hooks/chain";
+import { getNumsAddress } from "@/config";
+import { useAccount, useProvider } from "@starknet-react/core";
+import { useConfig } from "@/context/config";
+import { Scrollable } from "./ui/scrollable";
+import { JackpotFactory } from "@/bindings";
+import { shortAddress } from "@/utils/address";
 
 const enum ShowInfo {
   ABOUT,
@@ -18,31 +29,45 @@ const enum ShowInfo {
 const InfoOverlay = ({
   open,
   onClose,
+  factory,
 }: {
   open: boolean;
   onClose: () => void;
+  factory?: JackpotFactory;
 }) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
   const [showInfo, setShowInfo] = useState<ShowInfo>(ShowInfo.ABOUT);
   const [supply, setSupply] = useState<number>(0);
+  const { chain } = useChain();
+  const { account } = useAccount();
+  const { provider } = useProvider();
+  const numsContractAddress = num.toHex64(getNumsAddress(chain.id));
 
   useEffect(() => {
     provider
       .callContract({
-        contractAddress: import.meta.env.VITE_NUMS_ERC20,
+        contractAddress: numsContractAddress,
         entrypoint: "totalSupply",
+        calldata: [],
       })
-      .then((res) => setSupply(parseInt(res[0]) / 10 ** 18));
-  }, []);
+      .then((res) => {
+        const supply = uint256.uint256ToBN({
+          low: res[0],
+          high: res[1],
+        });
+
+        setSupply(Number(supply / 10n ** 18n));
+      });
+  }, [account]);
 
   return (
     <Overlay open={open} onClose={onClose}>
       <VStack
-        w={["100%", "100%", "60%"]}
+        w={["100%", "100%", "580px"]}
         h="full"
         align="flex-start"
         gap="40px"
         p="30px"
-        pt="100px"
       >
         <HStack>
           <Button
@@ -87,7 +112,7 @@ const InfoOverlay = ({
               </Text>
               <Text>
                 The goal is simple: place randomly generated numbers (1 - 1000)
-                in ascending order. Players compete and earn NUMS tokens by
+                in ascending order. Players compete and earn $NUMS tokens by
                 placing as many numbers as possilbe with the game ending when
                 the timer reaches zero.
               </Text>
@@ -106,8 +131,8 @@ const InfoOverlay = ({
               TOKEN DETAILS
             </Heading>
             <Text>
-              $Nums is reward token intended to demonstrate the horizontal
-              scalability of Validity rollups. Earn $Nums by playing Nums, a
+              $NUMS is reward token intended to demonstrate the horizontal
+              scalability of Validity rollups. Earn $NUMS by playing Nums, a
               game hosted on its own app chain. the better you do the more you
               earn. Rewards are claimable on Starknet mainnet
             </Text>
@@ -122,12 +147,14 @@ const InfoOverlay = ({
                 _hover={{ cursor: "pointer" }}
                 onClick={() => {
                   window.open(
-                    `https://voyager.online/token/${import.meta.env.VITE_NUMS_ERC20}`,
-                    "_blank",
+                    `https://voyager.online/token/${numsContractAddress}`,
+                    "_blank"
                   );
                 }}
               >
-                {import.meta.env.VITE_NUMS_ERC20}
+                {isMobile
+                  ? shortAddress(numsContractAddress)
+                  : numsContractAddress}
               </Text>
             </VStack>
             <VStack
@@ -155,23 +182,37 @@ const InfoOverlay = ({
               Each time you successfully place a number, you earn $NUM rewards
               based on the following structure:
             </Text>
-            <Table.Root size="sm" variant="outline" borderRadius="5px">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Level</Table.ColumnHeader>
-                  <Table.ColumnHeader>$NUMS</Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {REWARDS.map(({ level, reward }) => (
-                  <Table.Row key={level}>
-                    <Table.Cell>{level}</Table.Cell>
-                    <Table.Cell>{reward}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-            <Spacer minH="50px" />
+            <Scrollable maxH={["220px", "380px"]}>
+              <Box px="10px">
+                <Table.Root size="sm" variant="outline" borderRadius="5px">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Level</Table.ColumnHeader>
+                      <Table.ColumnHeader>$NUMS</Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {factory?.rewards
+                      .map((i, idx) => {
+                        return {
+                          level: idx + 1,
+                          amount: i,
+                        };
+                      })
+                      .sort((a, b) => b.level - a.level)
+                      .map((reward) => (
+                        <Table.Row key={reward.level} mx={"10px"}>
+                          <Table.Cell>{reward.level}</Table.Cell>
+                          <Table.Cell>
+                            {reward.amount.toLocaleString()}
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                  </Table.Body>
+                </Table.Root>
+                <Spacer minH="20px" />
+              </Box>
+            </Scrollable>
           </>
         )}
       </VStack>

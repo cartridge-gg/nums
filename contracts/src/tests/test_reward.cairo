@@ -1,20 +1,15 @@
 #[cfg(test)]
 mod tests {
-    use nums::{models::{config::{Config, GameConfig, SlotReward, SlotRewardTrait, RewardLevel}}};
-
+    use nums::models::config::{Config, GameConfig, RewardLevel, SlotReward, SlotRewardTrait};
     use starknet::ContractAddress;
     fn REWARD(token: ContractAddress) -> SlotReward {
         SlotReward {
             token,
             levels: array![
-                RewardLevel { level: 10, amount: 1 },
-                RewardLevel { level: 13, amount: 2 },
-                RewardLevel { level: 14, amount: 4 },
-                RewardLevel { level: 15, amount: 8 },
-                RewardLevel { level: 16, amount: 16 },
-                RewardLevel { level: 17, amount: 32 },
-                RewardLevel { level: 18, amount: 64 },
-                RewardLevel { level: 19, amount: 128 },
+                RewardLevel { level: 10, amount: 1 }, RewardLevel { level: 13, amount: 2 },
+                RewardLevel { level: 14, amount: 4 }, RewardLevel { level: 15, amount: 8 },
+                RewardLevel { level: 16, amount: 16 }, RewardLevel { level: 17, amount: 32 },
+                RewardLevel { level: 18, amount: 64 }, RewardLevel { level: 19, amount: 128 },
                 RewardLevel { level: 20, amount: 256 },
             ],
         }

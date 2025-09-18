@@ -1,27 +1,38 @@
-import { HStack, Spacer, Text } from "@chakra-ui/react";
+import { HStack, Spacer, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { LogoIcon } from "./icons/Logo";
-import { HomeIcon } from "./icons/Home";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
 import { DisconnectIcon } from "./icons/Disconnect";
-import { useNavigate } from "react-router-dom";
-import Balance from "./Balance";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
+import { TokenBalance } from "./TokenBalance";
+import useChain from "@/hooks/chain";
+import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
+import { useMintNums } from "@/hooks/useMintNums";
+import { num } from "starknet";
+import { sleep } from "@/utils/sleep";
+import { GiftIcon } from "./icons/Gift";
 
-const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
-  const { connect, connectors } = useConnect();
+const Header = () => {
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
+  const { gameId } = useParams();
   const { address, connector } = useAccount();
   const { isMuted, toggleMute } = useAudio();
   const [username, setUsername] = useState<string | null>(null);
 
   const controllerConnector = connector as never as ControllerConnector;
+
+  const { chain } = useChain();
+  const numsAddress = getNumsAddress(chain.id);
+  const { mintMockNums } = useMintNums();
+  const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
   useEffect(() => {
     if (controllerConnector) {
@@ -31,42 +42,42 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
     }
   }, [controllerConnector]);
 
-  const height = ["48px", "48px", "48px"];
-  const width = ["48px", "48px", "auto"];
+  const height = ["40px", "48px", "48px"];
+  const width = ["40px", "48px", "auto"];
 
   return (
     <>
       <HStack
         w="full"
         position="absolute"
+        zIndex="99"
         top="0"
         left="0"
-        p="12px"
+        p="4px 12px"
         bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
       >
-        <LogoIcon />
-        <Text
+        <HStack
+          cursor="pointer"
+          onClick={() => navigate("/")}
           color="white"
-          fontSize="48px"
-          textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
-          fontWeight="400"
-          fontFamily="Ekamai"
-          letterSpacing="0.01em"
-          display={["none", "none", "block"]}
+          _hover={{
+            opacity: 0.5,
+          }}
         >
-          NUMS.GG
-        </Text>
-        <Spacer maxW="20px" />
-        {showHome && (
-          <Button
-            visual="transparent"
-            h={height}
-            w={width}
-            onClick={() => navigate("/")}
+          <LogoIcon />
+          <Text
+            fontSize="48px"
+            textShadow="2px 2px 0 rgba(0, 0, 0, 0.25)"
+            fontWeight="400"
+            fontFamily="Ekamai"
+            letterSpacing="0.01em"
+            display={["none", "none", "block"]}
           >
-            <HomeIcon />
-          </Button>
-        )}
+            NUMS.GG
+          </Text>
+        </HStack>
+        <Spacer maxW="20px" />
+
         <Spacer />
         <Button
           visual="transparent"
@@ -77,16 +88,59 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
           {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
         </Button>
 
+        {address && (
+          <Button
+            visual="transparent"
+            position="relative"
+            h={height}
+            w="auto"
+            cursor={!isMainnet ? "pointer" : "default"}
+            onClick={() => {
+              if (!isMainnet) {
+                mintMockNums();
+              }
+            }}
+          >
+            <TokenBalance contractAddress={numsAddress} />
+            {!isMainnet && (
+              <Text
+                position="absolute"
+                fontSize="10px"
+                bottom="2px"
+                right="16px"
+              >
+                Mint
+              </Text>
+            )}
+          </Button>
+        )}
+        {connector && (
+          <Button
+            visual="transparent"
+            h={height}
+            w={width}
+            bg="green.100"
+            onClick={() => {
+              const controllerConnector =
+                connectors[0] as unknown as ControllerConnector;
+
+              controllerConnector.controller.openStarterPack(
+                "nums-starterpack-sepolia"
+              );
+            }}
+          >
+            <GiftIcon />
+          </Button>
+        )}
         {address ? (
           <>
-            <Balance />
             <Button
               visual="transparent"
               h={height}
               w={width}
               onClick={async () => {
                 (connector as ControllerConnector)?.controller.openProfile(
-                  "achievements",
+                  "achievements"
                 );
               }}
             >
@@ -104,8 +158,9 @@ const Header = ({ showHome }: { showHome?: boolean; hideChain?: boolean }) => {
           </>
         ) : (
           <Button
-            onClick={() => {
-              connect({ connector: connectors[0] });
+            h={["40px", "48px"]}
+            onClick={async () => {
+              await connectAsync({ connector: connectors[0] });
             }}
           >
             Connect

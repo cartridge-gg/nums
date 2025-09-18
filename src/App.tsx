@@ -1,6 +1,8 @@
+import "./fonts.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Game from "./Game";
-import Home from "./Home";
+import Game from "./pages/Game";
+import Home from "./pages/Home";
+import Selection from "./pages/Selection";
 import {
   StarknetConfig,
   voyager,
@@ -8,90 +10,158 @@ import {
   Connector,
 } from "@starknet-react/core";
 import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions, ProfileOptions } from "@cartridge/controller";
+import { ControllerOptions, SessionPolicies } from "@cartridge/controller";
 import ControllerConnector from "@cartridge/connector/controller";
-import { num } from "starknet";
-import "./fonts.css";
-import { APPCHAIN_CHAIN_ID } from "./hooks/chain";
-import { TotalsProvider } from "./context/totals";
 import { AudioProvider } from "./context/audio";
 import { UrqlProvider } from "./context/urql";
-import { ClaimsProvider } from "./context/claims";
+import {
+  chains,
+  DEFAULT_CHAIN_ID,
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+  KATANA_CHAIN_ID,
+  katanaChain,
+  SLOT_CHAIN_ID,
+  slotChain,
+} from "./config";
+import { DojoSdkProviderInitialized } from "./context/dojo";
+import { JackpotToaster, Toaster } from "./components/ui/toaster";
+import { JackpotProvider } from "./context/jackpots";
+import { GameProvider } from "./context/game";
+import { ConfigProvider } from "./context/config";
+import { ControllersProvider } from "./context/controllers";
+import Factories from "./pages/Factories";
+
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
+        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
       case sepolia:
-        return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
-      case appchain:
-        return { nodeUrl: import.meta.env.VITE_APPCHAIN_RPC_URL };
+        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
+      case katanaChain:
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
+      case slotChain:
+        return { nodeUrl: chain.rpcUrls.default.http[0] };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
   },
 });
 
-const profile: ProfileOptions = {
-  preset: "nums",
-  slot: "nums-mainnet-appchain",
-  namespace: "nums",
+const buildPolicies = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+
+  const vrfAddress = getVrfAddress(chain.id);
+  const numsAddress = getNumsAddress(chain.id);
+  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+  const jackpotAddress = getContractAddress(
+    chain.id,
+    "nums",
+    "jackpot_actions"
+  );
+
+  const policies: SessionPolicies = {
+    contracts: {
+      [vrfAddress]: {
+        methods: [{ entrypoint: "request_random" }],
+      },
+      [numsAddress]: {
+        methods: [{ entrypoint: "approve" }],
+      },
+      [gameAddress]: {
+        methods: [{ entrypoint: "create_game" }, { entrypoint: "set_slot" }],
+      },
+      [jackpotAddress]: {
+        methods: [
+          { entrypoint: "claim_jackpot" },
+          { entrypoint: "next_jackpot" },
+        ],
+      },
+    },
+  };
+
+  if ([KATANA_CHAIN_ID, SLOT_CHAIN_ID].includes(`0x${chain.id.toString(16)}`)) {
+    // @ts-ignore
+    policies.contracts[numsAddress].methods.push({ entrypoint: "mint" });
+  }
+
+  return policies;
+};
+
+const buildChains = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+  switch (chain) {
+    case mainnet:
+      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+    case sepolia:
+      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+    case katanaChain:
+      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+    case slotChain:
+      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
+    default:
+      throw new Error(`Unsupported chain: ${chain.network}`);
+  }
+};
+
+const buildTokens = () => {
+  const chain = chains[DEFAULT_CHAIN_ID];
+  const numsAddress = getNumsAddress(chain.id);
+  return {
+    erc20: [numsAddress],
+  };
 };
 
 const options: ControllerOptions = {
-  ...profile,
-  defaultChainId: APPCHAIN_CHAIN_ID,
-  chains: [
-    { rpcUrl: import.meta.env.VITE_APPCHAIN_RPC_URL },
-    { rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL },
-  ],
-  tokens: {
-    erc20: [import.meta.env.VITE_NUMS_ERC20],
-  },
+  defaultChainId: DEFAULT_CHAIN_ID,
+  chains: buildChains(),
+  policies: buildPolicies(),
+  preset: "nums",
+  namespace: "nums",
+  slot:"nums2-sepolia",
+  tokens: buildTokens(),
 };
 
 const connectors = [new ControllerConnector(options) as never as Connector];
 
-const appchain: Chain = {
-  id: num.toBigInt(APPCHAIN_CHAIN_ID),
-  network: "appchain",
-  name: "Nums Chain",
-  rpcUrls: {
-    default: import.meta.env.VITE_APPCHAIN_RPC_URL,
-    public: import.meta.env.VITE_APPCHAIN_RPC_URL,
-  },
-  nativeCurrency: {
-    name: "Ethereum",
-    symbol: "ETH",
-    decimals: 18,
-    address: import.meta.env.VITE_ETH_ADDRESS,
-  },
-};
-
 function App() {
   return (
-    <StarknetConfig
-      autoConnect
-      chains={[appchain, sepolia]}
-      connectors={connectors}
-      explorer={voyager}
-      provider={provider}
-    >
-      <UrqlProvider>
-        <AudioProvider>
-          <TotalsProvider>
-            <ClaimsProvider>
-              <Router>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/:gameId" element={<Game />} />
-                </Routes>
-              </Router>
-            </ClaimsProvider>
-          </TotalsProvider>
-        </AudioProvider>
-      </UrqlProvider>
-    </StarknetConfig>
+    <>
+      <StarknetConfig
+        autoConnect
+        chains={[chains[DEFAULT_CHAIN_ID]]}
+        connectors={connectors}
+        explorer={voyager}
+        provider={provider}
+      >
+        <DojoSdkProviderInitialized>
+          <UrqlProvider>
+            <AudioProvider>
+              <ConfigProvider>
+                <ControllersProvider>
+                  <GameProvider>
+                    <JackpotProvider>
+                      <Router>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/:gameId" element={<Game />} />
+                          <Route path="/selection" element={<Selection />} />
+                          <Route path="/factories" element={<Factories />} />
+                        </Routes>
+                      </Router>
+                    </JackpotProvider>
+                  </GameProvider>
+                </ControllersProvider>
+              </ConfigProvider>
+            </AudioProvider>
+          </UrqlProvider>
+        </DojoSdkProviderInitialized>
+      </StarknetConfig>
+      <JackpotToaster />
+      <Toaster />
+    </>
   );
 }
 

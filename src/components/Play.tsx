@@ -1,140 +1,167 @@
-import { Button, Spinner } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Spinner, VStack, Text, HStack, Box } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
-import useToast from "../hooks/toast";
-import { CallData, hash, num } from "starknet";
+import { Call, CallData, num, uint256 } from "starknet";
 import { RefreshIcon } from "./icons/Refresh";
 import { useAudio } from "@/context/audio";
-import useChain, { APPCHAIN_CHAIN_ID } from "@/hooks/chain";
-import { graphql } from "@/graphql/appchain";
-import { useSubscription } from "urql";
-import { AppchainClient } from "@/graphql/clients";
 import { useParams } from "react-router-dom";
-
-const GameEventQuery = graphql(`
-  query GameEventQuery($entityId: felt252) {
-    eventMessage(id: $entityId) {
-      models {
-        ... on nums_GameCreated {
-          game_id
-        }
-      }
-    }
-  }
-`);
-
-const GameCreatedEvent = graphql(`
-  subscription GameCreatedEvent($entityId: felt252) {
-    eventMessageUpdated(id: $entityId) {
-      models {
-        __typename
-        ... on nums_GameCreated {
-          game_id
-        }
-      }
-    }
-  }
-`);
+import {
+  getContractAddress,
+  getNumsAddress,
+  getVrfAddress,
+  MAINNET_CHAIN_ID,
+  SEPOLIA_CHAIN_ID,
+} from "@/config";
+import { useExecuteCall } from "@/hooks/useExecuteCall";
+import { useDojoSdk } from "@/hooks/dojo";
+import { GameCreated, JackpotFactory } from "@/bindings";
+import { ToriiQueryBuilder, ClauseBuilder } from "@dojoengine/sdk";
+import { useToken } from "@/hooks/useToken";
+import useToast from "@/hooks/toast";
+import { Button } from "./Button";
+import ControllerConnector from "@cartridge/connector/controller";
 
 const Play = ({
   isAgain,
   onReady,
+  onClick,
+  factory,
+  label,
   ...buttonProps // Add this spread parameter
 }: {
   isAgain?: boolean;
   onReady: (gameId: string) => void;
+  onClick?: () => void;
+  factory: JackpotFactory;
+  label?: string;
   [key: string]: any;
 }) => {
   const { account } = useAccount();
   const { connect, connectors } = useConnect();
   const { chain } = useNetwork();
-  const { showTxn } = useToast();
   const [creating, setCreating] = useState<boolean>(false);
-  const { requestAppchain } = useChain();
   const { playReplay } = useAudio();
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
-  const { gameId } = useParams();
+  const { execute } = useExecuteCall();
+  const { sdk } = useDojoSdk();
+  const { showError } = useToast();
 
-  const entityId = useMemo(() => {
-    if (!account) return;
-    const entityId = hash.computePoseidonHashOnElements([
-      num.toHex(account.address),
-    ]);
+  const subscriptionRef = useRef<any>(null);
 
-    return entityId;
+  const vrfAddress = getVrfAddress(chain.id);
+  const numsAddress = getNumsAddress(chain.id);
+  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+
+  const { balance: numsBalance } = useToken(numsAddress);
+
+  const isPoor = numsBalance < Number(factory.game_config.entry_cost);
+
+  const gameCreatedQuery = useMemo(() => {
+    if (!account) return undefined;
+
+    return new ToriiQueryBuilder()
+      .withEntityModels(["nums-GameCreated"])
+      .withClause(
+        new ClauseBuilder()
+          .keys(
+            ["nums-GameCreated"],
+            [num.toHex64(account.address), undefined],
+            "FixedLen"
+          )
+          .build()
+      )
+      .includeHashedKeys();
   }, [account]);
 
-  const [subscriptionResult] = useSubscription({
-    query: GameCreatedEvent,
-    variables: { entityId },
-    pause: !entityId,
-  });
+  const initSubscription = useCallback(async () => {
+    if (subscriptionRef.current) {
+      subscriptionRef.current = null;
+    }
+
+    const [items, subscription] = await sdk.subscribeEventQuery({
+      query: gameCreatedQuery!,
+      callback: (res) => {
+        const gameCreated = res.data![0].models.nums.GameCreated as GameCreated;
+
+        if (BigInt(gameCreated.player) === BigInt(account?.address || 0)) {
+          onReady(num.toHex(gameCreated.game_id));
+        }
+      },
+    });
+
+    subscriptionRef.current = subscription;
+  }, [gameCreatedQuery, account]);
 
   useEffect(() => {
-    if (subscriptionResult.data?.eventMessageUpdated) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        setTimeoutId(null);
-      }
-
-      const gameId =
-        // @ts-ignore
-        subscriptionResult.data.eventMessageUpdated.models![0]!.game_id;
-      onReady(num.toHex(gameId));
-      setCreating(false);
+    if (account && gameCreatedQuery) {
+      initSubscription();
     }
-  }, [subscriptionResult.data]);
+  }, [gameCreatedQuery, account, initSubscription]);
 
-  const queryEvent = useCallback((entityId: string) => {
-    AppchainClient.query(
-      GameEventQuery,
-      { entityId },
-      { requestPolicy: "network-only" },
-    )
-      .toPromise()
-      .then((res) => {
-        // @ts-ignore
-        const newGameId = res.data?.eventMessage.models![0]!.game_id;
-        if (newGameId !== gameId) {
-          onReady(num.toHex(newGameId));
-          setCreating(false);
-        }
-      });
-  }, []);
-
-  const newGame = async () => {
+  const createGame = async () => {
     if (!account) return;
 
     try {
-      if (chain?.id !== num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        requestAppchain();
-      }
-
       setCreating(true);
+
+      await initSubscription();
+
       playReplay();
-      const { transaction_hash } = await account.execute([
-        {
-          contractAddress: import.meta.env.VITE_VRF_CONTRACT,
+
+      const calls: Call[] = [];
+
+      if (
+        [MAINNET_CHAIN_ID, SEPOLIA_CHAIN_ID].includes(
+          `0x${chain.id.toString(16)}`
+        )
+      ) {
+        calls.push({
+          contractAddress: vrfAddress,
           entrypoint: "request_random",
           calldata: CallData.compile({
-            caller: import.meta.env.VITE_GAME_CONTRACT,
-            source: { type: 0, address: account.address },
+            caller: gameAddress,
+            source: { type: 0, address: gameAddress },
           }),
-        },
-        {
-          contractAddress: import.meta.env.VITE_GAME_CONTRACT,
-          entrypoint: "create_game",
-          calldata: [1], // no jackpot yet
-        },
-      ]);
+        });
+      }
 
-      showTxn(transaction_hash, chain?.name);
+      calls.push(
+        ...[
+          {
+            contractAddress: numsAddress,
+            entrypoint: "approve",
+            calldata: [
+              gameAddress,
+              uint256.bnToUint256(
+                BigInt(factory.game_config.entry_cost) * 10n ** 18n
+              ),
+            ],
+          },
+          {
+            contractAddress: gameAddress,
+            entrypoint: "create_game",
+            calldata: [factory.id],
+          },
+        ]
+      );
 
-      // Set timeout to query game if subscription doesn't respond
-      const timeout = setTimeout(() => {
-        queryEvent(entityId!);
-      }, 2000);
-      setTimeoutId(timeout);
+      const { receipt } = await execute(calls, (_receipt) => {
+        // // console.log(receipt);
+        // const gameCreatedSelector = BigInt(
+        //   "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
+        // );
+        // if (receipt) {
+        //   const gameCreatedEvent = receipt.events.find(
+        //     (i: any) => i.keys.length > 2 && BigInt(i.keys[1]) === gameCreatedSelector
+        //   );
+        //   if (gameCreatedEvent) {
+        //     console.log("onReady receipt");
+        //     setTimeout(() => {
+        //       onReady(num.toHex(gameCreatedEvent.data[4]));
+        //     }, 1_000);
+        //   }
+        // }
+      });
+      setCreating(false);
     } catch (e) {
       console.error(e);
     }
@@ -144,24 +171,47 @@ const Play = ({
     <>
       {account ? (
         <Button
-          onClick={newGame}
-          disabled={creating}
+          onClick={() => {
+            if (isPoor) {
+              return showError(undefined, "Too poor");
+            }
+            onClick && onClick();
+            createGame();
+          }}
+          disabled={creating || isPoor}
+          opacity={isPoor ? 0.5 : 1}
           minW="150px"
           {...buttonProps}
         >
-          {creating ? (
-            <Spinner />
-          ) : isAgain ? (
-            <>
-              <RefreshIcon /> Play Again
-            </>
-          ) : (
-            "Play!"
-          )}
+          <HStack alignItems="center" gap={3}>
+            <HStack>
+              {creating ? (
+                <Spinner />
+              ) : isAgain ? (
+                <>
+                  <RefreshIcon /> Play Again
+                </>
+              ) : label ? (
+                <>{label}</>
+              ) : (
+                "Play!"
+              )}
+            </HStack>
+            <Box
+              w="5px"
+              h="18px"
+              borderRight="solid 2px"
+              borderColor="white"
+              opacity={0.5}
+            ></Box>
+            <Text>{factory.game_config.entry_cost.toLocaleString()} NUMS</Text>
+          </HStack>
         </Button>
       ) : (
         <Button
-          onClick={() => connect({ connector: connectors[0] })}
+          onClick={() => {
+            connect({ connector: connectors[0] });
+          }}
           {...buttonProps}
         >
           Connect

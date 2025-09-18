@@ -1,16 +1,33 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
-pub enum TokenType {
-    ERC20,
-    ERC721,
-    ERC1155,
-}
-
-#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+#[derive(Drop, Clone, Serde, PartialEq, Introspect, DojoStore)]
 pub struct Token {
-    pub id: Option<u256>, // for erc721 and 1155
     pub address: ContractAddress,
     pub ty: TokenType,
-    pub total: u256,
 }
+
+#[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]
+pub enum TokenType {
+    #[default]
+    ERC20: TokenTypeERC20,
+    ERC721: TokenTypeERC721,
+    ERC1155: TokenTypeERC1155,
+}
+
+
+#[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]
+pub struct TokenTypeERC20 {
+    pub amount: u256,
+}
+
+#[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]
+pub struct TokenTypeERC721 {
+    pub ids: Array<u256>,
+}
+
+#[derive(Drop, Clone, Serde, PartialEq, Default, Introspect, DojoStore)]
+pub struct TokenTypeERC1155 {
+    pub ids: Array<u256>,
+    pub amounts: Array<u256>,
+}
+

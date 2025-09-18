@@ -4,31 +4,32 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?tag=v1.6.0#634edcebaa4999d8d2b94d4fb78cac05649c74f3"
+source = "git+https://github.com/cartridge-gg/arcade#e5b69378616b2d3a0af598b68b015c275e124412"
 dependencies = [
  "dojo",
+ "dojo_macros",
 ]
 
 [[package]]
 name = "dojo"
-version = "1.6.0"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.6.0#c7d8b321abc711c14bddcf76f41587f6ef21c356"
+version = "1.7.0-alpha.4"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
 dependencies = [
- "dojo_plugin",
+ "dojo_macros",
 ]
 
 [[package]]
 name = "dojo_cairo_test"
-version = "1.6.0"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.6.0#c7d8b321abc711c14bddcf76f41587f6ef21c356"
+version = "1.7.0-alpha.4"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
-name = "dojo_plugin"
-version = "2.10.1"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.6.0#c7d8b321abc711c14bddcf76f41587f6ef21c356"
+name = "dojo_macros"
+version = "1.7.0-alpha.4"
+source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
 
 [[package]]
 name = "nums"
@@ -37,14 +38,15 @@ dependencies = [
  "achievement",
  "dojo",
  "dojo_cairo_test",
- "piltover",
+ "dojo_macros",
+ "openzeppelin",
 ]
 
 [[package]]
 name = "openzeppelin"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:05fd9365be85a4a3e878135d5c52229f760b3861ce4ed314cb1e75b178b553da"
+checksum = "sha256:5e4fdecc957cfca7854d95912dc72d9f725517c063b116512900900add29fd77"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -61,18 +63,18 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:7734901a0ca7a7065e69416fea615dd1dc586c8dc9e76c032f25ee62e8b2a06c"
+checksum = "sha256:511681dd26d814ee2bc996d44ff8cb4aaa5ae9d14272130def7eb901cf004850"
 dependencies = [
  "openzeppelin_introspection",
 ]
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:1aa3a71e2f40f66f98d96aa9bf9f361f53db0fd20fa83ef7df04426a3c3a926a"
+checksum = "sha256:fb3381c50d68b028d3801feb43df378e2bd62137b6884844f8f60aefe796188b"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -80,9 +82,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:f0c507fbff955e4180ea3fa17949c0ff85518c40101f4948948d9d9a74143d6c"
+checksum = "sha256:e9456ef69502a87c4c99bf50145351b50950f8b11244847d92935c466c4ba787"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_token",
@@ -90,9 +92,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:c0fb60fad716413d537fabd5fcbb2c499ca6beb95af5f0d1699955ecec4c6f63"
+checksum = "sha256:056e6d6f3d48193b53f06283884f8a9675f986fc85425f6a40e8c1aeb3b3ecfa"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -103,21 +105,21 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:13e04a2190684e6804229a77a6c56de7d033db8b9ef519e5e8dee400a70d8a3d"
+checksum = "sha256:87773ed6cd2318f169283ecbbb161890d1996260a80302d81ec45b70ee5e54c1"
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:039608900e92f3dcf479bf53a49a1fd76452acd97eb86e390d1eb92cacdaf3af"
+checksum = "sha256:47f80c9ce59557774243214f8e75c5e866f30f3d8daa755855f6ffd01c89ca89"
 
 [[package]]
 name = "openzeppelin_presets"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:5c07a8de32e5d9abe33988c7927eaa8b5f83bc29dc77302d9c8c44c898611042"
+checksum = "sha256:36c761ee923f1dc0887c0eab8c224b49ac242dbfe9163fbb0b08562042ab3d98"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -130,15 +132,15 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:27155597019ecf971c48d7bfb07fa58cdc146d5297745570071732abca17f19f"
+checksum = "sha256:902932ec296c2f400e0ac7c579edeaafd6067b6ce6d9854c1191de28e396ffe3"
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:4452f449dc6c1ea97cf69d1d9182749abd40e85bd826cd79652c06a627eafd91"
+checksum = "sha256:6fe61f63b5a6706018265fb7373b6e5bd3ff829bdc760b2b90296b1e708d180c"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -148,20 +150,12 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:15fdd63f6b50a0fda7b3f8f434120aaf7637bcdfe6fd8d275ad57343d5ede5e1"
+checksum = "sha256:560d57a9c3f3ec5a476e82fec8963c93c8df63a4ff9ff134f64ab8383bde3c61"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.20.0"
+version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:44f32d242af1e43982decc49c563e613a9b67ade552f5c3d5cde504e92f74607"
-
-[[package]]
-name = "piltover"
-version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/piltover?rev=fb9d988#fb9d9889100f9c88eba1ff91f619c1a67afc2a71"
-dependencies = [
- "openzeppelin",
-]
+checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc505"

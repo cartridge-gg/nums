@@ -1,4 +1,5 @@
 import { Chain, mainnet, sepolia } from "@starknet-react/chains";
+import { slotChain } from "./config";
 
 type GraphqlUrl = {
   url: string;
@@ -17,10 +18,15 @@ export const getGraphqlUrl = (chain: Chain): GraphqlUrl => {
         url: import.meta.env.VITE_SEPOLIA_GRAPHQL_URL,
         wsUrl: import.meta.env.VITE_SEPOLIA_GRAPHQL_WS_URL,
       };
+    case slotChain:
+      return {
+        url: import.meta.env.VITE_SLOT_GRAPHQL_URL,
+        wsUrl: import.meta.env.VITE_SLOT_GRAPHQL_WS_URL,
+      };
     default:
       return {
-        url: import.meta.env.VITE_APPCHAIN_GRAPHQL_URL,
-        wsUrl: import.meta.env.VITE_APPCHAIN_GRAPHQL_WS_URL,
+        url: import.meta.env.VITE_KATANA_GRAPHQL_URL,
+        wsUrl: import.meta.env.VITE_KATANA_GRAPHQL_WS_URL,
       };
   }
 };

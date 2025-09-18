@@ -1,32 +1,15 @@
 import { useCallback, useState } from "react";
 import { useNetwork, useSwitchChain } from "@starknet-react/core";
-import { num, shortString } from "starknet";
+import { num } from "starknet";
 import { Chain } from "@starknet-react/chains";
 import useToast from "./toast";
+import { chainName, KATANA_CHAIN_ID, MAINNET_CHAIN_ID } from "@/config";
 
-// // mock starknet chain id
-// export const STARKNET_CHAIN_ID =
-//   shortString.encodeShortString("WP_NUMS_STARKNET");
-export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
-export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
-
-export const APPCHAIN_CHAIN_ID = shortString.encodeShortString(
-  "WP_NUMS_MAINNET_APPCHAIN",
-);
-
-const chainName = {
-  [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
-  [MAINNET_CHAIN_ID]: "Starknet Mainnet",
-  [APPCHAIN_CHAIN_ID]: "Nums Chain",
-};
-
-// export useChain interface
 export interface UseChain {
   chain: Chain;
   error: Error | undefined;
   requestChain: (chainId: string, silent?: boolean) => void;
   requestStarknet: (silent?: boolean) => void;
-  requestAppchain: (silent?: boolean) => void;
 }
 
 const useChain = () => {
@@ -35,7 +18,7 @@ const useChain = () => {
   const { chain } = useNetwork();
   const { switchChainAsync } = useSwitchChain({
     params: {
-      chainId: APPCHAIN_CHAIN_ID,
+      chainId: KATANA_CHAIN_ID,
     },
   });
 
@@ -61,7 +44,7 @@ const useChain = () => {
         console.error(e);
       }
     },
-    [chain],
+    [chain]
   );
 
   const requestStarknet = useCallback(
@@ -72,18 +55,7 @@ const useChain = () => {
 
       await requestChain(MAINNET_CHAIN_ID, silent);
     },
-    [chain],
-  );
-
-  const requestAppchain = useCallback(
-    async (silent?: boolean) => {
-      if (chain.id === num.toBigInt(APPCHAIN_CHAIN_ID)) {
-        return;
-      }
-
-      await requestChain(APPCHAIN_CHAIN_ID, silent);
-    },
-    [chain],
+    [chain]
   );
 
   return {
@@ -91,7 +63,6 @@ const useChain = () => {
     error,
     requestChain,
     requestStarknet,
-    requestAppchain,
   };
 };
 

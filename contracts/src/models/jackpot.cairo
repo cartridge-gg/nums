@@ -1,7 +1,7 @@
 use achievement::store::StoreTrait as AchievementStoreTrait;
 use core::num::traits::{Pow, Zero};
 use dojo::world::WorldStorage;
-use nums::constants::{DECIMALS, ONE_YEAR};
+use nums::constants::{TEN_POW_18, ONE_YEAR};
 use nums::elements::tasks::index::{Task, TaskTrait};
 use nums::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use nums::interfaces::nums::INumsTokenDispatcherTrait;
@@ -405,7 +405,7 @@ pub impl JackpotImpl of JackpotTrait {
                 .progress(
                     player.into(),
                     Task::Claimer.identifier(),
-                    (claimable_nums / DECIMALS).try_into().unwrap(),
+                    (claimable_nums / TEN_POW_18).try_into().unwrap(),
                     starknet::get_block_timestamp(),
                 );
         }

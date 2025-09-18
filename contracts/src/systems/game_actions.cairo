@@ -2,16 +2,15 @@
 pub trait IGameActions<T> {
     fn create_game(ref self: T, factory_id: u32) -> (u32, u16);
     fn set_slot(ref self: T, game_id: u32, target_idx: u8) -> u16;
-    // fn king_me(ref self: T, game_id: u32);
 }
 
 #[dojo::contract]
 pub mod game_actions {
     use achievement::components::achievable::AchievableComponent;
     use core::array::ArrayTrait;
-    use core::num::traits::Pow;
     use dojo::event::EventStorage;
     use dojo::world::WorldStorageTrait;
+    use nums::constants::TEN_POW_18;
     use nums::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use nums::elements::tasks::index::{Task, TaskTrait};
     use nums::interfaces::nums::INumsTokenDispatcherTrait;
@@ -70,9 +69,6 @@ pub mod game_actions {
         extension_time: u64,
         replaced_winner: Option<ContractAddress>,
     }
-
-    const DECIMALS: u256 = 10_u256.pow(18);
-
 
     fn dojo_init(self: @ContractState) {
         // [Event] Emit all Achievement events
@@ -135,7 +131,7 @@ pub mod game_actions {
             // transfer entry_cost token from player to this contract
             // player must approve this contract to spend entry_cost nums
             let nums_disp = store.nums_disp();
-            let entry_cost = DECIMALS * game_config.entry_cost.into();
+            let entry_cost = TEN_POW_18 * game_config.entry_cost.into();
 
             // split / burn / transfer
             let to_burn = entry_cost * config.burn_pct.into() / 100;
@@ -310,7 +306,9 @@ pub mod game_actions {
                 // mint nums rewards
                 store.nums_disp().reward(player, game.reward.into());
 
-                self.achievable.progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
+                self
+                    .achievable
+                    .progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
 
                 game.game_over = true;
                 store.set_game(@game);

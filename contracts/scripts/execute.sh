@@ -39,7 +39,10 @@ fi
 WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
 
 DEPLOYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
-DEPLOYER_ADDR_SEPOLIA=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
+
+if [ $PROFILE_NAME == 'sepolia']; then
+   DEPLOYER_ADDR=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
+fi
 
 # Check if WorldContract address was found
 if [ -z "$WORLD_ADDR" ]; then
@@ -51,10 +54,10 @@ fi
 case "$COMMAND" in
     create_jackpot_factory)
 
-        # echo "Minting 100_000 reward tokens..."
-        # sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
-        # echo "Approving jackpot_actions to spend..."
-        # sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        echo "Minting 100_000 reward tokens..."
+        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        echo "Approving jackpot_actions to spend..."
+        sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
        # GAME_CONFIG="0x1" # Option::None
         GAME_CONFIG="0x0 20 999 1 2000 180" # Option::Some

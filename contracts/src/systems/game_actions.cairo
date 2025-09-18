@@ -128,31 +128,38 @@ pub mod game_actions {
                 panic!("not jackpot left");
             };
 
-            // transfer entry_cost token from player to this contract
-            // player must approve this contract to spend entry_cost nums
-            let nums_disp = store.nums_disp();
-            let entry_cost = TEN_POW_18 * game_config.entry_cost.into();
+            let mut free_game = store.free_game(player);
+            if free_game.played {
+                // transfer entry_cost token from player to this contract
+                // player must approve this contract to spend entry_cost nums
+                let nums_disp = store.nums_disp();
+                let entry_cost = TEN_POW_18 * game_config.entry_cost.into();
 
-            // split / burn / transfer
-            let to_burn = entry_cost * config.burn_pct.into() / 100;
-            let to_jackpot = entry_cost - to_burn;
+                // split / burn / transfer
+                let to_burn = entry_cost * config.burn_pct.into() / 100;
+                let to_jackpot = entry_cost - to_burn;
 
-            // println!("to_jackpot: {}", to_jackpot);
-            // println!("to_burn: {}", to_burn);
+                // println!("to_jackpot: {}", to_jackpot);
+                // println!("to_burn: {}", to_burn);
 
-            // transfer to this contract
-            nums_disp.transfer_from(player, get_contract_address(), entry_cost);
+                // transfer to this contract
+                nums_disp.transfer_from(player, get_contract_address(), entry_cost);
 
-            // transfer to jackpot_actions & burn
-            let jackpot_actions_addr = world
-                .dns_address(@"jackpot_actions")
-                .expect('jackpot_actions not found');
+                // transfer to jackpot_actions & burn
+                let jackpot_actions_addr = world
+                    .dns_address(@"jackpot_actions")
+                    .expect('jackpot_actions not found');
 
-            nums_disp.transfer(jackpot_actions_addr, to_jackpot);
-            nums_disp.burn(to_burn);
+                nums_disp.transfer(jackpot_actions_addr, to_jackpot);
+                nums_disp.burn(to_burn);
 
-            // keep track of jackpot balance
-            jackpot.nums_balance += to_jackpot;
+                // keep track of jackpot balance
+                jackpot.nums_balance += to_jackpot;
+            } else {
+                free_game.played = true;
+                store.set_free_game(@free_game);
+            }
+
             store.set_jackpot(@jackpot);
 
             let game_id = store.next_id('Game');

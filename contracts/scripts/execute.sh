@@ -51,14 +51,15 @@ fi
 case "$COMMAND" in
     create_jackpot_factory)
 
-        echo "Minting 100_000 reward tokens..."
-        sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
-        echo "Approving jackpot_actions to spend..."
-        sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        # echo "Minting 100_000 reward tokens..."
+        # sozo execute $REWARD_ADDR mint $DEPLOYER_ADDR_SEPOLIA u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
+        # echo "Approving jackpot_actions to spend..."
+        # sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
-        GAME_CONFIG="0x1" # Option::None
+       # GAME_CONFIG="0x1" # Option::None
+        GAME_CONFIG="0x0 20 999 1 2000 180" # Option::Some
         REWARDS="0x1" # Option::None
-        TOKEN="0x0 $REWARD_ADDR 0x0 u256:2000000000000000000000" # 2_000 / jackpot
+        TOKEN="0x0 $REWARD_ADDR 0x0 u256:1000000000000000000000" # 1_000 STRK / jackpot
         JACKPOT_MODE="0x0" # KingOfTheHill
         TIMING="0x0" # TimeLimited
         INITIAL_DURATION="14400" # 4h

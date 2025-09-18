@@ -19,6 +19,7 @@ import { ToriiQueryBuilder, ClauseBuilder } from "@dojoengine/sdk";
 import { useToken } from "@/hooks/useToken";
 import useToast from "@/hooks/toast";
 import { Button } from "./Button";
+import ControllerConnector from "@cartridge/connector/controller";
 
 const Play = ({
   isAgain,
@@ -178,7 +179,7 @@ const Play = ({
             createGame();
           }}
           disabled={creating || isPoor}
-          opacity={isPoor ? 0.5: 1}
+          opacity={isPoor ? 0.5 : 1}
           minW="150px"
           {...buttonProps}
         >

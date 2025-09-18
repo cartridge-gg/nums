@@ -1,8 +1,8 @@
 {
   "world": {
-    "class_hash": "0x7bc7b264612d3ac261df0a6d72a6b73c84b9386ef0095dd340d42afc01bb53c",
-    "address": "0x4ab1fc4b349bfffb69afb68805b517410e43d843dffc4b36b7d9b2b87979b60",
-    "seed": "nums-alpha.1",
+    "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
+    "address": "0x4cae8373db3191fd986cb3d861f69075d396d04c2fb97f8c0d78a0ad30023bd",
+    "seed": "nums-alpha.2",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -1479,8 +1479,8 @@
   },
   "contracts": [
     {
-      "address": "0x44e9693a69aff653dddc9d8fca04a11e5d55a79dfc5aba67d78b609e6db48d6",
-      "class_hash": "0x20789a7502a1cd0d88c5defa5a6b702f338ef5f2c76237ceacd7d805ab6eb3d",
+      "address": "0x112de3f6eae7537692edf4d735b6e253ad2afc531e733d5893b7a048ba26fd1",
+      "class_hash": "0x5b775a0084a193638ec9cff810fbbeca501afab60d08b7ebe4cdc70ffa04d2e",
       "abi": [
         {
           "type": "impl",
@@ -1877,6 +1877,259 @@
           ]
         },
         {
+          "type": "impl",
+          "name": "AccessControlMixinImpl",
+          "interface_name": "openzeppelin_access::accesscontrol::interface::AccessControlABI"
+        },
+        {
+          "type": "enum",
+          "name": "openzeppelin_access::accesscontrol::interface::RoleStatus",
+          "variants": [
+            {
+              "name": "NotGranted",
+              "type": "()"
+            },
+            {
+              "name": "Delayed",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "Effective",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "openzeppelin_access::accesscontrol::interface::AccessControlABI",
+          "items": [
+            {
+              "type": "function",
+              "name": "has_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_role_admin",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "grant_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "revoke_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "renounce_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "hasRole",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "getRoleAdmin",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "grantRole",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "revokeRole",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "renounceRole",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "get_role_status",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "openzeppelin_access::accesscontrol::interface::RoleStatus"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "grant_role_with_delay",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "delay",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "supports_interface",
+              "inputs": [
+                {
+                  "name": "interface_id",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
           "type": "constructor",
           "name": "constructor",
           "inputs": []
@@ -1974,6 +2227,132 @@
         },
         {
           "type": "event",
+          "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "role",
+              "type": "core::felt252",
+              "kind": "data"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            },
+            {
+              "name": "sender",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "role",
+              "type": "core::felt252",
+              "kind": "data"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            },
+            {
+              "name": "sender",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            },
+            {
+              "name": "delay",
+              "type": "core::integer::u64",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "role",
+              "type": "core::felt252",
+              "kind": "data"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            },
+            {
+              "name": "sender",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "role",
+              "type": "core::felt252",
+              "kind": "data"
+            },
+            {
+              "name": "previous_admin_role",
+              "type": "core::felt252",
+              "kind": "data"
+            },
+            {
+              "name": "new_admin_role",
+              "type": "core::felt252",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "RoleGranted",
+              "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+              "kind": "nested"
+            },
+            {
+              "name": "RoleGrantedWithDelay",
+              "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+              "kind": "nested"
+            },
+            {
+              "name": "RoleRevoked",
+              "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+              "kind": "nested"
+            },
+            {
+              "name": "RoleAdminChanged",
+              "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
           "name": "nums::mocks::nums::MockNumsToken::Event",
           "kind": "enum",
           "variants": [
@@ -1991,6 +2370,16 @@
               "name": "ERC20Event",
               "type": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
               "kind": "flat"
+            },
+            {
+              "name": "AccessControlEvent",
+              "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+              "kind": "flat"
+            },
+            {
+              "name": "SRC5Event",
+              "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+              "kind": "flat"
             }
           ]
         }
@@ -2007,12 +2396,19 @@
         "transfer",
         "transfer_from",
         "approve",
-        "transferFrom"
+        "transferFrom",
+        "grant_role",
+        "revoke_role",
+        "renounce_role",
+        "grantRole",
+        "revokeRole",
+        "renounceRole",
+        "grant_role_with_delay"
       ]
     },
     {
-      "address": "0x566e7f2fd30d967019d44027b4096ac6163b10a4489208fe0d179c4f51d5c97",
-      "class_hash": "0x5aeaa5c5ba7729640b29e6d01e699bda3f55d5554e6054ff660bf856b33896c",
+      "address": "0x69683675e2892e4d65088bfbf7170fab0a32f1de7aaa35acd06943ca81252e4",
+      "class_hash": "0x29e06c2b52b9eaf54568fdadda8f433ae93ece3ccb8232d79aa915e025eb3a6",
       "abi": [
         {
           "type": "impl",
@@ -2457,8 +2853,8 @@
       ]
     },
     {
-      "address": "0x1cc3a0d918f128ef894070fe0e6cfc92532170d2e3bbc4772feb355b74e891c",
-      "class_hash": "0x766930216b3cbe59f79dcbacbbc94a4752e25aeef5d94a4bc50cf8c5b4a009b",
+      "address": "0x1520634c9f988f57a0db0f444e61ef57882419721977731d6d37490985b3bc2",
+      "class_hash": "0x3060821a4811263676c9fc723121f191c72289ccce37737fb653cbab06cf7b4",
       "abi": [
         {
           "type": "impl",
@@ -2694,8 +3090,250 @@
       ]
     },
     {
-      "address": "0x2074d720e9059f06aa2a212cf9d5c0eda609c59a78ccc384ddec33ee3027a0c",
-      "class_hash": "0x53aab6c19e1bccd660fb6801c1ba399bfbff17f6f27dbb0a73cd06d5f5ec597",
+      "address": "0x3f43caceaf40a832740cad5a3919b05f2996df28d1e1f423b54a243a47f5380",
+      "class_hash": "0x18345200cb2cff894d040c1a9ed42778a3efe5422a9a36906494ec2e11ca91c",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "claim_actions__ContractImpl",
+          "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "DojoDeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
+        },
+        {
+          "type": "struct",
+          "name": "core::byte_array::ByteArray",
+          "members": [
+            {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+              "name": "pending_word",
+              "type": "core::felt252"
+            },
+            {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::meta::interface::IDeployedResource",
+          "items": [
+            {
+              "type": "function",
+              "name": "dojo_name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<core::starknet::contract_address::ContractAddress>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [
+            {
+              "name": "nums_address",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "forwarder_address",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "impl",
+          "name": "ClaimImpl",
+          "interface_name": "nums::systems::claim_actions::IClaimActions"
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<core::felt252>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<core::felt252>"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "nums::systems::claim_actions::IClaimActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "claim_from_forwarder",
+              "inputs": [
+                {
+                  "name": "recipient",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "leaf_data",
+                  "type": "core::array::Span::<core::felt252>"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::iworld::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::world_provider::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world_dispatcher",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::iworld::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradeableImpl",
+          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "constructor",
+          "name": "constructor",
+          "inputs": []
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
+          "name": "nums::systems::claim_actions::claim_actions::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+              "kind": "nested"
+            },
+            {
+              "name": "WorldProviderEvent",
+              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "init_calldata": [
+        "0x1",
+        "0x0",
+        "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8"
+      ],
+      "tag": "nums-claim_actions",
+      "selector": "0x3b1c88d497d2baa39da6ca44d1ddd75ac5fc782b723e92dcc01c9f56b15a057",
+      "systems": [
+        "dojo_init",
+        "claim_from_forwarder",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x336aae41e35e4db7412b5202f095c4b27a232825607ac3504e330136334f718",
+      "class_hash": "0xa674dd7a4d9c7eb3972f3700295886b3c50e085b71bbe83d3227fa581b05a5",
       "abi": [
         {
           "type": "impl",
@@ -2949,8 +3587,8 @@
       ]
     },
     {
-      "address": "0x4762c6eeca7b9bb7be9bf81038b8c4ede082a2f3e279c8486a9e6338b467bc1",
-      "class_hash": "0x1e98d978cae662e0edb7e0b7583f39fa9ffe848c64055e1037959b25bd0a04d",
+      "address": "0x533b03eacafb346264f439296ff105564a050e66db70b857387f9304e02c568",
+      "class_hash": "0x6c50543774b5b2607bfe46eaaedba60d1469108faebc266d47b36cfec24ef8d",
       "abi": [
         {
           "type": "impl",
@@ -3185,8 +3823,8 @@
       ]
     },
     {
-      "address": "0x49c89c42d14a48c895332a421b1b9fb409fc5152162a52013e1d06a2d433723",
-      "class_hash": "0x321a500b8df623fa5689b649189046e52de58b47ca4fac84718d973beed08a8",
+      "address": "0x314ee055d16dee80eb72400f89cb3a0cb22d5c8b2c6e9bbd61617afeaad4807",
+      "class_hash": "0x2486bd12e76d7d61e4e606c91426e9dfa5d2df13817d0d50f45e530505ee793",
       "abi": [
         {
           "type": "impl",
@@ -3658,49 +4296,49 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x3b6ff20b54a3414e35ee9a32e5f3d1ba08f900cb5a7b0305752bf0622bc9de3",
+      "class_hash": "0x60727c46d0c69a347db72ce809cd1b691ecbb0bf178fba1d38ab932e184889c",
       "tag": "nums-Config",
       "selector": "0x73ebe7477c76a25a595134e2f5e365ba00af4b40e5db31bd951c76f843ea62"
     },
     {
       "members": [],
-      "class_hash": "0x757eadfd41a1780f3792c503000b4120b97463ca063c1e8b3809b0d8da9f73",
+      "class_hash": "0x4c7d35615f79bc3a2dbd4e334e55715df04328c4796bc5c2ae4aa14c2b44f8",
       "tag": "nums-Game",
       "selector": "0x468c6d9d5868b589e6ec58ca133c2835289b5f769817ccf8fa7bd07498a91f0"
     },
     {
       "members": [],
-      "class_hash": "0x49c536978648d21e39e4a66687a9fc8998b75b82a051e9a0ca68452a989abc4",
+      "class_hash": "0x825dbe32d4a328ea127cd95ec720922b8b752b056eaa404b61901c5d0b5bfe",
       "tag": "nums-Identifier",
       "selector": "0x385507d29e391eacca2e9b0148e6d01890807f738824cac349264ad313d0158"
     },
     {
       "members": [],
-      "class_hash": "0x55fe944a270f6554e5d507947b88d1fb1796401284d1d133559551a73a92de9",
+      "class_hash": "0x79885dfc42aae4d23255b4da981a6d87d6b974dcef7b97919a9790187b1e004",
       "tag": "nums-Jackpot",
       "selector": "0x723709fcf46a4e688c21bfd94133a3189fdb9fbfbdc1100574e25447aca8a8a"
     },
     {
       "members": [],
-      "class_hash": "0x40c4dfaf9717eaceef16257197c2d658cd7e6479115d80c840aee9158238243",
+      "class_hash": "0x3e89002e4fb5c673f6faf47896dfcb85add81d86c8c891a68640322f4974767",
       "tag": "nums-JackpotFactory",
       "selector": "0x2fe8f9ccb1b1f87825eae6305d181d77cc41744904d5adb87f26b076ab2465"
     },
     {
       "members": [],
-      "class_hash": "0x52986d536a9a1a420701a4003689eacaee93ca50d460bed821b1e1b5b311c23",
+      "class_hash": "0x52ae0b0325f937fdd72e80e07382c72c4c9762a626af672afcabd5c46f51cdd",
       "tag": "nums-JackpotWinner",
       "selector": "0x1ed10ea87ef8d5ce51e4af2ac90667bb97ea1f3a11ab56740cbaadf26d257e0"
     },
     {
       "members": [],
-      "class_hash": "0x3b14cd4d71ad067f21ce7b0d1e7728cb977c85a9af1c09829a15b32975ad042",
+      "class_hash": "0x6df8ebaa58cd498a88ea4a32c31d8f556ba54ccc35fdaea780066f7017e2d6b",
       "tag": "nums-Metadata",
       "selector": "0x69d7e1a67a0169f6fdf4c0972c51fe2b8f8fb7fa177f887b940e1d2cb2ecd79"
     },
     {
       "members": [],
-      "class_hash": "0x1b112fba75992403825ddf32c799dd84405298606387aef79b46604d5fd420e",
+      "class_hash": "0x2d8c234ea65bddcd25ff08f56420a866d97d0cf653a1a03550d6304b29059b5",
       "tag": "nums-Slot",
       "selector": "0x7ef98499230873bdd2e86ae7ae452adaddfdd8da2d352d8af8d02f1af9af5aa"
     }
@@ -3708,25 +4346,25 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x4b409cb6f89f457f9b4c9d88b2d2a662f7ec36e34ba166a2eaee58db040bf69",
+      "class_hash": "0x4cdd6390da0474cdd33260bdbc1ac108dfe2f5b151e81c82aa23f8e867423db",
       "tag": "nums-GameCreated",
       "selector": "0x613f127a45b984440eb97077f485d7718ffff0d065fa4c427774abd166fba2b"
     },
     {
       "members": [],
-      "class_hash": "0x61324bb8da748d5f37db97aafcb76bbdefbd27807a3d3bb29c7219a813e6303",
+      "class_hash": "0x73fec699d6da282e8d27087f0a22b82c3d30eabb516bda6946f816783e7b2f3",
       "tag": "nums-NewWinner",
       "selector": "0x52732757eca20c1f95ce3e86721429e3e1ac1a5d2e2db9ffb035c3d95e17877"
     },
     {
       "members": [],
-      "class_hash": "0x6a1e8656fb239499aac98fa6ae26f12b5bcb19beeb1c03c7f52da2ecdfa98db",
+      "class_hash": "0x21c8f9729d91b7e385218f5d396e084137b13144227b2b53060ee7c3c72e24a",
       "tag": "nums-TrophyCreation",
       "selector": "0x56616429b5b0d46c58178789cf3c5388e1a9c31026c428d70a72dcad6bcf0e7"
     },
     {
       "members": [],
-      "class_hash": "0xc04ad52992b65d8404d629e17df64cdb425933dfa522c17ab63f9d757a3b9",
+      "class_hash": "0x10a76e791a65a86a40e9b10d175104e370746e6ad2c57a658d17468a73f403d",
       "tag": "nums-TrophyProgression",
       "selector": "0x3eb3683417faea182a1a84e66356a222166847485ea08b61d802e4f63acef2d"
     }

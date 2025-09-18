@@ -1,11 +1,11 @@
 {
-  "name": "Nums Airdrop",
-  "description": "Nums Airdrop",
+  "name": "Test Nums Airdrop",
+  "description": "Test Nums Airdrop",
   "network": "STARKNET",
-  "contract": "0x123",
+  "claim_contract": "0x03f43caceaf40a832740cad5a3919b05f2996df28d1e1f423b54a243a47f5380",
   "entrypoint": "claim_from_forwarder",
   "salt": "0x0",
-  "data": [
+  "snapshot": [
     [
       "0x4727793c492e3aafae2894fa2c95c94e2a192b28742fa75eed3beab91e9e83c",
       [

@@ -15,9 +15,11 @@ import useChain from "@/hooks/chain";
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import { useMintNums } from "@/hooks/useMintNums";
 import { num } from "starknet";
+import { sleep } from "@/utils/sleep";
+import { GiftIcon } from "./icons/Gift";
 
 const Header = () => {
-  const { connect, connectors } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
   const { gameId } = useParams();
@@ -99,9 +101,35 @@ const Header = () => {
               }
             }}
           >
-
             <TokenBalance contractAddress={numsAddress} />
-            {!isMainnet && <Text position="absolute" fontSize="10px" bottom="2px" right="16px">Mint</Text>}
+            {!isMainnet && (
+              <Text
+                position="absolute"
+                fontSize="10px"
+                bottom="2px"
+                right="16px"
+              >
+                Mint
+              </Text>
+            )}
+          </Button>
+        )}
+        {connector && (
+          <Button
+            visual="transparent"
+            h={height}
+            w={width}
+            bg="green.100"
+            onClick={() => {
+              const controllerConnector =
+                connectors[0] as unknown as ControllerConnector;
+
+              controllerConnector.controller.openStarterPack(
+                "nums-starterpack-sepolia"
+              );
+            }}
+          >
+            <GiftIcon />
           </Button>
         )}
         {address ? (
@@ -130,9 +158,9 @@ const Header = () => {
           </>
         ) : (
           <Button
-          h={["40px", "48px"]}
-            onClick={() => {
-              connect({ connector: connectors[0] });
+            h={["40px", "48px"]}
+            onClick={async () => {
+              await connectAsync({ connector: connectors[0] });
             }}
           >
             Connect

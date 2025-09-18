@@ -20,9 +20,9 @@ pub impl DefaultGameConfig of Default<GameConfig> {
     fn default() -> GameConfig {
         GameConfig {
             max_slots: 20,
-            min_number: 1,
             max_number: 999,
-            entry_cost: 1000,
+            min_number: 1,
+            entry_cost: 2_000,
             game_duration: 3 * ONE_MINUTE,
         }
     }

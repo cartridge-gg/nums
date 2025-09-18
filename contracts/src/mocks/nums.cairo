@@ -59,7 +59,7 @@ mod MockNumsToken {
 
         let mut world = self.world(@"nums");
         let game_actions = world.dns_address(@"game_actions").expect('game_actions not found!');
-        // let claim_actions = world.dns_address(@"claim_actions").expect('claim_actions not found!');
+        let claim_actions = world.dns_address(@"claim_actions").expect('claim_actions not found!');
 
         // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
         // deployer account
@@ -69,7 +69,7 @@ mod MockNumsToken {
 
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(MINTER_ROLE, game_actions);
-        // self.accesscontrol._grant_role(MINTER_ROLE, claim_actions);
+        self.accesscontrol._grant_role(MINTER_ROLE, claim_actions);
     }
 
     #[generate_trait]

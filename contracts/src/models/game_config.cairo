@@ -16,7 +16,6 @@ pub struct GameConfig {
 //     }
 // }
 
-
 pub impl DefaultGameConfig of Default<GameConfig> {
     fn default() -> GameConfig {
         GameConfig {
@@ -32,8 +31,10 @@ pub impl DefaultGameConfig of Default<GameConfig> {
 pub impl DefaultGameRewardImpl of DefaultGameRewardTrait {
     fn default() -> Array<u32> {
         array![
-            32, 32, 32, 32, 64, 64, 64, 64, 64, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384,
-            42000, 69000,
+            1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500, 8000, 10000,
+            20000, 42000,
+            // 32, 32, 32, 32, 64, 64, 64, 64, 64, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384,
+        // 42000, 69000,
         ]
     }
 }

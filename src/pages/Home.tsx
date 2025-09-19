@@ -334,7 +334,7 @@ const Home = () => {
               <Box
                 w="full"
                 layerStyle="transparent"
-                padding={["10px", "10px", "10px 30px"]}
+                padding="14px 32px"
                 bgColor="rgba(0,0,0,0.04)"
                 flexShrink={0}
               >

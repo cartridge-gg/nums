@@ -113,7 +113,7 @@ export const JackpotDetails = ({
           </>
         )}
         <HStack gap={2} alignItems="center">
-          <Text fontSize="18px" fontWeight="500">Ends in:</Text>
+          <Text fontSize="18px" fontWeight="500">Ends:</Text>
           <Box fontSize="22px" fontFamily="Ekamai">
             <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
           </Box>

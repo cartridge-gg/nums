@@ -12,9 +12,11 @@ import { LuCircleHelp, LuFileQuestion } from "react-icons/lu";
 export const TokenBalanceUi = ({
   balance,
   address,
+  showIcon = true,
 }: {
   balance: BigNumberish;
   address: BigNumberish;
+  showIcon?: boolean;
 }) => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
@@ -27,9 +29,13 @@ export const TokenBalanceUi = ({
   return (
     <HStack fontFamily="Ekamai" fontSize="16px">
       {balance.toLocaleString()}
-      {isNums && <LogoIcon w={24} h={24} />}
-      {isStrk && <Image src="/tokens/strk.png" w="24px" h="24px" />}
-      {!isNums && !isStrk && <LuCircleHelp />}
+      {showIcon && (
+        <>
+          {isNums && <LogoIcon w={24} h={24} />}
+          {isStrk && <Image src="/tokens/strk.png" w="24px" h="24px" />}
+          {!isNums && !isStrk && <LuCircleHelp />}
+        </>
+      )}
     </HStack>
   );
 };

@@ -1,11 +1,10 @@
 import { HStack, Spacer, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
-import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
+import { useAccount, useConnect } from "@starknet-react/core";
 import { LogoIcon } from "./icons/Logo";
 import { useEffect, useMemo, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
-import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
@@ -20,7 +19,6 @@ import { GiftIcon } from "./icons/Gift";
 
 const Header = () => {
   const { connectAsync, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
   const navigate = useNavigate();
   const { gameId } = useParams();
   const { address, connector } = useAccount();
@@ -149,14 +147,6 @@ const Header = () => {
             >
               {address && <ControllerIcon />}
               <Text display={["none", "none", "block"]}>{username}</Text>
-            </Button>
-            <Button
-              visual="transparent"
-              h={height}
-              w={width}
-              onClick={() => disconnect()}
-            >
-              <DisconnectIcon />
             </Button>
           </>
         ) : (

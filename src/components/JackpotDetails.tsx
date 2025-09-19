@@ -67,24 +67,24 @@ export const JackpotDetails = ({
   return (
     <HStack  {...props}>
       <HStack
-        gap={4}
+        gap={3}
         alignItems="center"
         justify="flex-start"
         h="full"
       >
-        <Text fontSize={["24px", "28px", "32px"]} fontWeight="500">
+        <Text fontSize="18px" fontWeight="500">
           Jackpot:
         </Text>
-        <HStack gap={3} alignItems="center">
-          <HStack fontFamily="Ekamai" fontSize={["24px", "28px", "32px"]}>
-            {numsBalance.toLocaleString()} <LogoIcon w={32} h={32} />
+        <HStack gap={2} alignItems="center">
+          <HStack fontFamily="Ekamai" fontSize="22px">
+            {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
           </HStack>
           {tokenBalance !== undefined && tokenBalance > 0 && (
             <>
-              <Text fontSize={["24px", "28px", "32px"]}>+</Text>
-              <HStack fontFamily="Ekamai" fontSize={["24px", "28px", "32px"]}>
+              <Text fontSize="22px">+</Text>
+              <HStack fontFamily="Ekamai" fontSize="22px">
                 {tokenBalance.toLocaleString()}
-                <Image src="/tokens/strk.png" w="32px" h="32px" />
+                <Image src="/tokens/strk.png" w="24px" h="24px" />
               </HStack>
             </>
           )}
@@ -113,8 +113,8 @@ export const JackpotDetails = ({
           </>
         )}
         <HStack gap={2} alignItems="center">
-          <Text fontSize={["24px", "28px", "32px"]} fontWeight="500">Ends in:</Text>
-          <Box fontSize={["24px", "28px", "32px"]}>
+          <Text fontSize="18px" fontWeight="500">Ends in:</Text>
+          <Box fontSize="22px" fontFamily="Ekamai">
             <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
           </Box>
         </HStack>

@@ -54,7 +54,10 @@ const Header = () => {
         top="0"
         left="0"
         p="4px 12px"
-        bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
+        bg="linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)"
+        backdropFilter="blur(8px)"
+        borderBottom="1px solid rgba(255, 255, 255, 0.12)"
+        boxShadow="0 1px 0 0 rgba(0, 0, 0, 0.08)"
       >
         <HStack
           cursor="pointer"

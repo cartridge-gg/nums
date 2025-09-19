@@ -26,7 +26,6 @@ import {
   SEPOLIA_CHAIN_ID,
 } from "../config";
 import { useExecuteCall } from "../hooks/useExecuteCall";
-import { Footer } from "../components/Footer";
 import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
@@ -34,7 +33,6 @@ import { useClaim } from "@/hooks/useClaim";
 import { useJackpotEvents } from "@/hooks/useJackpotEvents";
 import useToast from "@/hooks/toast";
 import { useControllers } from "@/context/controllers";
-import { HomeIcon } from "@/components/icons/Home";
 import { useGame } from "@/hooks/useGame";
 
 const Game = () => {
@@ -289,7 +287,7 @@ const Game = () => {
             })}
           </Grid>
           <Box
-            mt={["0", "10px", "20px"]}
+            mt={["15px", "25px", "35px"]}
             // visibility={isOver ? "visible" : "hidden"}
           >
             <HStack h="40px">
@@ -318,12 +316,10 @@ const Game = () => {
                     onReady={(gameId) => {
                       navigate(`/${gameId}`);
                     }}
+                    h={["calc((100dvh - 300px) / 10)", "40px", "50px"]}
+                    fontSize={["22px", "22px", "24px"]}
+                    px="10px"
                   />
-                  {!isMobile && (
-                    <Button visual="transparent" onClick={() => navigate("/")}>
-                      <HomeIcon /> Home
-                    </Button>
-                  )}
                 </>
               )}
 
@@ -342,7 +338,6 @@ const Game = () => {
             </HStack>
           </Box>
         </VStack>
-        <Footer game={game} jackpot={jackpot} />
 
         {canClaim && !isClaimingSuccessful && <Confetti />}
       </Container>

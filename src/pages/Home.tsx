@@ -48,6 +48,7 @@ import { Scrollable } from "@/components/ui/scrollable";
 import { useGames } from "@/context/game";
 import { MaybeController } from "@/components/MaybeController";
 import GetNums from "@/components/GetNums";
+import tunnelBackground from "@/assets/tunnel-background.svg";
 
 interface WinnersRewards {
   nums: BigNumberish;
@@ -173,23 +174,42 @@ const Home = () => {
   }, [selectedJackpot]);
 
   return (
-    <Container
-      // minH="100vh"
-      h={["100dvh", "100vh"]}
-      maxW="100vw"
-      display="flex"
-      justifyContent="center"
-      alignItems={"flex-start"}
-      p="15px"
-      pt={["70px", "100px", "120px"]}
-    >
-      <Header />
+    <>
+      {/* Background layer */}
+      <Box
+        as="img"
+        src={tunnelBackground}
+        alt=""
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        objectFit="cover"
+        objectPosition="center"
+        zIndex={0}
+        pointerEvents="none"
+      />
+      
+      <Container
+        // minH="100vh"
+        h={["100dvh", "100vh"]}
+        maxW="100vw"
+        display="flex"
+        justifyContent="center"
+        alignItems={"flex-start"}
+        p="15px"
+        pt={["70px", "100px", "120px"]}
+        position="relative"
+        zIndex={1}
+      >
+        <Header />
       <InfoOverlay
         open={openInfo}
         onClose={onCloseInfo}
         factory={selectedFactory}
       />
-      <VStack w="full">
+      <VStack w="full" position="relative" zIndex="1">
         <VStack gap={["8px", "16px"]} w={["100%", "100%", "800px"]}>
           <HStack w="full" justify="space-between">
             <HStack>
@@ -325,33 +345,45 @@ const Home = () => {
                 <Table.Header bg="purple.200">
                   <Table.Row border="0" bg="purple.200">
                     <Table.ColumnHeader
-                      color="white"
+                      color="#bbaaee"
                       borderBottomWidth={0}
                       w={["40px", "70px"]}
-                      opacity={0.5}
+                      fontFamily="CircularLL"
+                      fontWeight="450"
+                      fontSize="14px"
+                      textTransform="uppercase"
                     >
                       {isMobile ? "#" : "RANK"}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader
-                      color="white"
+                      color="#bbaaee"
                       borderBottomWidth={0}
-                      opacity={0.5}
+                      fontFamily="CircularLL"
+                      fontWeight="450"
+                      fontSize="14px"
+                      textTransform="uppercase"
                     >
                       PLAYER
                     </Table.ColumnHeader>
                     <Table.ColumnHeader
-                      color="white"
+                      color="#bbaaee"
                       borderBottomWidth={0}
-                      opacity={0.5}
                       w={["55px", "70px"]}
+                      fontFamily="CircularLL"
+                      fontWeight="450"
+                      fontSize="14px"
+                      textTransform="uppercase"
                     >
                       SCORE
                     </Table.ColumnHeader>
                     <Table.ColumnHeader
-                      color="white"
+                      color="#bbaaee"
                       borderBottomWidth={0}
-                      opacity={0.5}
                       textAlign="right"
+                      fontFamily="CircularLL"
+                      fontWeight="450"
+                      fontSize="14px"
+                      textTransform="uppercase"
                     >
                       $NUMS
                     </Table.ColumnHeader>
@@ -374,7 +406,6 @@ const Home = () => {
                         <Table.Row
                           key={idx}
                           borderBottomWidth="0px"
-                          fontWeight="bold"
                           color={isOwn ? "orange.50" : "white"}
                         >
                           <Table.Cell
@@ -383,11 +414,19 @@ const Home = () => {
                               navigate(`/${num.toHex(game.game_id)}`)
                             }
                             padding={["3px", "6px"]}
+                            fontFamily="CircularLL"
+                            fontWeight="500"
+                            fontSize="16px"
                           >
-                            #{game.rank}
+                            {game.rank}
                           </Table.Cell>
 
-                          <Table.Cell padding={["3px", "6px"]}>
+                          <Table.Cell 
+                            padding={["3px", "6px"]}
+                            fontFamily="CircularLL"
+                            fontWeight="500"
+                            fontSize="16px"
+                          >
                             <HStack>
                               <MaybeController address={game.player} />
                               {isWinner &&
@@ -445,12 +484,17 @@ const Home = () => {
                           <Table.Cell
                             textAlign="center"
                             padding={["3px", "6px"]}
+                            fontFamily="CircularLL"
+                            fontWeight="500"
+                            fontSize="16px"
                           >
                             {game.level.toString()}
                           </Table.Cell>
                           <Table.Cell
-                            fontWeight="normal"
+                            fontWeight="500"
                             padding={["3px", "6px"]}
+                            fontFamily="CircularLL"
+                            fontSize="16px"
                           >
                             <VStack alignItems="flex-end">
                               <TokenBalanceUi
@@ -483,6 +527,7 @@ const Home = () => {
         </VStack>
       </VStack>
     </Container>
+    </>
   );
 };
 

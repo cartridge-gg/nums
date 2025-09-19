@@ -5,6 +5,7 @@ import {
   VStack,
   Text,
   Image,
+  Box,
   StackProps,
   ChakraProviderProps,
 } from "@chakra-ui/react";
@@ -65,23 +66,30 @@ export const JackpotDetails = ({
   if (!jackpot || !factory) return null;
   return (
     <HStack  {...props}>
-      <VStack
-        gap={0}
-        alignItems="flex-start"
+      <HStack
+        gap={4}
+        alignItems="center"
         justify="flex-start"
-        fontSize="18px"
         h="full"
       >
-        <HStack fontFamily="Ekamai" fontSize="16px">
-          {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
-        </HStack>
-        {tokenBalance !== undefined && tokenBalance > 0 && (
-          <HStack fontFamily="Ekamai" fontSize="16px">
-            {tokenBalance.toLocaleString()}
-            <Image src="/tokens/strk.png" w="24px" h="24px" />
+        <Text fontSize={["24px", "28px", "32px"]} fontWeight="500">
+          Jackpot:
+        </Text>
+        <HStack gap={3} alignItems="center">
+          <HStack fontFamily="Ekamai" fontSize={["24px", "28px", "32px"]}>
+            {numsBalance.toLocaleString()} <LogoIcon w={32} h={32} />
           </HStack>
-        )}
-      </VStack>
+          {tokenBalance !== undefined && tokenBalance > 0 && (
+            <>
+              <Text fontSize={["24px", "28px", "32px"]}>+</Text>
+              <HStack fontFamily="Ekamai" fontSize={["24px", "28px", "32px"]}>
+                {tokenBalance.toLocaleString()}
+                <Image src="/tokens/strk.png" w="32px" h="32px" />
+              </HStack>
+            </>
+          )}
+        </HStack>
+      </HStack>
 
       <Spacer minW="0px" />
       
@@ -104,12 +112,12 @@ export const JackpotDetails = ({
             <Spacer minW="20px" />
           </>
         )}
-        <VStack gap={0} alignItems="flex-end">
-          <HStack w="full" justifyContent="space-between">
-            <Text>Ends in: </Text>
+        <HStack gap={2} alignItems="center">
+          <Text fontSize={["24px", "28px", "32px"]} fontWeight="500">Ends in:</Text>
+          <Box fontSize={["24px", "28px", "32px"]}>
             <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
-          </HStack>
-        </VStack>
+          </Box>
+        </HStack>
       </HStack>
     </HStack>
   );

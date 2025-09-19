@@ -67,14 +67,6 @@ export const JackpotDetails = ({
     <HStack  {...props}>
       <HStack>
         <VStack gap={0} alignItems="flex-start">
-          <HStack>
-            <Text
-              fontFamily="Ekamai"
-              fontSize={["20px", "24px"]} /*title={`#${jackpot.id}`}*/
-            >
-              {factory?.name} {computedId ? `#${computedId}` : ""}
-            </Text>
-          </HStack>
           <HStack w="full" justifyContent="space-between">
             <Text>Ends in: </Text>
             <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />

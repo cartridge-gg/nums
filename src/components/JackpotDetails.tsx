@@ -66,7 +66,7 @@ export const JackpotDetails = ({
 
   if (!jackpot || !factory) return null;
   return (
-    <Stack direction={["column", "column", "row"]} spacing={[3, 3, 0]} {...props}>
+    <Stack direction={["column", "column", "row"]} gap={[3, 3, 0]} {...props}>
       <HStack
         gap={[2, 3]}
         alignItems="center"

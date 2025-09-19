@@ -1,11 +1,10 @@
 import { HStack, Spacer, Text, VStack } from "@chakra-ui/react";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
-import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
+import { useAccount, useConnect } from "@starknet-react/core";
 import { LogoIcon } from "./icons/Logo";
 import { useEffect, useMemo, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
-import { DisconnectIcon } from "./icons/Disconnect";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
@@ -20,7 +19,6 @@ import { GiftIcon } from "./icons/Gift";
 
 const Header = () => {
   const { connectAsync, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
   const navigate = useNavigate();
   const { gameId } = useParams();
   const { address, connector } = useAccount();
@@ -54,7 +52,10 @@ const Header = () => {
         top="0"
         left="0"
         p="4px 12px"
-        bg="linear-gradient(0deg, rgba(0, 0, 0, 0.24) 0%, rgba(0, 0, 0, 0.16) 100%), {colors.purple.100}"
+        bg="linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)"
+        backdropFilter="blur(8px)"
+        borderBottom="1px solid rgba(255, 255, 255, 0.12)"
+        boxShadow="0 1px 0 0 rgba(0, 0, 0, 0.08)"
       >
         <HStack
           cursor="pointer"
@@ -101,17 +102,7 @@ const Header = () => {
               }
             }}
           >
-            <TokenBalance contractAddress={numsAddress} />
-            {!isMainnet && (
-              <Text
-                position="absolute"
-                fontSize="10px"
-                bottom="2px"
-                right="16px"
-              >
-                Mint
-              </Text>
-            )}
+            <TokenBalance contractAddress={numsAddress} showIcon={false} />
           </Button>
         )}
         {connector && (
@@ -146,14 +137,6 @@ const Header = () => {
             >
               {address && <ControllerIcon />}
               <Text display={["none", "none", "block"]}>{username}</Text>
-            </Button>
-            <Button
-              visual="transparent"
-              h={height}
-              w={width}
-              onClick={() => disconnect()}
-            >
-              <DisconnectIcon />
             </Button>
           </>
         ) : (

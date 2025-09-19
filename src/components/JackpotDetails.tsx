@@ -5,6 +5,8 @@ import {
   VStack,
   Text,
   Image,
+  Box,
+  Stack,
   StackProps,
   ChakraProviderProps,
 } from "@chakra-ui/react";
@@ -64,26 +66,39 @@ export const JackpotDetails = ({
 
   if (!jackpot || !factory) return null;
   return (
-    <HStack  {...props}>
-      <HStack>
-        <VStack gap={0} alignItems="flex-start">
-          <HStack>
-            <Text
-              fontFamily="Ekamai"
-              fontSize={["20px", "24px"]} /*title={`#${jackpot.id}`}*/
-            >
-              {factory?.name} {computedId ? `#${computedId}` : ""}
-            </Text>
+    <Stack direction={["column", "column", "row"]} gap={[3, 3, 0]} {...props}>
+      <HStack
+        gap={[2, 3]}
+        alignItems="center"
+        justify={["center", "center", "flex-start"]}
+        h="full"
+        wrap={["wrap", "nowrap"]}
+      >
+        <Text fontSize={["16px", "18px"]} fontWeight="500">
+          Jackpot:
+        </Text>
+        <HStack gap={2} alignItems="center" flexWrap="wrap" justify="center">
+          <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+            {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
           </HStack>
-          <HStack w="full" justifyContent="space-between">
-            <Text>Ends in: </Text>
-            <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
-          </HStack>
-        </VStack>
+          {tokenBalance !== undefined && tokenBalance > 0 && (
+            <>
+              <Text fontSize={["20px", "22px"]}>+</Text>
+              <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+                {tokenBalance.toLocaleString()}
+                <Image src="/tokens/strk.png" w="24px" h="24px" />
+              </HStack>
+            </>
+          )}
+        </HStack>
+      </HStack>
+
+      <Spacer minW="0px" display={["none", "none", "block"]} />
+      
+      <HStack justify={["center", "center", "flex-end"]}>
         {game && (
           <>
-            <Spacer minW="20px" />
-            <VStack gap={0} alignItems="flex-start">
+            <VStack gap={0} alignItems={["center", "center", "flex-start"]} display={["none", "flex"]}>
               <Text w="auto" fontSize="xs" lineHeight="24px">
                 LVL {game.level.toString()}
               </Text>
@@ -96,28 +111,17 @@ export const JackpotDetails = ({
                 + {game?.reward.toLocaleString()} NUMS
               </Text>
             </VStack>
+            <Spacer minW="20px" display={["none", "block"]} />
           </>
         )}
-      </HStack>
-      <Spacer minW="0px" />
-
-      <VStack
-        gap={0}
-        alignItems="flex-end"
-        justify="flex-start"
-        fontSize="18px"
-        h="full"
-      >
-        <HStack fontFamily="Ekamai" fontSize="16px">
-          {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
+        <HStack gap={2} alignItems="center">
+          <Text fontSize={["16px", "18px"]} fontWeight="500">Ends:</Text>
+          <TimeCountdown 
+            timestampSec={Number(jackpot?.end_at || 0)} 
+            fontSize={["20px", "22px", "22px"]}
+          />
         </HStack>
-        {tokenBalance !== undefined && tokenBalance > 0 && (
-          <HStack fontFamily="Ekamai" fontSize="16px">
-            {tokenBalance.toLocaleString()}
-            <Image src="/tokens/strk.png" w="24px" h="24px" />
-          </HStack>
-        )}
-      </VStack>
-    </HStack>
+      </HStack>
+    </Stack>
   );
 };

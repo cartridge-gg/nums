@@ -7,10 +7,10 @@ import {
   Spacer,
   useDisclosure,
   useBreakpointValue,
-  Table,
   HoverCard,
   Heading,
   Spinner,
+  Image,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -44,10 +44,10 @@ import { useClaim } from "@/hooks/useClaim";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";
 import { JackpotDetails } from "@/components/JackpotDetails";
 import Play from "@/components/Play";
-import { Scrollable } from "@/components/ui/scrollable";
 import { useGames } from "@/context/game";
 import { MaybeController } from "@/components/MaybeController";
 import GetNums from "@/components/GetNums";
+import tunnelBackground from "@/assets/tunnel-background.svg";
 
 interface WinnersRewards {
   nums: BigNumberish;
@@ -96,7 +96,7 @@ const Home = () => {
   useEffect(() => {
     if (selectedFactory) {
       const filtered = (jackpots || []).filter(
-        (i) => i.factory_id === selectedFactory.id
+        (i) => i.factory_id === selectedFactory.id,
       );
       const sorted = filtered
         .sort((a, b) => Number(b.id) - Number(a.id))
@@ -131,7 +131,7 @@ const Home = () => {
   const claimable = useMemo(() => {
     if (!account) return [];
     return winners.filter(
-      (i) => BigInt(i.player) === BigInt(account.address) && !i.claimed
+      (i) => BigInt(i.player) === BigInt(account.address) && !i.claimed,
     );
   }, [winners, account]);
 
@@ -173,316 +173,402 @@ const Home = () => {
   }, [selectedJackpot]);
 
   return (
-    <Container
-      // minH="100vh"
-      h={["100dvh", "100vh"]}
-      maxW="100vw"
-      display="flex"
-      justifyContent="center"
-      alignItems={"flex-start"}
-      p="15px"
-      pt={["70px", "100px", "120px"]}
-    >
-      <Header />
-      <InfoOverlay
-        open={openInfo}
-        onClose={onCloseInfo}
-        factory={selectedFactory}
+    <>
+      {/* Background layer */}
+      <Image
+        src={tunnelBackground}
+        alt=""
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        objectFit="cover"
+        objectPosition="center"
+        zIndex={0}
+        pointerEvents="none"
       />
-      <VStack w="full">
-        <VStack gap={["8px", "16px"]} w={["100%", "100%", "800px"]}>
-          <HStack w="full" justify="space-between">
-            <HStack>
-              <MenuRoot>
-                <MenuTrigger asChild>
-                  <Button
-                    visual="transparent"
-                    gap="8px"
-                    height="36px"
-                    padding={["4px 8px", "6px 12px"]}
-                    fontSize={["14px", "16px"]}
-                  >
-                    <TrophyIcon />
-                    {selectedFactory?.name}
-                    <CaretIcon />
-                  </Button>
-                </MenuTrigger>
-                <MenuContent>
-                  {jackpotFactories?.map((factory, idx) => {
-                    return (
-                      <MenuItem
-                        key={idx}
-                        value={factory.id.toString()}
-                        onClick={() => setSelectedFactory(factory)}
-                        _hover={{
-                          bg: "purple.50",
-                        }}
-                      >
-                        {factory.name}
-                      </MenuItem>
-                    );
-                  })}
-                </MenuContent>
-              </MenuRoot>
 
-              <MenuRoot>
-                <MenuTrigger asChild>
-                  <Button
-                    visual="transparent"
-                    gap="8px"
-                    height="36px"
-                    padding={["4px 8px", "6px 12px"]}
-                    fontSize={["14px", "16px"]}
-                  >
-                    #{selectedJackpot?.computedId}
-                    <CaretIcon />
-                  </Button>
-                </MenuTrigger>
-                <MenuContent>
-                  {selectedJackpots?.map((jackpot, idx) => {
-                    return (
-                      <MenuItem
-                        key={idx}
-                        value={jackpot.computedId.toString()}
-                        onClick={() => setSelectedJackpot(jackpot)}
-                        _hover={{
-                          bg: "purple.50",
-                        }}
-                      >
-                        # {jackpot.computedId}
-                      </MenuItem>
-                    );
-                  })}
-                </MenuContent>
-              </MenuRoot>
+      <Container
+        // minH="100vh"
+        h={["100dvh", "100vh"]}
+        maxW="100vw"
+        display="flex"
+        justifyContent="center"
+        alignItems={"flex-start"}
+        p="15px"
+        pt={["70px", "100px", "120px"]}
+        position="relative"
+        zIndex={1}
+      >
+        <Header />
+        <InfoOverlay
+          open={openInfo}
+          onClose={onCloseInfo}
+          factory={selectedFactory}
+        />
+        <VStack w="full" h="full" position="relative" zIndex="1">
+          <VStack
+            gap={["8px", "16px"]}
+            w={["100%", "100%", "800px"]}
+            h="full"
+            flex="1"
+            minH={0}
+          >
+            <HStack w="full" justify="space-between" flexShrink={0}>
+              <HStack>
+                <MenuRoot>
+                  <MenuTrigger asChild>
+                    <Button
+                      visual="transparent"
+                      gap="8px"
+                      height={["40px", "45px", "50px"]}
+                      padding={["6px 10px", "8px 14px"]}
+                      fontSize={["18px", "20px", "22px"]}
+                    >
+                      <TrophyIcon />
+                      {selectedFactory?.name}
+                      <CaretIcon />
+                    </Button>
+                  </MenuTrigger>
+                  <MenuContent>
+                    {jackpotFactories?.map((factory, idx) => {
+                      return (
+                        <MenuItem
+                          key={idx}
+                          value={factory.id.toString()}
+                          onClick={() => setSelectedFactory(factory)}
+                          _hover={{
+                            bg: "purple.50",
+                          }}
+                        >
+                          {factory.name}
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuContent>
+                </MenuRoot>
+
+                <MenuRoot>
+                  <MenuTrigger asChild>
+                    <Button
+                      visual="transparent"
+                      gap="8px"
+                      height={["40px", "45px", "50px"]}
+                      padding={["6px 10px", "8px 14px"]}
+                      fontSize={["18px", "20px", "22px"]}
+                    >
+                      #{selectedJackpot?.computedId}
+                      <CaretIcon />
+                    </Button>
+                  </MenuTrigger>
+                  <MenuContent>
+                    {selectedJackpots?.map((jackpot, idx) => {
+                      return (
+                        <MenuItem
+                          key={idx}
+                          value={jackpot.computedId.toString()}
+                          onClick={() => setSelectedJackpot(jackpot)}
+                          _hover={{
+                            bg: "purple.50",
+                          }}
+                        >
+                          # {jackpot.computedId}
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuContent>
+                </MenuRoot>
+              </HStack>
+
+              <HStack>
+                {selectedJackpot &&
+                  isJackpotOver &&
+                  claimable &&
+                  claimable.length > 0 && (
+                    <Button
+                      onClick={() => {
+                        claim(
+                          selectedJackpot.id,
+                          claimable.map((i) => i.index),
+                        );
+                      }}
+                      height={["40px", "45px", "50px"]}
+                      fontSize={["18px", "20px", "22px"]}
+                      px="12px"
+                    >
+                      {isClaiming ? <Spinner /> : <LuCrown />}
+                      {isMobile ? "" : "Claim"}
+                    </Button>
+                  )}
+                {!isMobile && selectedFactory && (
+                  <>
+                    <GetNums
+                      height={["40px", "45px", "50px"]}
+                      fontSize={["18px", "20px", "22px"]}
+                      px="12px"
+                    />
+                    <Play
+                      onReady={(gameId) => navigate(`/${gameId}`)}
+                      w={["100%", "100%", "auto"]}
+                      factory={selectedFactory}
+                      height={["40px", "45px", "50px"]}
+                      fontSize={["18px", "20px", "22px"]}
+                      px="12px"
+                    />
+                  </>
+                )}
+
+                <Button
+                  visual="transparent"
+                  p="10px"
+                  height={["40px", "45px", "50px"]}
+                  onClick={() => onOpenInfo()}
+                >
+                  <InfoIcon />
+                </Button>
+              </HStack>
             </HStack>
 
-            <HStack>
-              {selectedJackpot &&
-                isJackpotOver &&
-                claimable &&
-                claimable.length > 0 && (
-                  <Button
-                    onClick={() => {
-                      claim(
-                        selectedJackpot.id,
-                        claimable.map((i) => i.index)
-                      );
-                    }}
+            {selectedJackpot && (
+              <Box
+                w="full"
+                layerStyle="transparent"
+                padding="14px 32px"
+                bgColor="rgba(0,0,0,0.04)"
+                flexShrink={0}
+              >
+                <JackpotDetails
+                  jackpotId={selectedJackpot.id}
+                  computedId={selectedJackpot.computedId}
+                />
+              </Box>
+            )}
+            <VStack
+              w="full"
+              padding={["16px", "24px", "32px"]}
+              gap={["16px", "20px", "24px"]}
+              flex="1"
+              minH={0}
+              alignItems="flex-start"
+              bgColor="rgba(0,0,0,0.04)"
+              borderRadius="8px"
+              boxShadow="1px 1px 0px rgba(0, 0, 0, 0.12)"
+              overflow="hidden"
+            >
+              {/* Headers */}
+              <HStack
+                gap={["4px", "6px", "8px"]}
+                px={["8px", "10px", "12px"]}
+                py="0"
+                w="full"
+                alignSelf="stretch"
+                flexShrink={0}
+              >
+                <Box w={["40px", "60px", "80px"]} flexShrink={0}>
+                  <Text
+                    color="#bbaaee"
+                    fontFamily="CircularLL"
+                    fontWeight="450"
+                    fontSize={["12px", "13px", "14px"]}
+                    textTransform="uppercase"
                   >
-                    {isClaiming ? <Spinner /> : <LuCrown />}
-                    {isMobile ? "" : "Claim"}
-                  </Button>
-                )}
-              {!isMobile && selectedFactory && (
+                    {isMobile ? "#" : "RANK"}
+                  </Text>
+                </Box>
+                <Box flex="1">
+                  <Text
+                    color="#bbaaee"
+                    fontFamily="CircularLL"
+                    fontWeight="450"
+                    fontSize={["12px", "13px", "14px"]}
+                    textTransform="uppercase"
+                  >
+                    PLAYER
+                  </Text>
+                </Box>
+                <Box w={["50px", "70px", "96px"]} flexShrink={0}>
+                  <Text
+                    color="#bbaaee"
+                    fontFamily="CircularLL"
+                    fontWeight="450"
+                    fontSize={["12px", "13px", "14px"]}
+                    textTransform="uppercase"
+                    textAlign="center"
+                  >
+                    SCORE
+                  </Text>
+                </Box>
+                <Box w={["60px", "80px", "100px"]} flexShrink={0}>
+                  <Text
+                    color="#bbaaee"
+                    fontFamily="CircularLL"
+                    fontWeight="450"
+                    fontSize={["12px", "13px", "14px"]}
+                    textTransform="uppercase"
+                    textAlign="right"
+                  >
+                    $NUMS
+                  </Text>
+                </Box>
+              </HStack>
+
+              {/* Rows */}
+              <VStack
+                gap="12px"
+                w="full"
+                alignItems="stretch"
+                flex="1"
+                minH={0}
+                overflowY="auto"
+                overflowX="hidden"
+              >
+                {selectedJackpot &&
+                  games &&
+                  games.slice(0, 100).map((game, idx) => {
+                    const isOwn =
+                      BigInt(game.player) === BigInt(account?.address || 0);
+
+                    const isWinner = winners.find(
+                      (i) => BigInt(i.game_id) === BigInt(game.game_id),
+                    );
+
+                    const hasClaimed = isWinner?.claimed;
+
+                    return (
+                      <HStack
+                        key={idx}
+                        gap={["4px", "6px", "8px"]}
+                        px={["8px", "10px", "12px"]}
+                        py={["3px", "3px", "4px"]}
+                        alignSelf="stretch"
+                        color={isOwn ? "orange.50" : "white"}
+                        cursor="pointer"
+                        onClick={() => navigate(`/${num.toHex(game.game_id)}`)}
+                      >
+                        <Box w={["40px", "60px", "80px"]} flexShrink={0}>
+                          <Text
+                            fontFamily="CircularLL"
+                            fontWeight="500"
+                            fontSize={["14px", "15px", "16px"]}
+                          >
+                            {game.rank}
+                          </Text>
+                        </Box>
+
+                        <Box flex="1">
+                          <HStack
+                            gap={["4px", "6px", "8px"]}
+                            fontSize={["14px", "15px", "16px"]}
+                          >
+                            <MaybeController address={game.player} />
+                            {isWinner &&
+                              Number(selectedJackpot.end_at) * 1_000 <
+                                Date.now() && (
+                                <HoverCard.Root
+                                  positioning={{ placement: "top-start" }}
+                                >
+                                  <HoverCard.Trigger asChild>
+                                    <LuCrown
+                                      cursor="pointer"
+                                      color={hasClaimed ? "orange" : "gold"}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        claim(game.jackpot_id, [
+                                          isWinner.index,
+                                        ]);
+                                      }}
+                                    />
+                                  </HoverCard.Trigger>
+                                  <HoverCard.Positioner>
+                                    <HoverCard.Content
+                                      bg="purple.200"
+                                      color="white"
+                                    >
+                                      <Heading fontWeight="normal">
+                                        {isWinner.claimed
+                                          ? "Claimed !"
+                                          : "Claimable"}
+                                      </Heading>
+                                      <VStack gap={0} alignItems="flex-end">
+                                        <TokenBalanceUi
+                                          balance={rewardsByWinner?.nums || 0}
+                                          address={numsAddress}
+                                        />
+                                        {rewardsByWinner &&
+                                          BigInt(rewardsByWinner.token || 0) >
+                                            0n && (
+                                            <TokenBalanceUi
+                                              balance={
+                                                rewardsByWinner?.token || 0
+                                              }
+                                              address={
+                                                rewardsByWinner?.tokenAddress ||
+                                                0
+                                              }
+                                            />
+                                          )}
+                                      </VStack>
+                                    </HoverCard.Content>
+                                  </HoverCard.Positioner>
+                                </HoverCard.Root>
+                              )}
+                          </HStack>
+                        </Box>
+
+                        <Box w={["50px", "70px", "96px"]} flexShrink={0}>
+                          <Text
+                            fontFamily="CircularLL"
+                            fontWeight="500"
+                            fontSize={["14px", "15px", "16px"]}
+                            textAlign="center"
+                          >
+                            {game.level.toString()}
+                          </Text>
+                        </Box>
+
+                        <Box
+                          w={["60px", "80px", "100px"]}
+                          flexShrink={0}
+                          textAlign="right"
+                        >
+                          <TokenBalanceUi
+                            balance={game.reward}
+                            address={numsAddress}
+                            showIcon={false}
+                          />
+                        </Box>
+                      </HStack>
+                    );
+                  })}
+              </VStack>
+            </VStack>
+
+            <VStack w="full" justifyContent="center" gap={1} flexShrink={0}>
+              {isMobile && selectedFactory && (
                 <>
-                  <GetNums />
                   <Play
                     onReady={(gameId) => navigate(`/${gameId}`)}
                     w={["100%", "100%", "auto"]}
                     factory={selectedFactory}
+                    height={["40px", "45px", "50px"]}
+                    fontSize={["18px", "20px", "22px"]}
+                    px="12px"
+                  />
+                  <GetNums
+                    w="full"
+                    height={["40px", "45px", "50px"]}
+                    fontSize={["18px", "20px", "22px"]}
+                    px="12px"
                   />
                 </>
               )}
-
-              <Button visual="transparent" p="6px" onClick={() => onOpenInfo()}>
-                <InfoIcon />
-              </Button>
-            </HStack>
-          </HStack>
-
-          {selectedJackpot && (
-            <Box
-              w="full"
-              layerStyle="transparent"
-              padding={["10px", "10px", "10px 30px"]}
-              bgColor="rgba(0,0,0,0.04)"
-            >
-              <JackpotDetails
-                jackpotId={selectedJackpot.id}
-                computedId={selectedJackpot.computedId}
-              />
-            </Box>
-          )}
-          <Box
-            w="full"
-            layerStyle="transparent"
-            padding={["10px", "10px", "10px 30px"]}
-            bgColor="rgba(0,0,0,0.04)"
-          >
-            <Scrollable
-              maxH={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}
-              h={["calc(100dvh - 320px)", "calc(100vh - 350px)"]}
-            >
-              <Table.Root
-                size="sm"
-                variant="outline"
-                border="0"
-                boxShadow="none"
-                overflow="visible"
-                stickyHeader
-              >
-                <Table.Header bg="purple.200">
-                  <Table.Row border="0" bg="purple.200">
-                    <Table.ColumnHeader
-                      color="white"
-                      borderBottomWidth={0}
-                      w={["40px", "70px"]}
-                      opacity={0.5}
-                    >
-                      {isMobile ? "#" : "RANK"}
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader
-                      color="white"
-                      borderBottomWidth={0}
-                      opacity={0.5}
-                    >
-                      PLAYER
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader
-                      color="white"
-                      borderBottomWidth={0}
-                      opacity={0.5}
-                      w={["55px", "70px"]}
-                    >
-                      SCORE
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader
-                      color="white"
-                      borderBottomWidth={0}
-                      opacity={0.5}
-                      textAlign="right"
-                    >
-                      $NUMS
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {selectedJackpot &&
-                    games &&
-                    games.slice(0, 100).map((game, idx) => {
-                      const isOwn =
-                        BigInt(game.player) === BigInt(account?.address || 0);
-
-                      const isWinner = winners.find(
-                        (i) => BigInt(i.game_id) === BigInt(game.game_id)
-                      );
-
-                      const hasClaimed = isWinner?.claimed;
-
-                      return (
-                        <Table.Row
-                          key={idx}
-                          borderBottomWidth="0px"
-                          fontWeight="bold"
-                          color={isOwn ? "orange.50" : "white"}
-                        >
-                          <Table.Cell
-                            cursor="pointer"
-                            onClick={() =>
-                              navigate(`/${num.toHex(game.game_id)}`)
-                            }
-                            padding={["3px", "6px"]}
-                          >
-                            #{game.rank}
-                          </Table.Cell>
-
-                          <Table.Cell padding={["3px", "6px"]}>
-                            <HStack>
-                              <MaybeController address={game.player} />
-                              {isWinner &&
-                                Number(selectedJackpot.end_at) * 1_000 <
-                                  Date.now() && (
-                                  <HoverCard.Root
-                                    positioning={{ placement: "top-start" }}
-                                  >
-                                    <HoverCard.Trigger asChild>
-                                      <LuCrown
-                                        cursor="pointer"
-                                        color={hasClaimed ? "orange" : "gold"}
-                                        onClick={() =>
-                                          claim(game.jackpot_id, [
-                                            isWinner.index,
-                                          ])
-                                        }
-                                      />
-                                    </HoverCard.Trigger>
-                                    <HoverCard.Positioner>
-                                      <HoverCard.Content
-                                        bg="purple.200"
-                                        color="white"
-                                      >
-                                        <Heading fontWeight="normal">
-                                          {isWinner.claimed
-                                            ? "Claimed !"
-                                            : "Claimable"}
-                                        </Heading>
-                                        <VStack gap={0} alignItems="flex-end">
-                                          <TokenBalanceUi
-                                            balance={rewardsByWinner?.nums || 0}
-                                            address={numsAddress}
-                                          />
-                                          {rewardsByWinner &&
-                                            BigInt(rewardsByWinner.token || 0) >
-                                              0n && (
-                                              <TokenBalanceUi
-                                                balance={
-                                                  rewardsByWinner?.token || 0
-                                                }
-                                                address={
-                                                  rewardsByWinner?.tokenAddress ||
-                                                  0
-                                                }
-                                              />
-                                            )}
-                                        </VStack>
-                                      </HoverCard.Content>
-                                    </HoverCard.Positioner>
-                                  </HoverCard.Root>
-                                )}
-                            </HStack>
-                          </Table.Cell>
-                          <Table.Cell
-                            textAlign="center"
-                            padding={["3px", "6px"]}
-                          >
-                            {game.level.toString()}
-                          </Table.Cell>
-                          <Table.Cell
-                            fontWeight="normal"
-                            padding={["3px", "6px"]}
-                          >
-                            <VStack alignItems="flex-end">
-                              <TokenBalanceUi
-                                balance={game.reward}
-                                address={numsAddress}
-                              />
-                            </VStack>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })}
-                </Table.Body>
-              </Table.Root>
-            </Scrollable>
-          </Box>
-
-          <VStack w="full" justifyContent="center" gap={1}>
-            {isMobile && selectedFactory && (
-              <>
-                <Play
-                  onReady={(gameId) => navigate(`/${gameId}`)}
-                  w={["100%", "100%", "auto"]}
-                  factory={selectedFactory}
-                />
-                <GetNums w="full" />
-              </>
-            )}
-            {/* <Button onClick={() => navigate("/factories")}>Play Nums</Button> */}
+              {/* <Button onClick={() => navigate("/factories")}>Play Nums</Button> */}
+            </VStack>
           </VStack>
         </VStack>
-      </VStack>
-    </Container>
+      </Container>
+    </>
   );
 };
 

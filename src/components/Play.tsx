@@ -190,9 +190,7 @@ const Play = ({
               {creating ? (
                 <Spinner />
               ) : isAgain ? (
-                <>
-                  <RefreshIcon /> Play Again
-                </>
+                <>Play Again</>
               ) : label ? (
                 <>{label}</>
               ) : (

@@ -27,7 +27,7 @@ export const TokenBalanceUi = ({
     BigInt(address) === BigInt(STRK_CONTRACT_ADDRESS) ||
     BigInt(address) === BigInt(rewardAddress);
   return (
-    <HStack fontFamily="Ekamai" fontSize="16px">
+    <HStack fontFamily="Ekamai" fontSize="16px" justifyContent="flex-end">
       {balance.toLocaleString()}
       {showIcon && (
         <>

@@ -103,16 +103,6 @@ const Header = () => {
             }}
           >
             <TokenBalance contractAddress={numsAddress} showIcon={false} />
-            {!isMainnet && (
-              <Text
-                position="absolute"
-                fontSize="10px"
-                bottom="2px"
-                right="16px"
-              >
-                Mint
-              </Text>
-            )}
           </Button>
         )}
         {connector && (

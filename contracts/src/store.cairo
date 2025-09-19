@@ -3,7 +3,7 @@ use dojo::world::WorldStorage;
 use starknet::ContractAddress;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::{Config, Game, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot};
+use crate::models::{Config, Game, FreeGame, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot};
 
 #[derive(Drop)]
 pub struct Store {
@@ -57,6 +57,16 @@ pub impl StoreImpl of StoreTrait {
 
     fn set_game(ref self: Store, game: @Game) {
         self.world.write_model(game)
+    }
+
+    // free game
+
+    fn free_game(ref self: Store, player: ContractAddress) -> FreeGame {
+        self.world.read_model((player))
+    }
+
+    fn set_free_game(ref self: Store, free_game: @FreeGame) {
+        self.world.write_model(free_game)
     }
 
     // slot

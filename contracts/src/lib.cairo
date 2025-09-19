@@ -14,6 +14,7 @@ pub mod systems {
 
 pub mod models {
     pub mod config;
+    pub mod free_game;
     pub mod game;
     pub mod game_config;
     pub mod identifier;
@@ -22,6 +23,7 @@ pub mod models {
     pub mod slot;
 
     pub use config::Config;
+    pub use free_game::FreeGame;
     pub use game::{Game, GameImpl, GameTrait};
     pub use game_config::{
         DefaultGameConfig, DefaultGameRewardImpl, DefaultGameRewardTrait, GameConfig,

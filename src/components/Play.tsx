@@ -20,6 +20,7 @@ import { useToken } from "@/hooks/useToken";
 import useToast from "@/hooks/toast";
 import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
+import { useFreeGame } from "@/hooks/useFreeGame";
 
 const Play = ({
   isAgain,
@@ -44,6 +45,7 @@ const Play = ({
   const { execute } = useExecuteCall();
   const { sdk } = useDojoSdk();
   const { showError } = useToast();
+  const { hasFreeGame } = useFreeGame();
 
   const subscriptionRef = useRef<any>(null);
 
@@ -172,14 +174,14 @@ const Play = ({
       {account ? (
         <Button
           onClick={() => {
-            if (isPoor) {
+            if (isPoor && !hasFreeGame) {
               return showError(undefined, "Too poor");
             }
             onClick && onClick();
             createGame();
           }}
-          disabled={creating || isPoor}
-          opacity={isPoor ? 0.5 : 1}
+          disabled={creating || (isPoor && !hasFreeGame)}
+          opacity={isPoor && !hasFreeGame ? 0.5 : 1}
           minW="150px"
           {...buttonProps}
         >
@@ -188,9 +190,7 @@ const Play = ({
               {creating ? (
                 <Spinner />
               ) : isAgain ? (
-                <>
-                  <RefreshIcon /> Play Again
-                </>
+                <>Play Again</>
               ) : label ? (
                 <>{label}</>
               ) : (
@@ -204,7 +204,16 @@ const Play = ({
               borderColor="white"
               opacity={0.5}
             ></Box>
-            <Text>{factory.game_config.entry_cost.toLocaleString()} NUMS</Text>
+            <Text>
+              {hasFreeGame ? (
+                "1 FREE GAME"
+              ) : (
+                <>{factory.game_config.entry_cost.toLocaleString()} NUMS</>
+              )}
+            </Text>
+            {/* <Text style={{ textDecoration: hasFreeGame ? "line-through" : "none" }}>
+              {factory.game_config.entry_cost.toLocaleString()} NUMS
+            </Text> */}
           </HStack>
         </Button>
       ) : (

@@ -1,5 +1,5 @@
 import { useJackpots } from "@/context/jackpots";
-import { VStack, HStack, Text, Tooltip } from "@chakra-ui/react";
+import { VStack, HStack, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";
 import { TimeAgo } from "./ui/time-ago";
@@ -8,9 +8,12 @@ import { getSwapQuote } from "@/utils/ekubo";
 import { getNumsAddress, STRK_CONTRACT_ADDRESS } from "@/config";
 import { InfoIcon } from "./icons/Info";
 import useChain from "@/hooks/chain";
+import { Tooltip } from "./ui/tooltip";
+import { mainnet } from "@starknet-react/chains";
 
 // USDC token address on Starknet mainnet
-const USDC_ADDRESS = "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8";
+const USDC_ADDRESS =
+  "0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8";
 
 export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
   const { getJackpotById, getFactoryById } = useJackpots();
@@ -26,7 +29,7 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
   }, [jackpotId, getJackpotById]);
 
   const numsBalance = useMemo(() => {
-    if (!jackpot) return 0;
+    if (!jackpot) return 0n;
     return BigInt(jackpot?.nums_balance) / 10n ** 18n;
   }, [jackpot]);
 
@@ -61,13 +64,17 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
 
       setLoading(true);
       try {
-        const numsAddress = getNumsAddress(chain.id);
+        const numsAddress = getNumsAddress(mainnet.id);
         let totalUsdcValue = 0;
-
+        ``;
         // Get NUMS to USDC quote if there's NUMS balance
         if (numsBalance > 0n) {
-          const numsAmount = Number(numsBalance) * 1e18; // Convert back to wei
-          const numsQuote = await getSwapQuote(numsAmount, numsAddress, USDC_ADDRESS);
+          const numsAmount = numsBalance * 10n ** 18n; // Convert back to wei
+          const numsQuote = await getSwapQuote(
+            numsAmount,
+            numsAddress,
+            USDC_ADDRESS
+          );
           if (numsQuote.total) {
             // The total is in USDC units (6 decimals)
             totalUsdcValue += Math.abs(numsQuote.total) / 1e6;
@@ -76,8 +83,12 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
 
         // Get STRK to USDC quote if there's STRK balance
         if (tokenRewards > 0n) {
-          const strkAmount = Number(tokenRewards) * 1e18; // Convert back to wei
-          const strkQuote = await getSwapQuote(strkAmount, STRK_CONTRACT_ADDRESS, USDC_ADDRESS);
+          const strkAmount = tokenRewards * 10n ** 18n; // Convert back to wei
+          const strkQuote = await getSwapQuote(
+            strkAmount,
+            STRK_CONTRACT_ADDRESS,
+            USDC_ADDRESS
+          );
           if (strkQuote.total) {
             // The total is in USDC units (6 decimals)
             totalUsdcValue += Math.abs(strkQuote.total) / 1e6;
@@ -118,7 +129,7 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
         {factory.min_slots.toString()})
       </div>
       <Tooltip
-        label={
+        content={
           <VStack gap={0} alignItems="flex-start">
             <Text>{numsBalance.toLocaleString()} NUMS</Text>
             {tokenRewards > 0n && (
@@ -126,12 +137,15 @@ export const JackpotInfos = ({ jackpotId }: { jackpotId: BigNumberish }) => {
             )}
           </VStack>
         }
-        placement="right"
-        hasArrow
       >
         <HStack>
           <Text>
-            Total Value: {loading ? "Loading..." : usdcValue !== null ? `$${usdcValue.toFixed(2)}` : "N/A"}
+            Total Value:{" "}
+            {loading
+              ? "Loading..."
+              : usdcValue !== null
+                ? `$${usdcValue.toFixed(2)}`
+                : "N/A"}
           </Text>
           <InfoIcon props={{ boxSize: "12px" }} />
         </HStack>

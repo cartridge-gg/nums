@@ -41,7 +41,6 @@ import { getNumsAddress } from "@/config";
 import { LuCrown } from "react-icons/lu";
 import { useClaim } from "@/hooks/useClaim";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";
-import { JackpotDetails } from "@/components/JackpotDetails";
 import Play from "@/components/Play";
 import { useGames } from "@/context/game";
 import { MaybeController } from "@/components/MaybeController";
@@ -330,20 +329,6 @@ const Home = () => {
               </HStack>
             </HStack>
 
-            {selectedJackpot && (
-              <Box
-                w="full"
-                layerStyle="transparent"
-                padding={["10px", "10px", "10px 30px"]}
-                bgColor="rgba(0,0,0,0.04)"
-                flexShrink={0}
-              >
-                <JackpotDetails
-                  jackpotId={selectedJackpot.id}
-                  computedId={selectedJackpot.computedId}
-                />
-              </Box>
-            )}
             <VStack
               w="full"
               padding={["16px", "24px", "32px"]}

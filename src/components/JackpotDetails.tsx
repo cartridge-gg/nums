@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   Box,
+  Stack,
   StackProps,
   ChakraProviderProps,
 } from "@chakra-ui/react";
@@ -65,24 +66,25 @@ export const JackpotDetails = ({
 
   if (!jackpot || !factory) return null;
   return (
-    <HStack  {...props}>
+    <Stack direction={["column", "column", "row"]} spacing={[3, 3, 0]} {...props}>
       <HStack
-        gap={3}
+        gap={[2, 3]}
         alignItems="center"
-        justify="flex-start"
+        justify={["center", "center", "flex-start"]}
         h="full"
+        wrap={["wrap", "nowrap"]}
       >
-        <Text fontSize="18px" fontWeight="500">
+        <Text fontSize={["16px", "18px"]} fontWeight="500">
           Jackpot:
         </Text>
-        <HStack gap={2} alignItems="center">
-          <HStack fontFamily="Ekamai" fontSize="22px">
+        <HStack gap={2} alignItems="center" flexWrap="wrap" justify="center">
+          <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
             {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
           </HStack>
           {tokenBalance !== undefined && tokenBalance > 0 && (
             <>
-              <Text fontSize="22px">+</Text>
-              <HStack fontFamily="Ekamai" fontSize="22px">
+              <Text fontSize={["20px", "22px"]}>+</Text>
+              <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
                 {tokenBalance.toLocaleString()}
                 <Image src="/tokens/strk.png" w="24px" h="24px" />
               </HStack>
@@ -91,12 +93,12 @@ export const JackpotDetails = ({
         </HStack>
       </HStack>
 
-      <Spacer minW="0px" />
+      <Spacer minW="0px" display={["none", "none", "block"]} />
       
-      <HStack>
+      <HStack justify={["center", "center", "flex-end"]}>
         {game && (
           <>
-            <VStack gap={0} alignItems="flex-start">
+            <VStack gap={0} alignItems={["center", "center", "flex-start"]} display={["none", "flex"]}>
               <Text w="auto" fontSize="xs" lineHeight="24px">
                 LVL {game.level.toString()}
               </Text>
@@ -109,17 +111,17 @@ export const JackpotDetails = ({
                 + {game?.reward.toLocaleString()} NUMS
               </Text>
             </VStack>
-            <Spacer minW="20px" />
+            <Spacer minW="20px" display={["none", "block"]} />
           </>
         )}
         <HStack gap={2} alignItems="center">
-          <Text fontSize="18px" fontWeight="500">Ends:</Text>
+          <Text fontSize={["16px", "18px"]} fontWeight="500">Ends:</Text>
           <TimeCountdown 
             timestampSec={Number(jackpot?.end_at || 0)} 
-            fontSize={["22px", "22px", "22px"]}
+            fontSize={["20px", "22px", "22px"]}
           />
         </HStack>
       </HStack>
-    </HStack>
+    </Stack>
   );
 };

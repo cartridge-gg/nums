@@ -10,6 +10,7 @@ import {
   HoverCard,
   Heading,
   Spinner,
+  Image,
 } from "@chakra-ui/react";
 import {
   MenuContent,
@@ -174,8 +175,7 @@ const Home = () => {
   return (
     <>
       {/* Background layer */}
-      <Box
-        as="img"
+      <Image
         src={tunnelBackground}
         alt=""
         position="fixed"

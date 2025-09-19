@@ -102,7 +102,7 @@ const Header = () => {
               }
             }}
           >
-            <TokenBalance contractAddress={numsAddress} />
+            <TokenBalance contractAddress={numsAddress} showIcon={false} />
             {!isMainnet && (
               <Text
                 position="absolute"

@@ -10,8 +10,10 @@ import { Box } from "@chakra-ui/react";
 
 export const TokenBalance = ({
   contractAddress,
+  showIcon = true,
 }: {
   contractAddress: string;
+  showIcon?: boolean;
 }) => {
   const { account } = useAccount();
 
@@ -62,7 +64,7 @@ export const TokenBalance = ({
   if (!account) return null;
   return (
     <Box position="relative">
-      <TokenBalanceUi address={contractAddress} balance={balance} />
+      <TokenBalanceUi address={contractAddress} balance={balance} showIcon={showIcon} />
       <ShowDiff x={"-30px"} y={"20px"} obj={balanceDiff.current} />
     </Box>
   );

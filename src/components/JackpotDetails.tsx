@@ -65,37 +65,9 @@ export const JackpotDetails = ({
   if (!jackpot || !factory) return null;
   return (
     <HStack  {...props}>
-      <HStack>
-        <VStack gap={0} alignItems="flex-start">
-          <HStack w="full" justifyContent="space-between">
-            <Text>Ends in: </Text>
-            <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
-          </HStack>
-        </VStack>
-        {game && (
-          <>
-            <Spacer minW="20px" />
-            <VStack gap={0} alignItems="flex-start">
-              <Text w="auto" fontSize="xs" lineHeight="24px">
-                LVL {game.level.toString()}
-              </Text>
-              <Text
-                w="auto"
-                fontFamily="Ekamai"
-                fontSize="16px"
-                display={["none", "flex"]}
-              >
-                + {game?.reward.toLocaleString()} NUMS
-              </Text>
-            </VStack>
-          </>
-        )}
-      </HStack>
-      <Spacer minW="0px" />
-
       <VStack
         gap={0}
-        alignItems="flex-end"
+        alignItems="flex-start"
         justify="flex-start"
         fontSize="18px"
         h="full"
@@ -110,6 +82,35 @@ export const JackpotDetails = ({
           </HStack>
         )}
       </VStack>
+
+      <Spacer minW="0px" />
+      
+      <HStack>
+        {game && (
+          <>
+            <VStack gap={0} alignItems="flex-start">
+              <Text w="auto" fontSize="xs" lineHeight="24px">
+                LVL {game.level.toString()}
+              </Text>
+              <Text
+                w="auto"
+                fontFamily="Ekamai"
+                fontSize="16px"
+                display={["none", "flex"]}
+              >
+                + {game?.reward.toLocaleString()} NUMS
+              </Text>
+            </VStack>
+            <Spacer minW="20px" />
+          </>
+        )}
+        <VStack gap={0} alignItems="flex-end">
+          <HStack w="full" justifyContent="space-between">
+            <Text>Ends in: </Text>
+            <TimeCountdown timestampSec={Number(jackpot?.end_at || 0)} />
+          </HStack>
+        </VStack>
+      </HStack>
     </HStack>
   );
 };

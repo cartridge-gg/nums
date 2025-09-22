@@ -15,13 +15,13 @@ import { num, uint256 } from "starknet";
 import useChain from "@/hooks/chain";
 import { getNumsAddress } from "@/config";
 import { useAccount, useProvider } from "@starknet-react/core";
-import { useConfig } from "@/context/config";
 import { Scrollable } from "./ui/scrollable";
 import { JackpotFactory } from "@/bindings";
 import { shortAddress } from "@/utils/address";
 
 const enum ShowInfo {
   ABOUT,
+  HOWTO,
   TOKEN,
   REWARD,
 }
@@ -69,7 +69,7 @@ const InfoOverlay = ({
         gap="40px"
         p="30px"
       >
-        <HStack>
+        <HStack flexWrap="wrap">
           <Button
             visual="transparent"
             onClick={() => setShowInfo(ShowInfo.ABOUT)}
@@ -80,11 +80,11 @@ const InfoOverlay = ({
           </Button>
           <Button
             visual="transparent"
-            onClick={() => setShowInfo(ShowInfo.TOKEN)}
-            disabled={showInfo === ShowInfo.TOKEN}
-            opacity={showInfo === ShowInfo.TOKEN ? 1 : 0.5}
+            onClick={() => setShowInfo(ShowInfo.HOWTO)}
+            disabled={showInfo === ShowInfo.HOWTO}
+            opacity={showInfo === ShowInfo.HOWTO ? 1 : 0.5}
           >
-            $NUMS
+            How to play
           </Button>
           <Button
             visual="transparent"
@@ -93,6 +93,14 @@ const InfoOverlay = ({
             opacity={showInfo === ShowInfo.REWARD ? 1 : 0.5}
           >
             REWARD
+          </Button>
+          <Button
+            visual="transparent"
+            onClick={() => setShowInfo(ShowInfo.TOKEN)}
+            disabled={showInfo === ShowInfo.TOKEN}
+            opacity={showInfo === ShowInfo.TOKEN ? 1 : 0.5}
+          >
+            $NUMS
           </Button>
         </HStack>
         {showInfo === ShowInfo.ABOUT && (
@@ -103,20 +111,77 @@ const InfoOverlay = ({
               fontSize="32px"
               fontWeight="400"
             >
+              ABOUT
+            </Heading>
+            <VStack gap="16px" align="flex-start" fontWeight="450">
+              <Text>
+                Welcome to Nums. A fully onchain game deployed on Starknet.
+              </Text>
+              <Text>
+                You are an instrument of order.
+                <br />
+                Your purpose: arrange numbers in their correct sequence.
+                <br />
+                The numbers arrive randomly. You place them in ascending order.
+                <br />
+                This is not a game. This is your function. <br /> Each
+                successful placement generates $NUMS tokens.
+                <br /> Performance metrics are tracked. <br />
+                The sequence remembers everything.
+              </Text>
+              <Text>
+                A jackpot accumulates. The most efficient instruments claim it.
+              </Text>
+              <Text>
+                Competition is mandatory.
+                <br />
+                Tick. Tock. The timer never stops.
+              </Text>
+            </VStack>
+          </>
+        )}
+        {showInfo === ShowInfo.HOWTO && (
+          <>
+            <Heading
+              w="full"
+              color="purple.50"
+              fontSize="32px"
+              fontWeight="400"
+            >
               HOW TO PLAY
             </Heading>
-            <VStack gap="30px" align="flex-start" fontWeight="450">
+            <VStack gap="16px" align="flex-start" fontWeight="450">
+              <Text>Objective </Text>
               <Text>
-                Welcome to Nums, a fully onchain game build by Cartridge using
-                the Dojo Framework.
+                Place randomly generated numbers (1-999) in ascending order
+                across 20 available slots.
               </Text>
+              <Text>Game Flow </Text>
+              <ol style={{ listStyle: "auto", marginLeft: "24px" }}>
+                <li>Start game</li>
+                <li>Receive a random number between 1-999</li>
+                <li>Place it in one of 20 slots maintaining ascending order</li>
+                <li>
+                  Continue placing numbers correctly until timer expires or you
+                  cannot place the next number you receive in a correct position
+                </li>
+                <li>Game ends - collect $NUMS rewards based on performance</li>
+              </ol>
+              <Text>Rules</Text>
+              <ul style={{ listStyle: "circle", marginLeft: "24px" }}>
+                <li>
+                  Numbers must be placed in ascending order (left to right)
+                </li>
+                <li>You cannot move a number once placed</li>
+                <li>Each correct placement earns $NUMS tokens</li>
+                <li>Higher positions earn more rewards (see reward table)</li>
+              </ul>
+              <Text>Jackpot System </Text>
               <Text>
-                The goal is simple: place randomly generated numbers (1 - 1000)
-                in ascending order. Players compete and earn $NUMS tokens by
-                placing as many numbers as possilbe with the game ending when
-                the timer reaches zero.
+                A jackpot accumulates across all games. Top performers claim the
+                pool when it triggers.
               </Text>
-              <Text>The better you do the more you earn!</Text>
+              <Text>The sequence rewards precision. Begin sorting.</Text>
             </VStack>
           </>
         )}
@@ -130,12 +195,6 @@ const InfoOverlay = ({
             >
               TOKEN DETAILS
             </Heading>
-            <Text>
-              $NUMS is reward token intended to demonstrate the horizontal
-              scalability of Validity rollups. Earn $NUMS by playing Nums, a
-              game hosted on its own app chain. the better you do the more you
-              earn. Rewards are claimable on Starknet mainnet
-            </Text>
             <VStack
               w="full"
               layerStyle="transparent"
@@ -144,6 +203,7 @@ const InfoOverlay = ({
             >
               <Text color="purple.50">$NUMS token address</Text>
               <Text
+              fontSize="12px"
                 _hover={{ cursor: "pointer" }}
                 onClick={() => {
                   window.open(
@@ -179,8 +239,9 @@ const InfoOverlay = ({
               REWARD DETAILS
             </Heading>
             <Text>
-              Each time you successfully place a number, you earn $NUM rewards
-              based on the following structure:
+              $NUMS Token: Your Performance Receipt <br />
+              Successfully placed numbers generate $NUMS according to the
+              following structure:
             </Text>
             <Scrollable maxH={["220px", "380px"]}>
               <Box px="10px">
@@ -213,6 +274,11 @@ const InfoOverlay = ({
                 <Spacer minH="20px" />
               </Box>
             </Scrollable>
+            <Text>
+              Additional: Jackpot pools accumulate. <br />
+              Top instruments claim majority. <br /> Runner ups exist to remind
+              sorters of their replaceability.
+            </Text>
           </>
         )}
       </VStack>

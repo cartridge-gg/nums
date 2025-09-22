@@ -14,6 +14,7 @@ pub struct LeafData {
 mod claim_actions {
     use dojo::world::WorldStorageTrait;
     use nums::interfaces::nums::{INumsTokenDispatcher, INumsTokenDispatcherTrait};
+    use nums::constants::ZERO_ADDRESS;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::*;
 
@@ -21,12 +22,14 @@ mod claim_actions {
     struct Storage {
         nums_address: ContractAddress,
         forwarder_address: ContractAddress,
+        claimable_until: u64,
     }
 
     fn dojo_init(
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         forwarder_address: Option<ContractAddress>,
+        claimable_until: u64,
     ) {
         let mut world = self.world(@"nums");
 
@@ -39,11 +42,12 @@ mod claim_actions {
         let forwarder_address = if let Option::Some(address) = forwarder_address {
             address
         } else {
-            0.try_into().unwrap()
+            ZERO_ADDRESS
         };
 
         self.nums_address.write(nums_address);
         self.forwarder_address.write(forwarder_address);
+        self.claimable_until.write(claimable_until);
     }
 
     #[abi(embed_v0)]
@@ -53,6 +57,10 @@ mod claim_actions {
         ) {
             // MUST check caller is forwarder
             self.assert_caller_is_forwarder();
+
+            let claimable_until = self.claimable_until.read();
+            let now = starknet::get_block_timestamp();
+            assert!(now < claimable_until, "claim period has ended");
 
             // deserialize leaf_data
             let mut leaf_data = leaf_data;

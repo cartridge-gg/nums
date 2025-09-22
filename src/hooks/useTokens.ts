@@ -4,7 +4,12 @@ import {
   SubscriptionCallbackArgs,
 } from "@dojoengine/sdk";
 import { useDojoSDK } from "@dojoengine/sdk/react";
-import type { Subscription, Token, TokenBalance } from "@dojoengine/torii-wasm";
+import type {
+  Subscription,
+  Token,
+  TokenBalance,
+  TokenContract,
+} from "@dojoengine/torii-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deepEqual } from "../utils/deepEqual";
 import { num } from "starknet";
@@ -14,7 +19,7 @@ export function useTokens(
   accountRequired = true
 ) {
   const { sdk } = useDojoSDK();
-  const [tokens, setTokens] = useState<Token[]>([]);
+  const [tokens, setTokens] = useState<TokenContract[]>([]);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
     null
   );
@@ -30,15 +35,17 @@ export function useTokens(
   }, []);
 
   const fetchTokens = useCallback(async () => {
-    // const tokens = await sdk.getTokens({});
-
-    const tokens = await sdk.getTokens({
-      contractAddresses: request.contractAddresses
+    const tokens = await sdk.client.getTokenContracts({
+      contract_addresses: request.contractAddresses
         ? request.contractAddresses.map((i: any) => num.toHex64(i))
         : [],
-      tokenIds: request.tokenIds
-        ? request.tokenIds.map((i: any) => num.toHex64(i))
-        : [],
+      contract_types: [],
+      pagination: {
+        cursor: undefined,
+        direction: "Backward",
+        limit: 1_000,
+        order_by: [],
+      },
     });
     setTokens(tokens.items);
   }, [sdk]);
@@ -87,15 +94,19 @@ export function useTokens(
     }
   }, [request]);
 
-  function getBalance(token: Token): TokenBalance | undefined {
+  function getBalance(token: TokenContract): TokenBalance | undefined {
     return tokenBalances.find(
-      (balance) =>
-        BigInt(balance.contract_address) === BigInt(token.contract_address) &&
-        BigInt(balance.token_id || 0) === BigInt(token.token_id || 0)
+      (balance) => 
+        BigInt(balance.contract_address) === BigInt(token.contract_address)
+      //  &&
+      //   BigInt(balance.token_id || 0) === BigInt(token.token_id || 0)
     );
   }
 
-  function toDecimal(token: Token, balance: TokenBalance | undefined): number {
+  function toDecimal(
+    token: TokenContract,
+    balance: TokenBalance | undefined
+  ): number {
     return Number.parseInt(balance?.balance ?? "0", 16) * 10 ** -token.decimals;
   }
 

@@ -141,19 +141,31 @@ export const JackpotDetails = ({
           Jackpot:
         </Text>
         <HStack gap={2} alignItems="center" flexWrap="wrap" justify="center">
-          <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+          <HStack
+            fontFamily="Ekamai"
+            fontSize={["20px", "22px"]}
+            textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)"
+          >
             {numsBalance.toLocaleString()} <LogoIcon w={24} h={24} />
           </HStack>
           {tokenBalance !== undefined && tokenBalance > 0 && (
             <>
               <Text fontSize={["20px", "22px"]}>+</Text>
-              <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+              <HStack
+                fontFamily="Ekamai"
+                fontSize={["20px", "22px"]}
+                textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)"
+              >
                 {tokenBalance.toLocaleString()}
                 <Image src="/tokens/strk.png" w="24px" h="24px" />
               </HStack>
             </>
           )}
-          <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+          <HStack
+            fontFamily="Ekamai"
+            fontSize={["20px", "22px"]}
+            textShadow="2px 2px 0px rgba(0, 0, 0, 0.25)"
+          >
             {!loading && !!usdcValue ? (
               <Text>= ${usdcValue.toFixed(2)}</Text>
             ) : null}

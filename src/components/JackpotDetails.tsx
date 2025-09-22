@@ -92,7 +92,7 @@ export const JackpotDetails = ({
           const numsQuote = await getSwapQuote(
             numsAmount,
             numsAddress,
-            USDC_ADDRESS
+            USDC_ADDRESS,
           );
           if (numsQuote.total) {
             // The total is in USDC units (6 decimals)
@@ -106,7 +106,7 @@ export const JackpotDetails = ({
           const strkQuote = await getSwapQuote(
             strkAmount,
             STRK_CONTRACT_ADDRESS,
-            USDC_ADDRESS
+            USDC_ADDRESS,
           );
           if (strkQuote.total) {
             // The total is in USDC units (6 decimals)
@@ -127,6 +127,7 @@ export const JackpotDetails = ({
   }, [numsBalance, tokenBalance, chain.id]);
 
   if (!jackpot || !factory) return null;
+
   return (
     <Stack direction={["column", "column", "row"]} gap={[3, 3, 0]} {...props}>
       <HStack
@@ -152,6 +153,11 @@ export const JackpotDetails = ({
               </HStack>
             </>
           )}
+          <HStack fontFamily="Ekamai" fontSize={["20px", "22px"]}>
+            {!loading && !!usdcValue ? (
+              <Text>= ${usdcValue.toFixed(2)}</Text>
+            ) : null}
+          </HStack>
         </HStack>
       </HStack>
 
@@ -190,45 +196,6 @@ export const JackpotDetails = ({
           />
         </HStack>
       </HStack>
-
-      <Spacer minW="0px" display={["none", "none", "block"]} />
-
-      {/* <Tooltip
-        content={
-          <VStack gap={0} alignItems="flex-start">
-            <Text>{numsBalance.toLocaleString()} NUMS</Text>
-            {tokenBalance > 0 && (
-              <Text>{tokenBalance.toLocaleString()} STRK</Text>
-            )}
-          </VStack>
-        }
-      > */}
-        <HStack
-          gap={2}
-          alignItems="center"
-          justify={["center", "center", "flex-end"]}
-        >
-          <Text fontSize={["16px", "18px"]} fontWeight="500">
-            Value:
-          </Text>
-          <HStack
-            fontFamily="Ekamai"
-            fontSize={["20px", "22px"]}
-            fontWeight="bold"
-          >
-            {loading ? (
-              <Text>Loading...</Text>
-            ) : usdcValue !== null ? (
-              <>
-                <Text>${usdcValue.toFixed(2)}</Text>
-                {/* <InfoIcon props={{ boxSize: "16px" }} /> */}
-              </>
-            ) : (
-              <Text>-</Text>
-            )}
-          </HStack>
-        </HStack>
-      {/* </Tooltip> */}
     </Stack>
   );
 };

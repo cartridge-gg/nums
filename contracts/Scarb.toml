@@ -12,6 +12,7 @@ slot_katana = "slot d create -t pro --team cartridge nums2 katana --config ./kat
 slot_torii = "slot d create -t pro --team cartridge nums2 torii --version v1.7.0-alpha.6 --config ./torii_slot.toml"
 
 sepolia_torii = "slot d create -t pro --team cartridge nums2-sepolia torii --version v1.7.0-alpha.6 --config ./torii_sepolia.toml"
+mainnet_torii = "slot d create -t legendary --team cartridge nums-starknet torii --version v1.7.0 --config ./torii_mainnet.toml"
 
 [[target.starknet-contract]]
 sierra = true

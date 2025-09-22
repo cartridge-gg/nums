@@ -1,0 +1,21 @@
+world_address = "0x054a956785f994e6de702f774e3003c364fbd49e7a8b892a5a629ae165cef4f6"
+rpc = "https://api.cartridge.gg/x/starknet/mainnet"
+
+[server]
+http_cors_origins = ["*"]
+
+[grpc]
+optimistic = false
+
+[indexing]
+world_block = 2371200
+controllers = true
+pending = true
+polling_interval = 250
+contracts = [
+    "ERC20:0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e", # NUMS
+]
+
+
+[sql]
+historical = ["nums-TrophyProgression"]

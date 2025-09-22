@@ -16,7 +16,7 @@ rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
 # TODO: config deployer account & set world address
 account_address = "0x"
 keystore_path = "../../../dev_accounts/nums_key"
-#world_address = "0x"
+#world_address = "0x054a956785f994e6de702f774e3003c364fbd49e7a8b892a5a629ae165cef4f6"
 
 skip_contracts = ["nums-MockVRF", "nums-MockNumsToken", "nums-MockRewardToken"]
 

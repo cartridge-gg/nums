@@ -86,13 +86,13 @@ pub mod PlayableComponent {
             let tournament = get_dep_component!(@self, Tournament);
             let tournament_id = tournament.get_tournament_id(world, game_id);
             let mut leaderboard = store.leaderboard(tournament_id);
-            if !leaderboard.exists() {
-                let tournament_config = tournament.get_game_config(world);
-                let leaderboard = LeaderboardTrait::new(
-                    tournament_id, tournament_config.prize_spots.into(),
-                );
-                store.set_leaderboard(@leaderboard);
-            }
+            // if !leaderboard.exists() {
+            let tournament_config = tournament.get_game_config(world);
+            let leaderboard = LeaderboardTrait::new(
+                tournament_id, tournament_config.prize_spots.into(),
+            );
+            store.set_leaderboard(@leaderboard);
+            // }
 
             // [Effect] Create and setup game
             let config = DefaultGameConfig::default();

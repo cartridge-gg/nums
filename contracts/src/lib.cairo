@@ -21,11 +21,12 @@ pub mod components {
 }
 
 pub mod models {
-    pub mod budokan;
     pub mod config;
     pub mod game;
     pub mod index;
     pub mod leaderboard;
+    pub mod prize;
+    pub mod reward;
     pub mod slot;
     pub mod tournament;
 }

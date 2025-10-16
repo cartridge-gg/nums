@@ -1,8 +1,9 @@
 use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
+use crate::constants::WORLD_RESOURCE;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Config, Game, Leaderboard, Slot, Tournament};
+use crate::models::index::{Config, Game, Leaderboard, Prize, Reward, Slot, Tournament};
 use crate::types::game_config::GameConfig;
 
 #[derive(Drop)]
@@ -31,7 +32,7 @@ pub impl StoreImpl of StoreTrait {
     // Config
 
     fn config(ref self: Store) -> Config {
-        self.world.read_model((0))
+        self.world.read_model(WORLD_RESOURCE)
     }
 
     fn set_config(ref self: Store, config: Config) {
@@ -90,5 +91,25 @@ pub impl StoreImpl of StoreTrait {
 
     fn set_tournament(ref self: Store, tournament: @Tournament) {
         self.world.write_model(tournament)
+    }
+
+    // Prize
+
+    fn prize(ref self: Store, tournament_id: u64, address: felt252) -> Prize {
+        self.world.read_model((tournament_id, address))
+    }
+
+    fn set_prize(ref self: Store, prize: @Prize) {
+        self.world.write_model(prize)
+    }
+
+    // Reward
+
+    fn reward(ref self: Store, tournament_id: u64, address: felt252, game_id: u64) -> Reward {
+        self.world.read_model((tournament_id, address, game_id))
+    }
+
+    fn set_reward(ref self: Store, reward: @Reward) {
+        self.world.write_model(reward)
     }
 }

@@ -1,52 +1,22 @@
-use starknet::ContractAddress;
-use crate::models::budokan::{
-    EntryFee, EntryRequirement, GameConfig, Metadata, Phase, Prize, PrizeType, QualificationProof,
-    Schedule, Tournament as BudokanTournament,
-};
-
-
-#[starknet::interface]
-pub trait IBudokan<TState> {
-    fn tournament(self: @TState, tournament_id: u64) -> BudokanTournament;
-    fn get_prize(self: @TState, prize_id: u64) -> Prize;
-    fn current_phase(self: @TState, tournament_id: u64) -> Phase;
-    fn get_tournament_id_for_token_id(
-        self: @TState, game_address: ContractAddress, token_id: u64,
-    ) -> u64;
-    fn create_tournament(
-        ref self: TState,
-        creator_rewards_address: ContractAddress,
-        metadata: Metadata,
-        schedule: Schedule,
-        game_config: GameConfig,
-        entry_fee: Option<EntryFee>,
-        entry_requirement: Option<EntryRequirement>,
-    ) -> BudokanTournament;
-    fn enter_tournament(
-        ref self: TState,
-        tournament_id: u64,
-        player_name: felt252,
-        player_address: ContractAddress,
-        qualification: Option<QualificationProof>,
-    ) -> (u64, u32);
-    fn submit_score(ref self: TState, tournament_id: u64, token_id: u64, position: u8);
-    fn claim_prize(ref self: TState, tournament_id: u64, prize_type: PrizeType);
-}
-
 #[starknet::component]
 pub mod TournamentComponent {
     // Imports
 
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use crate::constants::{BUDOKAN_MAINNET, BUDOKAN_SEPOLIA, TEN_POW_18};
-    use crate::models::budokan::{EntryFee, GameConfig, Metadata, Period, Schedule};
-    use crate::models::tournament::{TournamentAssert, TournamentTrait};
+    use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
+    use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+    use starknet::ContractAddress;
+    use crate::models::config::ConfigAssert;
+    use crate::models::game::GameAssert;
+    use crate::models::leaderboard::{LeaderboardAssert, LeaderboardTrait};
+    use crate::models::prize::{PrizeAssert, PrizeTrait};
+    use crate::models::reward::{RewardAssert, RewardTrait};
+    use crate::models::tournament::{Tournament, TournamentAssert, TournamentTrait};
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as GAME_NAME;
-    use crate::systems::settings::SETTINGS_ID;
     use crate::types::game_config::DefaultGameConfig;
     use crate::{Store, StoreImpl};
-    use super::{BudokanTournament, IBudokanDispatcher, IBudokanDispatcherTrait};
 
     // Constants
 
@@ -80,24 +50,14 @@ pub mod TournamentComponent {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
-            // [Effect] Create tournament
-            self._create(world, self.uuid(), ref store);
-        }
-
-        fn create(ref self: ComponentState<TContractState>, world: WorldStorage) -> u64 {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
             // [Check] Tournament does not exist
-            let uuid = self.uuid();
-            let tournament = store.tournament(uuid);
+            let identifier = self.uuid();
+            let tournament = store.tournament(identifier);
             tournament.assert_not_exist();
 
-            // [Interaction] Create tournament
-            self._create(world, uuid, ref store);
-
-            // [Return] Tournament ID
-            tournament.id
+            // [Effect] Create tournament
+            let tournament = self.create(world, identifier, ref store);
+            store.set_tournament(@tournament);
         }
 
         fn enter(
@@ -110,58 +70,130 @@ pub mod TournamentComponent {
             let mut store = StoreImpl::new(world);
 
             // [Effect] Create next tournament if it doesn't exist
-            let uuid = self.uuid() + 1;
-            let tournament = store.tournament(uuid);
+            let identifier = self.uuid() + 1;
+            let tournament = store.tournament(identifier);
             if !tournament.exists() {
-                self._create(world, uuid, ref store);
+                self.create(world, identifier, ref store);
             }
 
-            // [Interaction] Enter tournament
-            let budokan = self.budokan();
-            let (token_id, _entry_id) = budokan
-                .enter_tournament(
-                    tournament_id: tournament_id,
-                    player_name: player_name,
-                    player_address: starknet::get_caller_address(),
-                    qualification: Option::None,
-                );
-            token_id
+            // [Effect] Enter tournament
+            let identifier = self.uuid();
+            let mut tournament = store.tournament(identifier);
+            tournament.enter();
+            store.set_tournament(@tournament);
+
+            // [Return] Tournament ID
+            tournament.id
         }
 
-        fn submit(
-            ref self: ComponentState<TContractState>, world: WorldStorage, tournament_id: u64,
+        fn sponsor(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            tournament_id: u64,
+            leaderboard_index: u32,
+            token_address: ContractAddress,
+            amount: u128,
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
-            // [Check] Tournament exists
+            // [Interaction] Pay
+            let token = IERC20Dispatcher { contract_address: token_address };
+            let sender = starknet::get_caller_address();
+            let recipient = starknet::get_contract_address();
+            token.transfer_from(sender, recipient, amount.into());
+
+            // [Effect] Update or create the corresponding prize
+            let mut prize = store.prize(tournament_id, token_address.into());
+            prize.sponsor(amount);
+            store.set_prize(@prize);
+        }
+
+        fn claim(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            tournament_id: u64,
+            token_address: ContractAddress,
+            game_id: u64,
+            position: u32,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Check] Tournament does exist
             let tournament = store.tournament(tournament_id);
             tournament.assert_does_exist();
 
-            // [Interaction] Submit score
-            let mut leaderboard = store.leaderboard(tournament_id);
-            let budokan = self.budokan();
-            let mut position = 1;
-            while let Option::Some(game) = leaderboard.games.pop_front() {
-                budokan.submit_score(tournament_id, game, position);
-                position += 1;
-            }
+            // [Check] Tournament is over
+            tournament.assert_is_over();
+
+            // [Check] Prize does exist
+            let prize = store.prize(tournament_id, token_address.into());
+            prize.assert_does_exist();
+
+            // [Check] Reward not claimed
+            let reward = store.reward(tournament_id, token_address.into(), game_id);
+            reward.assert_not_claimed();
+
+            // [Check] Game does exist
+            let game = store.game(game_id);
+            game.assert_does_exist();
+
+            // [Check] Game position in the leaderboard is correct
+            let leaderboard = store.leaderboard(tournament_id);
+            leaderboard.assert_at_position(game_id, position);
+
+            // [Effect] Claim reward
+            let capacity = leaderboard.capacity(tournament.entry_count);
+            let reward = RewardTrait::new(tournament_id, token_address.into(), game_id);
+            store.set_reward(@reward);
+
+            // [Interaction] Send reward to the game owner
+            let token = IERC20Dispatcher { contract_address: token_address };
+            let collection_address = self.get_collection_address(world);
+            let collection = IERC721Dispatcher { contract_address: collection_address };
+            let recipient = collection.owner_of(game_id.into());
+            let payout = prize.payout(position, capacity);
+            token.transfer(recipient, payout.into());
         }
 
-        fn get_tournament_id(
-            self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
-        ) -> u64 {
-            let budokan = self.budokan();
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
-            budokan.get_tournament_id_for_token_id(game_address, game_id)
-        }
+        fn rescue(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            tournament_id: u64,
+            token_address: ContractAddress,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
 
-        #[inline]
-        fn get_game_config(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> GameConfig {
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
-            GameConfig { address: game_address, settings_id: SETTINGS_ID, prize_spots: PRIZE_SPOTS }
+            // [Check] Tournament does exist
+            let tournament = store.tournament(tournament_id);
+            tournament.assert_does_exist();
+
+            // [Check] Tournament is over
+            tournament.assert_is_over();
+
+            // [Check] Prize does exist
+            let mut prize = store.prize(tournament_id, token_address.into());
+            prize.assert_does_exist();
+
+            // [Check] Leaderboard is empty
+            let leaderboard = store.leaderboard(tournament_id);
+            leaderboard.assert_is_empty();
+
+            // [Check] Caller is allowed
+            let config = store.config();
+            config.assert_is_owner(starknet::get_caller_address());
+
+            // [Effect] Clear prize
+            let prize_amount = prize.amount;
+            prize.clear();
+            store.set_prize(@prize);
+
+            // [Interaction] Transfer prize to the owner
+            let token = IERC20Dispatcher { contract_address: token_address };
+            let owner = store.config().owner;
+            token.transfer(owner, prize_amount.into());
         }
     }
 
@@ -176,68 +208,24 @@ pub mod TournamentComponent {
         }
 
         #[inline]
-        fn get_metadata(self: @ComponentState<TContractState>) -> Metadata {
-            Metadata { name: 'Nums Tournament', description: "Nums autonomous weekly tournament" }
-        }
-
-        #[inline]
-        fn get_schedule(self: @ComponentState<TContractState>) -> Schedule {
-            let identifier = self.uuid();
-            let start_time = identifier * ONE_WEEK - FOUR_DAYS;
-            let end_time = start_time + ONE_WEEK;
-            Schedule {
-                registration: Option::None,
-                game: Period { start: start_time, end: end_time },
-                submission_duration: ONE_DAY,
-            }
-        }
-
-        #[inline]
-        fn get_entry_fee(self: @ComponentState<TContractState>, world: WorldStorage) -> EntryFee {
-            let mut store = StoreImpl::new(world);
-            let config = store.config();
-            let token_address = config.nums_address;
-            EntryFee {
-                token_address: token_address,
-                amount: ENTRY_PRICE * TEN_POW_18,
-                distribution: DISTRIBUTION.span(),
-                tournament_creator_share: Option::None,
-                game_creator_share: Option::Some(CREATOR_SHARE),
-            }
-        }
-
-        #[inline]
-        fn _create(
-            self: @ComponentState<TContractState>, world: WorldStorage, uuid: u64, ref store: Store,
-        ) -> BudokanTournament {
-            // [Interaction] Create tournament
-            let budokan = self.budokan();
-            let tournament = budokan
-                .create_tournament(
-                    creator_rewards_address: starknet::get_contract_address(),
-                    metadata: self.get_metadata(),
-                    schedule: self.get_schedule(),
-                    game_config: self.get_game_config(world),
-                    entry_fee: Option::Some(self.get_entry_fee(world)),
-                    entry_requirement: Option::None,
-                );
-
-            // [Effect] Create tournament
-            store.set_tournament(@TournamentTrait::new(uuid, tournament.id));
-
+        fn create(
+            self: @ComponentState<TContractState>,
+            world: WorldStorage,
+            identifier: u64,
+            ref store: Store,
+        ) -> Tournament {
             // [Return] Tournament
-            tournament
+            let start_time = identifier * ONE_WEEK - FOUR_DAYS;
+            TournamentTrait::new(identifier, start_time, ONE_WEEK)
         }
 
         #[inline]
-        fn budokan(self: @ComponentState<TContractState>) -> IBudokanDispatcher {
-            let chain_id = starknet::get_tx_info().unbox().chain_id;
-            let contract_address = if chain_id == SN_SEPOLIA {
-                BUDOKAN_SEPOLIA
-            } else {
-                BUDOKAN_MAINNET
-            };
-            IBudokanDispatcher { contract_address: contract_address }
+        fn get_collection_address(
+            self: @ComponentState<TContractState>, world: WorldStorage,
+        ) -> ContractAddress {
+            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+            let minigame = IMinigameDispatcher { contract_address: game_address };
+            minigame.token_address()
         }
     }
 }

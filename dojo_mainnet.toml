@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums"
+seed = "nums-v1.0.4"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 # cover_uri = "file://assets/cover.png"
 # icon_uri = "file://assets/icon.png"
@@ -12,10 +12,8 @@ default = "nums"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
-
-# TODO: config deployer account & set world address
-account_address = "0x"
-keystore_path = "../../../dev_accounts/nums_key"
+account_address = "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b"
+keystore_path = "./keystore.json"
 #world_address = "0x054a956785f994e6de702f774e3003c364fbd49e7a8b892a5a629ae165cef4f6"
 
 skip_contracts = ["nums-MockVRF", "nums-MockNumsToken", "nums-MockRewardToken"]
@@ -28,7 +26,9 @@ skip_contracts = ["nums-MockVRF", "nums-MockNumsToken", "nums-MockRewardToken"]
     "0x0",                                                                # Option::Some
     "0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",   # nums_address 
     "0x0",                                                                # Option::Some
-    "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address 
+    "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
+    "0x0",                                                                # Option::Some
+    "0x05dde5b49f17741be777b2ba83a08ca6c4c8f88bf973df7969eb0db3d6c2a317", # collection_address
     "50",                                                                 # burn_pct
 ]
 
@@ -37,5 +37,5 @@ skip_contracts = ["nums-MockVRF", "nums-MockNumsToken", "nums-MockRewardToken"]
     "0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",   # nums_address 
     "0x0",                                                                # Option::Some
     "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8", # forwarder_address
-    "1758931200", # claimable_until Sat Sep 27 2025 00:00:00 GMT+0000
+    "1758931200",                                                         # claimable_until Sat Sep 27 2025 00:00:00 GMT+0000
 ]

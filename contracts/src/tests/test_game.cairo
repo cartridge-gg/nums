@@ -1,3 +1,22 @@
+//! # Game Integration Tests
+//!
+//! This module contains integration tests for the game system, testing the interaction
+//! between the game model, game actions system, and the Dojo world state.
+//!
+//! ## Test Coverage
+//!
+//! - Game creation and configuration
+//! - Authorization and access control
+//! - Game state transitions
+//! - Slot management and validation
+//! - Game completion and ending
+//! - Name setting functionality
+//!
+//! ## Test Environment
+//!
+//! Tests use a mock Dojo world with the necessary models and contracts deployed
+//! to simulate real-world game interactions.
+
 #[cfg(test)]
 mod tests {
     use dojo::model::ModelStorage;
@@ -6,14 +25,21 @@ mod tests {
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
         spawn_test_world,
     };
-    use nums::models::config::{Config, GameConfig, m_Config};
-    use nums::models::game::{Game, GameTrait, m_Game};
-    use nums::models::name::{Name, m_Name};
-    use nums::models::slot::m_Slot;
-    use nums::systems::game_actions::{
+    use crate::models::config::{Config, GameConfig, m_Config};
+    use crate::models::game::{Game, GameTrait, m_Game};
+    use crate::models::name::{Name, m_Name};
+    use crate::models::slot::m_Slot;
+    use crate::systems::config_actions::{
+        IConfigActionsDispatcher, IConfigActionsDispatcherTrait, config_actions,
+    };
+    use crate::systems::game_actions::{
         IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
     };
 
+    /// Creates the namespace definition for the test world
+    ///
+    /// This defines all the models, events, and contracts that need to be
+    /// available in the test environment.
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
             namespace: "nums",
@@ -25,6 +51,7 @@ mod tests {
                 TestResource::Event(game_actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(game_actions::e_Inserted::TEST_CLASS_HASH),
                 TestResource::Contract(game_actions::TEST_CLASS_HASH),
+                TestResource::Contract(config_actions::TEST_CLASS_HASH),
             ]
                 .span(),
         };

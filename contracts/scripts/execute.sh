@@ -41,7 +41,11 @@ WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
 DEPLOYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
 
 if [ $PROFILE_NAME == 'sepolia' ]; then
-   DEPLOYER_ADDR=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
+   DEPLOYER_ADDR=0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753
+fi
+
+if [ $PROFILE_NAME == 'mainnet' ]; then
+   DEPLOYER_ADDR=0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b
 fi
 
 # Check if WorldContract address was found

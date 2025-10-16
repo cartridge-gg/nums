@@ -6,35 +6,48 @@ pub mod token;
 pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
-    pub mod claim_actions;
-    pub mod config_actions;
-    pub mod game_actions;
-    pub mod jackpot_actions;
+    pub mod claim;
+    pub mod minigame;
+    pub mod play;
+    pub mod renderer;
+    pub mod settings;
+    pub mod setup;
+}
+
+pub mod components {
+    pub mod playable;
+    pub mod renderable;
+    pub mod tournament;
 }
 
 pub mod models {
+    pub mod budokan;
     pub mod config;
-    pub mod free_game;
     pub mod game;
-    pub mod game_config;
-    pub mod identifier;
-    pub mod jackpot;
-    pub mod metadata;
+    pub mod index;
+    pub mod leaderboard;
     pub mod slot;
+    pub mod tournament;
+}
 
-    pub use config::Config;
-    pub use free_game::FreeGame;
-    pub use game::{Game, GameImpl, GameTrait};
-    pub use game_config::{
-        DefaultGameConfig, DefaultGameRewardImpl, DefaultGameRewardTrait, GameConfig,
-    };
-    pub use identifier::Identifier;
-    pub use jackpot::{
-        CreateJackpotFactoryParams, Jackpot, JackpotFactory, JackpotFactoryImpl,
-        JackpotFactoryTrait, JackpotMode, JackpotWinner, TimingMode,
-    };
-    pub use metadata::Metadata;
-    pub use slot::Slot;
+pub mod svg {
+    pub mod complete;
+    pub mod font;
+    pub mod game_over;
+    pub mod index;
+    pub mod interface;
+    pub mod new;
+    pub mod progress;
+}
+
+pub mod assets {
+    pub mod banner;
+    pub mod icon;
+}
+
+pub mod types {
+    pub mod game_config;
+    pub mod svg;
 }
 
 pub mod interfaces {
@@ -67,11 +80,10 @@ pub mod elements {
         pub mod streaker;
     }
 }
-
-pub mod tests {
-    pub mod test_game;
-    pub mod test_reward;
-}
+// pub mod tests {
+//     pub mod test_game;
+//     pub mod test_reward;
+// }
 
 pub mod mocks {
     pub mod nums;

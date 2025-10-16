@@ -1,26 +1,26 @@
-use nums::models::config::Config;
+use crate::models::config::Config;
 
 #[starknet::interface]
-pub trait IConfigActions<T> {
+pub trait ISetup<T> {
     fn set_config(ref self: T, config: Config);
 }
 
 #[dojo::contract]
-pub mod config_actions {
+pub mod Setup {
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
-    use nums::models::config::{Config};
-    use nums::{StoreImpl, StoreTrait};
-    use nums::constants::WORLD_RESOURCE;
     use starknet::ContractAddress;
-    use super::IConfigActions;
+    use crate::StoreImpl;
+    use crate::constants::{NAMESPACE, WORLD_RESOURCE};
+    use crate::models::config::Config;
+    use super::ISetup;
 
     fn dojo_init(
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
-        burn_pct: u8
+        burn_pct: u8,
     ) {
-        let mut world = self.world(@"nums");
+        let mut world = self.world(@NAMESPACE());
         let mut store = StoreImpl::new(world);
 
         let nums_address = if let Option::Some(address) = nums_address {
@@ -35,19 +35,11 @@ pub mod config_actions {
             world.dns_address(@"MockVRF").expect('MockVRF not found!')
         };
 
-        store
-            .set_config(
-                Config {
-                    world_resource: 0,
-                    nums_address,
-                    vrf_address,
-                    burn_pct,
-                },
-            )
+        store.set_config(Config { world_resource: 0, nums_address, vrf_address, burn_pct })
     }
 
     #[abi(embed_v0)]
-    impl ConfigActions of IConfigActions<ContractState> {
+    impl SetupImpl of ISetup<ContractState> {
         fn set_config(ref self: ContractState, config: Config) {
             let mut world = self.world(@"nums");
             let mut store = StoreImpl::new(world);

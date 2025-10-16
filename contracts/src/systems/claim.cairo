@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-pub trait IClaimActions<T> {
+pub trait IClaim<T> {
     fn claim_from_forwarder(ref self: T, recipient: ContractAddress, leaf_data: Span<felt252>);
 }
 
@@ -10,12 +10,17 @@ pub struct LeafData {
     pub amount: u64,
 }
 
+#[inline]
+pub fn NAME() -> ByteArray {
+    "Claim"
+}
+
 #[dojo::contract]
-mod claim_actions {
+mod Claim {
     use dojo::world::WorldStorageTrait;
-    use nums::interfaces::nums::{INumsTokenDispatcher, INumsTokenDispatcherTrait};
-    use nums::constants::ZERO_ADDRESS;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::constants::{NAMESPACE, ZERO_ADDRESS};
+    use crate::interfaces::nums::{INumsTokenDispatcher, INumsTokenDispatcherTrait};
     use super::*;
 
     #[storage]
@@ -31,7 +36,7 @@ mod claim_actions {
         forwarder_address: Option<ContractAddress>,
         claimable_until: u64,
     ) {
-        let mut world = self.world(@"nums");
+        let mut world = self.world(@NAMESPACE());
 
         let nums_address = if let Option::Some(address) = nums_address {
             address
@@ -51,7 +56,7 @@ mod claim_actions {
     }
 
     #[abi(embed_v0)]
-    impl ClaimImpl of IClaimActions<ContractState> {
+    impl ClaimImpl of IClaim<ContractState> {
         fn claim_from_forwarder(
             ref self: ContractState, recipient: ContractAddress, leaf_data: Span<felt252>,
         ) {

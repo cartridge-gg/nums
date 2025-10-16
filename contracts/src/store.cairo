@@ -1,9 +1,9 @@
 use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
-use starknet::ContractAddress;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::{Config, Game, FreeGame, Identifier, Jackpot, JackpotFactory, JackpotWinner, Slot};
+use crate::models::index::{Config, Game, Leaderboard, Slot, Tournament};
+use crate::types::game_config::GameConfig;
 
 #[derive(Drop)]
 pub struct Store {
@@ -16,15 +16,7 @@ pub impl StoreImpl of StoreTrait {
         Store { world }
     }
 
-    // identifiers
-    fn next_id(ref self: Store, typ: felt252) -> u32 {
-        let mut identifier: Identifier = self.world.read_model((typ));
-        identifier.id += 1;
-        self.world.write_model(@identifier);
-        identifier.id
-    }
-
-    //  disp
+    //  Dispatchers
 
     fn nums_disp(ref self: Store) -> INumsTokenDispatcher {
         let config = self.config();
@@ -36,7 +28,7 @@ pub impl StoreImpl of StoreTrait {
         IVrfProviderDispatcher { contract_address: config.vrf_address }
     }
 
-    // config
+    // Config
 
     fn config(ref self: Store) -> Config {
         self.world.read_model((0))
@@ -49,65 +41,54 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@config)
     }
 
-    // game
+    // Game
 
-    fn game(ref self: Store, game_id: u32, player: ContractAddress) -> Game {
-        self.world.read_model((game_id, player))
+    fn game(ref self: Store, game_id: u64) -> Game {
+        self.world.read_model(game_id)
     }
 
     fn set_game(ref self: Store, game: @Game) {
         self.world.write_model(game)
     }
 
-    // free game
+    // Slot
 
-    fn free_game(ref self: Store, player: ContractAddress) -> FreeGame {
-        self.world.read_model((player))
+    fn slot(ref self: Store, game_id: u64, index: u8) -> Slot {
+        self.world.read_model((game_id, index))
     }
 
-    fn set_free_game(ref self: Store, free_game: @FreeGame) {
-        self.world.write_model(free_game)
-    }
-
-    // slot
-
-    fn slot(ref self: Store, game_id: u32, player: ContractAddress, index: u8) -> Slot {
-        self.world.read_model((game_id, player, index))
+    fn slots(ref self: Store, game_id: u64, config: GameConfig) -> Array<Slot> {
+        let mut slots = array![];
+        let mut index: u8 = 0;
+        while index < config.max_slots {
+            let slot = self.slot(game_id, index);
+            slots.append(slot);
+            index += 1;
+        }
+        slots
     }
 
     fn set_slot(ref self: Store, slot: @Slot) {
         self.world.write_model(slot)
     }
 
+    // Leaderboard
 
-    // jackpot factory
-
-    fn jackpot_factory(ref self: Store, factory_id: u32) -> JackpotFactory {
-        self.world.read_model((factory_id,))
+    fn leaderboard(ref self: Store, tournament_id: u64) -> Leaderboard {
+        self.world.read_model(tournament_id)
     }
 
-    fn set_jackpot_factory(ref self: Store, factory: @JackpotFactory) {
-        self.world.write_model(factory)
+    fn set_leaderboard(ref self: Store, leaderboard: @Leaderboard) {
+        self.world.write_model(leaderboard)
     }
 
+    // Tournament
 
-    // jackpot
-
-    fn jackpot(ref self: Store, jackpot_id: u32) -> Jackpot {
-        self.world.read_model((jackpot_id,))
+    fn tournament(ref self: Store, uuid: u64) -> Tournament {
+        self.world.read_model(uuid)
     }
 
-    fn set_jackpot(ref self: Store, jackpot: @Jackpot) {
-        self.world.write_model(jackpot)
-    }
-
-    // jackpot winner
-
-    fn jackpot_winner(ref self: Store, jackpot_id: u32, index: u8) -> JackpotWinner {
-        self.world.read_model((jackpot_id, index))
-    }
-
-    fn set_jackpot_winner(ref self: Store, jackpot_winner: @JackpotWinner) {
-        self.world.write_model(jackpot_winner)
+    fn set_tournament(ref self: Store, tournament: @Tournament) {
+        self.world.write_model(tournament)
     }
 }

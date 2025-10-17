@@ -2,7 +2,7 @@ import "./fonts.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Game from "./pages/Game";
 import Home from "./pages/Home";
-import Selection from "./pages/Selection";
+import Selection from "./unused_pages/Selection";
 import {
   StarknetConfig,
   voyager,
@@ -31,7 +31,7 @@ import { JackpotProvider } from "./context/jackpots";
 import { GameProvider } from "./context/game";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
-import Factories from "./pages/Factories";
+import Factories from "./unused_pages/Factories";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -147,8 +147,8 @@ function App() {
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/:gameId" element={<Game />} />
-                          <Route path="/selection" element={<Selection />} />
-                          <Route path="/factories" element={<Factories />} />
+                          {/* <Route path="/selection" element={<Selection />} />
+                          <Route path="/factories" element={<Factories />} /> */}
                         </Routes>
                       </Router>
                     </JackpotProvider>

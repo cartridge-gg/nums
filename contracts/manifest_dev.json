@@ -3090,8 +3090,8 @@
       ]
     },
     {
-      "address": "0x671109c04c7b4309b62a18a545893342fd76b18e36ce965f15733c1dab0cd3d",
-      "class_hash": "0x18345200cb2cff894d040c1a9ed42778a3efe5422a9a36906494ec2e11ca91c",
+      "address": "0x20bf3e81ba932ffb3cf2c40c44b629fbdabc7e6db99178e1fc1dad02f085e2b",
+      "class_hash": "0xa3e7469ebac1c03288d4d71f5fc14eacbd2e111a45a84a598d4591aa66722a",
       "abi": [
         {
           "type": "impl",
@@ -3168,6 +3168,10 @@
             {
               "name": "forwarder_address",
               "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "claimable_until",
+              "type": "core::integer::u64"
             }
           ],
           "outputs": [],
@@ -3320,7 +3324,8 @@
       ],
       "init_calldata": [
         "0x1",
-        "0x1"
+        "0x1",
+        "1798758000"
       ],
       "tag": "nums-claim_actions",
       "selector": "0x3b1c88d497d2baa39da6ca44d1ddd75ac5fc782b723e92dcc01c9f56b15a057",

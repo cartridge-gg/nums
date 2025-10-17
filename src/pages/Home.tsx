@@ -298,7 +298,6 @@ const Home = () => {
                       px="12px"
                     >
                       {isClaiming ? <Spinner /> : <LuCrown />}
-                      {isMobile ? "" : "Claim"}
                     </Button>
                   )}
                 {!isMobile && selectedFactory && (

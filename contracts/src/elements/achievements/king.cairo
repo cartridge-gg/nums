@@ -1,4 +1,4 @@
-use nums::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
+use crate::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
 
 pub impl King of AchievementTrait {
     fn identifier(level: u8) -> felt252 {

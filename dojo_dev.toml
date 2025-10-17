@@ -29,4 +29,5 @@ private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
 "nums-claim_actions" = [
     "0x1", # nums_address = Option::None
     "0x1", # forwarder_address  = Option::None
+    "1798758000", # claimable_until
 ]

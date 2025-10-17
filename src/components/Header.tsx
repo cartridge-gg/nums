@@ -42,6 +42,7 @@ const Header = () => {
 
   const height = ["40px", "48px", "48px"];
   const width = ["40px", "48px", "auto"];
+  const isClaimOpen = Date.now() < (1758931200 * 1_000)
 
   return (
     <>
@@ -105,7 +106,7 @@ const Header = () => {
             <TokenBalance contractAddress={numsAddress} showIcon={false} />
           </Button>
         )}
-        {connector && (
+        {connector && isClaimOpen && (
           <Button
             visual="transparent"
             h={height}

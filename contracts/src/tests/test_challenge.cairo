@@ -6,15 +6,15 @@ mod tests {
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
         spawn_test_world,
     };
-    use nums::models::challenge::challenge::{Challenge, m_Challenge};
-    use nums::models::challenge::mode::ChallengeMode;
-    use nums::models::config::{Config, GameConfig, m_Config};
-    use nums::models::game::m_Game;
-    use nums::models::slot::m_Slot;
-    use nums::systems::challenge_actions::{
+    use crate::models::challenge::challenge::{Challenge, m_Challenge};
+    use crate::models::challenge::mode::ChallengeMode;
+    use crate::models::config::{Config, GameConfig, m_Config};
+    use crate::models::game::m_Game;
+    use crate::models::slot::m_Slot;
+    use crate::systems::challenge_actions::{
         IChallengeActionsDispatcher, IChallengeActionsDispatcherTrait, challenge_actions,
     };
-    use nums::systems::game_actions::{
+    use crate::systems::game_actions::{
         IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
     };
     use starknet::ContractAddress;

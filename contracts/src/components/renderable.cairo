@@ -43,7 +43,7 @@ pub mod RenderableComponent {
             array![
                 GameDetail { name: "Reward", value: format!("{}", game.reward) },
                 GameDetail { name: "Level", value: format!("{}", game.level) },
-                GameDetail { name: "Jackpot ID", value: format!("{}", game.jackpot_id) },
+                GameDetail { name: "Tournament ID", value: format!("{}", game.tournament_id) },
                 GameDetail { name: "Game Over", value: format!("{}", game.over) },
             ]
                 .span()

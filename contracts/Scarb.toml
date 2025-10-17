@@ -17,6 +17,7 @@ build-external-contracts = [
 
 [dependencies]
 achievement.workspace = true
+starterpack.workspace = true
 game_components.workspace = true
 graffiti.workspace = true
 openzeppelin.workspace = true

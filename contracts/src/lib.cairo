@@ -15,8 +15,10 @@ pub mod systems {
 }
 
 pub mod components {
+    pub mod merkledrop;
     pub mod playable;
     pub mod renderable;
+    pub mod starterpack;
     pub mod tournament;
 }
 
@@ -25,9 +27,11 @@ pub mod models {
     pub mod game;
     pub mod index;
     pub mod leaderboard;
+    pub mod merkledrop;
     pub mod prize;
     pub mod reward;
     pub mod slot;
+    pub mod starterpack;
     pub mod tournament;
 }
 
@@ -55,6 +59,7 @@ pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
     pub mod nums;
+    pub mod starterpack;
     pub mod token;
     pub mod vrf;
 }

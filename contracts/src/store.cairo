@@ -2,8 +2,11 @@ use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
 use crate::constants::WORLD_RESOURCE;
 use crate::interfaces::nums::INumsTokenDispatcher;
+use crate::interfaces::starterpack::IStarterpackDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Config, Game, Leaderboard, Prize, Reward, Slot, Tournament};
+use crate::models::index::{
+    Config, Game, Leaderboard, Merkledrop, Prize, Reward, Slot, Starterpack, Tournament,
+};
 use crate::types::game_config::GameConfig;
 
 #[derive(Drop)]
@@ -21,12 +24,17 @@ pub impl StoreImpl of StoreTrait {
 
     fn nums_disp(ref self: Store) -> INumsTokenDispatcher {
         let config = self.config();
-        INumsTokenDispatcher { contract_address: config.nums_address }
+        INumsTokenDispatcher { contract_address: config.nums }
     }
 
     fn vrf_disp(ref self: Store) -> IVrfProviderDispatcher {
         let config = self.config();
-        IVrfProviderDispatcher { contract_address: config.vrf_address }
+        IVrfProviderDispatcher { contract_address: config.vrf }
+    }
+
+    fn starterpack_disp(ref self: Store) -> IStarterpackDispatcher {
+        let config = self.config();
+        IStarterpackDispatcher { contract_address: config.starterpack }
     }
 
     // Config
@@ -38,7 +46,6 @@ pub impl StoreImpl of StoreTrait {
     fn set_config(ref self: Store, config: Config) {
         let mut config = config;
         config.world_resource = 0;
-        assert!(config.burn_pct < 101, "invalid burn pct");
         self.world.write_model(@config)
     }
 
@@ -111,5 +118,25 @@ pub impl StoreImpl of StoreTrait {
 
     fn set_reward(ref self: Store, reward: @Reward) {
         self.world.write_model(reward)
+    }
+
+    // Starterpack
+
+    fn starterpack(ref self: Store, starterpack_id: u32) -> Starterpack {
+        self.world.read_model(starterpack_id)
+    }
+
+    fn set_starterpack(ref self: Store, starterpack: @Starterpack) {
+        self.world.write_model(starterpack)
+    }
+
+    // Merkledrop
+
+    fn merkledrop(ref self: Store, id: felt252) -> Merkledrop {
+        self.world.read_model(id)
+    }
+
+    fn set_merkledrop(ref self: Store, merkledrop: @Merkledrop) {
+        self.world.write_model(merkledrop)
     }
 }

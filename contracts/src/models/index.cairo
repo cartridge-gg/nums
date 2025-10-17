@@ -1,14 +1,32 @@
 use starknet::ContractAddress;
 
-#[derive(Drop, Serde)]
+#[derive(Drop, Serde, IntrospectPacked)]
 #[dojo::model]
 pub struct Config {
     #[key]
     pub world_resource: felt252,
-    pub nums_address: ContractAddress,
-    pub vrf_address: ContractAddress,
+    pub nums: ContractAddress,
+    pub vrf: ContractAddress,
+    pub starterpack: ContractAddress,
+    pub forwarder: ContractAddress,
     pub owner: ContractAddress,
-    pub burn_pct: u8,
+}
+
+#[derive(Drop, Serde, IntrospectPacked)]
+#[dojo::model]
+pub struct Starterpack {
+    #[key]
+    pub id: u32,
+    pub active: bool,
+}
+
+#[derive(Drop, Serde, IntrospectPacked)]
+#[dojo::model]
+pub struct Merkledrop {
+    #[key]
+    pub id: felt252,
+    pub active: bool,
+    pub end: u64,
 }
 
 #[derive(Copy, Drop, Serde, Introspect, DojoStore, PartialEq)]
@@ -29,7 +47,7 @@ pub struct Game {
     pub next_number: u16,
     pub reward: u32,
     pub score: u32,
-    pub jackpot_id: u32,
+    pub tournament_id: u64,
     pub expires_at: u64,
     pub over: bool,
     pub claimed: bool,

@@ -29,6 +29,10 @@ pub fn IMAGE() -> ByteArray {
     "https://static.cartridge.gg/presets/nums/icon.png"
 }
 
+pub fn CLIENT_URL() -> ByteArray {
+    "https://nums.gg"
+}
+
 pub const WORLD_RESOURCE: felt252 = 0;
 
 pub const ZERO_ADDRESS: ContractAddress = 0.try_into().unwrap();
@@ -43,6 +47,7 @@ pub const BUDOKAN_SEPOLIA: ContractAddress =
 
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
 
+pub const ENTRY_PRICE: u128 = 2000;
 pub const ONE_MINUTE: u64 = 60;
 pub const ONE_HOUR: u64 = 60 * ONE_MINUTE;
 pub const ONE_DAY: u64 = 24 * ONE_HOUR;

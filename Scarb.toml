@@ -8,7 +8,8 @@ version = "0.0.0"
 edition = "2024_07"
 
 [workspace.dependencies]
-achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "1b4da94" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "8b5031a" }
+starterpack = { git = "https://github.com/cartridge-gg/arcade", rev = "8b5031a" }
 game_components = { git = "https://github.com/bal7hazar/game-components", rev = "657e9ef" }
 budokan = { git = "https://github.com/Provable-Games/tournaments", rev = "f8c0cf5" }
 graffiti = { git = "https://github.com/bal7hazar/graffiti.git", rev = "e8b0854" }
@@ -26,3 +27,6 @@ sort-module-level-items = true
 [profile.slot]
 [profile.mainnet]
 [profile.sepolia]
+
+[tool.scarb]
+allow-prebuilt-plugins = ["dojo_cairo_macros"]

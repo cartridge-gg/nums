@@ -7,29 +7,22 @@ pub mod TournamentComponent {
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use starknet::ContractAddress;
-    use crate::models::config::ConfigAssert;
+    use crate::interfaces::nums::INumsTokenDispatcherTrait;
+    use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::GameAssert;
     use crate::models::leaderboard::{LeaderboardAssert, LeaderboardTrait};
     use crate::models::prize::{PrizeAssert, PrizeTrait};
     use crate::models::reward::{RewardAssert, RewardTrait};
-    use crate::models::tournament::{Tournament, TournamentAssert, TournamentTrait};
+    use crate::models::tournament::{TournamentAssert, TournamentTrait};
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as GAME_NAME;
     use crate::types::game_config::DefaultGameConfig;
-    use crate::{Store, StoreImpl};
+    use crate::{StoreImpl, StoreTrait};
 
     // Constants
 
-    pub const CREATOR_SHARE: u8 = 50;
     pub const ENTRY_PRICE: u128 = 2000;
     pub const PRIZE_SPOTS: u8 = 5;
-    pub const SIX_DAYS: u64 = 6 * 24 * 60 * 60;
-    pub const THREE_DAYS: u64 = 3 * 24 * 60 * 60;
-    pub const FOUR_DAYS: u64 = 4 * 24 * 60 * 60;
-    pub const ONE_DAY: u64 = 24 * 60 * 60;
-    pub const ONE_WEEK: u64 = 7 * 24 * 60 * 60;
-    pub const DISTRIBUTION: [u8; 5] = [26, 13, 6, 3, 2]; // In complement of the creator share
-    pub const SN_SEPOLIA: felt252 = 'SN_SEPOLIA';
 
     // Storage
 
@@ -51,36 +44,39 @@ pub mod TournamentComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Tournament does not exist
-            let identifier = self.uuid();
+            let identifier = TournamentTrait::uuid();
             let tournament = store.tournament(identifier);
             tournament.assert_not_exist();
 
             // [Effect] Create tournament
-            let tournament = self.create(world, identifier, ref store);
+            let tournament = TournamentTrait::new(identifier);
             store.set_tournament(@tournament);
         }
 
-        fn enter(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            tournament_id: u64,
-            player_name: felt252,
-        ) -> u64 {
+        fn enter(ref self: ComponentState<TContractState>, world: WorldStorage) -> u64 {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
             // [Effect] Create next tournament if it doesn't exist
-            let identifier = self.uuid() + 1;
+            let identifier = TournamentTrait::uuid() + 1;
             let tournament = store.tournament(identifier);
             if !tournament.exists() {
-                self.create(world, identifier, ref store);
+                let tournament = TournamentTrait::new(identifier);
+                store.set_tournament(@tournament);
             }
 
             // [Effect] Enter tournament
-            let identifier = self.uuid();
+            let identifier = TournamentTrait::uuid();
             let mut tournament = store.tournament(identifier);
             tournament.enter();
             store.set_tournament(@tournament);
+
+            // [Interaction] Mint the share to the prize pool
+            let config = store.config();
+            let (_, to_prize) = config.split(ENTRY_PRICE.into());
+            let recipient = starknet::get_contract_address();
+            let amount: u64 = to_prize.try_into().unwrap();
+            store.nums_disp().reward(recipient, amount);
 
             // [Return] Tournament ID
             tournament.id
@@ -90,7 +86,6 @@ pub mod TournamentComponent {
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
             tournament_id: u64,
-            leaderboard_index: u32,
             token_address: ContractAddress,
             amount: u128,
         ) {
@@ -150,7 +145,7 @@ pub mod TournamentComponent {
 
             // [Interaction] Send reward to the game owner
             let token = IERC20Dispatcher { contract_address: token_address };
-            let collection_address = self.get_collection_address(world);
+            let collection_address = self.get_minigame(world).token_address();
             let collection = IERC721Dispatcher { contract_address: collection_address };
             let recipient = collection.owner_of(game_id.into());
             let payout = prize.payout(position, capacity);
@@ -202,30 +197,11 @@ pub mod TournamentComponent {
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
         #[inline]
-        fn uuid(self: @ComponentState<TContractState>) -> u64 {
-            let now = starknet::get_block_timestamp();
-            (now + FOUR_DAYS) / ONE_WEEK
-        }
-
-        #[inline]
-        fn create(
-            self: @ComponentState<TContractState>,
-            world: WorldStorage,
-            identifier: u64,
-            ref store: Store,
-        ) -> Tournament {
-            // [Return] Tournament
-            let start_time = identifier * ONE_WEEK - FOUR_DAYS;
-            TournamentTrait::new(identifier, start_time, ONE_WEEK)
-        }
-
-        #[inline]
-        fn get_collection_address(
+        fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> ContractAddress {
+        ) -> IMinigameDispatcher {
             let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
-            let minigame = IMinigameDispatcher { contract_address: game_address };
-            minigame.token_address()
+            IMinigameDispatcher { contract_address: game_address }
         }
     }
 }

@@ -12,6 +12,7 @@ pub mod errors {
     pub const GAME_NUMBER_NOT_VALID: felt252 = 'Game: number not valid';
     pub const GAME_INDEX_NOT_VALID: felt252 = 'Game: index not valid';
     pub const GAME_HAS_EXPIRED: felt252 = 'Game: has expired';
+    pub const GAME_ALREADY_STARTED: felt252 = 'Game: already started';
 }
 
 pub const REWARD_LEVELS: [u32; 21] = [
@@ -26,6 +27,7 @@ pub const HALF_SCALE_FACTOR: u32 = 50;
 #[generate_trait]
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
+    #[inline]
     fn new(id: u64, now: u64, number: u16, config: GameConfig) -> Game {
         // [Check] Number is valid
         GameAssert::assert_valid_number(number);
@@ -37,11 +39,19 @@ pub impl GameImpl of GameTrait {
             next_number: number,
             reward: 0,
             score: 0,
-            jackpot_id: 0,
+            tournament_id: 0,
             expires_at: now + config.game_duration,
             over: false,
             claimed: false,
         }
+    }
+
+    #[inline]
+    fn start(ref self: Game, tournament_id: u64) {
+        // [Check] Game has not started yet
+        self.assert_not_started();
+        // [Effect] Start game
+        self.tournament_id = tournament_id;
     }
 
     /// Validates that the given array of numbers is in ascending order.
@@ -70,7 +80,7 @@ pub impl GameImpl of GameTrait {
         // [Check] Slots size is valid
         assert(slots.len() == config.max_slots.into(), errors::GAME_SLOTS_NOT_VALID);
 
-        // [Calculate] Difficulty score
+        // [Compute] Difficulty score
         let step: u32 = (config.max_number - config.min_number).into()
             * SCALE_FACTOR
             / (config.max_slots + 1).into();
@@ -86,7 +96,7 @@ pub impl GameImpl of GameTrait {
             }
             total += 1;
 
-            // 🌟 Arrondi au plus proche entier pour centrer parfaitement
+            // Rounding to the nearest integer to perfectly center
             let uniform: u32 = config.min_number.into()
                 + (index * step + HALF_SCALE_FACTOR) / SCALE_FACTOR;
 
@@ -110,8 +120,10 @@ pub impl GameImpl of GameTrait {
     }
 
     /// Checks if the game has expired based on the current block timestamp.
+    #[inline]
     fn has_expired(self: @Game) -> bool {
-        starknet::get_block_timestamp() >= *self.expires_at
+        let time = *self.expires_at;
+        time != 0 && starknet::get_block_timestamp() >= time
     }
 
     /// Determines if the game has ended based on current state and configuration.
@@ -172,22 +184,25 @@ pub impl GameImpl of GameTrait {
     }
 
     /// Rewards the game for the current level.
+    #[inline]
     fn reward(ref self: Game) {
-        let reward = *REWARD_LEVELS.span().at(self.level.into());
-        self.reward += reward;
+        self.reward = *REWARD_LEVELS.span().at(self.level.into());
     }
 
     /// Levels up the game.
+    #[inline]
     fn level_up(ref self: Game) {
         self.level += 1;
     }
 
     /// Updates the game state.
+    #[inline]
     fn update(ref self: Game, ref rand: Random, nums: @Array<u16>, config: GameConfig) {
         self.score = self.score(config, nums.clone());
         self.reward();
         self.level_up();
-        if self.level < config.max_slots {
+        self.over = self.has_expired() || self.is_over(config, nums);
+        if !self.over {
             self.next_number = Self::next(ref rand, nums, config.min_number, config.max_number);
         }
     }
@@ -200,33 +215,45 @@ pub impl GameImpl of GameTrait {
 #[generate_trait]
 pub impl GameAssert of AssertTrait {
     /// Asserts that the game exists (has been properly initialized).
+    #[inline]
     fn assert_does_exist(self: @Game) {
         assert(self.next_number != @0, errors::GAME_DOES_NOT_EXIST);
     }
 
     /// Asserts that the game does not exist (has not been initialized).
+    #[inline]
     fn assert_not_exist(self: @Game) {
         assert(self.next_number == @0, errors::GAME_ALREADY_EXISTS);
     }
 
     /// Asserts that the given array of numbers is in valid ascending order.
+    #[inline]
     fn assert_is_valid(self: @Game, nums: @Array<u16>) {
         assert(self.is_valid(nums), errors::GAME_SLOTS_NOT_VALID);
     }
 
     /// Asserts that the given number is valid.
+    #[inline]
     fn assert_valid_number(number: u16) {
         assert(number != 0, errors::GAME_NUMBER_NOT_VALID);
     }
 
     /// Asserts that the given index is valid.
+    #[inline]
     fn assert_valid_index(self: @Game, config: GameConfig, index: u8) {
         assert(index < config.max_slots, errors::GAME_INDEX_NOT_VALID);
     }
 
     /// Asserts that the game has not expired.
+    #[inline]
     fn assert_not_expired(self: @Game) {
         assert(!self.has_expired(), errors::GAME_HAS_EXPIRED);
+    }
+
+    /// Asserts that the game has not started yet.
+    #[inline]
+    fn assert_not_started(self: @Game) {
+        assert(self.tournament_id == @0, errors::GAME_ALREADY_STARTED);
     }
 }
 
@@ -280,7 +307,7 @@ mod tests {
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.next_number == first_number, 'Next number should match input');
         assert(game.reward == 0, 'Initial reward should be 0');
-        assert(game.jackpot_id == 0, 'Initial jackpot ID should be 0');
+        assert(game.tournament_id == 0, 'Initial jackpot ID should be 0');
         assert(game.expires_at == now + config.game_duration, 'Expiration time is incorrect');
         assert(!game.over, 'Game is over initially');
     }

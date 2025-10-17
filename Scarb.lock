@@ -4,10 +4,9 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=1b4da94#1b4da947070549a21dc21531092039c84b86da56"
+source = "git+https://github.com/cartridge-gg/arcade?rev=8b5031a#8b5031a60f0d43ec7a50123f62d2e775c7fba225"
 dependencies = [
  "dojo",
- "dojo_cairo_macros",
 ]
 
 [[package]]
@@ -61,6 +60,15 @@ source = "registry+https://scarbs.xyz/"
 checksum = "sha256:8a05a9729f886595e5f43df9152a9b58c396faf5962d83c778cce2cb9e8e3d0f"
 dependencies = [
  "alexandria_data_structures",
+]
+
+[[package]]
+name = "collection"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=8b5031a#8b5031a60f0d43ec7a50123f62d2e775c7fba225"
+dependencies = [
+ "graffiti",
+ "openzeppelin",
 ]
 
 [[package]]
@@ -167,6 +175,15 @@ version = "0.1.0"
 source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798ebbcebde504ea299ed556900564ff2"
 
 [[package]]
+name = "models"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=8b5031a#8b5031a60f0d43ec7a50123f62d2e775c7fba225"
+dependencies = [
+ "dojo",
+ "registry",
+]
+
+[[package]]
 name = "nums"
 version = "0.1.0"
 dependencies = [
@@ -178,6 +195,7 @@ dependencies = [
  "game_components",
  "graffiti",
  "openzeppelin",
+ "starterpack",
 ]
 
 [[package]]
@@ -297,3 +315,23 @@ name = "openzeppelin_utils"
 version = "2.0.0"
 source = "registry+https://scarbs.xyz/"
 checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc505"
+
+[[package]]
+name = "registry"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=8b5031a#8b5031a60f0d43ec7a50123f62d2e775c7fba225"
+dependencies = [
+ "collection",
+ "dojo",
+ "graffiti",
+]
+
+[[package]]
+name = "starterpack"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=8b5031a#8b5031a60f0d43ec7a50123f62d2e775c7fba225"
+dependencies = [
+ "dojo",
+ "models",
+ "openzeppelin",
+]

@@ -18,7 +18,9 @@ pub mod Setup {
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
-        burn_pct: u8,
+        starterpack_address: Option<ContractAddress>,
+        forwarder_address: Option<ContractAddress>,
+        owner_address: Option<ContractAddress>,
     ) {
         let mut world = self.world(@NAMESPACE());
         let mut store = StoreImpl::new(world);
@@ -35,7 +37,12 @@ pub mod Setup {
             world.dns_address(@"MockVRF").expect('MockVRF not found!')
         };
 
-        store.set_config(Config { world_resource: 0, nums_address, vrf_address, burn_pct })
+        store
+            .set_config(
+                Config {
+                    world_resource: 0, nums_address, vrf_address, forwarder_address, owner_address,
+                },
+            )
     }
 
     #[abi(embed_v0)]

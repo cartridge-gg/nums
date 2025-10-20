@@ -6,6 +6,7 @@ mod tests {
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
         spawn_test_world,
     };
+    use starknet::ContractAddress;
     use crate::models::challenge::challenge::{Challenge, m_Challenge};
     use crate::models::challenge::mode::ChallengeMode;
     use crate::models::config::{Config, GameConfig, m_Config};
@@ -17,7 +18,6 @@ mod tests {
     use crate::systems::game_actions::{
         IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
     };
-    use starknet::ContractAddress;
 
     const START_BLOCK_TIME: u64 = 100;
     const EXTENSION_TIME: u64 = 100;
@@ -122,7 +122,7 @@ mod tests {
         assert(challenge.expiration == EXPIRATION_TIME, 'expiration should not change');
 
         let (game_id, first_number) = game_actions.create_game(Option::Some(challenge_id));
-        let next_number = game_actions.set_slot(game_id, 6);
+        let number = game_actions.set_slot(game_id, 6);
 
         challenge_actions.king_me(game_id);
         let challenge: Challenge = world.read_model(challenge_id);
@@ -135,7 +135,7 @@ mod tests {
         assert(king_of_the_hill.king == PLAYER_ONE(), 'player should be king');
         assert(king_of_the_hill.remaining_slots == 19, 'remaining have deducted');
 
-        if next_number > first_number {
+        if number > first_number {
             game_actions.set_slot(game_id, 7);
         } else {
             game_actions.set_slot(game_id, 5);

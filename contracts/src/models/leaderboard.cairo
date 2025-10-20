@@ -10,7 +10,7 @@ pub mod errors {
 #[generate_trait]
 pub impl LeaderboardImpl of LeaderboardTrait {
     #[inline]
-    fn new(tournament_id: u64, capacity: u32) -> Leaderboard {
+    fn new(tournament_id: u16, capacity: u32) -> Leaderboard {
         Leaderboard {
             tournament_id: tournament_id, capacity: capacity, requirement: 0, games: array![],
         }
@@ -90,7 +90,7 @@ pub impl LeaderboardAssert of AssertTrait {
 mod tests {
     use super::{LeaderboardAssert, LeaderboardTrait};
 
-    pub const TOURNAMENT_ID: u64 = 1;
+    pub const TOURNAMENT_ID: u16 = 1;
     pub const MAX_CAPACITY: u32 = 5;
 
     #[test]

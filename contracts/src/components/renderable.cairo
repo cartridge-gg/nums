@@ -5,7 +5,7 @@ pub mod RenderableComponent {
     use dojo::world::WorldStorage;
     use game_components::minigame::structs::GameDetail;
     use crate::constants::{DESCRIPTION, NAME};
-    use crate::types::game_config::{DefaultGameConfig, GameConfig};
+    use crate::models::game::GameTrait;
     use crate::{StoreImpl, StoreTrait};
 
     // Storage
@@ -59,20 +59,10 @@ pub mod RenderableComponent {
             // [Check] Token ID is valid
             let game_id: u64 = token_id.try_into().expect('Game: invalid token ID');
 
-            // [Compute] Slots
-            let game = store.game(game_id);
-            let config: GameConfig = DefaultGameConfig::default();
-            let mut idx = 0;
-            let mut slots: Array<u16> = array![];
-            while idx < config.max_slots {
-                let slot = store.slot(game_id, idx);
-                slots.append(slot.number);
-                idx += 1;
-            }
-
             // [Return] Slots
-            let game_completed = game.over && game.level == config.max_slots;
-            (slots.span(), game.next_number, game_completed, game.over)
+            let game = store.game(game_id);
+            let game_completed = game.over && game.level == game.slot_count;
+            (game.slots().span(), game.number, game_completed, game.over)
         }
     }
 }

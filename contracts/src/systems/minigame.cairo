@@ -13,6 +13,7 @@ mod Minigame {
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use crate::constants::NAMESPACE;
+    use crate::models::game::GameTrait;
     use crate::systems::minigame::NAME as GAME_NAME;
     use crate::systems::renderer::NAME as RENDERER_NAME;
     use crate::systems::settings::NAME as SETTINGS_NAME;
@@ -75,14 +76,13 @@ mod Minigame {
         fn score(self: @ContractState, token_id: u64) -> u32 {
             let mut store = StoreTrait::new(self.world(@NAMESPACE()));
             let game = store.game(token_id.try_into().expect('Game: invalid token ID'));
-            game.level.into()
+            game.score
         }
 
         fn game_over(self: @ContractState, token_id: u64) -> bool {
             let mut store = StoreTrait::new(self.world(@NAMESPACE()));
             let game = store.game(token_id.try_into().expect('Game: invalid token ID'));
-            let now = starknet::get_block_timestamp();
-            game.over || now > game.expires_at
+            game.is_over(game.slots())
         }
     }
 }

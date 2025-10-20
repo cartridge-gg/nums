@@ -14,7 +14,7 @@ pub mod errors {
 #[generate_trait]
 pub impl PrizeImpl of PrizeTrait {
     #[inline]
-    fn new(tournament_id: u64, address: felt252, amount: u128) -> Prize {
+    fn new(tournament_id: u16, address: felt252, amount: u128) -> Prize {
         // [Check] Amount is valid
         PrizeAssert::assert_valid_amount(amount);
         // [Return] New prize
@@ -98,7 +98,7 @@ mod tests {
 
     // Constants
 
-    pub const TOURNAMENT_ID: u64 = 1;
+    pub const TOURNAMENT_ID: u16 = 1;
     pub const PRIZE_AMOUNT: u128 = 1_000_000_000_000_000_000;
     pub const PRIZE_ADDRESS: felt252 = 'PRIZE';
     pub const WINNER_COUNT: u32 = 5;

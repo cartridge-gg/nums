@@ -117,17 +117,17 @@ mod tests {
         let game: Game = world.read_model((game_id, caller));
 
         let remaining = game.remaining_slots;
-        assert(game.next_number == first_number, 'next number create is wrong');
+        assert(game.number == first_number, 'next number create is wrong');
 
         // set transaction hash so seed is "random"
         starknet::testing::set_transaction_hash(42);
 
-        let next_number = game_actions.set_slot(game_id, 6);
+        let number = game_actions.set_slot(game_id, 6);
         let game: Game = world.read_model((game_id, caller));
-        assert(game.next_number == next_number, 'next number set slot is wrong');
+        assert(game.number == number, 'next number set slot is wrong');
         assert(game.remaining_slots == remaining - 1, 'remaining slots is wrong');
 
-        if next_number > first_number {
+        if number > first_number {
             game_actions.set_slot(game_id, 7);
         } else {
             game_actions.set_slot(game_id, 5);
@@ -158,7 +158,7 @@ mod tests {
             remaining_slots: 20_u8,
             max_number: 1000_u16,
             min_number: 0_u16,
-            next_number: 42_u16,
+            number: 42_u16,
             finished: false,
             challenge_id: Option::None,
         };

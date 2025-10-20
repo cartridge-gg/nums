@@ -45,6 +45,7 @@ pub const BUDOKAN_SEPOLIA: ContractAddress =
     .try_into()
     .unwrap();
 
+pub const SLOT_SIZE: u128 = 2_u128.pow(12);
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
 
 pub const ENTRY_PRICE: u128 = 2000;

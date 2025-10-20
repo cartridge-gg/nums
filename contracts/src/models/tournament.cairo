@@ -16,7 +16,7 @@ pub const ONE_WEEK: u64 = 7 * 24 * 60 * 60;
 #[generate_trait]
 pub impl TournamentImpl of TournamentTrait {
     #[inline]
-    fn new(id: u64) -> Tournament {
+    fn new(id: u16) -> Tournament {
         // [Check] Times are valid
         let start_time = Self::start_time(id);
         let end_time = start_time + Self::duration(id);
@@ -25,18 +25,18 @@ pub impl TournamentImpl of TournamentTrait {
     }
 
     #[inline]
-    fn uuid() -> u64 {
+    fn uuid() -> u16 {
         let now = starknet::get_block_timestamp();
-        (now + FOUR_DAYS) / ONE_WEEK
+        ((now + FOUR_DAYS) / ONE_WEEK).try_into().unwrap()
     }
 
     #[inline]
-    fn start_time(id: u64) -> u64 {
-        id * ONE_WEEK - FOUR_DAYS
+    fn start_time(id: u16) -> u64 {
+        id.into() * ONE_WEEK - FOUR_DAYS
     }
 
     #[inline]
-    fn duration(id: u64) -> u64 {
+    fn duration(id: u16) -> u64 {
         ONE_WEEK
     }
 
@@ -90,7 +90,7 @@ mod tests {
     use starknet::testing::set_block_timestamp;
     use super::{TournamentAssert, TournamentTrait};
 
-    pub const TOURNAMENT_ID: u64 = 1;
+    pub const TOURNAMENT_ID: u16 = 1;
 
     #[test]
     fn test_tournament_has_started() {

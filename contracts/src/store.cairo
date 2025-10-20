@@ -5,9 +5,8 @@ use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::starterpack::IStarterpackDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{
-    Config, Game, Leaderboard, Merkledrop, Prize, Reward, Slot, Starterpack, Tournament,
+    Config, Game, Leaderboard, Merkledrop, Prize, Reward, Starterpack, Tournament,
 };
-use crate::types::game_config::GameConfig;
 
 #[derive(Drop)]
 pub struct Store {
@@ -59,30 +58,9 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(game)
     }
 
-    // Slot
-
-    fn slot(ref self: Store, game_id: u64, index: u8) -> Slot {
-        self.world.read_model((game_id, index))
-    }
-
-    fn slots(ref self: Store, game_id: u64, config: GameConfig) -> Array<Slot> {
-        let mut slots = array![];
-        let mut index: u8 = 0;
-        while index < config.max_slots {
-            let slot = self.slot(game_id, index);
-            slots.append(slot);
-            index += 1;
-        }
-        slots
-    }
-
-    fn set_slot(ref self: Store, slot: @Slot) {
-        self.world.write_model(slot)
-    }
-
     // Leaderboard
 
-    fn leaderboard(ref self: Store, tournament_id: u64) -> Leaderboard {
+    fn leaderboard(ref self: Store, tournament_id: u16) -> Leaderboard {
         self.world.read_model(tournament_id)
     }
 
@@ -92,8 +70,8 @@ pub impl StoreImpl of StoreTrait {
 
     // Tournament
 
-    fn tournament(ref self: Store, uuid: u64) -> Tournament {
-        self.world.read_model(uuid)
+    fn tournament(ref self: Store, id: u16) -> Tournament {
+        self.world.read_model(id)
     }
 
     fn set_tournament(ref self: Store, tournament: @Tournament) {
@@ -102,7 +80,7 @@ pub impl StoreImpl of StoreTrait {
 
     // Prize
 
-    fn prize(ref self: Store, tournament_id: u64, address: felt252) -> Prize {
+    fn prize(ref self: Store, tournament_id: u16, address: felt252) -> Prize {
         self.world.read_model((tournament_id, address))
     }
 
@@ -112,7 +90,7 @@ pub impl StoreImpl of StoreTrait {
 
     // Reward
 
-    fn reward(ref self: Store, tournament_id: u64, address: felt252, game_id: u64) -> Reward {
+    fn reward(ref self: Store, tournament_id: u16, address: felt252, game_id: u64) -> Reward {
         self.world.read_model((tournament_id, address, game_id))
     }
 

@@ -53,7 +53,7 @@ pub mod TournamentComponent {
             store.set_tournament(@tournament);
         }
 
-        fn enter(ref self: ComponentState<TContractState>, world: WorldStorage) -> u64 {
+        fn enter(ref self: ComponentState<TContractState>, world: WorldStorage) -> u16 {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
@@ -85,7 +85,7 @@ pub mod TournamentComponent {
         fn sponsor(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
-            tournament_id: u64,
+            tournament_id: u16,
             token_address: ContractAddress,
             amount: u128,
         ) {
@@ -107,7 +107,7 @@ pub mod TournamentComponent {
         fn claim(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
-            tournament_id: u64,
+            tournament_id: u16,
             token_address: ContractAddress,
             game_id: u64,
             position: u32,
@@ -155,7 +155,7 @@ pub mod TournamentComponent {
         fn rescue(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
-            tournament_id: u64,
+            tournament_id: u16,
             token_address: ContractAddress,
         ) {
             // [Setup] Store

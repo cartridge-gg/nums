@@ -27,13 +27,13 @@ pub mod PlayableComponent {
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
-    use crate::models::slot::SlotTrait;
     use crate::models::tournament::TournamentTrait;
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as GAME_NAME;
     use crate::systems::renderer::NAME as RENDERER_NAME;
     use crate::systems::settings::SETTINGS_ID;
     use crate::types::game_config::DefaultGameConfig;
+    use crate::types::power::{Power, PowerTrait};
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -101,6 +101,7 @@ pub mod PlayableComponent {
             world: WorldStorage,
             recipient: ContractAddress,
             starterpack_id: u32,
+            mut quantity: u32,
         ) {
             // [Check] Caller is allowed
             let starterpack = get_dep_component!(@self, Starterpack);
@@ -110,7 +111,10 @@ pub mod PlayableComponent {
             starterpack.assert_is_valid(world, starterpack_id);
 
             // [Interaction] Mint a game
-            self.mint_game(world, Option::None, recipient, true);
+            while quantity > 0 {
+                self.mint_game(world, Option::None, recipient, true);
+                quantity -= 1;
+            }
         }
     }
 
@@ -190,11 +194,10 @@ pub mod PlayableComponent {
             // [Effect] Create and setup game
             let config = DefaultGameConfig::default();
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let next_number = rand.between::<u16>(config.min_number, config.max_number);
-            let now = starknet::get_block_timestamp();
-            let mut game = GameTrait::new(game_id, now, next_number, config);
+            let number = rand.between::<u16>(config.min_number, config.max_number);
+            let mut game = GameTrait::new(game_id, config);
             let tournament_id = TournamentTrait::uuid();
-            game.start(tournament_id);
+            game.start(tournament_id, number);
             store.set_game(@game);
 
             // [Effect] Update achievement progression for the player - Grinder task
@@ -205,7 +208,7 @@ pub mod PlayableComponent {
             // [Interaction] Perform post actions
             post_action(token_address, game_id);
 
-            (game_id, next_number)
+            (game_id, number)
         }
 
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
@@ -229,58 +232,17 @@ pub mod PlayableComponent {
             let mut game = store.game(game_id);
             game.assert_does_exist();
 
-            // [Check] Game has not expired
-            game.assert_not_expired();
+            // [Check] Game is not over
+            game.assert_not_over();
 
-            // [Check] Game index is valid
-            let config = DefaultGameConfig::default();
-            game.assert_valid_index(config, index);
-
-            // [Check] Ordering is valid
-            let mut streak = 1;
-            let mut prev_num = 0;
-            let mut nums = array![];
-            let mut idx: u8 = 0;
-            while idx < config.max_slots {
-                let slot = store.slot(game_id, idx);
-                if slot.number != 0 {
-                    // Check if we're trying to insert into a filled slot
-                    assert!(index != idx, "Slot already filled");
-                    nums.append(slot.number);
-
-                    // Update streak
-                    if prev_num != 0 && slot.number == prev_num + 1 {
-                        streak += 1;
-                    } else {
-                        streak = 1;
-                    }
-                    prev_num = slot.number;
-                }
-
-                if index == idx {
-                    nums.append(game.next_number);
-
-                    // Update streak
-                    if prev_num != 0 && game.next_number == prev_num + 1 {
-                        streak += 1;
-                    } else {
-                        streak = 1;
-                    }
-                    prev_num = game.next_number;
-                }
-
-                idx += 1;
-            }
-            game.assert_is_valid(@nums);
-
-            // [Effect] Create slot
-            let target_number = game.next_number;
-            let slot = SlotTrait::new(game_id, index, target_number);
-            store.set_slot(@slot);
+            // [Effect] Place number
+            let target_number = game.number;
+            game.place(index);
+            game.assert_is_valid();
 
             // [Effect] Update game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            game.update(ref rand, @nums, config);
+            game.update(ref rand);
             store.set_game(@game);
 
             // [Interaction] Pay user reward
@@ -304,7 +266,7 @@ pub mod PlayableComponent {
             }
 
             // [Effect] Update achievement progression for the player - Filler tasks
-            let filled_slots = nums.len();
+            let filled_slots = game.level;
             if filled_slots == 10 {
                 achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1);
             } else if filled_slots == 15 {
@@ -334,20 +296,54 @@ pub mod PlayableComponent {
                 achievable.progress(world, player.into(), Task::ReferenceSeven.identifier(), 1);
             }
 
-            // [Effect] Update achievement progression for the player - Streak tasks
-            if streak == 2 {
-                achievable.progress(world, player.into(), Task::StreakerOne.identifier(), 1);
-            } else if streak == 3 {
-                achievable.progress(world, player.into(), Task::StreakerTwo.identifier(), 1);
-            } else if streak == 4 {
-                achievable.progress(world, player.into(), Task::StreakerThree.identifier(), 1);
-            }
+            // [Interaction] Perform post actions
+            post_action(token_address, game_id);
+
+            // [Return] Next number
+            game.number
+        }
+
+        /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
+        fn apply(
+            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, power: u8,
+        ) -> u16 {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Check] Token ownership
+            let token_address = self.get_minigame(world).token_address();
+            assert_token_ownership(token_address, game_id);
+
+            // [Interaction] Perform pre actions
+            pre_action(token_address, game_id);
+
+            // [Check] Game is valid
+            self.assert_valid_game(world, game_id);
+
+            // [Check] Game exists
+            let mut game = store.game(game_id);
+            game.assert_does_exist();
+
+            // [Check] Game is not over
+            game.assert_not_over();
+
+            // [Check] Power is available
+            // TODO: Implement power availability
+
+            // [Effect] Apply power
+            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
+            let power: Power = power.into();
+            power.apply(ref game, ref rand);
+            game.assert_is_valid();
+
+            // [Effect] Update game
+            store.set_game(@game);
 
             // [Interaction] Perform post actions
             post_action(token_address, game_id);
 
             // [Return] Next number
-            game.next_number
+            game.number
         }
     }
 

@@ -12,8 +12,8 @@ pub enum Svg {
 
 #[generate_trait]
 pub impl SvgImpl of SvgTrait {
-    fn eval(next_number: u16, game_complete: bool, game_over: bool) -> Svg {
-        if next_number.is_zero() && !game_over {
+    fn eval(number: u16, game_complete: bool, game_over: bool) -> Svg {
+        if number.is_zero() && !game_over {
             return Svg::New;
         }
         if !game_over {
@@ -25,13 +25,13 @@ pub impl SvgImpl of SvgTrait {
         Svg::GameOver
     }
 
-    fn gen(self: Svg, slots: Span<u16>, num: u16) -> ByteArray {
+    fn gen(self: Svg, slots: Span<u16>, number: u16) -> ByteArray {
         let raw = match self {
             Svg::None => "",
-            Svg::New => svg::new::New::gen(slots, num, false),
-            Svg::Complete => svg::complete::Completed::gen(slots, num, false),
-            Svg::GameOver => svg::game_over::GameOver::gen(slots, num, false),
-            Svg::Progress => svg::progress::Progress::gen(slots, num, false),
+            Svg::New => svg::new::New::gen(slots, number, false),
+            Svg::Complete => svg::complete::Completed::gen(slots, number, false),
+            Svg::GameOver => svg::game_over::GameOver::gen(slots, number, false),
+            Svg::Progress => svg::progress::Progress::gen(slots, number, false),
         };
         "data:image/svg+xml;base64," + svg::index::SvgTrait::encode(raw)
     }

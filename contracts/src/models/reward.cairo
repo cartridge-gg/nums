@@ -7,7 +7,7 @@ pub mod errors {
 #[generate_trait]
 pub impl RewardImpl of RewardTrait {
     #[inline]
-    fn new(tournament_id: u64, address: felt252, game_id: u64) -> Reward {
+    fn new(tournament_id: u16, address: felt252, game_id: u64) -> Reward {
         // [Return] New reward
         Reward { tournament_id: tournament_id, address: address, game_id: game_id, claimed: true }
     }

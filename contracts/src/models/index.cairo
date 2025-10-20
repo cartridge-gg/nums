@@ -43,31 +43,26 @@ pub struct GameConfig {
 pub struct Game {
     #[key]
     pub game_id: u64,
-    pub level: u8,
-    pub next_number: u16,
-    pub reward: u32,
-    pub score: u32,
-    pub tournament_id: u64,
-    pub expires_at: u64,
     pub over: bool,
     pub claimed: bool,
-}
-
-#[derive(Debug, Copy, Drop, Serde)]
-#[dojo::model]
-pub struct Slot {
-    #[key]
-    pub game_id: u64,
-    #[key]
-    pub index: u8,
+    pub level: u8,
+    pub slot_count: u8,
+    pub slot_min: u16,
+    pub slot_max: u16,
     pub number: u16,
+    pub next_number: u16,
+    pub tournament_id: u16,
+    pub powers: u16,
+    pub reward: u32,
+    pub score: u32,
+    pub slots: felt252,
 }
 
 #[dojo::model]
 #[derive(Drop, Serde, IntrospectPacked)]
 pub struct Tournament {
     #[key]
-    pub id: u64,
+    pub id: u16,
     pub entry_count: u32,
     pub start_time: u64,
     pub end_time: u64,
@@ -77,7 +72,7 @@ pub struct Tournament {
 #[derive(Drop, Serde)]
 pub struct Leaderboard {
     #[key]
-    pub tournament_id: u64,
+    pub tournament_id: u16,
     pub capacity: u32,
     pub requirement: u32,
     pub games: Array<u64>,
@@ -87,7 +82,7 @@ pub struct Leaderboard {
 #[derive(Drop, Serde, IntrospectPacked)]
 pub struct Prize {
     #[key]
-    pub tournament_id: u64,
+    pub tournament_id: u16,
     #[key]
     pub address: felt252,
     pub amount: u128,
@@ -97,7 +92,7 @@ pub struct Prize {
 #[derive(Drop, Serde, IntrospectPacked)]
 pub struct Reward {
     #[key]
-    pub tournament_id: u64,
+    pub tournament_id: u16,
     #[key]
     pub address: felt252,
     #[key]

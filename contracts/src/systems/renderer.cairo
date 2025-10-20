@@ -70,11 +70,11 @@ mod Renderer {
         fn game_details_svg(self: @ContractState, token_id: u64) -> ByteArray {
             self.validate_token_ownership(token_id);
             let world = self.world(@NAMESPACE());
-            let (slots, next_number, game_completed, game_over) = self
+            let (slots, number, game_completed, game_over) = self
                 .renderable
                 .get_token_metadata(world, token_id.into());
-            let svg = SvgTrait::eval(next_number, game_completed, game_over);
-            svg.gen(slots, next_number)
+            let svg = SvgTrait::eval(number, game_completed, game_over);
+            svg.gen(slots, number)
         }
     }
 

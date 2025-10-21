@@ -40,11 +40,13 @@ pub mod RenderableComponent {
             let mut store = StoreImpl::new(world);
             let game_id: u64 = token_id.try_into().expect('Game: invalid token ID');
             let game = store.game(game_id);
+            let game_over = game.is_over(game.slots());
             array![
                 GameDetail { name: "Reward", value: format!("{}", game.reward) },
                 GameDetail { name: "Level", value: format!("{}", game.level) },
+                GameDetail { name: "Score", value: format!("{}", game.score) },
                 GameDetail { name: "Tournament ID", value: format!("{}", game.tournament_id) },
-                GameDetail { name: "Game Over", value: format!("{}", game.over) },
+                GameDetail { name: "Game Over", value: format!("{}", game_over) },
             ]
                 .span()
         }

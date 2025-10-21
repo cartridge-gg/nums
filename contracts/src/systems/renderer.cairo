@@ -15,7 +15,7 @@ mod Renderer {
     use game_components::minigame::structs::GameDetail;
     use crate::components::renderable::RenderableComponent;
     use crate::constants::NAMESPACE;
-    use crate::systems::minigame::NAME as GAME_NAME;
+    use crate::systems::minigame::NAME as MINIGAME;
     use crate::types::svg::SvgTrait;
 
     // Components
@@ -82,7 +82,7 @@ mod Renderer {
     impl RendererInternal of RendererInternalTrait {
         fn validate_token_ownership(self: @ContractState, token_id: u64) {
             let mut world = self.world(@NAMESPACE());
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
             let minigame_dispatcher = IMinigameDispatcher { contract_address: game_address };
             let token_address = minigame_dispatcher.token_address();
             require_owned_token(token_address, token_id);

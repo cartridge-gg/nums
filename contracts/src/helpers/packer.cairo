@@ -17,7 +17,6 @@ pub trait PackerTrait<T, U, V> {
 pub impl Packer<
     T,
     +Into<u8, T>,
-    +Into<u64, T>,
     +TryInto<T, u8>,
     +NumericLiteral<T>,
     +PartialEq<T>,

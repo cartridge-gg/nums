@@ -1,4 +1,7 @@
+pub use crate::helpers::bitmap::Bitmap;
+use crate::helpers::deck::DeckTrait;
 pub use crate::models::index::Tournament;
+pub use crate::types::power::{POWER_COUNT, Power, PowerTrait};
 
 pub mod errors {
     pub const TOURNAMENT_ALREADY_EXISTS: felt252 = 'Tournament: already exists';
@@ -20,14 +23,28 @@ pub impl TournamentImpl of TournamentTrait {
         // [Check] Times are valid
         let start_time = Self::start_time(id);
         let end_time = start_time + Self::duration(id);
+        let powers = Self::powers(id);
         // [Return] New tournament
-        Tournament { id: id, entry_count: 0, start_time: start_time, end_time: end_time }
+        Tournament {
+            id: id, powers: powers, entry_count: 0, start_time: start_time, end_time: end_time,
+        }
     }
 
     #[inline]
     fn uuid() -> u16 {
         let now = starknet::get_block_timestamp();
         ((now + FOUR_DAYS) / ONE_WEEK).try_into().unwrap()
+    }
+
+    #[inline]
+    fn powers(id: u16) -> u16 {
+        let mut deck = DeckTrait::new(id.into(), POWER_COUNT.into());
+        let power: Power = deck.draw().into();
+        let bitmap = Bitmap::set(0, power.index());
+        let power: Power = deck.draw().into();
+        let bitmap = Bitmap::set(bitmap, power.index());
+        let power: Power = deck.draw().into();
+        Bitmap::set(bitmap, power.index())
     }
 
     #[inline]
@@ -64,22 +81,32 @@ pub impl TournamentImpl of TournamentTrait {
 
 #[generate_trait]
 pub impl TournamentAssert of AssertTrait {
+    #[inline]
     fn assert_not_exist(self: @Tournament) {
         assert(!self.exists(), errors::TOURNAMENT_ALREADY_EXISTS);
     }
 
+    #[inline]
     fn assert_does_exist(self: @Tournament) {
         assert(self.exists(), errors::TOURNAMENT_DOES_NOT_EXIST);
     }
 
+    #[inline]
     fn assert_has_started(self: @Tournament) {
         assert(self.has_started(), errors::TOURNAMENT_HAS_NOT_STARTED);
     }
 
+    #[inline]
+    fn assert_not_over(self: @Tournament) {
+        assert(!self.is_over(), errors::TOURNAMENT_IS_NOT_OVER);
+    }
+
+    #[inline]
     fn assert_is_over(self: @Tournament) {
         assert(self.is_over(), errors::TOURNAMENT_IS_NOT_OVER);
     }
 
+    #[inline]
     fn assert_valid_time(time: u64) {
         assert(time != 0, errors::TOURNAMENT_INVALID_TIME);
     }

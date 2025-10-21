@@ -20,7 +20,14 @@ pub impl ConfigImpl of ConfigTrait {
         forwarder: ContractAddress,
         owner: ContractAddress,
     ) -> Config {
-        Config { world_resource, nums, vrf, starterpack, forwarder, owner }
+        Config { world_resource, nums, vrf, starterpack, forwarder, owner, count: 1 }
+    }
+
+    #[inline]
+    fn uuid(ref self: Config) -> u32 {
+        let uuid = self.count;
+        self.count += 1;
+        uuid
     }
 
     #[inline]

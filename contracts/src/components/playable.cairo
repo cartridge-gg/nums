@@ -21,19 +21,17 @@ pub mod PlayableComponent {
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::components::tournament::TournamentComponent;
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
-    use crate::constants::{CLIENT_URL, TEN_POW_18};
+    use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID, TEN_POW_18};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
-    use crate::models::tournament::TournamentTrait;
+    use crate::models::tournament::TournamentAssert;
     use crate::random::RandomImpl;
-    use crate::systems::minigame::NAME as GAME_NAME;
-    use crate::systems::renderer::NAME as RENDERER_NAME;
-    use crate::systems::settings::SETTINGS_ID;
-    use crate::types::game_config::DefaultGameConfig;
-    use crate::types::power::{Power, PowerTrait};
+    use crate::systems::minigame::NAME as MINIGAME;
+    use crate::systems::renderer::NAME as RENDERER;
+    use crate::systems::settings::{ISettingsDispatcher, ISettingsDispatcherTrait, NAME as SETTINGS};
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -168,7 +166,17 @@ pub mod PlayableComponent {
             store.nums_disp().burn(amount);
 
             // [Interaction] Mint a game
-            self.mint_game(world, Option::Some(player_name), recipient, false)
+            let game_id = self.mint_game(world, Option::Some(player_name), recipient, false);
+
+            // [Effect] Create game
+            let settings = store.settings(DEFAULT_SETTINGS_ID);
+            let mut game = GameTrait::new(
+                game_id, settings.slot_count, settings.slot_min, settings.slot_max,
+            );
+            store.set_game(@game);
+
+            // [Return] Game ID
+            game_id
         }
 
         fn start(
@@ -187,17 +195,22 @@ pub mod PlayableComponent {
             // [Check] Game is valid
             self.assert_valid_game(world, game_id);
 
-            // [Check] Game does not exist
+            // [Check] Game not started yet
             let game = store.game(game_id);
-            game.assert_not_exist();
+            game.assert_not_started();
+
+            // [Effect] Enter tournament
+            let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
+            let tournament = tournament_component.enter(world);
 
             // [Effect] Create and setup game
-            let config = DefaultGameConfig::default();
+            let settings = self.get_settings(world).game_settings(game_id);
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let number = rand.between::<u16>(config.min_number, config.max_number);
-            let mut game = GameTrait::new(game_id, config);
-            let tournament_id = TournamentTrait::uuid();
-            game.start(tournament_id, number);
+            let number = rand.between::<u16>(settings.slot_min, settings.slot_max);
+            let mut game = GameTrait::new(
+                game_id, settings.slot_count, settings.slot_min, settings.slot_max,
+            );
+            game.start(tournament.id, number, tournament.powers);
             store.set_game(@game);
 
             // [Effect] Update achievement progression for the player - Grinder task
@@ -232,8 +245,13 @@ pub mod PlayableComponent {
             let mut game = store.game(game_id);
             game.assert_does_exist();
 
-            // [Check] Game is not over
+            // [Check] Game has started and is not over
+            game.assert_has_started();
             game.assert_not_over();
+
+            // [Check] Tournament is not over
+            let tournament = store.tournament(game.tournament_id);
+            tournament.assert_not_over();
 
             // [Effect] Place number
             let target_number = game.number;
@@ -324,17 +342,17 @@ pub mod PlayableComponent {
             let mut game = store.game(game_id);
             game.assert_does_exist();
 
-            // [Check] Game is not over
+            // [Check] Game has started and is not over
+            game.assert_has_started();
             game.assert_not_over();
 
-            // [Check] Power is available
-            // TODO: Implement power availability
+            // [Check] Tournament is not over
+            let tournament = store.tournament(game.tournament_id);
+            tournament.assert_not_over();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let power: Power = power.into();
-            power.apply(ref game, ref rand);
-            game.assert_is_valid();
+            game.apply(power, ref rand);
 
             // [Effect] Update game
             store.set_game(@game);
@@ -367,7 +385,7 @@ pub mod PlayableComponent {
                 minigame_token_address: collection_address,
                 game_address: game_address,
                 player_name: player_name,
-                settings_id: Option::Some(SETTINGS_ID),
+                settings_id: Option::Some(DEFAULT_SETTINGS_ID),
                 start: Option::None,
                 end: Option::None,
                 objective_ids: Option::None,
@@ -385,7 +403,7 @@ pub mod PlayableComponent {
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
             IMinigameDispatcher { contract_address: game_address }
         }
 
@@ -393,15 +411,23 @@ pub mod PlayableComponent {
         fn get_renderer_address(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ContractAddress {
-            let (renderer_address, _) = world.dns(@RENDERER_NAME()).unwrap();
+            let (renderer_address, _) = world.dns(@RENDERER()).unwrap();
             renderer_address
+        }
+
+        #[inline]
+        fn get_settings(
+            self: @ComponentState<TContractState>, world: WorldStorage,
+        ) -> ISettingsDispatcher {
+            let (settings_address, _) = world.dns(@SETTINGS()).unwrap();
+            ISettingsDispatcher { contract_address: settings_address }
         }
 
         #[inline]
         fn assert_valid_game(
             self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
         ) {
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
             let minigame = IMinigameDispatcher { contract_address: game_address };
             let token_address = minigame.token_address();
             let token = IMinigameTokenDispatcher { contract_address: token_address };

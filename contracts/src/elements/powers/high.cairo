@@ -8,4 +8,9 @@ pub impl High of PowerTrait {
         game.number = game.next(@game.slots(), ref rand);
         game.slot_min = slot_min;
     }
+
+    #[inline]
+    fn condition() -> u8 {
+        3
+    }
 }

@@ -10,4 +10,9 @@ pub impl Mirror of PowerTrait {
             amplitude - game.number
         }
     }
+
+    #[inline]
+    fn condition() -> u8 {
+        4
+    }
 }

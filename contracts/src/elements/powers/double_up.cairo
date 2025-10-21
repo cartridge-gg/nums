@@ -5,4 +5,9 @@ pub impl DoubleUp of PowerTrait {
     fn apply(ref game: Game, ref rand: Random) {
         game.number = game.number * 2;
     }
+
+    #[inline]
+    fn condition() -> u8 {
+        5
+    }
 }

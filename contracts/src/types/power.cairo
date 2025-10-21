@@ -33,10 +33,38 @@ pub impl PowerImpl of PowerTrait {
     }
 
     #[inline]
+    fn is_unlocked(self: Power, value: u8) -> bool {
+        match self {
+            Power::None => false,
+            Power::Reroll => value >= powers::reroll::Reroll::condition(),
+            Power::High => value >= powers::high::High::condition(),
+            Power::Low => value >= powers::low::Low::condition(),
+            Power::Foresight => value >= powers::foresight::Foresight::condition(),
+            Power::DoubleUp => value >= powers::double_up::DoubleUp::condition(),
+            Power::Halve => value >= powers::halve::Halve::condition(),
+            Power::Mirror => value >= powers::mirror::Mirror::condition(),
+        }
+    }
+
+    #[inline]
     fn index(self: Power) -> u8 {
         // [Return] The index of the power in the bitmap, failing to None
         let index: u8 = self.into();
         index - 1
+    }
+
+    #[inline]
+    fn from(index: u8) -> Power {
+        match index {
+            0 => Power::Reroll,
+            1 => Power::High,
+            2 => Power::Low,
+            3 => Power::Foresight,
+            4 => Power::DoubleUp,
+            5 => Power::Halve,
+            6 => Power::Mirror,
+            _ => Power::None,
+        }
     }
 }
 

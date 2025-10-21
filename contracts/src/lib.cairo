@@ -9,7 +9,7 @@ pub mod systems {
     pub mod play;
     pub mod renderer;
     pub mod settings;
-    // pub mod setup;
+    pub mod setup;
 }
 
 pub mod components {
@@ -28,6 +28,7 @@ pub mod models {
     pub mod merkledrop;
     pub mod prize;
     pub mod reward;
+    pub mod settings;
     pub mod starterpack;
     pub mod tournament;
 }
@@ -55,7 +56,6 @@ pub mod assets {
 }
 
 pub mod types {
-    pub mod game_config;
     pub mod power;
     pub mod svg;
 }

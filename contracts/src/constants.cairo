@@ -48,9 +48,13 @@ pub const BUDOKAN_SEPOLIA: ContractAddress =
 pub const SLOT_SIZE: u128 = 2_u128.pow(12);
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
 
+pub const DEFAULT_SETTINGS_ID: u32 = 0;
+pub const DEFAULT_SLOT_COUNT: u8 = 20;
+pub const DEFAULT_SLOT_MIN: u16 = 1;
+pub const DEFAULT_SLOT_MAX: u16 = 999;
+
+pub const MAX_POWER_COUNT: u8 = 3;
+pub const MAX_SLOT_COUNT: u8 = 20;
+pub const MAX_SLOT_VALUE: u16 = 4095; // 2**12 - 1
+
 pub const ENTRY_PRICE: u128 = 2000;
-pub const ONE_MINUTE: u64 = 60;
-pub const ONE_HOUR: u64 = 60 * ONE_MINUTE;
-pub const ONE_DAY: u64 = 24 * ONE_HOUR;
-pub const ONE_MONTH: u64 = 30 * ONE_DAY;
-pub const ONE_YEAR: u64 = 365 * ONE_DAY;

@@ -13,10 +13,9 @@ pub mod TournamentComponent {
     use crate::models::leaderboard::{LeaderboardAssert, LeaderboardTrait};
     use crate::models::prize::{PrizeAssert, PrizeTrait};
     use crate::models::reward::{RewardAssert, RewardTrait};
-    use crate::models::tournament::{TournamentAssert, TournamentTrait};
+    use crate::models::tournament::{Tournament, TournamentAssert, TournamentTrait};
     use crate::random::RandomImpl;
-    use crate::systems::minigame::NAME as GAME_NAME;
-    use crate::types::game_config::DefaultGameConfig;
+    use crate::systems::minigame::NAME as MINIGAME;
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -53,7 +52,7 @@ pub mod TournamentComponent {
             store.set_tournament(@tournament);
         }
 
-        fn enter(ref self: ComponentState<TContractState>, world: WorldStorage) -> u16 {
+        fn enter(ref self: ComponentState<TContractState>, world: WorldStorage) -> Tournament {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
@@ -68,6 +67,9 @@ pub mod TournamentComponent {
             // [Effect] Enter tournament
             let identifier = TournamentTrait::uuid();
             let mut tournament = store.tournament(identifier);
+            if !tournament.exists() {
+                tournament = TournamentTrait::new(identifier);
+            }
             tournament.enter();
             store.set_tournament(@tournament);
 
@@ -79,7 +81,7 @@ pub mod TournamentComponent {
             store.nums_disp().reward(recipient, amount);
 
             // [Return] Tournament ID
-            tournament.id
+            tournament
         }
 
         fn sponsor(
@@ -200,7 +202,7 @@ pub mod TournamentComponent {
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
             IMinigameDispatcher { contract_address: game_address }
         }
     }

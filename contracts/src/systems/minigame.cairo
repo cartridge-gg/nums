@@ -14,8 +14,8 @@ mod Minigame {
     use starknet::ContractAddress;
     use crate::constants::NAMESPACE;
     use crate::models::game::GameTrait;
-    use crate::systems::minigame::NAME as GAME_NAME;
-    use crate::systems::renderer::NAME as RENDERER_NAME;
+    use crate::systems::minigame::NAME as MINIGAME;
+    use crate::systems::renderer::NAME as RENDERER;
     use crate::systems::settings::NAME as SETTINGS_NAME;
     use crate::{StoreTrait, constants};
 
@@ -49,9 +49,9 @@ mod Minigame {
 
     fn dojo_init(ref self: ContractState, denshokan_address: ContractAddress) {
         let mut world: WorldStorage = self.world(@NAMESPACE());
-        let (game_address, _) = world.dns(@GAME_NAME()).unwrap();
+        let (game_address, _) = world.dns(@MINIGAME()).unwrap();
         let (settings_address, _) = world.dns(@SETTINGS_NAME()).unwrap();
-        let (renderer_address, _) = world.dns(@RENDERER_NAME()).unwrap();
+        let (renderer_address, _) = world.dns(@RENDERER()).unwrap();
         self
             .minigame
             .initializer(

@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Drop, Serde, IntrospectPacked)]
+#[derive(Drop, Serde)]
 #[dojo::model]
 pub struct Config {
     #[key]
@@ -10,6 +10,7 @@ pub struct Config {
     pub starterpack: ContractAddress,
     pub forwarder: ContractAddress,
     pub owner: ContractAddress,
+    pub count: u32,
 }
 
 #[derive(Drop, Serde, IntrospectPacked)]
@@ -63,6 +64,7 @@ pub struct Game {
 pub struct Tournament {
     #[key]
     pub id: u16,
+    pub powers: u16,
     pub entry_count: u32,
     pub start_time: u64,
     pub end_time: u64,
@@ -98,5 +100,19 @@ pub struct Reward {
     #[key]
     pub game_id: u64,
     pub claimed: bool,
+}
+
+#[derive(Introspect, Drop, Serde)]
+#[dojo::model]
+pub struct Settings {
+    #[key]
+    pub id: u32,
+    pub slot_count: u8,
+    pub slot_min: u16,
+    pub slot_max: u16,
+    pub name: ByteArray,
+    pub description: ByteArray,
+    pub created_by: ContractAddress,
+    pub created_at: u64,
 }
 

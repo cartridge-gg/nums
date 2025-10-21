@@ -13,20 +13,34 @@ pub trait IPlay<T> {
 }
 
 #[starknet::interface]
-pub trait IMerkledrop<TContractState> {
-    fn on_claim(ref self: TContractState, recipient: ContractAddress, leaf_data: Span<felt252>);
+pub trait IMerkledrop<T> {
+    fn on_claim(ref self: T, recipient: ContractAddress, leaf_data: Span<felt252>);
+}
+
+#[starknet::interface]
+pub trait ITournament<T> {
+    fn sponsor(ref self: T, tournament_id: u16, token_address: ContractAddress, amount: u128);
+    fn claim(
+        ref self: T,
+        tournament_id: u16,
+        token_address: ContractAddress,
+        game_id: u64,
+        position: u32,
+    );
+    fn rescue(ref self: T, tournament_id: u16, token_address: ContractAddress);
 }
 
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
+    use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
     use crate::components::merkledrop::MerkledropComponent;
     use crate::components::playable::PlayableComponent;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::tournament::TournamentComponent;
     use crate::constants::NAMESPACE;
-    use super::{IMerkledrop, IPlay};
+    use super::{IMerkledrop, IPlay, ITournament};
 
     // Components
 
@@ -134,6 +148,41 @@ pub mod Play {
             let world = self.world(@NAMESPACE());
             // [Effect] Set slot
             self.playable.set(world, game_id, index)
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl TournamentImpl of ITournament<ContractState> {
+        fn sponsor(
+            ref self: ContractState,
+            tournament_id: u16,
+            token_address: ContractAddress,
+            amount: u128,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Sponsor tournament
+            self.tournament.sponsor(world, tournament_id, token_address, amount)
+        }
+
+        fn claim(
+            ref self: ContractState,
+            tournament_id: u16,
+            token_address: ContractAddress,
+            game_id: u64,
+            position: u32,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Claim tournament
+            self.tournament.claim(world, tournament_id, token_address, game_id, position)
+        }
+
+        fn rescue(ref self: ContractState, tournament_id: u16, token_address: ContractAddress) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Rescue tournament
+            self.tournament.rescue(world, tournament_id, token_address)
         }
     }
 }

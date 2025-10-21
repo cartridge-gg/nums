@@ -5,4 +5,9 @@ pub impl Reroll of PowerTrait {
     fn apply(ref game: Game, ref rand: Random) {
         game.number = game.next(@game.slots(), ref rand);
     }
+
+    #[inline]
+    fn condition() -> u8 {
+        2
+    }
 }

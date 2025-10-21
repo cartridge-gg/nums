@@ -1,12 +1,9 @@
-/// Imports
 use core::array::ArrayTrait;
 use crate::constants::SLOT_SIZE;
 pub use crate::helpers::bitmap::Bitmap;
-use crate::helpers::deck::DeckTrait;
 use crate::helpers::packer::Packer;
 pub use crate::models::index::Game;
 use crate::random::{Random, RandomImpl};
-use crate::types::game_config::{DefaultGameConfig, GameConfig};
 pub use crate::types::power::{POWER_COUNT, Power, PowerTrait};
 
 /// Game-related error constants
@@ -19,6 +16,9 @@ pub mod errors {
     pub const GAME_IS_OVER: felt252 = 'Game: is over';
     pub const GAME_ALREADY_STARTED: felt252 = 'Game: already started';
     pub const GAME_SLOT_NOT_EMPTY: felt252 = 'Game: slot not empty';
+    pub const GAME_POWER_NOT_AVAILABLE: felt252 = 'Game: power not available';
+    pub const GAME_POWER_NOT_UNLOCKED: felt252 = 'Game: power not unlocked';
+    pub const GAME_HAS_NOT_STARTED: felt252 = 'Game: has not started';
 }
 
 pub const REWARD_LEVELS: [u32; 21] = [
@@ -34,16 +34,16 @@ pub const HALF_SCALE_FACTOR: u32 = 50;
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
-    fn new(id: u64, config: GameConfig) -> Game {
+    fn new(id: u64, slot_count: u8, slot_min: u16, slot_max: u16) -> Game {
         // [Return] Game
         Game {
             game_id: id,
             over: false,
             claimed: false,
             level: 0,
-            slot_count: config.max_slots,
-            slot_min: config.min_number,
-            slot_max: config.max_number,
+            slot_count: slot_count,
+            slot_min: slot_min,
+            slot_max: slot_max,
             number: 0,
             next_number: 0,
             powers: 0,
@@ -55,26 +55,31 @@ pub impl GameImpl of GameTrait {
     }
 
     #[inline]
-    fn powers(tournament_id: u16) -> u16 {
-        let mut deck = DeckTrait::new(tournament_id.into(), POWER_COUNT.into());
-        let power: Power = deck.draw().into();
-        let bitmap = Bitmap::set(0, power.index());
-        let power: Power = deck.draw().into();
-        let bitmap = Bitmap::set(bitmap, power.index());
-        let power: Power = deck.draw().into();
-        Bitmap::set(bitmap, power.index())
-    }
-
-    #[inline]
-    fn start(ref self: Game, tournament_id: u16, number: u16) {
+    fn start(ref self: Game, tournament_id: u16, number: u16, powers: u16) {
         // [Check] Game has not started yet
         self.assert_not_started();
         // [Check] Number is valid
         GameAssert::assert_valid_number(number);
         // [Effect] Start game
         self.tournament_id = tournament_id;
-        self.powers = Self::powers(tournament_id);
+        self.powers = powers;
         self.number = number;
+    }
+
+    #[inline]
+    fn apply(ref self: Game, index: u8, ref rand: Random) {
+        // [Check] Power is valid
+        let available = Bitmap::get(self.powers, index);
+        assert(available == 1, errors::GAME_POWER_NOT_AVAILABLE);
+        // [Check] Power is unlocked
+        let mut slots = self.slots();
+        let adjacent = Self::adjacent(ref slots);
+        let power: Power = PowerTrait::from(index);
+        assert(power.is_unlocked(adjacent), errors::GAME_POWER_NOT_UNLOCKED);
+        // [Effect] Update power availability
+        self.powers = Bitmap::unset(self.powers, index);
+        // [Effect] Apply power
+        power.apply(ref self, ref rand);
     }
 
     #[inline]
@@ -101,7 +106,58 @@ pub impl GameImpl of GameTrait {
         valid
     }
 
-    /// Validates that the given array of numbers is in ascending order.
+    /// Returns the count of adjacent numbers in the game.
+    fn adjacent(ref slots: Array<u16>) -> u8 {
+        let mut count = 0;
+        let mut previous_filled = false;
+        let mut previous_accounted = false;
+        while let Option::Some(slot) = slots.pop_front() {
+            if slot == 0 {
+                previous_filled = false;
+                previous_accounted = false;
+                continue;
+            }
+            if !previous_filled {
+                previous_filled = true;
+                previous_accounted = false;
+                continue;
+            }
+            if !previous_accounted {
+                count += 2;
+                previous_accounted = true;
+                continue;
+            }
+            count += 1;
+        }
+        count
+    }
+
+    /// Returns the largest streak of consecutive numbers in the game.
+    fn streak(ref slots: Array<u16>) -> u8 {
+        let mut count = 0;
+        let mut streak = 0;
+        let mut previous_number = 0;
+        while let Option::Some(slot) = slots.pop_front() {
+            if slot == 0 {
+                continue;
+            }
+            if previous_number != 0 && slot == previous_number + 1 {
+                count += 1;
+            } else if count > streak {
+                streak = count;
+                count = 1;
+            } else {
+                count = 1;
+            }
+            previous_number = slot;
+        }
+        if count > streak {
+            return count;
+        }
+        streak
+    }
+
+    /// Returns the score of the game.
     fn score(self: @Game, ref slots: Array<u16>) -> u32 {
         // [Compute] Difficulty score
         let step: u32 = (*self.slot_max - *self.slot_min).into()
@@ -303,32 +359,25 @@ pub impl GameAssert of AssertTrait {
     fn assert_not_over(self: @Game) {
         assert(!*self.over, errors::GAME_IS_OVER);
     }
+
+    /// Asserts that the game has started.
+    #[inline]
+    fn assert_has_started(self: @Game) {
+        assert(self.tournament_id != @0, errors::GAME_HAS_NOT_STARTED);
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use core::array::ArrayTrait;
-    use crate::constants::SLOT_SIZE;
+    use crate::constants::{DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, SLOT_SIZE};
     use crate::helpers::packer::Packer;
-    use crate::types::game_config::GameConfig;
     use super::{Game, GameAssert, GameTrait};
-
-    /// Helper function to create a test game configuration
-    /// Uses realistic production values: 20 slots, numbers from 1-999
-    fn test_game_config() -> GameConfig {
-        GameConfig {
-            max_slots: 20,
-            max_number: 999,
-            min_number: 1,
-            entry_cost: 1000,
-            game_duration: 300 // 5 minutes
-        }
-    }
 
     /// Helper function to create a test game instance
     fn create_test_game() -> Game {
-        let mut game = GameTrait::new(1, test_game_config());
-        game.start(1, 10);
+        let mut game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
+        game.start(1, 10, 0b111);
         game
     }
 
@@ -349,7 +398,7 @@ mod tests {
 
     #[test]
     fn test_new_game_creation() {
-        let game = GameTrait::new(1, test_game_config());
+        let game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
         assert(game.game_id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
@@ -603,5 +652,45 @@ mod tests {
         game.slots = pack.try_into().unwrap();
         let high_score = game.score(ref slots);
         assert_eq!(low_score, high_score, "Low and high scores should be equal");
+    }
+
+    #[test]
+    fn test_game_adjacent_several() {
+        let mut slots = array![1, 2, 3, 0, 0, 7, 8, 9, 0, 0, 12, 0, 14, 0, 16, 0, 18, 0, 20];
+        assert_eq!(GameTrait::adjacent(ref slots), 6);
+    }
+
+    #[test]
+    fn test_game_adjacent_none() {
+        let mut slots = array![1, 0, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17, 0, 19, 0];
+        assert_eq!(GameTrait::adjacent(ref slots), 0);
+    }
+
+    #[test]
+    fn test_game_adjacent_full() {
+        let mut slots = array![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        ];
+        assert_eq!(GameTrait::adjacent(ref slots), 20);
+    }
+
+    #[test]
+    fn test_game_streak_several() {
+        let mut slots = array![1, 2, 3, 0, 0, 7, 8, 9, 0, 0, 12, 0, 14, 0, 16, 0, 18, 0, 20];
+        assert_eq!(GameTrait::streak(ref slots), 3);
+    }
+
+    #[test]
+    fn test_game_streak_none() {
+        let mut slots = array![1, 0, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17, 0, 19, 0];
+        assert_eq!(GameTrait::streak(ref slots), 1);
+    }
+
+    #[test]
+    fn test_game_streak_full() {
+        let mut slots = array![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        ];
+        assert_eq!(GameTrait::streak(ref slots), 20);
     }
 }

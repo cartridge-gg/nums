@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.2"
+seed = "nums-v1.0.3"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,17 +9,16 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x056ec80cf6d7567eb109de0eecf708f9cb4bcb0e61a7deda11aa0056eb514602"
+# world_address = "0x056ec80cf6d7567eb109de0eecf708f9cb4bcb0e61a7deda11aa0056eb514602"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
 [migration]
 order_inits = [
-    "NUMS-Claim",
+    "NUMS-Setup",
     "NUMS-Minigame",
     "NUMS-Renderer",
     "NUMS-Settings",
-    "NUMS-Setup",
     "NUMS-Play",
 ]
 skip_contracts = ["NUMS-MockVRF"]
@@ -27,11 +26,10 @@ disable_multicall = true
 
 [writers]
 "NUMS" = [
+    "NUMS-Setup",
+    "NUMS-Minigame",
     "NUMS-Renderer",
     "NUMS-Settings",
-    "NUMS-Minigame",
-    "NUMS-Setup",
-    "NUMS-Claim",
     "NUMS-Play",
 ]
 
@@ -39,15 +37,14 @@ disable_multicall = true
 "NUMS-Minigame" = [
     "0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan address
 ]
-"NUMS-Claim" = [
-    "0x1",                                                                # nums_address = Option::None
-    "0x0",                                                                # Option::Some
-    "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8", # forwarder_address
-    "1798758000",                                                         # claimable_until
+"NUMS-Play" = [
+    "1798758000", # claimable_until
 ]
 "NUMS-Setup" = [
     "0x1",                                                                # nums_address = Option::None
     "0x0",                                                                # Option::Some
     "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
-    "50",                                                                 # burn_pct
+    "0x1",                                                                # starterpack_address
+    "0x1",                                                                # forwarder_address
+    "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
 ]

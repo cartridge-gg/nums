@@ -1,16 +1,21 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+pub fn NAME() -> ByteArray {
+    "MockNumsToken"
+}
+
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[dojo::contract]
 mod MockNumsToken {
     use dojo::world::WorldStorageTrait;
-    use nums::constants::TEN_POW_18;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::{ContractAddress, get_caller_address};
+    use crate::constants::{NAMESPACE, TEN_POW_18};
+    use crate::systems::play::NAME as PLAY_NAME;
     use super::MINTER_ROLE;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -57,9 +62,8 @@ mod MockNumsToken {
     fn dojo_init(ref self: ContractState) {
         self.erc20.initializer("Mock NUMS", "mNUMS");
 
-        let mut world = self.world(@"nums");
-        let game_actions = world.dns_address(@"game_actions").expect('game_actions not found!');
-        let claim_actions = world.dns_address(@"claim_actions").expect('claim_actions not found!');
+        let mut world = self.world(@NAMESPACE());
+        let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
 
         // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
         // deployer account
@@ -68,8 +72,7 @@ mod MockNumsToken {
         self.accesscontrol.initializer();
 
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
-        self.accesscontrol._grant_role(MINTER_ROLE, game_actions);
-        self.accesscontrol._grant_role(MINTER_ROLE, claim_actions);
+        self.accesscontrol._grant_role(MINTER_ROLE, play_address);
     }
 
     #[generate_trait]
@@ -79,7 +82,7 @@ mod MockNumsToken {
         fn reward(ref self: ContractState, recipient: ContractAddress, amount: u64) -> bool {
             self.accesscontrol.assert_only_role(MINTER_ROLE);
 
-            self.erc20.mint(recipient, amount.into() * TEN_POW_18);
+            self.erc20.mint(recipient, amount.into() * TEN_POW_18.into());
             true
         }
 

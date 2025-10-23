@@ -4,41 +4,179 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade#e5b69378616b2d3a0af598b68b015c275e124412"
+source = "git+https://github.com/cartridge-gg/arcade?rev=1b4da94#1b4da947070549a21dc21531092039c84b86da56"
 dependencies = [
  "dojo",
- "dojo_macros",
+ "dojo_cairo_macros",
+]
+
+[[package]]
+name = "alexandria_bytes"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:b1a402330fe5356ca0a4f24d2b8dd1fb0a7e2568bf35c349319cadb53f0ed6fd"
+dependencies = [
+ "alexandria_data_structures",
+ "alexandria_math",
+]
+
+[[package]]
+name = "alexandria_data_structures"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:f011951982ca26ce64c212ca5aa739bd16461dae96a4fb9a8f8e360b1c5e7b94"
+
+[[package]]
+name = "alexandria_encoding"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:19f58f8007245477972989c673aa5523ea6a711cdbee4d8e290809a550306376"
+dependencies = [
+ "alexandria_bytes",
+ "alexandria_data_structures",
+ "alexandria_math",
+ "alexandria_numeric",
+]
+
+[[package]]
+name = "alexandria_math"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:19160f0993a6643e8e71a3bce03e54a37f26b8cad94f21668d7cc9afd08d2047"
+
+[[package]]
+name = "alexandria_numeric"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:607ceb7572c64cd7b7b8f433604d5cffe3b36d6b4c64f9b3f126e0621df5f4eb"
+dependencies = [
+ "alexandria_math",
+ "alexandria_searching",
+]
+
+[[package]]
+name = "alexandria_searching"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:8a05a9729f886595e5f43df9152a9b58c396faf5962d83c778cce2cb9e8e3d0f"
+dependencies = [
+ "alexandria_data_structures",
 ]
 
 [[package]]
 name = "dojo"
-version = "1.7.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
+version = "1.7.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:b792d9c526269f5265dd89f063da5db8daebb461f2dec2cdb712f420187b39a8"
 dependencies = [
- "dojo_macros",
+ "dojo_cairo_macros",
 ]
 
 [[package]]
+name = "dojo_cairo_macros"
+version = "1.7.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:18059a9ac9ec2c0c708baad382728a99970b621b1eaab780fd9a8ec2dc975c98"
+
+[[package]]
 name = "dojo_cairo_test"
-version = "1.7.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
+version = "1.7.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:93fba9557e34d0aa0903092e8f32560b0ce72b66dceea2a51fd571b1217351e3"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
-name = "dojo_macros"
-version = "1.7.0-alpha.4"
-source = "git+https://github.com/dojoengine/dojo?tag=v1.7.0-alpha.4#7b78108ce7aea7753c0a9e34cb83465a76bbf2e4"
+name = "game_components"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "game_components_metagame",
+ "game_components_minigame",
+ "game_components_test_starknet",
+ "game_components_token",
+ "game_components_utils",
+]
+
+[[package]]
+name = "game_components_metagame"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "game_components_minigame",
+ "game_components_token",
+ "game_components_utils",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+]
+
+[[package]]
+name = "game_components_minigame"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "game_components_metagame",
+ "game_components_token",
+ "game_components_utils",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+]
+
+[[package]]
+name = "game_components_test_starknet"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "game_components_metagame",
+ "game_components_minigame",
+ "game_components_token",
+ "game_components_utils",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+]
+
+[[package]]
+name = "game_components_token"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "game_components_metagame",
+ "game_components_minigame",
+ "game_components_test_starknet",
+ "game_components_utils",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+]
+
+[[package]]
+name = "game_components_utils"
+version = "1.5.1"
+source = "git+https://github.com/bal7hazar/game-components?rev=657e9ef#657e9ef16a60dcce20dbbf127888bbef83289c94"
+dependencies = [
+ "alexandria_encoding",
+ "game_components_metagame",
+ "game_components_minigame",
+ "game_components_token",
+ "graffiti",
+]
+
+[[package]]
+name = "graffiti"
+version = "0.1.0"
+source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798ebbcebde504ea299ed556900564ff2"
 
 [[package]]
 name = "nums"
 version = "0.1.0"
 dependencies = [
  "achievement",
+ "alexandria_encoding",
  "dojo",
+ "dojo_cairo_macros",
  "dojo_cairo_test",
- "dojo_macros",
+ "game_components",
+ "graffiti",
  "openzeppelin",
 ]
 

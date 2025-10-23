@@ -1,3 +1,7 @@
+pub fn NAME() -> ByteArray {
+    "MockVRF"
+}
+
 #[dojo::contract]
 mod MockVRF {
     use starknet::ContractAddress;

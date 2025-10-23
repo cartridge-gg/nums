@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+pub fn NAME() -> ByteArray {
+    "MockRewardToken"
+}
+
 #[dojo::contract]
 mod MockRewardToken {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};

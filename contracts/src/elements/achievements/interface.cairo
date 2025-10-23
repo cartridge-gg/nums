@@ -1,5 +1,5 @@
 pub use achievement::types::task::Task as ArcadeTask;
-pub use nums::elements::tasks::index::{Task, TaskTrait};
+pub use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub trait AchievementTrait {
     fn identifier(level: u8) -> felt252;

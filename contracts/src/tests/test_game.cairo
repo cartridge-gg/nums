@@ -1,3 +1,22 @@
+//! # Game Integration Tests
+//!
+//! This module contains integration tests for the game system, testing the interaction
+//! between the game model, game actions system, and the Dojo world state.
+//!
+//! ## Test Coverage
+//!
+//! - Game creation and configuration
+//! - Authorization and access control
+//! - Game state transitions
+//! - Slot management and validation
+//! - Game completion and ending
+//! - Name setting functionality
+//!
+//! ## Test Environment
+//!
+//! Tests use a mock Dojo world with the necessary models and contracts deployed
+//! to simulate real-world game interactions.
+
 #[cfg(test)]
 mod tests {
     use dojo::model::ModelStorage;
@@ -6,14 +25,21 @@ mod tests {
         ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
         spawn_test_world,
     };
-    use nums::models::config::{Config, GameConfig, m_Config};
-    use nums::models::game::{Game, GameTrait, m_Game};
-    use nums::models::name::{Name, m_Name};
-    use nums::models::slot::m_Slot;
-    use nums::systems::game_actions::{
+    use crate::models::config::{Config, GameConfig, m_Config};
+    use crate::models::game::{Game, GameTrait, m_Game};
+    use crate::models::name::{Name, m_Name};
+    use crate::models::slot::m_Slot;
+    use crate::systems::config_actions::{
+        IConfigActionsDispatcher, IConfigActionsDispatcherTrait, config_actions,
+    };
+    use crate::systems::game_actions::{
         IGameActionsDispatcher, IGameActionsDispatcherTrait, game_actions,
     };
 
+    /// Creates the namespace definition for the test world
+    ///
+    /// This defines all the models, events, and contracts that need to be
+    /// available in the test environment.
     fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
             namespace: "nums",
@@ -25,6 +51,7 @@ mod tests {
                 TestResource::Event(game_actions::e_GameCreated::TEST_CLASS_HASH),
                 TestResource::Event(game_actions::e_Inserted::TEST_CLASS_HASH),
                 TestResource::Contract(game_actions::TEST_CLASS_HASH),
+                TestResource::Contract(config_actions::TEST_CLASS_HASH),
             ]
                 .span(),
         };
@@ -90,17 +117,17 @@ mod tests {
         let game: Game = world.read_model((game_id, caller));
 
         let remaining = game.remaining_slots;
-        assert(game.next_number == first_number, 'next number create is wrong');
+        assert(game.number == first_number, 'next number create is wrong');
 
         // set transaction hash so seed is "random"
         starknet::testing::set_transaction_hash(42);
 
-        let next_number = game_actions.set_slot(game_id, 6);
+        let number = game_actions.set_slot(game_id, 6);
         let game: Game = world.read_model((game_id, caller));
-        assert(game.next_number == next_number, 'next number set slot is wrong');
+        assert(game.number == number, 'next number set slot is wrong');
         assert(game.remaining_slots == remaining - 1, 'remaining slots is wrong');
 
-        if next_number > first_number {
+        if number > first_number {
             game_actions.set_slot(game_id, 7);
         } else {
             game_actions.set_slot(game_id, 5);
@@ -131,7 +158,7 @@ mod tests {
             remaining_slots: 20_u8,
             max_number: 1000_u16,
             min_number: 0_u16,
-            next_number: 42_u16,
+            number: 42_u16,
             finished: false,
             challenge_id: Option::None,
         };

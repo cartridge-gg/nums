@@ -1,4 +1,4 @@
-use nums::elements::tasks::interface::TaskTrait;
+use crate::elements::tasks::interface::TaskTrait;
 
 pub impl StreakerOne of TaskTrait {
     fn identifier() -> felt252 {

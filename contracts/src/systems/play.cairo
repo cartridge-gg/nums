@@ -96,7 +96,7 @@ pub mod Play {
         // [Effect] Initialize components
         self.tournament.initialize(world);
         self.playable.initialize(world);
-        self.starterpack.initialize(world);
+        // self.starterpack.initialize(world); // Slip until starterpack is deployed
         self.merkledrop.initialize(world, merkledrop_end);
     }
 

@@ -18,7 +18,7 @@ pub struct StarterpackQuote {
 
 #[starknet::interface]
 pub trait IStarterpack<TContractState> {
-    fn quote(self: @TContractState, starterpack_id: u32, has_referrer: bool) -> StarterpackQuote;
+    // fn quote(self: @TContractState, starterpack_id: u32, has_referrer: bool) -> StarterpackQuote;
     fn register(
         ref self: TContractState,
         implementation: ContractAddress,
@@ -28,27 +28,26 @@ pub trait IStarterpack<TContractState> {
         payment_token: ContractAddress,
         metadata: StarterPackMetadata,
     ) -> u32; // returns starterpack_id
+    // fn update(
+//     ref self: TContractState,
+//     starterpack_id: u32,
+//     implementation: ContractAddress,
+//     referral_percentage: u8,
+//     reissuable: bool,
+//     price: u256,
+//     payment_token: ContractAddress,
+//     metadata: StarterPackMetadata,
+// );
 
-    fn update(
-        ref self: TContractState,
-        starterpack_id: u32,
-        implementation: ContractAddress,
-        referral_percentage: u8,
-        reissuable: bool,
-        price: u256,
-        payment_token: ContractAddress,
-        metadata: StarterPackMetadata,
-    );
+    // fn pause(ref self: TContractState, starterpack_id: u32);
 
-    fn pause(ref self: TContractState, starterpack_id: u32);
+    // fn resume(ref self: TContractState, starterpack_id: u32);
 
-    fn resume(ref self: TContractState, starterpack_id: u32);
-
-    fn issue(
-        ref self: TContractState,
-        recipient: ContractAddress,
-        starterpack_id: u32,
-        referrer: Option<ContractAddress>,
-        referrer_group: Option<felt252>,
-    );
+    // fn issue(
+//     ref self: TContractState,
+//     recipient: ContractAddress,
+//     starterpack_id: u32,
+//     referrer: Option<ContractAddress>,
+//     referrer_group: Option<felt252>,
+// );
 }

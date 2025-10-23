@@ -1,4 +1,4 @@
-use crate::models::settings::Settings as GameSettings;
+use crate::models::setting::Setting;
 
 #[inline]
 pub fn NAME() -> ByteArray {
@@ -7,17 +7,18 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait ISettings<T> {
-    fn add_settings(
+    fn add_setting(
         ref self: T,
         name: ByteArray,
         description: ByteArray,
         slot_count: u8,
         slot_min: u16,
         slot_max: u16,
+        powers: u16,
     ) -> u32;
-    fn setting_details(self: @T, settings_id: u32) -> GameSettings;
-    fn game_settings(self: @T, game_id: u64) -> GameSettings;
-    fn settings_count(self: @T) -> u32;
+    fn setting_details(self: @T, setting_id: u32) -> Setting;
+    fn game_setting(self: @T, game_id: u64) -> Setting;
+    fn setting_count(self: @T) -> u32;
 }
 
 #[dojo::contract]
@@ -32,7 +33,7 @@ mod Settings {
     use openzeppelin::introspection::src5::SRC5Component;
     use crate::constants::NAMESPACE;
     use crate::models::config::ConfigTrait;
-    use crate::models::settings::{Settings as GameSettings, SettingsTrait};
+    use crate::models::setting::{Setting, SettingTrait};
     use crate::store::StoreTrait;
     use crate::systems::minigame::NAME as MINIGAME;
     use super::ISettings;
@@ -81,17 +82,25 @@ mod Settings {
         let mut world: WorldStorage = self.world(@NAMESPACE());
         let minigame = self.get_minigame(world);
         let token_address = minigame.token_address();
-        let settings = SettingsTrait::default();
+        // [Effect] Create setting
+        let mut store = StoreTrait::new(world);
+        let mut config = store.config();
+        let setting_id = config.uuid();
+        let setting = SettingTrait::default(setting_id);
+        store.set_setting(@setting);
+        store.set_config(config);
+        // [Interaction] Create settings
         self
             .settings
             .create_settings(
                 game_address: minigame.contract_address,
-                settings_id: settings.id,
-                name: settings.name.clone(),
-                description: settings.description.clone(),
-                settings: settings.details(),
+                settings_id: setting.id,
+                name: setting.name.clone(),
+                description: setting.description.clone(),
+                settings: setting.details(),
                 minigame_token_address: token_address,
             );
+        store.set_setting(@setting);
     }
 
     #[abi(embed_v0)]
@@ -99,8 +108,8 @@ mod Settings {
         fn settings_exist(self: @ContractState, settings_id: u32) -> bool {
             let world: WorldStorage = self.world(@NAMESPACE());
             let mut store = StoreTrait::new(world);
-            let settings = store.settings(settings_id);
-            settings.exists()
+            let setting = store.setting(settings_id);
+            setting.exists()
         }
     }
 
@@ -109,30 +118,31 @@ mod Settings {
         fn settings_details(self: @ContractState, settings_id: u32) -> GameSettingDetails {
             let world: WorldStorage = self.world(@NAMESPACE());
             let mut store = StoreTrait::new(world);
-            let settings = store.settings(settings_id);
+            let setting = store.setting(settings_id);
             GameSettingDetails {
-                name: settings.name.clone(),
-                description: settings.description.clone(),
-                settings: settings.details(),
+                name: setting.name.clone(),
+                description: setting.description.clone(),
+                settings: setting.details(),
             }
         }
     }
 
     #[abi(embed_v0)]
     impl SettingsSystemsImpl of ISettings<ContractState> {
-        fn add_settings(
+        fn add_setting(
             ref self: ContractState,
             name: ByteArray,
             description: ByteArray,
             slot_count: u8,
             slot_min: u16,
             slot_max: u16,
+            powers: u16,
         ) -> u32 {
             // [Effect] Create settings
             let mut world: WorldStorage = self.world(@NAMESPACE());
             let mut store = StoreTrait::new(world);
             let mut config = store.config();
-            let settings = SettingsTrait::new(
+            let setting = SettingTrait::new(
                 id: config.uuid(),
                 name: name.clone(),
                 description: description.clone(),
@@ -141,10 +151,11 @@ mod Settings {
                 slot_count: slot_count,
                 slot_min: slot_min,
                 slot_max: slot_max,
+                powers: powers,
             );
 
             // [Effect] Update entities
-            store.set_settings(@settings);
+            store.set_setting(@setting);
             store.set_config(config);
 
             // [Interaction] Create settings
@@ -154,33 +165,33 @@ mod Settings {
                 .settings
                 .create_settings(
                     game_address: minigame.contract_address,
-                    settings_id: settings.id,
-                    name: settings.name.clone(),
-                    description: settings.description.clone(),
-                    settings: settings.details(),
+                    settings_id: setting.id,
+                    name: setting.name.clone(),
+                    description: setting.description.clone(),
+                    settings: setting.details(),
                     minigame_token_address: token_address,
                 );
 
             // [Return] Settings ID
-            settings.id
+            setting.id
         }
 
-        fn setting_details(self: @ContractState, settings_id: u32) -> GameSettings {
+        fn setting_details(self: @ContractState, setting_id: u32) -> Setting {
             let world: WorldStorage = self.world(@NAMESPACE());
             let mut store = StoreTrait::new(world);
-            store.settings(settings_id)
+            store.setting(setting_id)
         }
 
-        fn game_settings(self: @ContractState, game_id: u64) -> GameSettings {
+        fn game_setting(self: @ContractState, game_id: u64) -> Setting {
             let world: WorldStorage = self.world(@NAMESPACE());
             let minigame = self.get_minigame(world);
             let token_address = minigame.token_address();
-            let settings_id = self.settings.get_settings_id(game_id, token_address);
+            let setting_id = self.settings.get_settings_id(game_id, token_address);
             let mut store = StoreTrait::new(world);
-            store.settings(settings_id)
+            store.setting(setting_id)
         }
 
-        fn settings_count(self: @ContractState) -> u32 {
+        fn setting_count(self: @ContractState) -> u32 {
             let world: WorldStorage = self.world(@NAMESPACE());
             let mut store = StoreTrait::new(world);
             let config = store.config();
@@ -192,7 +203,7 @@ mod Settings {
     impl InternalImpl of InternalTrait {
         #[inline]
         fn get_minigame(self: @ContractState, world: WorldStorage) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
             IMinigameDispatcher { contract_address: game_address }
         }
     }

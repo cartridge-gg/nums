@@ -11,6 +11,9 @@ pub mod Setup {
     use starknet::ContractAddress;
     use crate::StoreImpl;
     use crate::constants::{NAMESPACE, WORLD_RESOURCE};
+    use crate::mocks::nums::NAME as NUMS;
+    use crate::mocks::starterpack::NAME as STARTERPACK;
+    use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::{Config, ConfigTrait};
     use super::ISetup;
 
@@ -18,7 +21,7 @@ pub mod Setup {
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
-        starterpack_address: ContractAddress,
+        starterpack_address: Option<ContractAddress>,
         forwarder_address: ContractAddress,
         owner_address: ContractAddress,
     ) {
@@ -26,10 +29,21 @@ pub mod Setup {
         let mut world = self.world(@NAMESPACE());
         let mut store = StoreImpl::new(world);
         // [Effect] Create config
-        let nums_address = nums_address
-            .unwrap_or(world.dns_address(@"MockNumsToken").expect('MockNumsToken not found!'));
-        let vrf_address = vrf_address
-            .unwrap_or(world.dns_address(@"MockVRF").expect('MockVRF not found!'));
+        let nums_address = if let Option::Some(nums_address) = nums_address {
+            nums_address
+        } else {
+            world.dns_address(@NUMS()).expect('MockNumsToken not found!')
+        };
+        let vrf_address = if let Option::Some(vrf_address) = vrf_address {
+            vrf_address
+        } else {
+            world.dns_address(@VRF()).expect('MockVRF not found!')
+        };
+        let starterpack_address = if let Option::Some(starterpack_address) = starterpack_address {
+            starterpack_address
+        } else {
+            world.dns_address(@STARTERPACK()).expect('MockStarterpack not found!')
+        };
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
             nums: nums_address,

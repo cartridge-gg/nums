@@ -157,19 +157,19 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Interaction] Pay
-            let sender = starknet::get_caller_address();
+            let player = starknet::get_caller_address();
             let recipient = starknet::get_contract_address();
             let amount: u256 = (ENTRY_PRICE * TEN_POW_18).into();
-            store.nums_disp().transfer_from(sender, recipient, amount);
+            store.nums_disp().transfer_from(player, recipient, amount);
 
             // [Interaction] Burn the entry price
             store.nums_disp().burn(amount);
 
             // [Interaction] Mint a game
-            let game_id = self.mint_game(world, Option::Some(player_name), recipient, false);
+            let game_id = self.mint_game(world, Option::Some(player_name), player, false);
 
             // [Effect] Create game
-            let settings = store.settings(DEFAULT_SETTINGS_ID);
+            let settings = store.setting(DEFAULT_SETTINGS_ID);
             let mut game = GameTrait::new(
                 game_id, settings.slot_count, settings.slot_min, settings.slot_max,
             );
@@ -192,31 +192,34 @@ pub mod PlayableComponent {
             // [Check] Perform pre actions
             pre_action(token_address, game_id);
 
-            // [Check] Game is valid
-            self.assert_valid_game(world, game_id);
-
             // [Check] Game not started yet
             let game = store.game(game_id);
             game.assert_not_started();
 
-            // [Effect] Enter tournament
-            let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
-            let tournament = tournament_component.enter(world);
-
             // [Effect] Create and setup game
-            let settings = self.get_settings(world).game_settings(game_id);
+            let settings = self.get_settings(world).game_setting(game_id);
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let number = rand.between::<u16>(settings.slot_min, settings.slot_max);
             let mut game = GameTrait::new(
                 game_id, settings.slot_count, settings.slot_min, settings.slot_max,
             );
-            game.start(tournament.id, number, tournament.powers);
-            store.set_game(@game);
 
-            // [Effect] Update achievement progression for the player - Grinder task
-            let player = starknet::get_caller_address();
-            let achievable = get_dep_component!(@self, Achievable);
-            achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
+            // [Check] Handle default and specific games separately
+            if !self.is_default_game(world, game_id) {
+                // [Effect] Start specific game
+                game.start(0, number, 0); // TODO: Handle settings powers
+            } else {
+                // [Effect] Enter tournament
+                let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
+                let tournament = tournament_component.enter(world);
+                // [Effect] Start tournament game
+                game.start(tournament.id, number, tournament.powers);
+                // [Effect] Update achievement progression for the player - Grinder task
+                let player = starknet::get_caller_address();
+                let achievable = get_dep_component!(@self, Achievable);
+                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
+            }
+            store.set_game(@game);
 
             // [Interaction] Perform post actions
             post_action(token_address, game_id);
@@ -238,9 +241,6 @@ pub mod PlayableComponent {
             // [Interaction] Perform pre actions
             pre_action(token_address, game_id);
 
-            // [Check] Game is valid
-            self.assert_valid_game(world, game_id);
-
             // [Check] Game exists
             let mut game = store.game(game_id);
             game.assert_does_exist();
@@ -248,10 +248,6 @@ pub mod PlayableComponent {
             // [Check] Game has started and is not over
             game.assert_has_started();
             game.assert_not_over();
-
-            // [Check] Tournament is not over
-            let tournament = store.tournament(game.tournament_id);
-            tournament.assert_not_over();
 
             // [Effect] Place number
             let target_number = game.number;
@@ -262,6 +258,19 @@ pub mod PlayableComponent {
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             game.update(ref rand);
             store.set_game(@game);
+
+            // [Check] Handle specific games and return prematurely
+            if !self.is_default_game(world, game_id) {
+                // [Interaction] Perform post actions
+                post_action(token_address, game_id);
+
+                // [Return] Game number
+                return game.number;
+            }
+
+            // [Check] Tournament is not over
+            let tournament = store.tournament(game.tournament_id);
+            tournament.assert_not_over();
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
@@ -335,9 +344,6 @@ pub mod PlayableComponent {
             // [Interaction] Perform pre actions
             pre_action(token_address, game_id);
 
-            // [Check] Game is valid
-            self.assert_valid_game(world, game_id);
-
             // [Check] Game exists
             let mut game = store.game(game_id);
             game.assert_does_exist();
@@ -346,9 +352,11 @@ pub mod PlayableComponent {
             game.assert_has_started();
             game.assert_not_over();
 
-            // [Check] Tournament is not over
-            let tournament = store.tournament(game.tournament_id);
-            tournament.assert_not_over();
+            // [Check] Handle default and specific games separately
+            if self.is_default_game(world, game_id) {
+                let tournament = store.tournament(game.tournament_id);
+                tournament.assert_not_over();
+            }
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -424,9 +432,9 @@ pub mod PlayableComponent {
         }
 
         #[inline]
-        fn assert_valid_game(
+        fn is_default_game(
             self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
-        ) {
+        ) -> bool {
             let (game_address, _) = world.dns(@MINIGAME()).unwrap();
             let minigame = IMinigameDispatcher { contract_address: game_address };
             let token_address = minigame.token_address();
@@ -434,7 +442,7 @@ pub mod PlayableComponent {
             let token_metadata = token.token_metadata(game_id);
             let minter = IMinigameTokenMinterDispatcher { contract_address: token_address };
             let minted_by_address = minter.get_minter_address(token_metadata.minted_by);
-            assert(minted_by_address == starknet::get_contract_address(), 'Game is not valid');
+            minted_by_address == starknet::get_contract_address()
         }
     }
 }

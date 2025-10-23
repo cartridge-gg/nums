@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+pub fn NAME() -> ByteArray {
+    "MockNumsToken"
+}
+
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[dojo::contract]

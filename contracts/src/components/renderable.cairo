@@ -24,7 +24,7 @@ pub mod RenderableComponent {
         TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         fn get_token_name(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
-            format!("{} #{}", NAME(), token_id)
+            NAME()
         }
 
         fn get_token_description(

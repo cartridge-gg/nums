@@ -1,4 +1,4 @@
-world_address = "0x04cae8373db3191fd986cb3d861f69075d396d04c2fb97f8c0d78a0ad30023bd"
+world_address = "0x5ec2cbcd9447aa5e2572093c8ec7797af58cbf529a2a79206a6c06f425fb342"
 rpc = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [server]
@@ -8,14 +8,13 @@ http_cors_origins = ["*"]
 optimistic = false
 
 [indexing]
-world_block = 2115600
+world_block = 0
 controllers = true
 pending = true
 polling_interval = 250
-max_concurrent_tasks = 2
 contracts = [
-    "ERC20:0x0112de3f6eae7537692edf4d735b6e253ad2afc531e733d5893b7a048ba26fd1", # NUMS
-    "ERC20:0x069683675e2892e4d65088bfbf7170fab0a32f1de7aaa35acd06943ca81252e4", # REW
+    "ERC20:0x6e091ffc766b27bdb68b525be77177036fb96707f4708fecd34768cb590cbfe",   # NUMS
+    "ERC721:0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan
 ]
 
 

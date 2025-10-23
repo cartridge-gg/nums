@@ -21,7 +21,6 @@ pub mod TournamentComponent {
     // Constants
 
     pub const ENTRY_PRICE: u128 = 2000;
-    pub const PRIZE_SPOTS: u8 = 5;
 
     // Storage
 

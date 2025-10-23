@@ -5,7 +5,7 @@ use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::starterpack::IStarterpackDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{
-    Config, Game, Leaderboard, Merkledrop, Prize, Reward, Settings, Starterpack, Tournament,
+    Config, Game, Leaderboard, Merkledrop, Prize, Reward, Setting, Starterpack, Tournament,
 };
 
 #[derive(Drop)]
@@ -118,13 +118,13 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(merkledrop)
     }
 
-    // Settings
+    // Setting
 
-    fn settings(ref self: Store, settings_id: u32) -> Settings {
-        self.world.read_model(settings_id)
+    fn setting(ref self: Store, setting_id: u32) -> Setting {
+        self.world.read_model(setting_id)
     }
 
-    fn set_settings(ref self: Store, settings: @Settings) {
-        self.world.write_model(settings)
+    fn set_setting(ref self: Store, setting: @Setting) {
+        self.world.write_model(setting)
     }
 }

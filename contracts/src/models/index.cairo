@@ -104,12 +104,13 @@ pub struct Reward {
 
 #[derive(Introspect, Drop, Serde)]
 #[dojo::model]
-pub struct Settings {
+pub struct Setting {
     #[key]
     pub id: u32,
     pub slot_count: u8,
     pub slot_min: u16,
     pub slot_max: u16,
+    pub powers: u16,
     pub name: ByteArray,
     pub description: ByteArray,
     pub created_by: ContractAddress,

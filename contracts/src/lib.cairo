@@ -28,7 +28,7 @@ pub mod models {
     pub mod merkledrop;
     pub mod prize;
     pub mod reward;
-    pub mod settings;
+    pub mod setting;
     pub mod starterpack;
     pub mod tournament;
 }
@@ -109,6 +109,7 @@ pub mod elements {
 pub mod mocks {
     pub mod nums;
     pub mod reward;
+    pub mod starterpack;
     pub mod vrf;
 }
 

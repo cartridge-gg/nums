@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
-    "address": "0x3e9de5354a43dcc0daf083da2a87a099ce9ea3cec1e8c442f2f448eed6b9c12",
-    "seed": "nums-v1.0.6",
+    "address": "0x2332b8b17a3ebe27a90100988fb980d5121dc5edb98392c20a3df2f57f9b02a",
+    "seed": "nums-v1.0.8",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -1479,7 +1479,7 @@
   },
   "contracts": [
     {
-      "address": "0x4d8ec93cc62296ecbd490406b034ada13bc4db5552f30d17f6e01270db7d62a",
+      "address": "0x354fdf3fe7666331ecde78619244cf72f7689ddb14de1fa642bba2dfbc90807",
       "class_hash": "0x34b8362d3406f3b86f9dddd5eb5cdcb574801e9a46afb439cd2e278d115196f",
       "abi": [
         {
@@ -2019,7 +2019,7 @@
       ]
     },
     {
-      "address": "0x6e091ffc766b27bdb68b525be77177036fb96707f4708fecd34768cb590cbfe",
+      "address": "0x222e607cde6c19f110d5edafca0440a74e4c4fe6baa16ddac18ac58cb5ada0e",
       "class_hash": "0x7b1eb1920c26c631c990d3bcce350a8a309dec742a2361b7f5878a21a3786a1",
       "abi": [
         {
@@ -2947,7 +2947,7 @@
       ]
     },
     {
-      "address": "0x253c56a4cc4c5de5b6a9c7022f5288cf377bb77654b69542fe46d2438cb5e83",
+      "address": "0x2614b0fb00e2491fb4567d3530d9ec12639fc61264e36ada4be4387233cbe93",
       "class_hash": "0x29e06c2b52b9eaf54568fdadda8f433ae93ece3ccb8232d79aa915e025eb3a6",
       "abi": [
         {
@@ -3393,7 +3393,7 @@
       ]
     },
     {
-      "address": "0x2791bbcaaf81962eb5bd218811bca63c0fd83b8893aa3d13d554414722a2dd8",
+      "address": "0x5275ae9f03ad0a5318a1dfda46bd21525406bd669caa2a4904f90090031e2aa",
       "class_hash": "0x58945ea9797eff4f5d51881b67b4c8cc14ddad18ed572c229ef3b566f33ca89",
       "abi": [
         {
@@ -3663,8 +3663,8 @@
       ]
     },
     {
-      "address": "0x6986a0d0fd3bddefa4843440cc9ece556ed852c68b7f381b4dd5c9d0874b522",
-      "class_hash": "0x734b11845b58067fdf7cdb3aaf161aec6c7c299ca02b27e932d5112f63e5347",
+      "address": "0x33a1271e3a8274bb49d63885bdd921d899a13138417c335d8f4bdb9303b29d8",
+      "class_hash": "0x3362fe2d5af5e89f73aec1fcc4e6675f4456f6aacdd3d7373c441449f7b942f",
       "abi": [
         {
           "type": "impl",
@@ -4112,7 +4112,7 @@
       ]
     },
     {
-      "address": "0x5e4d19ab021083b7ab810d0855f3287431a18b1bf2fd0fd4b29f8381ee8fd8f",
+      "address": "0x515d4d9c13c7ae7f811673f98c9770291fae978c0b27fadb418f89b506d1713",
       "class_hash": "0x2d948bd20aaf571fa9718d8a1ec807b367a6a59e12fb3d25726d54f3f3dd8fc",
       "abi": [
         {
@@ -4409,8 +4409,8 @@
       ]
     },
     {
-      "address": "0x4583fa3573a62338116eeb9e4da0552881e9fc3818004bf07f32493216f94c0",
-      "class_hash": "0x5fb618298686ae5c4e10f71281c472d94259553c0a85321cb2d39728ae78860",
+      "address": "0x728deca627dc5ed19e7f73632d4b7e4a9c141c15faa87d2f6c45cc65e8b8ba5",
+      "class_hash": "0x218b4cea719985c0ca9413feb96f525217197b5f9b92a0e4c78d48cdf5cd4a8",
       "abi": [
         {
           "type": "impl",
@@ -4605,6 +4605,10 @@
               "type": "core::integer::u16"
             },
             {
+              "name": "powers",
+              "type": "core::integer::u16"
+            },
+            {
               "name": "name",
               "type": "core::byte_array::ByteArray"
             },
@@ -4648,6 +4652,10 @@
                 },
                 {
                   "name": "slot_max",
+                  "type": "core::integer::u16"
+                },
+                {
+                  "name": "powers",
                   "type": "core::integer::u16"
                 }
               ],
@@ -4870,8 +4878,8 @@
       ]
     },
     {
-      "address": "0x339d8376511e138ee69aa850a2bc174fee2442a33405847163a017d636dc808",
-      "class_hash": "0x3e7621861951af3e371f21d73793cb6d28bca6ce1827c0ba8662399a1c4e792",
+      "address": "0x6d932e1a6ff33507f76bea7994f04b5727c01bad0122c8f507e9499ac40e565",
+      "class_hash": "0x491ade036002f4c38095374bb75aafb39e50381f8c7dd7e766be6d4857baaa5",
       "abi": [
         {
           "type": "impl",
@@ -4960,6 +4968,10 @@
             {
               "name": "owner_address",
               "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "entry_price",
+              "type": "core::integer::u128"
             }
           ],
           "outputs": [],
@@ -4997,6 +5009,10 @@
             {
               "name": "owner",
               "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "entry_price",
+              "type": "core::integer::u128"
             },
             {
               "name": "count",
@@ -5136,7 +5152,8 @@
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
         "0x1",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
-        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
+        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
+        "0x7D0"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
@@ -5151,7 +5168,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x408a119548fd32976908263bebbb78ea633a9f62f84ab0727a3f7cf3e759815",
+      "class_hash": "0x3997788305bd07f62c0d59d24f43d1cf19e436606201b712c2dbde36d42c8db",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -5187,7 +5204,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x462c64d1f9ee4cf1874bf3a29cc59986b0b0e2dd08f609ba423e9595f70d963",
+      "class_hash": "0x477dd60658ada3843adbce5659c1ae68121f5bc7e252a9a6eb6c388d1d0d3c8",
       "tag": "NUMS-Setting",
       "selector": "0x4ace4b74c84db14ebfabb6dfa56f9fb82f54f176cda5ea0d6c32af6fecfc5e4"
     },

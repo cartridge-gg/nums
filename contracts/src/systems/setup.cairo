@@ -24,6 +24,7 @@ pub mod Setup {
         starterpack_address: Option<ContractAddress>,
         forwarder_address: ContractAddress,
         owner_address: ContractAddress,
+        entry_price: u128,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -51,6 +52,7 @@ pub mod Setup {
             starterpack: starterpack_address,
             forwarder: forwarder_address,
             owner: owner_address,
+            entry_price: entry_price,
         );
         store.set_config(config);
     }

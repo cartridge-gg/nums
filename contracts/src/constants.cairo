@@ -45,5 +45,3 @@ pub const DEFAULT_SLOT_MAX: u16 = 999;
 pub const MAX_POWER_COUNT: u8 = 3;
 pub const MAX_SLOT_COUNT: u8 = 20;
 pub const MAX_SLOT_VALUE: u16 = 4095; // 2**12 - 1
-
-pub const ENTRY_PRICE: u128 = 2000;

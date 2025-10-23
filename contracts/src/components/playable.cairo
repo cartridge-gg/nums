@@ -25,6 +25,7 @@ pub mod PlayableComponent {
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
+    use crate::models::config;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
     use crate::models::tournament::TournamentAssert;
@@ -33,10 +34,6 @@ pub mod PlayableComponent {
     use crate::systems::renderer::NAME as RENDERER;
     use crate::systems::settings::{ISettingsDispatcher, ISettingsDispatcherTrait, NAME as SETTINGS};
     use crate::{StoreImpl, StoreTrait};
-
-    // Constants
-
-    pub const ENTRY_PRICE: u128 = 2000;
 
     // Storage
 
@@ -155,11 +152,12 @@ pub mod PlayableComponent {
         ) -> u64 {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
+            let config = store.config();
 
             // [Interaction] Pay
             let player = starknet::get_caller_address();
             let recipient = starknet::get_contract_address();
-            let amount: u256 = (ENTRY_PRICE * TEN_POW_18).into();
+            let amount: u256 = (config.entry_price * TEN_POW_18).into();
             store.nums_disp().transfer_from(player, recipient, amount);
 
             // [Interaction] Burn the entry price

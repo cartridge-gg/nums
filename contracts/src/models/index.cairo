@@ -10,6 +10,7 @@ pub struct Config {
     pub starterpack: ContractAddress,
     pub forwarder: ContractAddress,
     pub owner: ContractAddress,
+    pub entry_price: u128,
     pub count: u32,
 }
 

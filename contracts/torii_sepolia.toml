@@ -1,4 +1,4 @@
-world_address = "0x5ec2cbcd9447aa5e2572093c8ec7797af58cbf529a2a79206a6c06f425fb342"
+world_address = "0x02332b8b17a3ebe27a90100988fb980d5121dc5edb98392c20a3df2f57f9b02a"
 rpc = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [server]
@@ -13,7 +13,7 @@ controllers = true
 pending = true
 polling_interval = 250
 contracts = [
-    "ERC20:0x6e091ffc766b27bdb68b525be77177036fb96707f4708fecd34768cb590cbfe",   # NUMS
+    "ERC20:0x222e607cde6c19f110d5edafca0440a74e4c4fe6baa16ddac18ac58cb5ada0e",   # NUMS
     "ERC721:0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan
 ]
 

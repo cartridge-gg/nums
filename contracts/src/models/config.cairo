@@ -19,8 +19,18 @@ pub impl ConfigImpl of ConfigTrait {
         starterpack: ContractAddress,
         forwarder: ContractAddress,
         owner: ContractAddress,
+        entry_price: u128,
     ) -> Config {
-        Config { world_resource, nums, vrf, starterpack, forwarder, owner, count: 0 }
+        Config {
+            world_resource: world_resource,
+            nums: nums,
+            vrf: vrf,
+            starterpack: starterpack,
+            forwarder: forwarder,
+            owner: owner,
+            entry_price: entry_price,
+            count: 0,
+        }
     }
 
     #[inline]

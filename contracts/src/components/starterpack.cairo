@@ -3,7 +3,7 @@ pub mod StarterpackComponent {
     // Imports
 
     use dojo::world::WorldStorage;
-    use crate::constants::{DESCRIPTION, ENTRY_PRICE, IMAGE, NAME, TEN_POW_18};
+    use crate::constants::{DESCRIPTION, IMAGE, NAME, TEN_POW_18};
     use crate::interfaces::starterpack::{IStarterpackDispatcherTrait, StarterPackMetadata};
     use crate::models::config;
     use crate::models::config::ConfigAssert;
@@ -28,6 +28,7 @@ pub mod StarterpackComponent {
         fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
+            let config = store.config();
             // [Interaction] Register starterpack
             let starterpack_id = store
                 .starterpack_disp()
@@ -35,7 +36,7 @@ pub mod StarterpackComponent {
                     implementation: starknet::get_contract_address(),
                     referral_percentage: 0,
                     reissuable: false,
-                    price: (ENTRY_PRICE * TEN_POW_18).into(),
+                    price: (config.entry_price * TEN_POW_18).into(),
                     payment_token: store.nums_disp().contract_address,
                     metadata: StarterPackMetadata {
                         name: NAME(), description: DESCRIPTION(), image_uri: IMAGE(),

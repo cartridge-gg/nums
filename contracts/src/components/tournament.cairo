@@ -18,10 +18,6 @@ pub mod TournamentComponent {
     use crate::systems::minigame::NAME as MINIGAME;
     use crate::{StoreImpl, StoreTrait};
 
-    // Constants
-
-    pub const ENTRY_PRICE: u128 = 2000;
-
     // Storage
 
     #[storage]
@@ -74,7 +70,8 @@ pub mod TournamentComponent {
 
             // [Interaction] Mint the share to the prize pool
             let config = store.config();
-            let (_, to_prize) = config.split(ENTRY_PRICE.into());
+            let entry_price: u256 = config.entry_price.into();
+            let (_, to_prize) = config.split(entry_price);
             let recipient = starknet::get_contract_address();
             let amount: u64 = to_prize.try_into().unwrap();
             store.nums_disp().reward(recipient, amount);

@@ -93,8 +93,16 @@ const data: { rank: number, player: string, score: number, numsReward: number, p
     score: 14,
     numsReward: 1815,
   },
+  { rank: 13, player: "jack", score: 14, numsReward: 1815 },
+  { rank: 14, player: "sam", score: 14, numsReward: 1815 },
+  { rank: 15, player: "john", score: 14, numsReward: 1815 },
+  { rank: 16, player: "jane", score: 14, numsReward: 1815 },
+  { rank: 17, player: "jim", score: 14, numsReward: 1815 },
+  { rank: 18, player: "jill", score: 14, numsReward: 1815 },
+  { rank: 19, player: "jack", score: 14, numsReward: 1815 },
+  { rank: 20, player: "sam", score: 14, numsReward: 1815 },
 ]
-const bigdata = [...data].map((item, index) => ({ ...item, rank: index + 1 }));
+const bigdata = [...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data].map((item, index) => ({ ...item, rank: index + 1 }));
 
 export type LeaderboardProps = {
 }

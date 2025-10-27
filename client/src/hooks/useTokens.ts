@@ -97,8 +97,6 @@ export function useTokens(
     return tokenBalances.find(
       (balance) => 
         BigInt(balance.contract_address) === BigInt(token.contract_address)
-      //  &&
-      //   BigInt(balance.token_id || 0) === BigInt(token.token_id || 0)
     );
   }
 

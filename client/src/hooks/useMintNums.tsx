@@ -12,7 +12,7 @@ export const useMintNums = () => {
     try {
       if (!account?.address) return false;
       const numsAddress = getNumsAddress(chain.id);
-      const { transaction_hash } = await account!.execute([
+      await account!.execute([
         {
           contractAddress: numsAddress,
           entrypoint: "mint",
@@ -22,7 +22,6 @@ export const useMintNums = () => {
           ],
         },
       ]);
-      console.log({ transaction_hash });
 
       return true;
     } catch (e) {

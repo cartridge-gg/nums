@@ -83,3 +83,7 @@ export const getNumsAddress = (chainId: bigint) => {
   if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "MockNumsToken");
 };
+
+export const getGameAddress = (chainId: bigint) => {
+  return getContractAddress(chainId, NAMESPACE, "Play")
+};

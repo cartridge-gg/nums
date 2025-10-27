@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import { TournamentModel } from "@/models/tournament";
 import { Leaderboard } from "@/components/leaderboard";
 import { Header } from "@/components/header";
+import { Inventory } from "@/components/inventory";
+import { useBuyGame } from "@/hooks/useBuyGame";
+import { Button } from "@/components/ui/button";
 
 export const Home = () => {
   return (
@@ -54,6 +57,7 @@ const LiveIcon = () => (
 export const Main = () => {
   const { tournaments } = useTournaments();
   const [selectedTournament, setSelectedTournament] = useState<number | undefined>();
+  const [openModal, setOpenModal] = useState<boolean>(true);
 
   useEffect(() => {
     if (!tournaments || tournaments.length === 0 || selectedTournament !== undefined) return;
@@ -66,8 +70,19 @@ export const Main = () => {
 
   return (
     <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16 py-12">
+      <div className={cn("absolute top-0 left-0 w-full h-full z-10", !openModal && "invisible")}>
+        <div className={cn("p-6 w-full h-full flex justify-center items-center")}>
+          {openModal && <Inventory close={() => setOpenModal(false)} />}
+        </div>
+      </div>
       <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4">
-        <JackpotSelector tournaments={tournaments || []} selected={selectedTournament} handleSelect={handleSelect} />
+        <div className="flex justify-between items-center">
+          <JackpotSelector tournaments={tournaments || []} selected={selectedTournament} handleSelect={handleSelect} />
+          <div className="flex gap-3">
+            <BuyGameButton />
+            <Play onClick={() => setOpenModal(true)} />
+          </div>
+        </div>
         {!!selectedTournament && <JackpotDetails tournament={tournaments?.find((tournament) => tournament.id === selectedTournament) as TournamentModel} />}
         <div className="flex-1 min-h-0">
           <Leaderboard />
@@ -76,6 +91,24 @@ export const Main = () => {
     </div>
   )
 }
+
+export const Play = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <Button variant="default" className="h-12 px-4 py-2 text-2xl tracking-wider cursor-pointer" onClick={onClick}>
+      <p className="translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.25)' }}>Play!</p>
+    </Button>
+  );
+};
+
+export const BuyGameButton = () => {
+  const { buyGame } = useBuyGame();
+  return (
+    <Button variant="default" className="h-12 px-4 py-2 text-2xl tracking-wider" onClick={() => buyGame()}>
+      <p className="translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.25)' }}>Buy</p>
+    </Button>
+  );
+};
+
 export const JackpotSelector = ({ tournaments, selected, handleSelect }: { tournaments: TournamentModel[], selected: number | undefined, handleSelect: (value: string) => void }) => {
   const selectedTournament = tournaments.find((tournament) => tournament.id === selected);
 

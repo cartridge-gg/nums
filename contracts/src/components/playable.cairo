@@ -28,6 +28,7 @@ pub mod PlayableComponent {
     use crate::models::config;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
+    use crate::models::starterpack::StarterpackTrait as PackTrait;
     use crate::models::tournament::TournamentAssert;
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as MINIGAME;
@@ -105,8 +106,15 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
-            // [Interaction] Mint a game
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+            let pack = store.starterpack(starterpack_id);
+
+            // [Interaction] Mint a game and burn the entry price
             while quantity > 0 {
+                // [Interaction] Burn the entry price
+                store.nums_disp().burn(pack.amount());
+                // [Interaction] Mint a game
                 self.mint_game(world, Option::None, recipient, true);
                 quantity -= 1;
             }

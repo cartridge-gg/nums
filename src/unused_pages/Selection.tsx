@@ -15,7 +15,7 @@ import Header from "../components/Header";
 
 import { useExecuteCall } from "../hooks/useExecuteCall";
 import { Footer } from "../components/Footer";
-import { useJackpots } from "../context/jackpots";
+import { useJackpots } from "../context/tournaments";
 import { TimeAgo } from "../components/ui/time-ago";
 import Play from "../components/Play";
 import { useNavigate } from "react-router-dom";

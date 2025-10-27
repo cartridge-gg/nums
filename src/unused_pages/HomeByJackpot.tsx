@@ -26,7 +26,7 @@ import { InfoIcon } from "../components/icons/Info";
 import { CaretIcon } from "../components/icons/Caret";
 import InfoOverlay from "../components/Info";
 import { Footer } from "../components/Footer";
-import { useJackpots } from "@/context/jackpots";
+import { useJackpots } from "@/context/tournaments";
 import { Jackpot, JackpotFactory, TokenTypeERC20 } from "@/bindings";
 import { TokenBalanceUi } from "@/components/ui/token-balance";
 import useChain from "@/hooks/chain";

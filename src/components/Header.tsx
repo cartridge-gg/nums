@@ -3,9 +3,9 @@ import { Button } from "./Button";
 import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useConnect } from "@starknet-react/core";
 import { LogoIcon } from "./icons/Logo";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ControllerIcon } from "./icons/Controller";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAudio } from "@/context/audio";
 import { SoundOffIcon } from "./icons/SoundOff";
 import { SoundOnIcon } from "./icons/SoundOn";
@@ -14,13 +14,11 @@ import useChain from "@/hooks/chain";
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import { useMintNums } from "@/hooks/useMintNums";
 import { num } from "starknet";
-import { sleep } from "@/utils/sleep";
 import { GiftIcon } from "./icons/Gift";
 
 const Header = () => {
   const { connectAsync, connectors } = useConnect();
   const navigate = useNavigate();
-  const { gameId } = useParams();
   const { address, connector } = useAccount();
   const { isMuted, toggleMute } = useAudio();
   const [username, setUsername] = useState<string | null>(null);

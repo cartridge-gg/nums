@@ -3,7 +3,7 @@ import { useDojoSdk } from "@/hooks/dojo";
 import { useTokens } from "@/hooks/useTokens";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { num, uint256 } from "starknet";
+import { addAddressPadding, num, uint256 } from "starknet";
 import { TokenBalanceUi } from "./ui/token-balance";
 import { ShowDiff } from "./ShowDiff";
 import { Box } from "@chakra-ui/react";
@@ -19,8 +19,8 @@ export const TokenBalance = ({
 
   const { tokens, balances, getBalance, toDecimal } = useTokens(
     {
-      accountAddresses: account?.address ? [account?.address] : [],
-      contractAddresses: [num.toHex64(contractAddress)],
+      accountAddresses: account?.address ? [addAddressPadding(account.address)] : [],
+      contractAddresses: [addAddressPadding(num.toHex64(contractAddress))],
     },
     true
   );

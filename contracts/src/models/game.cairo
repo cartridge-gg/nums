@@ -37,7 +37,7 @@ pub impl GameImpl of GameTrait {
     fn new(id: u64, slot_count: u8, slot_min: u16, slot_max: u16) -> Game {
         // [Return] Game
         Game {
-            game_id: id,
+            id: id,
             over: false,
             claimed: false,
             level: 0,
@@ -321,13 +321,13 @@ pub impl GameAssert of AssertTrait {
     /// Asserts that the game exists (has been properly initialized).
     #[inline]
     fn assert_does_exist(self: @Game) {
-        assert(self.number != @0, errors::GAME_DOES_NOT_EXIST);
+        assert(self.slot_count != @0, errors::GAME_DOES_NOT_EXIST);
     }
 
     /// Asserts that the game does not exist (has not been initialized).
     #[inline]
     fn assert_not_exist(self: @Game) {
-        assert(self.number == @0, errors::GAME_ALREADY_EXISTS);
+        assert(self.slot_count == @0, errors::GAME_ALREADY_EXISTS);
     }
 
     /// Asserts that the given array of numbers is in valid ascending order.
@@ -399,7 +399,7 @@ mod tests {
     #[test]
     fn test_new_game_creation() {
         let game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
-        assert(game.game_id == 1, 'Game ID should be 1');
+        assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
         assert(game.reward == 0, 'Initial reward should be 0');
@@ -456,7 +456,7 @@ mod tests {
     #[should_panic(expected: ('Game: does not exist',))]
     fn test_assert_does_exist_invalid_game() {
         let mut game = create_test_game();
-        game.number = 0; // Make it invalid
+        game.slot_count = 0; // Make it invalid
 
         GameAssert::assert_does_exist(@game);
     }
@@ -464,7 +464,7 @@ mod tests {
     #[test]
     fn test_assert_not_exist_valid() {
         let mut game = create_test_game();
-        game.number = 0; // Make it not exist
+        game.slot_count = 0; // Make it not exist
 
         // This should not panic
         GameAssert::assert_not_exist(@game);

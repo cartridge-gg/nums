@@ -10,6 +10,7 @@ import {
   getNumsAddress,
   getVrfAddress,
   MAINNET_CHAIN_ID,
+  NAMESPACE,
   SEPOLIA_CHAIN_ID,
 } from "@/config";
 import { useExecuteCall } from "@/hooks/useExecuteCall";
@@ -51,7 +52,7 @@ const Play = ({
 
   const vrfAddress = getVrfAddress(chain.id);
   const numsAddress = getNumsAddress(chain.id);
-  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+  const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
 
   const { balance: numsBalance } = useToken(numsAddress);
 
@@ -61,11 +62,11 @@ const Play = ({
     if (!account) return undefined;
 
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-GameCreated"])
+      .withEntityModels([`${NAMESPACE}-GameCreated`])
       .withClause(
         new ClauseBuilder()
           .keys(
-            ["nums-GameCreated"],
+            [`${NAMESPACE}-GameCreated`],
             [num.toHex64(account.address), undefined],
             "FixedLen"
           )

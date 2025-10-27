@@ -20,14 +20,11 @@ import {
   getContractAddress,
   getNumsAddress,
   getVrfAddress,
-  KATANA_CHAIN_ID,
-  katanaChain,
-  SLOT_CHAIN_ID,
-  slotChain,
+  NAMESPACE,
 } from "./config";
 import { DojoSdkProviderInitialized } from "./context/dojo";
 import { JackpotToaster, Toaster } from "./components/ui/toaster";
-import { JackpotProvider } from "./context/jackpots";
+import { TournamentProvider } from "./context/tournaments";
 import { GameProvider } from "./context/game";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
@@ -40,10 +37,6 @@ const provider = jsonRpcProvider({
         return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
       case sepolia:
         return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
-      case katanaChain:
-        return { nodeUrl: chain.rpcUrls.default.http[0] };
-      case slotChain:
-        return { nodeUrl: chain.rpcUrls.default.http[0] };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -55,12 +48,7 @@ const buildPolicies = () => {
 
   const vrfAddress = getVrfAddress(chain.id);
   const numsAddress = getNumsAddress(chain.id);
-  const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
-  const jackpotAddress = getContractAddress(
-    chain.id,
-    "nums",
-    "jackpot_actions"
-  );
+  const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
 
   const policies: SessionPolicies = {
     contracts: {
@@ -71,21 +59,10 @@ const buildPolicies = () => {
         methods: [{ entrypoint: "approve" }],
       },
       [gameAddress]: {
-        methods: [{ entrypoint: "create_game" }, { entrypoint: "set_slot" }],
-      },
-      [jackpotAddress]: {
-        methods: [
-          { entrypoint: "claim_jackpot" },
-          { entrypoint: "next_jackpot" },
-        ],
+        methods: [{ entrypoint: "start" }, { entrypoint: "set" }],
       },
     },
   };
-
-  if ([KATANA_CHAIN_ID, SLOT_CHAIN_ID].includes(`0x${chain.id.toString(16)}`)) {
-    // @ts-ignore
-    policies.contracts[numsAddress].methods.push({ entrypoint: "mint" });
-  }
 
   return policies;
 };
@@ -97,10 +74,6 @@ const buildChains = () => {
       return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
     case sepolia:
       return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
-    case katanaChain:
-      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
-    case slotChain:
-      return [{ rpcUrl: chain.rpcUrls.default.http[0] }];
     default:
       throw new Error(`Unsupported chain: ${chain.network}`);
   }
@@ -118,9 +91,9 @@ const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
   policies: buildPolicies(),
-  preset: "nums",
-  namespace: "nums",
-  slot:"nums2-sepolia",
+  // preset: "nums",
+  namespace: "NUMS",
+  slot:"nums-bal",
   tokens: buildTokens(),
 };
 
@@ -142,7 +115,7 @@ function App() {
               <ConfigProvider>
                 <ControllersProvider>
                   <GameProvider>
-                    <JackpotProvider>
+                    <TournamentProvider>
                       <Router>
                         <Routes>
                           <Route path="/" element={<Home />} />
@@ -151,7 +124,7 @@ function App() {
                           <Route path="/factories" element={<Factories />} /> */}
                         </Routes>
                       </Router>
-                    </JackpotProvider>
+                    </TournamentProvider>
                   </GameProvider>
                 </ControllersProvider>
               </ConfigProvider>

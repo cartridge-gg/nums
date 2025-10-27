@@ -19,7 +19,9 @@ pub struct Config {
 pub struct Starterpack {
     #[key]
     pub id: u32,
-    pub active: bool,
+    pub referral_percentage: u8,
+    pub price: u256,
+    pub payment_token: ContractAddress,
 }
 
 #[derive(Drop, Serde, IntrospectPacked)]
@@ -44,7 +46,7 @@ pub struct GameConfig {
 #[dojo::model]
 pub struct Game {
     #[key]
-    pub game_id: u64,
+    pub id: u64,
     pub over: bool,
     pub claimed: bool,
     pub level: u8,

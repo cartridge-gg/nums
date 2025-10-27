@@ -1,4 +1,5 @@
 import { Game } from "@/bindings";
+import { NAMESPACE } from "@/config";
 import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
@@ -28,25 +29,25 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
 
   const gamesQuery = useMemo(() => {
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-Game"])
+      .withEntityModels([`${NAMESPACE}-Game`])
       .withClause(
         new ClauseBuilder()
           .keys(
-            ["nums-Game"],
+            [`${NAMESPACE}-Game`],
             [undefined, undefined],
             // [undefined, num.toHex64(account?.address || 0)],
             "FixedLen"
           )
           .build()
       )
-      .addOrderBy("nums-Game.game_id", "Desc")
+      .addOrderBy(`${NAMESPACE}-Game.game_id`, "Desc")
       .withLimit(50_000)
       .includeHashedKeys();
   }, [account?.address]);
 
   useEntityQuery(gamesQuery);
 
-  const gamesItems = useModels("nums-Game");
+  const gamesItems = useModels(`${NAMESPACE}-Game`);
 
   const { games } = useMemo(() => {
     const games = Object.keys(gamesItems).flatMap((key) => {

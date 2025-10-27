@@ -125,6 +125,10 @@ pub mod Play {
             // [Effect] Mint games
             self.playable.on_issue(world, recipient, starterpack_id, quantity)
         }
+
+        fn supply(self: @ContractState, starterpack_id: u32) -> Option<u32> {
+            Option::None
+        }
     }
 
     #[abi(embed_v0)]

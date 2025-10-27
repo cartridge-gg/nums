@@ -3,7 +3,7 @@ import { useNetwork, useSwitchChain } from "@starknet-react/core";
 import { num } from "starknet";
 import { Chain } from "@starknet-react/chains";
 import useToast from "./toast";
-import { chainName, KATANA_CHAIN_ID, MAINNET_CHAIN_ID } from "@/config";
+import { chainName, MAINNET_CHAIN_ID } from "@/config";
 
 export interface UseChain {
   chain: Chain;
@@ -18,7 +18,7 @@ const useChain = () => {
   const { chain } = useNetwork();
   const { switchChainAsync } = useSwitchChain({
     params: {
-      chainId: KATANA_CHAIN_ID,
+      chainId: MAINNET_CHAIN_ID,
     },
   });
 

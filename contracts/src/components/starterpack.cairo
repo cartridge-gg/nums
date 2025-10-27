@@ -30,25 +30,34 @@ pub mod StarterpackComponent {
             let mut store = StoreImpl::new(world);
             let config = store.config();
             // [Interaction] Register starterpack
+            let referral_percentage = 0;
+            let price = (config.entry_price * TEN_POW_18).into();
+            let payment_token = store.nums_disp().contract_address;
             let starterpack_id = store
                 .starterpack_disp()
                 .register(
                     implementation: starknet::get_contract_address(),
-                    referral_percentage: 0,
+                    referral_percentage: referral_percentage,
                     reissuable: false,
-                    price: (config.entry_price * TEN_POW_18).into(),
-                    payment_token: store.nums_disp().contract_address,
+                    price: price,
+                    payment_token: payment_token,
                     metadata: StarterPackMetadata {
                         name: NAME(), description: DESCRIPTION(), image_uri: IMAGE(),
                     },
                 );
             // [Effect] Create starterpack
-            let starterpack = StarterpackTrait::new(starterpack_id);
+            let starterpack = StarterpackTrait::new(
+                starterpack_id, referral_percentage, price, payment_token,
+            );
             store.set_starterpack(@starterpack);
         }
 
         fn register(
-            ref self: ComponentState<TContractState>, world: WorldStorage, starterpack_id: u32,
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            starterpack_id: u32,
+            referral_percentage: u8,
+            price: u256,
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -63,7 +72,10 @@ pub mod StarterpackComponent {
             starterpack.assert_not_exist();
 
             // [Effect] Create starterpack
-            let starterpack = StarterpackTrait::new(starterpack_id);
+            let payment_token = store.nums_disp().contract_address;
+            let starterpack = StarterpackTrait::new(
+                starterpack_id, referral_percentage, price, payment_token,
+            );
             store.set_starterpack(@starterpack);
         }
 

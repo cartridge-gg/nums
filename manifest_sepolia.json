@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
-    "address": "0x2332b8b17a3ebe27a90100988fb980d5121dc5edb98392c20a3df2f57f9b02a",
-    "seed": "nums-v1.0.8",
+    "address": "0x58a0418ca2020ddfba3310787597b8ce2700f7d36f69b44b7c106d313138093",
+    "seed": "nums-v1.0.11",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -1479,7 +1479,7 @@
   },
   "contracts": [
     {
-      "address": "0x354fdf3fe7666331ecde78619244cf72f7689ddb14de1fa642bba2dfbc90807",
+      "address": "0x68dfe2c520e3d14c790f75dbc93af4689e4e78a26e3c330e543fb87220cadab",
       "class_hash": "0x34b8362d3406f3b86f9dddd5eb5cdcb574801e9a46afb439cd2e278d115196f",
       "abi": [
         {
@@ -2019,7 +2019,7 @@
       ]
     },
     {
-      "address": "0x222e607cde6c19f110d5edafca0440a74e4c4fe6baa16ddac18ac58cb5ada0e",
+      "address": "0x6bdca236ecd00914e8a172196afaaa403b7fbddb1502a1a81ebba75e6e16189",
       "class_hash": "0x7b1eb1920c26c631c990d3bcce350a8a309dec742a2361b7f5878a21a3786a1",
       "abi": [
         {
@@ -2947,7 +2947,7 @@
       ]
     },
     {
-      "address": "0x2614b0fb00e2491fb4567d3530d9ec12639fc61264e36ada4be4387233cbe93",
+      "address": "0x73d8bbbde98db0126868720d39e54713677045fe4ed00edb2148929db8f4876",
       "class_hash": "0x29e06c2b52b9eaf54568fdadda8f433ae93ece3ccb8232d79aa915e025eb3a6",
       "abi": [
         {
@@ -3393,7 +3393,7 @@
       ]
     },
     {
-      "address": "0x5275ae9f03ad0a5318a1dfda46bd21525406bd669caa2a4904f90090031e2aa",
+      "address": "0x2f6cab9ffe6d394b90a7de7c473e726b58f49f1f5abdd7530a13d167d6926fc",
       "class_hash": "0x58945ea9797eff4f5d51881b67b4c8cc14ddad18ed572c229ef3b566f33ca89",
       "abi": [
         {
@@ -3663,8 +3663,8 @@
       ]
     },
     {
-      "address": "0x33a1271e3a8274bb49d63885bdd921d899a13138417c335d8f4bdb9303b29d8",
-      "class_hash": "0x3362fe2d5af5e89f73aec1fcc4e6675f4456f6aacdd3d7373c441449f7b942f",
+      "address": "0x1fc054c99ba7702d574006daa0bbca9dbba716f7ad30e1596ed2d90c39deb7e",
+      "class_hash": "0x65ddcbd3346f63488af9783e94e71457893903925c3bfcc5a5b09a161fa3e84",
       "abi": [
         {
           "type": "impl",
@@ -3771,6 +3771,20 @@
           "interface_name": "starterpack::interface::IStarterpackImplementation"
         },
         {
+          "type": "enum",
+          "name": "core::option::Option::<core::integer::u32>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "starterpack::interface::IStarterpackImplementation",
           "items": [
@@ -3793,6 +3807,22 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "supply",
+              "inputs": [
+                {
+                  "name": "starterpack_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::option::Option::<core::integer::u32>"
+                }
+              ],
+              "state_mutability": "view"
             }
           ]
         },
@@ -4112,7 +4142,7 @@
       ]
     },
     {
-      "address": "0x515d4d9c13c7ae7f811673f98c9770291fae978c0b27fadb418f89b506d1713",
+      "address": "0x60f5853512f964f4278f39a47ab532d29e32a84323f083ec115f6d117587f40",
       "class_hash": "0x2d948bd20aaf571fa9718d8a1ec807b367a6a59e12fb3d25726d54f3f3dd8fc",
       "abi": [
         {
@@ -4409,7 +4439,7 @@
       ]
     },
     {
-      "address": "0x728deca627dc5ed19e7f73632d4b7e4a9c141c15faa87d2f6c45cc65e8b8ba5",
+      "address": "0x9722ad4794abd2e8d695630b01570de95e5f9bd398612b62e55f53140baca",
       "class_hash": "0x218b4cea719985c0ca9413feb96f525217197b5f9b92a0e4c78d48cdf5cd4a8",
       "abi": [
         {
@@ -4878,7 +4908,7 @@
       ]
     },
     {
-      "address": "0x6d932e1a6ff33507f76bea7994f04b5727c01bad0122c8f507e9499ac40e565",
+      "address": "0x6e0cfa9ca3c7a7d58aa01639727449c4e403b77481a708a42311a1f901125b2",
       "class_hash": "0x491ade036002f4c38095374bb75aafb39e50381f8c7dd7e766be6d4857baaa5",
       "abi": [
         {
@@ -5174,7 +5204,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x4b820e75c5de708b72be9cde0a8a9eb4194a869fdd0f2af01fbe4220494dae9",
+      "class_hash": "0x6770993732e428b9f808b283e10790cb477c35bdce067ffc64507290cfd9cb7",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -5210,7 +5240,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x7da6057fb214b7c35484d2163e5dfe17766a10e7c1ad61817bff21a913ae6f0",
+      "class_hash": "0x6c556cb4beec29d5037cfe2992f11cb3ab702c88b0932417d2ee75ddeaebaca",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
     },

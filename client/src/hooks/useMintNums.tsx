@@ -1,8 +1,8 @@
-import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
+import { getNumsAddress } from "@/config";
 import useChain from "@/hooks/chain";
 import { useAccount } from "@starknet-react/core";
 import { useCallback } from "react";
-import { num, uint256 } from "starknet";
+import { uint256 } from "starknet";
 
 export const useMintNums = () => {
   const { account } = useAccount();
@@ -22,6 +22,7 @@ export const useMintNums = () => {
           ],
         },
       ]);
+      console.log({ transaction_hash });
 
       return true;
     } catch (e) {

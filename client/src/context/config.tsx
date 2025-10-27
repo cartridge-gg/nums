@@ -1,6 +1,5 @@
 import { Config } from "@/bindings";
 import { NAMESPACE } from "@/config";
-import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";

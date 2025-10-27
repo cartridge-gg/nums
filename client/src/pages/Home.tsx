@@ -57,7 +57,7 @@ const LiveIcon = () => (
 export const Main = () => {
   const { tournaments } = useTournaments();
   const [selectedTournament, setSelectedTournament] = useState<number | undefined>();
-  const [openModal, setOpenModal] = useState<boolean>(true);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!tournaments || tournaments.length === 0 || selectedTournament !== undefined) return;

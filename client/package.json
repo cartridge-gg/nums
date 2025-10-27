@@ -38,6 +38,7 @@
     "@starknet-react/chains": "^5.0.1",
     "@starknet-react/core": "^5.0.1",
     "@vercel/analytics": "^1.5.0",
+    "@vitejs/plugin-react": "^5.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.1.1",
@@ -65,8 +66,10 @@
     "usehooks-ts": "^3.1.0",
     "viem": "^2.13.2",
     "vite-plugin-mkcert": "^1.17.6",
+    "vite-plugin-static-copy": "^3.1.4",
     "vite-plugin-top-level-await": "^1.4.4",
-    "vite-plugin-wasm": "^3.4.1"
+    "vite-plugin-wasm": "^3.4.1",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

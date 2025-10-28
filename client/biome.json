@@ -1,0 +1,61 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": [
+      "tsconfig*.json",
+      "dist/**",
+      ".vercel/**",
+      "node_modules/**",
+      "public/**",
+      "src/*.gen.ts"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useKeyWithClickEvents": "off",
+        "noRedundantAlt": "off",
+        "useSemanticElements": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noBannedTypes": "off"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off",
+        "noEmptyPattern": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noExplicitAny": "off",
+        "noImplicitAnyLet": "off",
+        "noAssignInExpressions": "off"
+      },
+      "style": {
+        "noUnusedTemplateLiteral": "warn",
+        "noNonNullAssertion": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  }
+}

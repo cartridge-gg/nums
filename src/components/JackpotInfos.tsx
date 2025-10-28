@@ -1,4 +1,4 @@
-import { useJackpots } from "@/context/jackpots";
+import { useJackpots } from "@/context/tournaments";
 import { VStack, HStack, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { BigNumberish, CairoCustomEnum, num } from "starknet";

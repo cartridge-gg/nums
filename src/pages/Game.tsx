@@ -23,10 +23,10 @@ import {
   getContractAddress,
   getVrfAddress,
   MAINNET_CHAIN_ID,
+  NAMESPACE,
   SEPOLIA_CHAIN_ID,
 } from "../config";
 import { useExecuteCall } from "../hooks/useExecuteCall";
-import { useJackpots } from "../context/jackpots";
 import { TimeCountdown } from "../components/TimeCountdown";
 import Confetti from "react-confetti";
 import { useClaim } from "@/hooks/useClaim";
@@ -56,17 +56,17 @@ const Game = () => {
     isSuccess: isClaimingSuccessful,
   } = useClaim();
 
-  const { getJackpotById, getFactoryById, getWinnersByJackpotId } =
-    useJackpots();
+  // const { getJackpotById, getFactoryById, getWinnersByJackpotId } =
+  //   useJackpots();
 
   const { game, slots, refresh, clearSlots } = useGame(gameId);
 
-  const jackpot = getJackpotById(game?.jackpot_id || 0);
-  const factory = getFactoryById(jackpot?.factory_id || 0);
+  // const jackpot = getJackpotById(game?.jackpot_id || 0);
+  // const factory = getFactoryById(jackpot?.factory_id || 0);
 
-  const isJackpotOver = Number(jackpot?.end_at) * 1_000 <= Date.now();
-  const isGameOverTime = Number(game?.expires_at) * 1_000 <= Date.now();
-  const isOver = game?.game_over;
+  // const isJackpotOver = Number(jackpot?.end_at) * 1_000 <= Date.now();
+  // const isGameOverTime = Number(game?.expires_at) * 1_000 <= Date.now();
+  const isOver = game?.over;
 
   // const onJackpotEvent = useCallback(
   //   (type: string, event: any) => {
@@ -139,7 +139,7 @@ const Game = () => {
   //
 
   useEffect(() => {
-    if (game?.game_over) {
+    if (game?.over) {
       setTimeout(() => {
         playNegative();
       }, 500);
@@ -157,7 +157,8 @@ const Game = () => {
 
   useEffect(() => {
     if (!address || !game) return;
-    const owner = BigInt(game.player) === BigInt(address);
+    // const owner = BigInt(game.player) === BigInt(address);
+    const owner = true;
     setIsOwner(owner);
   }, [address, game]);
 
@@ -172,7 +173,7 @@ const Game = () => {
 
     try {
       const vrfAddress = getVrfAddress(chain.id);
-      const gameAddress = getContractAddress(chain.id, "nums", "game_actions");
+      const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
 
       const calls = [];
       if (
@@ -210,7 +211,7 @@ const Game = () => {
     }
   };
 
-  if (!gameId || !jackpot || !factory) {
+  if (!gameId || !game) {
     return null;
   }
 
@@ -219,7 +220,7 @@ const Game = () => {
       <Container h={["100dvh", "100vh"]} maxW="100vw">
         {isOwner && (
           <ShowReward
-            amount={Number(factory.rewards[Number(game?.level) - 1])}
+            amount={Number(game?.reward)}
             x={position.x}
             y={position.y}
           />
@@ -237,8 +238,8 @@ const Game = () => {
               <>
                 <TimeCountdown
                   fontSize={["16px", "20px", "36px"]}
-                  timestampSec={game?.expires_at || 0}
-                  gameOver={game?.game_over}
+                  timestampSec={1}
+                  gameOver={game?.over}
                 />
               </>
             )}
@@ -266,25 +267,7 @@ const Game = () => {
             gapX="60px"
             gapY={["4px", "10px", "10px"]}
           >
-            {slots.map((number, index) => {
-              const legal = isMoveLegal(
-                slots,
-                Number(game?.next_number),
-                index
-              );
-              return (
-                <Slot
-                  key={index}
-                  index={index}
-                  number={number}
-                  nextNumber={Number(game?.next_number)}
-                  isOwner={isOwner}
-                  disable={isLoading}
-                  legal={legal}
-                  onClick={(slot, event) => setSlot(slot, event)}
-                />
-              );
-            })}
+            <></>
           </Grid>
           <Box
             mt={["15px", "25px", "35px"]}
@@ -302,11 +285,11 @@ const Game = () => {
                 </HStack>
               )} */}
 
-              {(isOver || isGameOverTime) && !isJackpotOver && !canClaim && (
+              {isOver && !canClaim && (
                 <>
                   <Play
                     isAgain
-                    factory={factory}
+                    factory={undefined}
                     onClick={() => {
                       clearSlots();
 
@@ -331,7 +314,7 @@ const Game = () => {
 
               {isOver && canClaim && !isClaimingSuccessful && (
                 // if canClaim, there is only one winner possible so index is 0
-                <Button onClick={() => claim(jackpot.id, [0])}>
+                <Button onClick={() => claim(1, [0])}>
                   {isClaiming ? <Spinner /> : "Claim Jackpot!"}
                 </Button>
               )}

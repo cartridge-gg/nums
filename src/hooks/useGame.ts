@@ -1,4 +1,5 @@
-import { Game, NewWinner, Slot } from "@/bindings";
+import { Game as GameEntity } from "@/bindings";
+import { Game, GameModel } from "@/models/game";
 import {
   ToriiQueryBuilder,
   ClauseBuilder,
@@ -7,6 +8,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BigNumberish, num } from "starknet";
 import { useDojoSdk } from "./dojo";
+import { NAMESPACE } from "@/config";
 
 const MAX_SLOTS = 20;
 const EMPTY_SLOTS = Array.from({ length: MAX_SLOTS }, () => 0);
@@ -14,26 +16,19 @@ const EMPTY_SLOTS = Array.from({ length: MAX_SLOTS }, () => 0);
 export const useGame = (gameId?: string) => {
   const { sdk } = useDojoSdk();
 
-  const [game, setGame] = useState<Game | undefined>(undefined);
-  const slots = useRef<number[]>([...EMPTY_SLOTS]);
+  const [game, setGame] = useState<GameEntity | undefined>(undefined);
 
   const subscriptionRef = useRef<any>(null);
 
   const gameQuery = useMemo(() => {
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-Game", "nums-Slot"])
+      .withEntityModels([`${NAMESPACE}-Game`])
       .withClause(
         new ClauseBuilder()
           .compose()
           .or([
             new ClauseBuilder().where(
-              "nums-Game",
-              "game_id",
-              "Eq",
-              Number(gameId || 0)
-            ),
-            new ClauseBuilder().where(
-              "nums-Slot",
+              `${NAMESPACE}-${Game.getModelName()}`,
               "game_id",
               "Eq",
               Number(gameId || 0)
@@ -45,29 +40,18 @@ export const useGame = (gameId?: string) => {
 
   const onUpdate = useCallback(
     (res: { data: any }) => {
-      const game = res.data![0].models.nums.Game as Game;
+      const game = res.data![0].models.nums.Game as GameEntity;
       if (game) {
-        setGame(game);
-      }
-
-      const slot = res.data![0].models.nums.Slot as Slot;
-      if (slot) {
-        slots.current[Number(slot.index)] = Number(slot.number);
+        setGame(GameModel.from(game));
       }
     },
     [slots]
   );
 
-  const clearSlots = useCallback(async () => {
-    slots.current = [...EMPTY_SLOTS];
-  }, [slots]);
-
   const refresh = useCallback(async () => {
     if (subscriptionRef.current) {
       subscriptionRef.current = null;
     }
-
-    clearSlots();
 
     const [result, subscription] = await sdk.subscribeEntityQuery({
       query: gameQuery,

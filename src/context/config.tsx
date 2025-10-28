@@ -1,9 +1,10 @@
-import { Config, Game } from "@/bindings";
+import { Config } from "@/bindings";
+import { NAMESPACE } from "@/config";
 import { useDojoSdk } from "@/hooks/dojo";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
-import { createContext, useCallback, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 
 type ConfigProviderProps = {
   children: React.ReactNode;
@@ -18,14 +19,13 @@ const ConfigProviderContext = createContext<ConfigProviderState | undefined>(
 );
 
 export function ConfigProvider({ children, ...props }: ConfigProviderProps) {
-  const { sdk } = useDojoSdk();
   const { account } = useAccount();
 
   const configQuery = useMemo(() => {
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-Config"])
+      .withEntityModels([`${NAMESPACE}-Config`])
       .withClause(
-        new ClauseBuilder().keys(["nums-Config"], ["0"], "FixedLen").build()
+        new ClauseBuilder().keys([`${NAMESPACE}-Config`], ["0"], "FixedLen").build()
       )
       .withLimit(1)
       .includeHashedKeys();
@@ -33,16 +33,12 @@ export function ConfigProvider({ children, ...props }: ConfigProviderProps) {
 
   useEntityQuery(configQuery);
 
-  const configItems = useModels("nums-Config");
+  const configItems = useModels(`${NAMESPACE}-Config`);
 
   const { config } = useMemo(() => {
     if (!configItems || !configItems[0]) return { config: undefined };
 
     const config = Object.values(configItems[0])[0] as Config;
-
-    // if (config) {
-    //   console.log("config", config);
-    // }
 
     return {
       config,

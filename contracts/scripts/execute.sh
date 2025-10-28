@@ -40,8 +40,12 @@ WORLD_ADDR=$(jq -r '.world.address' "$JSON_FILE")
 
 DEPLOYER_ADDR=0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec
 
-if [ $PROFILE_NAME == 'sepolia']; then
-   DEPLOYER_ADDR=0x047a8bfb23061af003dc4075f611221592ece0deb7b1d5ab4fabeb6abf49bdfc
+if [ $PROFILE_NAME == 'sepolia' ]; then
+   DEPLOYER_ADDR=0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753
+fi
+
+if [ $PROFILE_NAME == 'mainnet' ]; then
+   DEPLOYER_ADDR=0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b
 fi
 
 # Check if WorldContract address was found
@@ -59,8 +63,11 @@ case "$COMMAND" in
         echo "Approving jackpot_actions to spend..."
         sozo execute $REWARD_ADDR approve $JACKPOT_ACTIONS_ADDR u256:100000000000000000000000 --profile $PROFILE_NAME  --wait 
 
-       # GAME_CONFIG="0x1" # Option::None
-        GAME_CONFIG="0x0 20 999 1 2000 180" # Option::Some
+        #
+        # CHECK PARAMS & DONT FOGET TO CHANGE NAME ABOVE
+        #
+      
+        GAME_CONFIG="0x0 20 999 1 2000 180" # Option::Some 2000 NUMS / 3 mins
         REWARDS="0x1" # Option::None
         TOKEN="0x0 $REWARD_ADDR 0x0 u256:1000000000000000000000" # 1_000 STRK / jackpot
         JACKPOT_MODE="0x0" # KingOfTheHill
@@ -73,6 +80,15 @@ case "$COMMAND" in
        
         echo "$NAME $TOKEN $JACKPOT_MODE $MAX_WINNERS $MIN_SLOT $EXTENSION_MODE"
         echo "Creating jackpot factory for profile: $PROFILE_NAME"
+
+        read -r -p "Are you sure? [y/N]" -n 1
+        echo
+        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+            echo "Operation continues"
+        else
+            exit
+        fi
+
         sozo execute $JACKPOT_ACTIONS_ADDR create_jackpot_factory str:"STRK Jackpot" $GAME_CONFIG $REWARDS $TOKEN $JACKPOT_MODE $TIMING $INITIAL_DURATION $EXTENSION_DURATION $MIN_SLOT $MAX_WINNERS $JACKPOT_COUNT --profile $PROFILE_NAME --world $WORLD_ADDR
         ;;
     create_jackpot_factory_2)

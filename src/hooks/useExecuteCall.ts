@@ -10,6 +10,7 @@ import {
 } from "starknet";
 import { useDojoSdk } from "./dojo";
 import useToast from "./toast";
+import { NAMESPACE } from "@/config";
 
 export const useExecuteCall = () => {
   const { provider } = useDojoSdk();
@@ -40,7 +41,7 @@ export const useExecuteCall = () => {
           tx = await provider.execute(
             account,
             callOrCallsOrPromise as AllowArray<Call | DojoCall>,
-            "nums"
+            NAMESPACE
           );
         }
 

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BigNumberish, num } from "starknet";
 import { useDojoSdk } from "./dojo";
 import { useAccount } from "@starknet-react/core";
+import { NAMESPACE } from "@/config";
 
 export const useJackpotEvents = (
   jackpotId: BigNumberish,
@@ -18,11 +19,11 @@ export const useJackpotEvents = (
   const jackpotEventsQuery = useMemo(() => {
     if (!jackpotId) return undefined;
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-GameCreated", "nums-NewWinner"])
+      .withEntityModels([`${NAMESPACE}-GameCreated`, `${NAMESPACE}-NewWinner`])
       .withClause(
         new ClauseBuilder()
           .keys(
-            ["nums-GameCreated", "nums-NewWinner"],
+            [`${NAMESPACE}-GameCreated`, `${NAMESPACE}-NewWinner`],
             [undefined, BigInt(jackpotId).toString()],
             "FixedLen"
           )

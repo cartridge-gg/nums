@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BigNumberish, num } from "starknet";
 import { useDojoSdk } from "./dojo";
 import { useAccount } from "@starknet-react/core";
+import { NAMESPACE } from "@/config";
 
 export const useFreeGame = () => {
   const { sdk } = useDojoSdk();
@@ -19,10 +20,10 @@ export const useFreeGame = () => {
     if (!account) return undefined;
 
     return new ToriiQueryBuilder()
-      .withEntityModels(["nums-FreeGame"])
+      .withEntityModels([`${NAMESPACE}-FreeGame`])
       .withClause(
         new ClauseBuilder()
-          .keys(["nums-FreeGame"], [num.toHex64(account?.address)], "FixedLen")
+          .keys([`${NAMESPACE}-FreeGame`], [num.toHex64(account?.address)], "FixedLen")
           .build()
       );
   }, [account]);

@@ -1,6 +1,7 @@
 import {
   getContractAddress,
   getNumsAddress,
+  NAMESPACE,
   STRK_CONTRACT_ADDRESS,
 } from "@/config";
 import useChain from "@/hooks/chain";
@@ -20,7 +21,7 @@ export const TokenBalanceUi = ({
 }) => {
   const { chain } = useChain();
   const numsAddress = getNumsAddress(chain.id);
-  const rewardAddress = getContractAddress(chain.id, "nums", "MockRewardToken");
+  const rewardAddress = getContractAddress(chain.id, NAMESPACE, "MockRewardToken");
 
   const isNums = BigInt(address) === BigInt(numsAddress);
   const isStrk =

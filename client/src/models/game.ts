@@ -1,6 +1,6 @@
 import { NAMESPACE } from "@/constants";
 import type { SchemaType } from "@/bindings/typescript/models.gen";
-import { MemberClause, type ParsedEntity } from "@dojoengine/sdk";
+import { type ParsedEntity } from "@dojoengine/sdk";
 import { Packer } from "@/helpers/packer";
 
 const MODEL_NAME = "Game";
@@ -110,6 +110,10 @@ export class GameModel {
     return this.slot_count !== 0;
   }
 
+  hasStarted() {
+    return this.tournament_id !== 0;
+  }
+
   clone(): GameModel {
     return new GameModel(
       this.identifier,
@@ -141,15 +145,6 @@ export const Game = {
 
   getModelName: () => {
     return MODEL_NAME;
-  },
-
-  getClause: () => {
-    return MemberClause(
-      `${NAMESPACE}-${Game.getModelName()}`,
-      "number",
-      "Neq",
-      "0",
-    );
   },
 
   getMethods: () => [],

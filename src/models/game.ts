@@ -110,6 +110,10 @@ export class GameModel {
     return this.slot_count !== 0;
   }
 
+  hasStarted() {
+    return this.tournament_id !== 0;
+  }
+
   clone(): GameModel {
     return new GameModel(
       this.identifier,

@@ -1,13 +1,19 @@
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useModal } from "@/context/modal";
 import { Games } from "./games";
+import { useBuyGame } from "@/hooks/useBuyGame";
+import { usePlayerGames } from "@/hooks/useAssets";
+import { Loader2 } from "lucide-react";
 
 export type InventoryProps = {}
 
 export const Inventory = () => {
   const { isInventoryClosing, closeInventory, finalizeCloseInventory } = useModal();
+  const { gameIds } = usePlayerGames();
+  const [isLoading, setIsLoading] = useState(false);
+  const initialGameCountRef = useRef<number>(0);
 
   useEffect(() => {
     if (isInventoryClosing) {
@@ -17,6 +23,32 @@ export const Inventory = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [isInventoryClosing, finalizeCloseInventory]);
+
+  // Detect when gameIds changes after a purchase
+  useEffect(() => {
+    if (isLoading && gameIds.length > initialGameCountRef.current) {
+      // New game detected, stop loading
+      setIsLoading(false);
+    }
+  }, [gameIds, isLoading]);
+
+  const handlePurchase = async (purchaseAction: () => Promise<any>) => {
+    // Save current count before purchase
+    initialGameCountRef.current = gameIds.length;
+    setIsLoading(true);
+    try {
+      const success = await purchaseAction();
+      
+      // If transaction failed or was declined, stop loading immediately
+      if (!success) {
+        setIsLoading(false);
+      }
+      // Otherwise, loading will be disabled automatically when gameIds changes
+    } catch (error) {
+      // If error, stop loading immediately
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div 
@@ -43,7 +75,7 @@ export const Inventory = () => {
         <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-6 h-full overflow-hidden">
           <div className="flex flex-col items-start gap-6">
             <Header />
-            <Purchases />
+            <Purchases isLoading={isLoading} onPurchase={handlePurchase} />
           </div>
           <Games />
         </div>
@@ -69,22 +101,35 @@ export const Header = () => {
   )
 }
 
-export const Purchases = () => {
+export const Purchases = ({ isLoading, onPurchase }: { isLoading: boolean, onPurchase: (action: () => Promise<any>) => Promise<any> }) => {
+  const { buyGame } = useBuyGame();
+
+  const handleBuyGame = () => onPurchase(buyGame);
+
   return (
     <ul className="flex justify-between gap-6 w-full">
-      <PurchaseMethod title="Share on X" buttonText="Free!" />
-      <PurchaseMethod title="Play with Nums" buttonText={`${'2000'.toLocaleString()} NUMS`} />
+      <PurchaseMethod title="Share on X" buttonText="Free!"/>
+      <PurchaseMethod 
+        title="Play with Nums" 
+        buttonText={`${'2000'.toLocaleString()} NUMS`} 
+        onClick={handleBuyGame} 
+        isLoading={isLoading}
+      />
       <PurchaseMethod title="Play with USD" buttonText={`$${'1.13'.toLocaleString()}`} />
     </ul>
   )
 }
 
-export const PurchaseMethod = ({ title, buttonText }: { title: string, buttonText: string }) => {
+export const PurchaseMethod = ({ title, buttonText, onClick, isLoading }: { title: string, buttonText: string, onClick?: () => void, isLoading?: boolean }) => {
   return (
     <div className="grow rounded-lg bg-white-900 border border-white-900 p-3 flex flex-col gap-4">
       <h3 className="font-ppneuebit text-2xl h-5">{title}</h3>
-      <Button variant="default" className="w-full h-10">
-        <p className="text-[28px] translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.24)' }}>{buttonText}</p>
+      <Button disabled={!onClick || isLoading} variant="default" className="w-full h-10" onClick={onClick}>
+        {isLoading ? (
+          <Loader2 className="size-6 animate-spin" />
+        ) : (
+          <p className="text-[28px] translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.24)' }}>{buttonText}</p>
+        )}
       </Button>
     </div>
   )

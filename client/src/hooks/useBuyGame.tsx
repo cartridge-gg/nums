@@ -4,10 +4,12 @@ import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useState } from "react";
 import { shortString, uint256 } from "starknet";
+import { useExecuteCall } from "./useExecuteCall";
 
 export const useBuyGame = () => {
   const { account, connector } = useAccount();
   const { chain } = useChain();
+  const { execute } = useExecuteCall();
 
   const [username, setUsername] = useState<string | null>(null);
 
@@ -20,35 +22,33 @@ export const useBuyGame = () => {
   }, [connector]);
 
   const buyGame = useCallback(async () => {
-    try {
-      if (!account?.address || !username) return false;
-      const numsAddress = getNumsAddress(chain.id);
-      const gameAddress = getGameAddress(chain.id);
-      await account!.execute([
-        {
-          contractAddress: numsAddress,
-          entrypoint: "approve",
-          calldata: [
-            gameAddress,
-            uint256.bnToUint256(2_000n * 10n ** 18n),
-          ],
-        },
-        {
-          contractAddress: gameAddress,
-          entrypoint: "buy",
-          calldata: [shortString.encodeShortString(username)],
-        },
-      ]);
+    if (!account?.address || !username) return false;
 
-      return true;
-    } catch (e) {
-      console.log({ e });
-      return false;
-    }
-  }, [account, username]);
+    const numsAddress = getNumsAddress(chain.id);
+    const gameAddress = getGameAddress(chain.id);
 
+    const { success } = await execute([
+      {
+        contractAddress: numsAddress,
+        entrypoint: "approve",
+        calldata: [
+          gameAddress,
+          uint256.bnToUint256(2_000n * 10n ** 18n),
+        ],
+      },
+      {
+        contractAddress: gameAddress,
+        entrypoint: "buy",
+        calldata: [shortString.encodeShortString(username)],
+      },
+    ]);
+
+    return success;
+  }, [account, username, chain, execute]);
 
   return {
     buyGame,
   };
 };
+
+

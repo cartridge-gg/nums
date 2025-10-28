@@ -14,11 +14,11 @@ import { TournamentModel } from "@/models/tournament";
 import { Leaderboard } from "@/components/leaderboard";
 import { Header } from "@/components/header";
 import { Inventory } from "@/components/inventory";
-import { useBuyGame } from "@/hooks/useBuyGame";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/context/modal";
 import { TrophyIcon } from "@/components/icons/Trophy";
 import { LiveIcon } from "@/components/icons/Live";
+import { useAccount, useConnect } from "@starknet-react/core";
 
 export const Home = () => {
   const { isInventoryOpen, closeInventory } = useModal();
@@ -57,7 +57,6 @@ export const Main = () => {
         <div className="flex justify-between items-center">
           <JackpotSelector tournaments={tournaments || []} selected={selectedTournament} handleSelect={handleSelect} />
           <div className="flex gap-3">
-            <BuyGameButton />
             <Play onClick={openInventory} />
           </div>
         </div>
@@ -71,18 +70,20 @@ export const Main = () => {
 }
 
 export const Play = ({ onClick }: { onClick: () => void }) => {
-  return (
-    <Button variant="default" className="h-12 px-4 py-2 text-2xl tracking-wider cursor-pointer" onClick={onClick}>
-      <p className="translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.25)' }}>Play!</p>
-    </Button>
-  );
-};
+  const { account } = useAccount();
+  const { connectAsync, connectors } = useConnect();
 
-export const BuyGameButton = () => {
-  const { buyGame } = useBuyGame();
+  const handleClick = () => {
+    if (!account) {
+      connectAsync({ connector: connectors[0] });
+    } else {
+      onClick();
+    }
+  };
+
   return (
-    <Button variant="default" className="h-12 px-4 py-2 text-2xl tracking-wider" onClick={() => buyGame()}>
-      <p className="translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.25)' }}>Buy</p>
+    <Button variant={!account ? "muted" : "default"} className="h-12 px-4 py-2 text-2xl tracking-wider cursor-pointer" onClick={handleClick}>
+      <p className="translate-y-0.5" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.25)' }}>Play!</p>
     </Button>
   );
 };

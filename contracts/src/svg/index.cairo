@@ -25,9 +25,9 @@ pub impl Svg of SvgTrait {
         } else {
             Font::base64()
         };
-        "<style> @font-face { font-family: 'ekamai'; src: url('"
+        "<style> @font-face { font-family: 'pixel'; src: url('"
             + font
-            + "') format('woff2'); } text { font-family: 'ekamai', sans-serif; } </style>"
+            + "') format('opentype'); } text { font-family: 'pixel', sans-serif; } </style>"
     }
 
     fn footer() -> ByteArray {
@@ -39,7 +39,7 @@ pub impl Svg of SvgTrait {
     }
 
     fn filter() -> ByteArray {
-        "<filter id='dropShadow'><feDropShadow dx='2' dy='4' stdDeviation='0' flood-color='black' flood-opacity='0.2' /></filter>"
+        "<filter id='dropShadow'><feDropShadow dx='2' dy='4' stdDeviation='0' flood-color='black' flood-opacity='0.24' /></filter><filter id='boxShadow'><feDropShadow dx='2' dy='2' stdDeviation='0' flood-color='black' flood-opacity='0.5' /></filter>"
     }
 
     fn frame() -> ByteArray {
@@ -47,24 +47,24 @@ pub impl Svg of SvgTrait {
     }
 
     fn tilde() -> ByteArray {
-        "<text id='tilde' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle'>~</text>"
+        "<text id='tilde' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle'>-</text>"
     }
 
     fn icon(over: bool) -> ByteArray {
         if (over) {
             return "";
         }
-        "<g id='icon'><path d='M87.0 95.6C87.2 94.3 87.5 93.1 88.0 92.3C88.4 91.7 88.8 91.2 89.3 90.6C91.8 87.4 95.0 83.3 93.6 74.9C92.5 69.0 91.8 65.0 90.6 62.7C89.8 61.2 88.8 60.3 87.4 60.2C87.4 60.2 87.4 60.2 87.4 60.1C86.8 60.1 85.8 60.2 84.8 60.4C83.9 60.6 83.0 61.0 82.4 61.7C81.7 62.4 81.4 63.5 81.9 65.0C82.3 66.3 82.7 67.4 83.1 68.6C83.2 68.9 83.3 69.1 83.4 69.4C84.0 70.9 84.6 72.4 85.1 74.0C85.6 76.0 85.9 78.1 85.8 80.4C85.8 80.6 85.7 80.7 85.5 80.7C85.4 80.7 85.3 80.6 85.3 80.4C85.3 78.1 84.9 76.1 84.3 74.3C83.8 72.9 83.2 71.6 82.7 70.3C82.5 69.9 82.3 69.4 82.1 69.0C81.6 67.8 81.1 66.6 80.7 65.4C80.1 63.3 80.6 61.9 81.5 60.9C82.3 60.0 83.4 59.5 84.5 59.3C85.5 59.0 86.5 58.9 87.2 59.0C86.8 56.4 86.0 51.2 85.0 47.0C84.3 44.4 83.6 42.2 83.0 41.2C81.7 39.2 79.4 38.7 77.4 39.2C76.1 39.5 74.9 40.2 74.5 41.2C74.0 42.2 73.8 44.3 73.9 47.0C74.0 49.9 74.4 53.5 74.7 56.8C74.8 57.6 74.9 58.3 74.9 59.0C74.1 56.2 73.0 52.8 71.9 49.9C70.8 47.1 69.7 44.7 68.6 43.6C66.8 41.7 64.4 41.9 62.6 43.0C61.4 43.7 60.5 44.9 60.3 46.1C60.0 47.2 60.4 49.2 61.1 51.5C62.0 54.9 63.6 59.2 64.8 62.2C64.8 62.4 64.9 62.6 65.0 62.7C64.4 62.1 63.6 61.5 62.9 61.0C61.1 59.8 59.1 59.3 57.1 60.7C53.5 63.2 53.8 66.2 54.1 67.5C54.3 68.6 58.6 74.6 59.1 75.1C60.0 76.1 60.9 76.9 61.9 77.4C62.6 77.8 63.2 78.0 63.9 77.8C65.4 77.3 66.3 76.6 66.6 75.8C67.2 74.7 66.9 73.4 66.4 72.4C66.2 71.8 65.4 71.0 64.4 70.1C62.8 68.6 60.7 67.1 60.7 67.1C60.6 67.0 60.6 66.9 60.7 66.7C60.8 66.6 60.9 66.6 61.0 66.7C61.0 66.7 63.7 68.5 65.5 70.1C66.3 70.8 66.9 71.5 67.2 72.1C67.8 73.2 68.2 74.8 67.6 76.2C67.1 77.2 66.1 78.2 64.2 78.8C64.0 78.9 63.8 79.0 63.5 79.0C63.9 79.4 64.5 80.3 64.4 81.5C64.4 82.3 63.9 83.8 62.9 84.8C61.9 85.8 60.7 86.0 59.3 85.6C58.1 85.3 56.8 84.6 55.6 83.8C54.9 83.2 54.3 82.7 53.8 82.2C54.0 83.5 54.3 85.3 54.9 87.0C55.7 89.3 56.9 91.4 58.5 92.4C58.7 92.5 58.9 92.6 59.1 92.8C60.3 93.4 62.0 94.0 64.0 94.4C65.2 94.6 66.5 94.8 67.8 94.9C69.6 95.1 71.6 95.1 73.4 95.0C74.7 94.8 76.0 94.6 77.1 94.2C77.3 94.2 77.4 94.3 77.5 94.4C77.5 94.5 77.4 94.7 77.3 94.7C75.3 95.5 73.0 95.9 70.6 96.0C69.6 96.1 68.6 96.1 67.7 96.0C66.3 96.0 65.0 95.8 63.8 95.5C62.6 95.3 61.6 95.0 60.7 94.7C61.4 96.5 61.2 98.8 60.6 101.8C60.6 102.1 60.7 102.3 60.9 102.4C61.8 103.0 62.8 103.5 64.0 103.8V103.8C65.4 104.3 67.1 104.6 68.8 104.8C75.1 105.3 78.4 105.2 87.6 102.2L87.6 102.2C88.2 102.0 88.2 101.6 87.9 101.3C87.8 101.1 87.7 101.0 87.6 100.9C87.4 100.8 87.2 100.4 87.1 100.0C86.6 98.6 86.9 97.0 87.0 95.6Z' /><path d='M53.0 68.0C52.4 68.3 51.6 68.7 51.0 69.3C49.9 70.3 49.0 71.6 49.1 73.4C49.2 77.1 52.6 79.8 53.5 80.4C53.5 80.4 53.5 80.5 53.5 80.5C53.5 80.5 53.5 80.5 53.5 80.5C53.6 80.6 53.7 80.7 53.9 80.8C54.5 81.3 55.4 82.1 56.4 82.8C57.1 83.3 57.9 83.8 58.6 84.2C59.3 84.5 59.9 84.7 60.6 84.7C61.2 84.7 61.7 84.6 62.2 84.1C63.1 83.3 63.6 82.1 63.7 81.4C63.8 80.1 63.2 79.3 63.0 79.1C62.9 79.0 62.9 78.9 62.9 78.9C62.6 78.9 62.3 78.9 62.0 78.8C61.1 78.5 60.2 77.9 59.4 77.1C57.5 75.4 55.7 72.9 54.5 70.8C53.7 69.6 53.2 68.5 53.0 68.0Z' /></g>"
+        "<g id='icon'><path d='m25.3 9.59v9.61h-1.7v-3.3h-0.9-0.9v-2.4l-0.1-2.4h-0.8-0.8l-0.1-1.39c-0.03-0.76-0.05-1.82-0.1-2.36v-0.99h-0.6c-0.3 0-0.7-0.03-0.9-0.06l-0.4-0.06v-3.35h-7.4v8.31h1.9v1.3c0 0.7 0.1 1.8 0.1 2.4v1.2h1 0.9v1.5 1.4h0.8 0.9v0.3c0.1 0.2 0.1 0.6 0.1 0.9l-0.1 0.6h-0.9l-0.9 0.1v-0.9l0.1-0.8h-7.28v1.7h-0.94-0.94l-0.02 2.7-0.03 2.7h0.87l0.87 0.1 0.02 1.8 0.03 1.9h-0.86c-1.04 0-0.95 0.2-1-1.9l-0.05-1.8h-3.54v2.2h-0.795l-0.7955 0.1-0.03224 0.6c-0.01776 0.4-0.00183 1.9 0.03534 3.5l0.0674 2.7 0.749-0.1h0.751l0.03 0.7c0.05 1 0.12 1.1 1.19 1.1h0.78l-0.04 0.8-0.03 0.7h3.68v0.9c0 0.8 0.02 0.9 0.15 0.8h2.73 2.5v-2.5-2.4h-0.9-0.9v-1.8h-0.86-0.84l-0.03-0.9-0.03-0.8h-0.88l-0.89-0.1-0.06-1.8h1.84v1.8h1.95v1.6h1.8l-0.1 1v0.9l1.7-0.1h1.8v-2.6-2.6l0.8-0.1h0.9c0.1 0.1 0.1 1.3 0.1 2.7v2.7h-0.9-0.9l0.1 0.9v0.9h-0.9-0.9v3.3l-0.9 0.1h-0.9v0.9c0 0.7 0 0.9-0.1 0.8s-0.8-0.1-2.75-0.1h-2.63v-1.6h-1.04c-1.57-0.1-2.32-0.1-2.48 0-0.12 0.1-0.14 0.3-0.12 1.7l0.03 1.6h0.86l0.87 0.1 0.03 2.5 0.02 2.5h1.83v1.8h3.58v0.8l0.1 0.7h14.6l-0.1-0.8c0-0.7 0-0.8 0.2-0.8 0.1 0.1 0.5 0.1 1 0.1h0.9v1.6l-0.54 0.1h-0.96-0.4v1.7h-14.7v-1.7h-0.98-0.96v7.4h1.94v0.7 0.9l0.1 0.2h5.4v0.8 0.8h5.5 5.6v-1.6h5.4v-0.4-0.9l0.1-0.5h1.9v-4.5-4.6h0.9 0.8v-3.3h1.7l0.1-0.6c0-0.3 0.1-0.8 0.1-1v-0.4h0.9 0.9v-0.6c0-0.3 0-1.1 0.1-1.7v-1.1h1.8v-13.9h-2v-7.4h-1.8v-1.6h-2.7c-1.5-0.1-2.7-0.1-2.7 0-0.1 0 0 6.1 0 6.7l0.1 0.6h0.8 0.8v2.7 2.7l-0.9 0.1h-0.8v-0.3-2.5c0-2.7 0-2.7-0.7-2.7-0.2 0-0.6 0-0.8-0.1h-0.4v-3.2c0-1.7 0.1-3.3 0.1-3.6l0.1-0.5h1.6v-1.8h1.9v-7.3l-0.1-7.16-0.9-0.02-0.9-0.03v-0.75c0-0.4-0.1-1.03-0.1-1.389l-0.1-0.651h-7.5l0.1 9.59zm-12.7 15.11c0.1 0 0.1 0.3 0.1 0.8v0.8h1.9l-0.2 1.8h1.8l-0.1 0.9c0 1.1 0 1.1-0.9 1.1h-0.8v-1.9l-0.9 0.1h-0.9v-0.9-0.9h-0.9-1v-0.9l0.1-0.9h0.7c0.4-0.1 0.8-0.1 0.9-0.1 0.1 0.1 0.2 0.1 0.2 0.1zm23.9 10.7v3.4h-0.8-0.9v-3.4-3.4h1.7v3.4z' /></g>"
     }
 
     fn empty(over: bool) -> ByteArray {
         if (over) {
-            return "<g id='empty'><use href='#frame' fill='black' fill-opacity='0.04' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#dropShadow)' /></g>";
+            return "<g id='empty'><use href='#frame' fill='black' fill-opacity='0.04' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#boxShadow)' /></g>";
         }
-        "<g id='empty'><use href='#frame' fill='white' fill-opacity='0.08' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#dropShadow)' /></g>"
+        "<g id='empty'><use href='#frame' fill='black' fill-opacity='0.08' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#boxShadow)' /></g>"
     }
 
-    fn defs(slots: Span<u16>, title: ByteArray, over: bool) -> ByteArray {
+    fn defs(slots: Span<u16>, over: bool) -> ByteArray {
         let mut defs: ByteArray = "<defs>";
         defs += Self::filter();
         defs += Self::frame();
@@ -90,7 +90,7 @@ pub impl Svg of SvgTrait {
             );
         }
         format!(
-            "<g id='slot-{slot}' transform='translate({x},{y})'><use href='#frame' fill='white' fill-opacity='0.04' /><text id='{number}' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle' fill='white' filter='url(#dropShadow)'>{number}</text></g>",
+            "<g id='slot-{slot}' transform='translate({x},{y})'><use href='#frame' fill='black' fill-opacity='0.04' /><text id='{number}' x='68' y='48' font-size='64' text-anchor='middle' dominant-baseline='middle' fill='white' filter='url(#boxShadow)'>{number}</text></g>",
         )
     }
 }
@@ -104,10 +104,10 @@ mod tests {
         let slots: Array<u16> = array![
             0, 0, 0, 149, 168, 187, 0, 0, 0, 0, 590, 0, 676, 0, 0, 0, 0, 0, 0, 0,
         ];
-        let defs = Svg::defs(slots.span(), "GAME OVER", true);
+        let defs = Svg::defs(slots.span(), true);
         assert_eq!(
             defs,
-            "<defs><filter id='dropShadow'><feDropShadow dx='2' dy='4' stdDeviation='0' flood-color='black' flood-opacity='0.2' /></filter><rect id='frame' width='136' height='88' rx='16' ry='18' /><g id='empty'><use href='#frame' fill='black' fill-opacity='0.04' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#dropShadow)' /></g><text id='tilde' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle'>~</text></defs>",
+            "<defs><filter id='dropShadow'><feDropShadow dx='2' dy='4' stdDeviation='0' flood-color='black' flood-opacity='0.24' /></filter><filter id='boxShadow'><feDropShadow dx='2' dy='2' stdDeviation='0' flood-color='black' flood-opacity='0.5' /></filter><rect id='frame' width='136' height='88' rx='16' ry='18' /><g id='empty'><use href='#frame' fill='black' fill-opacity='0.04' /><use href='#tilde' fill='white' fill-opacity='0.48' filter='url(#boxShadow)' /></g><text id='tilde' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle'>-</text></defs>",
         )
     }
 
@@ -126,7 +126,7 @@ mod tests {
         let slot = Svg::slot(0, 149);
         assert_eq!(
             slot,
-            "<g id='slot-1' transform='translate(68,204)'><use href='#frame' fill='white' fill-opacity='0.04' /><text id='149' x='68' y='48' font-size='48' text-anchor='middle' dominant-baseline='middle' fill='white' filter='url(#dropShadow)'>149</text></g>",
+            "<g id='slot-1' transform='translate(68,204)'><use href='#frame' fill='black' fill-opacity='0.04' /><text id='149' x='68' y='48' font-size='64' text-anchor='middle' dominant-baseline='middle' fill='white' filter='url(#boxShadow)'>149</text></g>",
         );
     }
 
@@ -141,11 +141,11 @@ mod tests {
         let slots: Array<u16> = array![
             0, 0, 0, 149, 168, 187, 0, 0, 0, 0, 590, 0, 676, 0, 0, 0, 0, 0, 0, 0,
         ];
-        let defs = Svg::defs(slots.span(), "GAME OVER", true);
+        let defs = Svg::defs(slots.span(), true);
         let encoded = Svg::encode(defs);
         assert_eq!(
             encoded,
-            "PGRlZnM+PGZpbHRlciBpZD0nZHJvcFNoYWRvdyc+PGZlRHJvcFNoYWRvdyBkeD0nMicgZHk9JzQnIHN0ZERldmlhdGlvbj0nMCcgZmxvb2QtY29sb3I9J2JsYWNrJyBmbG9vZC1vcGFjaXR5PScwLjInIC8+PC9maWx0ZXI+PHJlY3QgaWQ9J2ZyYW1lJyB3aWR0aD0nMTM2JyBoZWlnaHQ9Jzg4JyByeD0nMTYnIHJ5PScxOCcgLz48ZyBpZD0nZW1wdHknPjx1c2UgaHJlZj0nI2ZyYW1lJyBmaWxsPSdibGFjaycgZmlsbC1vcGFjaXR5PScwLjA0JyAvPjx1c2UgaHJlZj0nI3RpbGRlJyBmaWxsPSd3aGl0ZScgZmlsbC1vcGFjaXR5PScwLjQ4JyBmaWx0ZXI9J3VybCgjZHJvcFNoYWRvdyknIC8+PC9nPjx0ZXh0IGlkPSd0aWxkZScgeD0nNjgnIHk9JzQ4JyBmb250LXNpemU9JzQ4JyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBkb21pbmFudC1iYXNlbGluZT0nbWlkZGxlJz5+PC90ZXh0PjwvZGVmcz4=",
+            "PGRlZnM+PGZpbHRlciBpZD0nZHJvcFNoYWRvdyc+PGZlRHJvcFNoYWRvdyBkeD0nMicgZHk9JzQnIHN0ZERldmlhdGlvbj0nMCcgZmxvb2QtY29sb3I9J2JsYWNrJyBmbG9vZC1vcGFjaXR5PScwLjI0JyAvPjwvZmlsdGVyPjxmaWx0ZXIgaWQ9J2JveFNoYWRvdyc+PGZlRHJvcFNoYWRvdyBkeD0nMicgZHk9JzInIHN0ZERldmlhdGlvbj0nMCcgZmxvb2QtY29sb3I9J2JsYWNrJyBmbG9vZC1vcGFjaXR5PScwLjUnIC8+PC9maWx0ZXI+PHJlY3QgaWQ9J2ZyYW1lJyB3aWR0aD0nMTM2JyBoZWlnaHQ9Jzg4JyByeD0nMTYnIHJ5PScxOCcgLz48ZyBpZD0nZW1wdHknPjx1c2UgaHJlZj0nI2ZyYW1lJyBmaWxsPSdibGFjaycgZmlsbC1vcGFjaXR5PScwLjA0JyAvPjx1c2UgaHJlZj0nI3RpbGRlJyBmaWxsPSd3aGl0ZScgZmlsbC1vcGFjaXR5PScwLjQ4JyBmaWx0ZXI9J3VybCgjYm94U2hhZG93KScgLz48L2c+PHRleHQgaWQ9J3RpbGRlJyB4PSc2OCcgeT0nNDgnIGZvbnQtc2l6ZT0nNDgnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGRvbWluYW50LWJhc2VsaW5lPSdtaWRkbGUnPi08L3RleHQ+PC9kZWZzPg==",
         );
     }
 }

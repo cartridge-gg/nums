@@ -103,9 +103,18 @@ const data: { rank: number, player: string, score: number, numsReward: number, p
   { rank: 20, player: "sam", score: 14, numsReward: 1815 },
 ]
 const bigdata = [...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data].map((item, index) => ({ ...item, rank: index + 1 }));
+// const bigdata = data.slice(0, 0);
 
 export type LeaderboardProps = {
 }
+
+const EmptyLeaderboard = () => {
+  return (
+    <div className="select-none w-full h-full p-6 rounded-lg bg-black-900 border border-purple-600 flex justify-center items-center">
+        <p className="text-white-400 tracking-wider text-xl" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>No games have been played yet</p>
+    </div>
+  );
+};
 
 export const Leaderboard = ({ }: LeaderboardProps) => {
   const [page, setPage] = useState(1);
@@ -195,8 +204,11 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
   }, [maxVisibleSlots]);
 
   const rows = useMemo(() => {
+    if (bigdata.length === 0) return [];
     return bigdata.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   }, [page, rowsPerPage]);
+
+  const hasData = bigdata.length > 0;
 
   // Generate page numbers with ellipsis based on available space
   const getPageNumbers = () => {
@@ -260,45 +272,66 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
 
   return (
     <div className="select-none w-full h-full p-6 rounded-lg bg-[rgba(0,0,0,0.04)] flex flex-col" style={{ boxShadow: '1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)' }}>
-      <div ref={spacerRef} className="flex-1 min-h-0">
-        <div ref={tableContainerRef} style={{ height: `${tableHeight}px` }}>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Rank</TableHead>
-                <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Player</TableHead>
-                <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Score</TableHead>
-                <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Nums Reward</TableHead>
-                <TableHead className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Prize</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="font-ppneuebit text-2xl leading-[34px]">
-              {rows.map((item) => (
-                <TableRow key={item.rank}>
-                  <TableCell className="pl-3">{item.rank}</TableCell>
-                  <TableCell>{item.player}</TableCell>
-                  <TableCell>{item.score}</TableCell>
-                  <TableCell>{item.numsReward}</TableCell>
-                  <TableCell className="pr-3">{item.prize}</TableCell>
+      <div ref={spacerRef} className="flex-1 min-h-0 flex flex-col">
+        {hasData ? (
+          <div ref={tableContainerRef} style={{ height: `${tableHeight}px` }}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Rank</TableHead>
+                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Player</TableHead>
+                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Score</TableHead>
+                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Nums Reward</TableHead>
+                  <TableHead className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Prize</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody className="font-ppneuebit text-2xl leading-[34px]">
+                {rows.map((item) => (
+                  <TableRow key={item.rank}>
+                    <TableCell className="pl-3">{item.rank}</TableCell>
+                    <TableCell>{item.player}</TableCell>
+                    <TableCell>{item.score}</TableCell>
+                    <TableCell>{item.numsReward}</TableCell>
+                    <TableCell className="pr-3">{item.prize}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <>
+            <div ref={tableContainerRef}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Rank</TableHead>
+                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Player</TableHead>
+                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Score</TableHead>
+                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Nums Reward</TableHead>
+                    <TableHead className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Prize</TableHead>
+                  </TableRow>
+                </TableHeader>
+              </Table>
+            </div>
+            <div className="flex-1 min-h-0">
+              <EmptyLeaderboard />
+            </div>
+          </>
+        )}
       </div>
       
-      {totalPages > 1 && (
-        <div ref={paginationRef} className="w-full flex items-center mt-6" style={{ gap: '36px' }}>
-          <PaginationItem>
-            <PaginationPrevious 
-              onClick={() => setPage(Math.max(1, page - 1))}
-              isDisabled={page === 1}
-              className={page === 1 ? "pointer-events-none" : "cursor-pointer"}
-            />
-          </PaginationItem>
-          
-          <div className="flex-1 flex justify-center gap-3">
-            {getPageNumbers().map((pageNum, idx) => (
+      <div ref={paginationRef} className="w-full flex items-center mt-6" style={{ gap: '36px' }}>
+        <PaginationItem>
+          <PaginationPrevious 
+            onClick={() => setPage(Math.max(1, page - 1))}
+            isDisabled={!hasData || page === 1}
+            className={!hasData || page === 1 ? "pointer-events-none" : "cursor-pointer"}
+          />
+        </PaginationItem>
+        
+        <div className="flex-1 flex justify-center gap-3">
+          {hasData ? (
+            getPageNumbers().map((pageNum, idx) => (
               pageNum === 'ellipsis' ? (
                 <PaginationItem key={`ellipsis-${idx}`}>
                   <PaginationEllipsis />
@@ -314,18 +347,24 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
                   </PaginationLink>
                 </PaginationItem>
               )
-            ))}
-          </div>
-          
-          <PaginationItem>
-            <PaginationNext 
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              isDisabled={page === totalPages}
-              className={page === totalPages ? "pointer-events-none" : "cursor-pointer"}
-            />
-          </PaginationItem>
+            ))
+          ) : (
+            <PaginationItem>
+              <PaginationLink isActive={true} className="pointer-events-none">
+                <p className="translate-y-0.5">1</p>
+              </PaginationLink>
+            </PaginationItem>
+          )}
         </div>
-      )}
+        
+        <PaginationItem>
+          <PaginationNext 
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            isDisabled={!hasData || page === totalPages}
+            className={!hasData || page === totalPages ? "pointer-events-none" : "cursor-pointer"}
+          />
+        </PaginationItem>
+      </div>
     </div>
   )
 }

@@ -1,42 +1,31 @@
-import { getNumsAddress, getGameAddress } from "@/config";
+import { getGameAddress, getVrfAddress } from "@/config";
 import useChain from "@/hooks/chain";
-import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
-import { useCallback, useEffect, useState } from "react";
-import { shortString, uint256 } from "starknet";
+import { useCallback } from "react";
+import { CallData } from "starknet";
 
-export const useBuyGame = () => {
-  const { account, connector } = useAccount();
+export const useStartGame = ({ gameId }: { gameId: number }) => {
+  const { account } = useAccount();
   const { chain } = useChain();
 
-  const [username, setUsername] = useState<string | null>(null);
-
-  useEffect(() => {
-    const c = connector as never as ControllerConnector;
-    if (!c || !c.username || username) return;
-    c.username()?.then((username) => {
-      setUsername(username);
-    });
-  }, [connector]);
-
-  const buyGame = useCallback(async () => {
+  const startGame = useCallback(async () => {
     try {
-      if (!account?.address || !username) return false;
-      const numsAddress = getNumsAddress(chain.id);
+      if (!account?.address) return false;
+      const vrfAddress = getVrfAddress(chain.id);
       const gameAddress = getGameAddress(chain.id);
       await account!.execute([
         {
-          contractAddress: numsAddress,
-          entrypoint: "approve",
-          calldata: [
-            gameAddress,
-            uint256.bnToUint256(2_000n * 10n ** 18n),
-          ],
+          contractAddress: vrfAddress,
+          entrypoint: "request_random",
+          calldata: CallData.compile({
+            caller: gameAddress,
+            source: { type: 0, address: gameAddress },
+          }),
         },
         {
           contractAddress: gameAddress,
-          entrypoint: "buy",
-          calldata: [shortString.encodeShortString(username)],
+          entrypoint: "start",
+          calldata: CallData.compile({ game_id: gameId }),
         },
       ]);
 
@@ -45,10 +34,10 @@ export const useBuyGame = () => {
       console.log({ e });
       return false;
     }
-  }, [account, username]);
+  }, [account]);
 
 
   return {
-    buyGame,
+    startGame,
   };
 };

@@ -45,7 +45,7 @@ export const Sound = () => {
 
   return (
     <Button
-      variant="secondary"
+      variant="muted"
       onClick={() => toggleMute()}
       className="h-12 px-4 py-2 [&_svg]:size-8"
     >
@@ -97,7 +97,7 @@ export const Balance = () => {
 
   return (
     <Button
-      variant="secondary"
+      variant="muted"
       className={cn("h-12 px-4 py-2 text-2xl tracking-wider", !isMainnet ? "cursor-pointer" : "cursor-default")}
       onClick={() => {
         if (isMainnet) return;
@@ -125,7 +125,7 @@ export const Profile = () => {
   
   return (
     <Button
-      variant="secondary"
+      variant="muted"
       className="h-12 px-4 py-2 font-[PixelGame] tracking-wider flex items-center justify-center gap-2 [&_svg]:size-6"
       onClick={async () => {
         (connector as ControllerConnector)?.controller.openProfile(
@@ -159,7 +159,7 @@ export const Disconnect = () => {
 
   return (
     <Button
-      variant="secondary"
+      variant="muted"
       className="h-12 px-4 py-2 [&_svg]:size-8"
       onClick={() => disconnect()}
     >

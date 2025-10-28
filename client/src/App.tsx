@@ -25,6 +25,7 @@ import { TournamentProvider } from "./context/tournaments";
 import { GameProvider } from "./context/game";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
+import { ModalProvider } from "./context/modal";
 import { Toaster } from "sonner";
 
 const provider = jsonRpcProvider({
@@ -88,7 +89,7 @@ const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
   policies: buildPolicies(),
-  // preset: "nums",
+  preset: "nums",
   namespace: "NUMS",
   slot:"nums-bal",
   tokens: buildTokens(),
@@ -113,14 +114,16 @@ function App() {
                 <ControllersProvider>
                   <GameProvider>
                     <TournamentProvider>
-                      <Router>
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/:gameId" element={<Game />} />
-                          {/* <Route path="/selection" element={<Selection />} />
-                          <Route path="/factories" element={<Factories />} /> */}
-                        </Routes>
-                      </Router>
+                      <ModalProvider>
+                        <Router>
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/:gameId" element={<Game />} />
+                            {/* <Route path="/selection" element={<Selection />} />
+                            <Route path="/factories" element={<Factories />} /> */}
+                          </Routes>
+                        </Router>
+                      </ModalProvider>
                     </TournamentProvider>
                   </GameProvider>
                 </ControllersProvider>

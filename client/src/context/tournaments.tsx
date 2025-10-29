@@ -9,72 +9,6 @@ import type {
 import { NAMESPACE } from "@/config";
 import { Tournament, TournamentModel } from "@/models/tournament";
 
-const tournamentsData = [
-  {
-    id: 1,
-    powers: 1,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 2,
-    powers: 2,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 3,
-    powers: 3,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 4,
-    powers: 4,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 5,
-    powers: 5,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 6,
-    powers: 6,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 7,
-    powers: 7,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 8,
-    powers: 8,
-    entry_count: 0,
-    start_time: 0,
-    end_time: 0,
-  },
-  {
-    id: 3000,
-    powers: 8,
-    entry_count: 0,
-    start_time: 1767199628,
-    end_time: 1767286028,
-  },
-];
-
 type TournamentProviderProps = {
   children: React.ReactNode;
 };
@@ -157,12 +91,7 @@ export function TournamentProvider({
     <TournamentProviderContext.Provider
       {...props}
       value={{
-        tournaments: [
-          ...tournamentsData.map((data) =>
-            TournamentModel.from(data.id.toString(), data),
-          ),
-          ...tournaments,
-        ].sort((a, b) => b.id - a.id),
+        tournaments: tournaments.sort((a, b) => b.id - a.id),
         leaderboards,
         getTournamentById,
         getLeaderboardById,

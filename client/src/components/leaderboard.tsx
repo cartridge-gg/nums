@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   PaginationEllipsis,
   PaginationItem,
@@ -14,167 +14,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { useTournamentGames } from "@/hooks/useTournamentGames";
 
-const data: {
-  rank: number;
-  player: string;
-  score: number;
-  numsReward: number;
-  prize?: string;
-}[] = [
-  {
-    rank: 1,
-    player: "clicksave",
-    score: 16,
-    numsReward: 17215,
-    prize: "52%",
-  },
-  {
-    rank: 2,
-    player: "bal7hazar",
-    score: 16,
-    numsReward: 17215,
-    prize: "26%",
-  },
-  {
-    rank: 3,
-    player: "ashe",
-    score: 15,
-    numsReward: 10715,
-    prize: "13%",
-  },
-  {
-    rank: 4,
-    player: "glihm",
-    score: 15,
-    numsReward: 10715,
-    prize: "6%",
-  },
-  {
-    rank: 5,
-    player: "flippertherichdolphin",
-    score: 15,
-    numsReward: 10715,
-    prize: "3%",
-  },
-  {
-    rank: 6,
-    player: "steebchen",
-    score: 15,
-    numsReward: 10715,
-  },
-  {
-    rank: 7,
-    player: "clicksave",
-    score: 14,
-    numsReward: 6715,
-  },
-  {
-    rank: 8,
-    player: "nasr",
-    score: 14,
-    numsReward: 6715,
-  },
-  {
-    rank: 9,
-    player: "neo",
-    score: 13,
-    numsReward: 4215,
-  },
-  {
-    rank: 10,
-    player: "broody",
-    score: 12,
-    numsReward: 2415,
-  },
-  {
-    rank: 11,
-    player: "bal7hazar",
-    score: 14,
-    numsReward: 1815,
-  },
-  {
-    rank: 12,
-    player: "bal7hazar",
-    score: 14,
-    numsReward: 1815,
-  },
-  { rank: 13, player: "jack", score: 14, numsReward: 1815 },
-  { rank: 14, player: "sam", score: 14, numsReward: 1815 },
-  { rank: 15, player: "john", score: 14, numsReward: 1815 },
-  { rank: 16, player: "jane", score: 14, numsReward: 1815 },
-  { rank: 17, player: "jim", score: 14, numsReward: 1815 },
-  { rank: 18, player: "jill", score: 14, numsReward: 1815 },
-  { rank: 19, player: "jack", score: 14, numsReward: 1815 },
-  { rank: 20, player: "sam", score: 14, numsReward: 1815 },
-];
-const bigdata = [
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-  ...data,
-].map((item, index) => ({ ...item, rank: index + 1 }));
-// const bigdata = data.slice(0, 0);
-
-export type LeaderboardProps = {};
+export type LeaderboardProps = {
+  tournamentId: number;
+};
 
 const EmptyLeaderboard = () => {
   return (
@@ -189,7 +34,9 @@ const EmptyLeaderboard = () => {
   );
 };
 
-export const Leaderboard = ({}: LeaderboardProps) => {
+export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
+  const { leaderboard: _leaderboard } = useLeaderboard(tournamentId);
+  const { games } = useTournamentGames(tournamentId);
   const [page, setPage] = useState(1);
   const [containerWidth, setContainerWidth] = useState(784);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -198,7 +45,12 @@ export const Leaderboard = ({}: LeaderboardProps) => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
 
-  const totalPages = Math.ceil(bigdata.length / rowsPerPage);
+  const totalPages = Math.ceil(games.length / rowsPerPage);
+
+  // Reset page to 1 when tournament changes
+  useEffect(() => {
+    setPage(1);
+  }, [tournamentId]);
 
   // Measure container dimensions and calculate rows per page
   useLayoutEffect(() => {
@@ -232,8 +84,8 @@ export const Leaderboard = ({}: LeaderboardProps) => {
         setRowsPerPage(newRowsPerPage);
         setTableHeight(newTableHeight);
         // Adjust current page if needed
-        const newTotalPages = Math.ceil(bigdata.length / newRowsPerPage);
-        if (page > newTotalPages) {
+        const newTotalPages = Math.ceil(games.length / newRowsPerPage);
+        if (page > newTotalPages && newTotalPages > 0) {
           setPage(newTotalPages);
         }
       }
@@ -277,11 +129,11 @@ export const Leaderboard = ({}: LeaderboardProps) => {
   }, [maxVisibleSlots]);
 
   const rows = useMemo(() => {
-    if (bigdata.length === 0) return [];
-    return bigdata.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-  }, [page, rowsPerPage]);
+    if (games.length === 0) return [];
+    return games.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+  }, [page, rowsPerPage, games]);
 
-  const hasData = bigdata.length > 0;
+  const hasData = games.length > 0;
 
   // Generate page numbers with ellipsis based on available space
   const getPageNumbers = () => {
@@ -393,10 +245,10 @@ export const Leaderboard = ({}: LeaderboardProps) => {
                 {rows.map((item) => (
                   <TableRow key={item.rank}>
                     <TableCell className="pl-3">{item.rank}</TableCell>
-                    <TableCell>{item.player}</TableCell>
+                    <TableCell>{item.username}</TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell>{item.numsReward}</TableCell>
-                    <TableCell className="pr-3">{item.prize}</TableCell>
+                    <TableCell>{item.reward}</TableCell>
+                    <TableCell className="pr-3"></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -7,14 +7,14 @@ import {
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NAMESPACE } from "@/config";
-import { Game, type GameModel } from "@/models/game";
+import { Leaderboard, type LeaderboardModel } from "@/models/leaderboard";
 import { useDojoSdk } from "./dojo";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGameQuery = (gameId: number) => {
-  const model: `${string}-${string}` = `${NAMESPACE}-${Game.getModelName()}`;
-  const key = `0x${gameId.toString(16).padStart(16, "0")}`;
+const getLeaderboardQuery = (tournamentId: number) => {
+  const model: `${string}-${string}` = `${NAMESPACE}-${Leaderboard.getModelName()}`;
+  const key = `0x${tournamentId.toString(16).padStart(16, "0")}`;
   const clauses = new ClauseBuilder().keys([model], [key], "FixedLen");
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
@@ -22,16 +22,18 @@ const getGameQuery = (gameId: number) => {
     .withLimit(ENTITIES_LIMIT);
 };
 
-export const useGame = (gameId: number) => {
+export const useLeaderboard = (tournamentId: number) => {
   const { sdk } = useDojoSdk();
 
-  const [game, setGame] = useState<GameModel | undefined>(undefined);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardModel | undefined>(
+    undefined,
+  );
 
   const subscriptionRef = useRef<any>(null);
 
-  const gameQuery = useMemo(() => {
-    return getGameQuery(gameId);
-  }, [gameId]);
+  const leaderboardQuery = useMemo(() => {
+    return getLeaderboardQuery(tournamentId);
+  }, [tournamentId]);
 
   const onUpdate = useCallback(
     ({
@@ -50,11 +52,11 @@ export const useGame = (gameId: number) => {
         return;
       const entity = data[0];
       if (BigInt(entity.entityId) === 0n) return;
-      if (!entity.models[NAMESPACE]?.[Game.getModelName()]) return;
-      const game = Game.parse(entity as any);
-      setGame(game);
+      if (!entity.models[NAMESPACE]?.[Leaderboard.getModelName()]) return;
+      const leaderboard = Leaderboard.parse(entity as any);
+      setLeaderboard(leaderboard);
     },
-    [gameId],
+    [tournamentId],
   );
 
   const refresh = useCallback(async () => {
@@ -63,7 +65,7 @@ export const useGame = (gameId: number) => {
     }
 
     const [result, subscription] = await sdk.subscribeEntityQuery({
-      query: gameQuery,
+      query: leaderboardQuery,
       callback: onUpdate,
     });
     subscriptionRef.current = subscription;
@@ -72,7 +74,7 @@ export const useGame = (gameId: number) => {
     if (items && items.length > 0) {
       onUpdate({ data: items, error: undefined });
     }
-  }, [gameQuery, gameId, onUpdate]);
+  }, [leaderboardQuery, tournamentId, onUpdate]);
 
   useEffect(() => {
     refresh();
@@ -82,10 +84,11 @@ export const useGame = (gameId: number) => {
         subscriptionRef.current.cancel();
       }
     };
-  }, [subscriptionRef, sdk, gameQuery, gameId, refresh]);
+  }, [subscriptionRef, sdk, leaderboardQuery, tournamentId, refresh]);
 
   return {
-    game: game?.id === gameId ? game : undefined,
+    leaderboard:
+      leaderboard?.tournament_id === tournamentId ? leaderboard : undefined,
     refresh,
   };
 };

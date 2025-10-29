@@ -54,7 +54,10 @@ export const Main = () => {
       selectedTournament !== undefined
     )
       return;
-    setSelectedTournament(tournaments[0].id);
+    const activeTournament = tournaments.find((tournament) =>
+      tournament.isActive(),
+    );
+    setSelectedTournament(activeTournament?.id || tournaments[0].id);
   }, [tournaments, selectedTournament]);
 
   const handleSelect = (value: string) => {
@@ -90,7 +93,9 @@ export const Main = () => {
           />
         )}
         <div className="flex-1 min-h-0">
-          <Leaderboard />
+          {selectedTournament && (
+            <Leaderboard tournamentId={selectedTournament} />
+          )}
         </div>
       </div>
     </div>
@@ -168,7 +173,7 @@ export const JackpotSelector = ({
           <SelectValue placeholder="Coming soon" />
         )}
       </SelectTrigger>
-      <SelectContent className="w-[400px] h-[360px] rounded-lg border-2 border-black-300 px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wider shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
+      <SelectContent className="w-[400px] max-h-[360px] rounded-lg border-2 border-black-300 px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wider shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
         <div className="flex flex-col gap-2 py-3">
           {tournaments?.map((tournament) => (
             <SelectItem

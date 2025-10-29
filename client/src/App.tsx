@@ -7,6 +7,7 @@ import {
   StarknetConfig,
   voyager,
 } from "@starknet-react/core";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import {
@@ -27,6 +28,7 @@ import { TournamentProvider } from "./context/tournaments";
 import { UrqlProvider } from "./context/urql";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
+import { queryClient } from "./queries";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -57,7 +59,11 @@ const buildPolicies = () => {
         methods: [{ entrypoint: "approve" }],
       },
       [gameAddress]: {
-        methods: [{ entrypoint: "start" }, { entrypoint: "set" }],
+        methods: [
+          { entrypoint: "start" },
+          { entrypoint: "set" },
+          { entrypoint: "apply" },
+        ],
       },
     },
   };
@@ -100,38 +106,40 @@ const connectors = [new ControllerConnector(options) as never as Connector];
 function App() {
   return (
     <>
-      <StarknetConfig
-        autoConnect
-        chains={[chains[DEFAULT_CHAIN_ID]]}
-        connectors={connectors}
-        explorer={voyager}
-        provider={provider}
-      >
-        <DojoSdkProviderInitialized>
-          <UrqlProvider>
-            <AudioProvider>
-              <ConfigProvider>
-                <ControllersProvider>
-                  <GameProvider>
-                    <TournamentProvider>
-                      <ModalProvider>
-                        <Router>
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/:gameId" element={<Game />} />
-                            {/* <Route path="/selection" element={<Selection />} />
-                            <Route path="/factories" element={<Factories />} /> */}
-                          </Routes>
-                        </Router>
-                      </ModalProvider>
-                    </TournamentProvider>
-                  </GameProvider>
-                </ControllersProvider>
-              </ConfigProvider>
-            </AudioProvider>
-          </UrqlProvider>
-        </DojoSdkProviderInitialized>
-      </StarknetConfig>
+      <QueryClientProvider client={queryClient}>
+        <StarknetConfig
+          autoConnect
+          chains={[chains[DEFAULT_CHAIN_ID]]}
+          connectors={connectors}
+          explorer={voyager}
+          provider={provider}
+        >
+          <DojoSdkProviderInitialized>
+            <UrqlProvider>
+              <AudioProvider>
+                <ConfigProvider>
+                  <ControllersProvider>
+                    <GameProvider>
+                      <TournamentProvider>
+                        <ModalProvider>
+                          <Router>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/:gameId" element={<Game />} />
+                              {/* <Route path="/selection" element={<Selection />} />
+                              <Route path="/factories" element={<Factories />} /> */}
+                            </Routes>
+                          </Router>
+                        </ModalProvider>
+                      </TournamentProvider>
+                    </GameProvider>
+                  </ControllersProvider>
+                </ConfigProvider>
+              </AudioProvider>
+            </UrqlProvider>
+          </DojoSdkProviderInitialized>
+        </StarknetConfig>
+      </QueryClientProvider>
       <Toaster position="top-right" richColors />
     </>
   );

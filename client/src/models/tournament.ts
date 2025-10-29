@@ -68,6 +68,10 @@ export class TournamentModel {
   hasEnded() {
     return this.end_time.getTime() < Date.now();
   }
+
+  isActive() {
+    return this.hasStarted() && !this.hasEnded();
+  }
 }
 
 export const Tournament = {

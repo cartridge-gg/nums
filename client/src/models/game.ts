@@ -6,6 +6,10 @@ import { Power } from "@/types/power";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
+const REWARDS: number[] = [
+  0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500, 8000, 10000,
+  20000, 42000,
+];
 
 export class GameModel {
   type = MODEL_NAME;
@@ -115,10 +119,18 @@ export class GameModel {
     return this.tournament_id !== 0;
   }
 
+  totalReward(): number {
+    return REWARDS.slice(0, this.level + 1).reduce((acc, curr) => acc + curr, 0);
+  }
+
   alloweds(): number[] {
     // Return the indexes of the slots that are allowed to be set based on the number
-    const alloweds: number[] = [];
-    return alloweds;
+    const [low, high] = this.closests();
+    if (high === -1 && low === -1) return Array.from({ length: this.slots.length }, (_, idx) => idx);
+    if (high === low) return [];
+    if (low === -1) return Array.from({ length: high }, (_, idx) => idx);
+    if (high === -1) return Array.from({ length: this.slots.length - low - 1 }, (_, idx) => low + idx + 1);
+    return Array.from({ length: high - low - 1 }, (_, idx) => low + idx + 1);
   }
 
   closests(): number[] {
@@ -127,19 +139,18 @@ export class GameModel {
     let closest_higher = -1;
     for (let idx = 0; idx < this.slots.length; idx++) {
       const slot = this.slots[idx];
-      if (slot <= this.number) {
+      if (slot <= this.number && slot !== 0) {
         closest_lower = idx;
       }
-      if (slot >= this.number) {
+      if (slot >= this.number && slot !== 0) {
         closest_higher = idx;
         break;
       }
     };
-    const indexes = [closest_lower, closest_higher].filter((item) => item !== -1);
-    return indexes.filter((item, index) => indexes.indexOf(item) === index);
+    return [closest_lower, closest_higher];
   }
 
-  adjacentCount(): number {
+  adjacent(): number {
     let count = 0;
     let previous_filled = false;
     let previous_accounted = false;
@@ -147,6 +158,7 @@ export class GameModel {
       if (slot === 0) {
         previous_filled = false;
         previous_accounted = false;
+        continue;
       }
       if (!previous_filled) {
         previous_filled = true;

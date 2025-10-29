@@ -103,8 +103,8 @@ export function useTokens(
   function toDecimal(
     token: TokenContract,
     balance: TokenBalance | undefined
-  ): number {
-    return Number.parseInt(balance?.balance ?? "0", 16) * 10 ** -token.decimals;
+  ): bigint {
+    return BigInt(balance?.balance ?? "0") / 10n ** BigInt(token.decimals);
   }
 
   const refetchBalances = useCallback(async () => {

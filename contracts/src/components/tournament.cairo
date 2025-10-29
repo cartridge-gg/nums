@@ -68,13 +68,19 @@ pub mod TournamentComponent {
             tournament.enter();
             store.set_tournament(@tournament);
 
-            // [Interaction] Mint the share to the prize pool
+            // [Effect] Update prize
             let config = store.config();
             let entry_price: u256 = config.entry_price.into();
             let (_, to_prize) = config.split(entry_price);
+            let nums_disp = store.nums_disp();
+            let nums_address = nums_disp.contract_address;
+            let mut prize = store.prize(tournament.id, nums_address.into());
+            prize.sponsor(to_prize.try_into().unwrap());
+            store.set_prize(@prize);
+
+            // [Interaction] Mint the share to the prize pool
             let recipient = starknet::get_contract_address();
-            let amount: u64 = to_prize.try_into().unwrap();
-            store.nums_disp().reward(recipient, amount);
+            nums_disp.reward(recipient, to_prize.try_into().unwrap());
 
             // [Return] Tournament ID
             tournament

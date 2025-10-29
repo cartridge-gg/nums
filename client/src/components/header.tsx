@@ -69,25 +69,25 @@ export const Balance = () => {
     true
   );
 
-  const prevBalanceRef = useRef<number | undefined>(undefined);
-  const balanceDiff = useRef<{ value: number }>({ value: 0 });
+  const prevBalanceRef = useRef<bigint | undefined>(undefined);
+  const balanceDiff = useRef<{ value: bigint }>({ value: 0n });
 
   const balance = useMemo(() => {
-    if (!account) return 0;
+    if (!account) return "0";
 
     const token = tokens.find(
       (i) => BigInt(i.contract_address) === BigInt(numsAddress)
     );
-    if (!token) return 0;
+    if (!token) return "0";
 
     const balance = getBalance(token);
-    if (!balance) return 0;
+    if (!balance) return "0";
 
     const balanceScaled = toDecimal(token, balance);
 
-    const diff = Math.round(balanceScaled - (prevBalanceRef.current || 0));
+    const diff = balanceScaled - (prevBalanceRef.current || 0n);
 
-    if (diff !== 0) {
+    if (diff !== 0n) {
       balanceDiff.current = { value: diff };
       prevBalanceRef.current = balanceScaled;
     }

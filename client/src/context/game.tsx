@@ -48,10 +48,6 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       return Object.values(gamesItems[key] as Game[]);
     });
 
-    // if (games) {
-    //   console.log("games", games);
-    // }
-
     return {
       games,
     };

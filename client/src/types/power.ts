@@ -87,6 +87,27 @@ export class Power {
     return value < condition;
   }
 
+  public index(): number {
+    switch (this.value) {
+      case PowerType.Reroll:
+        return 0;
+      case PowerType.High:
+        return 1;
+      case PowerType.Low:
+        return 2;
+      case PowerType.Foresight:
+        return 3;
+      case PowerType.DoubleUp:
+        return 4;
+      case PowerType.Halve:
+        return 5;
+      case PowerType.Mirror:
+        return 6;
+      default:
+        return -1;
+    }
+  }
+
   public name(): string {
     switch (this.value) {
       case PowerType.Reroll:

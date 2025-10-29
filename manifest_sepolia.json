@@ -1480,7 +1480,7 @@
   "contracts": [
     {
       "address": "0x40f10486dce7b7abd52f5389f97788188a99bb1700384bdda71f1bd663c3b9e",
-      "class_hash": "0x34b8362d3406f3b86f9dddd5eb5cdcb574801e9a46afb439cd2e278d115196f",
+      "class_hash": "0x7dc4ba7c32d0e355b5eb2efb72ca673ac7e63a2da28c2b4bc516564da6c6601",
       "abi": [
         {
           "type": "impl",
@@ -3664,7 +3664,7 @@
     },
     {
       "address": "0x277902ea7ce3bbdc25304f3cf1caaed7b6f22d722a8b16827ce11fd5fcb8ac6",
-      "class_hash": "0x65ddcbd3346f63488af9783e94e71457893903925c3bfcc5a5b09a161fa3e84",
+      "class_hash": "0x571268b023c4e068e5f91df14f8b4d82062d2f163e328e206f719f2823bebc",
       "abi": [
         {
           "type": "impl",
@@ -3877,6 +3877,26 @@
                 },
                 {
                   "name": "index",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u16"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "apply",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "power",
                   "type": "core::integer::u8"
                 }
               ],
@@ -4135,6 +4155,7 @@
         "buy",
         "start",
         "set",
+        "apply",
         "sponsor",
         "claim",
         "rescue",
@@ -4143,7 +4164,7 @@
     },
     {
       "address": "0x74955a68b8bc7deca30ca500b3a404b476293ddff34cb823fd69576be936212",
-      "class_hash": "0x51c8c772debf1753b638ea1ae14042b6b23e01ae90e29cdc031aa1d9f5706e5",
+      "class_hash": "0x31c25b524273aa19fa08cb19c2d177892623a53fef4bc69ba617aaaba5a7b33",
       "abi": [
         {
           "type": "impl",

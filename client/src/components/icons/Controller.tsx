@@ -7,8 +7,8 @@ export const ControllerIcon = () => {
     <path d="M8.43243 13.0133H15.4933V11.2297H8.43421C8.43421 11.4119 8.43243 13.0301 8.43243 13.0133Z" fill="white"/>
     </g>
     <defs>
-    <filter id="filter0_d_930_2150" x="3" y="4.66211" width="20" height="16.6758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+    <filter id="filter0_d_930_2150" x="3" y="4.66211" width="20" height="16.6758" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+    <feFlood floodOpacity="0" result="BackgroundImageFix"/>
     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
     <feOffset dx="2" dy="2"/>
     <feComposite in2="hardAlpha" operator="out"/>

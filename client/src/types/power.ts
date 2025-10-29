@@ -59,27 +59,32 @@ export class Power {
     return this.value === PowerType.None;
   }
 
-  public condition(
-    value: number,
-  ): boolean {
+  public condition(): number {
     switch (this.value) {
       case PowerType.Reroll:
-        return value >= 2;
+        return 2;
       case PowerType.High:
-        return value >= 3;
+        return 3;
       case PowerType.Low:
-        return value >= 3;
+        return 3;
       case PowerType.Foresight:
-        return value >= 6;
+        return 6;
       case PowerType.DoubleUp:
-        return value >= 5;
+        return 5;
       case PowerType.Halve:
-        return value >= 4;
+        return 4;
       case PowerType.Mirror:
-        return value >= 4;
+        return 4;
       default:
-        return false;
+        return 0;
     }
+  }
+
+  public isLocked(
+    value: number,
+  ): boolean {
+    const condition = this.condition();
+    return value < condition;
   }
 
   public name(): string {

@@ -87,16 +87,16 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
     });
   }, [startGame, navigate, game.id]);
 
-  if (!game) return null;
+  if (!game || game.over) return null;
 
   return (
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
         <div className="w-5">
-          {game.hasStarted() && <LiveIcon />}
+          {game.hasStarted() && !game.over && <LiveIcon />}
         </div>
         <p className="text-[22px] leading-[12px] w-[168px]">{`Nums #${game.id}`}</p>
-        {!game.over ?
+        {game.hasStarted() ?
         <p className="text-[22px] leading-[12px]">{game.score}</p>
         :
         <p className="text-2xl leading-[12px] text-white-700">---</p>

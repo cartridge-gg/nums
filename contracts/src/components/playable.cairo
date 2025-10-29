@@ -280,10 +280,7 @@ pub mod PlayableComponent {
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
-            let amount: u64 = (game.reward.into() * TEN_POW_18)
-                .try_into()
-                .expect('Reward conversion failed!');
-            store.nums_disp().reward(player, amount);
+            store.nums_disp().reward(player, game.reward.into());
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);

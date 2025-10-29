@@ -47,7 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
-    const combinedStyle = variant === "secondary" || variant === "default" || variant === "muted"
+    const combinedStyle = !props.disabled && (variant === "secondary" || variant === "default" || variant === "muted")
       ? {
           boxShadow: '1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)',
           ...style

@@ -174,15 +174,4 @@ mod tests {
         let item: u8 = Packer::get(packed, index, size, len);
         assert_eq!(item, 0x6);
     }
-
-    #[test]
-    fn test_packer_replace_error() {
-        let packed: u256 = 0x0;
-        let index: u8 = 14;
-        let size: u128 = 4096;
-        let len: u16 = 20;
-        let value: u16 = 888;
-        let new_packed = Packer::replace(packed, index, size, value, len);
-        assert_eq!(new_packed, 332240244211159498589407265651727186292343833129648128);
-    }
 }

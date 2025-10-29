@@ -29,8 +29,8 @@ const SelectTrigger = React.forwardRef<
           <path d="M8 0.8L4 4.8L0 0.8L3.49692e-08 0L8 3.49691e-07V0.8Z" fill="white"/>
         </g>
         <defs>
-          <filter id="filter0_d_922_4915" x="0" y="0" width="10" height="6.7998" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <filter id="filter0_d_922_4915" x="0" y="0" width="10" height="6.7998" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+            <feFlood floodOpacity="0" result="BackgroundImageFix"/>
             <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
             <feOffset dx="2" dy="2"/>
             <feComposite in2="hardAlpha" operator="out"/>

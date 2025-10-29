@@ -2,9 +2,10 @@ import { NAMESPACE } from "@/constants";
 import type { SchemaType } from "@/bindings/typescript/models.gen";
 import { type ParsedEntity } from "@dojoengine/sdk";
 import { Packer } from "@/helpers/packer";
+import { Power } from "@/types/power";
 
 const MODEL_NAME = "Game";
-const SLOT_SIZE = BigInt(2 ** 12);
+const SLOT_SIZE = 12n;
 
 export class GameModel {
   type = MODEL_NAME;
@@ -21,7 +22,7 @@ export class GameModel {
     public number: number,
     public next_number: number,
     public tournament_id: number,
-    public powers: number,
+    public powers: Power[],
     public reward: number,
     public score: number,
     public slots: number[],
@@ -55,7 +56,7 @@ export class GameModel {
     const number = Number(model.number);
     const next_number = Number(model.next_number);
     const tournament_id = Number(model.tournament_id);
-    const powers = Number(model.powers);
+    const powers = Power.getPowers(BigInt(model.powers));
     const reward = Number(model.reward);
     const score = Number(model.score);
     const slots = Packer.sized_unpack(
@@ -95,7 +96,7 @@ export class GameModel {
       0,
       0,
       0,
-      0,
+      [],
       0,
       0,
       [],
@@ -112,6 +113,54 @@ export class GameModel {
 
   hasStarted() {
     return this.tournament_id !== 0;
+  }
+
+  alloweds(): number[] {
+    // Return the indexes of the slots that are allowed to be set based on the number
+    const alloweds: number[] = [];
+    return alloweds;
+  }
+
+  closests(): number[] {
+    // Return 2 indexes closest lower and higher to the number
+    let closest_lower = -1;
+    let closest_higher = -1;
+    for (let idx = 0; idx < this.slots.length; idx++) {
+      const slot = this.slots[idx];
+      if (slot <= this.number) {
+        closest_lower = idx;
+      }
+      if (slot >= this.number) {
+        closest_higher = idx;
+        break;
+      }
+    };
+    const indexes = [closest_lower, closest_higher].filter((item) => item !== -1);
+    return indexes.filter((item, index) => indexes.indexOf(item) === index);
+  }
+
+  adjacentCount(): number {
+    let count = 0;
+    let previous_filled = false;
+    let previous_accounted = false;
+    for (const slot of this.slots) {
+      if (slot === 0) {
+        previous_filled = false;
+        previous_accounted = false;
+      }
+      if (!previous_filled) {
+        previous_filled = true;
+        previous_accounted = false;
+        continue;
+      }
+      if (!previous_accounted) {
+        count += 2;
+        previous_accounted = true;
+        continue;
+      }
+      count += 1;
+    }
+    return count;
   }
 
   clone(): GameModel {

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Game from "./pages/Game";
+import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
 import {
   StarknetConfig,

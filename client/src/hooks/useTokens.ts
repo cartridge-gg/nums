@@ -62,7 +62,6 @@ export function useTokens(
         ? requestRef.current.tokenIds.map((i: any) => num.toHex64(i))
         : [],
       callback: ({ data, error }: SubscriptionCallbackArgs<TokenBalance>) => {
-        console.log({ data, error });
         if (error) {
           console.error(error);
           return;

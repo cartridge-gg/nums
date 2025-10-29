@@ -773,6 +773,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_Play_apply_calldata = (gameId: BigNumberish, power: BigNumberish): DojoCall => {
+		return {
+			contractName: "Play",
+			entrypoint: "apply",
+			calldata: [gameId, power],
+		};
+	};
+
+	const Play_apply = async (snAccount: Account | AccountInterface, gameId: BigNumberish, power: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Play_apply_calldata(gameId, power),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_Play_buy_calldata = (playerName: BigNumberish): DojoCall => {
 		return {
 			contractName: "Play",
@@ -1266,6 +1287,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildRequestRandomCalldata: build_MockVRF_requestRandom_calldata,
 		},
 		Play: {
+			apply: Play_apply,
+			buildApplyCalldata: build_Play_apply_calldata,
 			buy: Play_buy,
 			buildBuyCalldata: build_Play_buy_calldata,
 			claim: Play_claim,

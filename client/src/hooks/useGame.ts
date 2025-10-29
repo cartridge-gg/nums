@@ -1,18 +1,25 @@
-import { Game as GameEntity } from "@/bindings";
 import { Game, GameModel } from "@/models/game";
 import {
   ToriiQueryBuilder,
+  SubscriptionCallbackArgs,
+  StandardizedQueryResult,
+  SchemaType,
   ClauseBuilder,
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDojoSdk } from "./dojo";
 import { NAMESPACE } from "@/config";
 
+const ENTITIES_LIMIT = 10_000;
+
 const getGameQuery = (gameId: number) => {
-  const clauses = new ClauseBuilder().keys([`${NAMESPACE}-${Game.getModelName()}`], [gameId.toString()], "FixedLen");
+  const model: `${string}-${string}` = `${NAMESPACE}-${Game.getModelName()}`;
+  const key = `0x${gameId.toString(16).padStart(16, '0')}`;
+  const clauses = new ClauseBuilder().keys([model], [key], "FixedLen");
   return new ToriiQueryBuilder()
-    .withEntityModels([`${NAMESPACE}-Game`])
-    .withClause(clauses.build());
+    .withClause(clauses.build())
+    .includeHashedKeys()
+    .withLimit(ENTITIES_LIMIT);
 };
 
 export const useGame = (gameId: number) => {
@@ -27,13 +34,21 @@ export const useGame = (gameId: number) => {
   }, [gameId]);
 
   const onUpdate = useCallback(
-    (res: { data: any }) => {
-      const game = res.data![0].models.nums.Game as GameEntity;
-      if (game) {
-        setGame(GameModel.from(game.id.toString(), game));
-      }
+    ({
+      data,
+      error,
+    }: SubscriptionCallbackArgs<
+      StandardizedQueryResult<SchemaType>,
+      Error
+    >) => {
+      if (error || !data || data.length === 0 || BigInt(data[0].entityId) === 0n) return;
+      const entity = data[0];
+      if (BigInt(entity.entityId) === 0n) return;
+      if (!entity.models[NAMESPACE]?.[Game.getModelName()]) return;
+      const game = Game.parse(entity as any);
+      setGame(game);
     },
-    []
+    [gameId]
   );
 
   const refresh = useCallback(async () => {
@@ -48,13 +63,10 @@ export const useGame = (gameId: number) => {
     subscriptionRef.current = subscription;
 
     const items = result.getItems();
-    if (!items || items.length === 0) return;
-
-    const game = items.find((i) => i.models.NUMS.Game);
-    if (game) {
-      setGame(GameModel.from(game.entityId, game.models.NUMS.Game as GameEntity));
+    if (items && items.length > 0) {
+      onUpdate({ data: items, error: undefined });
     }
-  }, [gameQuery, gameId]);
+  }, [gameQuery, gameId, onUpdate]);
 
   useEffect(() => {
     refresh();
@@ -64,7 +76,7 @@ export const useGame = (gameId: number) => {
         subscriptionRef.current.cancel();
       }
     };
-  }, [sdk, gameQuery, gameId]);
+  }, [subscriptionRef, sdk, gameQuery, gameId, refresh]);
 
   return {
     game,

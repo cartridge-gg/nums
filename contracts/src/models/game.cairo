@@ -197,6 +197,10 @@ pub impl GameImpl of GameTrait {
         difficulty_score + base_score
     }
 
+    fn is_completed(self: @Game) -> bool {
+        self.level == self.slot_count
+    }
+
     /// Determines if the game has ended based on current state and configuration.
     fn is_over(self: @Game, slots: Array<u16>) -> bool {
         // [Check] All slots have been filled
@@ -262,10 +266,10 @@ pub impl GameImpl of GameTrait {
         self.assert_valid_index(index);
         // [Check] Target slot is empty
         let slots: u256 = self.slots.into();
-        let slot = Packer::get(slots, index, SLOT_SIZE, self.slot_count);
+        let slot_count: u16 = self.slot_count.into();
+        let slot = Packer::get(slots, index, SLOT_SIZE, slot_count);
         assert(slot == 0, errors::GAME_SLOT_NOT_EMPTY);
         // [Effect] Place number
-        let slot_count: u16 = self.slot_count.into();
         self
             .slots = Packer::replace(slots, index, SLOT_SIZE, self.number, slot_count)
             .try_into()
@@ -275,13 +279,13 @@ pub impl GameImpl of GameTrait {
     /// Updates the game state.
     #[inline]
     fn update(ref self: Game, ref rand: Random) {
-        self.reward();
         self.level_up();
+        self.reward();
         let mut slots = self.slots();
-        self.over = self.is_over(slots.clone());
-        if !self.over {
+        if !self.is_completed() {
             self.number = self.next(@slots, ref rand);
         }
+        self.over = self.is_over(slots.clone());
         self.score = self.score(ref slots);
     }
 }
@@ -698,9 +702,18 @@ mod tests {
     }
 
     #[test]
-    fn test_game_is_valid_error() {
+    fn test_game_is_valid_error_01() {
         let mut game = create_test_game();
         game.slots = 0x362000000000000000000000000000000000000000000;
+        game.slots();
+    }
+
+    #[test]
+    fn test_game_is_valid_error_02() {
+        let mut game = create_test_game();
+        game.slots = 0x0000000000362000000000000000000000000000000000000000000000000000;
+        game.number = 88;
+        game.place(2);
         game.slots();
     }
 }

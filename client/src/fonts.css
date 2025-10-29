@@ -33,7 +33,7 @@
 @font-face {
   font-family: "PixelGame";
   src: url("/assets/fonts/Pixel-Game.otf") format("opentype");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }

@@ -280,7 +280,9 @@ pub mod PlayableComponent {
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
-            let amount: u64 = (game.reward.into() * TEN_POW_18).try_into().unwrap();
+            let amount: u64 = (game.reward.into() * TEN_POW_18)
+                .try_into()
+                .expect('Reward conversion failed!');
             store.nums_disp().reward(player, amount);
 
             // [Effect] Update achievement progression for the player - Claimer tasks
@@ -417,7 +419,7 @@ pub mod PlayableComponent {
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
             IMinigameDispatcher { contract_address: game_address }
         }
 
@@ -425,7 +427,7 @@ pub mod PlayableComponent {
         fn get_renderer_address(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ContractAddress {
-            let (renderer_address, _) = world.dns(@RENDERER()).unwrap();
+            let (renderer_address, _) = world.dns(@RENDERER()).expect('Renderer not found!');
             renderer_address
         }
 
@@ -433,7 +435,7 @@ pub mod PlayableComponent {
         fn get_settings(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ISettingsDispatcher {
-            let (settings_address, _) = world.dns(@SETTINGS()).unwrap();
+            let (settings_address, _) = world.dns(@SETTINGS()).expect('Settings not found!');
             ISettingsDispatcher { contract_address: settings_address }
         }
 
@@ -441,7 +443,7 @@ pub mod PlayableComponent {
         fn is_default_game(
             self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
         ) -> bool {
-            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
+            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
             let minigame = IMinigameDispatcher { contract_address: game_address };
             let token_address = minigame.token_address();
             let token = IMinigameTokenDispatcher { contract_address: token_address };

@@ -3,21 +3,21 @@ use core::num::traits::zero::Zero;
 
 pub mod errors {
     pub const PACKER_ELEMENT_IS_MISSING: felt252 = 'Packer: element is missing';
+    pub const PACKER_VALUE_CONVERSION_FAILED: felt252 = 'Packer: value conversion failed';
 }
 
 pub trait PackerTrait<T, U, V> {
-    fn get(packed: T, index: u8, size: V, len: u8) -> U;
-    fn contains(packed: T, value: U, size: V, len: u8) -> bool;
-    fn unpack(packed: T, size: V, len: u8) -> Array<U>;
-    fn remove(packed: T, item: U, size: V, len: u8) -> T;
-    fn replace(packed: T, index: u8, size: V, value: U, len: u8) -> T;
+    fn get(packed: T, index: u8, size: V, len: U) -> U;
+    fn contains(packed: T, value: U, size: V, len: U) -> bool;
+    fn unpack(packed: T, size: V, len: U) -> Array<U>;
+    fn remove(packed: T, item: U, size: V, len: U) -> T;
+    fn replace(packed: T, index: u8, size: V, value: U, len: U) -> T;
     fn pack(unpacked: Array<U>, size: V) -> T;
 }
 
 pub impl Packer<
     T,
     +Into<u8, T>,
-    +TryInto<T, u8>,
     +NumericLiteral<T>,
     +PartialEq<T>,
     +Zero<T>,
@@ -29,8 +29,10 @@ pub impl Packer<
     +Copy<T>,
     U,
     +PartialEq<U>,
+    +PartialOrd<U>,
     +Into<u8, U>,
     +Into<U, T>,
+    +TryInto<T, U>,
     +Drop<U>,
     +Copy<U>,
     V,
@@ -39,19 +41,19 @@ pub impl Packer<
     +Copy<V>,
 > of PackerTrait<T, U, V> {
     #[inline]
-    fn get(packed: T, index: u8, size: V, len: u8) -> U {
+    fn get(packed: T, index: u8, size: V, len: U) -> U {
         let unpacked: Array<U> = Self::unpack(packed, size, len);
         *unpacked.at(index.into())
     }
 
-    fn contains(mut packed: T, value: U, size: V, len: u8) -> bool {
+    fn contains(mut packed: T, value: U, size: V, len: U) -> bool {
         let modulo: T = size.into();
-        let mut index = 0;
+        let mut index: u8 = 0;
         loop {
-            if index == len {
+            if index.into() == len {
                 break false;
             }
-            let raw: u8 = (packed % modulo).try_into().unwrap();
+            let raw: U = (packed % modulo).try_into().unwrap();
             if value == raw.into() {
                 break true;
             }
@@ -60,12 +62,14 @@ pub impl Packer<
         }
     }
 
-    fn unpack(mut packed: T, size: V, len: u8) -> Array<U> {
+    fn unpack(mut packed: T, size: V, len: U) -> Array<U> {
         let mut result: Array<U> = array![];
         let modulo: T = size.into();
-        let mut index = 0;
-        while index < len {
-            let value: u8 = (packed % modulo).try_into().unwrap();
+        let mut index: u8 = 0;
+        while index.into() < len {
+            let value: U = (packed % modulo)
+                .try_into()
+                .expect(errors::PACKER_VALUE_CONVERSION_FAILED);
             result.append(value.into());
             packed = packed / modulo;
             index += 1;
@@ -73,15 +77,14 @@ pub impl Packer<
         result
     }
 
-    fn remove(mut packed: T, item: U, size: V, len: u8) -> T {
+    fn remove(mut packed: T, item: U, size: V, len: U) -> T {
         // [Compute] Loop over the packed value and remove the value at the given index
         let mut removed = false;
         let mut result: Array<U> = array![];
         let mut idx: u8 = 0;
         let modulo: T = size.into();
-        while idx < len {
-            let value: u8 = (packed % modulo).try_into().unwrap();
-            let current: U = value.into();
+        while idx.into() < len {
+            let current: U = (packed % modulo).try_into().unwrap();
             if current != item {
                 result.append(current);
             } else {
@@ -96,15 +99,14 @@ pub impl Packer<
         Self::pack(result, size)
     }
 
-    fn replace(mut packed: T, index: u8, size: V, value: U, len: u8) -> T {
+    fn replace(mut packed: T, index: u8, size: V, value: U, len: U) -> T {
         // [Compute] Loop over the packed value and remove the value at the given index
         let mut removed = false;
         let mut result: Array<U> = array![];
         let mut idx: u8 = 0;
         let modulo: T = size.into();
-        while idx < len {
-            let raw_value: u8 = (packed % modulo).try_into().unwrap();
-            let item: U = raw_value.into();
+        while idx.into() < len {
+            let item: U = (packed % modulo).try_into().unwrap();
             if idx != index {
                 result.append(item);
             } else {
@@ -171,5 +173,16 @@ mod tests {
         let len: u8 = 16;
         let item: u8 = Packer::get(packed, index, size, len);
         assert_eq!(item, 0x6);
+    }
+
+    #[test]
+    fn test_packer_replace_error() {
+        let packed: u256 = 0x0;
+        let index: u8 = 14;
+        let size: u128 = 4096;
+        let len: u16 = 20;
+        let value: u16 = 888;
+        let new_packed = Packer::replace(packed, index, size, value, len);
+        assert_eq!(new_packed, 332240244211159498589407265651727186292343833129648128);
     }
 }

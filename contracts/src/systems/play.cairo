@@ -10,6 +10,7 @@ pub trait IPlay<T> {
     fn buy(ref self: T, player_name: felt252) -> u64;
     fn start(ref self: T, game_id: u64) -> (u64, u16);
     fn set(ref self: T, game_id: u64, index: u8) -> u16;
+    fn apply(ref self: T, game_id: u64, power: u8) -> u16;
 }
 
 #[starknet::interface]
@@ -152,6 +153,13 @@ pub mod Play {
             let world = self.world(@NAMESPACE());
             // [Effect] Set slot
             self.playable.set(world, game_id, index)
+        }
+
+        fn apply(ref self: ContractState, game_id: u64, power: u8) -> u16 {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Apply power
+            self.playable.apply(world, game_id, power)
         }
     }
 

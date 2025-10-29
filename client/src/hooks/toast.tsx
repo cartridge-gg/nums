@@ -1,6 +1,6 @@
-import { toast } from "sonner"
-import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
 import { LuCopy } from "react-icons/lu";
+import { toast } from "sonner";
+import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
 
 const useToast = () => {
   const chainIcon = (chainName: string) => {
@@ -20,7 +20,7 @@ const useToast = () => {
       <div className="flex items-center gap-2 w-full">
         {chainIcon(chainName)}
         <span>Transaction Submitted on {chainName}</span>
-      </div>
+      </div>,
     );
   };
 
@@ -29,7 +29,7 @@ const useToast = () => {
       <div className="flex items-center gap-2">
         {chainIcon(chainName)}
         <span>Switched to {chainName}</span>
-      </div>
+      </div>,
     );
   };
 
@@ -46,7 +46,7 @@ const useToast = () => {
           />
         </div>
         <p className="text-xs break-all">{message}</p>
-      </div>
+      </div>,
     );
   };
 
@@ -55,20 +55,20 @@ const useToast = () => {
       <div className="flex flex-col gap-1 w-full">
         <span className="text-xl">{title}</span>
         {message && <p className="text-xs break-all">{message}</p>}
-      </div>
+      </div>,
     );
   };
 
   const showJackpotEvent = (
     title: string,
     description: string,
-    color = "purple-300"
+    color = "purple-300",
   ) => {
     toast(
       <div className="flex flex-col gap-0">
         <span className={`text-xl text-${color}`}>{title}</span>
         <p className="text-sm">{description}</p>
-      </div>
+      </div>,
     );
   };
 

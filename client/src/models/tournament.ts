@@ -1,6 +1,6 @@
-import { NAMESPACE } from "@/constants";
-import type { SchemaType } from "@/bindings/typescript/models.gen";
 import { MemberClause, type ParsedEntity } from "@dojoengine/sdk";
+import type { SchemaType } from "@/bindings/typescript/models.gen";
+import { NAMESPACE } from "@/constants";
 import { Power } from "@/types/power";
 
 const MODEL_NAME = "Tournament";
@@ -39,14 +39,7 @@ export class TournamentModel {
   }
 
   static default(identifier: string) {
-    return new TournamentModel(
-      identifier,
-      0,
-      [],
-      0,
-      new Date(),
-      new Date(),
-    );
+    return new TournamentModel(identifier, 0, [], 0, new Date(), new Date());
   }
 
   static isType(model: TournamentModel) {
@@ -69,11 +62,11 @@ export class TournamentModel {
   }
 
   hasStarted() {
-    return this.start_time.getTime() <= new Date().getTime();
+    return this.start_time.getTime() <= Date.now();
   }
 
   hasEnded() {
-    return this.end_time.getTime() < new Date().getTime();
+    return this.end_time.getTime() < Date.now();
   }
 }
 

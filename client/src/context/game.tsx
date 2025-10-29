@@ -1,10 +1,10 @@
-import { Game } from "@/bindings";
-import { NAMESPACE } from "@/config";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { BigNumberish } from "starknet";
+import type { BigNumberish } from "starknet";
+import type { Game } from "@/bindings";
+import { NAMESPACE } from "@/config";
 
 type GameProviderProps = {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ type GameProviderState = {
 };
 
 const GameProviderContext = createContext<GameProviderState | undefined>(
-  undefined
+  undefined,
 );
 
 export function GameProvider({ children, ...props }: GameProviderProps) {
@@ -27,12 +27,8 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
       .withEntityModels([`${NAMESPACE}-Game`])
       .withClause(
         new ClauseBuilder()
-          .keys(
-            [`${NAMESPACE}-Game`],
-            [undefined, undefined],
-            "FixedLen"
-          )
-          .build()
+          .keys([`${NAMESPACE}-Game`], [undefined, undefined], "FixedLen")
+          .build(),
       )
       .addOrderBy(`${NAMESPACE}-Game.id`, "Desc")
       .withLimit(50_000)
@@ -57,7 +53,7 @@ export function GameProvider({ children, ...props }: GameProviderProps) {
     (id: BigNumberish) => {
       return games.find((i) => i.id === id);
     },
-    [games]
+    [games],
   );
 
   return (

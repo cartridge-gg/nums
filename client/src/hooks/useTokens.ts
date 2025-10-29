@@ -1,4 +1,4 @@
-import {
+import type {
   GetTokenBalanceRequest,
   GetTokenRequest,
   SubscriptionCallbackArgs,
@@ -10,17 +10,17 @@ import type {
   TokenContract,
 } from "@dojoengine/torii-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { deepEqual } from "@/helpers/deepEqual";
 import { num } from "starknet";
+import { deepEqual } from "@/helpers/deepEqual";
 
 export function useTokens(
   request: GetTokenRequest & GetTokenBalanceRequest,
-  accountRequired = true
+  accountRequired = true,
 ) {
   const { sdk } = useDojoSDK();
   const [tokens, setTokens] = useState<TokenContract[]>([]);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
-    null
+    null,
   );
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const subscriptionRef = useRef<Subscription | null>(null);
@@ -95,14 +95,14 @@ export function useTokens(
 
   function getBalance(token: TokenContract): TokenBalance | undefined {
     return tokenBalances.find(
-      (balance) => 
-        BigInt(balance.contract_address) === BigInt(token.contract_address)
+      (balance) =>
+        BigInt(balance.contract_address) === BigInt(token.contract_address),
     );
   }
 
   function toDecimal(
     token: TokenContract,
-    balance: TokenBalance | undefined
+    balance: TokenBalance | undefined,
   ): bigint {
     return BigInt(balance?.balance ?? "0") / 10n ** BigInt(token.decimals);
   }
@@ -123,7 +123,7 @@ export function useTokens(
 
 function updateTokenBalancesList(
   previousBalances: TokenBalance[],
-  newBalance: TokenBalance
+  newBalance: TokenBalance,
 ): TokenBalance[] {
   if (
     BigInt(newBalance.account_address) === 0n &&
@@ -136,7 +136,7 @@ function updateTokenBalancesList(
       BigInt(balance.token_id || 0) === BigInt(newBalance.token_id || 0) &&
       BigInt(balance.contract_address) ===
         BigInt(newBalance.contract_address) &&
-      BigInt(balance.account_address) === BigInt(newBalance.account_address)
+      BigInt(balance.account_address) === BigInt(newBalance.account_address),
   );
 
   // If balance doesn't exist, append it to the list
@@ -146,7 +146,7 @@ function updateTokenBalancesList(
 
   // If balance exists, update it while preserving order
   return previousBalances.map((balance, index) =>
-    index === existingBalanceIndex ? newBalance : balance
+    index === existingBalanceIndex ? newBalance : balance,
   );
 }
 

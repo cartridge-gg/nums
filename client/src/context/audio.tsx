@@ -1,9 +1,10 @@
-import React, {
+import type React from "react";
+import {
   createContext,
-  useContext,
-  useState,
   useCallback,
+  useContext,
   useEffect,
+  useState,
 } from "react";
 
 interface AudioContextType {

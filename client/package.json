@@ -11,6 +11,8 @@
     "format:check": "biome format src",
     "format:ts": "pnpm format",
     "format:check:ts": "pnpm format:check",
+    "format:all": "biome check --write --unsafe .",
+    "format:check:all": "biome check .",
     "type:check": "tsc -b",
     "lint": "biome lint --fix .",
     "lint:check": "biome lint .",
@@ -74,6 +76,7 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.2",
     "@eslint/js": "^9.9.0",
     "@tanstack/react-router-devtools": "^1.131.8",
     "@tanstack/router-plugin": "^1.131.8",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -7,22 +7,24 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [
-      "tsconfig*.json",
-      "dist/**",
-      ".vercel/**",
-      "node_modules/**",
-      "public/**",
-      "src/*.gen.ts"
+    "includes": [
+      "**",
+      "!**/tsconfig*.json",
+      "!**/dist",
+      "!**/.vercel",
+      "!**/node_modules",
+      "!**/public",
+      "!**/src/**/*.gen.ts",
+      "!**/src/index.css",
+      "!**/*.css"
     ]
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "indentWidth": 2
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -31,11 +33,15 @@
         "noSvgWithoutTitle": "off",
         "useKeyWithClickEvents": "off",
         "noRedundantAlt": "off",
-        "useSemanticElements": "off"
+        "useSemanticElements": "off",
+        "noStaticElementInteractions": "off",
+        "noRedundantRoles": "off",
+        "useAriaPropsSupportedByRole": "off"
       },
       "complexity": {
         "noForEach": "off",
-        "noBannedTypes": "off"
+        "noBannedTypes": "off",
+        "noStaticOnlyClass": "off"
       },
       "correctness": {
         "useExhaustiveDependencies": "off",
@@ -57,5 +63,27 @@
     "formatter": {
       "quoteStyle": "double"
     }
-  }
+  },
+  "css": {
+    "parser": {
+      "cssModules": false,
+      "allowWrongLineComments": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/index.css", "**/*.css"],
+      "css": {
+        "parser": {
+          "cssModules": false
+        },
+        "linter": {
+          "enabled": false
+        }
+      }
+    }
+  ]
 }

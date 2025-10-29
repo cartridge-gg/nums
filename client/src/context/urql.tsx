@@ -1,14 +1,15 @@
-import React, { createContext, useContext, useCallback, useMemo } from "react";
+import { useNetwork } from "@starknet-react/core";
+import { createClient as createWSClient } from "graphql-ws";
+import type React from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 import {
   Client,
-  Provider,
   cacheExchange,
   fetchExchange,
+  Provider,
   subscriptionExchange,
 } from "urql";
-import { createClient as createWSClient } from "graphql-ws";
 import { getGraphqlUrl } from "../network";
-import { useNetwork } from "@starknet-react/core";
 
 interface UrqlContextType {
   client: Client;

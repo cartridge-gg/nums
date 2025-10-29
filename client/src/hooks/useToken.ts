@@ -1,7 +1,7 @@
 import { useAccount } from "@starknet-react/core";
-import { useTokens } from "./useTokens";
-import { num } from "starknet";
 import { useMemo } from "react";
+import { num } from "starknet";
+import { useTokens } from "./useTokens";
 
 export function useToken(contractAddress: string) {
   const { account } = useAccount();
@@ -11,7 +11,7 @@ export function useToken(contractAddress: string) {
       accountAddresses: account?.address ? [account?.address] : [],
       contractAddresses: [num.toHex64(contractAddress)],
     },
-    true
+    true,
   );
 
   const { balance, token } = useMemo(() => {
@@ -22,7 +22,7 @@ export function useToken(contractAddress: string) {
       };
 
     const token = tokens.find(
-      (i) => BigInt(i.contract_address) === BigInt(contractAddress)
+      (i) => BigInt(i.contract_address) === BigInt(contractAddress),
     );
     if (!token)
       return {

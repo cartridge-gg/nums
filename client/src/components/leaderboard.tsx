@@ -1,4 +1,11 @@
-import { useMemo, useState, useRef, useLayoutEffect } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -7,15 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
-const data: { rank: number, player: string, score: number, numsReward: number, prize?: string }[] = [
+const data: {
+  rank: number;
+  player: string;
+  score: number;
+  numsReward: number;
+  prize?: string;
+}[] = [
   {
     rank: 1,
     player: "clicksave",
@@ -101,22 +107,89 @@ const data: { rank: number, player: string, score: number, numsReward: number, p
   { rank: 18, player: "jill", score: 14, numsReward: 1815 },
   { rank: 19, player: "jack", score: 14, numsReward: 1815 },
   { rank: 20, player: "sam", score: 14, numsReward: 1815 },
-]
-const bigdata = [...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data, ...data].map((item, index) => ({ ...item, rank: index + 1 }));
+];
+const bigdata = [
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+  ...data,
+].map((item, index) => ({ ...item, rank: index + 1 }));
 // const bigdata = data.slice(0, 0);
 
-export type LeaderboardProps = {
-}
+export type LeaderboardProps = {};
 
 const EmptyLeaderboard = () => {
   return (
     <div className="select-none w-full h-full p-6 rounded-lg bg-black-900 border border-purple-600 flex justify-center items-center">
-        <p className="text-white-400 tracking-wider text-xl" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>No games have been played yet</p>
+      <p
+        className="text-white-400 tracking-wider text-xl"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        No games have been played yet
+      </p>
     </div>
   );
 };
 
-export const Leaderboard = ({ }: LeaderboardProps) => {
+export const Leaderboard = ({}: LeaderboardProps) => {
   const [page, setPage] = useState(1);
   const [containerWidth, setContainerWidth] = useState(784);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -133,15 +206,15 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
 
     const updateDimensions = () => {
       if (!paginationRef.current || !spacerRef.current) return;
-      
+
       // Update width
       setContainerWidth(paginationRef.current.offsetWidth);
 
       // Calculate available height for table content
       const containerHeight = spacerRef.current.clientHeight;
-      
+
       if (containerHeight === 0) return; // Wait for layout to be ready
-      
+
       // Header height: 22px (text) + 16px (pb-4) = 38px
       const headerHeight = 38;
       // Each row is 34px (leading-[34px] from font-ppneuebit)
@@ -150,11 +223,11 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
       const availableHeight = containerHeight - headerHeight - 5;
       // Calculate only complete rows that fit
       const calculatedRows = Math.floor(availableHeight / rowHeight);
-      
+
       const newRowsPerPage = Math.max(5, calculatedRows);
       // Total height = header + rows
-      const newTableHeight = headerHeight + (newRowsPerPage * rowHeight);
-      
+      const newTableHeight = headerHeight + newRowsPerPage * rowHeight;
+
       if (newRowsPerPage !== rowsPerPage || newTableHeight !== tableHeight) {
         setRowsPerPage(newRowsPerPage);
         setTableHeight(newTableHeight);
@@ -175,7 +248,7 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
 
     observer.observe(paginationRef.current);
     observer.observe(spacerRef.current);
-    
+
     return () => {
       clearTimeout(timeoutId);
       observer.disconnect();
@@ -185,7 +258,7 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
   // Calculate max slots (pages + ellipsis) based on container width
   const maxVisibleSlots = useMemo(() => {
     if (containerWidth === 0) return 15; // Default value before measurement
-    
+
     // Arrows: 40px + 40px = 80px
     // Gaps between arrows and pages: 36px + 36px = 72px
     // Safety buffer: 30px (to prevent overflow on edge cases)
@@ -212,8 +285,8 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
 
   // Generate page numbers with ellipsis based on available space
   const getPageNumbers = () => {
-    const pages: (number | 'ellipsis')[] = [];
-    
+    const pages: (number | "ellipsis")[] = [];
+
     if (totalPages <= maxVisiblePages) {
       // Show all pages if they fit
       for (let i = 1; i <= totalPages; i++) {
@@ -223,14 +296,14 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
       // Calculate how many pages to show - keep it constant
       const basePagesToShow = maxVisiblePages - 2; // -2 for both ellipsis slots
       const sidePages = Math.floor((basePagesToShow - 1) / 2); // -1 for current page
-      
+
       let start: number;
       let end: number;
-      
+
       // Determine if we're near the beginning or end
       const isNearStart = page <= sidePages + 2; // +2 to account for page 1 and transition
       const isNearEnd = page >= totalPages - sidePages - 1; // -1 for transition
-      
+
       if (isNearStart) {
         // Near the beginning: no left ellipsis, add 2 extra pages to fill the slot
         start = 2;
@@ -244,45 +317,76 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
         start = page - sidePages;
         end = page + sidePages;
       }
-      
+
       // Always show first page
       pages.push(1);
-      
+
       // Add ellipsis if there's a gap after first page
       if (start > 2) {
-        pages.push('ellipsis');
+        pages.push("ellipsis");
       }
-      
+
       // Show pages in the range
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       // Add ellipsis if there's a gap before last page
       if (end < totalPages - 1) {
-        pages.push('ellipsis');
+        pages.push("ellipsis");
       }
-      
+
       // Always show last page
       pages.push(totalPages);
     }
-    
+
     return pages;
   };
 
   return (
-    <div className="select-none w-full h-full p-6 rounded-lg bg-[rgba(0,0,0,0.04)] flex flex-col" style={{ boxShadow: '1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)' }}>
+    <div
+      className="select-none w-full h-full p-6 rounded-lg bg-[rgba(0,0,0,0.04)] flex flex-col"
+      style={{
+        boxShadow:
+          "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
+      }}
+    >
       <div ref={spacerRef} className="flex-1 min-h-0 flex flex-col">
         {hasData ? (
           <div ref={tableContainerRef} style={{ height: `${tableHeight}px` }}>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Rank</TableHead>
-                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Player</TableHead>
-                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Score</TableHead>
-                  <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Nums Reward</TableHead>
-                  <TableHead className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Prize</TableHead>
+                  <TableHead
+                    className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Rank
+                  </TableHead>
+                  <TableHead
+                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Player
+                  </TableHead>
+                  <TableHead
+                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Score
+                  </TableHead>
+                  <TableHead
+                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Nums Reward
+                  </TableHead>
+                  <TableHead
+                    className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Prize
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="font-ppneuebit text-2xl leading-[34px]">
@@ -304,11 +408,36 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Rank</TableHead>
-                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Player</TableHead>
-                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Score</TableHead>
-                    <TableHead className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Nums Reward</TableHead>
-                    <TableHead className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]" style={{ textShadow: '2px 2px 0px rgba(0, 0, 0, 0.25)' }}>Prize</TableHead>
+                    <TableHead
+                      className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                    >
+                      Rank
+                    </TableHead>
+                    <TableHead
+                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                    >
+                      Player
+                    </TableHead>
+                    <TableHead
+                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                    >
+                      Score
+                    </TableHead>
+                    <TableHead
+                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                    >
+                      Nums Reward
+                    </TableHead>
+                    <TableHead
+                      className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                    >
+                      Prize
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
               </Table>
@@ -319,20 +448,26 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
           </>
         )}
       </div>
-      
-      <div ref={paginationRef} className="w-full flex items-center mt-6" style={{ gap: '36px' }}>
+
+      <div
+        ref={paginationRef}
+        className="w-full flex items-center mt-6"
+        style={{ gap: "36px" }}
+      >
         <PaginationItem>
-          <PaginationPrevious 
+          <PaginationPrevious
             onClick={() => setPage(Math.max(1, page - 1))}
             isDisabled={!hasData || page === 1}
-            className={!hasData || page === 1 ? "pointer-events-none" : "cursor-pointer"}
+            className={
+              !hasData || page === 1 ? "pointer-events-none" : "cursor-pointer"
+            }
           />
         </PaginationItem>
-        
+
         <div className="flex-1 flex justify-center gap-3">
           {hasData ? (
-            getPageNumbers().map((pageNum, idx) => (
-              pageNum === 'ellipsis' ? (
+            getPageNumbers().map((pageNum, idx) =>
+              pageNum === "ellipsis" ? (
                 <PaginationItem key={`ellipsis-${idx}`}>
                   <PaginationEllipsis />
                 </PaginationItem>
@@ -346,8 +481,8 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
                     <p className="translate-y-0.5">{pageNum}</p>
                   </PaginationLink>
                 </PaginationItem>
-              )
-            ))
+              ),
+            )
           ) : (
             <PaginationItem>
               <PaginationLink isActive={true} className="pointer-events-none">
@@ -356,15 +491,19 @@ export const Leaderboard = ({ }: LeaderboardProps) => {
             </PaginationItem>
           )}
         </div>
-        
+
         <PaginationItem>
-          <PaginationNext 
+          <PaginationNext
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             isDisabled={!hasData || page === totalPages}
-            className={!hasData || page === totalPages ? "pointer-events-none" : "cursor-pointer"}
+            className={
+              !hasData || page === totalPages
+                ? "pointer-events-none"
+                : "cursor-pointer"
+            }
           />
         </PaginationItem>
       </div>
     </div>
-  )
-}
+  );
+};

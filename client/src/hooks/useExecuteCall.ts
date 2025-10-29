@@ -1,6 +1,6 @@
 import { useAccount } from "@starknet-react/core";
 import { useCallback } from "react";
-import {
+import type {
   AllowArray,
   Call,
   GetTransactionReceiptResponse,
@@ -18,7 +18,7 @@ import useToast from "./toast";
 export async function executeWithTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  errorMessage: string
+  errorMessage: string,
 ): Promise<T> {
   let timeoutHandle: NodeJS.Timeout;
 
@@ -45,8 +45,11 @@ export const useExecuteCall = () => {
   const execute = useCallback(
     async (
       calls: AllowArray<Call>,
-      onSuccess?: (r: GetTransactionReceiptResponse) => void
-    ): Promise<{ success: boolean; receipt?: GetTransactionReceiptResponse }> => {
+      onSuccess?: (r: GetTransactionReceiptResponse) => void,
+    ): Promise<{
+      success: boolean;
+      receipt?: GetTransactionReceiptResponse;
+    }> => {
       if (!account) {
         showError("Not Connected", "Please connect your account");
         return { success: false };
@@ -60,7 +63,7 @@ export const useExecuteCall = () => {
         tx = await executeWithTimeout(
           account.execute(calls),
           10000, // 10 seconds timeout
-          "Transaction request timed out. Please try again."
+          "Transaction request timed out. Please try again.",
         );
         console.log("tx", tx);
 
@@ -74,7 +77,7 @@ export const useExecuteCall = () => {
         checkTxReceipt(receipt);
 
         // Call success callback if provided
-        onSuccess && onSuccess(receipt);
+        onSuccess?.(receipt);
         return { success: true, receipt };
       } catch (e: any) {
         console.log(e);
@@ -86,7 +89,7 @@ export const useExecuteCall = () => {
         return { success: false };
       }
     },
-    [account, showError]
+    [account, showError],
   );
 
   return {
@@ -97,7 +100,7 @@ export const useExecuteCall = () => {
 export const waitForTransaction = async (
   provider: RpcProvider,
   txHash: string,
-  maxRetry: number
+  maxRetry: number,
 ): Promise<GetTransactionReceiptResponse> => {
   while (maxRetry > 0) {
     try {
@@ -115,7 +118,7 @@ export const waitForTransaction = async (
 
     maxRetry -= 1;
   }
-  
+
   throw new Error("Transaction failed after max retries");
 };
 
@@ -134,9 +137,9 @@ export const tryBetterErrorMsg = (msg: string): string => {
 
   const message = betterMsg.replace(/\\n/g, " ");
 
-  const matches = /(?<=\\\")(.*)(?=\\\")/g.exec(message);
+  const matches = /(?<=\\")(.*)(?=\\")/g.exec(message);
 
-  if (matches && matches[0]) {
+  if (matches?.[0]) {
     return matches[0];
   }
   return message;
@@ -146,7 +149,8 @@ export function checkTxReceipt(txReceipt: GetTransactionReceiptResponse) {
   // Check if receipt has execution_status (SuccessfulTransactionReceiptResponse)
   if ("execution_status" in txReceipt) {
     if (txReceipt.execution_status !== "SUCCEEDED") {
-      const revertReason = "revert_reason" in txReceipt ? txReceipt.revert_reason : undefined;
+      const revertReason =
+        "revert_reason" in txReceipt ? txReceipt.revert_reason : undefined;
       throw new Error(revertReason || "Transaction execution failed");
     }
   }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 
 type ModalContextType = {
   isInventoryOpen: boolean;
@@ -50,4 +50,3 @@ export const useModal = () => {
   }
   return context;
 };
-

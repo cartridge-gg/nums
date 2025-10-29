@@ -1,4 +1,4 @@
-import {
+import type {
   GetTokenBalanceRequest,
   GetTokenRequest,
   SubscriptionCallbackArgs,
@@ -9,19 +9,19 @@ import type {
   TokenBalance,
   TokenContract,
 } from "@dojoengine/torii-wasm";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { deepEqual } from "@/helpers/deepEqual";
-import { addAddressPadding, num } from "starknet";
 import { useAccount } from "@starknet-react/core";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { addAddressPadding, num } from "starknet";
+import { deepEqual } from "@/helpers/deepEqual";
 
 export function useAssets(
   request: GetTokenRequest & GetTokenBalanceRequest,
-  accountRequired = true
+  accountRequired = true,
 ) {
   const { sdk } = useDojoSDK();
   const [tokens, setTokens] = useState<TokenContract[]>([]);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
-    null
+    null,
   );
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const subscriptionRef = useRef<Subscription | null>(null);
@@ -39,7 +39,7 @@ export function useAssets(
       contract_addresses: request.contractAddresses
         ? request.contractAddresses.map((i: any) => num.toHex64(i))
         : [],
-      contract_types: ['ERC721'],
+      contract_types: ["ERC721"],
       pagination: {
         cursor: undefined,
         direction: "Backward",
@@ -96,14 +96,14 @@ export function useAssets(
 
   function getBalance(token: TokenContract): TokenBalance | undefined {
     return tokenBalances.find(
-      (balance) => 
-        BigInt(balance.contract_address) === BigInt(token.contract_address)
+      (balance) =>
+        BigInt(balance.contract_address) === BigInt(token.contract_address),
     );
   }
 
   function toDecimal(
     token: TokenContract,
-    balance: TokenBalance | undefined
+    balance: TokenBalance | undefined,
   ): number {
     return Number.parseInt(balance?.balance ?? "0", 16) * 10 ** -token.decimals;
   }
@@ -143,7 +143,7 @@ export function useAssets(
 /**
  * Hook to get player's game IDs via subscription to TokenBalances (ERC721)
  * Simplified wrapper around useAssets for the common use case of getting player's games
- * 
+ *
  * @returns Object with gameIds array and loading/error states
  */
 export const usePlayerGames = () => {
@@ -155,7 +155,7 @@ export const usePlayerGames = () => {
       contractAddresses: [], // Empty to get all ERC721 tokens
       tokenIds: [], // Empty to get all token IDs
     },
-    true // Account required
+    true, // Account required
   );
 
   return {
@@ -167,7 +167,7 @@ export const usePlayerGames = () => {
 
 function updateTokenBalancesList(
   previousBalances: TokenBalance[],
-  newBalance: TokenBalance
+  newBalance: TokenBalance,
 ): TokenBalance[] {
   if (
     BigInt(newBalance.account_address) === 0n &&
@@ -180,7 +180,7 @@ function updateTokenBalancesList(
       BigInt(balance.token_id || 0) === BigInt(newBalance.token_id || 0) &&
       BigInt(balance.contract_address) ===
         BigInt(newBalance.contract_address) &&
-      BigInt(balance.account_address) === BigInt(newBalance.account_address)
+      BigInt(balance.account_address) === BigInt(newBalance.account_address),
   );
 
   // If balance doesn't exist, append it to the list
@@ -190,7 +190,7 @@ function updateTokenBalancesList(
 
   // If balance exists, update it while preserving order
   return previousBalances.map((balance, index) =>
-    index === existingBalanceIndex ? newBalance : balance
+    index === existingBalanceIndex ? newBalance : balance,
   );
 }
 

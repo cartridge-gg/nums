@@ -1,22 +1,29 @@
-import { Game, GameModel } from "@/models/game";
 import {
-  ToriiQueryBuilder,
-  SubscriptionCallbackArgs,
-  StandardizedQueryResult,
-  SchemaType,
-  OrComposeClause,
   MemberClause,
+  OrComposeClause,
+  type SchemaType,
+  type StandardizedQueryResult,
+  type SubscriptionCallbackArgs,
+  ToriiQueryBuilder,
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDojoSdk } from "./dojo";
 import { NAMESPACE } from "@/config";
+import { Game, type GameModel } from "@/models/game";
+import { useDojoSdk } from "./dojo";
 
 const ENTITIES_LIMIT = 10_000;
 
 const getGameQuery = (gameIds: number[]) => {
   const clauses = OrComposeClause(
-    gameIds.map((id) => MemberClause(`${NAMESPACE}-${Game.getModelName()}`, "id", "Eq", `0x${id.toString(16).padStart(16, '0')}`))
-  )
+    gameIds.map((id) =>
+      MemberClause(
+        `${NAMESPACE}-${Game.getModelName()}`,
+        "id",
+        "Eq",
+        `0x${id.toString(16).padStart(16, "0")}`,
+      ),
+    ),
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys()
@@ -43,7 +50,13 @@ export const useGames = (gameIds: number[]) => {
       StandardizedQueryResult<SchemaType>,
       Error
     >) => {
-      if (error || !data || data.length === 0 || BigInt(data[0].entityId) === 0n) return;
+      if (
+        error ||
+        !data ||
+        data.length === 0 ||
+        BigInt(data[0].entityId) === 0n
+      )
+        return;
       const games: GameModel[] = [];
       data.forEach((entity) => {
         if (BigInt(entity.entityId) === 0n) return;
@@ -52,11 +65,13 @@ export const useGames = (gameIds: number[]) => {
         games.push(game);
       });
       setGames((prev) => {
-        const deduped = games.filter((game) => !prev.some((g) => g.id === game.id));
+        const deduped = games.filter(
+          (game) => !prev.some((g) => g.id === game.id),
+        );
         return [...prev, ...deduped];
       });
     },
-    []
+    [],
   );
 
   const refresh = useCallback(async () => {

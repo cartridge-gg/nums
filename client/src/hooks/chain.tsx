@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
+import type { Chain } from "@starknet-react/chains";
 import { useNetwork, useSwitchChain } from "@starknet-react/core";
+import { useCallback, useState } from "react";
 import { num } from "starknet";
-import { Chain } from "@starknet-react/chains";
-import useToast from "@/hooks/toast";
 import { chainName, MAINNET_CHAIN_ID } from "@/config";
+import useToast from "@/hooks/toast";
 
 export interface UseChain {
   chain: Chain;
@@ -44,7 +44,7 @@ const useChain = () => {
         console.error(e);
       }
     },
-    [chain]
+    [chain],
   );
 
   const requestStarknet = useCallback(
@@ -55,7 +55,7 @@ const useChain = () => {
 
       await requestChain(MAINNET_CHAIN_ID, silent);
     },
-    [chain]
+    [chain],
   );
 
   return {

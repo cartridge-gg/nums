@@ -1,4 +1,4 @@
-import { Controller } from "@dojoengine/torii-client";
+import type { Controller } from "@dojoengine/torii-client";
 import {
   createContext,
   useCallback,
@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { BigNumberish } from "starknet";
+import type { BigNumberish } from "starknet";
 import { useDojoSdk } from "../hooks/dojo";
 
 type ControllersProviderProps = {
@@ -46,11 +46,11 @@ export function ControllersProvider({
     (address: BigNumberish) => {
       try {
         return controllers?.find((i) => BigInt(i.address) === BigInt(address));
-      } catch (e: any) {
+      } catch (_e: any) {
         return undefined;
       }
     },
-    [controllers]
+    [controllers],
   );
 
   useEffect(() => {

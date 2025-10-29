@@ -1,9 +1,9 @@
-import { Config } from "@/bindings";
-import { NAMESPACE } from "@/config";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
 import { createContext, useContext, useMemo } from "react";
+import type { Config } from "@/bindings";
+import { NAMESPACE } from "@/config";
 
 type ConfigProviderProps = {
   children: React.ReactNode;
@@ -14,7 +14,7 @@ type ConfigProviderState = {
 };
 
 const ConfigProviderContext = createContext<ConfigProviderState | undefined>(
-  undefined
+  undefined,
 );
 
 export function ConfigProvider({ children, ...props }: ConfigProviderProps) {
@@ -24,7 +24,9 @@ export function ConfigProvider({ children, ...props }: ConfigProviderProps) {
     return new ToriiQueryBuilder()
       .withEntityModels([`${NAMESPACE}-Config`])
       .withClause(
-        new ClauseBuilder().keys([`${NAMESPACE}-Config`], ["0"], "FixedLen").build()
+        new ClauseBuilder()
+          .keys([`${NAMESPACE}-Config`], ["0"], "FixedLen")
+          .build(),
       )
       .withLimit(1)
       .includeHashedKeys();

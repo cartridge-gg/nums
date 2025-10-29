@@ -1,9 +1,9 @@
-import { getNumsAddress, getGameAddress } from "@/config";
-import useChain from "@/hooks/chain";
-import ControllerConnector from "@cartridge/connector/controller";
+import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useState } from "react";
 import { shortString, uint256 } from "starknet";
+import { getGameAddress, getNumsAddress } from "@/config";
+import useChain from "@/hooks/chain";
 import { useExecuteCall } from "./useExecuteCall";
 
 export const useBuyGame = () => {
@@ -31,10 +31,7 @@ export const useBuyGame = () => {
       {
         contractAddress: numsAddress,
         entrypoint: "approve",
-        calldata: [
-          gameAddress,
-          uint256.bnToUint256(2_000n * 10n ** 18n),
-        ],
+        calldata: [gameAddress, uint256.bnToUint256(2_000n * 10n ** 18n)],
       },
       {
         contractAddress: gameAddress,
@@ -50,5 +47,3 @@ export const useBuyGame = () => {
     buyGame,
   };
 };
-
-

@@ -8,7 +8,7 @@ export class Packer {
     }
     return result;
   }
-  
+
   public static sized_unpack(
     packed: bigint,
     size: bigint,

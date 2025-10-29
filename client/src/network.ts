@@ -1,4 +1,4 @@
-import { Chain, mainnet, sepolia } from "@starknet-react/chains";
+import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
 
 type GraphqlUrl = {
   url: string;

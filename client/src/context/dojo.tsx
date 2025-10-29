@@ -1,12 +1,11 @@
 // Dojo related imports
-import { SDK } from "@dojoengine/sdk";
+import type { SDK } from "@dojoengine/sdk";
 import { DojoSdkProvider } from "@dojoengine/sdk/react";
+import { type PropsWithChildren, useEffect, useState } from "react";
+import type { StarknetDomain } from "starknet";
+import { DEFAULT_CHAIN, DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 import { setupWorld } from "../bindings/typescript/contracts.gen";
 import type { SchemaType } from "../bindings/typescript/models.gen";
-
-import { PropsWithChildren, useEffect, useState } from "react";
-import { StarknetDomain } from "starknet";
-import { DEFAULT_CHAIN, DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 // TODO:: idk xd
 export const appDomain = {

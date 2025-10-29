@@ -1,17 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Game } from "./pages/Game";
-import { Home } from "./pages/Home";
+import ControllerConnector from "@cartridge/connector/controller";
+import type { ControllerOptions, SessionPolicies } from "@cartridge/controller";
+import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
 import {
+  type Connector,
+  jsonRpcProvider,
   StarknetConfig,
   voyager,
-  jsonRpcProvider,
-  Connector,
 } from "@starknet-react/core";
-import { Chain, sepolia, mainnet } from "@starknet-react/chains";
-import { ControllerOptions, SessionPolicies } from "@cartridge/controller";
-import ControllerConnector from "@cartridge/connector/controller";
-import { AudioProvider } from "./context/audio";
-import { UrqlProvider } from "./context/urql";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import {
   chains,
   DEFAULT_CHAIN_ID,
@@ -20,13 +17,16 @@ import {
   getVrfAddress,
   NAMESPACE,
 } from "@/config";
-import { DojoSdkProviderInitialized } from "./context/dojo";
-import { TournamentProvider } from "./context/tournaments";
-import { GameProvider } from "./context/game";
+import { AudioProvider } from "./context/audio";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
+import { DojoSdkProviderInitialized } from "./context/dojo";
+import { GameProvider } from "./context/game";
 import { ModalProvider } from "./context/modal";
-import { Toaster } from "sonner";
+import { TournamentProvider } from "./context/tournaments";
+import { UrqlProvider } from "./context/urql";
+import { Game } from "./pages/Game";
+import { Home } from "./pages/Home";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -91,7 +91,7 @@ const options: ControllerOptions = {
   policies: buildPolicies(),
   preset: "nums",
   namespace: "NUMS",
-  slot:"nums-bal",
+  slot: "nums-bal",
   tokens: buildTokens(),
 };
 

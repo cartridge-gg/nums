@@ -1,8 +1,8 @@
-import { defineConfig } from "vitest/config";
-import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
-import wasm from "vite-plugin-wasm";
+import { fileURLToPath } from "node:url";
 import topLevelAwait from "vite-plugin-top-level-await";
+import wasm from "vite-plugin-wasm";
+import { defineConfig } from "vitest/config";
 
 const rootDir = fileURLToPath(new URL(".", import.meta.url));
 const resolveFromRoot = (path: string) => resolve(rootDir, path);
@@ -40,9 +40,7 @@ export default defineConfig({
       },
       {
         find: "@cartridge/ui/utils/api/indexer",
-        replacement: resolveFromRoot(
-          "tests/mocks/cartridge-ui-api-indexer.ts",
-        ),
+        replacement: resolveFromRoot("tests/mocks/cartridge-ui-api-indexer.ts"),
       },
       {
         find: "@cartridge/ui/utils",

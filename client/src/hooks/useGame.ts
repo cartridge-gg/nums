@@ -1,20 +1,20 @@
-import { Game, GameModel } from "@/models/game";
 import {
-  ToriiQueryBuilder,
-  SubscriptionCallbackArgs,
-  StandardizedQueryResult,
-  SchemaType,
   ClauseBuilder,
+  type SchemaType,
+  type StandardizedQueryResult,
+  type SubscriptionCallbackArgs,
+  ToriiQueryBuilder,
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDojoSdk } from "./dojo";
 import { NAMESPACE } from "@/config";
+import { Game, type GameModel } from "@/models/game";
+import { useDojoSdk } from "./dojo";
 
 const ENTITIES_LIMIT = 10_000;
 
 const getGameQuery = (gameId: number) => {
   const model: `${string}-${string}` = `${NAMESPACE}-${Game.getModelName()}`;
-  const key = `0x${gameId.toString(16).padStart(16, '0')}`;
+  const key = `0x${gameId.toString(16).padStart(16, "0")}`;
   const clauses = new ClauseBuilder().keys([model], [key], "FixedLen");
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
@@ -41,14 +41,20 @@ export const useGame = (gameId: number) => {
       StandardizedQueryResult<SchemaType>,
       Error
     >) => {
-      if (error || !data || data.length === 0 || BigInt(data[0].entityId) === 0n) return;
+      if (
+        error ||
+        !data ||
+        data.length === 0 ||
+        BigInt(data[0].entityId) === 0n
+      )
+        return;
       const entity = data[0];
       if (BigInt(entity.entityId) === 0n) return;
       if (!entity.models[NAMESPACE]?.[Game.getModelName()]) return;
       const game = Game.parse(entity as any);
       setGame(game);
     },
-    [gameId]
+    [gameId],
   );
 
   const refresh = useCallback(async () => {

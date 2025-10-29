@@ -1,8 +1,8 @@
-import { getNumsAddress } from "@/config";
-import useChain from "@/hooks/chain";
 import { useAccount } from "@starknet-react/core";
 import { useCallback } from "react";
 import { uint256 } from "starknet";
+import { getNumsAddress } from "@/config";
+import useChain from "@/hooks/chain";
 
 export const useMintNums = () => {
   const { account } = useAccount();
@@ -29,7 +29,6 @@ export const useMintNums = () => {
       return false;
     }
   }, [account]);
-
 
   return {
     mintMockNums,

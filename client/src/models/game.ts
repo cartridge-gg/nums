@@ -1,14 +1,14 @@
-import { NAMESPACE } from "@/constants";
+import type { ParsedEntity } from "@dojoengine/sdk";
 import type { SchemaType } from "@/bindings/typescript/models.gen";
-import { type ParsedEntity } from "@dojoengine/sdk";
+import { NAMESPACE } from "@/constants";
 import { Packer } from "@/helpers/packer";
 import { Power } from "@/types/power";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
 const REWARDS: number[] = [
-  0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500, 8000, 10000,
-  20000, 42000,
+  0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500,
+  8000, 10000, 20000, 42000,
 ];
 
 export class GameModel {
@@ -51,8 +51,8 @@ export class GameModel {
   static from(identifier: string, model: any) {
     if (!model) return GameModel.default(identifier);
     const id = Number(model.id);
-    const over = !model.over ? false : true;
-    const claimed = !model.claimed ? false : true;
+    const over = !!model.over;
+    const claimed = !!model.claimed;
     const level = Number(model.level);
     const slot_count = Number(model.slot_count);
     const slot_min = Number(model.slot_min);
@@ -63,11 +63,7 @@ export class GameModel {
     const powers = Power.getPowers(BigInt(model.powers));
     const reward = Number(model.reward);
     const score = Number(model.score);
-    const slots = Packer.sized_unpack(
-      BigInt(model.slots),
-      SLOT_SIZE,
-      20,
-    );
+    const slots = Packer.sized_unpack(BigInt(model.slots), SLOT_SIZE, 20);
     return new GameModel(
       identifier,
       id,
@@ -120,16 +116,24 @@ export class GameModel {
   }
 
   totalReward(): number {
-    return REWARDS.slice(0, this.level + 1).reduce((acc, curr) => acc + curr, 0);
+    return REWARDS.slice(0, this.level + 1).reduce(
+      (acc, curr) => acc + curr,
+      0,
+    );
   }
 
   alloweds(): number[] {
     // Return the indexes of the slots that are allowed to be set based on the number
     const [low, high] = this.closests();
-    if (high === -1 && low === -1) return Array.from({ length: this.slots.length }, (_, idx) => idx);
+    if (high === -1 && low === -1)
+      return Array.from({ length: this.slots.length }, (_, idx) => idx);
     if (high === low) return [];
     if (low === -1) return Array.from({ length: high }, (_, idx) => idx);
-    if (high === -1) return Array.from({ length: this.slots.length - low - 1 }, (_, idx) => low + idx + 1);
+    if (high === -1)
+      return Array.from(
+        { length: this.slots.length - low - 1 },
+        (_, idx) => low + idx + 1,
+      );
     return Array.from({ length: high - low - 1 }, (_, idx) => low + idx + 1);
   }
 
@@ -146,7 +150,7 @@ export class GameModel {
         closest_higher = idx;
         break;
       }
-    };
+    }
     return [closest_lower, closest_higher];
   }
 

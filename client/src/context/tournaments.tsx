@@ -1,10 +1,13 @@
-import { Tournament as TournamentEntity, Leaderboard as LeaderboardModel } from "@/bindings";
-import { TournamentModel, Tournament } from "@/models/tournament";
-import { NAMESPACE } from "@/config";
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { BigNumberish } from "starknet";
+import type { BigNumberish } from "starknet";
+import type {
+  Leaderboard as LeaderboardModel,
+  Tournament as TournamentEntity,
+} from "@/bindings";
+import { NAMESPACE } from "@/config";
+import { Tournament, TournamentModel } from "@/models/tournament";
 
 const tournamentsData = [
   {
@@ -57,7 +60,7 @@ const tournamentsData = [
     end_time: 0,
   },
   {
-    id: 8,  
+    id: 8,
     powers: 8,
     entry_count: 0,
     start_time: 0,
@@ -69,8 +72,8 @@ const tournamentsData = [
     entry_count: 0,
     start_time: 1767199628,
     end_time: 1767286028,
-  }
-]
+  },
+];
 
 type TournamentProviderProps = {
   children: React.ReactNode;
@@ -83,14 +86,20 @@ type TournamentProviderState = {
   getLeaderboardById: (id: BigNumberish) => LeaderboardModel | undefined;
 };
 
-const TournamentProviderContext = createContext<TournamentProviderState | undefined>(
-  undefined
-);
+const TournamentProviderContext = createContext<
+  TournamentProviderState | undefined
+>(undefined);
 
 const tournamentsQuery = new ToriiQueryBuilder()
   .withEntityModels([`${NAMESPACE}-${Tournament.getModelName()}`])
   .withClause(
-    new ClauseBuilder().keys([`${NAMESPACE}-${Tournament.getModelName()}`], [undefined], "FixedLen").build()
+    new ClauseBuilder()
+      .keys(
+        [`${NAMESPACE}-${Tournament.getModelName()}`],
+        [undefined],
+        "FixedLen",
+      )
+      .build(),
   )
   .withLimit(1_000)
   .includeHashedKeys();
@@ -98,12 +107,17 @@ const tournamentsQuery = new ToriiQueryBuilder()
 const leaderboardQuery = new ToriiQueryBuilder()
   .withEntityModels([`${NAMESPACE}-Leaderboard`])
   .withClause(
-    new ClauseBuilder().keys([`${NAMESPACE}-Leaderboard`], [undefined], "FixedLen").build()
+    new ClauseBuilder()
+      .keys([`${NAMESPACE}-Leaderboard`], [undefined], "FixedLen")
+      .build(),
   )
   .withLimit(1_000)
   .includeHashedKeys();
 
-export function TournamentProvider({ children, ...props }: TournamentProviderProps) {
+export function TournamentProvider({
+  children,
+  ...props
+}: TournamentProviderProps) {
   useEntityQuery(tournamentsQuery);
   useEntityQuery(leaderboardQuery);
 
@@ -111,7 +125,9 @@ export function TournamentProvider({ children, ...props }: TournamentProviderPro
   const tournaments = useMemo(() => {
     return Object.keys(tournamentItems).flatMap((key) => {
       const items = tournamentItems[key] as TournamentEntity[];
-      return Object.values(items).map((entity) => TournamentModel.from(key, entity));
+      return Object.values(items).map((entity) =>
+        TournamentModel.from(key, entity),
+      );
     });
   }, [tournamentItems]);
 
@@ -127,21 +143,26 @@ export function TournamentProvider({ children, ...props }: TournamentProviderPro
     (id: BigNumberish) => {
       return leaderboards.find((i) => i.tournament_id === id);
     },
-    [leaderboards]
+    [leaderboards],
   );
 
   const getTournamentById = useCallback(
     (id: BigNumberish) => {
       return tournaments.find((i) => i.id === id);
     },
-    [tournaments]
+    [tournaments],
   );
 
   return (
     <TournamentProviderContext.Provider
       {...props}
       value={{
-        tournaments: [...tournamentsData.map((data) => TournamentModel.from(data.id.toString(), data)), ...tournaments].sort((a, b) => b.id - a.id),
+        tournaments: [
+          ...tournamentsData.map((data) =>
+            TournamentModel.from(data.id.toString(), data),
+          ),
+          ...tournaments,
+        ].sort((a, b) => b.id - a.id),
         leaderboards,
         getTournamentById,
         getLeaderboardById,

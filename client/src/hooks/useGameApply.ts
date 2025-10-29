@@ -1,9 +1,9 @@
-import { getGameAddress, getVrfAddress } from "@/config";
-import useChain from "@/hooks/chain";
-import { useExecuteCall } from "@/hooks/useExecuteCall";
 import { useAccount } from "@starknet-react/core";
 import { useCallback } from "react";
 import { CallData } from "starknet";
+import { getGameAddress, getVrfAddress } from "@/config";
+import useChain from "@/hooks/chain";
+import { useExecuteCall } from "@/hooks/useExecuteCall";
 
 export const useGameApply = ({ gameId }: { gameId: number }) => {
   const { account } = useAccount();
@@ -35,11 +35,10 @@ export const useGameApply = ({ gameId }: { gameId: number }) => {
 
       return result;
     },
-    [account, chain.id, gameId, execute]
+    [account, chain.id, gameId, execute],
   );
 
   return {
     applyPower,
   };
 };
-

@@ -158,6 +158,7 @@ export const PrizePoolTokens = ({ prizes }: { prizes: PrizeModel[] }) => {
           )}
         >
           <img
+            draggable={false}
             src={prize.metadata?.logoUrl || makeBlockie(prize.address)}
             alt={prize.metadata?.name || "Token"}
             className="size-5 rounded-full"
@@ -194,6 +195,7 @@ export const PrizePoolModal = ({
           >
             <div className="flex items-center justify-center h-10 w-10 bg-purple-700 p-0.5 rounded-full">
               <img
+                draggable={false}
                 src={prize.metadata?.logoUrl || makeBlockie(prize.address)}
                 alt={prize.metadata?.name || "Token"}
                 className="size-9 rounded-full"

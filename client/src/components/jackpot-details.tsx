@@ -1,6 +1,5 @@
 import makeBlockie from "ethereum-blockies-base64";
 import { useEffect, useMemo, useState } from "react";
-import { InfoIcon } from "@/components/icons/Info";
 import { LiveIcon } from "@/components/icons/Live";
 import { Button } from "@/components/ui/button";
 import { Formatter } from "@/helpers/formatter";
@@ -69,10 +68,13 @@ export const JackpotDetails = ({
         >
           Jackpot #{tournament.id}
         </h2>
-        <div className="flex items-center gap-3 cursor-pointer" onClick={(e) => {
-                e.stopPropagation();
-                onOpenPrizeModal?.();
-              }}>
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenPrizeModal?.();
+          }}
+        >
           <PrizePoolTokens prizes={tournamentPrizes} />
           <span
             className="text-4xl/[24px] uppercase translate-y-0.5"
@@ -150,7 +152,10 @@ export const PrizePoolTokens = ({ prizes }: { prizes: PrizeModel[] }) => {
       {prizes.map((prize, index) => (
         <div
           key={prize.address}
-          className={cn("flex items-center justify-center h-5 w-5 relative", index > 0 && "ml-[-8px]")}
+          className={cn(
+            "flex items-center justify-center h-5 w-5 relative",
+            index > 0 && "ml-[-8px]",
+          )}
         >
           <img
             src={prize.metadata?.logoUrl || makeBlockie(prize.address)}

@@ -55,10 +55,14 @@ export const JackpotDetails = ({
 
   return (
     <div
-      className="select-none flex flex-col gap-6 w-full rounded-lg p-6 bg-[rgba(0,0,0,0.04)]"
+      className="select-none cursor-pointer flex flex-col gap-6 w-full rounded-lg p-6 bg-[rgba(0,0,0,0.04)]"
       style={{
         boxShadow:
           "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpenPrizeModal?.();
       }}
     >
       <div className="flex gap-2 justify-between items-center">
@@ -68,13 +72,7 @@ export const JackpotDetails = ({
         >
           Jackpot #{tournament.id}
         </h2>
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenPrizeModal?.();
-          }}
-        >
+        <div className="flex items-center gap-3">
           <PrizePoolTokens prizes={tournamentPrizes} />
           <span
             className="text-4xl/[24px] uppercase translate-y-0.5"

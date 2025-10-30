@@ -162,7 +162,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
     if (games.length === 0 || !leaderboard || !tournament) return [];
     const sliced = games.slice((page - 1) * rowsPerPage, page * rowsPerPage);
     return sliced.map((game) => {
-      const gameId = parseInt(game.token_id, 10);
+      const gameId = parseInt(game.token_id, 16);
       const position = leaderboard.games.indexOf(gameId) + 1;
       const prize =
         PrizeModel.payout(

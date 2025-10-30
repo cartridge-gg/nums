@@ -7,7 +7,6 @@ import { useDojoSDK } from "@dojoengine/sdk/react";
 import type {
   Subscription,
   TokenBalance,
-  TokenContract,
 } from "@dojoengine/torii-wasm";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -19,7 +18,6 @@ export function useAssets(
   accountRequired = true,
 ) {
   const { sdk } = useDojoSDK();
-  const [tokens, setTokens] = useState<TokenContract[]>([]);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
     null,
   );
@@ -33,22 +31,6 @@ export function useAssets(
       }
     };
   }, []);
-
-  const fetchTokens = useCallback(async () => {
-    const tokens = await sdk.client.getTokenContracts({
-      contract_addresses: request.contractAddresses
-        ? request.contractAddresses.map((i: any) => num.toHex64(i))
-        : [],
-      contract_types: ["ERC721"],
-      pagination: {
-        cursor: undefined,
-        direction: "Backward",
-        limit: 1_000,
-        order_by: [],
-      },
-    });
-    setTokens(tokens.items);
-  }, [sdk]);
 
   const fetchTokenBalances = useCallback(async () => {
     if (!requestRef.current) return;
@@ -82,7 +64,6 @@ export function useAssets(
   useEffect(() => {
     if (!deepEqual(request, requestRef.current)) {
       requestRef.current = request;
-      fetchTokens();
 
       if (
         accountRequired &&
@@ -93,25 +74,6 @@ export function useAssets(
       }
     }
   }, [request]);
-
-  function getBalance(token: TokenContract): TokenBalance | undefined {
-    return tokenBalances.find(
-      (balance) =>
-        BigInt(balance.contract_address) === BigInt(token.contract_address),
-    );
-  }
-
-  function toDecimal(
-    token: TokenContract,
-    balance: TokenBalance | undefined,
-  ): number {
-    return Number.parseInt(balance?.balance ?? "0", 16) * 10 ** -token.decimals;
-  }
-
-  const refetchBalances = useCallback(async () => {
-    fetchTokens();
-    fetchTokenBalances();
-  }, []);
 
   // Extract token IDs (gameIds) with non-zero balance for ERC721 tokens
   const assets = useMemo(() => {
@@ -130,13 +92,7 @@ export function useAssets(
   }, [tokenBalances]);
 
   return {
-    tokens,
-    balances: tokenBalances,
     assets,
-    gameIds: assets, // Alias for convenience
-    getBalance,
-    toDecimal,
-    refetchBalances,
   };
 }
 

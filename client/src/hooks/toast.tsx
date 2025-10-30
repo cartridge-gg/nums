@@ -9,7 +9,7 @@ const useToast = () => {
     ) : (
       <img
         className="w-6 h-6 rounded-full object-cover"
-        src="/nums_logo.png"
+        src="/logo.png"
         alt="Chain"
       />
     );

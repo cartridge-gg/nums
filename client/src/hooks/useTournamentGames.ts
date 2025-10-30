@@ -95,7 +95,6 @@ export const useTournamentGames = (tournamentId: number) => {
   const query = useQuery({
     queryKey: ["tournamentGames", tournamentId, chain.id.toString()],
     queryFn: async () => {
-      console.log({ collectionAddress, gameAddress, tournamentId });
       return await executeSqlQuery(
         toriiUrl,
         collectionAddress,

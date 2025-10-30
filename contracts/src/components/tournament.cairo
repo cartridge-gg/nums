@@ -7,6 +7,7 @@ pub mod TournamentComponent {
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use starknet::ContractAddress;
+    use crate::constants::TEN_POW_18;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::GameAssert;
@@ -75,7 +76,8 @@ pub mod TournamentComponent {
             let nums_disp = store.nums_disp();
             let nums_address = nums_disp.contract_address;
             let mut prize = store.prize(tournament.id, nums_address.into());
-            prize.sponsor(to_prize.try_into().unwrap());
+            let amount: u128 = (to_prize * TEN_POW_18.into()).try_into().unwrap();
+            prize.sponsor(amount);
             store.set_prize(@prize);
 
             // [Interaction] Mint the share to the prize pool

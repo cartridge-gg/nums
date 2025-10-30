@@ -7,6 +7,7 @@ import type {
   Tournament as TournamentEntity,
 } from "@/bindings";
 import { NAMESPACE } from "@/config";
+import type { PrizeModel } from "@/models/prize";
 import { Tournament, TournamentModel } from "@/models/tournament";
 
 type TournamentProviderProps = {
@@ -16,8 +17,12 @@ type TournamentProviderProps = {
 type TournamentProviderState = {
   tournaments?: TournamentModel[];
   leaderboards?: LeaderboardModel[];
+  prizes?: PrizeModel[];
   getTournamentById: (id: BigNumberish) => TournamentModel | undefined;
   getLeaderboardById: (id: BigNumberish) => LeaderboardModel | undefined;
+  getPrizeByTournamentId: (
+    tournamentId: BigNumberish,
+  ) => PrizeModel | undefined;
 };
 
 const TournamentProviderContext = createContext<
@@ -48,12 +53,23 @@ const leaderboardQuery = new ToriiQueryBuilder()
   .withLimit(1_000)
   .includeHashedKeys();
 
+const prizeQuery = new ToriiQueryBuilder()
+  .withEntityModels([`${NAMESPACE}-Prize`])
+  .withClause(
+    new ClauseBuilder()
+      .keys([`${NAMESPACE}-Prize`], [undefined, undefined], "FixedLen")
+      .build(),
+  )
+  .withLimit(10_000)
+  .includeHashedKeys();
+
 export function TournamentProvider({
   children,
   ...props
 }: TournamentProviderProps) {
   useEntityQuery(tournamentsQuery);
   useEntityQuery(leaderboardQuery);
+  useEntityQuery(prizeQuery);
 
   const tournamentItems = useModels(`${NAMESPACE}-Tournament`);
   const tournaments = useMemo(() => {
@@ -73,6 +89,14 @@ export function TournamentProvider({
     });
   }, [leaderboardItems]);
 
+  const prizeItems = useModels(`${NAMESPACE}-Prize`);
+  const prizes = useMemo(() => {
+    return Object.keys(prizeItems).flatMap((key) => {
+      const items = prizeItems[key] as PrizeModel[];
+      return Object.values(items);
+    });
+  }, [prizeItems]);
+
   const getLeaderboardById = useCallback(
     (id: BigNumberish) => {
       return leaderboards.find((i) => i.tournament_id === id);
@@ -87,14 +111,23 @@ export function TournamentProvider({
     [tournaments],
   );
 
+  const getPrizeByTournamentId = useCallback(
+    (tournamentId: BigNumberish) => {
+      return prizes.find((i) => i.tournament_id === tournamentId);
+    },
+    [prizes],
+  );
+
   return (
     <TournamentProviderContext.Provider
       {...props}
       value={{
         tournaments: tournaments.sort((a, b) => b.id - a.id),
         leaderboards,
+        prizes,
         getTournamentById,
         getLeaderboardById,
+        getPrizeByTournamentId,
       }}
     >
       {children}

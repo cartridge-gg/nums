@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { HomeIcon } from "@/components/icons/Home";
 import { InfoIcon } from "@/components/icons/Info";
 import { LinkIcon } from "@/components/icons/Link";
-import { JackpotDetails } from "@/components/jackpot-details";
+import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -19,29 +19,47 @@ import { useTournaments } from "@/context/tournaments";
 import { useGame } from "@/hooks/useGame";
 import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
+import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
 import type { GameModel } from "@/models/game";
 import type { TournamentModel } from "@/models/tournament";
 import { Power, PowerType } from "@/types/power";
 
 export const Game = () => {
+  const [prizePoolModal, setPrizePoolModal] = useState(false);
+
   return (
-    <div className="select-none relative h-screen w-screen flex flex-col">
+    <div
+      className="select-none relative h-screen w-screen flex flex-col"
+      onClick={() => {
+        if (prizePoolModal) setPrizePoolModal(false);
+      }}
+    >
       <img
         src={background}
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
       <Header />
-      <Main />
+      <Main
+        prizePoolModal={prizePoolModal}
+        setPrizePoolModal={setPrizePoolModal}
+      />
     </div>
   );
 };
 
-export const Main = () => {
+export const Main = ({
+  prizePoolModal,
+  setPrizePoolModal,
+}: {
+  prizePoolModal: boolean;
+  setPrizePoolModal: (value: boolean) => void;
+}) => {
   const { gameId } = useParams();
   const { tournaments } = useTournaments();
   const { game } = useGame(Number(gameId));
+  const { prizes } = usePrizesWithUsd();
   const { setSlot } = useGameSet({ gameId: Number(gameId) });
   const { applyPower } = useGameApply({ gameId: Number(gameId) });
   const [loadingSlotIndex, setLoadingSlotIndex] = useState<number | null>(null);
@@ -98,6 +116,11 @@ export const Main = () => {
     }
   }, [game?.slots, loadingSlotIndex]);
 
+  const tournamentPrizes = useMemo(() => {
+    if (!tournament) return [];
+    return prizes.filter((p) => p.tournament_id === tournament.id);
+  }, [prizes, tournament]);
+
   if (!game || !tournament) return null;
 
   return (
@@ -124,6 +147,17 @@ export const Main = () => {
           />
         </div>
       )}
+      {prizePoolModal && (
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <PrizePoolModal
+            prizes={tournamentPrizes}
+            setModal={setPrizePoolModal}
+          />
+        </div>
+      )}
       <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 justify-center">
         <div className="flex flex-col gap-12">
           <GameHeader
@@ -140,7 +174,12 @@ export const Main = () => {
             highlights={game.over ? game.closests() : []}
             alloweds={game.alloweds()}
           />
-          {tournament && <JackpotDetails tournament={tournament} />}
+          {tournament && (
+            <JackpotDetails
+              tournament={tournament}
+              onOpenPrizeModal={() => setPrizePoolModal(true)}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -320,7 +359,7 @@ export const PowerUp = ({
     <div className="flex flex-col gap-2 items-center justify-between text-purple-300">
       <TooltipProvider delayDuration={150}>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button
               disabled={
                 !available || power.isLocked(count) || isDisabled || isLoading
@@ -341,7 +380,7 @@ export const PowerUp = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent
-            className="max-w-[288px] bg-black-300 border-[2px] border-black-300 rounded-lg p-6 flex flex-col gap-3"
+            className="max-w-[288px] bg-black-300 border-[2px] border-black-300 rounded-lg p-6 flex flex-col gap-3 backdrop-blur-[4px]"
             style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
           >
             <h2 className="text-white-100 tracking-wider text-[22px]/[15px] translate-y-0.5">

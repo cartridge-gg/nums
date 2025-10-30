@@ -1,12 +1,12 @@
 import { useAccount, useConnect } from "@starknet-react/core";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { CircleInfoIcon } from "@/components/icons/CircleInfo";
 import { LiveIcon } from "@/components/icons/Live";
 import { TrophyIcon } from "@/components/icons/Trophy";
 import { Inventory } from "@/components/inventory";
-import { JackpotDetails } from "@/components/jackpot-details";
+import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Leaderboard } from "@/components/leaderboard";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,16 +18,21 @@ import {
 } from "@/components/ui/select";
 import { useModal } from "@/context/modal";
 import { useTournaments } from "@/context/tournaments";
+import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
 
 export const Home = () => {
   const { isInventoryOpen, closeInventory } = useModal();
+  const [prizePoolModal, setPrizePoolModal] = useState(false);
 
   return (
     <div
       className="relative h-screen w-screen flex flex-col"
-      onClick={isInventoryOpen ? closeInventory : undefined}
+      onClick={() => {
+        if (isInventoryOpen) closeInventory();
+        if (prizePoolModal) setPrizePoolModal(false);
+      }}
     >
       <img
         src={background}
@@ -35,13 +40,23 @@ export const Home = () => {
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
       <Header />
-      <Main />
+      <Main
+        prizePoolModal={prizePoolModal}
+        setPrizePoolModal={setPrizePoolModal}
+      />
     </div>
   );
 };
 
-export const Main = () => {
+export const Main = ({
+  prizePoolModal,
+  setPrizePoolModal,
+}: {
+  prizePoolModal: boolean;
+  setPrizePoolModal: (value: boolean) => void;
+}) => {
   const { tournaments } = useTournaments();
+  const { prizes } = usePrizesWithUsd();
   const { isInventoryOpen, openInventory, closeInventory } = useModal();
   const [selectedTournament, setSelectedTournament] = useState<
     number | undefined
@@ -64,11 +79,26 @@ export const Main = () => {
     setSelectedTournament(Number(value));
   };
 
+  const selectedTournamentPrizes = useMemo(() => {
+    return prizes.filter((p) => p.tournament_id === selectedTournament);
+  }, [prizes, selectedTournament]);
+
   return (
     <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16 py-12">
       {isInventoryOpen && (
         <div className="absolute inset-0 z-50 p-6" onClick={closeInventory}>
           <Inventory />
+        </div>
+      )}
+      {prizePoolModal && (
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <PrizePoolModal
+            prizes={selectedTournamentPrizes}
+            setModal={setPrizePoolModal}
+          />
         </div>
       )}
       <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4">
@@ -90,6 +120,7 @@ export const Main = () => {
                 (tournament) => tournament.id === selectedTournament,
               ) as TournamentModel
             }
+            onOpenPrizeModal={() => setPrizePoolModal(true)}
           />
         )}
         <div className="flex-1 min-h-0">
@@ -154,6 +185,21 @@ export const JackpotSelector = ({
   selected: number | undefined;
   handleSelect: (value: string) => void;
 }) => {
+  const { prizes } = usePrizesWithUsd();
+
+  const getTournamentPrizeTotal = (tournamentId: number) => {
+    const tournamentPrizes = prizes.filter(
+      (p) => p.tournament_id === tournamentId,
+    );
+    const total = tournamentPrizes.reduce((sum, prize) => {
+      if (prize.totalUsd) {
+        return sum + parseFloat(prize.totalUsd);
+      }
+      return sum;
+    }, 0);
+    return total > 0 ? `$${total.toFixed(2)}` : "$0.00";
+  };
+
   const selectedTournament = tournaments.find(
     (tournament) => tournament.id === selected,
   );
@@ -218,7 +264,7 @@ export const JackpotSelector = ({
                     <span
                       style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.25)" }}
                     >
-                      $521.15
+                      {getTournamentPrizeTotal(tournament.id)}
                     </span>
                   )}
                 </div>

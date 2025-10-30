@@ -4,10 +4,7 @@ import type {
   SubscriptionCallbackArgs,
 } from "@dojoengine/sdk";
 import { useDojoSDK } from "@dojoengine/sdk/react";
-import type {
-  Subscription,
-  TokenBalance,
-} from "@dojoengine/torii-wasm";
+import type { Subscription, TokenBalance } from "@dojoengine/torii-wasm";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addAddressPadding, num } from "starknet";

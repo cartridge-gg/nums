@@ -55,13 +55,19 @@ export const JackpotDetails = ({
 
   return (
     <div
-      className="select-none cursor-pointer flex flex-col gap-6 w-full rounded-lg p-6 bg-[rgba(0,0,0,0.04)]"
+      className={cn(
+        "select-none flex flex-col gap-6 w-full rounded-lg p-6 bg-[rgba(0,0,0,0.04)]",
+        tournamentPrizes.length === 0
+          ? "pointer-events-none"
+          : "cursor-pointer",
+      )}
       style={{
         boxShadow:
           "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
       }}
       onClick={(e) => {
         e.stopPropagation();
+        if (tournamentPrizes.length === 0) return;
         onOpenPrizeModal?.();
       }}
     >

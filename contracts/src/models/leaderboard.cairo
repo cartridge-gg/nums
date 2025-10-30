@@ -43,26 +43,50 @@ pub impl LeaderboardImpl of LeaderboardTrait {
         let mut count = self.capacity;
         let mut index = 0;
         let mut position = 0;
-        while let Option::Some(gid) = self.games.pop_front() {
+        while count > 0 {
             index += 1;
-            let g = store.game(gid);
-            if g.score < game.score && !placed && count != 0 {
-                placed = true;
-                leaderboard.append(game);
-                self.requirement = game.score;
-                count -= 1;
-                position = index;
+            match self.games.pop_front() {
+                Option::Some(gid) => {
+                    let g = store.game(gid);
+                    if g.score < game.score && !placed {
+                        placed = true;
+                        leaderboard.append(game.id);
+                        self.requirement = game.score;
+                        count -= 1;
+                        position = index;
+                    }
+                    if count == 0 {
+                        break;
+                    }
+                    if g.id == game.id {
+                        continue;
+                    }
+                    leaderboard.append(g.id);
+                    self.requirement = g.score;
+                    count -= 1;
+                },
+                Option::None => {
+                    leaderboard.append(game.id);
+                    self.requirement = game.score;
+                    position = index;
+                    break;
+                },
             }
-            if count == 0 {
-                break;
-            }
-            leaderboard.append(g);
-            self.requirement = game.score;
-            count -= 1;
         }
+
+        // [Effect] Update leaderboard
+        if leaderboard.len() < self.capacity {
+            self.requirement = 0;
+        }
+        self.games = leaderboard;
 
         // [Return] Is new top score
         position == 1
+    }
+
+    #[inline]
+    fn exists(self: @Leaderboard) -> bool {
+        self.capacity != @0
     }
 }
 

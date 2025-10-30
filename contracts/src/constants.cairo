@@ -41,6 +41,7 @@ pub const DEFAULT_SETTINGS_ID: u32 = 1;
 pub const DEFAULT_SLOT_COUNT: u8 = 20;
 pub const DEFAULT_SLOT_MIN: u16 = 1;
 pub const DEFAULT_SLOT_MAX: u16 = 999;
+pub const DEFAULT_MAX_CAPACITY: u32 = 5;
 
 pub const MAX_POWER_COUNT: u8 = 3;
 pub const MAX_SLOT_COUNT: u8 = 20;

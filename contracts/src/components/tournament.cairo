@@ -7,7 +7,7 @@ pub mod TournamentComponent {
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use starknet::ContractAddress;
-    use crate::constants::TEN_POW_18;
+    use crate::constants::{DEFAULT_MAX_CAPACITY, TEN_POW_18};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::GameAssert;
@@ -68,6 +68,13 @@ pub mod TournamentComponent {
             }
             tournament.enter();
             store.set_tournament(@tournament);
+
+            // [Effect] Create leaderboard if it doesn't exist
+            let leaderboard = store.leaderboard(tournament.id);
+            if !leaderboard.exists() {
+                let leaderboard = LeaderboardTrait::new(tournament.id, DEFAULT_MAX_CAPACITY);
+                store.set_leaderboard(@leaderboard);
+            }
 
             // [Effect] Update prize
             let config = store.config();

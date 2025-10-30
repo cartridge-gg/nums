@@ -115,11 +115,8 @@ export class GameModel {
     return this.tournament_id !== 0;
   }
 
-  totalReward(): number {
-    return REWARDS.slice(0, this.level + 1).reduce(
-      (acc, curr) => acc + curr,
-      0,
-    );
+  public static totalReward(level: number): number {
+    return REWARDS.slice(0, level + 1).reduce((acc, curr) => acc + curr, 0);
   }
 
   alloweds(): number[] {

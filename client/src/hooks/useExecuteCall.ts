@@ -59,13 +59,11 @@ export const useExecuteCall = () => {
       let tx: InvokeFunctionResponse;
       try {
         // Execute the transaction with timeout (30 seconds)
-        console.log("calls", calls);
         tx = await executeWithTimeout(
           account.execute(calls),
           10000, // 10 seconds timeout
           "Transaction request timed out. Please try again.",
         );
-        console.log("tx", tx);
 
         // Wait for transaction confirmation
         receipt = await account.waitForTransaction(tx.transaction_hash, {

@@ -125,7 +125,13 @@ export const Main = ({
         )}
         <div className="flex-1 min-h-0">
           {selectedTournament && (
-            <Leaderboard tournamentId={selectedTournament} />
+            <Leaderboard
+              tournament={
+                tournaments?.find(
+                  (tournament) => tournament.id === selectedTournament,
+                ) as TournamentModel
+              }
+            />
           )}
         </div>
       </div>

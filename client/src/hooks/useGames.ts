@@ -97,7 +97,6 @@ export const useGames = (gameIds: number[]) => {
 
     return () => {
       if (subscriptionRef.current) {
-        console.log("cancelling subscription", subscriptionRef.current);
         subscriptionRef.current.cancel();
       }
     };

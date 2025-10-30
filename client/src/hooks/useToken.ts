@@ -43,16 +43,6 @@ export function useToken(contractAddress: string) {
       balance: balanceScaled,
       token,
     };
-    // console.log(balances)
-
-    // const balance = balances.find(
-    //   (i) =>
-    //     BigInt(i.contract_address) === BigInt(contractAddress) &&
-    //     BigInt(i.account_address) === BigInt(account?.address || 0)
-    // );
-    // if (!balance) return 0;
-
-    // return (BigInt(balance.balance) / 10n ** 18n).toLocaleString();
   }, [balances, tokens, getBalance, toDecimal, account]);
 
   return {

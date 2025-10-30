@@ -21,7 +21,7 @@ import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
-import type { GameModel } from "@/models/game";
+import { GameModel } from "@/models/game";
 import type { TournamentModel } from "@/models/tournament";
 import { Power, PowerType } from "@/types/power";
 
@@ -528,7 +528,7 @@ export const GameOverDetails = ({ game }: { game: GameModel }) => {
   return (
     <div className="flex gap-6 w-[480px]">
       <GameOverScore score={game.score} />
-      <GameOverEarning earning={game.totalReward()} />
+      <GameOverEarning earning={GameModel.totalReward(game.level)} />
     </div>
   );
 };

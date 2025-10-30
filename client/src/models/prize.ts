@@ -114,7 +114,7 @@ export class PrizeModel {
     capacity: number,
   ): bigint | number {
     if (capacity === 0 || capacity > PAYOUT_RATIOS.length) {
-      throw new Error(`Invalid capacity: ${capacity}`);
+      return 0;
     }
 
     // Handle both bigint and number types

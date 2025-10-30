@@ -15,10 +15,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
+import { GameModel } from "@/models/game";
+import { PrizeModel } from "@/models/prize";
+import type { TournamentModel } from "@/models/tournament";
 
 export type LeaderboardProps = {
-  tournamentId: number;
+  tournament: TournamentModel;
+};
+
+export type LeaderboardRow = {
+  rank: number;
+  username: string;
+  score: number;
+  level: number;
+  game_id: number;
+  prize: number;
 };
 
 const EmptyLeaderboard = () => {
@@ -34,9 +47,12 @@ const EmptyLeaderboard = () => {
   );
 };
 
-export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
+export const Leaderboard = ({ tournament }: LeaderboardProps) => {
+  const tournamentId = tournament.id;
   const { leaderboard } = useLeaderboard(tournamentId);
   const { games } = useTournamentGames(tournamentId);
+  const { prizes } = usePrizesWithUsd();
+
   const [page, setPage] = useState(1);
   const [containerWidth, setContainerWidth] = useState(784);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -45,7 +61,19 @@ export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
 
-  console.log({ leaderboard, games });
+  const tournamentPrizes = useMemo(() => {
+    return prizes.filter((p) => p.tournament_id === tournamentId);
+  }, [prizes, tournamentId]);
+
+  const totalPrize = useMemo(() => {
+    const total = tournamentPrizes.reduce((sum, prize) => {
+      if (prize.totalUsd) {
+        return sum + parseFloat(prize.totalUsd);
+      }
+      return sum;
+    }, 0);
+    return total > 0 ? total : 0;
+  }, [tournamentPrizes]);
 
   const totalPages = Math.ceil(games.length / rowsPerPage);
 
@@ -130,10 +158,28 @@ export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
     return Math.max(5, maxVisibleSlots - 2);
   }, [maxVisibleSlots]);
 
-  const rows = useMemo(() => {
-    if (games.length === 0) return [];
-    return games.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-  }, [page, rowsPerPage, games]);
+  const rows: LeaderboardRow[] = useMemo(() => {
+    if (games.length === 0 || !leaderboard || !tournament) return [];
+    const sliced = games.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+    return sliced.map((game) => {
+      const gameId = parseInt(game.token_id, 10);
+      const position = leaderboard.games.indexOf(gameId) + 1;
+      const prize =
+        PrizeModel.payout(
+          totalPrize,
+          position,
+          leaderboard.getCapacity(tournament.entry_count),
+        ) || 0;
+      return {
+        rank: game.rank,
+        username: game.username,
+        score: game.score,
+        level: game.level,
+        game_id: gameId,
+        prize: Number(prize),
+      };
+    });
+  }, [page, rowsPerPage, games, leaderboard, tournament]);
 
   const hasData = games.length > 0;
 
@@ -249,8 +295,10 @@ export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
                     <TableCell className="pl-3">{item.rank}</TableCell>
                     <TableCell>{item.username}</TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell>{item.reward}</TableCell>
-                    <TableCell className="pr-3"></TableCell>
+                    <TableCell>{GameModel.totalReward(item.level)}</TableCell>
+                    <TableCell className="pr-3">
+                      {item.prize ? `$${item.prize.toFixed(2)}` : ""}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

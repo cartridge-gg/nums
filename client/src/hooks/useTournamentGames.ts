@@ -10,7 +10,7 @@ export type TournamentGameRow = {
   token_id: string;
   username: string;
   score: number;
-  reward: number;
+  level: number;
 };
 
 const executeSqlQuery = async (
@@ -25,7 +25,7 @@ const executeSqlQuery = async (
       t.token_id,
       c.username,
       g.score,
-      g.reward
+      g.level
     FROM tokens AS t
     JOIN token_balances AS tb ON tb.token_id = t.id
     JOIN token_attributes AS ta ON ta.token_id = t.id

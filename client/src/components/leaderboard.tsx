@@ -179,7 +179,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         prize: Number(prize),
       };
     });
-  }, [page, rowsPerPage, games, leaderboard, tournament]);
+  }, [page, rowsPerPage, games, leaderboard, tournament, totalPrize]);
 
   const hasData = games.length > 0;
 

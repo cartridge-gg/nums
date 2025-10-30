@@ -64,29 +64,22 @@ export const JackpotDetails = ({
     >
       <div className="flex gap-2 justify-between items-center">
         <h2
-          className="text-4xl leading-[24px] uppercase"
+          className="text-4xl/[24px] uppercase"
           style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Jackpot #{tournament.id}
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={(e) => {
+                e.stopPropagation();
+                onOpenPrizeModal?.();
+              }}>
+          <PrizePoolTokens prizes={tournamentPrizes} />
           <span
-            className="text-4xl leading-[24px] uppercase"
+            className="text-4xl/[24px] uppercase translate-y-0.5"
             style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
           >
             {totalPrizeUsd}
           </span>
-          {onOpenPrizeModal && (
-            <div
-              className="hover:cursor-pointer transition-colors duration-100 hover:text-purple-400 text-purple-300 [&_svg]:size-6"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenPrizeModal();
-              }}
-            >
-              <InfoIcon />
-            </div>
-          )}
         </div>
       </div>
       <div className="flex flex-row-reverse gap-2 justify-between items-center max-h-3">
@@ -151,6 +144,25 @@ export const JackpotDetails = ({
   );
 };
 
+export const PrizePoolTokens = ({ prizes }: { prizes: PrizeModel[] }) => {
+  return (
+    <div className="flex justify-center items-center bg-purple-600 rounded-full p-0.5">
+      {prizes.map((prize, index) => (
+        <div
+          key={prize.address}
+          className={cn("flex items-center justify-center h-5 w-5 relative", index > 0 && "ml-[-8px]")}
+        >
+          <img
+            src={prize.metadata?.logoUrl || makeBlockie(prize.address)}
+            alt={prize.metadata?.name || "Token"}
+            className="size-5 rounded-full"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const PrizePoolModal = ({
   prizes,
   setModal,
@@ -160,35 +172,40 @@ export const PrizePoolModal = ({
 }) => {
   return (
     <div
-      className="min-h-64 w-[360px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] rounded-lg p-6 flex flex-col gap-6"
+      className="w-[400px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[16px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] rounded-lg p-6 flex flex-col gap-6"
       style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      <h2 className="text-white-100 tracking-wider text-[28px]/[19px] translate-y-0.5 text-center">
+      <h2
+        className="text-white-100 tracking-wider text-[36px]/6 text-center"
+        style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
+      >
         Prize Pool
       </h2>
       <div className="flex flex-col gap-3">
         {prizes.map((prize) => (
           <div
             key={prize.address}
-            className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg"
+            className="h-16 flex items-center justify-between gap-3 px-3 rounded-xl bg-purple-700"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center h-10 w-10 bg-purple-700 p-0.5 rounded-full">
               <img
                 src={prize.metadata?.logoUrl || makeBlockie(prize.address)}
                 alt={prize.metadata?.name || "Token"}
-                className="size-8 rounded-full"
+                className="size-9 rounded-full"
               />
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-white-400 text-lg/4 bg-black-500 px-2 pt-1 pb-0.5 rounded -translate-y-px">
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2">
+                <strong
+                  className="text-white-100 text-[28px]/[19px] translate-y-0.5 tracking-wider"
+                  style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
+                >
+                  {`${prize.formattedAmount || "-"} ${prize.metadata?.symbol || ""}`}
+                </strong>
+              </div>
+              <span className="text-white-400 text-2xl/3 font-ppneuebit">
                 {prize.totalUsd ? `$${prize.totalUsd}` : "-"}
               </span>
-              <span className="text-white-100 text-2xl">
-                {prize.formattedAmount || "-"}
-              </span>
-              <strong className="text-white-100 text-2xl">
-                {prize.metadata?.symbol || ""}
-              </strong>
             </div>
           </div>
         ))}

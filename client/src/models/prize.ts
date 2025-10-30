@@ -4,6 +4,9 @@ import { NAMESPACE } from "@/constants";
 
 const MODEL_NAME = "Prize";
 
+// Payout ratios matching the Cairo contract
+const PAYOUT_RATIOS = [1n, 3n, 6n, 12n, 24n, 48n, 96n, 192n, 384n, 768n];
+
 export type PrizeMetadata = {
   name: string;
   symbol: string;
@@ -97,6 +100,92 @@ export class PrizeModel {
       totalUsd || undefined,
     );
   }
+
+  /**
+   * Calculate the payout for a given rank and capacity.
+   * @param amount - The total prize amount (in bigint or number for USD)
+   * @param rank - The rank of the winner (1-based)
+   * @param capacity - The maximum number of winners
+   * @returns The payout amount for this rank
+   */
+  static payout(
+    amount: bigint | number,
+    rank: number,
+    capacity: number,
+  ): bigint | number {
+    if (capacity === 0 || capacity > PAYOUT_RATIOS.length) {
+      throw new Error(`Invalid capacity: ${capacity}`);
+    }
+
+    // Handle both bigint and number types
+    if (typeof amount === "bigint") {
+      const [payout] = _payout(amount, rank, capacity, PAYOUT_RATIOS);
+      return payout;
+    }
+
+    // For numbers (e.g., USD values), use number arithmetic
+    const [payout] = _payoutNumber(
+      amount,
+      rank,
+      capacity,
+      PAYOUT_RATIOS.map((r) => Number(r)),
+    );
+    return payout;
+  }
+}
+
+/**
+ * Helper function to calculate the payout for a given rank and capacity (bigint version).
+ * Returns a tuple of [payout, sum] where payout is the amount for this rank
+ * and sum is the total of all payouts from this rank to the last.
+ */
+function _payout(
+  prize: bigint,
+  rank: number,
+  capacity: number,
+  ratios: readonly bigint[],
+): [bigint, bigint] {
+  if (rank === 0 || rank > capacity) {
+    return [0n, 0n];
+  }
+
+  const ratio = ratios[rank - 1];
+
+  if (rank === capacity) {
+    const payout = prize / ratio;
+    return [payout, payout];
+  }
+
+  const [, sum] = _payout(prize, rank + 1, capacity, ratios);
+  const payout = (prize - sum) / ratio;
+  return [payout, payout + sum];
+}
+
+/**
+ * Helper function to calculate the payout for a given rank and capacity (number version).
+ * Returns a tuple of [payout, sum] where payout is the amount for this rank
+ * and sum is the total of all payouts from this rank to the last.
+ */
+function _payoutNumber(
+  prize: number,
+  rank: number,
+  capacity: number,
+  ratios: readonly number[],
+): [number, number] {
+  if (rank === 0 || rank > capacity) {
+    return [0, 0];
+  }
+
+  const ratio = ratios[rank - 1];
+
+  if (rank === capacity) {
+    const payout = prize / ratio;
+    return [payout, payout];
+  }
+
+  const [, sum] = _payoutNumber(prize, rank + 1, capacity, ratios);
+  const payout = (prize - sum) / ratio;
+  return [payout, payout + sum];
 }
 
 export const Prize = {

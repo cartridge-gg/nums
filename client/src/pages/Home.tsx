@@ -92,7 +92,7 @@ export const Main = ({
       )}
       {prizePoolModal && (
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50"
           onClick={(e) => e.stopPropagation()}
         >
           <PrizePoolModal

@@ -57,6 +57,26 @@ export class LeaderboardModel {
       this.games,
     );
   }
+
+  /**
+   * Calculate the dynamic capacity based on entry count.
+   * Top 10% of entrants with specific criteria for low entry counts.
+   * Based on https://www.wsoponline.com/how-to-play-poker/mtt-tournament-payouts/
+   * @param entryCount - The number of tournament entries
+   * @returns The dynamic capacity (number of winners)
+   */
+  getCapacity(entryCount: number): number {
+    // Top 10% of entrants with specific criteria for low entry counts
+    const entryCriteria =
+      entryCount < 3
+        ? 1
+        : entryCount < 11
+          ? 2
+          : Math.floor((entryCount + 9) / 10);
+
+    const gamesCriteria = Math.min(this.capacity, this.games.length);
+    return Math.min(entryCriteria, gamesCriteria);
+  }
 }
 
 export const Leaderboard = {

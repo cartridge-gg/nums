@@ -35,7 +35,7 @@ const EmptyLeaderboard = () => {
 };
 
 export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
-  const { leaderboard: _leaderboard } = useLeaderboard(tournamentId);
+  const { leaderboard } = useLeaderboard(tournamentId);
   const { games } = useTournamentGames(tournamentId);
   const [page, setPage] = useState(1);
   const [containerWidth, setContainerWidth] = useState(784);
@@ -44,6 +44,8 @@ export const Leaderboard = ({ tournamentId }: LeaderboardProps) => {
   const paginationRef = useRef<HTMLDivElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
+
+  console.log({ leaderboard, games });
 
   const totalPages = Math.ceil(games.length / rowsPerPage);
 

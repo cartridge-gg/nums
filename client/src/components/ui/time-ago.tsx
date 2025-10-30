@@ -9,10 +9,7 @@ function TimeAgo({
   date,
   ...props
 }: React.ComponentProps<typeof ReactTimeAgo>) {
-  return (
-    // @ts-expect-error
-    <ReactTimeAgo date={date} {...props} />
-  );
+  return <ReactTimeAgo date={date} {...props} />;
 }
 
 export { TimeAgo };

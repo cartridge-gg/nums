@@ -148,7 +148,7 @@ export const JackpotDetails = ({
 
 export const PrizePoolTokens = ({ prizes }: { prizes: PrizeModel[] }) => {
   return (
-    <div className="flex justify-center items-center bg-purple-600 rounded-full p-0.5">
+    <div className="select-none flex justify-center items-center bg-purple-600 rounded-full p-0.5">
       {prizes.map((prize, index) => (
         <div
           key={prize.address}

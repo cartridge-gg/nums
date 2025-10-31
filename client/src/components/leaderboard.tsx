@@ -1,3 +1,4 @@
+import { useAccount } from "@starknet-react/core";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   PaginationEllipsis,
@@ -17,6 +18,7 @@ import {
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
+import { cn } from "@/lib/utils";
 import { GameModel } from "@/models/game";
 import { PrizeModel } from "@/models/prize";
 import type { TournamentModel } from "@/models/tournament";
@@ -28,6 +30,7 @@ export type LeaderboardProps = {
 export type LeaderboardRow = {
   rank: number;
   username: string;
+  address: string;
   score: number;
   level: number;
   game_id: number;
@@ -49,6 +52,7 @@ const EmptyLeaderboard = () => {
 
 export const Leaderboard = ({ tournament }: LeaderboardProps) => {
   const tournamentId = tournament.id;
+  const { account } = useAccount();
   const { leaderboard } = useLeaderboard(tournamentId);
   const { games } = useTournamentGames(tournamentId);
   const { prizes } = usePrizesWithUsd();
@@ -173,6 +177,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
       return {
         rank: game.rank,
         username: game.username,
+        address: game.address,
         score: game.score,
         level: game.level,
         game_id: gameId,
@@ -289,11 +294,22 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="font-ppneuebit text-2xl leading-[34px]">
+              <TableBody className="font-ppneuebit text-2xl/[34px]">
                 {rows.map((item) => (
-                  <TableRow key={item.rank}>
+                  <TableRow
+                    key={item.rank}
+                    className={cn(
+                      BigInt(item.address) === BigInt(account?.address || 0)
+                        ? "text-orange-100"
+                        : "text-white-100",
+                    )}
+                  >
                     <TableCell className="pl-3">{item.rank}</TableCell>
-                    <TableCell>{item.username}</TableCell>
+                    <TableCell>
+                      {BigInt(item.address) === BigInt(account?.address || 0)
+                        ? `${item.username} (you)`
+                        : item.username}
+                    </TableCell>
                     <TableCell>{item.score}</TableCell>
                     <TableCell>{GameModel.totalReward(item.level)}</TableCell>
                     <TableCell className="pr-3">

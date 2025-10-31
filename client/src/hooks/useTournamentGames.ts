@@ -9,6 +9,7 @@ export type TournamentGameRow = {
   rank: number;
   token_id: string;
   username: string;
+  address: string;
   score: number;
   level: number;
 };
@@ -24,6 +25,7 @@ const executeSqlQuery = async (
       ROW_NUMBER() OVER (ORDER BY g.score DESC) AS rank,
       t.token_id,
       c.username,
+      c.address,
       g.score,
       g.level
     FROM tokens AS t

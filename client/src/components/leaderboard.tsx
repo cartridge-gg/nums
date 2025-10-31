@@ -41,7 +41,7 @@ const EmptyLeaderboard = () => {
   return (
     <div className="select-none w-full h-full p-6 rounded-lg bg-black-900 border border-purple-600 flex justify-center items-center">
       <p
-        className="text-white-400 tracking-wider text-xl"
+        className="text-white-400 tracking-wide text-xl"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         No games have been played yet
@@ -263,31 +263,31 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
               <TableHeader>
                 <TableRow>
                   <TableHead
-                    className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    className="pl-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Rank
                   </TableHead>
                   <TableHead
-                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Player
                   </TableHead>
                   <TableHead
-                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Score
                   </TableHead>
                   <TableHead
-                    className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Nums Reward
                   </TableHead>
                   <TableHead
-                    className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                    className="pr-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Prize
@@ -327,31 +327,31 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                 <TableHeader>
                   <TableRow>
                     <TableHead
-                      className="pl-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      className="pl-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Rank
                     </TableHead>
                     <TableHead
-                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Player
                     </TableHead>
                     <TableHead
-                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Score
                     </TableHead>
                     <TableHead
-                      className="pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Nums Reward
                     </TableHead>
                     <TableHead
-                      className="pr-3 pb-4 tracking-wider text-purple-300 text-lg leading-[22px]"
+                      className="pr-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Prize

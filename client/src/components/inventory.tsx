@@ -109,7 +109,7 @@ export const Header = () => {
         Enter Jackpot #8
       </h1>
       <p
-        className="text-lg leading-[12px] tracking-wider text-white-400 translate-y-0.5"
+        className="text-lg leading-[12px] tracking-wide text-white-400 translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         Tournament ends in: 02:20:14

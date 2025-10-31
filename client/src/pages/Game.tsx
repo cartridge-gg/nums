@@ -228,7 +228,7 @@ export const GameNumber = ({
 }) => {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-purple-300 tracking-wider text-lg/6">
+      <span className="text-purple-300 tracking-wide text-lg/6">
         Your number is...
       </span>
       <div
@@ -277,7 +277,7 @@ export const GameNextNumber = ({
         onClick={() => setModal(false)}
       >
         <p
-          className="text-[28px]/[19px] tracking-wider translate-y-0.5"
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
         >
           Close
@@ -303,7 +303,7 @@ export const PowerUps = ({
   return (
     <div className="flex flex-col gap-2 justify-between">
       <div className="flex justify-between items-center gap-2">
-        <span className="text-purple-300 tracking-wider text-lg/6 ">
+        <span className="text-purple-300 tracking-wide text-lg/6 ">
           Power ups
         </span>
         <div className="hover:cursor-pointer transition-colors duration-100 hover:text-purple-400 text-purple-300 [&_svg]:size-6">
@@ -383,7 +383,7 @@ export const PowerUp = ({
             className="max-w-[288px] bg-black-300 border-[2px] border-black-300 rounded-lg p-6 flex flex-col gap-3 backdrop-blur-[4px]"
             style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
           >
-            <h2 className="text-white-100 tracking-wider text-[22px]/[15px] translate-y-0.5">
+            <h2 className="text-white-100 tracking-wide text-[22px]/[15px] translate-y-0.5">
               {power.name()}
             </h2>
             <p className="text-white-100 font-ppneuebit text-2xl/5">
@@ -458,7 +458,7 @@ const GameSlot = ({
 
   return (
     <div className="flex justify-between items-center">
-      <p className="text-purple-300 tracking-wider text-[28px] min-w-8">{`${index + 1}.`}</p>
+      <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
       {slot ? (
         <div
           className="h-10 w-16 rounded-xl flex justify-center items-center bg-purple-300"
@@ -536,9 +536,9 @@ export const GameOverDetails = ({ game }: { game: GameModel }) => {
 export const GameOverScore = ({ score }: { score: number }) => {
   return (
     <div className="grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-xl">
-      <p className="text-purple-300 tracking-wider text-lg/3">Score</p>
+      <p className="text-purple-300 tracking-wide text-lg/3">Score</p>
       <p
-        className="text-[28px]/[19px] tracking-wider"
+        className="text-[28px]/[19px] tracking-wide"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         {score}
@@ -550,9 +550,9 @@ export const GameOverScore = ({ score }: { score: number }) => {
 export const GameOverEarning = ({ earning }: { earning: number }) => {
   return (
     <div className="grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-xl">
-      <p className="text-purple-300 tracking-wider text-lg/3">Earned</p>
+      <p className="text-purple-300 tracking-wide text-lg/3">Earned</p>
       <p
-        className="text-[28px]/[19px] tracking-wider"
+        className="text-[28px]/[19px] tracking-wide"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >{`${earning.toLocaleString()} NUMS`}</p>
     </div>
@@ -567,7 +567,7 @@ export const GameOverButton = () => {
           <HomeIcon />
         </div>
         <p
-          className="text-[28px]/[19px] tracking-wider translate-y-0.5 px-1"
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Home

@@ -186,7 +186,7 @@ export const PrizePoolModal = ({
       style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
     >
       <h2
-        className="text-white-100 tracking-wider text-[36px]/6 text-center"
+        className="text-white-100 tracking-wide text-[36px]/6 text-center"
         style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
       >
         Prize Pool
@@ -208,7 +208,7 @@ export const PrizePoolModal = ({
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-2">
                 <strong
-                  className="text-white-100 text-[28px]/[19px] translate-y-0.5 tracking-wider"
+                  className="text-white-100 text-[28px]/[19px] translate-y-0.5 tracking-wide"
                   style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
                 >
                   {`${prize.formattedAmount || "-"} ${prize.metadata?.symbol || ""}`}
@@ -227,7 +227,7 @@ export const PrizePoolModal = ({
         onClick={() => setModal(false)}
       >
         <p
-          className="text-[28px]/[19px] tracking-wider translate-y-0.5"
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
         >
           Close

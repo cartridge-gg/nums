@@ -19,13 +19,13 @@ export const Games = () => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="w-[188px] tracking-wider text-purple-300 text-lg leading-[22px]"
+            className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
           </p>
           <p
-            className="grow tracking-wider text-purple-300 text-lg leading-[22px]"
+            className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Score
@@ -33,7 +33,7 @@ export const Games = () => {
         </div>
         <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
           <p
-            className="text-[22px] text-white-400 tracking-wider text-center"
+            className="text-[22px] text-white-400 tracking-wide text-center"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Loading...
@@ -48,13 +48,13 @@ export const Games = () => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="w-[188px] tracking-wider text-purple-300 text-lg leading-[22px]"
+            className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
           </p>
           <p
-            className="grow tracking-wider text-purple-300 text-lg leading-[22px]"
+            className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Score
@@ -62,7 +62,7 @@ export const Games = () => {
         </div>
         <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
           <p
-            className="text-[22px] text-white-400 tracking-wider text-center"
+            className="text-[22px] text-white-400 tracking-wide text-center"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Error loading games
@@ -76,13 +76,13 @@ export const Games = () => {
     <div className="h-full overflow-hidden flex flex-col gap-6">
       <div className="flex items-center gap-2 px-4 h-3">
         <p
-          className="w-[188px] tracking-wider text-purple-300 text-lg leading-[22px]"
+          className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Game ID
         </p>
         <p
-          className="grow tracking-wider text-purple-300 text-lg leading-[22px]"
+          className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Score
@@ -111,7 +111,7 @@ export const EmptyGames = () => {
   return (
     <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
       <p
-        className="text-[22px] text-white-400 tracking-wider text-center"
+        className="text-[22px] text-white-400 tracking-wide text-center"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         You do not have any

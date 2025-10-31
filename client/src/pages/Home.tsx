@@ -169,7 +169,7 @@ export const Play = ({ onClick }: { onClick: () => void }) => {
   return (
     <Button
       variant={!account ? "muted" : "default"}
-      className="h-10 px-6 py-2 tracking-wider cursor-pointer"
+      className="h-10 px-6 py-2 tracking-wide cursor-pointer"
       onClick={handleClick}
     >
       <p
@@ -212,7 +212,7 @@ export const JackpotSelector = ({
 
   return (
     <Select value={selected?.toString()} onValueChange={handleSelect}>
-      <SelectTrigger className="w-[218px] h-10 rounded-lg gap-2 px-3 py-2 tracking-wider bg-purple-600 border-0 focus:ring-0 focus:outline-none shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_0px_rgba(255,255,255,0.12)]">
+      <SelectTrigger className="w-[218px] h-10 rounded-lg gap-2 px-3 py-2 tracking-wide bg-purple-600 border-0 focus:ring-0 focus:outline-none shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_0px_rgba(255,255,255,0.12)]">
         {selectedTournament ? (
           <div className="flex items-center gap-2">
             <TrophyIcon />
@@ -225,7 +225,7 @@ export const JackpotSelector = ({
           <SelectValue placeholder="Coming soon" />
         )}
       </SelectTrigger>
-      <SelectContent className="w-[400px] max-h-[360px] rounded-lg border-2 border-black-300 px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wider shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
+      <SelectContent className="w-[400px] max-h-[360px] rounded-lg border-2 border-black-300 px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wide shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
         <div className="flex flex-col gap-2 py-3">
           {tournaments?.map((tournament) => (
             <SelectItem

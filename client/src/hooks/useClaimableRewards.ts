@@ -1,10 +1,11 @@
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useMemo, useState } from "react";
 import { useTournaments } from "@/context/tournaments";
-import type { ClaimProps } from "./useClaim";
 import { usePlayerGames } from "./useAssets";
+import type { ClaimProps } from "./useClaim";
 import { useGames } from "./useGames";
 import { useMultipleRewards } from "./useMultipleRewards";
+import { useRewards } from "./useRewards";
 
 export type ClaimableReward = ClaimProps & {
   score: number;
@@ -15,6 +16,7 @@ export const useClaimableRewards = () => {
   const { address } = useAccount();
   const { gameIds } = usePlayerGames();
   const { games } = useGames(gameIds);
+  const { rewards } = useRewards(gameIds);
   const { leaderboards, prizes } = useTournaments();
 
   const [claimableRewards, setClaimableRewards] = useState<ClaimableReward[]>(
@@ -24,7 +26,9 @@ export const useClaimableRewards = () => {
   // Get unique tournament IDs from player's games that have started
   const tournamentIds = useMemo(() => {
     const uniqueTournamentIds = new Set(
-      games.filter((game) => game.tournament_id !== 0).map((g) => g.tournament_id),
+      games
+        .filter((game) => game.tournament_id !== 0)
+        .map((g) => g.tournament_id),
     );
     return Array.from(uniqueTournamentIds);
   }, [games]);
@@ -42,8 +46,10 @@ export const useClaimableRewards = () => {
 
     // Filter games that have started
     const startedGames = games.filter((game) => game.tournament_id !== 0);
-
     for (const game of startedGames) {
+      const reward = rewards.find((r) => r.gameId === game.id);
+      if (!reward || reward.claimed) continue;
+
       const tournamentId = game.tournament_id;
 
       // Find the leaderboard for this tournament
@@ -60,7 +66,7 @@ export const useClaimableRewards = () => {
       const claimPosition = position + 1;
 
       // Check if position is within capacity
-      if (claimPosition > leaderboard.capacity) continue;
+      if (claimPosition > Number(leaderboard.capacity)) continue;
 
       // Get all prizes for this tournament
       const tournamentPrizes = prizes.filter(

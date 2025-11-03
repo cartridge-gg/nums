@@ -1,5 +1,6 @@
 import {
-  ClauseBuilder,
+  MemberClause,
+  OrComposeClause,
   type SchemaType,
   type StandardizedQueryResult,
   type SubscriptionCallbackArgs,
@@ -12,17 +13,24 @@ import { useDojoSdk } from "./dojo";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getRewardsQuery = (tournamentId: number) => {
-  const model: `${string}-${string}` = `${NAMESPACE}-${Reward.getModelName()}`;
-  const key = `0x${tournamentId.toString(16).padStart(16, "0")}`;
-  const clauses = new ClauseBuilder().keys([model], [key, undefined, undefined], "FixedLen");
+const getRewardsQuery = (gameIds: number[]) => {
+  const clauses = OrComposeClause(
+    gameIds.map((id) =>
+      MemberClause(
+        `${NAMESPACE}-${Reward.getModelName()}`,
+        "game_id",
+        "Eq",
+        `0x${id.toString(16).padStart(16, "0")}`,
+      ),
+    ),
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys()
     .withLimit(ENTITIES_LIMIT);
 };
 
-export const useRewards = (tournamentId: number) => {
+export const useRewards = (gameIds: number[]) => {
   const { sdk } = useDojoSdk();
 
   const [rewards, setRewards] = useState<RewardModel[]>([]);
@@ -30,8 +38,9 @@ export const useRewards = (tournamentId: number) => {
   const subscriptionRef = useRef<any>(null);
 
   const rewardsQuery = useMemo(() => {
-    return getRewardsQuery(tournamentId);
-  }, [tournamentId]);
+    if (gameIds.length === 0) return null;
+    return getRewardsQuery(gameIds);
+  }, [gameIds]);
 
   const onUpdate = useCallback(
     ({
@@ -41,20 +50,32 @@ export const useRewards = (tournamentId: number) => {
       StandardizedQueryResult<SchemaType>,
       Error
     >) => {
-      if (error || !data || data.length === 0) return;
-
-      const parsedRewards = data
-        .filter((entity) => BigInt(entity.entityId) !== 0n)
-        .filter((entity) => entity.models[NAMESPACE]?.[Reward.getModelName()])
-        .map((entity) => Reward.parse(entity as any))
-        .filter((reward) => reward.tournament_id === tournamentId);
-
-      setRewards(parsedRewards);
+      if (
+        error ||
+        !data ||
+        data.length === 0 ||
+        BigInt(data[0].entityId) === 0n
+      )
+        return;
+      const rewards: RewardModel[] = [];
+      data.forEach((entity) => {
+        if (BigInt(entity.entityId) === 0n) return;
+        if (!entity.models[NAMESPACE]?.[Reward.getModelName()]) return;
+        const reward = Reward.parse(entity as any);
+        rewards.push(reward);
+      });
+      setRewards((prev) => {
+        const deduped = rewards.filter(
+          (reward) => !prev.some((r) => r.identifier === reward.identifier),
+        );
+        return [...prev, ...deduped];
+      });
     },
-    [tournamentId],
+    [],
   );
 
   const refresh = useCallback(async () => {
+    if (gameIds.length === 0 || !rewardsQuery) return;
     if (subscriptionRef.current) {
       subscriptionRef.current = null;
     }
@@ -69,7 +90,7 @@ export const useRewards = (tournamentId: number) => {
     if (items && items.length > 0) {
       onUpdate({ data: items, error: undefined });
     }
-  }, [rewardsQuery, tournamentId, onUpdate]);
+  }, [rewardsQuery, gameIds]);
 
   useEffect(() => {
     refresh();
@@ -79,11 +100,10 @@ export const useRewards = (tournamentId: number) => {
         subscriptionRef.current.cancel();
       }
     };
-  }, [subscriptionRef, sdk, rewardsQuery, tournamentId, refresh]);
+  }, [subscriptionRef, sdk, rewardsQuery, gameIds]);
 
   return {
     rewards,
     refresh,
   };
 };
-

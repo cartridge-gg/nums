@@ -27,3 +27,6 @@ target
 .vercel
 account*.json
 keystore*.json
+
+# Turbo
+.turbo

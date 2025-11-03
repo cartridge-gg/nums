@@ -33,8 +33,6 @@ export const useGameSet = ({ gameId }: { gameId: number }) => {
         },
       ]);
 
-      console.log({ result });
-
       return result;
     },
     [account, chain.id, gameId, execute],

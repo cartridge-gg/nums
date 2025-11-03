@@ -1,5 +1,4 @@
 import {
-  ClauseBuilder,
   MemberClause,
   OrComposeClause,
   type SchemaType,
@@ -111,4 +110,3 @@ export const useMultipleRewards = (tournamentIds: number[]) => {
     refresh,
   };
 };
-

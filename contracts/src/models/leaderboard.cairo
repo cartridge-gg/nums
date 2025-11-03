@@ -99,8 +99,8 @@ pub impl LeaderboardAssert of AssertTrait {
 
     #[inline]
     fn assert_at_position(self: @Leaderboard, game_id: u64, position: u32) {
-        assert(position < self.games.len(), errors::LEADERBOARD_INVALID_POSITION);
-        let game_position = self.games.at(position);
+        assert(position != 0 && position <= self.games.len(), errors::LEADERBOARD_INVALID_POSITION);
+        let game_position = self.games.at(position - 1);
         assert(game_id == *game_position, errors::LEADERBOARD_INVALID_POSITION);
     }
 

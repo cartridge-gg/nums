@@ -1,5 +1,5 @@
 import ControllerConnector from "@cartridge/connector/controller";
-import type { ControllerOptions, SessionPolicies } from "@cartridge/controller";
+import type { ControllerOptions } from "@cartridge/controller";
 import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
 import {
   type Connector,
@@ -10,14 +10,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import {
-  chains,
-  DEFAULT_CHAIN_ID,
-  getContractAddress,
-  getNumsAddress,
-  getVrfAddress,
-  NAMESPACE,
-} from "@/config";
+import { chains, DEFAULT_CHAIN_ID, getNumsAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
@@ -43,33 +36,33 @@ const provider = jsonRpcProvider({
   },
 });
 
-const buildPolicies = () => {
-  const chain = chains[DEFAULT_CHAIN_ID];
+// const buildPolicies = () => {
+//   const chain = chains[DEFAULT_CHAIN_ID];
 
-  const vrfAddress = getVrfAddress(chain.id);
-  const numsAddress = getNumsAddress(chain.id);
-  const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
+//   const vrfAddress = getVrfAddress(chain.id);
+//   const numsAddress = getNumsAddress(chain.id);
+//   const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
 
-  const policies: SessionPolicies = {
-    contracts: {
-      [vrfAddress]: {
-        methods: [{ entrypoint: "request_random" }],
-      },
-      [numsAddress]: {
-        methods: [{ entrypoint: "approve" }],
-      },
-      [gameAddress]: {
-        methods: [
-          { entrypoint: "start" },
-          { entrypoint: "set" },
-          { entrypoint: "apply" },
-        ],
-      },
-    },
-  };
+//   const policies: SessionPolicies = {
+//     contracts: {
+//       [vrfAddress]: {
+//         methods: [{ entrypoint: "request_random" }],
+//       },
+//       [numsAddress]: {
+//         methods: [{ entrypoint: "approve" }],
+//       },
+//       [gameAddress]: {
+//         methods: [
+//           { entrypoint: "start" },
+//           { entrypoint: "set" },
+//           { entrypoint: "apply" },
+//         ],
+//       },
+//     },
+//   };
 
-  return policies;
-};
+//   return policies;
+// };
 
 const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
@@ -94,7 +87,7 @@ const buildTokens = () => {
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
-  policies: buildPolicies(),
+  // policies: buildPolicies(),
   preset: "nums",
   namespace: "NUMS",
   slot: "nums-bal",

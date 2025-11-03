@@ -4,13 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 1337",
-    "prod": "vite --port 13337 --mode production",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "format": "prettier ./src --write",
-    "test": "jest"
+    "dev": "turbo run dev --filter=@cartridge/nums",
+    "dev:all": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:check": "turbo run lint:check",
+    "test": "turbo run test",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "format:all": "turbo run format:all",
+    "format:check:all": "turbo run format:check:all",
+    "type:check": "turbo run type:check"
   },
   "dependencies": {
     "@bal7hazar/arcade-sdk": "^0.0.74",
@@ -66,6 +70,7 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
+    "turbo": "^2.3.3",
     "typescript": "^5.5.4",
     "vite": "^5.2.0",
     "vite-plugin-pwa": "^1.0.3",

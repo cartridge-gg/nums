@@ -13,7 +13,6 @@ export class RewardModel {
     public address: string,
     public gameId: number,
     public claimed: boolean,
-    
   ) {
     this.identifier = identifier;
     this.tournament_id = tournament_id;
@@ -27,7 +26,7 @@ export class RewardModel {
     const tournament_id = Number(model.tournament_id);
     const address = model.address;
     const gameId = Number(model.game_id);
-    const claimed = model.claimed ? true : false;
+    const claimed = !!model.claimed;
     return new RewardModel(identifier, tournament_id, address, gameId, claimed);
   }
 

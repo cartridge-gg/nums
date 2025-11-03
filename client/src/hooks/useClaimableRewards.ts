@@ -48,7 +48,7 @@ export const useClaimableRewards = () => {
     const startedGames = games.filter((game) => game.tournament_id !== 0);
     for (const game of startedGames) {
       const reward = rewards.find((r) => r.gameId === game.id);
-      if (!reward || reward.claimed) continue;
+      if (reward?.claimed) continue;
 
       const tournamentId = game.tournament_id;
 

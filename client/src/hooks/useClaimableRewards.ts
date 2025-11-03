@@ -1,10 +1,9 @@
 import { useAccount } from "@starknet-react/core";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTournaments } from "@/context/tournaments";
 import { usePlayerGames } from "./useAssets";
 import type { ClaimProps } from "./useClaim";
 import { useGames } from "./useGames";
-import { useMultipleRewards } from "./useMultipleRewards";
 import { useRewards } from "./useRewards";
 
 export type ClaimableReward = ClaimProps & {
@@ -16,25 +15,14 @@ export const useClaimableRewards = () => {
   const { address } = useAccount();
   const { gameIds } = usePlayerGames();
   const { games } = useGames(gameIds);
-  const { rewards } = useRewards(gameIds);
   const { leaderboards, prizes } = useTournaments();
 
   const [claimableRewards, setClaimableRewards] = useState<ClaimableReward[]>(
     [],
   );
 
-  // Get unique tournament IDs from player's games that have started
-  const tournamentIds = useMemo(() => {
-    const uniqueTournamentIds = new Set(
-      games
-        .filter((game) => game.tournament_id !== 0)
-        .map((g) => g.tournament_id),
-    );
-    return Array.from(uniqueTournamentIds);
-  }, [games]);
-
   // Subscribe to rewards for all tournaments
-  const { rewards: allRewards } = useMultipleRewards(tournamentIds);
+  const { rewards: allRewards } = useRewards(gameIds);
 
   useEffect(() => {
     if (!address || !games.length || !leaderboards || !prizes) {
@@ -46,10 +34,8 @@ export const useClaimableRewards = () => {
 
     // Filter games that have started
     const startedGames = games.filter((game) => game.tournament_id !== 0);
-    for (const game of startedGames) {
-      const reward = rewards.find((r) => r.gameId === game.id);
-      if (reward?.claimed) continue;
 
+    for (const game of startedGames) {
       const tournamentId = game.tournament_id;
 
       // Find the leaderboard for this tournament

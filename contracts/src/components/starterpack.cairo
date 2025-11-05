@@ -3,7 +3,6 @@ pub mod StarterpackComponent {
     // Imports
 
     use dojo::world::WorldStorage;
-    use crate::constants::{DESCRIPTION, IMAGE, NAME, TEN_POW_18};
     use crate::interfaces::starterpack::IStarterpackDispatcherTrait;
     use crate::models::config;
     use crate::models::config::ConfigAssert;
@@ -31,23 +30,17 @@ pub mod StarterpackComponent {
             let config = store.config();
             // [Interaction] Register starterpack
             let referral_percentage = 0;
-            let price = (config.entry_price * TEN_POW_18).into();
+            let price = config.entry_price.into();
             let payment_token = store.nums_disp().contract_address;
             let starterpack_id = store
                 .starterpack_disp()
                 .register(
                     implementation: starknet::get_contract_address(),
                     referral_percentage: referral_percentage,
-                    reissuable: false,
+                    reissuable: true,
                     price: price,
                     payment_token: payment_token,
-                    metadata: "{\"name\":\""
-                        + NAME()
-                        + "\",\"description\":\""
-                        + DESCRIPTION()
-                        + "\",\"image_uri\":\""
-                        + IMAGE()
-                        + "\"}",
+                    metadata: StarterpackTrait::metadata(),
                 );
             // [Effect] Create starterpack
             let starterpack = StarterpackTrait::new(
@@ -81,13 +74,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
-                    metadata: "{\"name\":\""
-                        + NAME()
-                        + "\",\"description\":\""
-                        + DESCRIPTION()
-                        + "\",\"image_uri\":\""
-                        + IMAGE()
-                        + "\"}",
+                    metadata: StarterpackTrait::metadata(),
                 );
 
             // [Effect] Create starterpack
@@ -144,24 +131,8 @@ pub mod StarterpackComponent {
             store.starterpack(starterpack_id).assert_does_exist();
 
             // [Interaction] Update metadata
-            let item = "{\"name\":\""
-                + "Game"
-                + "\",\"description\":\""
-                + "A standard game playable on nums.gg"
-                + "\",\"image_uri\":\""
-                + IMAGE()
-                + "\"}";
-            let metadata = "{\"name\":\""
-                + "Nums Starterpack"
-                + "\",\"description\":\""
-                + "This starterpack contains Nums games"
-                + "\",\"image_uri\":\""
-                + IMAGE()
-                + "\",\"items\":["
-                + item
-                + "]}";
             let starterpack_disp = store.starterpack_disp();
-            starterpack_disp.update_metadata(starterpack_id, metadata);
+            starterpack_disp.update_metadata(starterpack_id, StarterpackTrait::metadata());
         }
 
         fn remove(

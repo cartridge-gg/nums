@@ -73,13 +73,13 @@ mod Minigame {
     impl GameTokenDataImpl of IMinigameTokenData<ContractState> {
         fn score(self: @ContractState, token_id: u64) -> u32 {
             let mut store = StoreTrait::new(self.world(@NAMESPACE()));
-            let game = store.game(token_id.try_into().expect('Game: invalid token ID'));
+            let game = store.game(token_id);
             game.score
         }
 
         fn game_over(self: @ContractState, token_id: u64) -> bool {
             let mut store = StoreTrait::new(self.world(@NAMESPACE()));
-            let game = store.game(token_id.try_into().expect('Game: invalid token ID'));
+            let game = store.game(token_id);
             game.is_over(game.slots())
         }
     }

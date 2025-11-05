@@ -1,5 +1,4 @@
 pub use crate::helpers::bitmap::Bitmap;
-use crate::helpers::deck::DeckTrait;
 pub use crate::models::index::Tournament;
 pub use crate::types::power::{POWER_COUNT, Power, PowerTrait};
 
@@ -23,28 +22,14 @@ pub impl TournamentImpl of TournamentTrait {
         // [Check] Times are valid
         let start_time = Self::start_time(id);
         let end_time = start_time + Self::duration(id);
-        let powers = Self::powers(id);
         // [Return] New tournament
-        Tournament {
-            id: id, powers: powers, entry_count: 0, start_time: start_time, end_time: end_time,
-        }
+        Tournament { id: id, powers: 0, entry_count: 0, start_time: start_time, end_time: end_time }
     }
 
     #[inline]
     fn uuid() -> u16 {
         let now = starknet::get_block_timestamp();
         ((now + FOUR_DAYS) / ONE_WEEK).try_into().unwrap()
-    }
-
-    #[inline]
-    fn powers(id: u16) -> u16 {
-        let mut deck = DeckTrait::new(id.into(), POWER_COUNT.into());
-        let power: Power = deck.draw().into();
-        let bitmap = Bitmap::set(0, power.index());
-        let power: Power = deck.draw().into();
-        let bitmap = Bitmap::set(bitmap, power.index());
-        let power: Power = deck.draw().into();
-        Bitmap::set(bitmap, power.index())
     }
 
     #[inline]

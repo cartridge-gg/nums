@@ -39,7 +39,7 @@ pub impl PrizeImpl of PrizeTrait {
     #[inline]
     fn payout(self: @Prize, rank: u32, capacity: u32) -> u128 {
         PrizeAssert::assert_valid_capacity(capacity, PAYOUT_RATIOS.span());
-        let prize: u128 = (*self.amount).into();
+        let prize: u128 = *self.amount;
         let ratios = PAYOUT_RATIOS.span();
         let (payout, _) = _payout(prize, rank, capacity, ratios);
         payout

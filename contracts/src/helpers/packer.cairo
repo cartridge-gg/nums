@@ -54,7 +54,7 @@ pub impl Packer<
                 break false;
             }
             let raw: U = (packed % modulo).try_into().unwrap();
-            if value == raw.into() {
+            if value == raw {
                 break true;
             }
             packed = packed / modulo;
@@ -70,7 +70,7 @@ pub impl Packer<
             let value: U = (packed % modulo)
                 .try_into()
                 .expect(errors::PACKER_VALUE_CONVERSION_FAILED);
-            result.append(value.into());
+            result.append(value);
             packed = packed / modulo;
             index += 1;
         }
@@ -127,8 +127,7 @@ pub impl Packer<
         let mut modulo: T = size.into();
         let mut offset: T = 1_u8.into();
         while let Option::Some(value) = unpacked.pop_front() {
-            let value_t: T = value.into();
-            result = result + offset.into() * value_t.into();
+            result = result + offset * value.into();
             if unpacked.is_empty() {
                 break;
             }

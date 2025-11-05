@@ -1,4 +1,5 @@
-pub use crate::models::index::Starterpack;
+pub use crate::constants::IMAGE;
+use crate::models::index::Starterpack;
 
 pub mod errors {
     pub const STARTERPACK_ALREADY_EXISTS: felt252 = 'Starterpack: already exists';
@@ -31,9 +32,31 @@ pub impl StarterpackImpl of StarterpackTrait {
     }
 
     #[inline]
-    fn amount(self: @Starterpack) -> u256 {
-        let referral_fee_amount = *self.price * (*self.referral_percentage).into() / 100;
-        *self.price - referral_fee_amount
+    fn amount(self: @Starterpack, quantity: u32) -> u256 {
+        let base_price = *self.price * quantity.into();
+        let fee = base_price * (*self.referral_percentage).into() / 100;
+        base_price - fee
+    }
+
+    #[inline]
+    fn metadata() -> ByteArray {
+        let item = "{\"name\":\""
+            + "Game"
+            + "\",\"description\":\""
+            + "A standard game playable on nums.gg"
+            + "\",\"image_uri\":\""
+            + IMAGE()
+            + "\"}";
+        let metadata = "{\"name\":\""
+            + "Nums Starterpack"
+            + "\",\"description\":\""
+            + "This starterpack contains Nums games"
+            + "\",\"image_uri\":\""
+            + IMAGE()
+            + "\",\"items\":["
+            + item
+            + "]}";
+        metadata
     }
 }
 

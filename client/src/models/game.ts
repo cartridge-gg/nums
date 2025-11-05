@@ -26,7 +26,8 @@ export class GameModel {
     public number: number,
     public next_number: number,
     public tournament_id: number,
-    public powers: Power[],
+    public selected_powers: Power[],
+    public available_powers: Power[],
     public reward: number,
     public score: number,
     public slots: number[],
@@ -42,7 +43,8 @@ export class GameModel {
     this.number = number;
     this.next_number = next_number;
     this.tournament_id = tournament_id;
-    this.powers = powers;
+    this.selected_powers = selected_powers;
+    this.available_powers = available_powers;
     this.reward = reward;
     this.score = score;
     this.slots = slots;
@@ -60,7 +62,8 @@ export class GameModel {
     const number = Number(model.number);
     const next_number = Number(model.next_number);
     const tournament_id = Number(model.tournament_id);
-    const powers = Power.getPowers(BigInt(model.powers));
+    const selected_powers = Power.getPowers(BigInt(model.selected_powers));
+    const available_powers = Power.getPowers(BigInt(model.available_powers));
     const reward = Number(model.reward);
     const score = Number(model.score);
     const slots = Packer.sized_unpack(BigInt(model.slots), SLOT_SIZE, 20);
@@ -76,7 +79,8 @@ export class GameModel {
       number,
       next_number,
       tournament_id,
-      powers,
+      selected_powers,
+      available_powers,
       reward,
       score,
       slots,
@@ -96,6 +100,7 @@ export class GameModel {
       0,
       0,
       0,
+      [],
       [],
       0,
       0,
@@ -189,7 +194,8 @@ export class GameModel {
       this.number,
       this.next_number,
       this.tournament_id,
-      this.powers,
+      this.selected_powers,
+      this.available_powers,
       this.reward,
       this.score,
       [...this.slots],

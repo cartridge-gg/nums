@@ -31,6 +31,7 @@ pub mod models {
     pub mod setting;
     pub mod starterpack;
     pub mod tournament;
+    pub mod usage;
 }
 
 pub mod svg {
@@ -45,7 +46,7 @@ pub mod svg {
 
 pub mod helpers {
     pub mod bitmap;
-    pub mod deck;
+    pub mod heap;
     pub mod packer;
     pub mod power;
 }

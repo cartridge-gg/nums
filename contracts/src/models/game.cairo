@@ -20,6 +20,7 @@ pub mod errors {
     pub const GAME_POWER_NOT_UNLOCKED: felt252 = 'Game: power not unlocked';
     pub const GAME_HAS_NOT_STARTED: felt252 = 'Game: has not started';
     pub const GAME_SLOTS_PACK_FAILED: felt252 = 'Game: slots pack failed';
+    pub const GAME_POWERS_TOO_EXPENSIVE: felt252 = 'Game: powers too expensive';
 }
 
 pub const REWARD_LEVELS: [u32; 21] = [
@@ -47,7 +48,8 @@ pub impl GameImpl of GameTrait {
             slot_max: slot_max,
             number: 0,
             next_number: 0,
-            powers: 0,
+            selected_powers: 0,
+            available_powers: 0,
             reward: 0,
             score: 0,
             tournament_id: 0,
@@ -63,23 +65,20 @@ pub impl GameImpl of GameTrait {
         GameAssert::assert_valid_number(number);
         // [Effect] Start game
         self.tournament_id = tournament_id;
-        self.powers = powers;
+        self.selected_powers = powers;
+        self.available_powers = powers;
         self.number = number;
     }
 
     #[inline]
     fn apply(ref self: Game, index: u8, ref rand: Random) {
         // [Check] Power is valid
-        let available = Bitmap::get(self.powers, index);
+        let available = Bitmap::get(self.available_powers, index);
         assert(available == 1, errors::GAME_POWER_NOT_AVAILABLE);
-        // [Check] Power is unlocked
-        let mut slots = self.slots();
-        let adjacent = Self::adjacent(ref slots);
-        let power: Power = PowerTrait::from(index);
-        assert(power.is_unlocked(adjacent), errors::GAME_POWER_NOT_UNLOCKED);
         // [Effect] Update power availability
-        self.powers = Bitmap::unset(self.powers, index);
+        self.available_powers = Bitmap::unset(self.available_powers, index);
         // [Effect] Apply power
+        let power: Power = PowerTrait::from(index);
         power.apply(ref self, ref rand);
     }
 
@@ -376,31 +375,15 @@ pub impl GameAssert of AssertTrait {
 
 #[cfg(test)]
 mod tests {
-    use core::array::ArrayTrait;
     use crate::constants::{DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, SLOT_SIZE};
     use crate::helpers::packer::Packer;
     use super::{Game, GameAssert, GameTrait};
 
     /// Helper function to create a test game instance
-    fn create_test_game() -> Game {
+    fn create() -> Game {
         let mut game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
-        game.start(1, 10, 0b111);
+        game.start(1, 10, 0b0000111);
         game
-    }
-
-    /// Helper to create slots array
-    fn create_slots(game_id: u64, mut numbers: Array<u16>, size: u8) -> Array<u16> {
-        let mut slots = array![];
-        let mut index: u8 = 0;
-        while let Option::Some(number) = numbers.pop_front() {
-            slots.append(number);
-            index += 1;
-        }
-        while index < size {
-            slots.append(0);
-            index += 1;
-        }
-        slots
     }
 
     #[test]
@@ -416,7 +399,7 @@ mod tests {
 
     #[test]
     fn test_is_valid_single_element() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![42_u8], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         assert(game.is_valid(), 'Single element invalid');
@@ -424,13 +407,13 @@ mod tests {
 
     #[test]
     fn test_is_valid_empty_array() {
-        let game = create_test_game();
+        let game = create();
         assert(game.is_valid(), 'Empty array invalid');
     }
 
     #[test]
     fn test_is_valid_ascending_order() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![1_u8, 5, 10, 15], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         assert(game.is_valid(), 'Ascending order invalid');
@@ -438,7 +421,7 @@ mod tests {
 
     #[test]
     fn test_is_valid_not_ascending() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![10_u8, 5, 15], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         assert(!game.is_valid(), 'Not ascending is valid');
@@ -446,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_is_valid_equal_elements() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![5_u8, 5], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         assert(!game.is_valid(), 'Equal elements valid');
@@ -454,7 +437,7 @@ mod tests {
 
     #[test]
     fn test_assert_does_exist_valid_game() {
-        let game = create_test_game();
+        let game = create();
         // This should not panic
         GameAssert::assert_does_exist(@game);
     }
@@ -462,7 +445,7 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game: does not exist',))]
     fn test_assert_does_exist_invalid_game() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.slot_count = 0; // Make it invalid
 
         GameAssert::assert_does_exist(@game);
@@ -470,7 +453,7 @@ mod tests {
 
     #[test]
     fn test_assert_not_exist_valid() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.slot_count = 0; // Make it not exist
 
         // This should not panic
@@ -480,14 +463,14 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game: already exists',))]
     fn test_assert_not_exist_invalid() {
-        let game = create_test_game();
+        let game = create();
 
         GameAssert::assert_not_exist(@game);
     }
 
     #[test]
     fn test_assert_is_valid_valid_numbers() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![1_u8, 5, 10], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         GameAssert::assert_is_valid(@game);
@@ -496,7 +479,7 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game: slots not valid',))]
     fn test_assert_is_valid_invalid_numbers() {
-        let mut game = create_test_game();
+        let mut game = create();
         let slots: u256 = Packer::pack(array![10_u8, 5, 1], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
         GameAssert::assert_is_valid(@game);
@@ -504,7 +487,7 @@ mod tests {
 
     #[test]
     fn test_is_over_all_slots_filled() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 20; // All slots filled
         let slots: u256 = Packer::pack(
             array![
@@ -520,7 +503,7 @@ mod tests {
 
     #[test]
     fn test_is_over_empty_slot_at_end_can_fit() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 19;
         game.number = 500;
         let slots: Array<u16> = array![
@@ -533,7 +516,7 @@ mod tests {
 
     #[test]
     fn test_is_over_empty_slot_at_end_cannot_fit() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 19;
         game.number = 300;
         let slots: Array<u16> = array![
@@ -547,7 +530,7 @@ mod tests {
 
     #[test]
     fn test_is_over_empty_slot_at_beginning_can_fit() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 19;
         game.number = 5;
         let slots: Array<u16> = array![
@@ -561,7 +544,7 @@ mod tests {
 
     #[test]
     fn test_is_over_empty_slot_in_middle_can_fit() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 5;
         game.number = 150;
         let slots: Array<u16> = array![10, 20, 30, 100, 0, 0, 200];
@@ -572,7 +555,7 @@ mod tests {
 
     #[test]
     fn test_is_over_empty_slot_in_middle_cannot_fit() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 5;
         game.number = 150;
         let slots: Array<u16> = array![10, 20, 30, 100, 200];
@@ -583,7 +566,7 @@ mod tests {
 
     #[test]
     fn test_is_over_number_smaller_than_first() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 3;
         game.number = 5;
         let slots: Array<u16> = array![10, 50, 100];
@@ -594,7 +577,7 @@ mod tests {
 
     #[test]
     fn test_is_over_gaps_between_numbers() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 4;
         game.number = 75; // Fits between 50 and 100
         let slots: Array<u16> = array![10, 50, 0, 100, 500];
@@ -605,7 +588,7 @@ mod tests {
 
     #[test]
     fn test_is_over_only_one_slot_filled() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.level = 1;
         game.number = 500;
         let slots: Array<u16> = array![100];
@@ -617,7 +600,7 @@ mod tests {
 
     #[test]
     fn test_score_with_uniform_distribution() {
-        let mut game = create_test_game();
+        let mut game = create();
         let mut slots = array![
             47, 95, 142, 190, 238, 285, 333, 380, 428, 476, 523, 571, 619, 666, 714, 761, 809, 857,
             904, 952,
@@ -630,7 +613,7 @@ mod tests {
 
     #[test]
     fn test_score_with_non_uniform_distribution_symmetric() {
-        let mut game = create_test_game();
+        let mut game = create();
         let mut slots = array![
             980, 981, 982, 983, 984, 985, 986, 987, 988, 989, 990, 991, 992, 993, 994, 995, 996,
             997, 998, 999,
@@ -649,7 +632,7 @@ mod tests {
 
     #[test]
     fn test_score_with_highest_scores() {
-        let mut game = create_test_game();
+        let mut game = create();
         let mut slots = array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
@@ -703,14 +686,14 @@ mod tests {
 
     #[test]
     fn test_game_is_valid_error_01() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.slots = 0x362000000000000000000000000000000000000000000;
         game.slots();
     }
 
     #[test]
     fn test_game_is_valid_error_02() {
-        let mut game = create_test_game();
+        let mut game = create();
         game.slots = 0x0000000000362000000000000000000000000000000000000000000000000000;
         game.number = 88;
         game.place(2);

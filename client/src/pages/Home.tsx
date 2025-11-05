@@ -87,7 +87,13 @@ export const Main = ({
     <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16 py-12">
       {isInventoryOpen && (
         <div className="absolute inset-0 z-50 p-6" onClick={closeInventory}>
-          <Inventory />
+          <Inventory
+            tournament={
+              tournaments?.find(
+                (tournament) => tournament.id === selectedTournament,
+              ) as TournamentModel
+            }
+          />
         </div>
       )}
       {prizePoolModal && (

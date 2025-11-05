@@ -26,7 +26,8 @@ export interface Game {
 	number: BigNumberish;
 	next_number: BigNumberish;
 	tournament_id: BigNumberish;
-	powers: BigNumberish;
+	selected_powers: BigNumberish;
+	available_powers: BigNumberish;
 	reward: BigNumberish;
 	score: BigNumberish;
 	slots: BigNumberish;
@@ -90,6 +91,13 @@ export interface Tournament {
 	entry_count: BigNumberish;
 	start_time: BigNumberish;
 	end_time: BigNumberish;
+}
+
+// Type definition for `nums::models::index::Usage` struct
+export interface Usage {
+	world_resource: BigNumberish;
+	last_update: BigNumberish;
+	board: BigNumberish;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
@@ -156,13 +164,6 @@ export interface GameDetail {
 	value: string;
 }
 
-// Type definition for `nums::interfaces::starterpack::StarterPackMetadata` struct
-export interface StarterPackMetadata {
-	name: string;
-	description: string;
-	image_uri: string;
-}
-
 // Type definition for `openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged` struct
 export interface RoleAdminChanged {
 	role: BigNumberish;
@@ -214,15 +215,6 @@ export const source = [
 export type Source = { [key in typeof source[number]]: string };
 export type SourceEnum = CairoCustomEnum;
 
-// Type definition for `openzeppelin_access::accesscontrol::interface::RoleStatus` enum
-export const roleStatus = [
-	'NotGranted',
-	'Delayed',
-	'Effective',
-] as const;
-export type RoleStatus = { [key in typeof roleStatus[number]]: string };
-export type RoleStatusEnum = CairoCustomEnum;
-
 export interface SchemaType extends ISchemaType {
 	nums: {
 		Config: Config,
@@ -234,6 +226,7 @@ export interface SchemaType extends ISchemaType {
 		Setting: Setting,
 		Starterpack: Starterpack,
 		Tournament: Tournament,
+		Usage: Usage,
 		TrophyCreation: TrophyCreation,
 		TrophyProgression: TrophyProgression,
 		Task: Task,
@@ -242,7 +235,6 @@ export interface SchemaType extends ISchemaType {
 		GameSetting: GameSetting,
 		GameSettingDetails: GameSettingDetails,
 		GameDetail: GameDetail,
-		StarterPackMetadata: StarterPackMetadata,
 		RoleAdminChanged: RoleAdminChanged,
 		RoleGranted: RoleGranted,
 		RoleGrantedWithDelay: RoleGrantedWithDelay,
@@ -274,7 +266,8 @@ export const schema: SchemaType = {
 			number: 0,
 			next_number: 0,
 			tournament_id: 0,
-			powers: 0,
+			selected_powers: 0,
+			available_powers: 0,
 			reward: 0,
 			score: 0,
 			slots: 0,
@@ -325,6 +318,11 @@ export const schema: SchemaType = {
 			start_time: 0,
 			end_time: 0,
 		},
+		Usage: {
+			world_resource: 0,
+			last_update: 0,
+			board: 0,
+		},
 		TrophyCreation: {
 			id: 0,
 			hidden: false,
@@ -373,11 +371,6 @@ export const schema: SchemaType = {
 		name: "",
 		value: "",
 		},
-		StarterPackMetadata: {
-		name: "",
-		description: "",
-		image_uri: "",
-		},
 		RoleAdminChanged: {
 			role: 0,
 			previous_admin_role: 0,
@@ -421,6 +414,7 @@ export enum ModelsMapping {
 	Setting = 'nums-Setting',
 	Starterpack = 'nums-Starterpack',
 	Tournament = 'nums-Tournament',
+	Usage = 'nums-Usage',
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyProgression = 'achievement-TrophyProgression',
 	Task = 'achievement-Task',
@@ -429,13 +423,11 @@ export enum ModelsMapping {
 	GameSetting = 'game_components_minigame-GameSetting',
 	GameSettingDetails = 'game_components_minigame-GameSettingDetails',
 	GameDetail = 'game_components_minigame-GameDetail',
-	StarterPackMetadata = 'nums-StarterPackMetadata',
 	Source = 'nums-Source',
 	RoleAdminChanged = 'openzeppelin_access-RoleAdminChanged',
 	RoleGranted = 'openzeppelin_access-RoleGranted',
 	RoleGrantedWithDelay = 'openzeppelin_access-RoleGrantedWithDelay',
 	RoleRevoked = 'openzeppelin_access-RoleRevoked',
-	RoleStatus = 'openzeppelin_access-RoleStatus',
 	Approval = 'openzeppelin_token-Approval',
 	Transfer = 'openzeppelin_token-Transfer',
 }

@@ -1,17 +1,18 @@
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useModal } from "@/context/modal";
 import { usePlayerGames } from "@/hooks/useAssets";
-import { useBuyGame } from "@/hooks/useBuyGame";
 import { Games } from "./games";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
 import ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
+import { TournamentModel } from "@/models/tournament";
+import { Formatter } from "@/helpers";
 
 export type InventoryProps = {};
 
-export const Inventory = () => {
+export const Inventory = ({ tournament }: { tournament: TournamentModel }) => {
   const { isInventoryClosing, closeInventory, finalizeCloseInventory } =
     useModal();
   const { gameIds } = usePlayerGames();
@@ -34,24 +35,6 @@ export const Inventory = () => {
       setIsLoading(false);
     }
   }, [gameIds, isLoading]);
-
-  const handlePurchase = async (purchaseAction: () => Promise<any>) => {
-    // Save current count before purchase
-    initialGameCountRef.current = gameIds.length;
-    setIsLoading(true);
-    try {
-      const success = await purchaseAction();
-
-      // If transaction failed or was declined, stop loading immediately
-      if (!success) {
-        setIsLoading(false);
-      }
-      // Otherwise, loading will be disabled automatically when gameIds changes
-    } catch (_error) {
-      // If error, stop loading immediately
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div
@@ -79,8 +62,8 @@ export const Inventory = () => {
         <Close close={closeInventory} />
         <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-6 h-full overflow-hidden">
           <div className="flex flex-col items-start gap-6">
-            <Header />
-            <Purchases isLoading={isLoading} onPurchase={handlePurchase} />
+            <Header tournament={tournament} />
+            <Purchases />
           </div>
           <Games />
         </div>
@@ -101,53 +84,58 @@ export const Close = ({ close }: { close: () => void }) => {
   );
 };
 
-export const Header = () => {
+export const Header = ({ tournament }: { tournament: TournamentModel }) => {
+  const started = useMemo(() => {
+    return tournament.hasStarted();
+  }, [tournament]);
+
+  const ended = useMemo(() => {
+    return tournament.hasEnded();
+  }, [tournament]);
+
+  const [remainingTime, setRemainingTime] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (ended) return;
+    setRemainingTime(
+      Formatter.time(tournament.end_time.getTime() - Date.now()),
+    );
+    const interval = setInterval(() => {
+      const remainingTime = tournament.end_time.getTime() - Date.now();
+      setRemainingTime(Formatter.time(remainingTime));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [tournament, ended, started]);
+
   return (
     <div className="flex flex-col items-start gap-2">
       <h1
         className="text-[68px] leading-[42px] uppercase translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        Enter Jackpot #8
+        Enter Jackpot #{tournament.id}
       </h1>
       <p
         className="text-lg leading-[12px] tracking-wide text-white-400 translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        Tournament ends in: 02:20:14
+        Tournament ends in: {remainingTime}
       </p>
     </div>
   );
 };
 
-export const Purchases = ({
-  isLoading,
-  onPurchase,
-}: {
-  isLoading: boolean;
-  onPurchase: (action: () => Promise<any>) => Promise<any>;
-}) => {
+export const Purchases = ({}: {}) => {
   const { connector } = useAccount();
-  const { buyGame } = useBuyGame();
-
-  const handleBuyGame = () => onPurchase(buyGame);
 
   return (
     <ul className="flex justify-between gap-6 w-full">
       <PurchaseMethod title="Share on X" buttonText="Free!" />
       <PurchaseMethod
-        title="Play with Nums"
-        buttonText={`${"2000".toLocaleString()} NUMS`}
-        onClick={handleBuyGame}
-        isLoading={isLoading}
-      />
-      <PurchaseMethod
-        title="Play with USD"
-        buttonText={`$${"1.13".toLocaleString()}`}
+        title="Purchase Starterpack"
+        buttonText={`2000 NUMS`}
         onClick={async () => {
-          (connector as ControllerConnector)?.controller.openStarterPack(
-            "13",
-          );
+          (connector as ControllerConnector)?.controller.openStarterPack("14");
         }}
       />
     </ul>
@@ -166,7 +154,7 @@ export const PurchaseMethod = ({
   isLoading?: boolean;
 }) => {
   return (
-    <div className="grow rounded-lg bg-white-900 border border-white-900 p-3 flex flex-col gap-4">
+    <div className="w-1/2 rounded-lg bg-white-900 border border-white-900 p-3 flex flex-col gap-4">
       <h3 className="font-ppneuebit text-2xl h-5">{title}</h3>
       <Button
         disabled={!onClick || isLoading}

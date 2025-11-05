@@ -8,8 +8,7 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait IPlay<T> {
-    fn buy(ref self: T, player_name: felt252) -> u64;
-    fn start(ref self: T, game_id: u64) -> (u64, u16);
+    fn start(ref self: T, game_id: u64, powers: u16) -> (u64, u16);
     fn set(ref self: T, game_id: u64, index: u8) -> u16;
     fn apply(ref self: T, game_id: u64, power: u8) -> u16;
 }
@@ -118,8 +117,8 @@ pub mod Play {
         let world = self.world(@NAMESPACE());
         // [Effect] Initialize components
         self.tournament.initialize(world);
+        self.starterpack.initialize(world);
         self.playable.initialize(world);
-        // self.starterpack.initialize(world); // Slip until starterpack is deployed
         self.merkledrop.initialize(world, merkledrop_end);
     }
 
@@ -156,18 +155,11 @@ pub mod Play {
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
-        fn buy(ref self: ContractState, player_name: felt252) -> u64 {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Buy games
-            self.playable.buy(world, player_name)
-        }
-
-        fn start(ref self: ContractState, game_id: u64) -> (u64, u16) {
+        fn start(ref self: ContractState, game_id: u64, powers: u16) -> (u64, u16) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
             // [Effect] Start game
-            self.playable.start(world, game_id)
+            self.playable.start(world, game_id, powers)
         }
 
         fn set(ref self: ContractState, game_id: u64, index: u8) -> u16 {

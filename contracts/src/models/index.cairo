@@ -33,15 +33,6 @@ pub struct Merkledrop {
     pub end: u64,
 }
 
-#[derive(Copy, Drop, Serde, Introspect, DojoStore, PartialEq)]
-pub struct GameConfig {
-    pub max_slots: u8,
-    pub max_number: u16,
-    pub min_number: u16,
-    pub entry_cost: u32,
-    pub game_duration: u64,
-}
-
 #[derive(Copy, Drop, Serde, IntrospectPacked)]
 #[dojo::model]
 pub struct Game {
@@ -56,7 +47,8 @@ pub struct Game {
     pub number: u16,
     pub next_number: u16,
     pub tournament_id: u16,
-    pub powers: u16,
+    pub selected_powers: u16,
+    pub available_powers: u16,
     pub reward: u32,
     pub score: u32,
     pub slots: felt252,
@@ -118,5 +110,14 @@ pub struct Setting {
     pub description: ByteArray,
     pub created_by: ContractAddress,
     pub created_at: u64,
+}
+
+#[derive(Introspect, Drop, Serde)]
+#[dojo::model]
+pub struct Usage {
+    #[key]
+    pub world_resource: felt252,
+    pub last_update: u64,
+    pub board: felt252,
 }
 

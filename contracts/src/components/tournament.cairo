@@ -83,13 +83,13 @@ pub mod TournamentComponent {
             let nums_disp = store.nums_disp();
             let nums_address = nums_disp.contract_address;
             let mut prize = store.prize(tournament.id, nums_address.into());
-            let amount: u128 = (to_prize * TEN_POW_18.into()).try_into().unwrap();
+            let amount: u128 = to_prize.try_into().unwrap();
             prize.sponsor(amount);
             store.set_prize(@prize);
 
             // [Interaction] Mint the share to the prize pool
             let recipient = starknet::get_contract_address();
-            nums_disp.reward(recipient, to_prize.try_into().unwrap());
+            nums_disp.reward(recipient, (to_prize / TEN_POW_18.into()).try_into().unwrap());
 
             // [Return] Tournament ID
             tournament

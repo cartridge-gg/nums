@@ -21,15 +21,15 @@ pub mod PlayableComponent {
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::components::tournament::TournamentComponent;
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
-    use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID, TEN_POW_18};
+    use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
-    use crate::models::config;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
     use crate::models::starterpack::StarterpackTrait as PackTrait;
     use crate::models::tournament::TournamentAssert;
+    use crate::models::usage::{UsageAssert, UsageTrait};
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as MINIGAME;
     use crate::systems::renderer::NAME as RENDERER;
@@ -99,6 +99,9 @@ pub mod PlayableComponent {
             starterpack_id: u32,
             mut quantity: u32,
         ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
             // [Check] Caller is allowed
             let starterpack = get_dep_component!(@self, Starterpack);
             starterpack.assert_is_allowed(world);
@@ -106,16 +109,21 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
+            // [Interaction] Burn the entry price
             let pack = store.starterpack(starterpack_id);
+            store.nums_disp().burn(pack.amount(quantity));
 
             // [Interaction] Mint a game and burn the entry price
+            let settings = store.setting(DEFAULT_SETTINGS_ID);
             while quantity > 0 {
-                // [Interaction] Burn the entry price
-                store.nums_disp().burn(pack.amount());
                 // [Interaction] Mint a game
-                self.mint_game(world, Option::None, recipient, true);
+                let game_id = self.mint_game(world, Option::None, recipient, true);
+
+                // [Effect] Create game
+                let game = GameTrait::new(
+                    game_id, settings.slot_count, settings.slot_min, settings.slot_max,
+                );
+                store.set_game(@game);
                 quantity -= 1;
             }
         }
@@ -155,38 +163,11 @@ pub mod PlayableComponent {
             }
         }
 
-        fn buy(
-            ref self: ComponentState<TContractState>, world: WorldStorage, player_name: felt252,
-        ) -> u64 {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-            let config = store.config();
-
-            // [Interaction] Pay
-            let player = starknet::get_caller_address();
-            let recipient = starknet::get_contract_address();
-            let amount: u256 = (config.entry_price * TEN_POW_18).into();
-            store.nums_disp().transfer_from(player, recipient, amount);
-
-            // [Interaction] Burn the entry price
-            store.nums_disp().burn(amount);
-
-            // [Interaction] Mint a game
-            let game_id = self.mint_game(world, Option::Some(player_name), player, false);
-
-            // [Effect] Create game
-            let settings = store.setting(DEFAULT_SETTINGS_ID);
-            let mut game = GameTrait::new(
-                game_id, settings.slot_count, settings.slot_min, settings.slot_max,
-            );
-            store.set_game(@game);
-
-            // [Return] Game ID
-            game_id
-        }
-
         fn start(
-            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64,
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            game_id: u64,
+            powers: u16,
         ) -> (u64, u16) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -213,17 +194,23 @@ pub mod PlayableComponent {
             // [Check] Handle default and specific games separately
             if !self.is_default_game(world, game_id) {
                 // [Effect] Start specific game
-                game.start(0, number, 0); // TODO: Handle settings powers
+                game.start(0, number, powers); // TODO: Handle settings powers
             } else {
+                // [Check] Powers are valid
+                let mut usage = store.usage();
+                usage.assert_valid_powers(powers);
                 // [Effect] Enter tournament
                 let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
                 let tournament = tournament_component.enter(world);
                 // [Effect] Start tournament game
-                game.start(tournament.id, number, tournament.powers);
+                game.start(tournament.id, number, powers);
                 // [Effect] Update achievement progression for the player - Grinder task
                 let player = starknet::get_caller_address();
                 let achievable = get_dep_component!(@self, Achievable);
                 achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
+                // [Effect] Update usage
+                usage.insert(powers);
+                store.set_usage(@usage);
             }
             store.set_game(@game);
 

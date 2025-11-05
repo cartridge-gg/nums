@@ -3,8 +3,9 @@ use crate::models::game::Game;
 use crate::random::Random;
 
 pub const POWER_COUNT: u8 = 7;
+pub const POWER_COSTS: [u8; POWER_COUNT.into()] = [35, 30, 25, 20, 15, 10, 5];
 
-#[derive(Drop, Copy, Serde)]
+#[derive(Drop, Copy, Serde, PartialEq, Debug)]
 pub enum Power {
     None,
     Reroll,
@@ -65,6 +66,11 @@ pub impl PowerImpl of PowerTrait {
             6 => Power::Mirror,
             _ => Power::None,
         }
+    }
+
+    #[inline]
+    fn cost(self: Power, index: u8) -> u8 {
+        *POWER_COSTS.span().at(index.into())
     }
 }
 

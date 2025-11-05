@@ -1,8 +1,8 @@
 {
   "world": {
-    "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
-    "address": "0x4aebc039a9beb576533eca4075bacdc037b3c7160de6ed1e2e1a3005129a29e",
-    "seed": "nums-v1.0.12",
+    "class_hash": "0x33c71814820f0fdb8e9f890749fc9698096aa6dc3c5f60aeb0f16ff4b30707f",
+    "address": "0x3997daf0c65abdcf67264dc1df1d5ceb54c4faac0c6262b2dc8883abcedc21f",
+    "seed": "nums-v1.0.14",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -50,7 +50,7 @@
           },
           {
             "name": "pending_word_len",
-            "type": "core::integer::u32"
+            "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
           }
         ]
       },
@@ -266,6 +266,17 @@
             "outputs": [
               {
                 "type": "dojo::world::resource::Resource"
+              }
+            ],
+            "state_mutability": "view"
+          },
+          {
+            "type": "function",
+            "name": "world_version",
+            "inputs": [],
+            "outputs": [
+              {
+                "type": "core::felt252"
               }
             ],
             "state_mutability": "view"
@@ -1479,8 +1490,8 @@
   },
   "contracts": [
     {
-      "address": "0x40f10486dce7b7abd52f5389f97788188a99bb1700384bdda71f1bd663c3b9e",
-      "class_hash": "0x7dc4ba7c32d0e355b5eb2efb72ca673ac7e63a2da28c2b4bc516564da6c6601",
+      "address": "0x166275385675d13493d241324b408f30aec1f02bec10ad9d19d8a5fbc6a2ec1",
+      "class_hash": "0x34dd6d4db1f8ab4ecf4838e30db3a214655044931f2ae23c95b9cb04375233d",
       "abi": [
         {
           "type": "impl",
@@ -1511,7 +1522,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -2019,8 +2030,8 @@
       ]
     },
     {
-      "address": "0xe69b167a18be231ef14ca474e29cf6356333038162077b551a17d25d166af",
-      "class_hash": "0x4a82afebb5df2bf4e8afe408a362b87bed9ae743183c6219183452a3392d5d",
+      "address": "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
+      "class_hash": "0x7ac2c6b50e484ea396cead2563d1fd3dd6d258431dd9d2d43af9a820535b1b5",
       "abi": [
         {
           "type": "impl",
@@ -2051,7 +2062,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -2472,6 +2483,68 @@
           ]
         },
         {
+          "type": "impl",
+          "name": "ERC20CamelOnlyImpl",
+          "interface_name": "openzeppelin_token::erc20::interface::IERC20CamelOnly"
+        },
+        {
+          "type": "interface",
+          "name": "openzeppelin_token::erc20::interface::IERC20CamelOnly",
+          "items": [
+            {
+              "type": "function",
+              "name": "totalSupply",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::integer::u256"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "balanceOf",
+              "inputs": [
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u256"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "transferFrom",
+              "inputs": [
+                {
+                  "name": "sender",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "recipient",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "amount",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
           "type": "constructor",
           "name": "constructor",
           "inputs": []
@@ -2740,12 +2813,13 @@
         "renounce_role",
         "transfer",
         "transfer_from",
-        "approve"
+        "approve",
+        "transferFrom"
       ]
     },
     {
-      "address": "0x1129752faff310a2dcea67cf7df4fafd7808e71d40173f0dea51568bd83f76b",
-      "class_hash": "0x29e06c2b52b9eaf54568fdadda8f433ae93ece3ccb8232d79aa915e025eb3a6",
+      "address": "0x4f265e7ce0139c4498005188802bf72b54899cf169e4be606339daaea889db5",
+      "class_hash": "0xc06aaa94e26eb77685e3c3228341c646967f1e8d890134ceb5d95158cb2bb9",
       "abi": [
         {
           "type": "impl",
@@ -2776,7 +2850,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -3190,8 +3264,8 @@
       ]
     },
     {
-      "address": "0x8777fd55015b15d7afb2c8252d8dfa6f64199ece8430c9c54f19ac06db56ce",
-      "class_hash": "0x281f4acc4caa84d4d54fa378093b4f43d1c33cf6075e332f7d75bc8c0baf3c0",
+      "address": "0x6faaa226c953198d2e5907f43af143b7e577e3a9fc26943b93de1ae3e0d4a4c",
+      "class_hash": "0x2b418b5ff37a383b9b4be9cd70b306db6314d29980f33f60d241df78142c9b2",
       "abi": [
         {
           "type": "impl",
@@ -3222,7 +3296,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -3492,8 +3566,8 @@
       ]
     },
     {
-      "address": "0x277902ea7ce3bbdc25304f3cf1caaed7b6f22d722a8b16827ce11fd5fcb8ac6",
-      "class_hash": "0x56550282c50f561cf02473e562a6dd91ff5f986f49adf3fce833e32698f0f9e",
+      "address": "0x717fc138e73164b1eedbf2d5feabb2aaca08f07e1c4918d9f444f13300c4dd8",
+      "class_hash": "0x3004261c9ae6345abe52b85ccd8c72d7323e08847ce2dd2d72e813c860a9338",
       "abi": [
         {
           "type": "impl",
@@ -3524,7 +3598,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -3666,27 +3740,15 @@
           "items": [
             {
               "type": "function",
-              "name": "buy",
-              "inputs": [
-                {
-                  "name": "player_name",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::integer::u64"
-                }
-              ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
               "name": "start",
               "inputs": [
                 {
                   "name": "game_id",
                   "type": "core::integer::u64"
+                },
+                {
+                  "name": "powers",
+                  "type": "core::integer::u16"
                 }
               ],
               "outputs": [
@@ -4084,7 +4146,6 @@
         "dojo_init",
         "on_claim",
         "on_issue",
-        "buy",
         "start",
         "set",
         "apply",
@@ -4098,8 +4159,8 @@
       ]
     },
     {
-      "address": "0x74955a68b8bc7deca30ca500b3a404b476293ddff34cb823fd69576be936212",
-      "class_hash": "0x31c25b524273aa19fa08cb19c2d177892623a53fef4bc69ba617aaaba5a7b33",
+      "address": "0x2968124627d449de205f43213e1cda06157264a6f44cd03e6847f925a5315c5",
+      "class_hash": "0x140baa20cde16892d1720fa3a3921a0973a52a2bd2a2934b3a5c2c360b5a26a",
       "abi": [
         {
           "type": "impl",
@@ -4130,7 +4191,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -4395,8 +4456,8 @@
       ]
     },
     {
-      "address": "0x459fb2647f7ff9224afa3ce56076c6073329a15348a5ef4e484b86be83b2420",
-      "class_hash": "0x218b4cea719985c0ca9413feb96f525217197b5f9b92a0e4c78d48cdf5cd4a8",
+      "address": "0x131f332ed5cef62e167ef9e06f04f7be8c7af250d03a24a804182b0f04d17b8",
+      "class_hash": "0x39951a74476cf279e41f04db505a7d4db8aabba4b9f2522ad5d72af619b45d8",
       "abi": [
         {
           "type": "impl",
@@ -4427,7 +4488,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -4864,8 +4925,8 @@
       ]
     },
     {
-      "address": "0x16d5cb78f2c19f040b281160fb26153ac8fc1d17a395448c2a7f0e6f4ab2e49",
-      "class_hash": "0x2ba8800a3ed95463d0a6f824ea1e799c8dcb6e3b353943d2ecf8259b7005747",
+      "address": "0x2a419a6149d6baabe166fac5259cd46226363572b1517de305afc4b0c003ed3",
+      "class_hash": "0x285a409043109e3818b51ad9460b72802501940b3e38e500dcf9da6b68040f8",
       "abi": [
         {
           "type": "impl",
@@ -4896,7 +4957,7 @@
             },
             {
               "name": "pending_word_len",
-              "type": "core::integer::u32"
+              "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
             }
           ]
         },
@@ -5114,7 +5175,7 @@
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
-        "0x7D0"
+        "0x6C6B935B8BBD400000"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
@@ -5130,69 +5191,75 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x3997788305bd07f62c0d59d24f43d1cf19e436606201b712c2dbde36d42c8db",
+      "class_hash": "0x3c74ed6c680c13e338ff9ed8f3969647e208412b6119fbcf32b1b528cf6f22d",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
     {
       "members": [],
-      "class_hash": "0x6770993732e428b9f808b283e10790cb477c35bdce067ffc64507290cfd9cb7",
+      "class_hash": "0x2dce909856e490dd76e241e4138e46324cccb2df3edcdcaaf2746cd63dd3fc0",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
     {
       "members": [],
-      "class_hash": "0x326f4776f1409644a0b5c791ab912a135f16f12e57877f792729329c98dc004",
+      "class_hash": "0x63d0c68280aae5118ef27b2f7a52aade3e4843116bddd4c1e7706bba0ac6608",
       "tag": "NUMS-Leaderboard",
       "selector": "0x5829a8c4449aac108aff13f5f36c328a8ea6422394bd6d1f0ce4f5069804511"
     },
     {
       "members": [],
-      "class_hash": "0x4396b3b0124fb0bffe076b5b661e1598415497806037426082f58c974edf518",
+      "class_hash": "0x1ffa1a7bfe0302bd619bce5d4d7be194a9f30da101c6ba524730d4193531de0",
       "tag": "NUMS-Merkledrop",
       "selector": "0x6695eb1e5f162d18818f26bd29e6d5a1cc15d35ffb76f00298ad16ba8ae32ac"
     },
     {
       "members": [],
-      "class_hash": "0xaa58d5dc9824f1050630c5666c9baceaf024d330e84ca5827ed910eabed1e1",
+      "class_hash": "0x6fe3338aab380bb23743f845560c580d1b379282ac1e610b169cf751251e78d",
       "tag": "NUMS-Prize",
       "selector": "0x7c1c759a60d582822b3468a7e011748e7eec88c6aded8b83525a94a9f3ea098"
     },
     {
       "members": [],
-      "class_hash": "0x532c0faecc3277d6329cddcd7b1341609b8adef19fd59453958c40615490fcf",
+      "class_hash": "0x4a0eeba585e62e4dbc5e5b9c2660b5a28816168258702030725080f5f1bbcd0",
       "tag": "NUMS-Reward",
       "selector": "0x25d15cba6a316568b47986ae9b27a718c9d3a64865b65a1e84fdb2c3c186ee8"
     },
     {
       "members": [],
-      "class_hash": "0x477dd60658ada3843adbce5659c1ae68121f5bc7e252a9a6eb6c388d1d0d3c8",
+      "class_hash": "0x5cc98962421a0ab2ee91726604ee4a710cb4623d83d6d0961580fbcd9c25d91",
       "tag": "NUMS-Setting",
       "selector": "0x4ace4b74c84db14ebfabb6dfa56f9fb82f54f176cda5ea0d6c32af6fecfc5e4"
     },
     {
       "members": [],
-      "class_hash": "0x6c556cb4beec29d5037cfe2992f11cb3ab702c88b0932417d2ee75ddeaebaca",
+      "class_hash": "0x58d67963346ee43a97ab22d83530e310f792c339097227d6893ee5abfad8286",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
     },
     {
       "members": [],
-      "class_hash": "0x300b6c3e613a08e4904c3c6ccf0d6c1af803d29d83231625a3052ccdfd3b364",
+      "class_hash": "0x34e7c0f90c388f0ac4f194ab1485e41399fbd4f32d70a29da8196423da7fd23",
       "tag": "NUMS-Tournament",
       "selector": "0x73fae1bd4df456659957ea06fb2dc8f38967c671b7c2d16d29bc515766a4635"
+    },
+    {
+      "members": [],
+      "class_hash": "0x79cfd78c3dd97d0cdc9459d0535cf684bad9a23f4861cd92b29432ba61c8ad5",
+      "tag": "NUMS-Usage",
+      "selector": "0x53de18e17cbaeb36e51d6e498296522fc29c7ba84d66e4fcb9f64d237bc2526"
     }
   ],
   "events": [
     {
       "members": [],
-      "class_hash": "0x21c8f9729d91b7e385218f5d396e084137b13144227b2b53060ee7c3c72e24a",
+      "class_hash": "0x3c3d75546664437c554e7aff87944454f57b43d3baef047c645e6a771bf6261",
       "tag": "NUMS-TrophyCreation",
       "selector": "0x7a402aa03f879aca2197b30d91fc085ff6f166d156d1d04568c087c6620ef02"
     },
     {
       "members": [],
-      "class_hash": "0x10a76e791a65a86a40e9b10d175104e370746e6ad2c57a658d17468a73f403d",
+      "class_hash": "0x313c566ceee5bdcaed4accfedc707b6b5a02feb96f9448a18bfa97bf43811e4",
       "tag": "NUMS-TrophyProgression",
       "selector": "0x4ed7bad0b9b3f6e6fa4b1f913c3e6a12fac198826fd52246728f58569da498b"
     }

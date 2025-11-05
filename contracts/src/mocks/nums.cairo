@@ -1,6 +1,18 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+#[starknet::interface]
+pub trait IERC20Metadata<TState> {
+    /// Returns the name of the token.
+    fn name(self: @TState) -> felt252;
+
+    /// Returns the symbol of the token.
+    fn symbol(self: @TState) -> felt252;
+
+    /// Returns the number of decimals used to get its user representation.
+    fn decimals(self: @TState) -> u8;
+}
+
 pub fn NAME() -> ByteArray {
     "MockNumsToken"
 }
@@ -24,12 +36,12 @@ mod MockNumsToken {
 
     // External
     #[abi(embed_v0)]
-    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl AccessControlMixinImpl =
-        AccessControlComponent::AccessControlMixinImpl<ContractState>;
+    impl AccessControlImpl =
+        AccessControlComponent::AccessControlImpl<ContractState>;
 
     // Internal
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
@@ -73,6 +85,22 @@ mod MockNumsToken {
 
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
+    }
+
+    #[abi(embed_v0)]
+    impl ERC20Metadata<ContractState> of super::IERC20Metadata<ContractState> {
+        // IERC20Metadata
+        fn name(self: @ContractState) -> felt252 {
+            'Mock NUMS'
+        }
+
+        fn symbol(self: @ContractState) -> felt252 {
+            'mNUMS'
+        }
+
+        fn decimals(self: @ContractState) -> u8 {
+            18
+        }
     }
 
     #[generate_trait]

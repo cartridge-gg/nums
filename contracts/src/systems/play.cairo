@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+
 #[inline]
 pub fn NAME() -> ByteArray {
     "Play"
@@ -31,6 +32,26 @@ pub trait ITournament<T> {
     fn rescue(ref self: T, tournament_id: u16, token_address: ContractAddress);
 }
 
+#[starknet::interface]
+pub trait IExternal<T> {
+    fn register_starterpack(
+        ref self: T,
+        payment_token: ContractAddress,
+        reissuable: bool,
+        referral_percentage: u8,
+        price: u256,
+    );
+    fn update_starterpack(
+        ref self: T,
+        starterpack_id: u32,
+        reissuable: bool,
+        payment_token: ContractAddress,
+        referral_percentage: u8,
+        price: u128,
+    );
+    fn update_metadata(ref self: T, starterpack_id: u32);
+}
+
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
@@ -41,7 +62,8 @@ pub mod Play {
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::tournament::TournamentComponent;
     use crate::constants::NAMESPACE;
-    use super::{IMerkledrop, IPlay, ITournament};
+    use crate::models::starterpack::StarterpackAssert;
+    use super::*;
 
     // Components
 
@@ -195,6 +217,52 @@ pub mod Play {
             let world = self.world(@NAMESPACE());
             // [Effect] Rescue tournament
             self.tournament.rescue(world, tournament_id, token_address)
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ExternalImpl of IExternal<ContractState> {
+        fn register_starterpack(
+            ref self: ContractState,
+            payment_token: ContractAddress,
+            reissuable: bool,
+            referral_percentage: u8,
+            price: u256,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Register starterpack
+            self.starterpack.register(world, payment_token, reissuable, referral_percentage, price)
+        }
+
+        fn update_starterpack(
+            ref self: ContractState,
+            starterpack_id: u32,
+            reissuable: bool,
+            payment_token: ContractAddress,
+            referral_percentage: u8,
+            price: u128,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Update starterpack
+            self
+                .starterpack
+                .update(
+                    world,
+                    starterpack_id,
+                    reissuable,
+                    payment_token,
+                    referral_percentage,
+                    price.into(),
+                )
+        }
+
+        fn update_metadata(ref self: ContractState, starterpack_id: u32) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Update metadata
+            self.starterpack.update_metadata(world, starterpack_id)
         }
     }
 }

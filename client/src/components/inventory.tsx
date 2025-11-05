@@ -6,6 +6,8 @@ import { useBuyGame } from "@/hooks/useBuyGame";
 import { Games } from "./games";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
+import ControllerConnector from "@cartridge/connector/controller";
+import { useAccount } from "@starknet-react/core";
 
 export type InventoryProps = {};
 
@@ -125,6 +127,7 @@ export const Purchases = ({
   isLoading: boolean;
   onPurchase: (action: () => Promise<any>) => Promise<any>;
 }) => {
+  const { connector } = useAccount();
   const { buyGame } = useBuyGame();
 
   const handleBuyGame = () => onPurchase(buyGame);
@@ -141,6 +144,11 @@ export const Purchases = ({
       <PurchaseMethod
         title="Play with USD"
         buttonText={`$${"1.13".toLocaleString()}`}
+        onClick={async () => {
+          (connector as ControllerConnector)?.controller.openStarterPack(
+            "13",
+          );
+        }}
       />
     </ul>
   );

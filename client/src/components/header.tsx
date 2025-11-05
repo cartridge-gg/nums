@@ -154,7 +154,7 @@ export const Profile = () => {
       className="h-12 px-4 py-2 font-[PixelGame] tracking-wide flex items-center justify-center gap-2 [&_svg]:size-6"
       onClick={async () => {
         (connector as ControllerConnector)?.controller.openProfile(
-          "achievements",
+          "inventory",
         );
       }}
     >

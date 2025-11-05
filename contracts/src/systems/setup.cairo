@@ -1,8 +1,9 @@
-use crate::models::config::Config;
+use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait ISetup<T> {
-    fn set_config(ref self: T, config: Config);
+    fn set_entry_price(ref self: T, entry_price: u128);
+    fn set_starterpack(ref self: T, starterpack_address: ContractAddress);
 }
 
 #[dojo::contract]
@@ -14,7 +15,7 @@ pub mod Setup {
     use crate::mocks::nums::NAME as NUMS;
     use crate::mocks::starterpack::NAME as STARTERPACK;
     use crate::mocks::vrf::NAME as VRF;
-    use crate::models::config::{Config, ConfigTrait};
+    use crate::models::config::ConfigTrait;
     use super::ISetup;
 
     fn dojo_init(
@@ -59,7 +60,7 @@ pub mod Setup {
 
     #[abi(embed_v0)]
     impl SetupImpl of ISetup<ContractState> {
-        fn set_config(ref self: ContractState, config: Config) {
+        fn set_entry_price(ref self: ContractState, entry_price: u128) {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
@@ -67,6 +68,21 @@ pub mod Setup {
             let caller = starknet::get_caller_address();
             assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
             // [Effect] Update config
+            let mut config = store.config();
+            config.entry_price = entry_price;
+            store.set_config(config);
+        }
+
+        fn set_starterpack(ref self: ContractState, starterpack_address: ContractAddress) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            let caller = starknet::get_caller_address();
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            // [Effect] Update config
+            let mut config = store.config();
+            config.starterpack = starterpack_address;
             store.set_config(config);
         }
     }

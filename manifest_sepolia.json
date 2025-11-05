@@ -2020,7 +2020,7 @@
     },
     {
       "address": "0xe69b167a18be231ef14ca474e29cf6356333038162077b551a17d25d166af",
-      "class_hash": "0x7b1eb1920c26c631c990d3bcce350a8a309dec742a2361b7f5878a21a3786a1",
+      "class_hash": "0x4a82afebb5df2bf4e8afe408a362b87bed9ae743183c6219183452a3392d5d",
       "abi": [
         {
           "type": "impl",
@@ -2078,6 +2078,50 @@
           "inputs": [],
           "outputs": [],
           "state_mutability": "external"
+        },
+        {
+          "type": "impl",
+          "name": "ERC20Metadata",
+          "interface_name": "nums::mocks::nums::IERC20Metadata"
+        },
+        {
+          "type": "interface",
+          "name": "nums::mocks::nums::IERC20Metadata",
+          "items": [
+            {
+              "type": "function",
+              "name": "name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "symbol",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "decimals",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::integer::u8"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
         },
         {
           "type": "enum",
@@ -2212,12 +2256,107 @@
         },
         {
           "type": "impl",
-          "name": "ERC20MixinImpl",
-          "interface_name": "openzeppelin_token::erc20::interface::IERC20Mixin"
+          "name": "AccessControlImpl",
+          "interface_name": "openzeppelin_access::accesscontrol::interface::IAccessControl"
         },
         {
           "type": "interface",
-          "name": "openzeppelin_token::erc20::interface::IERC20Mixin",
+          "name": "openzeppelin_access::accesscontrol::interface::IAccessControl",
+          "items": [
+            {
+              "type": "function",
+              "name": "has_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_role_admin",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "grant_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "revoke_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "renounce_role",
+              "inputs": [
+                {
+                  "name": "role",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "account",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "ERC20Impl",
+          "interface_name": "openzeppelin_token::erc20::interface::IERC20"
+        },
+        {
+          "type": "interface",
+          "name": "openzeppelin_token::erc20::interface::IERC20",
           "items": [
             {
               "type": "function",
@@ -2329,343 +2468,6 @@
                 }
               ],
               "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "name",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "symbol",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::byte_array::ByteArray"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "decimals",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::integer::u8"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "totalSupply",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::integer::u256"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "balanceOf",
-              "inputs": [
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::integer::u256"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "transferFrom",
-              "inputs": [
-                {
-                  "name": "sender",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                },
-                {
-                  "name": "recipient",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                },
-                {
-                  "name": "amount",
-                  "type": "core::integer::u256"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::bool"
-                }
-              ],
-              "state_mutability": "external"
-            }
-          ]
-        },
-        {
-          "type": "impl",
-          "name": "AccessControlMixinImpl",
-          "interface_name": "openzeppelin_access::accesscontrol::interface::AccessControlABI"
-        },
-        {
-          "type": "enum",
-          "name": "openzeppelin_access::accesscontrol::interface::RoleStatus",
-          "variants": [
-            {
-              "name": "NotGranted",
-              "type": "()"
-            },
-            {
-              "name": "Delayed",
-              "type": "core::integer::u64"
-            },
-            {
-              "name": "Effective",
-              "type": "()"
-            }
-          ]
-        },
-        {
-          "type": "interface",
-          "name": "openzeppelin_access::accesscontrol::interface::AccessControlABI",
-          "items": [
-            {
-              "type": "function",
-              "name": "has_role",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::bool"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "get_role_admin",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::felt252"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "grant_role",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "revoke_role",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "renounce_role",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "hasRole",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::bool"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "getRoleAdmin",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::felt252"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "grantRole",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "revokeRole",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "renounceRole",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "get_role_status",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "openzeppelin_access::accesscontrol::interface::RoleStatus"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "grant_role_with_delay",
-              "inputs": [
-                {
-                  "name": "role",
-                  "type": "core::felt252"
-                },
-                {
-                  "name": "account",
-                  "type": "core::starknet::contract_address::ContractAddress"
-                },
-                {
-                  "name": "delay",
-                  "type": "core::integer::u64"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "supports_interface",
-              "inputs": [
-                {
-                  "name": "interface_id",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::bool"
-                }
-              ],
-              "state_mutability": "view"
             }
           ]
         },
@@ -2933,17 +2735,12 @@
         "mint",
         "burn",
         "upgrade",
-        "transfer",
-        "transfer_from",
-        "approve",
-        "transferFrom",
         "grant_role",
         "revoke_role",
         "renounce_role",
-        "grantRole",
-        "revokeRole",
-        "renounceRole",
-        "grant_role_with_delay"
+        "transfer",
+        "transfer_from",
+        "approve"
       ]
     },
     {
@@ -3394,7 +3191,7 @@
     },
     {
       "address": "0x8777fd55015b15d7afb2c8252d8dfa6f64199ece8430c9c54f19ac06db56ce",
-      "class_hash": "0x58945ea9797eff4f5d51881b67b4c8cc14ddad18ed572c229ef3b566f33ca89",
+      "class_hash": "0x281f4acc4caa84d4d54fa378093b4f43d1c33cf6075e332f7d75bc8c0baf3c0",
       "abi": [
         {
           "type": "impl",
@@ -3480,24 +3277,6 @@
           ]
         },
         {
-          "type": "struct",
-          "name": "nums::interfaces::starterpack::StarterPackMetadata",
-          "members": [
-            {
-              "name": "name",
-              "type": "core::byte_array::ByteArray"
-            },
-            {
-              "name": "description",
-              "type": "core::byte_array::ByteArray"
-            },
-            {
-              "name": "image_uri",
-              "type": "core::byte_array::ByteArray"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "nums::interfaces::starterpack::IStarterpack",
           "items": [
@@ -3527,7 +3306,7 @@
                 },
                 {
                   "name": "metadata",
-                  "type": "nums::interfaces::starterpack::StarterPackMetadata"
+                  "type": "core::byte_array::ByteArray"
                 }
               ],
               "outputs": [
@@ -3535,6 +3314,54 @@
                   "type": "core::integer::u32"
                 }
               ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "update",
+              "inputs": [
+                {
+                  "name": "starterpack_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "implementation",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "referral_percentage",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "reissuable",
+                  "type": "core::bool"
+                },
+                {
+                  "name": "price",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "payment_token",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "update_metadata",
+              "inputs": [
+                {
+                  "name": "starterpack_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "metadata",
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "outputs": [],
               "state_mutability": "external"
             }
           ]
@@ -3659,12 +3486,14 @@
       "selector": "0x6267f33c47239b5ed2648007abfaa3143a32c5cabcad4f5624d15e40ca215f5",
       "systems": [
         "register",
+        "update",
+        "update_metadata",
         "upgrade"
       ]
     },
     {
       "address": "0x277902ea7ce3bbdc25304f3cf1caaed7b6f22d722a8b16827ce11fd5fcb8ac6",
-      "class_hash": "0x67b667e0ef3eb738e9e174a78199d61c4d591a81aff219a5c17726618f5ea6a",
+      "class_hash": "0x56550282c50f561cf02473e562a6dd91ff5f986f49adf3fce833e32698f0f9e",
       "abi": [
         {
           "type": "impl",
@@ -3982,6 +3811,109 @@
         },
         {
           "type": "impl",
+          "name": "ExternalImpl",
+          "interface_name": "nums::systems::play::IExternal"
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "core::integer::u256",
+          "members": [
+            {
+              "name": "low",
+              "type": "core::integer::u128"
+            },
+            {
+              "name": "high",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "nums::systems::play::IExternal",
+          "items": [
+            {
+              "type": "function",
+              "name": "register_starterpack",
+              "inputs": [
+                {
+                  "name": "payment_token",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "reissuable",
+                  "type": "core::bool"
+                },
+                {
+                  "name": "referral_percentage",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "price",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "update_starterpack",
+              "inputs": [
+                {
+                  "name": "starterpack_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "reissuable",
+                  "type": "core::bool"
+                },
+                {
+                  "name": "payment_token",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "referral_percentage",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "price",
+                  "type": "core::integer::u128"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "update_metadata",
+              "inputs": [
+                {
+                  "name": "starterpack_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "impl",
           "name": "WorldProviderImpl",
           "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
         },
@@ -4159,6 +4091,9 @@
         "sponsor",
         "claim",
         "rescue",
+        "register_starterpack",
+        "update_starterpack",
+        "update_metadata",
         "upgrade"
       ]
     },
@@ -4930,7 +4865,7 @@
     },
     {
       "address": "0x16d5cb78f2c19f040b281160fb26153ac8fc1d17a395448c2a7f0e6f4ab2e49",
-      "class_hash": "0x491ade036002f4c38095374bb75aafb39e50381f8c7dd7e766be6d4857baaa5",
+      "class_hash": "0x2ba8800a3ed95463d0a6f824ea1e799c8dcb6e3b353943d2ecf8259b7005747",
       "abi": [
         {
           "type": "impl",
@@ -5034,54 +4969,28 @@
           "interface_name": "nums::systems::setup::ISetup"
         },
         {
-          "type": "struct",
-          "name": "nums::models::index::Config",
-          "members": [
-            {
-              "name": "world_resource",
-              "type": "core::felt252"
-            },
-            {
-              "name": "nums",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "vrf",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "starterpack",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "forwarder",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "owner",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "entry_price",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "count",
-              "type": "core::integer::u32"
-            }
-          ]
-        },
-        {
           "type": "interface",
           "name": "nums::systems::setup::ISetup",
           "items": [
             {
               "type": "function",
-              "name": "set_config",
+              "name": "set_entry_price",
               "inputs": [
                 {
-                  "name": "config",
-                  "type": "nums::models::index::Config"
+                  "name": "entry_price",
+                  "type": "core::integer::u128"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_starterpack",
+              "inputs": [
+                {
+                  "name": "starterpack_address",
+                  "type": "core::starknet::contract_address::ContractAddress"
                 }
               ],
               "outputs": [],
@@ -5201,7 +5110,8 @@
         "0x1",
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
-        "0x1",
+        "0x0",
+        "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x7D0"
@@ -5210,7 +5120,8 @@
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
       "systems": [
         "dojo_init",
-        "set_config",
+        "set_entry_price",
+        "set_starterpack",
         "upgrade"
       ]
     }

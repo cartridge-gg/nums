@@ -44,7 +44,8 @@ disable_multicall = true
     "0x1",                                                                # nums_address
     "0x0",                                                                # Option::Some
     "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
-    "0x1",                                                                # Option::None
+    "0x0",                                                                # Option::Some
+    "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
     "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # forwarder_address
     "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
     "0x7D0",                                                              # entry_price

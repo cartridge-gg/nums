@@ -5,7 +5,7 @@ rpc = "https://api.cartridge.gg/x/starknet/sepolia"
 http_cors_origins = ["*"]
 
 [grpc]
-optimistic = false
+optimistic = true
 
 [indexing]
 world_block = 0

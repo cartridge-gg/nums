@@ -300,13 +300,10 @@ export const PowerUps = ({
 }) => {
   return (
     <div className="flex flex-col gap-2 justify-start">
-      <div className="flex justify-between items-center gap-2">
+      <div className="flex justify-end items-center gap-2">
         <span className="text-purple-300 tracking-wide text-lg/6 ">
           Power ups
         </span>
-        <div className="hover:cursor-pointer transition-colors duration-100 hover:text-purple-400 text-purple-300 [&_svg]:size-6">
-          <InfoIcon />
-        </div>
       </div>
       <div className="flex gap-3">
         {powers.map((power) => (

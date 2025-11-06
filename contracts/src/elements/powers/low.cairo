@@ -4,7 +4,7 @@ pub impl Low of PowerTrait {
     #[inline]
     fn apply(ref game: Game, ref rand: Random) {
         let slot_max = game.slot_max;
-        game.slot_max = game.slot_max / 2;
+        game.slot_max = game.number;
         game.number = game.next(@game.slots(), ref rand);
         game.slot_max = slot_max;
     }

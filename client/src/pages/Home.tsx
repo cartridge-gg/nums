@@ -1,11 +1,14 @@
 import { useAccount, useConnect } from "@starknet-react/core";
-import { useEffect, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getChecksumAddress } from "starknet";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { CircleInfoIcon } from "@/components/icons/CircleInfo";
 import { LiveIcon } from "@/components/icons/Live";
+import { LogoIcon } from "@/components/icons/Logo";
 import { TrophyIcon } from "@/components/icons/Trophy";
-import { Inventory } from "@/components/inventory";
+import { Close, Inventory } from "@/components/inventory";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Leaderboard } from "@/components/leaderboard";
 import { Button } from "@/components/ui/button";
@@ -16,8 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getNumsAddress } from "@/config";
 import { useModal } from "@/context/modal";
 import { useTournaments } from "@/context/tournaments";
+import useChain from "@/hooks/chain";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
@@ -25,6 +30,26 @@ import type { TournamentModel } from "@/models/tournament";
 export const Home = () => {
   const { isInventoryOpen, closeInventory } = useModal();
   const [prizePoolModal, setPrizePoolModal] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isInfoClosing, setIsInfoClosing] = useState(false);
+
+  const openInfo = useCallback(() => {
+    setIsInfoOpen(true);
+    setIsInfoClosing(false);
+  }, []);
+
+  const closeInfo = useCallback(() => {
+    setIsInfoClosing(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isInfoClosing) return;
+    const timeoutId = setTimeout(() => {
+      setIsInfoOpen(false);
+      setIsInfoClosing(false);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [isInfoClosing]);
 
   return (
     <div
@@ -32,6 +57,7 @@ export const Home = () => {
       onClick={() => {
         if (isInventoryOpen) closeInventory();
         if (prizePoolModal) setPrizePoolModal(false);
+        if (isInfoOpen) closeInfo();
       }}
     >
       <img
@@ -43,6 +69,10 @@ export const Home = () => {
       <Main
         prizePoolModal={prizePoolModal}
         setPrizePoolModal={setPrizePoolModal}
+        isInfoOpen={isInfoOpen}
+        openInfo={openInfo}
+        closeInfo={closeInfo}
+        isInfoClosing={isInfoClosing}
       />
     </div>
   );
@@ -51,9 +81,17 @@ export const Home = () => {
 export const Main = ({
   prizePoolModal,
   setPrizePoolModal,
+  isInfoOpen,
+  openInfo,
+  closeInfo,
+  isInfoClosing,
 }: {
   prizePoolModal: boolean;
   setPrizePoolModal: (value: boolean) => void;
+  isInfoOpen: boolean;
+  openInfo: () => void;
+  closeInfo: () => void;
+  isInfoClosing: boolean;
 }) => {
   const { tournaments } = useTournaments();
   const { prizes } = usePrizesWithUsd();
@@ -96,6 +134,17 @@ export const Main = ({
           />
         </div>
       )}
+      {isInfoOpen && (
+        <div
+          className="absolute inset-0 z-50 p-6"
+          onClick={(event) => {
+            event.stopPropagation();
+            closeInfo();
+          }}
+        >
+          <InfoModal close={closeInfo} isClosing={isInfoClosing} />
+        </div>
+      )}
       {prizePoolModal && (
         <div
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50"
@@ -115,7 +164,12 @@ export const Main = ({
             handleSelect={handleSelect}
           />
           <div className="flex gap-3">
-            <Info onClick={() => {}} />
+            <Info
+              onClick={(event) => {
+                event.stopPropagation();
+                openInfo();
+              }}
+            />
             <Play onClick={openInventory} />
           </div>
         </div>
@@ -145,18 +199,146 @@ export const Main = ({
   );
 };
 
-export const Info = ({ onClick }: { onClick: () => void }) => {
+export const Info = ({
+  onClick,
+}: {
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+}) => {
   return (
-    <Button
-      disabled
-      variant="muted"
-      className="p-2 cursor-pointer"
-      onClick={onClick}
-    >
+    <Button variant="muted" className="p-2 cursor-pointer" onClick={onClick}>
       <div className="[&_svg]:size-6 flex items-center justify-center">
         <CircleInfoIcon />
       </div>
     </Button>
+  );
+};
+
+type InfoTabKey = "about" | "nums";
+
+const tabs: Array<{
+  id: InfoTabKey;
+  label: string;
+  icon: () => JSX.Element;
+}> = [
+  {
+    id: "about",
+    label: "About",
+    icon: TrophyIcon,
+  },
+  {
+    id: "nums",
+    label: "Nums",
+    icon: LogoIcon,
+  },
+];
+
+const InfoModal = ({
+  close,
+  isClosing,
+}: {
+  close: () => void;
+  isClosing: boolean;
+}) => {
+  const { chain } = useChain();
+  const [activeTab, setActiveTab] = useState<InfoTabKey>("about");
+
+  return (
+    <div
+      className="w-full h-full select-none"
+      style={{
+        transform: isClosing
+          ? "scaleY(0.005) scaleX(0)"
+          : "scaleY(1) scaleX(1)",
+        animation: isClosing
+          ? "unfoldOut 1s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards"
+          : "unfoldIn 1s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards",
+      }}
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div
+        className="relative w-full h-full rounded-2xl bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] p-6"
+        style={{
+          boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
+          transform: isClosing ? "scale(0)" : "scale(1)",
+          animation: isClosing
+            ? "zoomOut 0.5s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards"
+            : "zoomIn 0.5s 0.8s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards both",
+        }}
+      >
+        <Close close={close} />
+        <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-12 h-full overflow-hidden">
+          <div className="flex gap-3">
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <Button
+                key={id}
+                variant="muted"
+                className={cn(
+                  "h-10 px-4 py-2 flex items-center gap-0.5 uppercase tracking-wide text-[28px]/[19px] [&_svg]:size-6 bg-purple-600 text-white-400 [&_svg]:text-white-400 transition-all duration-0",
+                  activeTab === id &&
+                    "bg-purple-500 text-white-100 [&_svg]:text-white-100 cursor-default pointer-events-none",
+                )}
+                onClick={() => setActiveTab(id)}
+              >
+                <Icon />
+                <span
+                  className="translate-y-0.5 tracking-wider px-1"
+                  style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                >
+                  {label}
+                </span>
+              </Button>
+            ))}
+          </div>
+          <div className="flex flex-col gap-4 text-left">
+            <h2
+              className="text-[64px] leading-[42px] uppercase translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+            >
+              {activeTab === "about"
+                ? "Welcome to Nums"
+                : "Play Nums to earn Nums"}
+            </h2>
+            {activeTab === "about" ? (
+              <div className="flex flex-col gap-6 text-base/5 text-white-100 font-circular">
+                <p>
+                  Welcome to Nums, a fully onchain game built by Cartridge using
+                  the Dojo framework.
+                </p>
+                <p>
+                  The goal is simple: place randomly generated numbers in
+                  ascending order. Players compete and earn NUMS tokens by
+                  placing as many numbers as possible with the game ending when
+                  the timer reaches zero.{" "}
+                </p>
+                <p>The better you do the more you earn!</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6 text-base/5 text-white-100 font-circular">
+                <p>Play NUMS to earn NUMS. Spend NUMS to play NUMS.</p>
+                <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
+                  <strong
+                    className="font-pixel text-lg/3 tracking-wider text-purple-300"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    NUMS Token Address
+                  </strong>
+                  <span>{getChecksumAddress(getNumsAddress(chain.id))}</span>
+                </div>
+                <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
+                  <strong
+                    className="font-pixel text-lg/3 tracking-wider text-purple-300"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+                  >
+                    Token supply
+                  </strong>
+                  <span>320,202,002/∞</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

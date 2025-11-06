@@ -174,9 +174,9 @@ export class Power {
       case PowerType.Reroll:
         return "Discard the current number and get a new one";
       case PowerType.High:
-        return "Discard and get a number higher than the current number";
+        return "Discard and get a number higher than the current one";
       case PowerType.Low:
-        return "Discard and get a number lower than the current number";
+        return "Discard and get a number lower than the current one";
       case PowerType.Foresight:
         return "Reveal the following number after this one";
       case PowerType.DoubleUp:

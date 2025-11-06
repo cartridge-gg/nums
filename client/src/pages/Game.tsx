@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
+import { toast } from "sonner";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { HomeIcon } from "@/components/icons/Home";
@@ -16,16 +17,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTournaments } from "@/context/tournaments";
+import { useUsage } from "@/context/usage";
 import { useGame } from "@/hooks/useGame";
 import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
+import { useStartGame } from "@/hooks/useStartGame";
 import { cn } from "@/lib/utils";
 import { GameModel } from "@/models/game";
 import { DEFAULT_POWER_POINTS, Power, PowerType } from "@/types/power";
-import { useUsage } from "@/context/usage";
-import { useStartGame } from "@/hooks/useStartGame";
-import { toast } from "sonner";
 
 export const Game = () => {
   const [prizePoolModal, setPrizePoolModal] = useState(false);
@@ -125,7 +125,7 @@ export const Main = ({
 
   if (!game) return null;
 
-  if (!game.hasStarted()) return <GameStart gameId={Number(gameId)} />;
+  if (!game.hasStarted()) return <GameStart game={game} />;
 
   return (
     <div
@@ -352,9 +352,7 @@ export const PowerUp = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            disabled={
-              !available || isDisabled || isLoading
-            }
+            disabled={!available || isDisabled || isLoading}
             variant="muted"
             className="size-[68px] p-0"
             onClick={handleApplyPower}
@@ -561,7 +559,7 @@ export const GameOverButton = () => {
   );
 };
 
-export const GameStart = ({ gameId }: { gameId: number }) => {
+export const GameStart = ({ game }: { game: GameModel }) => {
   const { usage } = useUsage();
   const [selection, setSelection] = useState<Power[]>([]);
   const [points, setPoints] = useState(DEFAULT_POWER_POINTS);
@@ -579,14 +577,21 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
     });
   }, []);
 
-  const canSelectPower = useCallback((target: Power) => {
-    if (selection.length === 0 || !costs) return true;
-    const totalCost = selection.reduce((acc, power) => {
-      const costItem = costs.find(({ power: p }) => p.value === power.value);
-      return acc + (costItem ? costItem.cost : 0);
-    }, 0);
-    return totalCost + (costs.find(({ power: p }) => p.value === target.value)?.cost || 0) <= DEFAULT_POWER_POINTS;
-  }, [costs, selection]);
+  const canSelectPower = useCallback(
+    (target: Power) => {
+      if (selection.length === 0 || !costs) return true;
+      const totalCost = selection.reduce((acc, power) => {
+        const costItem = costs.find(({ power: p }) => p.value === power.value);
+        return acc + (costItem ? costItem.cost : 0);
+      }, 0);
+      return (
+        totalCost +
+          (costs.find(({ power: p }) => p.value === target.value)?.cost || 0) <=
+        DEFAULT_POWER_POINTS
+      );
+    },
+    [costs, selection],
+  );
 
   useEffect(() => {
     if (selection.length === 0 || !costs) {
@@ -609,8 +614,13 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
     >
       <div className="h-full max-w-[912px] mx-auto flex flex-col gap-12 justify-center">
         <GameStartHeader points={points} />
-        <GameStartPowerups selection={selection} onToggle={handleToggle} canSelectPower={canSelectPower} costs={costs} />
-        <GameStartPlay gameId={gameId} selection={selection} />
+        <GameStartPowerups
+          selection={selection}
+          onToggle={handleToggle}
+          canSelectPower={canSelectPower}
+          costs={costs}
+        />
+        <GameStartPlay game={game} selection={selection} />
       </div>
     </div>
   );
@@ -640,32 +650,64 @@ export const GameStartHeader = ({ points }: { points: number }) => {
   );
 };
 
-export const GameStartPowerups = ({ selection, onToggle, canSelectPower, costs }: { selection: Power[]; onToggle: (power: Power) => void; canSelectPower: (target: Power) => boolean; costs: { power: Power; cost: number }[] }) => {
+export const GameStartPowerups = ({
+  selection,
+  onToggle,
+  canSelectPower,
+  costs,
+}: {
+  selection: Power[];
+  onToggle: (power: Power) => void;
+  canSelectPower: (target: Power) => boolean;
+  costs: { power: Power; cost: number }[];
+}) => {
   const powers = useMemo(() => {
     return Power.getAllPowers();
   }, []);
 
-  const getCost = useCallback((power: Power) => {
-    return costs.find(({ power: p }) => p.value === power.value)?.cost || 0;
-  }, [costs]);
+  const getCost = useCallback(
+    (power: Power) => {
+      return costs.find(({ power: p }) => p.value === power.value)?.cost || 0;
+    },
+    [costs],
+  );
 
   return (
     <div className="grid grid-cols-3 gap-6">
       {powers.map((power) => (
-        <GameStartPowerup key={power.value} power={power} cost={getCost(power)} selected={selection.includes(power)} onToggle={onToggle} disabled={!canSelectPower(power)} />
+        <GameStartPowerup
+          key={power.value}
+          power={power}
+          cost={getCost(power)}
+          selected={selection.includes(power)}
+          onToggle={onToggle}
+          disabled={!canSelectPower(power)}
+        />
       ))}
     </div>
   );
 };
 
-export const GameStartPowerup = ({ power, cost, selected, onToggle, disabled }: { power: Power; cost: number; selected: boolean; onToggle: (power: Power) => void; disabled: boolean }) => {
+export const GameStartPowerup = ({
+  power,
+  cost,
+  selected,
+  onToggle,
+  disabled,
+}: {
+  power: Power;
+  cost: number;
+  selected: boolean;
+  onToggle: (power: Power) => void;
+  disabled: boolean;
+}) => {
   const [hover, setHover] = useState(false);
   const [inside, setInside] = useState(false);
 
   const handleMouseEnter = useCallback(() => {
     setHover(true);
   }, []);
-  
+
   const handleMouseLeave = useCallback(() => {
     setHover(false);
     setTimeout(() => {
@@ -677,13 +719,14 @@ export const GameStartPowerup = ({ power, cost, selected, onToggle, disabled }: 
     onToggle(power);
     setInside(true);
   }, [onToggle, power, selected]);
-  
+
   return (
     <div
       className="flex flex-col gap-4 items-stretch bg-black-900 p-6 rounded"
       style={{
-        boxShadow:
-          selected ? "" : "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
+        boxShadow: selected
+          ? ""
+          : "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
       }}
     >
       <div className="flex gap-4 h-16">
@@ -706,12 +749,29 @@ export const GameStartPowerup = ({ power, cost, selected, onToggle, disabled }: 
             {cost}
           </p>
         </div>
-        <Button disabled={disabled && !selected} variant="secondary" className={cn("h-full w-full transition-all duration-0", selected && !hover && "bg-purple-400 text-white-400", selected && inside && "hover:bg-purple-400 hover:text-white-400 cursor-default pointer-events-none")} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <Button
+          disabled={disabled && !selected}
+          variant="secondary"
+          className={cn(
+            "h-full w-full transition-all duration-0",
+            selected && !hover && "bg-purple-400 text-white-400",
+            selected &&
+              inside &&
+              "hover:bg-purple-400 hover:text-white-400 cursor-default pointer-events-none",
+          )}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <p
             className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
-            {selected && hover && !inside ? "Unselect" : selected ? "Selected" : "Select"}
+            {selected && hover && !inside
+              ? "Unselect"
+              : selected
+                ? "Selected"
+                : "Select"}
           </p>
         </Button>
       </div>
@@ -719,26 +779,45 @@ export const GameStartPowerup = ({ power, cost, selected, onToggle, disabled }: 
   );
 };
 
-export const GameStartPlay = ({ gameId, selection }: { gameId: number; selection: Power[] }) => {
-  const { startGame } = useStartGame({ gameId, powers: selection });
+export const GameStartPlay = ({
+  game,
+  selection,
+}: {
+  game: GameModel;
+  selection: Power[];
+}) => {
+  const { startGame } = useStartGame({ gameId: game.id, powers: selection });
+  const [loading, setLoading] = useState(false);
 
   const handleStartGame = useCallback(() => {
+    setLoading(true);
     startGame().then((success) => {
       if (!success) {
+        setLoading(false);
         toast.error("Failed to start game");
       }
     });
-  }, [startGame, gameId]);
+  }, [startGame]);
+
+  useEffect(() => {
+    if (loading && game.hasStarted()) {
+      setLoading(false);
+    }
+  }, [game, loading]);
 
   return (
     <div className="flex justify-end">
       <Button variant="default" className="h-10" onClick={handleStartGame}>
-        <p
-          className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
-          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-        >
-          Play
-        </p>
+        {loading ? (
+          <Loader2 className="size-6 animate-spin" />
+        ) : (
+          <p
+            className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            Play
+          </p>
+        )}
       </Button>
     </div>
   );

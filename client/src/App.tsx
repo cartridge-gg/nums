@@ -19,10 +19,10 @@ import { GameProvider } from "./context/game";
 import { ModalProvider } from "./context/modal";
 import { TournamentProvider } from "./context/tournaments";
 import { UrqlProvider } from "./context/urql";
+import { UsageProvider } from "./context/usage";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
 import { queryClient } from "./queries";
-import { UsageProvider } from "./context/usage";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {

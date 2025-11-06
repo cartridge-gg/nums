@@ -59,7 +59,10 @@ export class Power {
   }
 
   public static toBitmap(powers: Power[]): bigint {
-    return powers.reduce((acc, power) => acc | (1n << BigInt(power.index())), 0n);
+    return powers.reduce(
+      (acc, power) => acc | (1n << BigInt(power.index())),
+      0n,
+    );
   }
 
   public static getPowers(bitmap: bigint): Power[] {
@@ -74,15 +77,17 @@ export class Power {
     return Power.getCosts(board)[this.index()].cost;
   }
 
-  public static getCosts(board: bigint): { power: Power, cost: number }[] {
-    let packs = Packer.sized_unpack(board, 32n, POWER_COUNT);
+  public static getCosts(board: bigint): { power: Power; cost: number }[] {
+    const packs = Packer.sized_unpack(board, 32n, POWER_COUNT);
     // Count how many bits are set per pack, rank the indexes by the count
-    let ranks = packs.map((pack, index) => {
-      return {
-        index,
-        count: pack.toString(2).replace(/0/g, '').length,
-      };
-    }).sort((a, b) => a.count - b.count);
+    const ranks = packs
+      .map((pack, index) => {
+        return {
+          index,
+          count: pack.toString(2).replace(/0/g, "").length,
+        };
+      })
+      .sort((a, b) => a.count - b.count);
     const costs = ranks.map(({ index: powerIndex }, index) => {
       return {
         power: Power.from(powerIndex + 1),

@@ -2,9 +2,9 @@ import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { useAccount } from "@starknet-react/core";
 import { createContext, useContext, useMemo } from "react";
+import { addAddressPadding } from "starknet";
 import { NAMESPACE } from "@/config";
 import { UsageModel } from "@/models/usage";
-import { addAddressPadding } from "starknet";
 
 type UsageProviderProps = {
   children: React.ReactNode;

@@ -5,7 +5,13 @@ import { getGameAddress, getVrfAddress } from "@/config";
 import useChain from "@/hooks/chain";
 import { Power } from "@/types/power";
 
-export const useStartGame = ({ gameId, powers }: { gameId: number; powers: Power[] }) => {
+export const useStartGame = ({
+  gameId,
+  powers,
+}: {
+  gameId: number;
+  powers: Power[];
+}) => {
   const { account } = useAccount();
   const { chain } = useChain();
 
@@ -26,7 +32,10 @@ export const useStartGame = ({ gameId, powers }: { gameId: number; powers: Power
         {
           contractAddress: gameAddress,
           entrypoint: "start",
-          calldata: CallData.compile({ game_id: gameId, powers: Power.toBitmap(powers) }),
+          calldata: CallData.compile({
+            game_id: gameId,
+            powers: Power.toBitmap(powers),
+          }),
         },
       ]);
 

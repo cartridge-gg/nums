@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { HomeIcon } from "@/components/icons/Home";
-import { InfoIcon } from "@/components/icons/Info";
 import { PointsIcon } from "@/components/icons/Points";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";

@@ -1,11 +1,10 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
-import { useStartGame } from "@/hooks/useStartGame";
 import type { GameModel } from "@/models/game";
 import { LiveIcon } from "./icons/Live";
+import { NumsIcon } from "./icons/Nums";
 import { Button } from "./ui/button";
 
 export type GamesProps = {};
@@ -123,22 +122,11 @@ export const EmptyGames = () => {
 };
 
 export const GameDetails = ({ game }: { game: GameModel }) => {
-  const { startGame } = useStartGame({ gameId: Number(game?.id || 0) });
   const navigate = useNavigate();
 
   const handleContinueGame = useCallback(() => {
     navigate(`/${game.id}`);
   }, [navigate, game.id]);
-
-  const handleStartGame = useCallback(() => {
-    startGame().then((success) => {
-      if (success) {
-        navigate(`/${game.id}`);
-      } else {
-        toast.error("Failed to start game");
-      }
-    });
-  }, [startGame, navigate, game.id]);
 
   if (!game || game.over) return null;
 
@@ -146,7 +134,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
         <div className="w-5">
-          {game.hasStarted() && !game.over && <LiveIcon />}
+          {game.hasStarted() && !game.over ? <LiveIcon /> : <NumsIcon />}
         </div>
         <p className="text-[22px] leading-[12px] w-[168px]">{`Nums #${game.id}`}</p>
         {game.hasStarted() ? (
@@ -172,7 +160,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
         <Button
           variant="default"
           className="h-10 w-[108px]"
-          onClick={handleStartGame}
+          onClick={handleContinueGame}
         >
           <p
             className="font-[PixelGame] text-[28px] translate-y-0.5"

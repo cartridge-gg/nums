@@ -1,18 +1,18 @@
+import type ControllerConnector from "@cartridge/connector/controller";
+import { useAccount } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useModal } from "@/context/modal";
+import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
+import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
-import ControllerConnector from "@cartridge/connector/controller";
-import { useAccount } from "@starknet-react/core";
-import { TournamentModel } from "@/models/tournament";
-import { Formatter } from "@/helpers";
 
 export type InventoryProps = {};
 
-export const Inventory = ({ tournament }: { tournament: TournamentModel }) => {
+export const Inventory = ({ tournament }: { tournament?: TournamentModel }) => {
   const { isInventoryClosing, closeInventory, finalizeCloseInventory } =
     useModal();
   const { gameIds } = usePlayerGames();
@@ -62,7 +62,7 @@ export const Inventory = ({ tournament }: { tournament: TournamentModel }) => {
         <Close close={closeInventory} />
         <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-6 h-full overflow-hidden">
           <div className="flex flex-col items-start gap-6">
-            <Header tournament={tournament} />
+            {tournament && <Header tournament={tournament} />}
             <Purchases />
           </div>
           <Games />
@@ -133,7 +133,7 @@ export const Purchases = ({}: {}) => {
       <PurchaseMethod title="Share on X" buttonText="Free!" />
       <PurchaseMethod
         title="Purchase Starterpack"
-        buttonText={`2000 NUMS`}
+        buttonText={"2000 NUMS"}
         onClick={async () => {
           (connector as ControllerConnector)?.controller.openStarterPack("14");
         }}

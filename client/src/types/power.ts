@@ -21,6 +21,10 @@ import rerollLocked from "@/assets/powers/reroll-locked.svg";
 import rerollUsed from "@/assets/powers/reroll-used.svg";
 import { Packer } from "@/helpers/packer";
 
+export const POWER_COUNT = 7;
+export const DEFAULT_POWER_POINTS = 60;
+export const POWER_COSTS = [5, 10, 15, 20, 25, 30, 35];
+
 export enum PowerType {
   None = "None",
   Reroll = "Reroll",
@@ -48,12 +52,44 @@ export class Power {
     return new Power(item);
   }
 
+  public static getAllPowers(): Power[] {
+    return Object.values(PowerType)
+      .slice(1)
+      .map((value) => new Power(value));
+  }
+
+  public static toBitmap(powers: Power[]): bigint {
+    return powers.reduce((acc, power) => acc | (1n << BigInt(power.index())), 0n);
+  }
+
   public static getPowers(bitmap: bigint): Power[] {
     // Extract indexes from bitmap for set bits
     const indexes = Packer.unpack(bitmap, 1n)
       .map((bit, index) => (bit === 1 ? index : undefined))
       .filter((index) => index !== undefined);
     return indexes.map((index) => Power.from(index + 1));
+  }
+
+  public getCost(board: bigint): number {
+    return Power.getCosts(board)[this.index()].cost;
+  }
+
+  public static getCosts(board: bigint): { power: Power, cost: number }[] {
+    let packs = Packer.sized_unpack(board, 32n, POWER_COUNT);
+    // Count how many bits are set per pack, rank the indexes by the count
+    let ranks = packs.map((pack, index) => {
+      return {
+        index,
+        count: pack.toString(2).replace(/0/g, '').length,
+      };
+    }).sort((a, b) => a.count - b.count);
+    const costs = ranks.map(({ index: powerIndex }, index) => {
+      return {
+        power: Power.from(powerIndex + 1),
+        cost: POWER_COSTS[index],
+      };
+    });
+    return costs;
   }
 
   public isNone(): boolean {
@@ -133,9 +169,9 @@ export class Power {
       case PowerType.Reroll:
         return "Discard the current number and get a new one";
       case PowerType.High:
-        return "The next number will be higher than the current number";
+        return "Discard and get a number higher than the current number";
       case PowerType.Low:
-        return "The next number will be lower than the current number";
+        return "Discard and get a number lower than the current number";
       case PowerType.Foresight:
         return "Reveal the following number after this one";
       case PowerType.DoubleUp:

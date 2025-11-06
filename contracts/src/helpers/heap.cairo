@@ -110,7 +110,8 @@ pub trait ItemTrait<T> {
 #[derive(Copy, Drop)]
 pub struct Item {
     pub key: u8,
-    pub cost: u8,
+    pub cost_a: u8,
+    pub cost_b: u8,
 }
 
 pub impl ItemImpl of ItemTrait<Item> {
@@ -135,34 +136,34 @@ pub impl ItemPartialEq of PartialEq<Item> {
 pub impl ItemPartialOrd of PartialOrd<Item> {
     #[inline]
     fn lt(lhs: Item, rhs: Item) -> bool {
-        if lhs.cost == rhs.cost {
-            return lhs.cost < rhs.cost;
+        if lhs.cost_a == rhs.cost_a {
+            return lhs.cost_b < rhs.cost_b;
         }
-        lhs.cost < rhs.cost
+        lhs.cost_a < rhs.cost_a
     }
 
     #[inline]
     fn le(lhs: Item, rhs: Item) -> bool {
-        if lhs.cost == rhs.cost {
-            return lhs.cost <= rhs.cost;
+        if lhs.cost_a == rhs.cost_a {
+            return lhs.cost_b <= rhs.cost_b;
         }
-        lhs.cost <= rhs.cost
+        lhs.cost_a <= rhs.cost_a
     }
 
     #[inline]
     fn gt(lhs: Item, rhs: Item) -> bool {
-        if lhs.cost == rhs.cost {
-            return lhs.cost > rhs.cost;
+        if lhs.cost_a == rhs.cost_a {
+            return lhs.cost_b > rhs.cost_b;
         }
-        lhs.cost > rhs.cost
+        lhs.cost_a > rhs.cost_a
     }
 
     #[inline]
     fn ge(lhs: Item, rhs: Item) -> bool {
-        if lhs.cost == rhs.cost {
-            return lhs.cost >= rhs.cost;
+        if lhs.cost_a == rhs.cost_a {
+            return lhs.cost_b >= rhs.cost_b;
         }
-        lhs.cost >= rhs.cost
+        lhs.cost_a >= rhs.cost_a
     }
 }
 
@@ -344,7 +345,7 @@ mod tests {
     #[test]
     fn test_heap_add() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let item: Item = Item { key: 1, cost: 1 };
+        let item: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
         heap.add(item);
         assert!(!heap.is_empty());
     }
@@ -352,7 +353,7 @@ mod tests {
     #[test]
     fn test_heap_contains() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let item: Item = Item { key: 1, cost: 1 };
+        let item: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
         heap.add(item);
         assert!(heap.contains(item.key));
     }
@@ -360,54 +361,54 @@ mod tests {
     #[test]
     fn test_heap_not_contains() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let item: Item = Item { key: 1, cost: 1 };
+        let item: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
         assert!(!heap.contains(item.key));
     }
 
     #[test]
     fn test_heap_pop_front_sorted() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
-        let third: Item = Item { key: 3, cost: 3 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
+        let third: Item = Item { key: 3, cost_a: 3, cost_b: 3 };
         heap.add(first);
         heap.add(second);
         heap.add(third);
         let popped: Item = heap.pop_front().unwrap();
-        assert_eq!(popped.cost, 3);
+        assert_eq!(popped.cost_a, 3);
     }
 
     #[test]
     fn test_heap_pop_front_reversed() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
-        let third: Item = Item { key: 3, cost: 3 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
+        let third: Item = Item { key: 3, cost_a: 3, cost_b: 3 };
         heap.add(third);
         heap.add(second);
         heap.add(first);
         let popped: Item = heap.pop_front().unwrap();
-        assert_eq!(popped.cost, 3);
+        assert_eq!(popped.cost_a, 3);
     }
 
     #[test]
     fn test_heap_swap() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
         heap.add(first);
         heap.add(second);
         heap.swap(first.key(), second.key());
-        assert_eq!(second.cost, 2);
+        assert_eq!(second.cost_a, 2);
         let popped: Item = heap.pop_front().unwrap();
-        assert_eq!(popped.cost, 1);
+        assert_eq!(popped.cost_a, 1);
     }
 
     #[test]
     fn test_heap_get() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
         heap.add(first);
         heap.add(second);
         assert_eq!(heap.get(first.key).unwrap().key, 1);
@@ -420,8 +421,8 @@ mod tests {
     #[test]
     fn test_heap_at() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
         heap.add(first);
         heap.add(second);
         assert_eq!(heap.at(first.key).key, 1);
@@ -434,8 +435,8 @@ mod tests {
     #[test]
     fn test_heap_add_pop_add() {
         let mut heap: Heap<Item> = HeapTrait::new();
-        let first: Item = Item { key: 1, cost: 1 };
-        let second: Item = Item { key: 2, cost: 2 };
+        let first: Item = Item { key: 1, cost_a: 1, cost_b: 1 };
+        let second: Item = Item { key: 2, cost_a: 2, cost_b: 2 };
         heap.add(first);
         heap.add(second);
         heap.pop_front().unwrap();

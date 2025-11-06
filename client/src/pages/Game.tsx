@@ -1,12 +1,12 @@
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { HomeIcon } from "@/components/icons/Home";
 import { InfoIcon } from "@/components/icons/Info";
-import { LinkIcon } from "@/components/icons/Link";
+import { PointsIcon } from "@/components/icons/Points";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +22,10 @@ import { useGameSet } from "@/hooks/useGameSet";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
 import { GameModel } from "@/models/game";
-import type { TournamentModel } from "@/models/tournament";
-import { Power, PowerType } from "@/types/power";
+import { DEFAULT_POWER_POINTS, Power, PowerType } from "@/types/power";
+import { useUsage } from "@/context/usage";
+import { useStartGame } from "@/hooks/useStartGame";
+import { toast } from "sonner";
 
 export const Game = () => {
   const [prizePoolModal, setPrizePoolModal] = useState(false);
@@ -121,7 +123,9 @@ export const Main = ({
     return prizes.filter((p) => p.tournament_id === tournament.id);
   }, [prizes, tournament]);
 
-  if (!game || !tournament) return null;
+  if (!game) return null;
+
+  if (!game.hasStarted()) return <GameStart gameId={Number(gameId)} />;
 
   return (
     <div
@@ -162,7 +166,6 @@ export const Main = ({
         <div className="flex flex-col gap-12">
           <GameHeader
             game={game}
-            tournament={tournament}
             onApplyPower={handleApplyPower}
             loadingPowerIndex={loadingPowerIndex}
             loadingSlotIndex={loadingSlotIndex}
@@ -188,13 +191,11 @@ export const Main = ({
 
 export const GameHeader = ({
   game,
-  tournament,
   onApplyPower,
   loadingPowerIndex,
   loadingSlotIndex,
 }: {
   game: GameModel;
-  tournament: TournamentModel;
   onApplyPower: (powerIndex: number) => Promise<void>;
   loadingPowerIndex: number | null;
   loadingSlotIndex: number | null;
@@ -207,9 +208,8 @@ export const GameHeader = ({
         isLoading={loadingPowerIndex !== null || loadingSlotIndex !== null}
       />
       <PowerUps
-        powers={tournament.powers}
-        availables={game.powers}
-        count={game.adjacent()}
+        powers={game.selected_powers}
+        availables={game.available_powers}
         onApplyPower={onApplyPower}
         loadingPowerIndex={loadingPowerIndex}
       />
@@ -290,18 +290,16 @@ export const GameNextNumber = ({
 export const PowerUps = ({
   powers,
   availables,
-  count,
   onApplyPower,
   loadingPowerIndex,
 }: {
   powers: Power[];
   availables: Power[];
-  count: number;
   onApplyPower: (powerIndex: number) => Promise<void>;
   loadingPowerIndex: number | null;
 }) => {
   return (
-    <div className="flex flex-col gap-2 justify-between">
+    <div className="flex flex-col gap-2 justify-start">
       <div className="flex justify-between items-center gap-2">
         <span className="text-purple-300 tracking-wide text-lg/6 ">
           Power ups
@@ -316,12 +314,9 @@ export const PowerUps = ({
             key={power.value}
             power={power}
             available={availables.map((p) => p.into()).includes(power.into())}
-            count={count}
             onApplyPower={onApplyPower}
             isLoading={loadingPowerIndex === power.index()}
-            isDisabled={
-              loadingPowerIndex !== null && loadingPowerIndex !== power.index()
-            }
+            isDisabled={false}
           />
         ))}
       </div>
@@ -332,73 +327,62 @@ export const PowerUps = ({
 export const PowerUp = ({
   power,
   available,
-  count,
   onApplyPower,
   isLoading,
   isDisabled,
 }: {
   power: Power;
   available: boolean;
-  count: number;
   onApplyPower: (powerIndex: number) => Promise<void>;
   isLoading: boolean;
   isDisabled: boolean;
 }) => {
   const status = useMemo(() => {
-    if (power.isLocked(count)) return "locked";
     if (available) return undefined;
     return "used";
-  }, [power, available, count]);
+  }, [power, available]);
 
   const handleApplyPower = async () => {
-    if (!available || power.isLocked(count) || isDisabled || isLoading) return;
+    if (!available || isDisabled || isLoading) return;
     await onApplyPower(power.index());
   };
 
   return (
-    <div className="flex flex-col gap-2 items-center justify-between text-purple-300">
-      <TooltipProvider delayDuration={150}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              disabled={
-                !available || power.isLocked(count) || isDisabled || isLoading
-              }
-              variant="muted"
-              className="size-[68px] p-0"
-              onClick={handleApplyPower}
-            >
-              {isLoading ? (
-                <Loader2 className="size-9 animate-spin" />
-              ) : (
-                <img
-                  src={power.icon(status)}
-                  alt={power.name()}
-                  className="size-9"
-                />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent
-            className="max-w-[288px] bg-black-300 border-[2px] border-black-300 rounded-lg p-6 flex flex-col gap-3 backdrop-blur-[4px]"
-            style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            disabled={
+              !available || isDisabled || isLoading
+            }
+            variant="muted"
+            className="size-[68px] p-0"
+            onClick={handleApplyPower}
           >
-            <h2 className="text-white-100 tracking-wide text-[22px]/[15px] translate-y-0.5">
-              {power.name()}
-            </h2>
-            <p className="text-white-100 font-ppneuebit text-2xl/5">
-              {power.description()}
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <div className="w-[52px] h-6 flex items-center gap-0.5 px-2 py-0.5 bg-black-700 rounded-full [&_svg]:text-purple-300 [&_svg]:size-5">
-        <p className="text-[22px]/[15px] translate-y-0.5 px-0.5">
-          {power.condition()}
-        </p>
-        <LinkIcon />
-      </div>
-    </div>
+            {isLoading ? (
+              <Loader2 className="size-9 animate-spin" />
+            ) : (
+              <img
+                src={power.icon(status)}
+                alt={power.name()}
+                className="size-9"
+              />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent
+          className="max-w-[288px] bg-black-300 border-[2px] border-black-300 rounded-lg p-6 flex flex-col gap-3 backdrop-blur-[4px]"
+          style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          <h2 className="text-white-100 tracking-wide text-[22px]/[15px] translate-y-0.5">
+            {power.name()}
+          </h2>
+          <p className="text-white-100 font-ppneuebit text-2xl/5">
+            {power.description()}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -574,5 +558,188 @@ export const GameOverButton = () => {
         </p>
       </Button>
     </Link>
+  );
+};
+
+export const GameStart = ({ gameId }: { gameId: number }) => {
+  const { usage } = useUsage();
+  const [selection, setSelection] = useState<Power[]>([]);
+  const [points, setPoints] = useState(DEFAULT_POWER_POINTS);
+
+  const costs = useMemo(() => {
+    return Power.getCosts(usage?.board || 0n) || [];
+  }, [usage]);
+
+  const handleToggle = useCallback((power: Power) => {
+    setSelection((prev) => {
+      if (prev.includes(power)) {
+        return prev.filter((p) => p !== power);
+      }
+      return [...prev, power];
+    });
+  }, []);
+
+  const canSelectPower = useCallback((target: Power) => {
+    if (selection.length === 0 || !costs) return true;
+    const totalCost = selection.reduce((acc, power) => {
+      const costItem = costs.find(({ power: p }) => p.value === power.value);
+      return acc + (costItem ? costItem.cost : 0);
+    }, 0);
+    return totalCost + (costs.find(({ power: p }) => p.value === target.value)?.cost || 0) <= DEFAULT_POWER_POINTS;
+  }, [costs, selection]);
+
+  useEffect(() => {
+    if (selection.length === 0 || !costs) {
+      setPoints(DEFAULT_POWER_POINTS);
+      return;
+    }
+    const totalCost = selection.reduce((acc, power) => {
+      const costItem = costs.find(({ power: p }) => p.value === power.value);
+      return acc + (costItem ? costItem.cost : 0);
+    }, 0);
+    setPoints(60 - totalCost);
+  }, [costs, selection, setPoints]);
+
+  return (
+    <div
+      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16"
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <div className="h-full max-w-[912px] mx-auto flex flex-col gap-12 justify-center">
+        <GameStartHeader points={points} />
+        <GameStartPowerups selection={selection} onToggle={handleToggle} canSelectPower={canSelectPower} costs={costs} />
+        <GameStartPlay gameId={gameId} selection={selection} />
+      </div>
+    </div>
+  );
+};
+
+export const GameStartHeader = ({ points }: { points: number }) => {
+  return (
+    <div className="h-[76px] flex justify-between items-stretch">
+      <div className="flex flex-col gap-2 justify-between">
+        <p className="text-purple-300 tracking-wider text-lg/6">
+          Choose your...
+        </p>
+        <strong className="text-white-100 text-[64px]/[44px]">Powerups</strong>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <p className="text-purple-300 tracking-wider text-lg/6">
+          Points remaining
+        </p>
+        <div className="h-11 flex gap-2 items-center px-4 py-2.5 rounded bg-white-900 border border-white-900">
+          <PointsIcon />
+          <p className="text-white-100 text-[36px]/[24px] translate-y-0.5">
+            {points}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const GameStartPowerups = ({ selection, onToggle, canSelectPower, costs }: { selection: Power[]; onToggle: (power: Power) => void; canSelectPower: (target: Power) => boolean; costs: { power: Power; cost: number }[] }) => {
+  const powers = useMemo(() => {
+    return Power.getAllPowers();
+  }, []);
+
+  const getCost = useCallback((power: Power) => {
+    return costs.find(({ power: p }) => p.value === power.value)?.cost || 0;
+  }, [costs]);
+
+  return (
+    <div className="grid grid-cols-3 gap-6">
+      {powers.map((power) => (
+        <GameStartPowerup key={power.value} power={power} cost={getCost(power)} selected={selection.includes(power)} onToggle={onToggle} disabled={!canSelectPower(power)} />
+      ))}
+    </div>
+  );
+};
+
+export const GameStartPowerup = ({ power, cost, selected, onToggle, disabled }: { power: Power; cost: number; selected: boolean; onToggle: (power: Power) => void; disabled: boolean }) => {
+  const [hover, setHover] = useState(false);
+  const [inside, setInside] = useState(false);
+
+  const handleMouseEnter = useCallback(() => {
+    setHover(true);
+  }, []);
+  
+  const handleMouseLeave = useCallback(() => {
+    setHover(false);
+    setTimeout(() => {
+      setInside(false);
+    }, 500);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    onToggle(power);
+    setInside(true);
+  }, [onToggle, power, selected]);
+  
+  return (
+    <div
+      className="flex flex-col gap-4 items-stretch bg-black-900 p-6 rounded"
+      style={{
+        boxShadow:
+          selected ? "" : "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
+      }}
+    >
+      <div className="flex gap-4 h-16">
+        <img
+          src={power.icon(selected ? "used" : undefined)}
+          alt={power.name()}
+          className="size-16"
+        />
+        <div className="flex flex-col gap-1 text-white-100 ">
+          <p className="text-[22px]/[15px] tracking-wider">{power.name()}</p>
+          <p className="font-ppneuebit text-xl/4 font-bold">
+            {power.description()}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-4 h-10">
+        <div className="h-full flex gap-1 items-center px-3 py-2 rounded bg-white-900 border border-white-900 [&_svg]:size-5">
+          <PointsIcon />
+          <p className="text-white-100 text-[28px]/[19px] translate-y-0.5">
+            {cost}
+          </p>
+        </div>
+        <Button disabled={disabled && !selected} variant="secondary" className={cn("h-full w-full transition-all duration-0", selected && !hover && "bg-purple-400 text-white-400", selected && inside && "hover:bg-purple-400 hover:text-white-400 cursor-default pointer-events-none")} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          <p
+            className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            {selected && hover && !inside ? "Unselect" : selected ? "Selected" : "Select"}
+          </p>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export const GameStartPlay = ({ gameId, selection }: { gameId: number; selection: Power[] }) => {
+  const { startGame } = useStartGame({ gameId, powers: selection });
+
+  const handleStartGame = useCallback(() => {
+    startGame().then((success) => {
+      if (!success) {
+        toast.error("Failed to start game");
+      }
+    });
+  }, [startGame, gameId]);
+
+  return (
+    <div className="flex justify-end">
+      <Button variant="default" className="h-10" onClick={handleStartGame}>
+        <p
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        >
+          Play
+        </p>
+      </Button>
+    </div>
   );
 };

@@ -91,7 +91,7 @@ export const Main = ({
             tournament={
               tournaments?.find(
                 (tournament) => tournament.id === selectedTournament,
-              ) as TournamentModel
+              ) as TournamentModel | undefined
             }
           />
         </div>

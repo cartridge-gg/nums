@@ -3,8 +3,9 @@ import { useCallback } from "react";
 import { CallData } from "starknet";
 import { getGameAddress, getVrfAddress } from "@/config";
 import useChain from "@/hooks/chain";
+import { Power } from "@/types/power";
 
-export const useStartGame = ({ gameId }: { gameId: number }) => {
+export const useStartGame = ({ gameId, powers }: { gameId: number; powers: Power[] }) => {
   const { account } = useAccount();
   const { chain } = useChain();
 
@@ -25,7 +26,7 @@ export const useStartGame = ({ gameId }: { gameId: number }) => {
         {
           contractAddress: gameAddress,
           entrypoint: "start",
-          calldata: CallData.compile({ game_id: gameId }),
+          calldata: CallData.compile({ game_id: gameId, powers: Power.toBitmap(powers) }),
         },
       ]);
 
@@ -34,7 +35,7 @@ export const useStartGame = ({ gameId }: { gameId: number }) => {
       console.log({ e });
       return false;
     }
-  }, [account]);
+  }, [account, powers]);
 
   return {
     startGame,

@@ -50,7 +50,7 @@ pub impl UsageImpl of UsageTrait {
         let mut index: u8 = 0;
         while let Option::Some(usage) = usages.pop_front() {
             let score: u8 = Bitmap::popcount(usage);
-            let item: Item = Item { key: index, cost: score };
+            let item: Item = Item { key: index, cost_a: score, cost_b: index };
             heap.add(item);
             index += 1;
         }
@@ -183,5 +183,19 @@ mod tests {
         usage.insert(0b1100000);
         usage.insert(0b1000000);
         UsageAssert::assert_valid_powers(@usage, 0b1110000);
+    }
+
+    #[test]
+    fn test_usage_powers_case_001() {
+        let mut usage: Usage = create();
+        usage.board = 340282367158622951006167620212400062465;
+        let powers: Array<Power> = usage.powers();
+        assert_eq!(*powers.at(0), Power::Foresight);
+        assert_eq!(*powers.at(1), Power::DoubleUp);
+        assert_eq!(*powers.at(2), Power::Reroll);
+        assert_eq!(*powers.at(3), Power::Mirror);
+        assert_eq!(*powers.at(4), Power::Halve);
+        assert_eq!(*powers.at(5), Power::Low);
+        assert_eq!(*powers.at(6), Power::High);
     }
 }

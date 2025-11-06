@@ -22,6 +22,7 @@ import { UrqlProvider } from "./context/urql";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
 import { queryClient } from "./queries";
+import { UsageProvider } from "./context/usage";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -111,22 +112,24 @@ function App() {
             <UrqlProvider>
               <AudioProvider>
                 <ConfigProvider>
-                  <ControllersProvider>
-                    <GameProvider>
-                      <TournamentProvider>
-                        <ModalProvider>
-                          <Router>
-                            <Routes>
-                              <Route path="/" element={<Home />} />
-                              <Route path="/:gameId" element={<Game />} />
-                              {/* <Route path="/selection" element={<Selection />} />
-                              <Route path="/factories" element={<Factories />} /> */}
-                            </Routes>
-                          </Router>
-                        </ModalProvider>
-                      </TournamentProvider>
-                    </GameProvider>
-                  </ControllersProvider>
+                  <UsageProvider>
+                    <ControllersProvider>
+                      <GameProvider>
+                        <TournamentProvider>
+                          <ModalProvider>
+                            <Router>
+                              <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/:gameId" element={<Game />} />
+                                {/* <Route path="/selection" element={<Selection />} />
+                                <Route path="/factories" element={<Factories />} /> */}
+                              </Routes>
+                            </Router>
+                          </ModalProvider>
+                        </TournamentProvider>
+                      </GameProvider>
+                    </ControllersProvider>
+                  </UsageProvider>
                 </ConfigProvider>
               </AudioProvider>
             </UrqlProvider>

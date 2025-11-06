@@ -182,7 +182,7 @@ export const PrizePoolModal = ({
 }) => {
   return (
     <div
-      className="w-[400px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[16px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] rounded-lg p-6 flex flex-col gap-6"
+      className="select-none w-[400px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[16px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] rounded-lg p-6 flex flex-col gap-6"
       style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
     >
       <h2

@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+
 #[starknet::interface]
 pub trait ISetup<T> {
     fn set_entry_price(ref self: T, entry_price: u128);
@@ -16,6 +17,7 @@ pub mod Setup {
     use crate::mocks::starterpack::NAME as STARTERPACK;
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
+    use crate::models::usage::UsageTrait;
     use super::ISetup;
 
     fn dojo_init(
@@ -56,6 +58,9 @@ pub mod Setup {
             entry_price: entry_price,
         );
         store.set_config(config);
+        // [Effect] Create usage
+        let usage = UsageTrait::new(WORLD_RESOURCE);
+        store.set_usage(@usage);
     }
 
     #[abi(embed_v0)]

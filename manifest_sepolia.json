@@ -3567,7 +3567,7 @@
     },
     {
       "address": "0x717fc138e73164b1eedbf2d5feabb2aaca08f07e1c4918d9f444f13300c4dd8",
-      "class_hash": "0x3004261c9ae6345abe52b85ccd8c72d7323e08847ce2dd2d72e813c860a9338",
+      "class_hash": "0x1d509c699e69318d653ecd690e404de969c37ba2658a845144abe32e9bf6faa",
       "abi": [
         {
           "type": "impl",
@@ -4926,7 +4926,7 @@
     },
     {
       "address": "0x2a419a6149d6baabe166fac5259cd46226363572b1517de305afc4b0c003ed3",
-      "class_hash": "0x285a409043109e3818b51ad9460b72802501940b3e38e500dcf9da6b68040f8",
+      "class_hash": "0x5b1132096272170f5e3885b7a3a6bbdde9260c890d353742211ff13ce91c8b6",
       "abi": [
         {
           "type": "impl",

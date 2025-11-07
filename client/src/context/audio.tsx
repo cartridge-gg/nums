@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -13,6 +14,7 @@ interface AudioContextType {
   playPositive: () => void;
   playNegative: () => void;
   playReplay: () => void;
+  playClick: () => void;
 }
 
 const AudioContext = createContext<AudioContextType>({
@@ -21,6 +23,7 @@ const AudioContext = createContext<AudioContextType>({
   playPositive: () => {},
   playNegative: () => {},
   playReplay: () => {},
+  playClick: () => {},
 });
 
 export const useAudio = () => useContext(AudioContext);
@@ -32,10 +35,29 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : false;
   });
 
-  // Create audio instances once at the provider level
-  const positive = new Audio("/sounds/esm_positive.wav");
-  const negative = new Audio("/sounds/esm_negative.wav");
-  const replay = new Audio("/sounds/esm_replay.wav");
+  const positive = useMemo(() => {
+    const audio = new Audio("/sounds/esm_positive.wav");
+    audio.preload = "auto";
+    return audio;
+  }, []);
+
+  const negative = useMemo(() => {
+    const audio = new Audio("/sounds/esm_negative.wav");
+    audio.preload = "auto";
+    return audio;
+  }, []);
+
+  const replay = useMemo(() => {
+    const audio = new Audio("/sounds/esm_replay.wav");
+    audio.preload = "auto";
+    return audio;
+  }, []);
+
+  const click = useMemo(() => {
+    const audio = new Audio("/sounds/click.mp3");
+    audio.preload = "auto";
+    return audio;
+  }, []);
 
   // Update localStorage whenever mute state changes
   useEffect(() => {
@@ -48,21 +70,31 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const playPositive = useCallback(() => {
     if (!isMuted) {
-      positive.play();
+      positive.currentTime = 0;
+      void positive.play().catch(() => {});
     }
-  }, [isMuted]);
+  }, [isMuted, positive]);
 
   const playNegative = useCallback(() => {
     if (!isMuted) {
-      negative.play();
+      negative.currentTime = 0;
+      void negative.play().catch(() => {});
     }
-  }, [isMuted]);
+  }, [isMuted, negative]);
 
   const playReplay = useCallback(() => {
     if (!isMuted) {
-      replay.play();
+      replay.currentTime = 0;
+      void replay.play().catch(() => {});
     }
-  }, [isMuted]);
+  }, [isMuted, replay]);
+
+  const playClick = useCallback(() => {
+    if (!isMuted) {
+      click.currentTime = 0;
+      void click.play().catch(() => {});
+    }
+  }, [click, isMuted]);
 
   return (
     <AudioContext.Provider
@@ -72,6 +104,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         playPositive,
         playNegative,
         playReplay,
+        playClick,
       }}
     >
       {children}

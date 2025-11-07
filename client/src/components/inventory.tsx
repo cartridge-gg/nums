@@ -5,12 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useModal } from "@/context/modal";
 import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
+import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
+import { useStarterpacks } from "@/hooks/useStarterpacks";
 import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
-import { useStarterpacks } from "@/hooks/useStarterpacks";
-import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 
 export type InventoryProps = {};
 
@@ -140,12 +140,16 @@ export const Purchases = ({}: {}) => {
 
   const freeOpen = useCallback(async () => {
     if (!freePack) return;
-    (connector as ControllerConnector)?.controller.openStarterPack(freePack.id.toString());
+    (connector as ControllerConnector)?.controller.openStarterPack(
+      freePack.id.toString(),
+    );
   }, [connector, freePack]);
 
   const payOpen = useCallback(async () => {
     if (!payPack) return;
-    (connector as ControllerConnector)?.controller.openStarterPack(payPack.id.toString());
+    (connector as ControllerConnector)?.controller.openStarterPack(
+      payPack.id.toString(),
+    );
   }, [connector, payPack]);
 
   return (

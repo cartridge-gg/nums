@@ -14,7 +14,8 @@ const ENTITIES_LIMIT = 10_000;
 
 const getStarterpackQuery = () => {
   const clauses = KeysClause(
-    [`${NAMESPACE}-${Starterpack.getModelName()}`], [],
+    [`${NAMESPACE}-${Starterpack.getModelName()}`],
+    [],
   );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())

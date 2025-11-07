@@ -2,9 +2,30 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import * as React from "react";
 
+import { useAudio } from "@/context/audio";
 import { cn } from "@/lib/utils";
 
-const Select = SelectPrimitive.Root;
+const Select = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>
+>(({ onValueChange, ...props }, _ref) => {
+  const { playClick } = useAudio();
+
+  const handleValueChange = React.useCallback<
+    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>["onValueChange"]>
+  >(
+    (value) => {
+      playClick();
+      onValueChange?.(value);
+    },
+    [onValueChange, playClick],
+  );
+
+  return (
+    <SelectPrimitive.Root onValueChange={handleValueChange} {...props} />
+  );
+});
+Select.displayName = SelectPrimitive.Root.displayName;
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -13,70 +34,88 @@ const SelectValue = SelectPrimitive.Value;
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "select-none flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <svg
-        width="10"
-        height="7"
-        viewBox="0 0 10 7"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g filter="url(#filter0_d_922_4915)">
-          <path
-            d="M8 0.8L4 4.8L0 0.8L3.49692e-08 0L8 3.49691e-07V0.8Z"
-            fill="white"
-          />
-        </g>
-        <defs>
-          <filter
-            id="filter0_d_922_4915"
-            x="0"
-            y="0"
-            width="10"
-            height="6.7998"
-            filterUnits="userSpaceOnUse"
-            colorInterpolationFilters="sRGB"
-          >
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
-            <feColorMatrix
-              in="SourceAlpha"
-              type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-              result="hardAlpha"
+>(({ className, children, onClick, disabled, ...props }, ref) => {
+  const { playClick } = useAudio();
+
+  const handleClick = React.useCallback<
+    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>["onClick"]>
+  >(
+    (event) => {
+      if (!disabled) {
+        playClick();
+      }
+      onClick?.(event);
+    },
+    [disabled, onClick, playClick],
+  );
+
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        "select-none flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        className,
+      )}
+      onClick={handleClick}
+      disabled={disabled}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <svg
+          width="10"
+          height="7"
+          viewBox="0 0 10 7"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g filter="url(#filter0_d_922_4915)">
+            <path
+              d="M8 0.8L4 4.8L0 0.8L3.49692e-08 0L8 3.49691e-07V0.8Z"
+              fill="white"
             />
-            <feOffset dx="2" dy="2" />
-            <feComposite in2="hardAlpha" operator="out" />
-            <feColorMatrix
-              type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
-            />
-            <feBlend
-              mode="normal"
-              in2="BackgroundImageFix"
-              result="effect1_dropShadow_922_4915"
-            />
-            <feBlend
-              mode="normal"
-              in="SourceGraphic"
-              in2="effect1_dropShadow_922_4915"
-              result="shape"
-            />
-          </filter>
-        </defs>
-      </svg>
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
+          </g>
+          <defs>
+            <filter
+              id="filter0_d_922_4915"
+              x="0"
+              y="0"
+              width="10"
+              height="6.7998"
+              filterUnits="userSpaceOnUse"
+              colorInterpolationFilters="sRGB"
+            >
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
+              <feColorMatrix
+                in="SourceAlpha"
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha"
+              />
+              <feOffset dx="2" dy="2" />
+              <feComposite in2="hardAlpha" operator="out" />
+              <feColorMatrix
+                type="matrix"
+                values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+              />
+              <feBlend
+                mode="normal"
+                in2="BackgroundImageFix"
+                result="effect1_dropShadow_922_4915"
+              />
+              <feBlend
+                mode="normal"
+                in="SourceGraphic"
+                in2="effect1_dropShadow_922_4915"
+                result="shape"
+              />
+            </filter>
+          </defs>
+        </svg>
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<
@@ -159,18 +198,33 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName;
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none text-white focus:bg-purple-500 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className,
-    )}
-    {...props}
-  >
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-));
+>(({ className, children, onSelect, ...props }, ref) => {
+  const { playClick } = useAudio();
+
+  const handleSelect = React.useCallback<
+    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>["onSelect"]>
+  >(
+    (event) => {
+      playClick();
+      onSelect?.(event);
+    },
+    [onSelect, playClick],
+  );
+
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none text-white focus:bg-purple-500 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className,
+      )}
+      onSelect={handleSelect}
+      {...props}
+    >
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  );
+});
 SelectItem.displayName = SelectPrimitive.Item.displayName;
 
 const SelectSeparator = React.forwardRef<

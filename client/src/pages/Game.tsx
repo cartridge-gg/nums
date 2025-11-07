@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAudio } from "@/context/audio";
 import { useTournaments } from "@/context/tournaments";
 import { useUsage } from "@/context/usage";
 import { useGame } from "@/hooks/useGame";
@@ -63,12 +64,14 @@ export const Main = ({
   const { prizes } = usePrizesWithUsd();
   const { setSlot } = useGameSet({ gameId: Number(gameId) });
   const { applyPower } = useGameApply({ gameId: Number(gameId) });
+  const { playReplay, playPositive, playNegative } = useAudio();
   const [loadingSlotIndex, setLoadingSlotIndex] = useState<number | null>(null);
   const [loadingPowerIndex, setLoadingPowerIndex] = useState<number | null>(
     null,
   );
   const [gameOverModal, setGameOverModal] = useState<boolean>(false);
   const [nextNumberModal, setNextNumberModal] = useState<boolean>(false);
+  const hasStartedRef = useRef<boolean>(false);
 
   const tournament = useMemo(() => {
     if (!game || !tournaments) return undefined;
@@ -77,10 +80,25 @@ export const Main = ({
     );
   }, [tournaments, game]);
 
+  useEffect(() => {
+    if (!game) return;
+    const previouslyStarted = hasStartedRef.current;
+    const currentlyStarted = game.hasStarted();
+    hasStartedRef.current = currentlyStarted;
+
+    if (!previouslyStarted && currentlyStarted) {
+      const allSlotsEmpty = game.slots.every((slot) => !slot || slot === 0);
+      if (allSlotsEmpty) {
+        playReplay();
+      }
+    }
+  }, [game, playReplay]);
+
   const handleSetSlot = async (index: number) => {
     setLoadingSlotIndex(index);
     try {
       await setSlot(index);
+      playPositive();
       setLoadingSlotIndex(null);
     } catch (_error) {
       setLoadingSlotIndex(null);
@@ -99,11 +117,12 @@ export const Main = ({
 
   useEffect(() => {
     if (game?.over && !gameOverModal) {
+      playNegative();
       setTimeout(() => {
         setGameOverModal(true);
       }, 3000);
     }
-  }, [game?.over]);
+  }, [game?.over, gameOverModal, playNegative]);
 
   useEffect(() => {
     if (game?.next_number && !nextNumberModal) {

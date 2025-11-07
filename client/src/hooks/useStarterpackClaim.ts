@@ -6,15 +6,19 @@ import {
   ToriiQueryBuilder,
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { addAddressPadding } from "starknet";
 import { NAMESPACE } from "@/config";
 import { Claim, type ClaimModel } from "@/models/claim";
 import { useDojoSdk } from "./dojo";
-import { addAddressPadding } from "starknet";
 
 const ENTITIES_LIMIT = 10_000;
 
 const getClaimQuery = (player: string) => {
-  const clauses = KeysClause([`${NAMESPACE}-${Claim.getModelName()}`], [addAddressPadding(player), undefined], "FixedLen");
+  const clauses = KeysClause(
+    [`${NAMESPACE}-${Claim.getModelName()}`],
+    [addAddressPadding(player), undefined],
+    "FixedLen",
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys()

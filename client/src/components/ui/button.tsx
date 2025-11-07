@@ -2,6 +2,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
+import { useAudio } from "@/context/audio";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -42,11 +43,25 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, style, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      style,
+      onClick,
+      onMouseEnter,
+      disabled,
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : "button";
+    const { playClick } = useAudio();
 
     const combinedStyle =
-      !props.disabled &&
+      !disabled &&
       (variant === "secondary" || variant === "default" || variant === "muted")
         ? {
             boxShadow:
@@ -55,11 +70,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           }
         : style;
 
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (!disabled) {
+          playClick();
+        }
+        onClick?.(event);
+      },
+      [disabled, onClick, playClick],
+    );
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         style={combinedStyle}
         ref={ref}
+        disabled={disabled}
+        onClick={handleClick}
         {...props}
       />
     );

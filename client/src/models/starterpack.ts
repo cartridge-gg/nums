@@ -30,7 +30,14 @@ export class StarterpackModel {
     const referral_percentage = Number(model.referral_percentage);
     const price = Number(model.price);
     const payment_token = model.payment_token;
-    return new StarterpackModel(identifier, id, reissuable, referral_percentage, price, payment_token);
+    return new StarterpackModel(
+      identifier,
+      id,
+      reissuable,
+      referral_percentage,
+      price,
+      payment_token,
+    );
   }
 
   static default(identifier: string) {

@@ -112,14 +112,14 @@ pub mod Play {
         MerkledropEvent: MerkledropComponent::Event,
     }
 
-    fn dojo_init(ref self: ContractState, merkledrop_end: u64) {
+    fn dojo_init(ref self: ContractState) {
         // [Setup] World
         let world = self.world(@NAMESPACE());
         // [Effect] Initialize components
         self.tournament.initialize(world);
         self.starterpack.initialize(world);
         self.playable.initialize(world);
-        self.merkledrop.initialize(world, merkledrop_end);
+        self.merkledrop.initialize(world, 0);
     }
 
     #[abi(embed_v0)]

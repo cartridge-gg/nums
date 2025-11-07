@@ -21,6 +21,7 @@ pub mod components {
 }
 
 pub mod models {
+    pub mod claim;
     pub mod config;
     pub mod game;
     pub mod index;
@@ -109,7 +110,6 @@ pub mod elements {
 
 pub mod mocks {
     pub mod nums;
-    pub mod reward;
     pub mod starterpack;
     pub mod vrf;
 }

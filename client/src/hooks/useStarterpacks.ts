@@ -1,5 +1,5 @@
 import {
-  ClauseBuilder,
+  KeysClause,
   type SchemaType,
   type StandardizedQueryResult,
   type SubscriptionCallbackArgs,
@@ -7,31 +7,31 @@ import {
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NAMESPACE } from "@/config";
-import { Game, type GameModel } from "@/models/game";
+import { Starterpack, type StarterpackModel } from "@/models/starterpack";
 import { useDojoSdk } from "./dojo";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGameQuery = (gameId: number) => {
-  const model: `${string}-${string}` = `${NAMESPACE}-${Game.getModelName()}`;
-  const key = `0x${gameId.toString(16).padStart(16, "0")}`;
-  const clauses = new ClauseBuilder().keys([model], [key], "FixedLen");
+const getStarterpackQuery = () => {
+  const clauses = KeysClause(
+    [`${NAMESPACE}-${Starterpack.getModelName()}`], [],
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys()
     .withLimit(ENTITIES_LIMIT);
 };
 
-export const useGame = (gameId: number) => {
+export const useStarterpacks = () => {
   const { sdk } = useDojoSdk();
 
-  const [game, setGame] = useState<GameModel | undefined>(undefined);
+  const [starterpacks, setStarterpacks] = useState<StarterpackModel[]>([]);
 
   const subscriptionRef = useRef<any>(null);
 
-  const gameQuery = useMemo(() => {
-    return getGameQuery(gameId);
-  }, [gameId]);
+  const starterpackQuery = useMemo(() => {
+    return getStarterpackQuery();
+  }, []);
 
   const onUpdate = useCallback(
     ({
@@ -48,23 +48,31 @@ export const useGame = (gameId: number) => {
         BigInt(data[0].entityId) === 0n
       )
         return;
-      const entity = data[0];
-      if (BigInt(entity.entityId) === 0n) return;
-      if (!entity.models[NAMESPACE]?.[Game.getModelName()]) return;
-      console.log("Game updated @ ", new Date().toISOString());
-      const game = Game.parse(entity as any);
-      setGame(game);
+      const starterpacks: StarterpackModel[] = [];
+      data.forEach((entity) => {
+        if (BigInt(entity.entityId) === 0n) return;
+        if (!entity.models[NAMESPACE]?.[Starterpack.getModelName()]) return;
+        const starterpack = Starterpack.parse(entity as any);
+        starterpacks.push(starterpack);
+      });
+      setStarterpacks((prev) => {
+        const deduped = starterpacks.filter(
+          (starterpack) => !prev.some((g) => g.id === starterpack.id),
+        );
+        return [...prev, ...deduped];
+      });
     },
-    [gameId],
+    [],
   );
 
   const refresh = useCallback(async () => {
+    if (!starterpackQuery) return;
     if (subscriptionRef.current) {
       subscriptionRef.current = null;
     }
 
     const [result, subscription] = await sdk.subscribeEntityQuery({
-      query: gameQuery,
+      query: starterpackQuery,
       callback: onUpdate,
     });
     subscriptionRef.current = subscription;
@@ -73,7 +81,7 @@ export const useGame = (gameId: number) => {
     if (items && items.length > 0) {
       onUpdate({ data: items, error: undefined });
     }
-  }, [gameQuery, gameId, onUpdate]);
+  }, [starterpackQuery]);
 
   useEffect(() => {
     refresh();
@@ -83,10 +91,10 @@ export const useGame = (gameId: number) => {
         subscriptionRef.current.cancel();
       }
     };
-  }, [subscriptionRef, sdk, gameQuery, gameId, refresh]);
+  }, [subscriptionRef, sdk, starterpackQuery]);
 
   return {
-    game: game?.id === gameId ? game : undefined,
+    starterpacks,
     refresh,
   };
 };

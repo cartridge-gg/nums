@@ -17,6 +17,8 @@ export const useGameSet = ({ gameId }: { gameId: number }) => {
       const vrfAddress = getVrfAddress(chain.id);
       const gameAddress = getGameAddress(chain.id);
 
+      console.log("Tx submitted @ ", new Date().toISOString());
+
       const result = await execute([
         {
           contractAddress: vrfAddress,
@@ -32,6 +34,8 @@ export const useGameSet = ({ gameId }: { gameId: number }) => {
           calldata: CallData.compile({ game_id: gameId, index }),
         },
       ]);
+
+      console.log("Tx executed @ ", new Date().toISOString());
 
       return result;
     },

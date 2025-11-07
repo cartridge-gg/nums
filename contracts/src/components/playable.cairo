@@ -25,6 +25,7 @@ pub mod PlayableComponent {
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
+    use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::leaderboard::LeaderboardTrait;
     use crate::models::starterpack::StarterpackTrait as PackTrait;
@@ -109,11 +110,24 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
+            // [Check] Free game
+            let pack = store.starterpack(starterpack_id);
+            if !pack.reissuable {
+                // [Check] Free game not already claimed
+                let player = recipient.into();
+                let mut claim = store.claim(player, starterpack_id);
+                claim.assert_not_claimed();
+                // [Effect] Claim free game
+                claim.claim();
+                store.set_claim(@claim);
+            }
+
             // [Interaction] Burn the entry price
             let pack = store.starterpack(starterpack_id);
-            store.nums_disp().burn(pack.amount(quantity));
+            let amount = pack.amount(quantity);
+            store.nums_disp().burn(amount);
 
-            // [Interaction] Mint a game and burn the entry price
+            // [Interaction] Mint games
             let settings = store.setting(DEFAULT_SETTINGS_ID);
             while quantity > 0 {
                 // [Interaction] Mint a game

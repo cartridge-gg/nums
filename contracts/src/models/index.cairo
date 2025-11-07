@@ -19,6 +19,7 @@ pub struct Config {
 pub struct Starterpack {
     #[key]
     pub id: u32,
+    pub reissuable: bool,
     pub referral_percentage: u8,
     pub price: u256,
     pub payment_token: ContractAddress,
@@ -119,5 +120,16 @@ pub struct Usage {
     pub world_resource: felt252,
     pub last_update: u64,
     pub board: felt252,
+}
+
+
+#[derive(Introspect, Drop, Serde)]
+#[dojo::model]
+pub struct Claim {
+    #[key]
+    pub player: felt252,
+    #[key]
+    pub starterpack_id: u32,
+    pub claimed: bool,
 }
 

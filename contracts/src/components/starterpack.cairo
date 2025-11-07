@@ -29,24 +29,43 @@ pub mod StarterpackComponent {
             let mut store = StoreImpl::new(world);
             let config = store.config();
             // [Interaction] Register starterpack
+            let starterpack_dispo = store.starterpack_disp();
+            let payment_token = store.nums_disp().contract_address;
+            let reissuable = true;
             let referral_percentage = 0;
             let price = config.entry_price.into();
-            let payment_token = store.nums_disp().contract_address;
-            let starterpack_id = store
-                .starterpack_disp()
+            let default_id = starterpack_dispo
                 .register(
                     implementation: starknet::get_contract_address(),
-                    referral_percentage: referral_percentage,
-                    reissuable: true,
+                    referral_percentage: 0,
+                    reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
                     metadata: StarterpackTrait::metadata(),
                 );
-            // [Effect] Create starterpack
-            let starterpack = StarterpackTrait::new(
-                starterpack_id, referral_percentage, price, payment_token,
+            // [Effect] Create default starterpack
+            let default = StarterpackTrait::new(
+                default_id, reissuable, referral_percentage, price, payment_token,
             );
-            store.set_starterpack(@starterpack);
+            store.set_starterpack(@default);
+            // [Interaction] Register free starterpack
+            let reissuable = false;
+            let referral_percentage = 0;
+            let price = 0;
+            let free_id = starterpack_dispo
+                .register(
+                    implementation: starknet::get_contract_address(),
+                    referral_percentage: referral_percentage,
+                    reissuable: reissuable,
+                    price: price,
+                    payment_token: payment_token,
+                    metadata: StarterpackTrait::metadata(),
+                );
+            // [Effect] Create free starterpack
+            let free = StarterpackTrait::new(
+                free_id, reissuable, referral_percentage, price, payment_token,
+            );
+            store.set_starterpack(@free);
         }
 
         fn register(
@@ -79,7 +98,7 @@ pub mod StarterpackComponent {
 
             // [Effect] Create starterpack
             let starterpack = StarterpackTrait::new(
-                starterpack_id, referral_percentage, price, payment_token,
+                starterpack_id, reissuable, referral_percentage, price, payment_token,
             );
             store.set_starterpack(@starterpack);
         }

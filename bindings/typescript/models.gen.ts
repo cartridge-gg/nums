@@ -2,6 +2,13 @@ import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
 import { CairoCustomEnum, CairoOption, CairoOptionVariant, BigNumberish } from 'starknet';
 
+// Type definition for `nums::models::index::Claim` struct
+export interface Claim {
+	player: BigNumberish;
+	starterpack_id: BigNumberish;
+	claimed: boolean;
+}
+
 // Type definition for `nums::models::index::Config` struct
 export interface Config {
 	world_resource: BigNumberish;
@@ -79,6 +86,7 @@ export interface Setting {
 // Type definition for `nums::models::index::Starterpack` struct
 export interface Starterpack {
 	id: BigNumberish;
+	reissuable: boolean;
 	referral_percentage: BigNumberish;
 	price: BigNumberish;
 	payment_token: string;
@@ -217,6 +225,7 @@ export type SourceEnum = CairoCustomEnum;
 
 export interface SchemaType extends ISchemaType {
 	nums: {
+		Claim: Claim,
 		Config: Config,
 		Game: Game,
 		Leaderboard: Leaderboard,
@@ -245,6 +254,11 @@ export interface SchemaType extends ISchemaType {
 }
 export const schema: SchemaType = {
 	nums: {
+		Claim: {
+			player: 0,
+			starterpack_id: 0,
+			claimed: false,
+		},
 		Config: {
 			world_resource: 0,
 			nums: "",
@@ -307,6 +321,7 @@ export const schema: SchemaType = {
 		},
 		Starterpack: {
 			id: 0,
+			reissuable: false,
 			referral_percentage: 0,
 		price: 0,
 			payment_token: "",
@@ -405,6 +420,7 @@ export const schema: SchemaType = {
 	},
 };
 export enum ModelsMapping {
+	Claim = 'nums-Claim',
 	Config = 'nums-Config',
 	Game = 'nums-Game',
 	Leaderboard = 'nums-Leaderboard',

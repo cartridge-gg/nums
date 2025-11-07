@@ -10,11 +10,16 @@ pub mod errors {
 pub impl StarterpackImpl of StarterpackTrait {
     #[inline]
     fn new(
-        id: u32, referral_percentage: u8, price: u256, payment_token: starknet::ContractAddress,
+        id: u32,
+        reissuable: bool,
+        referral_percentage: u8,
+        price: u256,
+        payment_token: starknet::ContractAddress,
     ) -> Starterpack {
         // [Return] New starterpack
         Starterpack {
             id: id,
+            reissuable: reissuable,
             referral_percentage: referral_percentage,
             price: price,
             payment_token: payment_token,
@@ -23,12 +28,12 @@ pub impl StarterpackImpl of StarterpackTrait {
 
     #[inline]
     fn remove(ref self: Starterpack) {
-        self.price = 0;
+        self.payment_token = 0.try_into().unwrap();
     }
 
     #[inline]
     fn exists(self: @Starterpack) -> bool {
-        *self.price != 0
+        *self.payment_token != 0.try_into().unwrap()
     }
 
     #[inline]

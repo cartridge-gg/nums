@@ -1,11 +1,11 @@
-world_address = "0x03997daf0c65abdcf67264dc1df1d5ceb54c4faac0c6262b2dc8883abcedc21f"
+world_address = "0x759585c5f69cefd47e7e9c1d996060c31341d21bed9d3542644dadc7213a786"
 rpc = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [server]
 http_cors_origins = ["*"]
 
 [grpc]
-optimistic = true
+optimistic = false
 
 [indexing]
 world_block = 0

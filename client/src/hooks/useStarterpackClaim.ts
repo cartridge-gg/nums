@@ -1,5 +1,5 @@
 import {
-  ClauseBuilder,
+  KeysClause,
   type SchemaType,
   type StandardizedQueryResult,
   type SubscriptionCallbackArgs,
@@ -7,31 +7,31 @@ import {
 } from "@dojoengine/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NAMESPACE } from "@/config";
-import { Game, type GameModel } from "@/models/game";
+import { Claim, type ClaimModel } from "@/models/claim";
 import { useDojoSdk } from "./dojo";
+import { addAddressPadding } from "starknet";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGameQuery = (gameId: number) => {
-  const model: `${string}-${string}` = `${NAMESPACE}-${Game.getModelName()}`;
-  const key = `0x${gameId.toString(16).padStart(16, "0")}`;
-  const clauses = new ClauseBuilder().keys([model], [key], "FixedLen");
+const getClaimQuery = (player: string) => {
+  const clauses = KeysClause([`${NAMESPACE}-${Claim.getModelName()}`], [addAddressPadding(player), undefined], "FixedLen");
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys()
     .withLimit(ENTITIES_LIMIT);
 };
 
-export const useGame = (gameId: number) => {
+export const useStarterpackClaim = (player: string) => {
   const { sdk } = useDojoSdk();
 
-  const [game, setGame] = useState<GameModel | undefined>(undefined);
+  const [claims, setClaims] = useState<ClaimModel[]>([]);
 
   const subscriptionRef = useRef<any>(null);
 
-  const gameQuery = useMemo(() => {
-    return getGameQuery(gameId);
-  }, [gameId]);
+  const claimQuery = useMemo(() => {
+    if (!player || player === "0x0") return null;
+    return getClaimQuery(player);
+  }, [player]);
 
   const onUpdate = useCallback(
     ({
@@ -48,23 +48,26 @@ export const useGame = (gameId: number) => {
         BigInt(data[0].entityId) === 0n
       )
         return;
-      const entity = data[0];
-      if (BigInt(entity.entityId) === 0n) return;
-      if (!entity.models[NAMESPACE]?.[Game.getModelName()]) return;
-      console.log("Game updated @ ", new Date().toISOString());
-      const game = Game.parse(entity as any);
-      setGame(game);
+      const claims: ClaimModel[] = [];
+      data.forEach((entity) => {
+        if (BigInt(entity.entityId) === 0n) return;
+        if (!entity.models[NAMESPACE]?.[Claim.getModelName()]) return;
+        const claim = Claim.parse(entity as any);
+        claims.push(claim);
+      });
+      setClaims([...claims]);
     },
-    [gameId],
+    [player],
   );
 
   const refresh = useCallback(async () => {
+    if (!claimQuery) return;
     if (subscriptionRef.current) {
       subscriptionRef.current = null;
     }
 
     const [result, subscription] = await sdk.subscribeEntityQuery({
-      query: gameQuery,
+      query: claimQuery,
       callback: onUpdate,
     });
     subscriptionRef.current = subscription;
@@ -73,7 +76,7 @@ export const useGame = (gameId: number) => {
     if (items && items.length > 0) {
       onUpdate({ data: items, error: undefined });
     }
-  }, [gameQuery, gameId, onUpdate]);
+  }, [claimQuery]);
 
   useEffect(() => {
     refresh();
@@ -83,10 +86,10 @@ export const useGame = (gameId: number) => {
         subscriptionRef.current.cancel();
       }
     };
-  }, [subscriptionRef, sdk, gameQuery, gameId, refresh]);
+  }, [subscriptionRef, sdk, claimQuery]);
 
   return {
-    game: game?.id === gameId ? game : undefined,
+    claims,
     refresh,
   };
 };

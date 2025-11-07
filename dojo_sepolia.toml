@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.14"
+seed = "nums-v1.0.15"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x03997daf0c65abdcf67264dc1df1d5ceb54c4faac0c6262b2dc8883abcedc21f"
+world_address = "0x0759585c5f69cefd47e7e9c1d996060c31341d21bed9d3542644dadc7213a786"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
@@ -21,7 +21,7 @@ order_inits = [
     "NUMS-Settings",
     "NUMS-Play",
 ]
-skip_contracts = ["NUMS-MockVRF"]
+skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken"]
 disable_multicall = true
 
 [writers]
@@ -41,7 +41,8 @@ disable_multicall = true
     "1798758000", # claimable_until
 ]
 "NUMS-Setup" = [
-    "0x1",                                                                # nums_address
+    "0x0",                                                                # Option::Some
+    "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",  # nums_address
     "0x0",                                                                # Option::Some
     "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
     "0x0",                                                                # Option::Some

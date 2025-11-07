@@ -1,7 +1,7 @@
 import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useModal } from "@/context/modal";
 import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
@@ -9,6 +9,8 @@ import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
 import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
+import { useStarterpacks } from "@/hooks/useStarterpacks";
+import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 
 export type InventoryProps = {};
 
@@ -126,17 +128,37 @@ export const Header = ({ tournament }: { tournament: TournamentModel }) => {
 };
 
 export const Purchases = ({}: {}) => {
-  const { connector } = useAccount();
+  const { address, connector } = useAccount();
+  const { starterpacks } = useStarterpacks();
+  const { claims } = useStarterpackClaim(address ?? "0x0");
+  const { freePack, payPack } = useMemo(() => {
+    return {
+      freePack: starterpacks.find((starterpack) => !starterpack.reissuable),
+      payPack: starterpacks.find((starterpack) => starterpack.reissuable),
+    };
+  }, [starterpacks]);
+
+  const freeOpen = useCallback(async () => {
+    if (!freePack) return;
+    (connector as ControllerConnector)?.controller.openStarterPack(freePack.id.toString());
+  }, [connector, freePack]);
+
+  const payOpen = useCallback(async () => {
+    if (!payPack) return;
+    (connector as ControllerConnector)?.controller.openStarterPack(payPack.id.toString());
+  }, [connector, payPack]);
 
   return (
     <ul className="flex justify-between gap-6 w-full">
-      <PurchaseMethod title="Share on X" buttonText="Free!" />
+      <PurchaseMethod
+        title="Share on X"
+        buttonText={claims.length === 0 ? "Free!" : "Claimed!"}
+        onClick={claims.length === 0 ? freeOpen : undefined}
+      />
       <PurchaseMethod
         title="Purchase Starterpack"
         buttonText={"2000 NUMS"}
-        onClick={async () => {
-          (connector as ControllerConnector)?.controller.openStarterPack("14");
-        }}
+        onClick={payOpen}
       />
     </ul>
   );
@@ -153,11 +175,15 @@ export const PurchaseMethod = ({
   onClick?: () => void;
   isLoading?: boolean;
 }) => {
+  const disabled = useMemo(() => {
+    return !onClick || isLoading;
+  }, [onClick, isLoading]);
+
   return (
     <div className="w-1/2 rounded-lg bg-white-900 border border-white-900 p-3 flex flex-col gap-4">
       <h3 className="font-ppneuebit text-2xl h-5">{title}</h3>
       <Button
-        disabled={!onClick || isLoading}
+        disabled={disabled}
         variant="default"
         className="w-full h-10"
         onClick={onClick}

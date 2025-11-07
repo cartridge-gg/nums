@@ -55,6 +55,9 @@ export const getContractAddress = (
   namespace: string,
   contractName: string,
 ) => {
+  if (contractName === "MockNumsToken") {
+    return "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d";
+  }
   const chainIdHex = `0x${chainId.toString(16)}`;
 
   const manifest = manifests[chainIdHex];

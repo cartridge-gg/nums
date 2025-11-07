@@ -54,7 +54,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const click = useMemo(() => {
-    const audio = new Audio("/sounds/click.mp3");
+    const audio = new Audio("/sounds/click.wav");
     audio.preload = "auto";
     return audio;
   }, []);

@@ -12,7 +12,11 @@ const Select = React.forwardRef<
   const { playClick } = useAudio();
 
   const handleValueChange = React.useCallback<
-    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>["onValueChange"]>
+    NonNullable<
+      React.ComponentPropsWithoutRef<
+        typeof SelectPrimitive.Root
+      >["onValueChange"]
+    >
   >(
     (value) => {
       playClick();
@@ -21,9 +25,7 @@ const Select = React.forwardRef<
     [onValueChange, playClick],
   );
 
-  return (
-    <SelectPrimitive.Root onValueChange={handleValueChange} {...props} />
-  );
+  return <SelectPrimitive.Root onValueChange={handleValueChange} {...props} />;
 });
 Select.displayName = SelectPrimitive.Root.displayName;
 
@@ -38,7 +40,9 @@ const SelectTrigger = React.forwardRef<
   const { playClick } = useAudio();
 
   const handleClick = React.useCallback<
-    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>["onClick"]>
+    NonNullable<
+      React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>["onClick"]
+    >
   >(
     (event) => {
       if (!disabled) {
@@ -202,7 +206,9 @@ const SelectItem = React.forwardRef<
   const { playClick } = useAudio();
 
   const handleSelect = React.useCallback<
-    NonNullable<React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>["onSelect"]>
+    NonNullable<
+      React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>["onSelect"]
+    >
   >(
     (event) => {
       playClick();

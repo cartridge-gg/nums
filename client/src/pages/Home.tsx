@@ -346,9 +346,11 @@ export const Play = ({ onClick }: { onClick: () => void }) => {
   const { account } = useAccount();
   const { connectAsync, connectors } = useConnect();
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!account) {
-      connectAsync({ connector: connectors[0] });
+      connectAsync({ connector: connectors[0] }).then(() => {
+        onClick();
+      });
     } else {
       onClick();
     }

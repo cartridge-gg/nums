@@ -12,11 +12,11 @@ importers:
         specifier: ^0.0.74
         version: 0.0.74(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       '@cartridge/connector':
-        specifier: 0.10.7
-        version: 0.10.7(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 0.11.1
+        version: 0.11.1(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@cartridge/controller':
-        specifier: 0.10.7
-        version: 0.10.7(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 0.11.1
+        version: 0.11.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@cartridge/presets':
         specifier: ^0.5.2
         version: 0.5.2
@@ -178,11 +178,11 @@ importers:
   client:
     dependencies:
       '@cartridge/connector':
-        specifier: 0.10.7
-        version: 0.10.7(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 0.11.1
+        version: 0.11.1(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@cartridge/controller':
-        specifier: 0.10.7
-        version: 0.10.7(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 0.11.1
+        version: 0.11.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@cartridge/presets':
         specifier: ^0.5.2
         version: 0.5.2
@@ -1293,16 +1293,16 @@ packages:
   '@bufbuild/protoplugin@2.7.0':
     resolution: {integrity: sha512-yUdg8hXzFGR6K8ren7aXly2hT9BxClId814VB142YeZPatY0wqD3c0D8KfIz5nIeMdoPt0/Pm/RycFJCNGMD6w==}
 
-  '@cartridge/connector@0.10.7':
-    resolution: {integrity: sha512-VuCGERfbn2450+v7DcdXzHwl90BevRP00ZIOV4q5R4hThW0DCLnsqSvqyKjyGMYLBMsazJS0Q9azVBl0BAbGNQ==}
+  '@cartridge/connector@0.11.1':
+    resolution: {integrity: sha512-eF6348d8U1IB0h7XsvRpsmcAaM9hTYkTHfyRFNrw9wlZ0ocDIHP8B3DhpePR7mTYraa64+foPQCgLI7t7QlJaQ==}
     peerDependencies:
       '@starknet-react/core': ^5.0.1
 
-  '@cartridge/controller-wasm@0.3.10':
-    resolution: {integrity: sha512-VUSlP1pRw4ulGa2fZbz9PdNkalhR+7T+d4jRlxQHAXf+S9cZz1mMIP64VOHOLdLZTXzO6ZEPy/cpzJPw53kKcg==}
+  '@cartridge/controller-wasm@0.3.16':
+    resolution: {integrity: sha512-Ez9RxWkeQnZNjlm64aDomAmXqKQ9zin3pxTzebDJGKnaAjEqveKZA5jLFCFNhL4i70nY1F14ypLXofuxYhZxkA==}
 
-  '@cartridge/controller@0.10.7':
-    resolution: {integrity: sha512-fcAPIB8q3wkXYUjtbIBJV878kkRLHfqG0Hv4rIx+RqBaGQs4XLHvyTptyRtWEfHhjovkSyZ/TuZ+ySW9yRYApw==}
+  '@cartridge/controller@0.11.1':
+    resolution: {integrity: sha512-B4YNCKav2LSokOHgrniDiya1YIKqV5wYkX70vuiFCS/D7HdcHqREruxr05577AjHZ9GmZUl0XY8BSjW/1MJzyQ==}
 
   '@cartridge/penpal@6.2.4':
     resolution: {integrity: sha512-tdpOnSJJBFMlgLZ1+z9Ho5e6cG5EgMAb1Cmmh1lGT2tmplogU/XPMjLE6CwvKAPDoe6a38iMnbH+ySTAWWIOKA==}
@@ -3467,6 +3467,9 @@ packages:
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
+  '@starknet-io/get-starknet-wallet-standard@5.0.0-beta.0':
+    resolution: {integrity: sha512-1QBmWnd76KzKwnVlRXLh58wtd1e0P5fyOhs0bCCjivTpGJ2nUPRvTgmzVJStNBcuQ7617UfB5qIyBnkig31TmQ==}
+
   '@starknet-io/types-js@0.7.10':
     resolution: {integrity: sha512-1VtCqX4AHWJlRRSYGSn+4X1mqolI1Tdq62IwzoU2vUuEE72S1OlEeGhpvd6XsdqXcfHmVzYfj8k1XtKBQqwo9w==}
 
@@ -4155,6 +4158,14 @@ packages:
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
 
+  '@wallet-standard/base@1.1.0':
+    resolution: {integrity: sha512-DJDQhjKmSNVLKWItoKThJS+CsJQjR9AOBOirBVT1F9YpRyC9oYHE+ZnSf8y8bxUphtKqdQMPVQ2mHohYdRvDVQ==}
+    engines: {node: '>=16'}
+
+  '@wallet-standard/features@1.1.0':
+    resolution: {integrity: sha512-hiEivWNztx73s+7iLxsuD1sOJ28xtRix58W7Xnz4XzzA/pF0+aicnWgjOdA10doVDEDZdUuZCIIqG96SFNlDUg==}
+    engines: {node: '>=16'}
+
   '@walletconnect/core@2.21.0':
     resolution: {integrity: sha512-o6R7Ua4myxR8aRUAJ1z3gT9nM+jd2B2mfamu6arzy1Cc6vi10fIwFWb6vg3bC8xJ6o9H3n/cN5TOW3aA9Y1XVw==}
     engines: {node: '>=18'}
@@ -4213,9 +4224,11 @@ packages:
 
   '@walletconnect/sign-client@2.21.0':
     resolution: {integrity: sha512-z7h+PeLa5Au2R591d/8ZlziE0stJvdzP9jNFzFolf2RG/OiXulgFKum8PrIyXy+Rg2q95U9nRVUF9fWcn78yBA==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/sign-client@2.21.8':
     resolution: {integrity: sha512-lTcUbMjQ0YUZ5wzCLhpBeS9OkWYgLLly6BddEp2+pm4QxiwCCU2Nao0nBJXgzKbZYQOgrEGqtdm/7ze67gjzRA==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/time@1.0.2':
     resolution: {integrity: sha512-uzdd9woDcJ1AaBZRhqy5rNC9laqWGErfc4dxA9a87mPdKOgWMD85mcFo9dIYIts/Jwocfwn07EC6EzclKubk/g==}
@@ -4228,9 +4241,11 @@ packages:
 
   '@walletconnect/universal-provider@2.21.0':
     resolution: {integrity: sha512-mtUQvewt+X0VBQay/xOJBvxsB3Xsm1lTwFjZ6WUwSOTR1X+FNb71hSApnV5kbsdDIpYPXeQUbGt2se1n5E5UBg==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/universal-provider@2.21.8':
     resolution: {integrity: sha512-Nc1Z6VXnya152yucNDPnlTkrhG289tCUfcjiWqDmwNYzFSfdT5oJQHlnffQXlvoks90kn5Ru8Rnwag2CH1YOVQ==}
+    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/utils@2.21.0':
     resolution: {integrity: sha512-zfHLiUoBrQ8rP57HTPXW7rQMnYxYI4gT9yTACxVW6LhIFROTF6/ytm5SKNoIvi4a5nX5dfXG4D9XwQUCu8Ilig==}
@@ -7000,6 +7015,14 @@ packages:
   own-keys@1.0.1:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
     engines: {node: '>= 0.4'}
+
+  ox@0.4.4:
+    resolution: {integrity: sha512-oJPEeCDs9iNiPs6J0rTx+Y0KGeCGyCAA3zo94yZhm8G5WpOxrwUtn2Ie/Y8IyARSqqY/j9JTKA3Fc1xs1DvFnw==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   ox@0.6.7:
     resolution: {integrity: sha512-17Gk/eFsFRAZ80p5eKqv89a57uXjd3NgIf1CaXojATPBuujVc/fQSVhBeAU9JCRB+k7J50WQAyWTxK19T9GgbA==}
@@ -10181,9 +10204,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cartridge/connector@0.10.7(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@cartridge/connector@0.11.1(@starknet-react/core@5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10))(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@cartridge/controller': 0.10.7(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@cartridge/controller': 0.11.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@starknet-io/get-starknet-wallet-standard': 5.0.0-beta.0(typescript@5.5.4)(zod@3.25.76)
       '@starknet-react/core': 5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -10213,11 +10237,11 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@cartridge/controller-wasm@0.3.10': {}
+  '@cartridge/controller-wasm@0.3.16': {}
 
-  '@cartridge/controller@0.10.7(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@cartridge/controller@0.11.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@cartridge/controller-wasm': 0.3.10
+      '@cartridge/controller-wasm': 0.3.16
       '@cartridge/penpal': 6.2.4
       '@starknet-io/types-js': 0.9.1
       '@telegram-apps/sdk': 2.5.2
@@ -12665,6 +12689,16 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
+  '@starknet-io/get-starknet-wallet-standard@5.0.0-beta.0(typescript@5.5.4)(zod@3.25.76)':
+    dependencies:
+      '@starknet-io/types-js': 0.7.10
+      '@wallet-standard/base': 1.1.0
+      '@wallet-standard/features': 1.1.0
+      ox: 0.4.4(typescript@5.5.4)(zod@3.25.76)
+    transitivePeerDependencies:
+      - typescript
+      - zod
+
   '@starknet-io/types-js@0.7.10': {}
 
   '@starknet-io/types-js@0.7.7': {}
@@ -13531,6 +13565,12 @@ snapshots:
       '@vitest/pretty-format': 3.2.4
       loupe: 3.2.1
       tinyrainbow: 2.0.0
+
+  '@wallet-standard/base@1.1.0': {}
+
+  '@wallet-standard/features@1.1.0':
+    dependencies:
+      '@wallet-standard/base': 1.1.0
 
   '@walletconnect/core@2.21.0(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
@@ -17505,6 +17545,20 @@ snapshots:
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
 
+  ox@0.4.4(typescript@5.5.4)(zod@3.25.76):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.5.4)(zod@3.25.76)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.5.4
+    transitivePeerDependencies:
+      - zod
+
   ox@0.6.7(typescript@5.5.4)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
@@ -18519,7 +18573,7 @@ snapshots:
     dependencies:
       dequal: 2.0.3
       react: 19.1.1
-      use-sync-external-store: 1.5.0(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
 
   symbol-tree@3.2.4: {}
 

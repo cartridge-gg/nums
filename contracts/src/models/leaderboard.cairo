@@ -31,10 +31,10 @@ pub impl LeaderboardImpl of LeaderboardTrait {
         core::cmp::min(entry_criteria, games_criteria)
     }
 
-    fn insert(ref self: Leaderboard, game: Game, ref store: Store) -> bool {
+    fn insert(ref self: Leaderboard, game: Game, ref store: Store) -> (bool, bool) {
         // [Check] Game score matches requirement
         if game.score < self.requirement {
-            return false;
+            return (false, false);
         }
 
         // [Insert] Game into leaderboard
@@ -81,7 +81,7 @@ pub impl LeaderboardImpl of LeaderboardTrait {
         self.games = leaderboard;
 
         // [Return] Is new top score
-        position == 1
+        (position == 1, placed)
     }
 
     #[inline]

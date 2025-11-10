@@ -2333,7 +2333,7 @@
     },
     {
       "address": "0x2bc5d7b4325f37a7510b7cccf86cc3b4e8480ad3e95f376e53d803a019049c0",
-      "class_hash": "0x52effae8ae010b6264fe4782c118555d57ee3f7360b8dda04ae6bd9bd843f49",
+      "class_hash": "0x60bc8bf63c6870c41a8adb6bb33701016a79700547770aa5f40eaf6a2ec4145",
       "abi": [
         {
           "type": "impl",
@@ -2388,12 +2388,7 @@
         {
           "type": "function",
           "name": "dojo_init",
-          "inputs": [
-            {
-              "name": "merkledrop_end",
-              "type": "core::integer::u64"
-            }
-          ],
+          "inputs": [],
           "outputs": [],
           "state_mutability": "external"
         },

@@ -290,12 +290,27 @@ pub mod PlayableComponent {
 
             // [Effect] Update leaderboard
             let mut leaderboard = store.leaderboard(game.tournament_id);
-            let is_first = leaderboard.insert(game, ref store);
-            store.set_leaderboard(@leaderboard);
+            let (is_first, is_placed) = leaderboard.insert(game, ref store);
+
+            // [Effect] Update leaderboard if placed
+            if is_placed {
+                store.set_leaderboard(@leaderboard);
+            }
 
             // [Effect] Update King achievement if first place
             if is_first {
                 achievable.progress(world, player.into(), Task::King.identifier(), 1);
+            }
+
+            // [Effect] Update Steak event achievement
+            let mut slots = game.slots();
+            let streak = GameTrait::streak(ref slots);
+            if streak == 2 {
+                achievable.progress(world, player.into(), Task::StreakerOne.identifier(), 1);
+            } else if streak == 3 {
+                achievable.progress(world, player.into(), Task::StreakerTwo.identifier(), 1);
+            } else if streak == 4 {
+                achievable.progress(world, player.into(), Task::StreakerThree.identifier(), 1);
             }
 
             // [Effect] Update achievement progression for the player - Filler tasks

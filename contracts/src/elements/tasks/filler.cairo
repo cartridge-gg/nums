@@ -7,7 +7,7 @@ pub impl FillerOne of TaskTrait {
 
 
     fn description(count: u32) -> ByteArray {
-        format!("Fill {} slots {} times", count, count)
+        format!("Fill 10 slots {} times", count)
     }
 }
 
@@ -18,7 +18,7 @@ pub impl FillerTwo of TaskTrait {
 
 
     fn description(count: u32) -> ByteArray {
-        format!("Fill {} slots {} times", count, count)
+        format!("Fill 15 slots {} times", count)
     }
 }
 
@@ -29,7 +29,7 @@ pub impl FillerThree of TaskTrait {
 
 
     fn description(count: u32) -> ByteArray {
-        format!("Fill {} slots {} times", count, count)
+        format!("Fill 17 slots {} times", count)
     }
 }
 
@@ -40,7 +40,7 @@ pub impl FillerFour of TaskTrait {
 
 
     fn description(count: u32) -> ByteArray {
-        format!("Fill {} slots {} times", count, count)
+        format!("Fill 19 slots {} times", count)
     }
 }
 
@@ -51,6 +51,6 @@ pub impl FillerFive of TaskTrait {
 
 
     fn description(count: u32) -> ByteArray {
-        format!("Fill {} slots {} times", count, count)
+        format!("Fill 20 slots {} times", count)
     }
 }

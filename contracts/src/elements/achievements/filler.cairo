@@ -79,10 +79,10 @@ pub impl Filler of AchievementTrait {
     fn tasks(level: u8) -> Span<ArcadeTask> {
         match level {
             0 => Task::FillerOne.tasks(10),
-            1 => Task::FillerTwo.tasks(15),
-            2 => Task::FillerThree.tasks(17),
-            3 => Task::FillerFour.tasks(19),
-            4 => Task::FillerFive.tasks(20),
+            1 => Task::FillerTwo.tasks(5),
+            2 => Task::FillerThree.tasks(3),
+            3 => Task::FillerFour.tasks(2),
+            4 => Task::FillerFive.tasks(1),
             _ => [].span(),
         }
     }

@@ -21,7 +21,7 @@ order_inits = [
     "NUMS-Settings",
     "NUMS-Play",
 ]
-skip_contracts = ["NUMS-MockVRF"]
+skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken", "NUMS-MockStarterpack"]
 disable_multicall = true
 
 [writers]

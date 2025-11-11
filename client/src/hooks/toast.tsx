@@ -1,6 +1,6 @@
 import { LuCopy } from "react-icons/lu";
 import { toast } from "sonner";
-import { StarknetColoredIcon } from "@/components/icons/StarknetColored";
+import { StarknetColoredIcon } from "@/components/icons";
 
 const useToast = () => {
   const chainIcon = (chainName: string) => {

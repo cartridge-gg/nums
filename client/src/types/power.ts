@@ -1,24 +1,26 @@
-import high from "@/assets/powers/boost-high.svg";
-import highLocked from "@/assets/powers/boost-high-locked.svg";
-import highUsed from "@/assets/powers/boost-high-used.svg";
-import low from "@/assets/powers/boost-low.svg";
-import lowLocked from "@/assets/powers/boost-low-locked.svg";
-import lowUsed from "@/assets/powers/boost-low-used.svg";
-import doubleUp from "@/assets/powers/double-up.svg";
-import doubleUpLocked from "@/assets/powers/double-up-locked.svg";
-import doubleUpUsed from "@/assets/powers/double-up-used.svg";
-import foresight from "@/assets/powers/foresight.svg";
-import foresightLocked from "@/assets/powers/foresight-locked.svg";
-import foresightUsed from "@/assets/powers/foresight-used.svg";
-import halve from "@/assets/powers/halve.svg";
-import halveLocked from "@/assets/powers/halve-locked.svg";
-import halveUsed from "@/assets/powers/halve-used.svg";
-import mirror from "@/assets/powers/mirror.svg";
-import mirrorLocked from "@/assets/powers/mirror-locked.svg";
-import mirrorUsed from "@/assets/powers/mirror-used.svg";
-import reroll from "@/assets/powers/reroll.svg";
-import rerollLocked from "@/assets/powers/reroll-locked.svg";
-import rerollUsed from "@/assets/powers/reroll-used.svg";
+import type { ComponentType } from "react";
+import { BoostHighIcon } from "@/components/icons/powers/boost-high-icon";
+import { BoostHighLockedIcon } from "@/components/icons/powers/boost-high-locked-icon";
+import { BoostHighUsedIcon } from "@/components/icons/powers/boost-high-used-icon";
+import { BoostLowIcon } from "@/components/icons/powers/boost-low-icon";
+import { BoostLowLockedIcon } from "@/components/icons/powers/boost-low-locked-icon";
+import { BoostLowUsedIcon } from "@/components/icons/powers/boost-low-used-icon";
+import { DoubleUpIcon } from "@/components/icons/powers/double-up-icon";
+import { DoubleUpLockedIcon } from "@/components/icons/powers/double-up-locked-icon";
+import { DoubleUpUsedIcon } from "@/components/icons/powers/double-up-used-icon";
+import { ForesightIcon } from "@/components/icons/powers/foresight-icon";
+import { ForesightLockedIcon } from "@/components/icons/powers/foresight-locked-icon";
+import { ForesightUsedIcon } from "@/components/icons/powers/foresight-used-icon";
+import { HalveIcon } from "@/components/icons/powers/halve-icon";
+import { HalveLockedIcon } from "@/components/icons/powers/halve-locked-icon";
+import { HalveUsedIcon } from "@/components/icons/powers/halve-used-icon";
+import { MirrorIcon } from "@/components/icons/powers/mirror-icon";
+import { MirrorLockedIcon } from "@/components/icons/powers/mirror-locked-icon";
+import { MirrorUsedIcon } from "@/components/icons/powers/mirror-used-icon";
+import { RerollIcon } from "@/components/icons/powers/reroll-icon";
+import { RerollLockedIcon } from "@/components/icons/powers/reroll-locked-icon";
+import { RerollUsedIcon } from "@/components/icons/powers/reroll-used-icon";
+import type { IconProps } from "@/components/icons/types";
 import { Packer } from "@/helpers/packer";
 
 export const POWER_COUNT = 7;
@@ -35,6 +37,9 @@ export enum PowerType {
   Halve = "Halve",
   Mirror = "Mirror",
 }
+
+type PowerIconStatus = "locked" | "used";
+type PowerIconComponent = ComponentType<IconProps>;
 
 export class Power {
   value: PowerType;
@@ -190,52 +195,52 @@ export class Power {
     }
   }
 
-  public icon(status?: "locked" | "used"): string {
+  public icon(status?: PowerIconStatus): PowerIconComponent {
     switch (this.value) {
       case PowerType.Reroll:
         return status === "locked"
-          ? rerollLocked
+          ? RerollLockedIcon
           : status === "used"
-            ? rerollUsed
-            : reroll;
+            ? RerollUsedIcon
+            : RerollIcon;
       case PowerType.High:
         return status === "locked"
-          ? highLocked
+          ? BoostHighLockedIcon
           : status === "used"
-            ? highUsed
-            : high;
+            ? BoostHighUsedIcon
+            : BoostHighIcon;
       case PowerType.Low:
         return status === "locked"
-          ? lowLocked
+          ? BoostLowLockedIcon
           : status === "used"
-            ? lowUsed
-            : low;
+            ? BoostLowUsedIcon
+            : BoostLowIcon;
       case PowerType.Foresight:
         return status === "locked"
-          ? foresightLocked
+          ? ForesightLockedIcon
           : status === "used"
-            ? foresightUsed
-            : foresight;
+            ? ForesightUsedIcon
+            : ForesightIcon;
       case PowerType.DoubleUp:
         return status === "locked"
-          ? doubleUpLocked
+          ? DoubleUpLockedIcon
           : status === "used"
-            ? doubleUpUsed
-            : doubleUp;
+            ? DoubleUpUsedIcon
+            : DoubleUpIcon;
       case PowerType.Halve:
         return status === "locked"
-          ? halveLocked
+          ? HalveLockedIcon
           : status === "used"
-            ? halveUsed
-            : halve;
+            ? HalveUsedIcon
+            : HalveIcon;
       case PowerType.Mirror:
         return status === "locked"
-          ? mirrorLocked
+          ? MirrorLockedIcon
           : status === "used"
-            ? mirrorUsed
-            : mirror;
+            ? MirrorUsedIcon
+            : MirrorIcon;
       default:
-        return "";
+        return () => null;
     }
   }
 }

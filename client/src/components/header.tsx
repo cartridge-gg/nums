@@ -3,7 +3,13 @@ import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addAddressPadding, num } from "starknet";
-import logo from "@/assets/logo.svg";
+import {
+  ControllerIcon,
+  DisconnectIcon,
+  LogoIcon,
+  SoundOffIcon,
+  SoundOnIcon,
+} from "@/components/icons";
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import { useAudio } from "@/context/audio";
 import { useTournaments } from "@/context/tournaments";
@@ -13,10 +19,6 @@ import { useClaimableRewards } from "@/hooks/useClaimableRewards";
 import { useMintNums } from "@/hooks/useMintNums";
 import { useTokens } from "@/hooks/useTokens";
 import { cn } from "@/lib/utils";
-import { ControllerIcon } from "./icons/Controller";
-import { DisconnectIcon } from "./icons/Disconnect";
-import { SoundOffIcon } from "./icons/SoundOff";
-import { SoundOnIcon } from "./icons/SoundOn";
 import { Button } from "./ui/button";
 
 export const Header = () => {
@@ -33,11 +35,10 @@ export const Header = () => {
         className="flex items-center justify-start gap-2 cursor-pointer select-none"
         onClick={handleClick}
       >
-        <img
-          src={logo}
-          alt="Logo"
-          className="h-12 drop-shadow-[3px_3px_0px_rgba(0,0,0,0.25)]"
-          draggable={false}
+        <LogoIcon
+          size="xl"
+          className="drop-shadow-[3px_3px_0px_rgba(0,0,0,0.25)] text-white"
+          aria-hidden="true"
         />
         <h1
           className="text-[64px] leading-[48px] uppercase text-white translate-y-1"
@@ -66,7 +67,7 @@ export const Sound = () => {
       onClick={() => toggleMute()}
       className="h-12 px-4 py-2 [&_svg]:size-8"
     >
-      {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
+      {isMuted ? <SoundOffIcon size="lg" /> : <SoundOnIcon size="lg" />}
     </Button>
   );
 };
@@ -196,7 +197,7 @@ export const Disconnect = () => {
       className="h-12 px-4 py-2 [&_svg]:size-8"
       onClick={() => disconnect()}
     >
-      <DisconnectIcon />
+      <DisconnectIcon size="lg" />
     </Button>
   );
 };

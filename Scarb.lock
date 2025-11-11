@@ -4,16 +4,16 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=ce36af2#ce36af2eef73641cdaf03aa963ce678dc8842fdf"
+source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
 name = "alexandria_bytes"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:b1a402330fe5356ca0a4f24d2b8dd1fb0a7e2568bf35c349319cadb53f0ed6fd"
+checksum = "sha256:c09087b8b6d2f49ea1719cc780fa2901852879258ac2a55190187ed5b9e8488e"
 dependencies = [
  "alexandria_data_structures",
  "alexandria_math",
@@ -21,15 +21,15 @@ dependencies = [
 
 [[package]]
 name = "alexandria_data_structures"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:f011951982ca26ce64c212ca5aa739bd16461dae96a4fb9a8f8e360b1c5e7b94"
+checksum = "sha256:74cf0a36da91032e1ca5a65a0ce1349b1fcd8623a78f9afa3498fa58858491e1"
 
 [[package]]
 name = "alexandria_encoding"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:19f58f8007245477972989c673aa5523ea6a711cdbee4d8e290809a550306376"
+checksum = "sha256:1de969247c55dbb2c2d2cc98e09a12f5c52be12814b9c11899059b16c7edf647"
 dependencies = [
  "alexandria_bytes",
  "alexandria_data_structures",
@@ -39,15 +39,15 @@ dependencies = [
 
 [[package]]
 name = "alexandria_math"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:19160f0993a6643e8e71a3bce03e54a37f26b8cad94f21668d7cc9afd08d2047"
+checksum = "sha256:b17fd1964c054d8e8a3fde2ee7dfecd5f318767f0bced764a6fa887271432f76"
 
 [[package]]
 name = "alexandria_numeric"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:607ceb7572c64cd7b7b8f433604d5cffe3b36d6b4c64f9b3f126e0621df5f4eb"
+checksum = "sha256:02b70ff561c48a97925cb07d183a9aeb53906fed443d6a38341f9bc4062b5768"
 dependencies = [
  "alexandria_math",
  "alexandria_searching",
@@ -55,9 +55,9 @@ dependencies = [
 
 [[package]]
 name = "alexandria_searching"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:8a05a9729f886595e5f43df9152a9b58c396faf5962d83c778cce2cb9e8e3d0f"
+checksum = "sha256:70ef2765fa52a109467747601ab6be055295bc05de8ba105bc105437d8e551cd"
 dependencies = [
  "alexandria_data_structures",
 ]
@@ -65,7 +65,7 @@ dependencies = [
 [[package]]
 name = "collection"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=ce36af2#ce36af2eef73641cdaf03aa963ce678dc8842fdf"
+source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
 dependencies = [
  "graffiti",
  "openzeppelin",
@@ -73,24 +73,21 @@ dependencies = [
 
 [[package]]
 name = "dojo"
-version = "1.7.2"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:e7c7f3c7e7ca89491aadabea9ed97cad5ff8a001ec7621afa1cadd257d2f7283"
+version = "1.8.0"
+source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
 dependencies = [
  "dojo_cairo_macros",
 ]
 
 [[package]]
 name = "dojo_cairo_macros"
-version = "1.7.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:18059a9ac9ec2c0c708baad382728a99970b621b1eaab780fd9a8ec2dc975c98"
+version = "1.8.0"
+source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
 
 [[package]]
 name = "dojo_cairo_test"
-version = "1.7.2"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:07468e70a3ead06a352b3cc2fb52a88447b921cdc26474290950f3f95ce4f295"
+version = "1.8.0"
+source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
 dependencies = [
  "dojo",
 ]
@@ -177,7 +174,7 @@ source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798eb
 [[package]]
 name = "models"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=ce36af2#ce36af2eef73641cdaf03aa963ce678dc8842fdf"
+source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
 dependencies = [
  "dojo",
  "registry",
@@ -319,7 +316,7 @@ checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc
 [[package]]
 name = "registry"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=ce36af2#ce36af2eef73641cdaf03aa963ce678dc8842fdf"
+source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
 dependencies = [
  "collection",
  "dojo",
@@ -329,7 +326,7 @@ dependencies = [
 [[package]]
 name = "starterpack"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=ce36af2#ce36af2eef73641cdaf03aa963ce678dc8842fdf"
+source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
 dependencies = [
  "dojo",
  "models",

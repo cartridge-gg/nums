@@ -627,13 +627,15 @@ export const GameStart = ({ game }: { game: GameModel }) => {
     >
       <div className="h-full max-w-[912px] mx-auto flex flex-col gap-12 justify-center">
         <GameStartHeader points={points} />
-        <GameStartPowerups
-          selection={selection}
-          onToggle={handleToggle}
-          canSelectPower={canSelectPower}
-          costs={costs}
-        />
-        <GameStartPlay game={game} selection={selection} />
+        <div className="flex flex-col gap-6 justify-between">
+          <GameStartPowerups
+            selection={selection}
+            onToggle={handleToggle}
+            canSelectPower={canSelectPower}
+            costs={costs}
+          />
+          <GameStartPlay game={game} selection={selection} />
+        </div>
       </div>
     </div>
   );
@@ -686,7 +688,10 @@ export const GameStartPowerups = ({
   );
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div
+      className="max-h-[400px] grid grid-cols-3 gap-6 overflow-y-auto"
+      style={{ scrollbarWidth: "none" }}
+    >
       {powers.map((power) => (
         <GameStartPowerup
           key={power.value}
@@ -745,7 +750,11 @@ export const GameStartPowerup = ({
       }}
     >
       <div className="flex gap-4 h-16">
-        <Icon className="size-16" role="img" aria-label={power.name()} />
+        <Icon
+          className="min-h-16 min-w-16"
+          role="img"
+          aria-label={power.name()}
+        />
         <div className="flex flex-col gap-1 text-white-100 ">
           <p className="text-[22px]/[15px] tracking-wider">{power.name()}</p>
           <p className="font-ppneuebit text-xl/4 font-bold">
@@ -754,8 +763,8 @@ export const GameStartPowerup = ({
         </div>
       </div>
       <div className="flex gap-4 h-10">
-        <div className="h-full flex gap-1 items-center px-3 py-2 rounded bg-white-900 border border-white-900 [&_svg]:size-5">
-          <PointsIcon />
+        <div className="h-full flex gap-1 items-center px-3 py-2 rounded bg-white-900 border border-white-900">
+          <PointsIcon size="sm" />
           <p className="text-white-100 text-[28px]/[19px] translate-y-0.5">
             {cost}
           </p>

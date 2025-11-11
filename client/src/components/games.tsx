@@ -1,10 +1,9 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { LiveIcon, NumsIcon } from "@/components/icons";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
 import type { GameModel } from "@/models/game";
-import { LiveIcon } from "./icons/Live";
-import { NumsIcon } from "./icons/Nums";
 import { Button } from "./ui/button";
 
 export type GamesProps = {};
@@ -134,7 +133,11 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
         <div className="w-5">
-          {game.hasStarted() && !game.over ? <LiveIcon /> : <NumsIcon />}
+          {game.hasStarted() && !game.over ? (
+            <LiveIcon size="sm" />
+          ) : (
+            <NumsIcon size="sm" />
+          )}
         </div>
         <p className="text-[22px] leading-[12px] w-[168px]">{`Nums #${game.id}`}</p>
         {game.hasStarted() ? (

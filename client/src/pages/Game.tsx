@@ -5,8 +5,7 @@ import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
-import { HomeIcon } from "@/components/icons/Home";
-import { PointsIcon } from "@/components/icons/Points";
+import { HomeIcon, PointsIcon } from "@/components/icons";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
@@ -277,12 +276,13 @@ export const GameNextNumber = ({
   setModal: (modal: boolean) => void;
 }) => {
   const power = new Power(PowerType.Foresight);
+  const Icon = power.icon();
   return (
     <div
       className="h-64 w-[288px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] rounded-lg p-6 flex flex-col items-center gap-6"
       style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      <img src={power.icon(undefined)} alt={power.name()} className="size-16" />
+      <Icon className="size-16" role="img" aria-label={power.name()} />
       <p
         className="text-white-100 text-[64px]/[44px]"
         style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
@@ -357,6 +357,8 @@ export const PowerUp = ({
     return "used";
   }, [power, available]);
 
+  const Icon = power.icon(status);
+
   const handleApplyPower = async () => {
     if (!available || isDisabled || isLoading) return;
     await onApplyPower(power.index());
@@ -369,17 +371,13 @@ export const PowerUp = ({
           <Button
             disabled={!available || isDisabled || isLoading}
             variant="muted"
-            className="size-[68px] p-0"
+            className="size-[68px] p-0  [&_svg]:size-9"
             onClick={handleApplyPower}
           >
             {isLoading ? (
               <Loader2 className="size-9 animate-spin" />
             ) : (
-              <img
-                src={power.icon(status)}
-                alt={power.name()}
-                className="size-9"
-              />
+              <Icon role="img" aria-label={power.name()} />
             )}
           </Button>
         </TooltipTrigger>
@@ -735,6 +733,8 @@ export const GameStartPowerup = ({
     setInside(true);
   }, [onToggle, power, selected]);
 
+  const Icon = power.icon(selected ? "used" : undefined);
+
   return (
     <div
       className="flex flex-col gap-4 items-stretch bg-black-900 p-6 rounded"
@@ -745,11 +745,7 @@ export const GameStartPowerup = ({
       }}
     >
       <div className="flex gap-4 h-16">
-        <img
-          src={power.icon(selected ? "used" : undefined)}
-          alt={power.name()}
-          className="size-16"
-        />
+        <Icon className="size-16" role="img" aria-label={power.name()} />
         <div className="flex flex-col gap-1 text-white-100 ">
           <p className="text-[22px]/[15px] tracking-wider">{power.name()}</p>
           <p className="font-ppneuebit text-xl/4 font-bold">

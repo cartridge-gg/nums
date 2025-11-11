@@ -2,6 +2,7 @@ import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CloseIcon } from "@/components/icons";
 import { useModal } from "@/context/modal";
 import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
@@ -9,7 +10,6 @@ import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 import { useStarterpacks } from "@/hooks/useStarterpacks";
 import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
-import { CloseIcon } from "./icons/Close";
 import { Button } from "./ui/button";
 
 export type InventoryProps = {};
@@ -81,7 +81,7 @@ export const Close = ({ close }: { close: () => void }) => {
       className="h-12 w-14 absolute top-6 right-6 [&_svg]:size-8 bg-white-900 hover:bg-white-800 rounded-lg"
       onClick={close}
     >
-      <CloseIcon />
+      <CloseIcon size="lg" />
     </Button>
   );
 };

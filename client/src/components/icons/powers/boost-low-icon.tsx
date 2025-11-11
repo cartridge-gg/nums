@@ -1,0 +1,70 @@
+import { forwardRef, memo } from "react";
+import type { IconProps } from "../types";
+import { iconVariants } from "../utils";
+
+export const BoostLowIcon = memo(
+  forwardRef<SVGSVGElement, IconProps>(
+    ({ className, size, ...props }, forwardedRef) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={iconVariants({ size, className })}
+        ref={forwardedRef}
+        {...props}
+      >
+        <path
+          opacity="0.4"
+          d="M6.6001 4.2002V6.6002H9.6001C10.2638 6.6002 10.8001 7.13645 10.8001 7.8002V15.3002C10.8001 15.7989 10.3988 16.2002 9.9001 16.2002H8.6476L12.0001 19.5527L15.3526 16.2002H14.1001C13.6013 16.2002 13.2001 15.7989 13.2001 15.3002V8.4002C13.2001 6.07895 11.3213 4.2002 9.0001 4.2002H6.6001Z"
+          fill="#70D6FF"
+        />
+        <g filter="url(#filter0_d_832_7432)">
+          <path
+            d="M11.9998 19.5529L8.64731 16.2004H9.89981C10.3986 16.2004 10.7998 15.7991 10.7998 15.3004V7.80039C10.7998 7.13664 10.2636 6.60039 9.5998 6.60039H6.5998V4.20039H8.9998C11.3211 4.20039 13.1998 6.07914 13.1998 8.40039V15.3004C13.1998 15.7991 13.6011 16.2004 14.0998 16.2004H15.3523L11.9998 19.5529ZM11.1523 21.2516C11.6211 21.7204 12.3823 21.7204 12.8511 21.2516L17.6511 16.4516C17.9961 16.1066 18.0973 15.5929 17.9098 15.1429C17.7223 14.6929 17.2873 14.4004 16.7998 14.4004H14.9998V8.40039C14.9998 5.08539 12.3148 2.40039 8.9998 2.40039H5.9998C5.33605 2.40039 4.7998 2.93664 4.7998 3.60039V7.20039C4.7998 7.86414 5.33605 8.40039 5.9998 8.40039H8.9998V14.4004H7.1998C6.71605 14.4004 6.2773 14.6929 6.0898 15.1429C5.9023 15.5929 6.0073 16.1066 6.34855 16.4516L11.1486 21.2516H11.1523Z"
+            fill="#70D6FF"
+          />
+        </g>
+        <defs>
+          <filter
+            id="filter0_d_832_7432"
+            x="4.7998"
+            y="2.40039"
+            width="15.2031"
+            height="21.2031"
+            filterUnits="userSpaceOnUse"
+            colorInterpolationFilters="sRGB"
+          >
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feColorMatrix
+              in="SourceAlpha"
+              type="matrix"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+              result="hardAlpha"
+            />
+            <feOffset dx="2" dy="2" />
+            <feComposite in2="hardAlpha" operator="out" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0"
+            />
+            <feBlend
+              mode="normal"
+              in2="BackgroundImageFix"
+              result="effect1_dropShadow_832_7432"
+            />
+            <feBlend
+              mode="normal"
+              in="SourceGraphic"
+              in2="effect1_dropShadow_832_7432"
+              result="shape"
+            />
+          </filter>
+        </defs>
+      </svg>
+    ),
+  ),
+);
+
+BoostLowIcon.displayName = "BoostLowIcon";

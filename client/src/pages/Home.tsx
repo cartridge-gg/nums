@@ -4,10 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getChecksumAddress } from "starknet";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
-import { CircleInfoIcon } from "@/components/icons/CircleInfo";
-import { LiveIcon } from "@/components/icons/Live";
-import { LogoIcon } from "@/components/icons/Logo";
-import { TrophyIcon } from "@/components/icons/Trophy";
+import {
+  CircleInfoIcon,
+  LiveIcon,
+  LogoIcon,
+  TrophyIcon,
+} from "@/components/icons";
 import { Close, Inventory } from "@/components/inventory";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Leaderboard } from "@/components/leaderboard";
@@ -223,7 +225,7 @@ const tabs: Array<{
   {
     id: "about",
     label: "About",
-    icon: TrophyIcon,
+    icon: () => <TrophyIcon variant="solid" />,
   },
   {
     id: "nums",
@@ -405,7 +407,7 @@ export const JackpotSelector = ({
       <SelectTrigger className="w-[218px] h-10 rounded-lg gap-2 px-3 py-2 tracking-wide bg-purple-600 border-0 focus:ring-0 focus:outline-none shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_0px_rgba(255,255,255,0.12)]">
         {selectedTournament ? (
           <div className="flex items-center gap-2">
-            <TrophyIcon />
+            <TrophyIcon variant="solid" />
             <span
               className="text-white text-2xl translate-y-0.5"
               style={{ textShadow: "2px 2px 0px rgba(0,0,0,1)" }}
@@ -434,7 +436,7 @@ export const JackpotSelector = ({
                       <LiveIcon />
                     </div>
                   ) : (
-                    <TrophyIcon />
+                    <TrophyIcon variant="solid" />
                   )}
                   <span
                     className="text-white text-2xl translate-y-0.5"

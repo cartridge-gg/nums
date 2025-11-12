@@ -19,7 +19,6 @@ import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
 import { cn } from "@/lib/utils";
-import { GameModel } from "@/models/game";
 import { PrizeModel } from "@/models/prize";
 import type { TournamentModel } from "@/models/tournament";
 
@@ -263,7 +262,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
               <TableHeader>
                 <TableRow>
                   <TableHead
-                    className="pl-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
+                    className="pl-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px] w-[100px]"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Rank
@@ -279,12 +278,6 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Score
-                  </TableHead>
-                  <TableHead
-                    className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
-                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-                  >
-                    Nums Reward
                   </TableHead>
                   <TableHead
                     className="pr-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
@@ -311,7 +304,6 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                         : item.username}
                     </TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell>{GameModel.totalReward(item.level)}</TableCell>
                     <TableCell className="pr-3">
                       {item.prize ? `$${item.prize.toFixed(2)}` : ""}
                     </TableCell>
@@ -343,12 +335,6 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                     >
                       Score
-                    </TableHead>
-                    <TableHead
-                      className="pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"
-                      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-                    >
-                      Nums Reward
                     </TableHead>
                     <TableHead
                       className="pr-3 pb-4 tracking-wide text-purple-300 text-lg leading-[22px]"

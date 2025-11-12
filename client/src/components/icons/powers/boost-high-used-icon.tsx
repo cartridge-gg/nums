@@ -1,0 +1,45 @@
+import { forwardRef, memo } from "react";
+import type { IconProps } from "../types";
+import { iconVariants } from "../utils";
+
+export const BoostHighUsedIcon = memo(
+  forwardRef<SVGSVGElement, IconProps>(
+    ({ className, size, ...props }, forwardedRef) => (
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={iconVariants({ size, className })}
+        ref={forwardedRef}
+        {...props}
+      >
+        <g opacity="0.4">
+          <path
+            d="M15 15.6045C14.9998 18.9193 12.3149 21.6045 9 21.6045H6C5.33631 21.6045 4.79987 21.068 4.7998 20.4043V16.8037C4.79985 16.68 4.81788 16.5604 4.85254 16.4482L6.59961 18.1953V19.8008H9C11.3212 19.8008 13.2001 17.9218 13.2002 15.6006V15.123L15 13.3232V15.6045Z"
+            fill="white"
+            fillOpacity="0.48"
+          />
+          <path
+            d="M11.1523 2.75293C11.6211 2.28418 12.3828 2.28418 12.8516 2.75293L16.3418 6.24316L15.0684 7.5166L12 4.44824L8.64746 7.80078H9.90039C10.3989 7.80096 10.7997 8.20167 10.7998 8.7002V11.7852L9 13.585V9.60449H7.2002C6.71645 9.60449 6.27734 9.31133 6.08984 8.86133C5.90256 8.41142 6.00748 7.89764 6.34863 7.55273L11.1484 2.75293H11.1523Z"
+            fill="white"
+            fillOpacity="0.48"
+          />
+          <path
+            d="M13.2002 9.38477V8.7002C13.2003 8.2017 13.6011 7.80102 14.0996 7.80078H14.7852L13.2002 9.38477Z"
+            fill="white"
+            fillOpacity="0.48"
+          />
+        </g>
+        <path
+          d="M8.98705 17.9226C8.64276 18.2668 8.08454 18.2668 7.74025 17.9226L4.72697 14.9093C4.32538 14.5077 4.32538 13.8566 4.72697 13.455C5.12856 13.0534 5.77966 13.0534 6.18124 13.455L8.36365 15.6374L17.818 6.18218C18.2198 5.78034 18.8713 5.78043 19.273 6.18239C19.6744 6.58414 19.6743 7.23525 19.2727 7.63687L8.98705 17.9226Z"
+          fill="white"
+          fillOpacity="0.48"
+        />
+      </svg>
+    ),
+  ),
+);
+
+BoostHighUsedIcon.displayName = "BoostHighUsedIcon";

@@ -1,6 +1,6 @@
 import makeBlockie from "ethereum-blockies-base64";
 import { useEffect, useMemo, useState } from "react";
-import { LiveIcon } from "@/components/icons/Live";
+import { LiveIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Formatter } from "@/helpers/formatter";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";

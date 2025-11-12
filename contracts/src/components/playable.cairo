@@ -208,7 +208,7 @@ pub mod PlayableComponent {
             // [Check] Handle default and specific games separately
             if !self.is_default_game(world, game_id) {
                 // [Effect] Start specific game
-                game.start(0, number, powers); // TODO: Handle settings powers
+                game.start(0, number, powers);
             } else {
                 // [Check] Powers are valid
                 let mut usage = store.usage();

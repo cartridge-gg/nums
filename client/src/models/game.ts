@@ -117,7 +117,7 @@ export class GameModel {
   }
 
   hasStarted() {
-    return this.tournament_id !== 0;
+    return this.number !== 0;
   }
 
   public static totalReward(level: number): number {

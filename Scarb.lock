@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
+source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
 dependencies = [
  "dojo",
 ]
@@ -65,7 +65,7 @@ dependencies = [
 [[package]]
 name = "collection"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
+source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
 dependencies = [
  "graffiti",
  "openzeppelin",
@@ -74,7 +74,7 @@ dependencies = [
 [[package]]
 name = "dojo"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
+source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
 dependencies = [
  "dojo_cairo_macros",
 ]
@@ -82,12 +82,12 @@ dependencies = [
 [[package]]
 name = "dojo_cairo_macros"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
+source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
 
 [[package]]
 name = "dojo_cairo_test"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=bc54f5e#bc54f5e8acbc519795ab6764f6f36acecb60234a"
+source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
 dependencies = [
  "dojo",
 ]
@@ -174,7 +174,7 @@ source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798eb
 [[package]]
 name = "models"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
+source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
 dependencies = [
  "dojo",
  "registry",
@@ -316,7 +316,7 @@ checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc
 [[package]]
 name = "registry"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
+source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
 dependencies = [
  "collection",
  "dojo",
@@ -326,7 +326,7 @@ dependencies = [
 [[package]]
 name = "starterpack"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=0d46127#0d46127723ea436af68182756d1589979f08471c"
+source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
 dependencies = [
  "dojo",
  "models",

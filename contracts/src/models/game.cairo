@@ -357,7 +357,7 @@ pub impl GameAssert of AssertTrait {
     /// Asserts that the game has not started yet.
     #[inline]
     fn assert_not_started(self: @Game) {
-        assert(self.tournament_id == @0, errors::GAME_ALREADY_STARTED);
+        assert(self.number == @0, errors::GAME_ALREADY_STARTED);
     }
 
     /// Asserts game is not over.
@@ -369,7 +369,7 @@ pub impl GameAssert of AssertTrait {
     /// Asserts that the game has started.
     #[inline]
     fn assert_has_started(self: @Game) {
-        assert(self.tournament_id != @0, errors::GAME_HAS_NOT_STARTED);
+        assert(self.number != @0, errors::GAME_HAS_NOT_STARTED);
     }
 }
 

@@ -11,6 +11,7 @@ optimistic = true
 world_block = 0
 controllers = true
 pending = true
+pre_confirmed = true
 polling_interval = 250
 contracts = [
     "ERC20:0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",   # NUMS

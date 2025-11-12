@@ -141,9 +141,9 @@ export const Main = ({
     return prizes.filter((p) => p.tournament_id === tournament.id);
   }, [prizes, tournament]);
 
-  if (!game) return null;
+  if (!gameId) return null;
 
-  if (!game.hasStarted()) return <GameStart game={game} />;
+  if (!game?.hasStarted()) return <GameStart gameId={Number(gameId)} />;
 
   return (
     <div
@@ -574,7 +574,7 @@ export const GameOverButton = () => {
   );
 };
 
-export const GameStart = ({ game }: { game: GameModel }) => {
+export const GameStart = ({ gameId }: { gameId: number }) => {
   const { usage } = useUsage();
   const [selection, setSelection] = useState<Power[]>([]);
   const [points, setPoints] = useState(DEFAULT_POWER_POINTS);
@@ -635,7 +635,7 @@ export const GameStart = ({ game }: { game: GameModel }) => {
           canSelectPower={canSelectPower}
           costs={costs}
         />
-        <GameStartPlay game={game} selection={selection} />
+        <GameStartPlay gameId={gameId} selection={selection} />
       </div>
     </div>
   );
@@ -795,13 +795,14 @@ export const GameStartPowerup = ({
 };
 
 export const GameStartPlay = ({
-  game,
+  gameId,
   selection,
 }: {
-  game: GameModel;
+  gameId: number;
   selection: Power[];
 }) => {
-  const { startGame } = useStartGame({ gameId: game.id, powers: selection });
+  const { game } = useGame(gameId);
+  const { startGame } = useStartGame({ gameId: gameId, powers: selection });
   const [loading, setLoading] = useState(false);
 
   const handleStartGame = useCallback(() => {
@@ -815,7 +816,7 @@ export const GameStartPlay = ({
   }, [startGame]);
 
   useEffect(() => {
-    if (loading && game.hasStarted()) {
+    if (loading && game?.hasStarted()) {
       setLoading(false);
     }
   }, [game, loading]);

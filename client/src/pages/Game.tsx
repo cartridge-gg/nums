@@ -536,7 +536,7 @@ export const GameOverScore = ({ score }: { score: number }) => {
         className="text-[28px]/[19px] tracking-wide"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        {score}
+        {score.toLocaleString()}
       </p>
     </div>
   );

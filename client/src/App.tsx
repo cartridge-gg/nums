@@ -18,7 +18,6 @@ import { DojoSdkProviderInitialized } from "./context/dojo";
 import { GameProvider } from "./context/game";
 import { ModalProvider } from "./context/modal";
 import { TournamentProvider } from "./context/tournaments";
-import { UrqlProvider } from "./context/urql";
 import { UsageProvider } from "./context/usage";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
@@ -28,9 +27,9 @@ const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
+        return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
       case sepolia:
-        return { nodeUrl: chain.rpcUrls.cartridge.http[0] };
+        return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -69,9 +68,9 @@ const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
   switch (chain) {
     case mainnet:
-      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+      return [{ rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL }];
     case sepolia:
-      return [{ rpcUrl: chain.rpcUrls.cartridge.http[0] }];
+      return [{ rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL }];
     default:
       throw new Error(`Unsupported chain: ${chain.network}`);
   }
@@ -109,7 +108,6 @@ function App() {
           provider={provider}
         >
           <DojoSdkProviderInitialized>
-            <UrqlProvider>
               <AudioProvider>
                 <ConfigProvider>
                   <UsageProvider>
@@ -132,7 +130,6 @@ function App() {
                   </UsageProvider>
                 </ConfigProvider>
               </AudioProvider>
-            </UrqlProvider>
           </DojoSdkProviderInitialized>
         </StarknetConfig>
       </QueryClientProvider>

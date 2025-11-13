@@ -35,13 +35,13 @@ export const chains = {
 
 const dojoConfigSepolia = createDojoConfig({
   rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SEPOLIA_GRAPHQL_URL.replace("/graphql", ""),
+  toriiUrl: import.meta.env.VITE_SEPOLIA_TORII_URL,
   manifest: manifestSepolia,
 });
 
 const dojoConfigMainnet = createDojoConfig({
   rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
-  toriiUrl: import.meta.env.VITE_MAINNET_GRAPHQL_URL.replace("/graphql", ""),
+  toriiUrl: import.meta.env.VITE_MAINNET_TORII_URL,
   manifest: manifestMainnet,
 });
 

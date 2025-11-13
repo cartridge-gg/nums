@@ -24,11 +24,11 @@ importers:
         specifier: ^3.26.0
         version: 3.26.0(@emotion/react@11.14.0(@types/react@18.2.79)(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@dojoengine/core':
-        specifier: 1.7.0
-        version: 1.7.0(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
+        specifier: 1.8.5
+        version: 1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
       '@dojoengine/sdk':
-        specifier: 1.8.2
-        version: 1.8.2(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 1.8.7
+        version: 1.8.7(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       '@dojoengine/torii-client':
         specifier: 1.8.1
         version: 1.8.1
@@ -190,11 +190,11 @@ importers:
         specifier: github:cartridge-gg/ui#a823aea
         version: https://codeload.github.com/cartridge-gg/ui/tar.gz/a823aea(@types/react-dom@18.2.25)(@types/react@18.2.79)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sonner@2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(starknet@8.5.2)(tailwindcss@3.4.18(tsx@4.20.6))(viem@2.36.0(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@dojoengine/core':
-        specifier: 1.8.2
-        version: 1.8.2(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
+        specifier: 1.8.5
+        version: 1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
       '@dojoengine/sdk':
-        specifier: 1.8.4
-        version: 1.8.4(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 1.8.7
+        version: 1.8.7(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       '@dojoengine/torii-client':
         specifier: 1.8.1
         version: 1.8.1
@@ -1405,33 +1405,18 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@dojoengine/core@1.7.0':
-    resolution: {integrity: sha512-VuyWNcz0RvV8XwJHICwfmtwz9CSe4UO9Wwe/TCO/YIa4n1PTXClfr/AgmKM2Mrz3sR3NQhgL2SczMEzNXd2cVQ==}
+  '@dojoengine/core@1.8.5':
+    resolution: {integrity: sha512-F+kBDRo7YY30ZDoifCMoBgBNC1wWKpXRhQcMI2z6j1tRI7k7j8bWmHdEYTP5u1Cg4Mb4qOHvl63ZcprFLUzdJg==}
     hasBin: true
 
-  '@dojoengine/core@1.8.1':
-    resolution: {integrity: sha512-NndqXajrq1TxgQ+6+DKA/B0b8ofxOQrnkKQO3vnPYIR3KFbjcibpN0Eccc3UCUFViHQboL1bqybuZNAzoB32RQ==}
-    hasBin: true
-
-  '@dojoengine/core@1.8.2':
-    resolution: {integrity: sha512-O28jASDA98wK8vVocPKQhkvqLgYra1vSGqRG0Xd2LpLAsfzwULQfnbGe3PG0vFShSITPme+F/rBfgTjNMpliuA==}
-    hasBin: true
-
-  '@dojoengine/core@1.8.3':
-    resolution: {integrity: sha512-BZ0UgmJ6TIIJRjMR3RvwQif9/uT9TNmyIQoIcaAXM7HEMrhbyAr8UvL/4tEiLkwSQUxPfesPsqNIOt/7QSeCQQ==}
-    hasBin: true
-
-  '@dojoengine/grpc@1.8.2':
-    resolution: {integrity: sha512-c7llvRIU6JcKodW/5p6yMIqWEGG/xUyeR6XdoyAGhS+LZ7qgqdS8o7x/jsSX/UhtknC7DYVIP+/c/+/6afY2sQ==}
-
-  '@dojoengine/grpc@1.8.3':
-    resolution: {integrity: sha512-9NuJzETqrzfnqKDhmfQ0QE1egK9VkLZWimPf9gg8z0qPyQ4xxfPzmMoQY0i811ITT+cnMVccxGFCmf+HksqzQA==}
+  '@dojoengine/grpc@1.8.4':
+    resolution: {integrity: sha512-HEvOu9O64GmhFcTG0DZffWCZbZ2LdwTEtGQNjD+ctvyCd9QB1EC9CNP3UNriiA+CpDngpOUXp7zBftAP8YTm+A==}
 
   '@dojoengine/recs@2.0.13':
     resolution: {integrity: sha512-Cgz4Unlnk2FSDoFTYKrJexX/KiSYPMFMxftxQkC+9LUKS5yNGkgFQM7xu4/L1HvpDAenL7NjUmH6ynRAS7Iifw==}
 
-  '@dojoengine/sdk@1.8.2':
-    resolution: {integrity: sha512-+qZ2dxFbpP4PVatel9/JXKde5KxvoapbSZFz0eGeHTtzveomopveL6XkEifP8l+5cf7kVNuSoTqFEmWS2Wv+2g==}
+  '@dojoengine/sdk@1.8.7':
+    resolution: {integrity: sha512-5gOWVyXYAVVvtY+MuQoZ/9IWGEdeVrn4/16myIyczwgJHr/XSZpb4AjrnHd04N6fx/qYEyo2t/MqE58TmNyn5w==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@tanstack/react-query': ^5.62.16
@@ -1441,24 +1426,8 @@ packages:
       react-dom: ^18.3.1
       starknet: ^8.1.2
 
-  '@dojoengine/sdk@1.8.4':
-    resolution: {integrity: sha512-oRfUv9D1MQHHCuFoFl7PhsGIYmfAVSafTa2a6MVf96n5iof51VUUVrskH5bfrMwWx2Pt08rxcGz0O6HPG6+66g==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@tanstack/react-query': ^5.62.16
-      '@types/react': ^18.3.1
-      '@types/react-dom': ^18.3.1
-      react: ^18.3.1
-      react-dom: ^18.3.1
-      starknet: ^8.1.2
-
-  '@dojoengine/state@1.8.1':
-    resolution: {integrity: sha512-veJ3zzD6wRbInzgCbK/Rfaxk/ADuFbQxD1dGULorqz4j9f2sW7ADVM+1fX+EORB0I5TYAcQ08VBqem6NjARSzw==}
-    peerDependencies:
-      starknet: ^8.1.2
-
-  '@dojoengine/state@1.8.2':
-    resolution: {integrity: sha512-/fbyK0V/C1cDqtTlFS/Ie+PvEi8v1N6XQzZNLjWZ92NfqYYESdI0BKdKq7LzNV2ZNWiIDBFJKIGID/QobIhWHA==}
+  '@dojoengine/state@1.8.3':
+    resolution: {integrity: sha512-Mi7FgHLD7WFg2YE/b5XtkfOzlXluDEGNThFGc1jrShxQwwy+Xl8/jt7bgUg9NNjI1INrjSbF7tKBIhn+7y93hg==}
     peerDependencies:
       starknet: ^8.1.2
 
@@ -1479,8 +1448,8 @@ packages:
     peerDependencies:
       starknet: ^8.1.2
 
-  '@dojoengine/utils@1.8.2':
-    resolution: {integrity: sha512-7x3bzVj7lwPh5vJzg2siAEZw8sI36WsSOOjaL33MmSklvheetZgfNbS8Es8FXzWhmgvMpDJERfW+xqlUgO8Sdg==}
+  '@dojoengine/utils@1.8.3':
+    resolution: {integrity: sha512-ZQjyFWGeGHDDi8UO2clrFVbH7lRic6v4OrYUn7Jc/4vzl/o2TQceVQ8t7Rjc70O8pWSzaVrT3dbkIXFUoc/mVg==}
     peerDependencies:
       starknet: ^8.1.2
 
@@ -3396,11 +3365,6 @@ packages:
 
   '@rollup/rollup-linux-x64-gnu@4.14.3':
     resolution: {integrity: sha512-8ybV4Xjy59xLMyWo3GCfEGqtKV5M5gCSrZlxkPGvEPCGDLNla7v48S662HSGwRd6/2cSneMQWiv+QzcttLrrOA==}
-    cpu: [x64]
-    os: [linux]
-
-  '@rollup/rollup-linux-x64-gnu@4.49.0':
-    resolution: {integrity: sha512-BR7+blScdLW1h/2hB/2oXM+dhTmpW3rQt1DeSiCP9mc2NMMkqVgjIN3DDsNpKmezffGC9R8XKVOLmBkRUcK/sA==}
     cpu: [x64]
     os: [linux]
 
@@ -8474,11 +8438,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  use-sync-external-store@1.5.0:
-    resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
@@ -10173,8 +10132,8 @@ snapshots:
 
   '@bal7hazar/arcade-sdk@0.0.74(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@dojoengine/core': 1.7.0(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
-      '@dojoengine/sdk': 1.8.2(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@dojoengine/core': 1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
+      '@dojoengine/sdk': 1.8.7(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       '@dojoengine/torii-client': 1.8.1
       eventemitter3: 5.0.1
       starknet: 6.23.0
@@ -10465,7 +10424,7 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@dojoengine/core@1.7.0(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)':
+  '@dojoengine/core@1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)':
     dependencies:
       '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       starknet: 8.5.2
@@ -10475,51 +10434,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@dojoengine/core@1.8.1(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      starknet: 8.5.2
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-
-  '@dojoengine/core@1.8.2(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      starknet: 8.5.2
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-
-  '@dojoengine/core@1.8.3(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      starknet: 8.5.2
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-
-  '@dojoengine/grpc@1.8.2':
-    dependencies:
-      '@grpc/grpc-js': 1.13.4
-      '@protobuf-ts/grpcweb-transport': 2.11.1
-      '@protobuf-ts/plugin': 2.11.1
-      '@protobuf-ts/runtime': 2.11.1
-      '@protobuf-ts/runtime-rpc': 2.11.1
-      effect: 3.17.9
-      google-protobuf: 3.21.4
-      grpc-web: 1.5.0
-      starknet: 8.5.2
-    transitivePeerDependencies:
-      - supports-color
-
-  '@dojoengine/grpc@1.8.3':
+  '@dojoengine/grpc@1.8.4':
     dependencies:
       '@grpc/grpc-js': 1.13.4
       '@protobuf-ts/grpcweb-transport': 2.11.1
@@ -10545,14 +10460,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/sdk@1.8.2(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@dojoengine/sdk@1.8.7(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@dojoengine/core': 1.8.1(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
-      '@dojoengine/grpc': 1.8.2
-      '@dojoengine/state': 1.8.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@dojoengine/torii-client': 1.8.1
-      '@dojoengine/torii-wasm': 1.8.1
-      '@dojoengine/utils': 1.8.1(bufferutil@4.0.9)(starknet@6.23.0)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@dojoengine/core': 1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
+      '@dojoengine/grpc': 1.8.4
+      '@dojoengine/state': 1.8.3(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@dojoengine/torii-client': 1.8.2
+      '@dojoengine/torii-wasm': 1.8.2
+      '@dojoengine/utils': 1.8.3(bufferutil@4.0.9)(starknet@6.23.0)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@starknet-react/chains': 5.0.1
       '@starknet-react/core': 5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(utf-8-validate@5.0.10)
       '@tanstack/react-query': 5.90.6(react@19.1.1)
@@ -10574,43 +10489,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/sdk@1.8.2(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@dojoengine/sdk@1.8.7(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@dojoengine/core': 1.8.1(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
-      '@dojoengine/grpc': 1.8.2
-      '@dojoengine/state': 1.8.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@dojoengine/torii-client': 1.8.1
-      '@dojoengine/torii-wasm': 1.8.1
-      '@dojoengine/utils': 1.8.1(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@starknet-react/chains': 5.0.1
-      '@starknet-react/core': 5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)
-      '@tanstack/react-query': 5.90.6(react@19.1.1)
-      '@types/react': 18.2.79
-      '@types/react-dom': 18.2.25
-      effect: 3.17.9
-      immer: 10.1.1
-      neverthrow: 8.2.0
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
-      starknet: 8.5.2
-      zustand: 4.5.6(@types/react@18.2.79)(immer@10.1.1)(react@19.1.1)
-    transitivePeerDependencies:
-      - bufferutil
-      - get-starknet-core
-      - supports-color
-      - typescript
-      - use-sync-external-store
-      - utf-8-validate
-      - zod
-
-  '@dojoengine/sdk@1.8.4(@tanstack/react-query@5.90.6(react@19.1.1))(@types/react-dom@18.2.25)(@types/react@18.2.79)(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
-    dependencies:
-      '@dojoengine/core': 1.8.3(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
-      '@dojoengine/grpc': 1.8.3
-      '@dojoengine/state': 1.8.2(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@dojoengine/core': 1.8.5(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)
+      '@dojoengine/grpc': 1.8.4
+      '@dojoengine/state': 1.8.3(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       '@dojoengine/torii-client': 1.8.2
       '@dojoengine/torii-wasm': 1.8.2
-      '@dojoengine/utils': 1.8.2(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@dojoengine/utils': 1.8.3(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@starknet-react/chains': 5.0.1
       '@starknet-react/core': 5.0.1(bufferutil@4.0.9)(get-starknet-core@3.2.0(starknet@8.5.2))(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)
       '@tanstack/react-query': 5.90.6(react@19.1.1)
@@ -10632,10 +10518,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/state@1.8.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@dojoengine/state@1.8.3(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@6.23.0)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@dojoengine/torii-client': 1.8.1
+      '@dojoengine/torii-client': 1.8.2
       immer: 10.1.1
       starknet: 6.23.0
       zustand: 5.0.8(@types/react@18.2.79)(immer@10.1.1)(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
@@ -10648,23 +10534,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/state@1.8.1(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
-    dependencies:
-      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@dojoengine/torii-client': 1.8.1
-      immer: 10.1.1
-      starknet: 8.5.2
-      zustand: 5.0.8(@types/react@18.2.79)(immer@10.1.1)(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
-    transitivePeerDependencies:
-      - '@types/react'
-      - bufferutil
-      - react
-      - typescript
-      - use-sync-external-store
-      - utf-8-validate
-      - zod
-
-  '@dojoengine/state@1.8.2(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@dojoengine/state@1.8.3(@types/react@18.2.79)(bufferutil@4.0.9)(react@19.1.1)(starknet@8.5.2)(typescript@5.5.4)(use-sync-external-store@1.6.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@dojoengine/torii-client': 1.8.2
@@ -10692,19 +10562,6 @@ snapshots:
 
   '@dojoengine/torii-wasm@1.8.2': {}
 
-  '@dojoengine/utils@1.8.1(bufferutil@4.0.9)(starknet@6.23.0)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
-    dependencies:
-      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@latticexyz/utils': 2.2.23
-      mathjs: 12.4.3
-      micro-starknet: 0.2.3
-      starknet: 6.23.0
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@dojoengine/utils@1.8.1(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -10718,7 +10575,20 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/utils@1.8.2(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@dojoengine/utils@1.8.3(bufferutil@4.0.9)(starknet@6.23.0)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
+    dependencies:
+      '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@latticexyz/utils': 2.2.23
+      mathjs: 12.4.3
+      micro-starknet: 0.2.3
+      starknet: 6.23.0
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@dojoengine/utils@1.8.3(bufferutil@4.0.9)(starknet@8.5.2)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@dojoengine/recs': 2.0.13(bufferutil@4.0.9)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@latticexyz/utils': 2.2.23
@@ -12729,9 +12599,6 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.14.3':
-    optional: true
-
-  '@rollup/rollup-linux-x64-gnu@4.49.0':
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.52.5':
@@ -17546,7 +17413,7 @@ snapshots:
 
   neverthrow@8.2.0:
     optionalDependencies:
-      '@rollup/rollup-linux-x64-gnu': 4.49.0
+      '@rollup/rollup-linux-x64-gnu': 4.52.5
 
   next-themes@0.4.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
@@ -19151,10 +19018,6 @@ snapshots:
     dependencies:
       react: 19.1.1
 
-  use-sync-external-store@1.5.0(react@19.1.1):
-    dependencies:
-      react: 19.1.1
-
   use-sync-external-store@1.6.0(react@19.1.1):
     dependencies:
       react: 19.1.1
@@ -19876,7 +19739,7 @@ snapshots:
 
   zustand@4.5.6(@types/react@18.2.79)(immer@10.1.1)(react@19.1.1):
     dependencies:
-      use-sync-external-store: 1.5.0(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
     optionalDependencies:
       '@types/react': 18.2.79
       immer: 10.1.1

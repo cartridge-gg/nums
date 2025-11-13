@@ -5,10 +5,11 @@ import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
 import type { GameModel } from "@/models/game";
 import { Button } from "./ui/button";
+import { TournamentModel } from "@/models/tournament";
 
 export type GamesProps = {};
 
-export const Games = () => {
+export const Games = ({ tournament }: { tournament: TournamentModel }) => {
   const { gameIds, isLoading, error } = usePlayerGames();
   const { games } = useGames(gameIds || []);
 
@@ -92,8 +93,10 @@ export const Games = () => {
           style={{ scrollbarWidth: "none" }}
         >
           {games
-            .sort((a, b) => b.id - a.id)
+            .filter((game) => (game.tournament_id === tournament.id && (game.over || tournament.isActive())) || (!game.hasStarted() && tournament.isActive()))
+            .sort((a, b) => a.id - b.id)
             .sort((a, b) => (b.hasStarted() ? 1 : a.hasStarted() ? -1 : 0))
+            .sort((a, b) => (b.over ? -1 : a.over ? 1 : 0))
             .map((game) => (
               <GameDetails key={game.id} game={game} />
             ))}
@@ -127,17 +130,15 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
     navigate(`/${game.id}`);
   }, [navigate, game.id]);
 
-  if (!game || game.over) return null;
-
   return (
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
         <div className="w-5">
           {game.hasStarted() && !game.over ? (
             <LiveIcon size="sm" />
-          ) : (
+          ) : !game.over ? (
             <NumsIcon size="sm" />
-          )}
+          ) : null}
         </div>
         <p className="text-[22px] leading-[12px] w-[168px]">{`Nums #${game.id}`}</p>
         {game.hasStarted() ? (
@@ -146,7 +147,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
           <p className="text-2xl leading-[12px] text-white-700">---</p>
         )}
       </div>
-      {game.hasStarted() ? (
+      {game.hasStarted() && !game.over ? (
         <Button
           variant="secondary"
           className="h-10 w-[108px]"
@@ -159,7 +160,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
             Continue
           </p>
         </Button>
-      ) : (
+      ) : !game.over ? (
         <Button
           variant="default"
           className="h-10 w-[108px]"
@@ -170,6 +171,19 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             Play!
+          </p>
+        </Button>
+      ) : (
+        <Button
+          variant="secondary"
+          className="h-10 w-[108px] grayscale"
+          onClick={handleContinueGame}
+        >
+          <p
+            className="font-[PixelGame] text-[22px] translate-y-0.5"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            View
           </p>
         </Button>
       )}

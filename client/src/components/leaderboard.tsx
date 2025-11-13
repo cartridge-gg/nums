@@ -303,9 +303,9 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
                         ? `${item.username} (you)`
                         : item.username}
                     </TableCell>
-                    <TableCell>{item.score}</TableCell>
+                    <TableCell>{item.score.toLocaleString()}</TableCell>
                     <TableCell className="pr-3">
-                      {item.prize ? `$${item.prize.toFixed(2)}` : ""}
+                      {item.prize ? `$${item.prize.toFixed(2).toLocaleString()}` : ""}
                     </TableCell>
                   </TableRow>
                 ))}

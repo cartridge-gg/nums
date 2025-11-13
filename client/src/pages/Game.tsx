@@ -620,30 +620,46 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
 
   return (
     <div
-      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16"
+      className="relative flex flex-col justify-center h-full grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16"
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      <div className="h-full max-w-[912px] mx-auto flex flex-col gap-12 justify-center">
-        <GameStartHeader points={points} />
-        <div className="flex flex-col gap-6 justify-between">
+      <div className="max-h-[845px] max-w-[912px] mx-auto flex flex-1 flex-col gap-12 py-12 overflow-hidden min-h-0">
+        <GameStartHeader className="flex-shrink-0" points={points} />
+        <div className="flex flex-1 flex-col gap-6 overflow-hidden min-h-0">
           <GameStartPowerups
             selection={selection}
             onToggle={handleToggle}
             canSelectPower={canSelectPower}
             costs={costs}
+            className="flex-1 min-h-0 basis-0 overflow-y-auto pr-2"
           />
-          <GameStartPlay gameId={gameId} selection={selection} />
+          <GameStartPlay
+            gameId={gameId}
+            selection={selection}
+            className="flex-shrink-0 pt-2"
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export const GameStartHeader = ({ points }: { points: number }) => {
+export const GameStartHeader = ({
+  points,
+  className,
+}: {
+  points: number;
+  className?: string;
+}) => {
   return (
-    <div className="h-[76px] flex justify-between items-stretch">
+    <div
+      className={cn(
+        "flex h-[76px] items-stretch justify-between",
+        className,
+      )}
+    >
       <div className="flex flex-col gap-2 justify-between">
         <p className="text-purple-300 tracking-wider text-lg/6">
           Choose your...
@@ -670,11 +686,13 @@ export const GameStartPowerups = ({
   onToggle,
   canSelectPower,
   costs,
+  className,
 }: {
   selection: Power[];
   onToggle: (power: Power) => void;
   canSelectPower: (target: Power) => boolean;
   costs: { power: Power; cost: number }[];
+  className?: string;
 }) => {
   const powers = useMemo(() => {
     return Power.getAllPowers();
@@ -689,7 +707,10 @@ export const GameStartPowerups = ({
 
   return (
     <div
-      className="max-h-[400px] grid grid-cols-3 gap-6 overflow-y-auto"
+      className={cn(
+        "grid grid-cols-3 gap-6 overflow-y-auto",
+        className,
+      )}
       style={{ scrollbarWidth: "none" }}
     >
       {powers.map((power) => (
@@ -802,9 +823,11 @@ export const GameStartPowerup = ({
 export const GameStartPlay = ({
   gameId,
   selection,
+  className,
 }: {
   gameId: number;
   selection: Power[];
+  className?: string;
 }) => {
   const { game } = useGame(gameId);
   const { startGame } = useStartGame({ gameId: gameId, powers: selection });
@@ -827,7 +850,7 @@ export const GameStartPlay = ({
   }, [game, loading]);
 
   return (
-    <div className="flex justify-end">
+    <div className={cn("flex justify-end", className)}>
       <Button variant="default" className="h-10" onClick={handleStartGame}>
         {loading ? (
           <Loader2 className="size-6 animate-spin" />

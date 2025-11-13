@@ -67,7 +67,7 @@ export const Inventory = ({ tournament }: { tournament?: TournamentModel }) => {
             {tournament && <Header tournament={tournament} />}
             <Purchases />
           </div>
-          <Games />
+          {tournament && <Games tournament={tournament} />}
         </div>
       </div>
     </div>

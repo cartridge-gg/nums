@@ -5,6 +5,7 @@ export * from "./disconnect";
 export * from "./home";
 export * from "./live";
 export * from "./logo";
+export * from "./logo-mini";
 export * from "./nums";
 export * from "./points";
 export * from "./sound-off";

@@ -1,22 +1,24 @@
-world_address = "0x3e9de5354a43dcc0daf083da2a87a099ce9ea3cec1e8c442f2f448eed6b9c12"
+world_address = "0x53d352d3336af4baf91bd010610bde919ace997b4e1c33c2f294c26f33c8a0d"
 rpc = "https://api.cartridge.gg/x/starknet/mainnet"
 
 [server]
 http_cors_origins = ["*"]
 
 [grpc]
-optimistic = false
+optimistic = true
 
 [indexing]
 world_block = 0
 controllers = true
 pending = true
+pre_confirmed = true
 polling_interval = 250
 contracts = [
     "ERC20:0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",   # NUMS
+    "ERC20:0x3e6f513ad6a9acf40beb59545334caf9d961c8bad7b4b7d6bf4dc5eec28bc1c",  # mNUMS
     "ERC721:0x36017E69D21D6D8c13E266EaBB73ef1f1D02722D86BDcAbe5f168f8e549d3cD", # Denshokan
 ]
 
 
 [sql]
-historical = ["nums-TrophyProgression"]
+historical = ["NUMS-TrophyProgression"]

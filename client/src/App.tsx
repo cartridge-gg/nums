@@ -27,9 +27,9 @@ const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: import.meta.env.VITE_MAINNET_RPC_URL };
+        return { nodeUrl: import.meta.env.VITE_SN_MAIN_RPC_URL };
       case sepolia:
-        return { nodeUrl: import.meta.env.VITE_SEPOLIA_RPC_URL };
+        return { nodeUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
@@ -68,9 +68,9 @@ const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
   switch (chain) {
     case mainnet:
-      return [{ rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL }];
+      return [{ rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL }];
     case sepolia:
-      return [{ rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL }];
+      return [{ rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL }];
     default:
       throw new Error(`Unsupported chain: ${chain.network}`);
   }
@@ -84,13 +84,18 @@ const buildTokens = () => {
   };
 };
 
+const slot = import.meta.env[
+  `VITE_${import.meta.env.VITE_DEFAULT_CHAIN}_TORII_URL`
+]
+  .split("/")
+  .slice(-2, -1)[0];
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
   // policies: buildPolicies(),
   preset: "nums",
   namespace: "NUMS",
-  slot: "nums-bal",
+  slot: slot,
   tokens: buildTokens(),
 };
 
@@ -108,28 +113,28 @@ function App() {
           provider={provider}
         >
           <DojoSdkProviderInitialized>
-              <AudioProvider>
-                <ConfigProvider>
-                  <UsageProvider>
-                    <ControllersProvider>
-                      <GameProvider>
-                        <TournamentProvider>
-                          <ModalProvider>
-                            <Router>
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/:gameId" element={<Game />} />
-                                {/* <Route path="/selection" element={<Selection />} />
+            <AudioProvider>
+              <ConfigProvider>
+                <UsageProvider>
+                  <ControllersProvider>
+                    <GameProvider>
+                      <TournamentProvider>
+                        <ModalProvider>
+                          <Router>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/:gameId" element={<Game />} />
+                              {/* <Route path="/selection" element={<Selection />} />
                                 <Route path="/factories" element={<Factories />} /> */}
-                              </Routes>
-                            </Router>
-                          </ModalProvider>
-                        </TournamentProvider>
-                      </GameProvider>
-                    </ControllersProvider>
-                  </UsageProvider>
-                </ConfigProvider>
-              </AudioProvider>
+                            </Routes>
+                          </Router>
+                        </ModalProvider>
+                      </TournamentProvider>
+                    </GameProvider>
+                  </ControllersProvider>
+                </UsageProvider>
+              </ConfigProvider>
+            </AudioProvider>
           </DojoSdkProviderInitialized>
         </StarknetConfig>
       </QueryClientProvider>

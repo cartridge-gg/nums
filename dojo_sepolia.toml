@@ -21,7 +21,7 @@ order_inits = [
     "NUMS-Settings",
     "NUMS-Play",
 ]
-skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken"]
+skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken", "NUMS-MockStarterpack"]
 disable_multicall = true
 
 [writers]
@@ -36,9 +36,6 @@ disable_multicall = true
 [init_call_args]
 "NUMS-Minigame" = [
     "0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan address
-]
-"NUMS-Play" = [
-    "1798758000", # claimable_until
 ]
 "NUMS-Setup" = [
     "0x0",                                                                # Option::Some

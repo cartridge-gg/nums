@@ -655,10 +655,7 @@ export const GameStartHeader = ({
 }) => {
   return (
     <div
-      className={cn(
-        "flex h-[76px] items-stretch justify-between",
-        className,
-      )}
+      className={cn("flex h-[76px] items-stretch justify-between", className)}
     >
       <div className="flex flex-col gap-2 justify-between">
         <p className="text-purple-300 tracking-wider text-lg/6">
@@ -707,10 +704,7 @@ export const GameStartPowerups = ({
 
   return (
     <div
-      className={cn(
-        "grid grid-cols-3 gap-6 overflow-y-auto",
-        className,
-      )}
+      className={cn("grid grid-cols-3 gap-6 overflow-y-auto", className)}
       style={{ scrollbarWidth: "none" }}
     >
       {powers.map((power) => (

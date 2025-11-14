@@ -62,12 +62,12 @@ export const Inventory = ({ tournament }: { tournament?: TournamentModel }) => {
         }}
       >
         <Close close={closeInventory} />
-        <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-6 h-full overflow-hidden">
+        <div className="max-w-[784px] mx-auto pt-16 md:py-[120px] flex flex-col gap-6 h-full overflow-hidden">
           <div className="flex flex-col items-start gap-6">
             {tournament && <Header tournament={tournament} />}
             <Purchases />
           </div>
-          {tournament && <Games tournament={tournament} />}
+          <Games tournament={tournament} />
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ export const Close = ({ close }: { close: () => void }) => {
   return (
     <Button
       variant="ghost"
-      className="h-12 w-14 absolute top-6 right-6 [&_svg]:size-8 bg-white-900 hover:bg-white-800 rounded-lg"
+      className="h-10 w-10 md:h-12 md:w-14 p-2 md:px-6 md:py-4 absolute top-6 right-6 [&_svg]:size-6 md:[&_svg]:size-8 bg-white-900 hover:bg-white-800 rounded-lg"
       onClick={close}
     >
       <CloseIcon size="lg" />
@@ -110,9 +110,9 @@ export const Header = ({ tournament }: { tournament: TournamentModel }) => {
   }, [tournament, ended, started]);
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start md:gap-2">
       <h1
-        className="text-[68px] leading-[42px] uppercase translate-y-0.5"
+        className="text-[36px] md:text-[68px] leading-[42px] uppercase translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         Enter Jackpot #{tournament.id}
@@ -121,7 +121,8 @@ export const Header = ({ tournament }: { tournament: TournamentModel }) => {
         className="text-lg leading-[12px] tracking-wide text-white-400 translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        Tournament ends in: {remainingTime}
+        <p className="hidden md:block">Tournament ends in: {remainingTime}</p>
+        <p className="block md:hidden">Ends in: {remainingTime}</p>
       </p>
     </div>
   );
@@ -153,14 +154,14 @@ export const Purchases = ({}: {}) => {
   }, [connector, payPack]);
 
   return (
-    <ul className="flex justify-between gap-6 w-full">
+    <ul className="flex justify-between gap-3 md:gap-6 w-full">
       <PurchaseMethod
         title="Share on X"
         buttonText={claims.length === 0 ? "Free!" : "Claimed!"}
         onClick={claims.length === 0 ? freeOpen : undefined}
       />
       <PurchaseMethod
-        title="Purchase Starterpack"
+        title="Buy Starterpack"
         buttonText={"2000 NUMS"}
         onClick={payOpen}
       />
@@ -185,11 +186,13 @@ export const PurchaseMethod = ({
 
   return (
     <div className="w-1/2 rounded-lg bg-white-900 border border-white-900 p-3 flex flex-col gap-4">
-      <h3 className="font-ppneuebit text-2xl h-5">{title}</h3>
+      <h3 className="font-ppneuebit text-xl/[10px] md:text-2xl/3 pt-2">
+        {title}
+      </h3>
       <Button
         disabled={disabled}
         variant="default"
-        className="w-full h-10"
+        className="w-full h-10 px-2.5"
         onClick={onClick}
       >
         {isLoading ? (

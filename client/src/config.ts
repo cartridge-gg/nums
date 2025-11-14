@@ -13,11 +13,6 @@ export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
 
-export const ETH_CONTRACT_ADDRESS =
-  "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
-export const STRK_CONTRACT_ADDRESS =
-  "0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D";
-
 export const chainName = {
   [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
   [MAINNET_CHAIN_ID]: "Starknet Mainnet",
@@ -34,14 +29,14 @@ export const chains = {
 };
 
 const dojoConfigSepolia = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SEPOLIA_TORII_URL,
+  rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL,
+  toriiUrl: import.meta.env.VITE_SN_SEPOLIA_TORII_URL,
   manifest: manifestSepolia,
 });
 
 const dojoConfigMainnet = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_MAINNET_RPC_URL,
-  toriiUrl: import.meta.env.VITE_MAINNET_TORII_URL,
+  rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL,
+  toriiUrl: import.meta.env.VITE_SN_MAIN_TORII_URL,
   manifest: manifestMainnet,
 });
 
@@ -55,15 +50,15 @@ export const getContractAddress = (
   namespace: string,
   contractName: string,
 ) => {
-  if (contractName === "MockNumsToken") {
-    return "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d";
-  }
   const chainIdHex = `0x${chainId.toString(16)}`;
 
   const manifest = manifests[chainIdHex];
   const contract = manifest.contracts.find(
     (i) => i.tag === `${namespace}-${contractName}`,
   );
+  if (!contract && contractName === "MockNumsToken") {
+    return "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d";
+  }
   return contract!.address;
 };
 

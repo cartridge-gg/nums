@@ -7,6 +7,7 @@ import {
   ControllerIcon,
   DisconnectIcon,
   LogoIcon,
+  LogoMiniIcon,
   SoundOffIcon,
   SoundOnIcon,
 } from "@/components/icons";
@@ -30,24 +31,23 @@ export const Header = () => {
   };
 
   return (
-    <div className="w-full min-h-24 max-h-24 px-8 flex items-center justify-between border-b border-[rgba(0,0,0,0.24)] bg-[linear-gradient(0deg,rgba(0,0,0,0.24)_0%,rgba(0,0,0,0.16)_100%)]">
+    <div className="w-full min-h-16 md:min-h-24 max-h-24 px-3 md:px-8 flex items-center justify-between border-b border-[rgba(0,0,0,0.24)] bg-[linear-gradient(0deg,rgba(0,0,0,0.24)_0%,rgba(0,0,0,0.16)_100%)]">
       <div
-        className="flex items-center justify-start gap-2 cursor-pointer select-none"
+        className="flex items-center justify-start gap-2 cursor-pointer select-none [&_svg]:size-10 md:[&_svg]:size-12"
         onClick={handleClick}
       >
         <LogoIcon
-          size="xl"
           className="drop-shadow-[3px_3px_0px_rgba(0,0,0,0.25)] text-white"
           aria-hidden="true"
         />
         <h1
-          className="text-[64px] leading-[48px] uppercase text-white translate-y-1"
+          className="text-[64px] leading-[48px] uppercase text-white translate-y-1 hidden md:block"
           style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
         >
           NUMS.GG
         </h1>
       </div>
-      <div className="flex items-center justify-start gap-4">
+      <div className="flex items-center justify-start gap-2 md:gap-4">
         <Sound />
         {address && <Balance />}
         {address && <Claim />}
@@ -65,7 +65,7 @@ export const Sound = () => {
     <Button
       variant="muted"
       onClick={() => toggleMute()}
-      className="h-12 px-4 py-2 [&_svg]:size-8"
+      className="h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8"
     >
       {isMuted ? <SoundOffIcon size="lg" /> : <SoundOnIcon size="lg" />}
     </Button>
@@ -119,18 +119,24 @@ export const Balance = () => {
     <Button
       variant="muted"
       className={cn(
-        "h-12 px-4 py-2 text-2xl tracking-wide",
+        "h-10 md:h-12 px-3 md:px-4 py-2 text-2xl tracking-wide gap-1",
         !isMainnet ? "cursor-pointer" : "cursor-default",
       )}
       onClick={() => {
-        if (isMainnet) return;
+        // if (isMainnet) return;
         mintMockNums();
       }}
     >
+      <div className="block md:hidden [&_svg]:size-6 md:[&_svg]:size-8">
+        <LogoMiniIcon />
+      </div>
       <p
         className="translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
-      >{`${balance.toLocaleString()} NUMS`}</p>
+      >
+        {`${balance.toLocaleString()}`}
+        <span className="hidden md:inline"> NUMS</span>
+      </p>
     </Button>
   );
 };
@@ -152,14 +158,14 @@ export const Profile = () => {
   return (
     <Button
       variant="muted"
-      className="h-12 px-4 py-2 font-[PixelGame] tracking-wide flex items-center justify-center gap-2 [&_svg]:size-6"
+      className="h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 font-[PixelGame] tracking-wide flex items-center justify-center gap-2 [&_svg]:size-6 md:[&_svg]:size-8"
       onClick={async () => {
         (connector as ControllerConnector)?.controller.openProfile("inventory");
       }}
     >
       {address && <ControllerIcon />}
       <p
-        className="translate-y-0.5 text-2xl"
+        className="translate-y-0.5 text-2xl hidden md:block"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
       >
         {username}
@@ -194,7 +200,7 @@ export const Disconnect = () => {
   return (
     <Button
       variant="muted"
-      className="h-12 px-4 py-2 [&_svg]:size-8"
+      className="h-10 md:h-12 w-10 md:w-auto px-3 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8 gap-1"
       onClick={() => disconnect()}
     >
       <DisconnectIcon size="lg" />

@@ -1,17 +1,33 @@
-import { useCallback } from "react";
+import { ArrowRightIcon, EyeIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { LiveIcon, NumsIcon } from "@/components/icons";
+import { formatCompactNumber } from "@/helpers/number";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
 import type { GameModel } from "@/models/game";
+import type { TournamentModel } from "@/models/tournament";
 import { Button } from "./ui/button";
-import { TournamentModel } from "@/models/tournament";
 
 export type GamesProps = {};
 
-export const Games = ({ tournament }: { tournament: TournamentModel }) => {
+export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
   const { gameIds, isLoading, error } = usePlayerGames();
   const { games } = useGames(gameIds || []);
+
+  const filteredGames = useMemo(() => {
+    if (!tournament) return [];
+    return games
+      .filter(
+        (game) =>
+          (game.tournament_id === tournament?.id &&
+            (game.over || tournament.isActive())) ||
+          (!game.hasStarted() && tournament.isActive()),
+      )
+      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => (b.hasStarted() ? 1 : a.hasStarted() ? -1 : 0))
+      .sort((a, b) => (b.over ? -1 : a.over ? 1 : 0));
+  }, [games, tournament]);
 
   if (isLoading) {
     return (
@@ -71,6 +87,8 @@ export const Games = ({ tournament }: { tournament: TournamentModel }) => {
     );
   }
 
+  console.log({ tournament, games });
+
   return (
     <div className="h-full overflow-hidden flex flex-col gap-6">
       <div className="flex items-center gap-2 px-4 h-3">
@@ -87,19 +105,14 @@ export const Games = ({ tournament }: { tournament: TournamentModel }) => {
           Score
         </p>
       </div>
-      {games && games.length > 0 ? (
+      {filteredGames.length > 0 ? (
         <div
           className="font-ppneuebit text-2xl leading-[34px] overflow-y-auto flex flex-col gap-3"
           style={{ scrollbarWidth: "none" }}
         >
-          {games
-            .filter((game) => (game.tournament_id === tournament.id && (game.over || tournament.isActive())) || (!game.hasStarted() && tournament.isActive()))
-            .sort((a, b) => a.id - b.id)
-            .sort((a, b) => (b.hasStarted() ? 1 : a.hasStarted() ? -1 : 0))
-            .sort((a, b) => (b.over ? -1 : a.over ? 1 : 0))
-            .map((game) => (
-              <GameDetails key={game.id} game={game} />
-            ))}
+          {filteredGames.map((game) => (
+            <GameDetails key={game.id} game={game} />
+          ))}
         </div>
       ) : (
         <EmptyGames />
@@ -133,58 +146,72 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
   return (
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
-        <div className="w-5">
-          {game.hasStarted() && !game.over ? (
-            <LiveIcon size="sm" />
-          ) : !game.over ? (
-            <NumsIcon size="sm" />
-          ) : null}
-        </div>
-        <p className="text-[22px] leading-[12px] w-[168px]">{`Nums #${game.id}`}</p>
-        {game.hasStarted() ? (
-          <p className="text-[22px] leading-[12px]">{game.score}</p>
+        {game.hasStarted() && !game.over ? (
+          <div className="[&_svg]:size-3 w-5 flex items-center justify-center">
+            <LiveIcon />
+          </div>
         ) : (
-          <p className="text-2xl leading-[12px] text-white-700">---</p>
+          <div className="[&_svg]:size-5 w-5 flex items-center justify-center">
+            <NumsIcon />
+          </div>
         )}
+        <div className="w-full flex items-center justify-between md:justify-start">
+          <p className="text-[22px] leading-[12px] md:w-[168px]">{`Nums #${game.id}`}</p>
+          {game.hasStarted() ? (
+            <p className="text-[22px] leading-[12px]">
+              <span className="md:hidden">
+                {formatCompactNumber(game.score)}
+              </span>
+              <span className="hidden md:inline">
+                {game.score.toLocaleString()}
+              </span>
+            </p>
+          ) : (
+            <p className="text-2xl leading-[12px] text-white-700">---</p>
+          )}
+        </div>
       </div>
       {game.hasStarted() && !game.over ? (
         <Button
           variant="secondary"
-          className="h-10 w-[108px]"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5"
           onClick={handleContinueGame}
         >
           <p
-            className="font-[PixelGame] text-[22px] translate-y-0.5"
+            className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             Continue
           </p>
+          <ArrowRightIcon className="size-6 block md:hidden" />
         </Button>
       ) : !game.over ? (
         <Button
           variant="default"
-          className="h-10 w-[108px]"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5"
           onClick={handleContinueGame}
         >
           <p
-            className="font-[PixelGame] text-[28px] translate-y-0.5"
+            className="font-[PixelGame] text-[28px] translate-y-0.5 hidden md:block"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             Play!
           </p>
+          <ArrowRightIcon className="size-6 block md:hidden" />
         </Button>
       ) : (
         <Button
           variant="secondary"
-          className="h-10 w-[108px] grayscale"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 grayscale"
           onClick={handleContinueGame}
         >
           <p
-            className="font-[PixelGame] text-[22px] translate-y-0.5"
+            className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             View
           </p>
+          <EyeIcon className="size-6 block md:hidden" />
         </Button>
       )}
     </div>

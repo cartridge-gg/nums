@@ -56,7 +56,7 @@ export const JackpotDetails = ({
   return (
     <div
       className={cn(
-        "select-none flex flex-col gap-6 w-full rounded-lg p-6 bg-[rgba(0,0,0,0.04)]",
+        "select-none flex flex-col gap-2 md:gap-6 w-full rounded-lg p-4 md:p-6 bg-[rgba(0,0,0,0.04)]",
         tournamentPrizes.length === 0
           ? "pointer-events-none"
           : "cursor-pointer",
@@ -73,38 +73,40 @@ export const JackpotDetails = ({
     >
       <div className="flex gap-2 justify-between items-center">
         <h2
-          className="text-4xl/[24px] uppercase"
+          className="text-[28px]/[19px] md:text-4xl/[24px] uppercase translate-y-0.5"
           style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Jackpot #{tournament.id}
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <PrizePoolTokens prizes={tournamentPrizes} />
           <span
-            className="text-4xl/[24px] uppercase translate-y-0.5"
+            className="text-[28px]/[19px] md:text-4xl/[24px] uppercase translate-y-0.5"
             style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
           >
             {totalPrizeUsd}
           </span>
         </div>
       </div>
-      <div className="flex flex-row-reverse gap-2 justify-between items-center max-h-3">
+      <div className="flex flex-row-reverse gap-2 justify-between items-center max-h-3 translate-y-0.5">
         {ended ? (
           <div className="text-purple-300 leading-[12px]">
             <span
               className="text-lg"
               style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
             >
-              Tournament completed
+              <p className="hidden md:block">Tournament completed</p>
+              <p className="block md:hidden">Completed</p>
             </span>
           </div>
         ) : !started ? (
-          <div className="flex gap-2 justify-between text-purple-300 leading-[12px]">
+          <div className="flex gap-2 justify-between text-purple-300 leading-[12px] translate-y-0.5">
             <span
               className="text-lg"
               style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
             >
-              Tournament starts in:
+              <p className="hidden md:block">Tournament starts in:</p>
+              <p className="block md:hidden">Starts in:</p>
             </span>
             <span
               className="text-lg"
@@ -114,12 +116,13 @@ export const JackpotDetails = ({
             </span>
           </div>
         ) : (
-          <div className="flex gap-2 justify-between text-purple-300 leading-[12px]">
+          <div className="flex gap-2 justify-between text-purple-300 leading-[12px] translate-y-0.5">
             <span
               className="text-lg"
               style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
             >
-              Tournament ends in:
+              <p className="hidden md:block">Tournament ends in:</p>
+              <p className="block md:hidden">Ends in:</p>
             </span>
             <span
               className="text-lg"
@@ -135,7 +138,7 @@ export const JackpotDetails = ({
             (!started || ended) && "hidden",
           )}
         >
-          <div className="animate-pulse">
+          <div className="animate-pulse hidden md:block">
             <LiveIcon />
           </div>
           <p

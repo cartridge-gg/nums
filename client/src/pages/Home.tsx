@@ -25,6 +25,7 @@ import { getNumsAddress } from "@/config";
 import { useModal } from "@/context/modal";
 import { useTournaments } from "@/context/tournaments";
 import useChain from "@/hooks/chain";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
@@ -55,7 +56,7 @@ export const Home = () => {
 
   return (
     <div
-      className="relative h-screen w-screen flex flex-col"
+      className="relative h-screen w-screen flex flex-col overflow-hidden"
       onClick={() => {
         if (isInventoryOpen) closeInventory();
         if (prizePoolModal) setPrizePoolModal(false);
@@ -124,9 +125,12 @@ export const Main = ({
   }, [prizes, selectedTournament]);
 
   return (
-    <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16 py-12">
+    <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 pb-[28px] md:px-16 md:py-12 overflow-hidden">
       {isInventoryOpen && (
-        <div className="absolute inset-0 z-50 p-6" onClick={closeInventory}>
+        <div
+          className="absolute inset-0 z-50 p-2 md:p-6"
+          onClick={closeInventory}
+        >
           <Inventory
             tournament={
               tournaments?.find(
@@ -138,7 +142,7 @@ export const Main = ({
       )}
       {isInfoOpen && (
         <div
-          className="absolute inset-0 z-50 p-6"
+          className="absolute inset-0 z-50 p-2 md:p-6"
           onClick={(event) => {
             event.stopPropagation();
             closeInfo();
@@ -158,7 +162,7 @@ export const Main = ({
           />
         </div>
       )}
-      <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4">
+      <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4 overflow-hidden">
         <div className="flex justify-between items-center">
           <JackpotSelector
             tournaments={tournaments || []}
@@ -172,7 +176,9 @@ export const Main = ({
                 openInfo();
               }}
             />
-            <Play onClick={openInventory} />
+            <div className="hidden md:block">
+              <Play onClick={openInventory} />
+            </div>
           </div>
         </div>
         {!!selectedTournament && (
@@ -185,7 +191,7 @@ export const Main = ({
             onOpenPrizeModal={() => setPrizePoolModal(true)}
           />
         )}
-        <div className="flex-1 min-h-0">
+        <div className="h-full overflow-hidden">
           {selectedTournament && (
             <Leaderboard
               tournament={
@@ -195,6 +201,9 @@ export const Main = ({
               }
             />
           )}
+        </div>
+        <div className="block md:hidden">
+          <Play onClick={openInventory} />
         </div>
       </div>
     </div>
@@ -230,7 +239,7 @@ const tabs: Array<{
   {
     id: "nums",
     label: "Nums",
-    icon: LogoIcon,
+    icon: () => <LogoIcon />,
   },
 ];
 
@@ -293,12 +302,10 @@ const InfoModal = ({
           </div>
           <div className="flex flex-col gap-4 text-left">
             <h2
-              className="text-[64px] leading-[42px] uppercase translate-y-0.5"
+              className="text-[48px]/[33px] md:text-[64px]/[42px] uppercase translate-y-0.5"
               style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
             >
-              {activeTab === "about"
-                ? "Welcome to Nums"
-                : "Play Nums to earn Nums"}
+              {activeTab === "about" ? "How to play" : "Tokens details"}
             </h2>
             {activeTab === "about" ? (
               <div className="flex flex-col gap-6 text-base/5 text-white-100 font-circular">
@@ -361,7 +368,7 @@ export const Play = ({ onClick }: { onClick: () => void }) => {
   return (
     <Button
       variant={!account ? "muted" : "default"}
-      className="h-10 px-6 py-2 tracking-wide cursor-pointer"
+      className="h-10 w-full md:w-auto px-6 py-2 tracking-wide cursor-pointer"
       onClick={handleClick}
     >
       <p
@@ -384,6 +391,7 @@ export const JackpotSelector = ({
   handleSelect: (value: string) => void;
 }) => {
   const { prizes } = usePrizesWithUsd();
+  const isNarrow = useMediaQuery("(max-width: 767px)");
 
   const getTournamentPrizeTotal = (tournamentId: number) => {
     const tournamentPrizes = prizes.filter(
@@ -417,22 +425,28 @@ export const JackpotSelector = ({
           <SelectValue placeholder="Coming soon" />
         )}
       </SelectTrigger>
-      <SelectContent className="w-[400px] max-h-[360px] rounded-lg border-2 border-black-300 px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wide shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-        <div className="flex flex-col gap-2 py-3">
+      <SelectContent
+        fullWidth={isNarrow}
+        className={cn(
+          "max-h-[360px] rounded-lg border-2 border-black-300 px-2 md:px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wide shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
+          isNarrow && "w-full",
+        )}
+      >
+        <div className="flex flex-col gap-2 py-2 md:py-3">
           {tournaments?.map((tournament) => (
             <SelectItem
               key={tournament.id}
               value={tournament.id.toString()}
               className={cn(
-                "w-full h-10 rounded px-3 py-2 bg-purple-600 focus:bg-purple-500 cursor-pointer justify-between",
+                "md:w-[364px] h-10 rounded px-3 py-2 bg-purple-600 focus:bg-purple-500 cursor-pointer justify-between",
                 selected === tournament.id &&
                   "bg-purple-500 hover:bg-purple-500 pointer-events-none cursor-default",
               )}
             >
-              <div className="w-[340px] flex gap-2 justify-between items-center">
+              <div className="w-full flex gap-2 justify-between items-center">
                 <div className="flex items-center gap-2">
                   {tournament.hasStarted() && !tournament.hasEnded() ? (
-                    <div className="animate-pulse p-1.5 flex justify-center items-center">
+                    <div className="animate-pulse p-1 flex justify-center items-center [&_svg]:size-4">
                       <LiveIcon />
                     </div>
                   ) : (

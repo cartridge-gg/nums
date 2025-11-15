@@ -6,6 +6,7 @@ import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import {
   CircleInfoIcon,
+  CopyIcon,
   LiveIcon,
   LogoIcon,
   TrophyIcon,
@@ -337,15 +338,7 @@ const InfoModal = ({
             ) : (
               <div className="flex flex-col gap-6 text-base/5 text-white-100 font-circular">
                 <p>Play NUMS to earn NUMS. Spend NUMS to play NUMS.</p>
-                <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
-                  <strong
-                    className="font-pixel text-lg/3 tracking-wider text-purple-300"
-                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-                  >
-                    NUMS Token Address
-                  </strong>
-                  <span>{getChecksumAddress(getNumsAddress(chain.id))}</span>
-                </div>
+                <TokenAddressCard />
                 <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
                   <strong
                     className="font-pixel text-lg/3 tracking-wider text-purple-300"
@@ -360,6 +353,56 @@ const InfoModal = ({
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const TokenAddressCard = () => {
+  const { chain } = useChain();
+  const [copied, setCopied] = useState(false);
+  const tokenAddress = useMemo(
+    () => getChecksumAddress(getNumsAddress(chain.id)),
+    [chain.id],
+  );
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(tokenAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (error) {
+      console.error("Unable to copy token address", error);
+    }
+  }, [tokenAddress]);
+
+  return (
+    <div className="relative flex flex-col gap-2 rounded border border-white-900 bg-white-900 px-5 py-4">
+      <div className="flex items-center justify-between gap-2">
+        <strong
+          className="font-pixel text-lg/3 tracking-wider text-purple-300"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          NUMS Token Address
+        </strong>
+        <Button
+          type="button"
+          variant="ghost"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 [&_svg]:size-5 text-white-100 bg-transparent hover:bg-transparent"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleCopy();
+          }}
+          aria-label="Copy NUMS token address"
+        >
+          <CopyIcon />
+        </Button>
+      </div>
+      <span className="font-mono text-sm break-all pr-6">{tokenAddress}</span>
+      {copied && (
+        <span className="font-pixel absolute right-3 top-1/4 md:top-3 -translate-x-1/2 text-xs text-purple-300 tracking-wide animate-copy-pop">
+          Copied!
+        </span>
+      )}
     </div>
   );
 };

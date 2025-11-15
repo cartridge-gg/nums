@@ -4,6 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes copy-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.animate-copy-pop {
+  animation: copy-pop 0.8s ease-out forwards;
+}
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;

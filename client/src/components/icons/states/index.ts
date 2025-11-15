@@ -2,6 +2,7 @@ export * from "./arrow-right";
 export * from "./circle-info";
 export * from "./close";
 export * from "./controller";
+export * from "./copy";
 export * from "./disconnect";
 export * from "./eye";
 export * from "./home";

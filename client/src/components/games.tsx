@@ -1,7 +1,11 @@
-import { ArrowRightIcon, EyeIcon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { LiveIcon, NumsIcon } from "@/components/icons";
+import {
+  ArrowRightIcon,
+  EyeIcon,
+  LiveIcon,
+  NumsIcon,
+} from "@/components/icons";
 import { formatCompactNumber } from "@/helpers/number";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
@@ -34,7 +38,7 @@ export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
@@ -63,7 +67,7 @@ export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
@@ -87,19 +91,17 @@ export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
     );
   }
 
-  console.log({ tournament, games });
-
   return (
     <div className="h-full overflow-hidden flex flex-col gap-6">
-      <div className="flex items-center gap-2 px-4 h-3">
+      <div className="w-full flex items-center gap-2 px-4 h-3 justify-between md:justify-start pr-[72px] md:pr-0">
         <p
-          className="w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+          className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Game ID
         </p>
         <p
-          className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
+          className="tracking-wide text-purple-300 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Score
@@ -174,7 +176,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
       {game.hasStarted() && !game.over ? (
         <Button
           variant="secondary"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
           onClick={handleContinueGame}
         >
           <p
@@ -183,12 +185,12 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
           >
             Continue
           </p>
-          <ArrowRightIcon className="size-6 block md:hidden" />
+          <ArrowRightIcon className="size-6 block md:hidden" variant="solid" />
         </Button>
       ) : !game.over ? (
         <Button
           variant="default"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
           onClick={handleContinueGame}
         >
           <p
@@ -197,12 +199,15 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
           >
             Play!
           </p>
-          <ArrowRightIcon className="size-6 block md:hidden" />
+          <ArrowRightIcon
+            className="text-brown-100 block md:hidden"
+            variant="solid"
+          />
         </Button>
       ) : (
         <Button
           variant="secondary"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 grayscale"
+          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 grayscale [&_svg]:size-6"
           onClick={handleContinueGame}
         >
           <p
@@ -211,7 +216,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
           >
             View
           </p>
-          <EyeIcon className="size-6 block md:hidden" />
+          <EyeIcon className="size-6 block md:hidden" variant="solid" />
         </Button>
       )}
     </div>

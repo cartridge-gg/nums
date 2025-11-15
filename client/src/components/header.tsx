@@ -178,7 +178,7 @@ export const Connect = () => {
   const { connectAsync, connectors } = useConnect();
   return (
     <Button
-      className="h-12 px-4 py-2 font-[PixelGame] tracking-wide text-2xl"
+      className="h-10 w-full md:h-12 md:w-auto px-4 py-2 font-[PixelGame] tracking-wide text-2xl"
       variant="default"
       onClick={async () => {
         await connectAsync({ connector: connectors[0] });

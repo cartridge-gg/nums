@@ -5,7 +5,7 @@ import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
-import { HomeIcon, PointsIcon } from "@/components/icons";
+import { CloseIcon, HomeIcon, PointsIcon } from "@/components/icons";
 import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { useUsage } from "@/context/usage";
 import { useGame } from "@/hooks/useGame";
 import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useStartGame } from "@/hooks/useStartGame";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,7 @@ export const Main = ({
   );
   const [gameOverModal, setGameOverModal] = useState<boolean>(false);
   const [nextNumberModal, setNextNumberModal] = useState<boolean>(false);
+  const [powerModal, setPowerModal] = useState<Power>();
   const hasStartedRef = useRef<boolean>(false);
 
   const tournament = useMemo(() => {
@@ -115,16 +117,16 @@ export const Main = ({
   };
 
   useEffect(() => {
-    if (game?.over && !gameOverModal) {
+    if (game?.over) {
       playNegative();
       setTimeout(() => {
         setGameOverModal(true);
       }, 3000);
     }
-  }, [game?.over, gameOverModal, playNegative]);
+  }, [game?.over, playNegative]);
 
   useEffect(() => {
-    if (game?.next_number && !nextNumberModal) {
+    if (game?.next_number) {
       setNextNumberModal(true);
     }
   }, [game?.next_number]);
@@ -146,20 +148,20 @@ export const Main = ({
 
   return (
     <div
-      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16 py-12"
+      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 md:px-16 md:py-12"
       onClick={(e) => {
         e.stopPropagation();
         setNextNumberModal(false);
       }}
     >
       {gameOverModal && (
-        <div className="absolute inset-0 z-50 p-6">
-          <GameOver game={game} />
+        <div className="w-full absolute inset-0 z-50 p-4 md:p-6 flex justify-center">
+          <GameOver game={game} close={() => setGameOverModal(false)} />
         </div>
       )}
       {nextNumberModal && (
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-6"
+          className="w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-2 md:p-6 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <GameNextNumber
@@ -168,9 +170,21 @@ export const Main = ({
           />
         </div>
       )}
+      {powerModal && (
+        <div
+          className="w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-2 md:p-6 flex justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GamePowerModal
+            power={powerModal}
+            close={() => setPowerModal(undefined)}
+            onApplyPower={handleApplyPower}
+          />
+        </div>
+      )}
       {prizePoolModal && (
         <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50"
+          className="w-full absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50 p-2 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <PrizePoolModal
@@ -179,21 +193,24 @@ export const Main = ({
           />
         </div>
       )}
-      <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 justify-center">
-        <div className="flex flex-col gap-12">
-          <GameHeader
-            game={game}
-            onApplyPower={handleApplyPower}
-            loadingPowerIndex={loadingPowerIndex}
-            loadingSlotIndex={loadingSlotIndex}
-          />
-          <GameGrid
-            game={game}
-            onSetSlot={handleSetSlot}
-            loadingSlotIndex={loadingSlotIndex}
-            highlights={game.over ? game.closests() : []}
-            alloweds={game.alloweds()}
-          />
+      <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 md:justify-center">
+        <div className="h-full md:h-auto flex flex-col gap-3 md:gap-12 justify-between md:justify-start">
+          <div className="flex flex-col gap-3 md:gap-12">
+            <GameHeader
+              game={game}
+              onApplyPower={handleApplyPower}
+              loadingPowerIndex={loadingPowerIndex}
+              loadingSlotIndex={loadingSlotIndex}
+              setPowerModal={setPowerModal}
+            />
+            <GameGrid
+              game={game}
+              onSetSlot={handleSetSlot}
+              loadingSlotIndex={loadingSlotIndex}
+              highlights={game.over ? game.closests() : []}
+              alloweds={game.alloweds()}
+            />
+          </div>
           {tournament && (
             <JackpotDetails
               tournament={tournament}
@@ -211,14 +228,16 @@ export const GameHeader = ({
   onApplyPower,
   loadingPowerIndex,
   loadingSlotIndex,
+  setPowerModal,
 }: {
   game: GameModel;
   onApplyPower: (powerIndex: number) => Promise<void>;
   loadingPowerIndex: number | null;
   loadingSlotIndex: number | null;
+  setPowerModal: (power: Power | undefined) => void;
 }) => {
   return (
-    <div className="w-full flex justify-between">
+    <div className="h-24 md:h-[132px] w-full flex justify-between px-3 md:px-0">
       <GameNumber
         number={game.number}
         over={game.over}
@@ -229,6 +248,7 @@ export const GameHeader = ({
         availables={game.available_powers}
         onApplyPower={onApplyPower}
         loadingPowerIndex={loadingPowerIndex}
+        setPowerModal={setPowerModal}
       />
     </div>
   );
@@ -244,13 +264,13 @@ export const GameNumber = ({
   isLoading: boolean;
 }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1 md:gap-2">
       <span className="text-purple-300 tracking-wide text-lg/6">
         Your number is...
       </span>
       <div
         className={cn(
-          "text-[136px]/[100px] font-normal",
+          "text-[96px]/[68px] md:text-[136px]/[100px] font-normal translate-y-1",
           over ? "text-red-100" : "text-white-100",
         )}
         style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
@@ -279,10 +299,19 @@ export const GameNextNumber = ({
   const Icon = power.icon();
   return (
     <div
-      className="h-64 w-[288px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] rounded-lg p-6 flex flex-col items-center gap-6"
+      className="w-[288px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] rounded-lg p-6 flex flex-col items-center gap-6"
       style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      <Icon className="size-16" role="img" aria-label={power.name()} />
+      <Button
+        variant="ghost"
+        className="h-12 w-12 p-2 md:px-6 md:py-4 [&_svg]:size-8 absolute top-1.5 right-1.5 text-white-400"
+        onClick={() => setModal(false)}
+      >
+        <CloseIcon />
+      </Button>
+      <div className="[&_svg]:size-16">
+        <Icon role="img" aria-label={power.name()} />
+      </div>
       <p
         className="text-white-100 text-[64px]/[44px]"
         style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
@@ -305,16 +334,72 @@ export const GameNextNumber = ({
   );
 };
 
+export const GamePowerModal = ({
+  power,
+  close,
+  onApplyPower,
+}: {
+  power: Power;
+  close: () => void;
+  onApplyPower: (powerIndex: number) => Promise<void>;
+}) => {
+  const handleApplyPower = useCallback(async () => {
+    await onApplyPower(power.index());
+    close();
+  }, [power, onApplyPower, close]);
+
+  const Icon = power.icon();
+  return (
+    <div
+      className="w-[288px] bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] rounded-lg p-6 flex flex-col items-center gap-6"
+      style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+    >
+      <Button
+        variant="ghost"
+        className="h-12 w-12 p-2 md:px-6 md:py-4 [&_svg]:size-8 absolute top-1.5 right-1.5 text-white-400"
+        onClick={close}
+      >
+        <CloseIcon />
+      </Button>
+      <div className="[&_svg]:size-16">
+        <Icon role="img" aria-label={power.name()} />
+      </div>
+      <p className="flex flex-col gap-3 w-full">
+        <strong className="text-[22px]/[15px] tracking-wider">
+          {power.name()}
+        </strong>
+        <span className="text-2xl/4 font-ppneuebit tracking-wider">
+          {power.description()}
+        </span>
+      </p>
+      <Button
+        variant="default"
+        className="w-full px-6 py-1"
+        onClick={handleApplyPower}
+      >
+        <p
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        >
+          Use!
+        </p>
+      </Button>
+    </div>
+  );
+};
+
 export const PowerUps = ({
   powers,
   availables,
   onApplyPower,
   loadingPowerIndex,
+  setPowerModal,
 }: {
   powers: Power[];
   availables: Power[];
   onApplyPower: (powerIndex: number) => Promise<void>;
   loadingPowerIndex: number | null;
+  setPowerModal: (power: Power | undefined) => void;
 }) => {
   return (
     <div className="flex flex-col gap-2 justify-start">
@@ -323,7 +408,7 @@ export const PowerUps = ({
           Power ups
         </span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-2 md:gap-3">
         {powers.map((power) => (
           <PowerUp
             key={power.value}
@@ -332,6 +417,7 @@ export const PowerUps = ({
             onApplyPower={onApplyPower}
             isLoading={loadingPowerIndex === power.index()}
             isDisabled={false}
+            setPowerModal={setPowerModal}
           />
         ))}
       </div>
@@ -345,13 +431,17 @@ export const PowerUp = ({
   onApplyPower,
   isLoading,
   isDisabled,
+  setPowerModal,
 }: {
   power: Power;
   available: boolean;
   onApplyPower: (powerIndex: number) => Promise<void>;
   isLoading: boolean;
   isDisabled: boolean;
+  setPowerModal: (power: Power | undefined) => void;
 }) => {
+  const isNarrow = useMediaQuery("(max-width: 768px)");
+
   const status = useMemo(() => {
     if (available) return undefined;
     return "used";
@@ -359,10 +449,22 @@ export const PowerUp = ({
 
   const Icon = power.icon(status);
 
-  const handleApplyPower = async () => {
+  const handleApplyPower = useCallback(async () => {
     if (!available || isDisabled || isLoading) return;
+    if (isNarrow) {
+      setPowerModal(power);
+      return;
+    }
     await onApplyPower(power.index());
-  };
+  }, [
+    available,
+    isDisabled,
+    isLoading,
+    isNarrow,
+    power,
+    onApplyPower,
+    setPowerModal,
+  ]);
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -371,7 +473,7 @@ export const PowerUp = ({
           <Button
             disabled={!available || isDisabled || isLoading}
             variant="muted"
-            className="size-[68px] p-0  [&_svg]:size-9"
+            className="size-10 md:size-[68px] p-0 [&_svg]:size-6 md:[&_svg]:size-9"
             onClick={handleApplyPower}
           >
             {isLoading ? (
@@ -411,7 +513,7 @@ const GameGrid = ({
   alloweds: number[];
 }) => {
   return (
-    <div className="grid grid-flow-col grid-rows-5 gap-x-16 gap-y-4 font-ppneuebit">
+    <div className="grid grid-flow-col grid-rows-10 md:grid-rows-5 gap-x-16 gap-y-2.5 md:gap-y-4 font-ppneuebit justify-center">
       {game.slots.map((slot, index) => (
         <GameSlot
           key={index}
@@ -452,7 +554,7 @@ const GameSlot = ({
   };
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center max-w-[108px]">
       <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
       {slot ? (
         <div
@@ -499,15 +601,22 @@ const GameSlot = ({
   );
 };
 
-export const GameOver = ({ game }: { game: GameModel }) => {
+export const GameOver = ({
+  game,
+  close,
+}: {
+  game: GameModel;
+  close: () => void;
+}) => {
   return (
     <div
       className="w-full h-full select-none"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="relative w-full h-full rounded-2xl bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] p-6 flex flex-col gap-12 justify-center items-center">
+      <div className="relative w-full h-full rounded-2xl bg-black-300 border-[2px] border-black-300 backdrop-blur-[4px] p-6 flex flex-col gap-6 md:gap-12 justify-center items-center">
+        <Close close={close} />
         <h1
-          className="text-[136px]/[92px]"
+          className="text-[64px]/[44px] md:text-[136px]/[92px]"
           style={{ textShadow: "5px 5px 0px rgba(26, 5, 87, 1)" }}
         >
           Game Over!
@@ -519,9 +628,21 @@ export const GameOver = ({ game }: { game: GameModel }) => {
   );
 };
 
+export const Close = ({ close }: { close: () => void }) => {
+  return (
+    <Button
+      variant="ghost"
+      className="self-end h-10 w-10 md:h-12 md:w-14 p-2 md:px-6 md:py-4 [&_svg]:size-6 md:[&_svg]:size-8 bg-white-900 hover:bg-white-800 rounded-lg"
+      onClick={close}
+    >
+      <CloseIcon size="lg" />
+    </Button>
+  );
+};
+
 export const GameOverDetails = ({ game }: { game: GameModel }) => {
   return (
-    <div className="flex gap-6 w-[480px]">
+    <div className="grow md:grow-0 flex flex-col md:flex-row gap-6 w-full max-w-[480px]">
       <GameOverScore score={game.score} />
       <GameOverEarning earning={GameModel.totalReward(game.level)} />
     </div>
@@ -530,7 +651,7 @@ export const GameOverDetails = ({ game }: { game: GameModel }) => {
 
 export const GameOverScore = ({ score }: { score: number }) => {
   return (
-    <div className="grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-xl">
+    <div className="md:grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-lg">
       <p className="text-purple-300 tracking-wide text-lg/3">Score</p>
       <p
         className="text-[28px]/[19px] tracking-wide"
@@ -544,7 +665,7 @@ export const GameOverScore = ({ score }: { score: number }) => {
 
 export const GameOverEarning = ({ earning }: { earning: number }) => {
   return (
-    <div className="grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-xl">
+    <div className="md:grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-lg">
       <p className="text-purple-300 tracking-wide text-lg/3">Earned</p>
       <p
         className="text-[28px]/[19px] tracking-wide"
@@ -556,8 +677,11 @@ export const GameOverEarning = ({ earning }: { earning: number }) => {
 
 export const GameOverButton = () => {
   return (
-    <Link to="/">
-      <Button variant="secondary" className="gap-1 h-[56px] w-[146px]">
+    <Link to="/" className="w-full md:w-auto">
+      <Button
+        variant="secondary"
+        className="gap-1 h-[56px] w-full md:w-[146px]"
+      >
         <div className="[&_svg]:size-8">
           <HomeIcon />
         </div>
@@ -620,25 +744,25 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
 
   return (
     <div
-      className="relative flex flex-col justify-center h-full grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] px-16"
+      className="relative flex flex-col justify-center h-full grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 md:px-16"
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      <div className="max-h-[845px] max-w-[912px] mx-auto flex flex-1 flex-col gap-12 py-12 overflow-hidden min-h-0">
+      <div className="max-h-[845px] max-w-[912px] mx-auto flex flex-1 flex-col gap-6 md:gap-12 p-0 md:py-12 overflow-hidden min-h-0">
         <GameStartHeader className="flex-shrink-0" points={points} />
-        <div className="flex flex-1 flex-col gap-6 overflow-hidden min-h-0">
+        <div className="flex flex-1 flex-col gap-3 md:gap-6 overflow-hidden min-h-0">
           <GameStartPowerups
             selection={selection}
             onToggle={handleToggle}
             canSelectPower={canSelectPower}
             costs={costs}
-            className="flex-1 min-h-0 basis-0 overflow-y-auto pr-2"
+            className="flex-1 min-h-0 basis-0 overflow-y-auto"
           />
           <GameStartPlay
             gameId={gameId}
             selection={selection}
-            className="flex-shrink-0 pt-2"
+            className="flex-shrink-0"
           />
         </div>
       </div>
@@ -661,15 +785,19 @@ export const GameStartHeader = ({
         <p className="text-purple-300 tracking-wider text-lg/6">
           Choose your...
         </p>
-        <strong className="text-white-100 text-[64px]/[44px]">Powerups</strong>
+        <div className="grow flex justify-center items-start">
+          <strong className="text-white-100 text-5xl/[44px] md:text-[64px]/[44px]">
+            Powerups
+          </strong>
+        </div>
       </div>
       <div className="flex flex-col items-end gap-2">
         <p className="text-purple-300 tracking-wider text-lg/6">
           Points remaining
         </p>
-        <div className="h-11 flex gap-2 items-center px-4 py-2.5 rounded bg-white-900 border border-white-900">
+        <div className="h-11 flex gap-2 items-center p-3 md:px-4 md:py-2.5 rounded bg-white-900 border border-white-900 [&_svg]:size-5 md:[&_svg]:size-6">
           <PointsIcon />
-          <p className="text-white-100 text-[36px]/[24px] translate-y-0.5">
+          <p className="text-white-100 text-[28px]/[19px] md:text-[36px]/[24px] translate-y-0.5">
             {points}
           </p>
         </div>
@@ -704,7 +832,10 @@ export const GameStartPowerups = ({
 
   return (
     <div
-      className={cn("grid grid-cols-3 gap-6 overflow-y-auto", className)}
+      className={cn(
+        "grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 overflow-y-auto",
+        className,
+      )}
       style={{ scrollbarWidth: "none" }}
     >
       {powers.map((power) => (
@@ -757,16 +888,16 @@ export const GameStartPowerup = ({
 
   return (
     <div
-      className="flex flex-col gap-4 items-stretch bg-black-900 p-6 rounded"
+      className="flex flex-col gap-4 items-stretch bg-black-900 p-4 md:p-6 rounded"
       style={{
         boxShadow: selected
           ? ""
           : "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
       }}
     >
-      <div className="flex gap-4 h-16">
+      <div className="flex gap-4 h-12 md:h-16">
         <Icon
-          className="min-h-16 min-w-16"
+          className="min-h-12 min-w-12 md:min-h-16 md:min-w-16"
           role="img"
           aria-label={power.name()}
         />
@@ -845,7 +976,11 @@ export const GameStartPlay = ({
 
   return (
     <div className={cn("flex justify-end", className)}>
-      <Button variant="default" className="h-10" onClick={handleStartGame}>
+      <Button
+        variant="default"
+        className="h-10 w-full"
+        onClick={handleStartGame}
+      >
         {loading ? (
           <Loader2 className="size-6 animate-spin" />
         ) : (

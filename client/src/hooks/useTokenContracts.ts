@@ -28,7 +28,6 @@ export function useTokenContracts(
         order_by: [],
       },
     });
-    console.log({ request, tokens });
     setContracts(tokens.items);
   }, [sdk, request]);
 

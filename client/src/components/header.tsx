@@ -79,15 +79,12 @@ export const Balance = () => {
   const { mintMockNums } = useMintNums();
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
-  const { tokens, balances, getBalance, toDecimal } = useTokens(
-    {
-      accountAddresses: account?.address
-        ? [addAddressPadding(account.address)]
-        : [],
-      contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
-    },
-    true,
-  );
+  const { tokens, balances, getBalance, toDecimal } = useTokens({
+    accountAddresses: account?.address
+      ? [addAddressPadding(account.address)]
+      : [],
+    contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
+  });
 
   const prevBalanceRef = useRef<bigint | undefined>(undefined);
   const balanceDiff = useRef<{ value: bigint }>({ value: 0n });

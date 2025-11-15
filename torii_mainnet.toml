@@ -22,3 +22,6 @@ contracts = [
 
 [sql]
 historical = ["NUMS-TrophyProgression"]
+
+[erc]
+metadata_updates = true

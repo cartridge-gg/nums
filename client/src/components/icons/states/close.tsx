@@ -6,15 +6,54 @@ export const CloseIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
     ({ className, size, ...props }, forwardedRef) => (
       <svg
-        viewBox="0 0 24 24"
+        viewBox="0 0 32 32"
         className={iconVariants({ size, className })}
         ref={forwardedRef}
         {...props}
       >
-        <path
-          d="M18.6558 17.2123C19.0657 17.6212 19.0657 18.2845 18.6558 18.6934C18.2458 19.1022 17.5807 19.1022 17.1707 18.6934L12.0007 13.4989L6.79392 18.6916C6.38399 19.1004 5.71888 19.1004 5.3089 18.6916C4.89892 18.2828 4.89896 17.6195 5.3089 17.2106L10.5174 12.0196L5.30745 6.78765C4.89752 6.37882 4.89752 5.71551 5.30745 5.30664C5.71739 4.89777 6.3825 4.89781 6.79248 5.30664L12.0007 10.5404L17.2075 5.34766C17.6174 4.93883 18.2826 4.93883 18.6925 5.34766C19.1025 5.75648 19.1025 6.4198 18.6925 6.82867L13.484 12.0196L18.6558 17.2123Z"
-          fill="white"
-        />
+        <g filter="url(#filter0_d_1280_6813)">
+          <path
+            d="M24.8742 22.9499C25.4208 23.495 25.4208 24.3794 24.8742 24.9246C24.3276 25.4697 23.4408 25.4697 22.8942 24.9246L16.0008 17.9986L9.0584 24.9222C8.51182 25.4673 7.62501 25.4673 7.07837 24.9222C6.53173 24.3771 6.53178 23.4927 7.07837 22.9476L14.0231 16.0263L7.07644 9.05028C6.52986 8.50518 6.52986 7.62076 7.07644 7.0756C7.62302 6.53044 8.50984 6.53049 9.05648 7.0756L16.0008 14.0539L22.9432 7.13029C23.4898 6.58518 24.3766 6.58518 24.9232 7.13029C25.4699 7.67539 25.4698 8.55981 24.9232 9.10497L17.9785 16.0263L24.8742 22.9499Z"
+            fill="currentColor"
+            shapeRendering="crispEdges"
+          />
+        </g>
+        <defs>
+          <filter
+            id="filter0_d_1280_6813"
+            x="6.6665"
+            y="6.66675"
+            width="20.6665"
+            height="20.6667"
+            filterUnits="userSpaceOnUse"
+            colorInterpolationFilters="sRGB"
+          >
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feColorMatrix
+              in="SourceAlpha"
+              type="matrix"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+              result="hardAlpha"
+            />
+            <feOffset dx="2" dy="2" />
+            <feComposite in2="hardAlpha" operator="out" />
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+            />
+            <feBlend
+              mode="normal"
+              in2="BackgroundImageFix"
+              result="effect1_dropShadow_1280_6813"
+            />
+            <feBlend
+              mode="normal"
+              in="SourceGraphic"
+              in2="effect1_dropShadow_1280_6813"
+              result="shape"
+            />
+          </filter>
+        </defs>
       </svg>
     ),
   ),

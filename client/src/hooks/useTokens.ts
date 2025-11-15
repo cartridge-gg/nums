@@ -10,19 +10,19 @@ import type {
   TokenContract,
 } from "@dojoengine/torii-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { num } from "starknet";
+import { addAddressPadding, num } from "starknet";
 import { deepEqual } from "@/helpers/deepEqual";
 
 export function useTokens(
-  request: GetTokenRequest & GetTokenBalanceRequest,
-  accountRequired = true,
+  request: GetTokenRequest &
+    GetTokenBalanceRequest & { contractType?: "ERC20" | "ERC721" | "ERC1155" },
 ) {
   const { sdk } = useDojoSDK();
   const [tokens, setTokens] = useState<TokenContract[]>([]);
+  const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
     null,
   );
-  const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const subscriptionRef = useRef<Subscription | null>(null);
 
   useEffect(() => {
@@ -34,11 +34,12 @@ export function useTokens(
   }, []);
 
   const fetchTokens = useCallback(async () => {
+    const contractType = request.contractType || "ERC20";
     const tokens = await sdk.client.getTokenContracts({
       contract_addresses: request.contractAddresses
-        ? request.contractAddresses.map((i: any) => num.toHex64(i))
+        ? request.contractAddresses.map((i: any) => addAddressPadding(i))
         : [],
-      contract_types: [],
+      contract_types: [contractType],
       pagination: {
         cursor: undefined,
         direction: "Backward",
@@ -47,26 +48,27 @@ export function useTokens(
       },
     });
     setTokens(tokens.items);
-  }, [sdk]);
+  }, [sdk, request]);
 
   const fetchTokenBalances = useCallback(async () => {
     if (!requestRef.current) return;
     const [tokenBalances, subscription] = await sdk.subscribeTokenBalance({
       contractAddresses: requestRef.current.contractAddresses
-        ? requestRef.current.contractAddresses.map((i: any) => num.toHex64(i))
+        ? requestRef.current.contractAddresses.map((i: any) =>
+            addAddressPadding(num.toHex64(i)),
+          )
         : [],
       accountAddresses: requestRef.current.accountAddresses
-        ? requestRef.current.accountAddresses.map((i: any) => num.toHex64(i))
-        : [],
-      tokenIds: requestRef.current.tokenIds
-        ? requestRef.current.tokenIds.map((i: any) => num.toHex64(i))
+        ? requestRef.current.accountAddresses.map((i: any) =>
+            addAddressPadding(num.toHex64(i)),
+          )
         : [],
       callback: ({ data, error }: SubscriptionCallbackArgs<TokenBalance>) => {
         if (error) {
           console.error(error);
           return;
         }
-        setTokenBalances((prev) => updateTokenBalancesList(prev, data));
+        setTokenBalances((prev) => update(prev, data));
       },
     });
 
@@ -76,20 +78,14 @@ export function useTokens(
 
     subscriptionRef.current = subscription;
     setTokenBalances(tokenBalances.items);
-  }, [sdk]);
+  }, [sdk, subscriptionRef, request]);
 
   useEffect(() => {
+    if ((request?.accountAddresses || []).length === 0) return;
     if (!deepEqual(request, requestRef.current)) {
       requestRef.current = request;
       fetchTokens();
-
-      if (
-        accountRequired &&
-        (!request.accountAddresses || request.accountAddresses.length === 0)
-      ) {
-      } else {
-        fetchTokenBalances();
-      }
+      fetchTokenBalances();
     }
   }, [request]);
 
@@ -121,7 +117,7 @@ export function useTokens(
   };
 }
 
-function updateTokenBalancesList(
+function update(
   previousBalances: TokenBalance[],
   newBalance: TokenBalance,
 ): TokenBalance[] {
@@ -149,5 +145,3 @@ function updateTokenBalancesList(
     index === existingBalanceIndex ? newBalance : balance,
   );
 }
-
-//

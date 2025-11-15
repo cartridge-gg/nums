@@ -121,8 +121,10 @@ export const Header = ({ tournament }: { tournament: TournamentModel }) => {
         className="text-lg leading-[12px] tracking-wide text-white-400 translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        <p className="hidden md:block">Tournament ends in: {remainingTime}</p>
-        <p className="block md:hidden">Ends in: {remainingTime}</p>
+        <span className="hidden md:block">
+          Tournament ends in: {remainingTime}
+        </span>
+        <span className="block md:hidden">Ends in: {remainingTime}</span>
       </p>
     </div>
   );

@@ -79,15 +79,12 @@ export const Balance = () => {
   const { mintMockNums } = useMintNums();
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
-  const { tokens, balances, getBalance, toDecimal } = useTokens(
-    {
-      accountAddresses: account?.address
-        ? [addAddressPadding(account.address)]
-        : [],
-      contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
-    },
-    true,
-  );
+  const { tokens, balances, getBalance, toDecimal } = useTokens({
+    accountAddresses: account?.address
+      ? [addAddressPadding(account.address)]
+      : [],
+    contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
+  });
 
   const prevBalanceRef = useRef<bigint | undefined>(undefined);
   const balanceDiff = useRef<{ value: bigint }>({ value: 0n });
@@ -178,7 +175,7 @@ export const Connect = () => {
   const { connectAsync, connectors } = useConnect();
   return (
     <Button
-      className="h-12 px-4 py-2 font-[PixelGame] tracking-wide text-2xl"
+      className="h-10 w-full md:h-12 md:w-auto px-4 py-2 font-[PixelGame] tracking-wide text-2xl"
       variant="default"
       onClick={async () => {
         await connectAsync({ connector: connectors[0] });

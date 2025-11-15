@@ -1,11 +1,12 @@
 import { useAccount, useConnect } from "@starknet-react/core";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getChecksumAddress } from "starknet";
+import { addAddressPadding, getChecksumAddress } from "starknet";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import {
   CircleInfoIcon,
+  CopyIcon,
   LiveIcon,
   LogoIcon,
   TrophyIcon,
@@ -27,6 +28,7 @@ import { useTournaments } from "@/context/tournaments";
 import useChain from "@/hooks/chain";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
+import { useTokenContracts } from "@/hooks/useTokenContracts";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
 
@@ -153,7 +155,7 @@ export const Main = ({
       )}
       {prizePoolModal && (
         <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50"
+          className="w-full absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50 p-2 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <PrizePoolModal
@@ -253,6 +255,18 @@ const InfoModal = ({
   const { chain } = useChain();
   const [activeTab, setActiveTab] = useState<InfoTabKey>("about");
 
+  const { contracts } = useTokenContracts({
+    contractAddresses: [addAddressPadding(getNumsAddress(chain.id))],
+  });
+
+  const tokenSupply = useMemo(() => {
+    if (!contracts || contracts.length === 0) return 0;
+    const contract = contracts[0];
+    return Number(
+      BigInt(contract.total_supply || "0x0") / 10n ** BigInt(contract.decimals),
+    );
+  }, [contracts]);
+
   return (
     <div
       className="w-full h-full select-none"
@@ -277,7 +291,7 @@ const InfoModal = ({
         }}
       >
         <Close close={close} />
-        <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-12 h-full overflow-hidden">
+        <div className="max-w-[784px] mx-auto py-16 md:py-[120px] flex flex-col gap-12 h-full overflow-hidden">
           <div className="flex gap-3">
             {tabs.map(({ id, label, icon: Icon }) => (
               <Button
@@ -324,15 +338,7 @@ const InfoModal = ({
             ) : (
               <div className="flex flex-col gap-6 text-base/5 text-white-100 font-circular">
                 <p>Play NUMS to earn NUMS. Spend NUMS to play NUMS.</p>
-                <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
-                  <strong
-                    className="font-pixel text-lg/3 tracking-wider text-purple-300"
-                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-                  >
-                    NUMS Token Address
-                  </strong>
-                  <span>{getChecksumAddress(getNumsAddress(chain.id))}</span>
-                </div>
+                <TokenAddressCard />
                 <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
                   <strong
                     className="font-pixel text-lg/3 tracking-wider text-purple-300"
@@ -340,13 +346,63 @@ const InfoModal = ({
                   >
                     Token supply
                   </strong>
-                  <span>320,202,002/∞</span>
+                  <span>{tokenSupply.toLocaleString()}/∞</span>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const TokenAddressCard = () => {
+  const { chain } = useChain();
+  const [copied, setCopied] = useState(false);
+  const tokenAddress = useMemo(
+    () => getChecksumAddress(getNumsAddress(chain.id)),
+    [chain.id],
+  );
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(tokenAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (error) {
+      console.error("Unable to copy token address", error);
+    }
+  }, [tokenAddress]);
+
+  return (
+    <div className="relative flex flex-col gap-2 rounded border border-white-900 bg-white-900 px-5 py-4">
+      <div className="flex items-center justify-between gap-2">
+        <strong
+          className="font-pixel text-lg/3 tracking-wider text-purple-300"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          NUMS Token Address
+        </strong>
+        <Button
+          type="button"
+          variant="ghost"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 [&_svg]:size-5 text-white-100 bg-transparent hover:bg-transparent"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleCopy();
+          }}
+          aria-label="Copy NUMS token address"
+        >
+          <CopyIcon />
+        </Button>
+      </div>
+      <span className="font-mono text-sm break-all pr-6">{tokenAddress}</span>
+      {copied && (
+        <span className="font-pixel absolute right-3 top-1/4 md:top-3 -translate-x-1/2 text-xs text-purple-300 tracking-wide animate-copy-pop">
+          Copied!
+        </span>
+      )}
     </div>
   );
 };

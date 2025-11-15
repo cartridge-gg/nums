@@ -1,7 +1,7 @@
 import { useAccount, useConnect } from "@starknet-react/core";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getChecksumAddress } from "starknet";
+import { addAddressPadding, getChecksumAddress } from "starknet";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import {
@@ -27,6 +27,7 @@ import { useTournaments } from "@/context/tournaments";
 import useChain from "@/hooks/chain";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
+import { useTokenContracts } from "@/hooks/useTokenContracts";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
 
@@ -153,7 +154,7 @@ export const Main = ({
       )}
       {prizePoolModal && (
         <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50"
+          className="w-full absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50 p-2 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
           <PrizePoolModal
@@ -253,6 +254,18 @@ const InfoModal = ({
   const { chain } = useChain();
   const [activeTab, setActiveTab] = useState<InfoTabKey>("about");
 
+  const { contracts } = useTokenContracts({
+    contractAddresses: [addAddressPadding(getNumsAddress(chain.id))],
+  });
+
+  const tokenSupply = useMemo(() => {
+    if (!contracts || contracts.length === 0) return 0;
+    const contract = contracts[0];
+    return Number(
+      BigInt(contract.total_supply || "0x0") / 10n ** BigInt(contract.decimals),
+    );
+  }, [contracts]);
+
   return (
     <div
       className="w-full h-full select-none"
@@ -277,7 +290,7 @@ const InfoModal = ({
         }}
       >
         <Close close={close} />
-        <div className="max-w-[784px] mx-auto py-[120px] flex flex-col gap-12 h-full overflow-hidden">
+        <div className="max-w-[784px] mx-auto py-16 md:py-[120px] flex flex-col gap-12 h-full overflow-hidden">
           <div className="flex gap-3">
             {tabs.map(({ id, label, icon: Icon }) => (
               <Button
@@ -340,7 +353,7 @@ const InfoModal = ({
                   >
                     Token supply
                   </strong>
-                  <span>320,202,002/∞</span>
+                  <span>{tokenSupply.toLocaleString()}/∞</span>
                 </div>
               </div>
             )}

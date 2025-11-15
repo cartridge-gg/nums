@@ -32,7 +32,7 @@ export const Game = () => {
 
   return (
     <div
-      className="select-none relative h-screen w-screen flex flex-col"
+      className="relative h-screen w-screen flex flex-col overflow-hidden"
       onClick={() => {
         if (prizePoolModal) setPrizePoolModal(false);
       }}
@@ -148,7 +148,7 @@ export const Main = ({
 
   return (
     <div
-      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 md:px-16 md:py-12"
+      className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 md:px-16 md:py-12 overflow-hidden"
       onClick={(e) => {
         e.stopPropagation();
         setNextNumberModal(false);
@@ -193,9 +193,9 @@ export const Main = ({
           />
         </div>
       )}
-      <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 md:justify-center">
-        <div className="h-full md:h-auto flex flex-col gap-3 md:gap-12 justify-between md:justify-start">
-          <div className="flex flex-col gap-3 md:gap-12">
+      <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 md:justify-center overflow-hidden">
+        <div className="h-full md:h-auto flex flex-col gap-3 md:gap-12 justify-between md:justify-start overflow-hidden">
+          <div className="flex flex-col gap-4 md:gap-12 overflow-hidden">
             <GameHeader
               game={game}
               onApplyPower={handleApplyPower}
@@ -408,7 +408,7 @@ export const PowerUps = ({
           Power ups
         </span>
       </div>
-      <div className="flex gap-2 md:gap-3">
+      <div className="grid grid-cols-4 gap-2 md:gap-3">
         {powers.map((power) => (
           <PowerUp
             key={power.value}
@@ -513,7 +513,10 @@ const GameGrid = ({
   alloweds: number[];
 }) => {
   return (
-    <div className="grid grid-flow-col grid-rows-10 md:grid-rows-5 gap-x-16 gap-y-2.5 md:gap-y-4 font-ppneuebit justify-center">
+    <div
+      className="grid grid-flow-col grid-rows-10 md:grid-rows-5 gap-x-16 gap-y-2.5 md:gap-y-4 font-ppneuebit justify-center overflow-y-auto"
+      style={{ scrollbarWidth: "none" }}
+    >
       {game.slots.map((slot, index) => (
         <GameSlot
           key={index}
@@ -554,7 +557,7 @@ const GameSlot = ({
   };
 
   return (
-    <div className="flex justify-between items-center max-w-[108px]">
+    <div className="flex justify-between items-center max-w-[108px] min-h-10 overflow-hidden">
       <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
       {slot ? (
         <div
@@ -978,7 +981,7 @@ export const GameStartPlay = ({
     <div className={cn("flex justify-end", className)}>
       <Button
         variant="default"
-        className="h-10 w-full"
+        className="h-10 w-full md:w-auto"
         onClick={handleStartGame}
       >
         {loading ? (

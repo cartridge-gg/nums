@@ -38,7 +38,7 @@
   "contracts": [
     {
       "address": "0x473a834b65e8129652dec5788c5d9427fe1ea7e2e79fbe0493e38df816259d9",
-      "class_hash": "0x34dd6d4db1f8ab4ecf4838e30db3a214655044931f2ae23c95b9cb04375233d",
+      "class_hash": "0x90932fec921ab4ce4eedeb9ef98894faa5a97a5af7e51bf207f89664727d12",
       "init_calldata": [
         "0x036017E69D21D6D8c13E266EaBB73ef1f1D02722D86BDcAbe5f168f8e549d3cD"
       ],
@@ -72,7 +72,7 @@
     },
     {
       "address": "0xcf4049fba4289d93ae577b7bb03d35047a537e20b3a06d95d36870db2ad50b",
-      "class_hash": "0x2502d3c88615ce06a6111a4eb1e3da35db654cbd86ae7196eee0f79c727aa70",
+      "class_hash": "0x6a8b31afe4340cb5e9a03dc18b8cd192974717898a5274024a3ca8d5eb7dd4",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",

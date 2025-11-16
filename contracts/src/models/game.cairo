@@ -207,6 +207,11 @@ pub impl GameImpl of GameTrait {
             return true;
         }
 
+        // [Check] Game is not started yet
+        if self.number == @0 {
+            return false;
+        }
+
         // [Check] There is a valid empty slot for next number
         let max_slots: u32 = (*self.slot_count).into();
         let number = *self.number;

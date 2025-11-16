@@ -63,6 +63,20 @@ pub impl StarterpackImpl of StarterpackTrait {
             + "]}";
         metadata
     }
+
+    #[inline]
+    fn update(
+        ref self: Starterpack,
+        reissuable: bool,
+        referral_percentage: u8,
+        price: u256,
+        payment_token: starknet::ContractAddress,
+    ) {
+        self.reissuable = reissuable;
+        self.referral_percentage = referral_percentage;
+        self.price = price;
+        self.payment_token = payment_token;
+    }
 }
 
 #[generate_trait]

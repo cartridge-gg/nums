@@ -72,7 +72,7 @@
     },
     {
       "address": "0xcf4049fba4289d93ae577b7bb03d35047a537e20b3a06d95d36870db2ad50b",
-      "class_hash": "0x69e51760d41cc318562071a26094ef326916845e6684587a214fd11bfca5796",
+      "class_hash": "0x2502d3c88615ce06a6111a4eb1e3da35db654cbd86ae7196eee0f79c727aa70",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -116,15 +116,16 @@
     },
     {
       "address": "0x49801121f22402da75eae15cf7d156262b2dcb6a67076156eb20b94efd9860f",
-      "class_hash": "0x3c7a27761407afcd33ae99eb47829089952471d916d08a1e70e8968611a602f",
+      "class_hash": "0x35393a77ec4f5d7386ef1c4852f73b236113710628e6f9fa8f27c920287cc20",
       "init_calldata": [
-        "0x1",
+        "0x0",
+        "0x0e5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
         "0x0",
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8",
-        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
+        "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b",
         "0x6C6B935B8BBD400000"
       ],
       "tag": "NUMS-Setup",
@@ -134,6 +135,7 @@
         "set_entry_price",
         "set_starterpack",
         "set_nums_address",
+        "set_owner_address",
         "upgrade"
       ]
     }
@@ -4518,6 +4520,18 @@
           "inputs": [
             {
               "name": "nums_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_owner_address",
+          "inputs": [
+            {
+              "name": "owner_address",
               "type": "core::starknet::contract_address::ContractAddress"
             }
           ],

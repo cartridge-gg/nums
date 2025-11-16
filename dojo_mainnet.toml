@@ -38,13 +38,13 @@ disable_multicall = true
     "0x036017E69D21D6D8c13E266EaBB73ef1f1D02722D86BDcAbe5f168f8e549d3cD", # Denshokan address
 ]
 "NUMS-Setup" = [
-    "0x1", # Option::None
-    # "0x0e5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",  # nums_address
+    "0x0",                                                                # Option::Some
+    "0x0e5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",  # nums_address
     "0x0",                                                                # Option::Some
     "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
     "0x0",                                                                # Option::Some
     "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
     "0x03299ace782ec54afcbf81e31e92d6146649b6c484173e41f4de529f6d504fe8", # forwarder_address
-    "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
+    "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # owner_address
     "0x6C6B935B8BBD400000",                                               # entry_price
 ]

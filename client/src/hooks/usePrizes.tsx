@@ -13,6 +13,19 @@ import { ERC20 } from "./erc20";
 const USDC_ADDRESS =
   "0x053C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8";
 
+const NUMS = {
+  name: "Nums",
+  symbol: "NUMS",
+  decimals: 18,
+  l2_token_address:
+    "0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",
+  sort_order: 1,
+  total_supply: 1,
+  hidden: true,
+  logo_url:
+    "https://imagedelivery.net/0xPAQaDtnQhBs8IzYRIlNg/90868d05-cb75-4c42-278c-5a540db2cf00/logo",
+};
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -66,8 +79,8 @@ const fetchTokenMetadata = async (
   contractAddress: string,
   provider: Provider,
 ) => {
-  const preset = erc20Metadata.find(
-    (m) => m.l2_token_address.toLowerCase() === contractAddress.toLowerCase(),
+  const preset = [...erc20Metadata, NUMS].find(
+    (m) => BigInt(m.l2_token_address) === BigInt(contractAddress),
   );
 
   const erc20 = new ERC20({
@@ -111,6 +124,7 @@ const fetchTokenUsdPrice = async (
   try {
     const swap = await getSwapQuote(100e18, tokenAddress, USDC_ADDRESS);
     const price = (swap.total / 1e6 / 100).toFixed(2);
+    console.log({ tokenAddress, swap, price });
     return price;
   } catch (error) {
     console.error(`Failed to fetch price for ${tokenAddress}:`, error);

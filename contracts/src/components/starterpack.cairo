@@ -121,8 +121,12 @@ pub mod StarterpackComponent {
             config.assert_is_owner(caller);
 
             // [Check] Starterpack does exist
-            let starterpack = store.starterpack(starterpack_id);
+            let mut starterpack = store.starterpack(starterpack_id);
             starterpack.assert_does_exist();
+
+            // [Effect] Update starterpack
+            starterpack.update(reissuable, referral_percentage, price, payment_token);
+            store.set_starterpack(@starterpack);
 
             // [Interaction] Update starterpack
             store

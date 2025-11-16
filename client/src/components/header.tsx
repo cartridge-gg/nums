@@ -225,8 +225,8 @@ export const Claim = ({
   const { tournaments } = useTournaments();
   const { claimableRewards } = useClaimableRewards();
   const [loading, setLoading] = useState(false);
-  const [render, setRender] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [render, setRender] = useState(false);
 
   const claims = useMemo(() => {
     if (!tournaments) return [];
@@ -243,9 +243,14 @@ export const Claim = ({
       }));
   }, [claimableRewards, tournaments]);
 
+  const disabled = useMemo(() => {
+    return loading || claims.length === 0 || claimed;
+  }, [loading, claims, claimed]);
+
   const handleClaim = useCallback(async () => {
     if (claims.length === 0) return;
     setLoading(true);
+    setRender(true);
     const claimsToMake = claims.map((reward) => ({
       tournamentId: reward.tournamentId,
       tokenAddress: reward.tokenAddress,
@@ -264,22 +269,17 @@ export const Claim = ({
     setLoading(false);
   }, [claims, claim, setLoading, setRun, setRecycle, setClaimed]);
 
-  useEffect(() => {
-    if (claims.length === 0 || render) return;
-    setRender(true);
-  }, [render, claims]);
-
   // Don't show the button if there are no claimable rewards
-  if (!loading && !render) return null;
+  if (claims.length === 0 && !render) return null;
 
   return (
     <Button
       variant="secondary"
       className="relative h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8 gap-2 bg-pink-100 hover:bg-pink-200"
       onClick={handleClaim}
-      disabled={loading || claims.length === 0 || !render || claimed}
+      disabled={disabled}
     >
-      {!loading && render && !claimed && <Sparkles flicker={false} />}
+      {!disabled && <Sparkles flicker={false} />}
       {loading ? (
         <Loader2 className="p-0.5 md:p-1 animate-spin" />
       ) : (

@@ -14,8 +14,8 @@ pending = true
 pre_confirmed = true
 polling_interval = 250
 contracts = [
-    "ERC20:0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e",   # NUMS
-    "ERC20:0x3e6f513ad6a9acf40beb59545334caf9d961c8bad7b4b7d6bf4dc5eec28bc1c",  # mNUMS
+    "ERC20:0xe5f10eddc01699dc899a30dbc3c9858148fa4aa0a47c0ffd85f887ffc4653e", # NUMS
+    # "ERC20:0x3e6f513ad6a9acf40beb59545334caf9d961c8bad7b4b7d6bf4dc5eec28bc1c",  # mNUMS
     "ERC721:0x36017E69D21D6D8c13E266EaBB73ef1f1D02722D86BDcAbe5f168f8e549d3cD", # Denshokan
 ]
 

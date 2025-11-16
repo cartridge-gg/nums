@@ -126,10 +126,10 @@ export const Balance = () => {
       variant="muted"
       className={cn(
         "h-10 md:h-12 px-3 md:px-4 py-2 text-2xl tracking-wide gap-1",
-        !isMainnet ? "cursor-pointer" : "cursor-default",
+        !isMainnet ? "cursor-pointer" : "cursor-default pointer-events-none",
       )}
       onClick={() => {
-        // if (isMainnet) return;
+        if (isMainnet) return;
         mintMockNums();
       }}
     >

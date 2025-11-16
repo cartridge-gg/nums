@@ -1,11 +1,16 @@
 import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Confetti from "react-confetti";
 import { useNavigate } from "react-router-dom";
+import Sparkles from "react-sparkle";
+import { useWindowSize } from "react-use";
 import { addAddressPadding, num } from "starknet";
 import {
   ControllerIcon,
   DisconnectIcon,
+  GiftIcon,
   LogoIcon,
   LogoMiniIcon,
   SoundOffIcon,
@@ -25,6 +30,9 @@ import { Button } from "./ui/button";
 export const Header = () => {
   const { address } = useAccount();
   const navigate = useNavigate();
+  const { width, height } = useWindowSize();
+  const [run, setRun] = useState(false);
+  const [recycle, setRecycle] = useState(true);
 
   const handleClick = () => {
     navigate("/");
@@ -50,10 +58,11 @@ export const Header = () => {
       <div className="flex items-center justify-start gap-2 md:gap-4">
         <Sound />
         {address && <Balance />}
-        {address && <Claim />}
+        {address && <Claim setRun={setRun} setRecycle={setRecycle} />}
         {address ? <Profile /> : <Connect />}
         {address && <Disconnect />}
       </div>
+      <Confetti width={width} height={height} recycle={recycle} run={run} />
     </div>
   );
 };
@@ -205,65 +214,19 @@ export const Disconnect = () => {
   );
 };
 
-export const ClaimIcon = () => {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g filter="url(#filter0_d_987_2695)">
-        <path
-          d="M9.95312 6.15L11.0406 8H11H8.75C8.05937 8 7.5 7.44062 7.5 6.75C7.5 6.05938 8.05937 5.5 8.75 5.5H8.81875C9.28437 5.5 9.71875 5.74688 9.95312 6.15ZM6 6.75C6 7.2 6.10938 7.625 6.3 8H5C4.44687 8 4 8.44688 4 9V11C4 11.5531 4.44687 12 5 12H19C19.5531 12 20 11.5531 20 11V9C20 8.44688 19.5531 8 19 8H17.7C17.8906 7.625 18 7.2 18 6.75C18 5.23125 16.7688 4 15.25 4H15.1812C14.1844 4 13.2594 4.52813 12.7531 5.3875L12 6.67188L11.2469 5.39062C10.7406 4.52812 9.81562 4 8.81875 4H8.75C7.23125 4 6 5.23125 6 6.75ZM16.5 6.75C16.5 7.44062 15.9406 8 15.25 8H13H12.9594L14.0469 6.15C14.2844 5.74688 14.7156 5.5 15.1812 5.5H15.25C15.9406 5.5 16.5 6.05938 16.5 6.75ZM5 13V18.5C5 19.3281 5.67188 20 6.5 20H11V13H5ZM13 20H17.5C18.3281 20 19 19.3281 19 18.5V13H13V20Z"
-          fill="currentColor"
-        />
-      </g>
-      <defs>
-        <filter
-          id="filter0_d_987_2695"
-          x="4"
-          y="4"
-          width="18"
-          height="18"
-          filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
-        >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset dx="2" dy="2" />
-          <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.95 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow_987_2695"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_dropShadow_987_2695"
-            result="shape"
-          />
-        </filter>
-      </defs>
-    </svg>
-  );
-};
-
-export const Claim = () => {
+export const Claim = ({
+  setRun,
+  setRecycle,
+}: {
+  setRun: (run: boolean) => void;
+  setRecycle: (recycle: boolean) => void;
+}) => {
   const { claim } = useClaim();
   const { tournaments } = useTournaments();
-  const { claimableRewards, loading } = useClaimableRewards();
+  const { claimableRewards } = useClaimableRewards();
+  const [loading, setLoading] = useState(false);
+  const [render, setRender] = useState(false);
+  const [claimed, setClaimed] = useState(false);
 
   const claims = useMemo(() => {
     if (!tournaments) return [];
@@ -280,9 +243,9 @@ export const Claim = () => {
       }));
   }, [claimableRewards, tournaments]);
 
-  const handleClaim = async () => {
+  const handleClaim = useCallback(async () => {
     if (claims.length === 0) return;
-
+    setLoading(true);
     const claimsToMake = claims.map((reward) => ({
       tournamentId: reward.tournamentId,
       tokenAddress: reward.tokenAddress,
@@ -290,28 +253,38 @@ export const Claim = () => {
       position: reward.position,
     }));
 
-    await claim(claimsToMake);
-  };
+    const success = await claim(claimsToMake);
+    if (success) {
+      setRun(true);
+      setClaimed(true);
+    }
+    setTimeout(() => {
+      setRecycle(false);
+    }, 10000);
+    setLoading(false);
+  }, [claims, claim, setLoading, setRun, setRecycle, setClaimed]);
+
+  useEffect(() => {
+    if (claims.length === 0 || render) return;
+    setRender(true);
+  }, [render, claims]);
 
   // Don't show the button if there are no claimable rewards
-  if (!loading && claims.length === 0) {
-    return null;
-  }
+  if (!loading && !render) return null;
 
   return (
     <Button
-      variant="muted"
-      className="h-12 px-4 py-2 [&_svg]:size-6 gap-2 text-green-100"
+      variant="secondary"
+      className="relative h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8 gap-2 bg-pink-100 hover:bg-pink-200"
       onClick={handleClaim}
-      disabled={loading || claims.length === 0}
+      disabled={loading || claims.length === 0 || !render || claimed}
     >
-      <ClaimIcon />
-      <p
-        className="text-[28px]/[19px] translate-y-[3px] tracking-wide"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
-      >
-        {loading ? "..." : `Claim ${claims.length}!`}
-      </p>
+      {!loading && render && !claimed && <Sparkles flicker={false} />}
+      {loading ? (
+        <Loader2 className="p-0.5 md:p-1 animate-spin" />
+      ) : (
+        <GiftIcon variant="solid" />
+      )}
     </Button>
   );
 };

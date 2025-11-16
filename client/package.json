@@ -64,6 +64,8 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.2",
     "react-slot-counter": "^3.3.1",
+    "react-sparkle": "^2.0.0",
+    "react-use": "^17.6.0",
     "snippet": "^0.1.0",
     "sonner": "^2.0.7",
     "starknet": "^8.9.0",

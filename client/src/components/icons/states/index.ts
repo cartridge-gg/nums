@@ -5,6 +5,7 @@ export * from "./controller";
 export * from "./copy";
 export * from "./disconnect";
 export * from "./eye";
+export * from "./gift";
 export * from "./home";
 export * from "./live";
 export * from "./logo";

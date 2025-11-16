@@ -24,4 +24,4 @@ contracts = [
 historical = ["NUMS-TrophyProgression"]
 
 [erc]
-metadata_updates = true
+metadata_updates = false

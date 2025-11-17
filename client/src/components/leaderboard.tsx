@@ -1,6 +1,6 @@
 import { useAccount } from "@starknet-react/core";
 import { useMemo } from "react";
-import { formatCompactNumber } from "@/helpers/number";
+import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
@@ -106,7 +106,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         </div>
         {hasData ? (
           <div
-            className="text-2xl/9 font-ppneuebit overflow-y-auto"
+            className="text-2xl/6 font-ppneuebit font-bold overflow-y-auto"
             style={{ scrollbarWidth: "none" }}
           >
             <div className="flex flex-col gap-3">
@@ -148,7 +148,7 @@ export const Row = ({
   return (
     <div
       className={cn(
-        "px-3 grid grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)] md:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center rounded text-2xl/6 min-w-0",
+        "px-3 grid grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)] md:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center rounded min-w-0",
         self ? "text-orange-100" : "text-white-100",
       )}
     >
@@ -158,9 +158,9 @@ export const Row = ({
       <p className="truncate" title={item.username}>
         {item.username}
       </p>
-      <p className="truncate" title={item.score.toLocaleString()}>
+      <p className="truncate font-mono text-sm" title={item.score.toLocaleString()}>
         <span className="md:hidden">{formattedScore}</span>
-        <span className="hidden md:inline">{item.score.toLocaleString()}</span>
+        <span className="hidden md:inline">{formatScore8Digits(item.score)}</span>
       </p>
       <p className="truncate" title={prize}>
         {prize}

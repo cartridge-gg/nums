@@ -18,3 +18,9 @@ export const formatCompactNumber = (value: number): string => {
 
   return value.toLocaleString();
 };
+
+export const formatScore8Digits = (value: number): string => {
+  const valueString = value.toLocaleString();
+  const digitCount = valueString.split("").filter((char) => /^\d$/.test(char)).length;
+  return valueString.padStart(8 + valueString.length - digitCount, "0");
+};

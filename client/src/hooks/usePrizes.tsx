@@ -124,7 +124,6 @@ const fetchTokenUsdPrice = async (
   try {
     const swap = await getSwapQuote(100e18, tokenAddress, USDC_ADDRESS);
     const price = (swap.total / 1e6 / 100).toFixed(2);
-    console.log({ tokenAddress, swap, price });
     return price;
   } catch (error) {
     console.error(`Failed to fetch price for ${tokenAddress}:`, error);

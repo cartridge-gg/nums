@@ -195,28 +195,24 @@ export const Main = ({
       )}
       <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 md:justify-center overflow-hidden">
         <div className="h-full md:h-auto flex flex-col gap-3 md:gap-12 justify-between md:justify-start overflow-hidden">
-          <div className="flex flex-col gap-4 md:gap-12 overflow-hidden">
-            <GameHeader
-              game={game}
-              onApplyPower={handleApplyPower}
-              loadingPowerIndex={loadingPowerIndex}
-              loadingSlotIndex={loadingSlotIndex}
-              setPowerModal={setPowerModal}
-            />
-            <GameGrid
-              game={game}
-              onSetSlot={handleSetSlot}
-              loadingSlotIndex={loadingSlotIndex}
-              highlights={game.over ? game.closests() : []}
-              alloweds={game.alloweds()}
-            />
-          </div>
-          {tournament && (
-            <JackpotDetails
-              tournament={tournament}
-              onOpenPrizeModal={() => setPrizePoolModal(true)}
-            />
-          )}
+          <GameHeader
+            game={game}
+            onApplyPower={handleApplyPower}
+            loadingPowerIndex={loadingPowerIndex}
+            loadingSlotIndex={loadingSlotIndex}
+            setPowerModal={setPowerModal}
+          />
+          <GameGrid
+            game={game}
+            onSetSlot={handleSetSlot}
+            loadingSlotIndex={loadingSlotIndex}
+            highlights={game.over ? game.closests() : []}
+            alloweds={game.alloweds()}
+          />
+          <JackpotDetails
+            tournament={tournament}
+            onOpenPrizeModal={() => setPrizePoolModal(true)}
+          />
         </div>
       </div>
     </div>
@@ -265,7 +261,7 @@ export const GameNumber = ({
 }) => {
   return (
     <div className="flex flex-col gap-1 md:gap-2">
-      <span className="text-purple-300 tracking-wide text-lg/6">
+      <span className="text-purple-300 tracking-wide text-lg/6 whitespace-nowrap">
         Your number is...
       </span>
       <div
@@ -408,7 +404,7 @@ export const PowerUps = ({
           Power ups
         </span>
       </div>
-      <div className="grid grid-cols-4 gap-2 md:gap-3">
+      <div className="flex flex-wrap justify-end gap-2 md:gap-3">
         {powers.map((power) => (
           <PowerUp
             key={power.value}
@@ -514,7 +510,7 @@ const GameGrid = ({
 }) => {
   return (
     <div
-      className="grid grid-flow-col grid-rows-10 md:grid-rows-5 gap-x-16 gap-y-2.5 md:gap-y-4 font-ppneuebit justify-center overflow-y-auto"
+      className="max-h-[520px] md:max-h-[264px] flex flex-col flex-wrap gap-y-2.5 md:gap-y-4 font-ppneuebit items-center overflow-y-auto"
       style={{ scrollbarWidth: "none" }}
     >
       {game.slots.map((slot, index) => (
@@ -557,7 +553,7 @@ const GameSlot = ({
   };
 
   return (
-    <div className="flex justify-between items-center max-w-[108px] min-h-10 overflow-hidden">
+    <div className="flex justify-between items-center max-w-[108px] h-10 overflow-hidden">
       <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
       {slot ? (
         <div

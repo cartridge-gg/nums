@@ -12,14 +12,15 @@ export const JackpotDetails = ({
   tournament,
   onOpenPrizeModal,
 }: {
-  tournament: TournamentModel;
+  tournament: TournamentModel | undefined;
   onOpenPrizeModal?: () => void;
 }) => {
   const { prizes } = usePrizesWithUsd();
 
   const tournamentPrizes = useMemo(() => {
+    if (!tournament) return [];
     return prizes.filter((p) => p.tournament_id === tournament.id);
-  }, [prizes, tournament.id]);
+  }, [prizes, tournament]);
 
   const totalPrizeUsd = useMemo(() => {
     const total = tournamentPrizes.reduce((sum, prize) => {
@@ -32,17 +33,17 @@ export const JackpotDetails = ({
   }, [tournamentPrizes]);
 
   const started = useMemo(() => {
-    return tournament.hasStarted();
+    return tournament?.hasStarted() || false;
   }, [tournament]);
 
   const ended = useMemo(() => {
-    return tournament.hasEnded();
+    return tournament?.hasEnded() || false;
   }, [tournament]);
 
   const [remainingTime, setRemainingTime] = useState<string | undefined>();
 
   useEffect(() => {
-    if (ended) return;
+    if (!tournament || ended) return;
     setRemainingTime(
       Formatter.time(tournament.end_time.getTime() - Date.now()),
     );
@@ -52,6 +53,25 @@ export const JackpotDetails = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [tournament, ended, started]);
+
+  if (!tournament) {
+    return (
+      <div
+        className={cn(
+          "h-[76px] select-none flex flex-col gap-2 md:gap-6 w-full rounded-lg p-4 md:p-6 bg-[rgba(0,0,0,0.04)]",
+          tournamentPrizes.length === 0
+            ? "pointer-events-none"
+            : "cursor-pointer",
+        )}
+        style={{
+          boxShadow:
+            "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
+        }}
+      >
+        <p className="text-purple-300 text-2xl/3 m-auto">Budokan game</p>
+      </div>
+    );
+  }
 
   return (
     <div

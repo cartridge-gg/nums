@@ -58,7 +58,7 @@ export const Home = () => {
 
   return (
     <div
-      className="relative h-dvh w-screen flex flex-col overflow-hidden"
+      className="relative h-full w-screen flex flex-col overflow-hidden"
       onClick={() => {
         if (isInventoryOpen) closeInventory();
         if (prizePoolModal) setPrizePoolModal(false);

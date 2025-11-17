@@ -7,6 +7,7 @@ import { useTournamentGames } from "@/hooks/useTournamentGames";
 import { cn } from "@/lib/utils";
 import { PrizeModel } from "@/models/prize";
 import type { TournamentModel } from "@/models/tournament";
+import { LaurelIcon, CrownIcon } from "@/components/icons";
 
 export type LeaderboardProps = {
   tournament: TournamentModel;
@@ -20,6 +21,7 @@ export type LeaderboardRow = {
   level: number;
   game_id: number;
   prize: number;
+  share: number;
 };
 
 const EmptyLeaderboard = () => {
@@ -75,6 +77,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         level: game.level,
         game_id: gameId,
         prize: Number(prize),
+        share: Math.floor((Number(prize) / totalPrize) * 100),
       };
     });
   }, [games, leaderboard, tournament, totalPrize]);
@@ -90,7 +93,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
       }}
     >
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="px-3 grid grid-cols-[1fr_3fr_2fr_2fr] md:grid-cols-[100px_1fr_1fr_1fr] gap-4 pb-4 text-purple-300 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
+        <div className="px-3 md:px-4 grid grid-cols-[1fr_3fr_2fr_2fr] md:grid-cols-[1fr_3fr_2fr_1fr_1fr] gap-4 pb-4 text-purple-300 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
           <div style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}>
             Rank
           </div>
@@ -106,10 +109,10 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         </div>
         {hasData ? (
           <div
-            className="text-2xl/6 font-ppneuebit font-bold overflow-y-auto"
+            className="text-base/[21px] font-dmmono font-bold overflow-y-auto"
             style={{ scrollbarWidth: "none" }}
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {rows.map((item) => (
                 <Row
                   key={item.rank}
@@ -139,7 +142,7 @@ export const Row = ({
   const prize =
     item.prize && item.prize !== 0
       ? `$${item.prize.toFixed(0).toLocaleString()}`
-      : "";
+      : null;
   const formattedScore =
     item.score >= 1000
       ? formatCompactNumber(item.score)
@@ -148,28 +151,46 @@ export const Row = ({
   return (
     <div
       className={cn(
-        "px-3 grid grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)] md:grid-cols-[100px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center rounded min-w-0",
-        self ? "text-orange-100" : "text-white-100",
+        "h-[45px] px-3 md:px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)] md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center min-w-0 border border-black-900 rounded-lg [&_svg]:size-5",
+        self ? "text-orange-100 bg-black-900" : "text-white-100",
       )}
     >
       <p className="truncate" title={`Rank #${item.rank}`}>
         {item.rank}
       </p>
-      <p className="truncate" title={item.username}>
-        {item.username}
-      </p>
-      <p
-        className="truncate font-mono text-sm"
-        title={item.score.toLocaleString()}
-      >
+      <div className="flex items-center gap-1.5">
+        {item.rank === 1 && prize ? <CrownIcon variant="solid" /> : prize ? <LaurelIcon variant="solid" /> : null}
+        <p className="truncate" title={item.username}>
+          {item.username}
+        </p>
+      </div>
+      <p className="truncate" title={item.score.toLocaleString()}>
         <span className="md:hidden">{formattedScore}</span>
         <span className="hidden md:inline" style={{ whiteSpace: "pre" }}>
           {formatScore8Digits(item.score)}
         </span>
       </p>
-      <p className="truncate" title={prize}>
-        {prize}
-      </p>
+      {prize && (
+        <p className="truncate" title={prize}>
+          {prize}
+        </p>
+      )}
+      {!prize && <p className="text-white-700">---</p>}
+      {prize && <Share share={item.share} self={self} />}
+    </div>
+  );
+};
+
+export const Share = ({ share, self }: { share: number; self: boolean }) => {
+  return (
+    <div className="h-4 w-16 overflow-hidden relative rounded-full bg-black-900 hidden md:block">
+      <div
+        className={cn(
+          "h-full w-full absolute top-0 left-0",
+          self ? "bg-orange-100" : "bg-white-100",
+        )}
+        style={{ width: `${share}%` }}
+      />
     </div>
   );
 };

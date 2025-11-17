@@ -45,3 +45,51 @@
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "DMMono-Regular";
+  src: url("/assets/fonts/DMMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Italic";
+  src: url("/assets/fonts/DMMono-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Light";
+  src: url("/assets/fonts/DMMono-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-LightItalic";
+  src: url("/assets/fonts/DMMono-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Medium";
+  src: url("/assets/fonts/DMMono-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-MediumItalic";
+  src: url("/assets/fonts/DMMono-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}

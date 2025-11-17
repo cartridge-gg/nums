@@ -13,6 +13,7 @@ const config = {
         ppneuebit: ["PPNeueBit", "sans-serif"],
         ekamai: ["Ekamai", "sans-serif"],
         circular: ["CircularLL", "sans-serif"],
+        dmmono: ["DMMono-Regular", "monospace"],
       },
       width: {
         desktop: "432px",

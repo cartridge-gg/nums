@@ -16,3 +16,5 @@ export * from "./sound-off";
 export * from "./sound-on";
 export * from "./starknet-colored";
 export * from "./trophy";
+export * from "./laurel";
+export * from "./crown";

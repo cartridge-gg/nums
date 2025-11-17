@@ -330,8 +330,16 @@ const InfoModal = ({
                 <p>
                   The goal is simple: place randomly generated numbers in
                   ascending order. Players compete and earn NUMS tokens by
-                  placing as many numbers as possible with the game ending when
-                  the timer reaches zero.{" "}
+                  placing as many numbers as possible.
+                </p>
+                <p>
+                  Before the game starts you can select from a variety of
+                  powerups to help you place more numbers. Be careful, you must
+                  use them before the game ends or they will be lost.
+                </p>
+                <p>
+                  The game ends when there is no longer a valid way to place the
+                  next number in ascending order.
                 </p>
                 <p>The better you do the more you earn!</p>
               </div>

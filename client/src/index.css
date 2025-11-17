@@ -62,13 +62,14 @@
 
 #root {
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
 }
 
 html,
 body {
   overflow: hidden;
   touch-action: manipulation;
+  height: 100%;
 }
 
 /* Modal animations */

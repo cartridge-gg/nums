@@ -98,9 +98,12 @@ export const Main = ({
   const handleSetSlot = async (index: number) => {
     setLoadingSlotIndex(index);
     try {
-      await setSlot(index);
-      playPositive();
-      setLoadingSlotIndex(null);
+      const success = await setSlot(index);
+      if (success) {
+        playPositive();
+      } else {
+        setLoadingSlotIndex(null);
+      }
     } catch (_error) {
       setLoadingSlotIndex(null);
     }
@@ -519,13 +522,12 @@ const GameGrid = ({
           slot={slot}
           index={index}
           onSetSlot={onSetSlot}
-          isLoading={loadingSlotIndex === index}
-          isDisabled={
+          disabled={
             game.over ||
             (loadingSlotIndex !== null && loadingSlotIndex !== index) ||
             !alloweds.includes(index)
           }
-          isHighlighted={highlights.includes(index)}
+          highlighted={highlights.includes(index)}
         />
       ))}
     </div>
@@ -536,21 +538,26 @@ const GameSlot = ({
   slot,
   index,
   onSetSlot,
-  isLoading,
-  isDisabled,
-  isHighlighted,
+  disabled,
+  highlighted,
 }: {
   slot: number;
   index: number;
   onSetSlot: (index: number) => Promise<void>;
-  isLoading: boolean;
-  isDisabled: boolean;
-  isHighlighted: boolean;
+  disabled: boolean;
+  highlighted: boolean;
 }) => {
+  const [loading, setLoading] = useState(false);
+
   const handleSetSlot = async () => {
-    if (slot || isDisabled) return; // Ne rien faire si le slot est déjà rempli ou désactivé
+    if (slot || disabled) return; // Ne rien faire si le slot est déjà rempli ou désactivé
+    setLoading(true);
     await onSetSlot(index);
   };
+
+  useEffect(() => {
+    setLoading(false);
+  }, [slot]);
 
   return (
     <div className="flex justify-between items-center max-w-[108px] h-10 overflow-hidden">
@@ -566,7 +573,7 @@ const GameSlot = ({
           <p
             className={cn(
               "text-2xl",
-              isHighlighted ? "text-red-100" : "text-white-100",
+              highlighted ? "text-red-100" : "text-white-100",
             )}
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.85)" }}
           >
@@ -575,18 +582,18 @@ const GameSlot = ({
         </div>
       ) : (
         <Button
-          disabled={isDisabled || isLoading}
+          disabled={disabled || loading}
           variant="muted"
           className="h-10 w-16 rounded-xl"
           onClick={handleSetSlot}
         >
-          {isLoading ? (
+          {loading ? (
             <Loader2 className="size-5 animate-spin" />
           ) : (
             <p
               className="text-2xl"
               style={{
-                textShadow: !isDisabled
+                textShadow: !disabled
                   ? "2px 2px 0px rgba(0, 0, 0, 0.85)"
                   : undefined,
               }}

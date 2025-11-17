@@ -163,7 +163,7 @@ export const Row = ({
         title={item.score.toLocaleString()}
       >
         <span className="md:hidden">{formattedScore}</span>
-        <span className="hidden md:inline">
+        <span className="hidden md:inline" style={{ whiteSpace: "pre" }}>
           {formatScore8Digits(item.score)}
         </span>
       </p>

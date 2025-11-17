@@ -24,5 +24,5 @@ export const formatScore8Digits = (value: number): string => {
   const digitCount = valueString
     .split("")
     .filter((char) => /^\d$/.test(char)).length;
-  return valueString.padStart(8 + valueString.length - digitCount, "0");
+  return valueString.padStart(8 + valueString.length - digitCount, " ");
 };

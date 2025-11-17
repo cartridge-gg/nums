@@ -164,7 +164,10 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
               <span className="md:hidden">
                 {formatCompactNumber(game.score)}
               </span>
-              <span className="hidden md:inline font-mono text-sm">
+              <span
+                className="hidden md:inline font-mono text-sm"
+                style={{ whiteSpace: "pre" }}
+              >
                 {formatScore8Digits(game.score)}
               </span>
             </p>

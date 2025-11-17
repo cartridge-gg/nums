@@ -29,7 +29,6 @@ import useChain from "@/hooks/chain";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTokenContracts } from "@/hooks/useTokenContracts";
-import { useViewportHeight } from "@/hooks/useViewportHeight";
 import { cn } from "@/lib/utils";
 import type { TournamentModel } from "@/models/tournament";
 
@@ -38,7 +37,6 @@ export const Home = () => {
   const [prizePoolModal, setPrizePoolModal] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isInfoClosing, setIsInfoClosing] = useState(false);
-  const viewportHeight = useViewportHeight();
 
   const openInfo = useCallback(() => {
     setIsInfoOpen(true);
@@ -60,11 +58,7 @@ export const Home = () => {
 
   return (
     <div
-      className="relative w-screen flex flex-col overflow-hidden"
-      style={{
-        height: viewportHeight !== null ? `${viewportHeight}px` : "100vh",
-        minHeight: "100vh",
-      }}
+      className="relative h-dvh w-screen flex flex-col overflow-hidden"
       onClick={() => {
         if (isInventoryOpen) closeInventory();
         if (prizePoolModal) setPrizePoolModal(false);

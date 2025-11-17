@@ -158,9 +158,14 @@ export const Row = ({
       <p className="truncate" title={item.username}>
         {item.username}
       </p>
-      <p className="truncate font-mono text-sm" title={item.score.toLocaleString()}>
+      <p
+        className="truncate font-mono text-sm"
+        title={item.score.toLocaleString()}
+      >
         <span className="md:hidden">{formattedScore}</span>
-        <span className="hidden md:inline">{formatScore8Digits(item.score)}</span>
+        <span className="hidden md:inline">
+          {formatScore8Digits(item.score)}
+        </span>
       </p>
       <p className="truncate" title={prize}>
         {prize}

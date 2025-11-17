@@ -6,7 +6,7 @@ import {
   LiveIcon,
   NumsIcon,
 } from "@/components/icons";
-import { formatCompactNumber } from "@/helpers/number";
+import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
 import type { GameModel } from "@/models/game";
@@ -164,8 +164,8 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
               <span className="md:hidden">
                 {formatCompactNumber(game.score)}
               </span>
-              <span className="hidden md:inline">
-                {game.score.toLocaleString()}
+              <span className="hidden md:inline font-mono text-sm">
+                {formatScore8Digits(game.score)}
               </span>
             </p>
           ) : (

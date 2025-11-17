@@ -33,7 +33,7 @@ export const Game = () => {
 
   return (
     <div
-      className="relative h-full w-screen flex flex-col overflow-hidden"
+      className="select-none relative h-full w-screen flex flex-col overflow-hidden"
       onClick={() => {
         if (prizePoolModal) setPrizePoolModal(false);
       }}

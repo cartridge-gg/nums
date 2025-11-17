@@ -158,7 +158,7 @@ export const Purchases = ({}: {}) => {
   return (
     <ul className="flex justify-between gap-3 md:gap-6 w-full">
       <PurchaseMethod
-        title="Share on X"
+        title="Claim for Free"
         buttonText={claims.length === 0 ? "Free!" : "Claimed!"}
         onClick={claims.length === 0 ? freeOpen : undefined}
       />

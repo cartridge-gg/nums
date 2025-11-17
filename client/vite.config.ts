@@ -30,22 +30,22 @@ export default defineConfig({
         short_name: "Nums",
         icons: [
           {
+            src: "/android-chrome-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/android-chrome-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
             src: "/apple-touch-icon.png",
             sizes: "180x180",
             type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "/web-app-manifest-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "/web-app-manifest-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
+            purpose: "any",
           },
         ],
         theme_color: "#591FFF",

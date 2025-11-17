@@ -100,7 +100,7 @@ pub impl GameImpl of GameTrait {
         while idx < (len - 1) {
             let current = slots.at(idx);
             let next = slots.at(idx + 1);
-            if next != @0 && current >= next {
+            if next != @0 && current > next {
                 valid = false;
                 break;
             }

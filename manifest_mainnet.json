@@ -72,7 +72,7 @@
     },
     {
       "address": "0xcf4049fba4289d93ae577b7bb03d35047a537e20b3a06d95d36870db2ad50b",
-      "class_hash": "0x73e566d30bf046ad0a409db5bca221f823d6f7bd1e85c3c649c8895e68e1230",
+      "class_hash": "0x47ab352acfc33b9898c8a8ee77849baf49a8f1bb34f6e0166fe17568bcf34bd",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",

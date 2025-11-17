@@ -140,7 +140,7 @@ export const Balance = () => {
         className="translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
       >
-        {`${balance.toLocaleString()}`}
+        {`${Number(balance).toLocaleString()}`}
         <span className="hidden md:inline"> NUMS</span>
       </p>
     </Button>

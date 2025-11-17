@@ -66,9 +66,7 @@ export const Main = ({
   const { applyPower } = useGameApply({ gameId: Number(gameId) });
   const { playReplay, playPositive, playNegative } = useAudio();
   const [loadingSlotIndex, setLoadingSlotIndex] = useState<number | null>(null);
-  const [loadingPowerIndex, setLoadingPowerIndex] = useState<number | null>(
-    null,
-  );
+  const [loadingPower, setLoadingPower] = useState<Power | null>(null);
   const [gameOverModal, setGameOverModal] = useState<boolean>(false);
   const [nextNumberModal, setNextNumberModal] = useState<boolean>(false);
   const [powerModal, setPowerModal] = useState<Power>();
@@ -109,13 +107,17 @@ export const Main = ({
     }
   };
 
-  const handleApplyPower = async (powerIndex: number) => {
-    setLoadingPowerIndex(powerIndex);
+  const handleApplyPower = async (power: Power) => {
+    setLoadingPower(power);
     try {
-      await applyPower(powerIndex);
-      setLoadingPowerIndex(null);
+      const success = await applyPower(power.index());
+      if (success) {
+        playPositive();
+      } else {
+        setLoadingPower(null);
+      }
     } catch (_error) {
-      setLoadingPowerIndex(null);
+      setLoadingPower(null);
     }
   };
 
@@ -139,6 +141,15 @@ export const Main = ({
       setLoadingSlotIndex(null);
     }
   }, [game?.slots, loadingSlotIndex]);
+
+  useEffect(() => {
+    const available = game?.available_powers.find(
+      (p) => p.index() === loadingPower?.index(),
+    );
+    if (loadingPower !== null && !available) {
+      setLoadingPower(null);
+    }
+  }, [game?.available_powers, loadingPower]);
 
   const tournamentPrizes = useMemo(() => {
     if (!tournament) return [];
@@ -180,6 +191,7 @@ export const Main = ({
         >
           <GamePowerModal
             power={powerModal}
+            loadingPower={loadingPower}
             close={() => setPowerModal(undefined)}
             onApplyPower={handleApplyPower}
           />
@@ -201,7 +213,7 @@ export const Main = ({
           <GameHeader
             game={game}
             onApplyPower={handleApplyPower}
-            loadingPowerIndex={loadingPowerIndex}
+            loadingPower={loadingPower}
             loadingSlotIndex={loadingSlotIndex}
             setPowerModal={setPowerModal}
           />
@@ -225,28 +237,28 @@ export const Main = ({
 export const GameHeader = ({
   game,
   onApplyPower,
-  loadingPowerIndex,
+  loadingPower,
   loadingSlotIndex,
   setPowerModal,
 }: {
   game: GameModel;
-  onApplyPower: (powerIndex: number) => Promise<void>;
-  loadingPowerIndex: number | null;
+  onApplyPower: (power: Power) => Promise<void>;
+  loadingPower: Power | null;
   loadingSlotIndex: number | null;
   setPowerModal: (power: Power | undefined) => void;
 }) => {
   return (
-    <div className="h-24 md:h-[132px] w-full flex justify-between px-3 md:px-0">
+    <div className="h-24 md:h-[132px] w-full flex justify-between gap-3 px-3 md:px-0">
       <GameNumber
         number={game.number}
         over={game.over}
-        isLoading={loadingPowerIndex !== null || loadingSlotIndex !== null}
+        isLoading={loadingPower !== null || loadingSlotIndex !== null}
       />
       <PowerUps
         powers={game.selected_powers}
         availables={game.available_powers}
         onApplyPower={onApplyPower}
-        loadingPowerIndex={loadingPowerIndex}
+        loadingPower={loadingPower}
         setPowerModal={setPowerModal}
       />
     </div>
@@ -335,15 +347,17 @@ export const GameNextNumber = ({
 
 export const GamePowerModal = ({
   power,
+  loadingPower,
   close,
   onApplyPower,
 }: {
   power: Power;
+  loadingPower: Power | null;
   close: () => void;
-  onApplyPower: (powerIndex: number) => Promise<void>;
+  onApplyPower: (power: Power) => Promise<void>;
 }) => {
   const handleApplyPower = useCallback(async () => {
-    await onApplyPower(power.index());
+    await onApplyPower(power);
     close();
   }, [power, onApplyPower, close]);
 
@@ -380,7 +394,11 @@ export const GamePowerModal = ({
           className="text-[28px]/[19px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
         >
-          Use!
+          {loadingPower?.index() === power.index() ? (
+            <Loader2 className="size-6 animate-spin" />
+          ) : (
+            "Use!"
+          )}
         </p>
       </Button>
     </div>
@@ -391,13 +409,13 @@ export const PowerUps = ({
   powers,
   availables,
   onApplyPower,
-  loadingPowerIndex,
+  loadingPower,
   setPowerModal,
 }: {
   powers: Power[];
   availables: Power[];
-  onApplyPower: (powerIndex: number) => Promise<void>;
-  loadingPowerIndex: number | null;
+  onApplyPower: (power: Power) => Promise<void>;
+  loadingPower: Power | null;
   setPowerModal: (power: Power | undefined) => void;
 }) => {
   return (
@@ -407,15 +425,15 @@ export const PowerUps = ({
           Power ups
         </span>
       </div>
-      <div className="flex flex-wrap justify-end gap-2 md:gap-3">
+      <div className="flex flex-wrap justify-end gap-x-2 gap-y-1.5 md:gap-3">
         {powers.map((power) => (
           <PowerUp
             key={power.value}
             power={power}
             available={availables.map((p) => p.into()).includes(power.into())}
             onApplyPower={onApplyPower}
-            isLoading={loadingPowerIndex === power.index()}
-            isDisabled={false}
+            loading={loadingPower?.index() === power.index()}
+            disabled={false}
             setPowerModal={setPowerModal}
           />
         ))}
@@ -428,15 +446,15 @@ export const PowerUp = ({
   power,
   available,
   onApplyPower,
-  isLoading,
-  isDisabled,
+  loading,
+  disabled,
   setPowerModal,
 }: {
   power: Power;
   available: boolean;
-  onApplyPower: (powerIndex: number) => Promise<void>;
-  isLoading: boolean;
-  isDisabled: boolean;
+  onApplyPower: (power: Power) => Promise<void>;
+  loading: boolean;
+  disabled: boolean;
   setPowerModal: (power: Power | undefined) => void;
 }) => {
   const isNarrow = useMediaQuery("(max-width: 768px)");
@@ -448,17 +466,17 @@ export const PowerUp = ({
 
   const Icon = power.icon(status);
 
-  const handleApplyPower = useCallback(async () => {
-    if (!available || isDisabled || isLoading) return;
+  const handleApplyPower = useCallback(() => {
+    if (!available || disabled || loading) return;
     if (isNarrow) {
       setPowerModal(power);
       return;
     }
-    await onApplyPower(power.index());
+    onApplyPower(power);
   }, [
     available,
-    isDisabled,
-    isLoading,
+    disabled,
+    loading,
     isNarrow,
     power,
     onApplyPower,
@@ -470,12 +488,12 @@ export const PowerUp = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            disabled={!available || isDisabled || isLoading}
+            disabled={!available || disabled || loading}
             variant="muted"
             className="size-10 md:size-[68px] p-0 [&_svg]:size-6 md:[&_svg]:size-9"
             onClick={handleApplyPower}
           >
-            {isLoading ? (
+            {loading ? (
               <Loader2 className="size-9 animate-spin" />
             ) : (
               <Icon role="img" aria-label={power.name()} />

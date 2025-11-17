@@ -145,10 +145,10 @@ export class GameModel {
     let closest_higher = -1;
     for (let idx = 0; idx < this.slots.length; idx++) {
       const slot = this.slots[idx];
-      if (slot <= this.number && slot !== 0) {
+      if (slot < this.number && slot !== 0) {
         closest_lower = idx;
       }
-      if (slot >= this.number && slot !== 0) {
+      if (slot > this.number && slot !== 0) {
         closest_higher = idx;
         break;
       }

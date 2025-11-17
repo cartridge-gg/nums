@@ -80,6 +80,8 @@ pub impl GameImpl of GameTrait {
         // [Effect] Apply power
         let power: Power = PowerTrait::from(index);
         power.apply(ref self, ref rand);
+        // [Effect] Update game over
+        self.over = self.is_over(self.slots());
     }
 
     #[inline]
@@ -221,7 +223,7 @@ pub impl GameImpl of GameTrait {
         while idx < (max_slots - 1) {
             let next_slot = *slots.at(idx + 1);
 
-            if slot == 0 && number < next_slot && number > prev_number {
+            if slot == 0 && number <= next_slot && number >= prev_number {
                 return false;
             }
             if slot != 0 && number < slot {

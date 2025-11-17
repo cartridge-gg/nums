@@ -1,3 +1,4 @@
+import { useAccount, useConnect } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -978,11 +979,17 @@ export const GameStartPlay = ({
   selection: Power[];
   className?: string;
 }) => {
+  const { account } = useAccount();
+  const { connectAsync, connectors } = useConnect();
   const { game } = useGame(gameId);
   const { startGame } = useStartGame({ gameId: gameId, powers: selection });
   const [loading, setLoading] = useState(false);
 
-  const handleStartGame = useCallback(() => {
+  const handleStartGame = useCallback(async () => {
+    if (!account) {
+      connectAsync({ connector: connectors[0] });
+      return;
+    }
     setLoading(true);
     startGame().then((success) => {
       if (!success) {
@@ -990,13 +997,18 @@ export const GameStartPlay = ({
         toast.error("Failed to start game");
       }
     });
-  }, [startGame]);
+  }, [startGame, account, connectAsync, connectors]);
 
   useEffect(() => {
     if (loading && game?.hasStarted()) {
       setLoading(false);
     }
   }, [game, loading]);
+
+  useEffect(() => {
+    if (account) return;
+    connectAsync({ connector: connectors[0] });
+  }, [account, connectAsync, connectors]);
 
   return (
     <div className={cn("flex justify-end", className)}>

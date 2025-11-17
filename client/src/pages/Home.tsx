@@ -38,7 +38,7 @@ export const Home = () => {
   const [prizePoolModal, setPrizePoolModal] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isInfoClosing, setIsInfoClosing] = useState(false);
-  const viewportPadding = useViewportHeight();
+  const viewportHeight = useViewportHeight();
 
   const openInfo = useCallback(() => {
     setIsInfoOpen(true);
@@ -58,15 +58,11 @@ export const Home = () => {
     return () => clearTimeout(timeoutId);
   }, [isInfoClosing]);
 
-  console.log({ viewportPadding });
-
   return (
     <div
       className="relative w-screen flex flex-col overflow-hidden"
       style={{
-        height: viewportPadding > 0 
-          ? `calc(100vh + ${viewportPadding}px)` 
-          : "100vh",
+        height: viewportHeight !== null ? `${viewportHeight}px` : "100vh",
         minHeight: "100vh",
       }}
       onClick={() => {

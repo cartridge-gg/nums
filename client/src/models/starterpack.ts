@@ -12,7 +12,7 @@ export class StarterpackModel {
     public id: number,
     public reissuable: boolean,
     public referral_percentage: number,
-    public price: number,
+    public price: bigint,
     public payment_token: string,
   ) {
     this.identifier = identifier;
@@ -28,7 +28,7 @@ export class StarterpackModel {
     const id = Number(model.id);
     const reissuable = model.reissuable;
     const referral_percentage = Number(model.referral_percentage);
-    const price = Number(model.price);
+    const price = BigInt(model.price);
     const payment_token = model.payment_token;
     return new StarterpackModel(
       identifier,
@@ -41,7 +41,7 @@ export class StarterpackModel {
   }
 
   static default(identifier: string) {
-    return new StarterpackModel(identifier, 0, false, 0, 0, "0x0");
+    return new StarterpackModel(identifier, 0, false, 0, 0n, "0x0");
   }
 
   static isType(model: StarterpackModel) {

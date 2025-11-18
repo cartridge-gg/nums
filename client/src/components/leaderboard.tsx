@@ -1,5 +1,6 @@
 import { useAccount } from "@starknet-react/core";
 import { useMemo } from "react";
+import { CrownIcon, LaurelIcon } from "@/components/icons";
 import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
@@ -7,7 +8,6 @@ import { useTournamentGames } from "@/hooks/useTournamentGames";
 import { cn } from "@/lib/utils";
 import { PrizeModel } from "@/models/prize";
 import type { TournamentModel } from "@/models/tournament";
-import { LaurelIcon, CrownIcon } from "@/components/icons";
 
 export type LeaderboardProps = {
   tournament: TournamentModel;
@@ -93,7 +93,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
       }}
     >
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="px-3 md:px-4 grid grid-cols-[1fr_3fr_2fr_2fr] md:grid-cols-[1fr_3fr_2fr_1fr_1fr] gap-4 pb-4 text-purple-300 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
+        <div className="px-3 md:px-4 grid grid-cols-[1fr_4fr_2fr_1fr] md:grid-cols-[1fr_3fr_2fr_1fr_1fr] gap-4 pb-4 text-purple-300 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
           <div style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}>
             Rank
           </div>
@@ -151,15 +151,28 @@ export const Row = ({
   return (
     <div
       className={cn(
-        "h-[45px] px-3 md:px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)] md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center min-w-0 border border-black-900 rounded-lg [&_svg]:size-5",
+        "h-[45px] px-3 md:px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(0,4fr)_minmax(0,2fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center min-w-0 border border-black-900 rounded-lg [&_svg]:size-5",
         self ? "text-orange-100 bg-black-900" : "text-white-100",
       )}
     >
-      <p className="truncate" title={`Rank #${item.rank}`}>
+      <p className="truncate md:hidden" title={`Rank #${item.rank}`}>
+        {item.rank === 1 && prize ? (
+          <CrownIcon variant="solid" />
+        ) : prize ? (
+          <LaurelIcon variant="solid" />
+        ) : (
+          item.rank
+        )}
+      </p>
+      <p className="truncate hidden md:block" title={`Rank #${item.rank}`}>
         {item.rank}
       </p>
       <div className="flex items-center gap-1.5">
-        {item.rank === 1 && prize ? <CrownIcon variant="solid" /> : prize ? <LaurelIcon variant="solid" /> : null}
+        {item.rank === 1 && prize ? (
+          <CrownIcon variant="solid" className="hidden md:block" />
+        ) : prize ? (
+          <LaurelIcon variant="solid" className="hidden md:block" />
+        ) : null}
         <p className="truncate" title={item.username}>
           {item.username}
         </p>

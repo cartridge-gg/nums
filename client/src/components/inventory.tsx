@@ -7,6 +7,7 @@ import { useModal } from "@/context/modal";
 import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
+import { useStarterpackPrice } from "@/hooks/useStarterpackPrice";
 import { useStarterpacks } from "@/hooks/useStarterpacks";
 import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
@@ -141,6 +142,8 @@ export const Purchases = ({}: {}) => {
     };
   }, [starterpacks]);
 
+  const usdPrice = useStarterpackPrice(payPack?.price, payPack?.payment_token);
+
   const freeOpen = useCallback(async () => {
     if (!freePack) return;
     (connector as ControllerConnector)?.controller.openStarterPack(
@@ -155,6 +158,15 @@ export const Purchases = ({}: {}) => {
     );
   }, [connector, payPack]);
 
+  const payText = useMemo(() => {
+    if (!payPack) return "N/A";
+    if (usdPrice) {
+      return `$${usdPrice}`;
+    }
+    const priceInTokens = Number(payPack.price / 10n ** 18n);
+    return `${priceInTokens.toFixed(0)} NUMS`;
+  }, [usdPrice, payPack]);
+
   return (
     <ul className="flex justify-between gap-3 md:gap-6 w-full">
       <PurchaseMethod
@@ -164,7 +176,7 @@ export const Purchases = ({}: {}) => {
       />
       <PurchaseMethod
         title="Buy Starterpack"
-        buttonText={"2000 NUMS"}
+        buttonText={payText}
         onClick={payOpen}
       />
     </ul>

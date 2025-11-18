@@ -17,6 +17,7 @@ import { ControllersProvider } from "./context/controllers";
 import { DojoSdkProviderInitialized } from "./context/dojo";
 import { GameProvider } from "./context/game";
 import { ModalProvider } from "./context/modal";
+import { TokenPricesProvider } from "./context/tokenPrices";
 import { TournamentProvider } from "./context/tournaments";
 import { UsageProvider } from "./context/usage";
 import { Game } from "./pages/Game";
@@ -119,16 +120,18 @@ function App() {
                   <ControllersProvider>
                     <GameProvider>
                       <TournamentProvider>
-                        <ModalProvider>
-                          <Router>
-                            <Routes>
-                              <Route path="/" element={<Home />} />
-                              <Route path="/:gameId" element={<Game />} />
-                              {/* <Route path="/selection" element={<Selection />} />
-                                <Route path="/factories" element={<Factories />} /> */}
-                            </Routes>
-                          </Router>
-                        </ModalProvider>
+                        <TokenPricesProvider>
+                          <ModalProvider>
+                            <Router>
+                              <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/:gameId" element={<Game />} />
+                                {/* <Route path="/selection" element={<Selection />} />
+                                  <Route path="/factories" element={<Factories />} /> */}
+                              </Routes>
+                            </Router>
+                          </ModalProvider>
+                        </TokenPricesProvider>
                       </TournamentProvider>
                     </GameProvider>
                   </ControllersProvider>

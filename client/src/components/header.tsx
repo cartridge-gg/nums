@@ -3,7 +3,7 @@ import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Confetti from "react-confetti";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Sparkles from "react-sparkle";
 import { useWindowSize } from "react-use";
 import { addAddressPadding, num } from "starknet";
@@ -28,11 +28,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 export const Header = () => {
+  const { chain } = useChain();
   const { address } = useAccount();
   const navigate = useNavigate();
   const { width, height } = useWindowSize();
   const [run, setRun] = useState(false);
   const [recycle, setRecycle] = useState(true);
+  const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
   const handleClick = () => {
     navigate("/");
@@ -57,7 +59,16 @@ export const Header = () => {
       </div>
       <div className="flex items-center justify-start gap-2 md:gap-4">
         <Sound />
-        {address && <Balance />}
+        {address && isMainnet ? (
+          <Link
+            to="https://app.ekubo.org/starknet/?outputCurrency=NUMS&amount=-2000&inputCurrency=USDC"
+            target="_blank"
+          >
+            <Balance />
+          </Link>
+        ) : (
+          <Balance />
+        )}
         {address && <Claim setRun={setRun} setRecycle={setRecycle} />}
         {address ? <Profile /> : <Connect />}
         {address && <Disconnect />}
@@ -126,7 +137,6 @@ export const Balance = () => {
       variant="muted"
       className={cn(
         "h-10 md:h-12 px-3 md:px-4 py-2 text-2xl tracking-wide gap-1",
-        !isMainnet ? "cursor-pointer" : "cursor-default pointer-events-none",
       )}
       onClick={() => {
         if (isMainnet) return;

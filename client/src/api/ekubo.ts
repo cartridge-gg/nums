@@ -1,4 +1,4 @@
-import { addAddressPadding, shortString } from "starknet";
+import { addAddressPadding, getChecksumAddress, shortString } from "starknet";
 import { getNumsAddress } from "@/config";
 
 interface SwapQuote {
@@ -25,7 +25,7 @@ interface RouteNode {
 }
 
 export const getSwapQuote = async (
-  amount: number,
+  amount: bigint,
   token: string,
   otherToken: string,
 ): Promise<SwapQuote> => {
@@ -39,7 +39,7 @@ export const getSwapQuote = async (
     );
   }
   const response = await fetch(
-    `https://starknet-mainnet-quoter-api.ekubo.org/${amount}/${token}/${otherToken}`,
+    `https://starknet-mainnet-quoter-api.ekubo.org/${amount.toString()}/${getChecksumAddress(token)}/${getChecksumAddress(otherToken)}`,
   );
 
   const data = await response.json();

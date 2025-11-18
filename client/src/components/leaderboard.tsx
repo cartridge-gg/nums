@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { CrownIcon, LaurelIcon } from "@/components/icons";
 import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
 import { cn } from "@/lib/utils";
@@ -139,9 +140,11 @@ export const Row = ({
   item: LeaderboardRow;
   self: boolean;
 }) => {
+  const isNarrow = useMediaQuery("(max-width: 768px)");
+
   const prize =
     item.prize && item.prize !== 0
-      ? `$${item.prize.toFixed(0).toLocaleString()}`
+      ? `$${item.prize.toFixed(isNarrow ? 0 : 2).toLocaleString()}`
       : null;
   const formattedScore =
     item.score >= 1000

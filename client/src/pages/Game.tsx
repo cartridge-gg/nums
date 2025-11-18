@@ -1,6 +1,8 @@
 import { useAccount, useConnect } from "@starknet-react/core";
+import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
@@ -25,7 +27,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useStartGame } from "@/hooks/useStartGame";
 import { cn } from "@/lib/utils";
-import { GameModel } from "@/models/game";
+import { GameModel, REWARDS } from "@/models/game";
 import { DEFAULT_POWER_POINTS, Power, PowerType } from "@/types/power";
 
 export const Game = () => {
@@ -71,6 +73,9 @@ export const Main = ({
   const [gameOverModal, setGameOverModal] = useState<boolean>(false);
   const [nextNumberModal, setNextNumberModal] = useState<boolean>(false);
   const [powerModal, setPowerModal] = useState<Power>();
+  const [activeRewards, setActiveRewards] = useState<
+    Array<{ slotIndex: number; amount: number; id: string }>
+  >([]);
   const hasStartedRef = useRef<boolean>(false);
 
   const tournament = useMemo(() => {
@@ -100,6 +105,31 @@ export const Main = ({
       const success = await setSlot(index);
       if (success) {
         playPositive();
+        // Calculate and show reward immediately using current game level
+        // The reward is for the level we just completed, so we use game.level + 1
+        if (game && game.level >= 0) {
+          const rewardIndex = game.level + 1;
+          if (rewardIndex >= 0 && rewardIndex < REWARDS.length) {
+            const rewardAmount = REWARDS[rewardIndex];
+            if (rewardAmount > 0) {
+              const rewardId = `${index}-${Date.now()}`;
+              setActiveRewards((prev) => [
+                ...prev,
+                {
+                  slotIndex: index,
+                  amount: rewardAmount,
+                  id: rewardId,
+                },
+              ]);
+              // Remove reward after animation (2 seconds)
+              setTimeout(() => {
+                setActiveRewards((prev) =>
+                  prev.filter((r) => r.id !== rewardId),
+                );
+              }, 2000);
+            }
+          }
+        }
       } else {
         setLoadingSlotIndex(null);
       }
@@ -210,7 +240,7 @@ export const Main = ({
         </div>
       )}
       <div className="h-full max-w-[624px] mx-auto flex flex-col gap-4 md:justify-center overflow-hidden">
-        <div className="h-full md:h-auto flex flex-col gap-3 md:gap-12 justify-between md:justify-start overflow-hidden">
+        <div className="h-full md:h-auto flex flex-col justify-between md:justify-start overflow-hidden">
           <GameHeader
             game={game}
             onApplyPower={handleApplyPower}
@@ -224,6 +254,7 @@ export const Main = ({
             loadingSlotIndex={loadingSlotIndex}
             highlights={game.over ? game.closests() : []}
             alloweds={game.alloweds()}
+            activeRewards={activeRewards}
           />
           <JackpotDetails
             tournament={tournament}
@@ -523,32 +554,38 @@ const GameGrid = ({
   loadingSlotIndex,
   highlights,
   alloweds,
+  activeRewards,
 }: {
   game: GameModel;
   onSetSlot: (index: number) => Promise<void>;
   loadingSlotIndex: number | null;
   highlights: number[];
   alloweds: number[];
+  activeRewards: Array<{ slotIndex: number; amount: number; id: string }>;
 }) => {
   return (
     <div
-      className="max-h-[520px] md:max-h-[264px] flex flex-col flex-wrap gap-y-2.5 md:gap-y-4 font-ppneuebit items-center overflow-y-auto"
+      className="py-3 md:py-12 max-h-[520px] md:max-h-[364px] flex flex-col flex-wrap gap-y-2.5 md:gap-y-4 font-ppneuebit items-center overflow-hidden"
       style={{ scrollbarWidth: "none" }}
     >
-      {game.slots.map((slot, index) => (
-        <GameSlot
-          key={index}
-          slot={slot}
-          index={index}
-          onSetSlot={onSetSlot}
-          disabled={
-            game.over ||
-            (loadingSlotIndex !== null && loadingSlotIndex !== index) ||
-            !alloweds.includes(index)
-          }
-          highlighted={highlights.includes(index)}
-        />
-      ))}
+      {game.slots.map((slot, index) => {
+        const reward = activeRewards.find((r) => r.slotIndex === index);
+        return (
+          <GameSlot
+            key={index}
+            slot={slot}
+            index={index}
+            onSetSlot={onSetSlot}
+            disabled={
+              game.over ||
+              (loadingSlotIndex !== null && loadingSlotIndex !== index) ||
+              !alloweds.includes(index)
+            }
+            highlighted={highlights.includes(index)}
+            reward={reward}
+          />
+        );
+      })}
     </div>
   );
 };
@@ -559,14 +596,17 @@ const GameSlot = ({
   onSetSlot,
   disabled,
   highlighted,
+  reward,
 }: {
   slot: number;
   index: number;
   onSetSlot: (index: number) => Promise<void>;
   disabled: boolean;
   highlighted: boolean;
+  reward?: { slotIndex: number; amount: number; id: string };
 }) => {
   const [loading, setLoading] = useState(false);
+  const slotRef = useRef<HTMLDivElement | HTMLButtonElement>(null);
 
   const handleSetSlot = async () => {
     if (slot || disabled) return; // Ne rien faire si le slot est déjà rempli ou désactivé
@@ -579,50 +619,125 @@ const GameSlot = ({
   }, [slot]);
 
   return (
-    <div className="flex justify-between items-center max-w-[108px] h-10 overflow-hidden">
-      <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
-      {slot ? (
-        <div
-          className="h-10 w-16 rounded-xl flex justify-center items-center bg-purple-300"
-          style={{
-            boxShadow:
-              "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
-          }}
-        >
-          <p
-            className={cn(
-              "text-2xl",
-              highlighted ? "text-red-100" : "text-white-100",
-            )}
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.85)" }}
-          >
-            {slot}
-          </p>
-        </div>
-      ) : (
-        <Button
-          disabled={disabled || loading}
-          variant="muted"
-          className="h-10 w-16 rounded-xl"
-          onClick={handleSetSlot}
-        >
-          {loading ? (
-            <Loader2 className="size-5 animate-spin" />
-          ) : (
-            <p
-              className="text-2xl"
+    <>
+      <div className="flex justify-between items-center max-w-[108px] h-10 overflow-visible relative">
+        <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
+        <div className="relative overflow-visible">
+          {slot ? (
+            <div
+              ref={slotRef as React.RefObject<HTMLDivElement>}
+              className="h-10 w-16 rounded-xl flex justify-center items-center bg-purple-300"
               style={{
-                textShadow: !disabled
-                  ? "2px 2px 0px rgba(0, 0, 0, 0.85)"
-                  : undefined,
+                boxShadow:
+                  "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
               }}
             >
-              Set
-            </p>
+              <p
+                className={cn(
+                  "text-2xl",
+                  highlighted ? "text-red-100" : "text-white-100",
+                )}
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.85)" }}
+              >
+                {slot}
+              </p>
+            </div>
+          ) : (
+            <Button
+              ref={slotRef as React.RefObject<HTMLButtonElement>}
+              disabled={disabled || loading}
+              variant="muted"
+              className="h-10 w-16 rounded-xl"
+              onClick={handleSetSlot}
+            >
+              {loading ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <p
+                  className="text-2xl"
+                  style={{
+                    textShadow: !disabled
+                      ? "2px 2px 0px rgba(0, 0, 0, 0.85)"
+                      : undefined,
+                  }}
+                >
+                  Set
+                </p>
+              )}
+            </Button>
           )}
-        </Button>
-      )}
-    </div>
+        </div>
+      </div>
+      {reward &&
+        slotRef.current &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <RewardAnimation
+            amount={reward.amount}
+            key={reward.id}
+            slotRef={slotRef as React.RefObject<HTMLElement>}
+          />,
+          document.body,
+        )}
+    </>
+  );
+};
+
+const RewardAnimation = ({
+  amount,
+  slotRef,
+}: {
+  amount: number;
+  slotRef: React.RefObject<HTMLElement>;
+}) => {
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!slotRef.current) return;
+
+    const updatePosition = () => {
+      if (!slotRef.current) return;
+      const rect = slotRef.current.getBoundingClientRect();
+      // Position au centre du slot, légèrement au-dessus
+      setPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 12, // -12px pour être au-dessus du slot
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [slotRef]);
+
+  if (!position) return null;
+
+  return (
+    <motion.div
+      className="fixed pointer-events-none whitespace-nowrap"
+      style={{
+        zIndex: 9999,
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+      }}
+      initial={{ opacity: 1, y: 0, x: "-50%" }}
+      animate={{ opacity: 0, y: -80, x: "-50%" }}
+      transition={{ duration: 2, ease: "easeOut" }}
+    >
+      <p
+        className="text-2xl font-pixel text-green-100 tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
+      >
+        +{amount.toLocaleString()} Nums
+      </p>
+    </motion.div>
   );
 };
 

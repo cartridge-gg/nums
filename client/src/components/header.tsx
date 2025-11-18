@@ -3,7 +3,7 @@ import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Confetti from "react-confetti";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Sparkles from "react-sparkle";
 import { useWindowSize } from "react-use";
 import { addAddressPadding, num } from "starknet";
@@ -30,21 +30,16 @@ import { Button } from "./ui/button";
 export const Header = () => {
   const { chain } = useChain();
   const { address } = useAccount();
-  const navigate = useNavigate();
   const { width, height } = useWindowSize();
   const [run, setRun] = useState(false);
   const [recycle, setRecycle] = useState(true);
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
-  const handleClick = () => {
-    navigate("/");
-  };
-
   return (
     <div className="w-full min-h-16 md:min-h-24 max-h-24 px-3 md:px-8 flex items-center justify-between border-b border-[rgba(0,0,0,0.24)] bg-[linear-gradient(0deg,rgba(0,0,0,0.24)_0%,rgba(0,0,0,0.16)_100%)]">
-      <div
+      <Link
+        to="/"
         className="flex items-center justify-start gap-2 cursor-pointer select-none [&_svg]:size-10 md:[&_svg]:size-12"
-        onClick={handleClick}
       >
         <LogoIcon
           className="drop-shadow-[3px_3px_0px_rgba(0,0,0,0.25)] text-white"
@@ -56,7 +51,7 @@ export const Header = () => {
         >
           NUMS.GG
         </h1>
-      </div>
+      </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
         <Sound />
         {address && isMainnet ? (

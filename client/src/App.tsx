@@ -15,7 +15,6 @@ import { AudioProvider } from "./context/audio";
 import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
 import { DojoSdkProviderInitialized } from "./context/dojo";
-import { GameProvider } from "./context/game";
 import { ModalProvider } from "./context/modal";
 import { TokenPricesProvider } from "./context/tokenPrices";
 import { TournamentProvider } from "./context/tournaments";
@@ -118,22 +117,18 @@ function App() {
               <ConfigProvider>
                 <UsageProvider>
                   <ControllersProvider>
-                    <GameProvider>
-                      <TournamentProvider>
-                        <TokenPricesProvider>
-                          <ModalProvider>
-                            <Router>
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/:gameId" element={<Game />} />
-                                {/* <Route path="/selection" element={<Selection />} />
-                                  <Route path="/factories" element={<Factories />} /> */}
-                              </Routes>
-                            </Router>
-                          </ModalProvider>
-                        </TokenPricesProvider>
-                      </TournamentProvider>
-                    </GameProvider>
+                    <TournamentProvider>
+                      <TokenPricesProvider>
+                        <ModalProvider>
+                          <Router>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/:gameId" element={<Game />} />
+                            </Routes>
+                          </Router>
+                        </ModalProvider>
+                      </TokenPricesProvider>
+                    </TournamentProvider>
                   </ControllersProvider>
                 </UsageProvider>
               </ConfigProvider>

@@ -1,10 +1,23 @@
-import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
-import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
-import { useAccount } from "@starknet-react/core";
-import { createContext, useContext, useMemo } from "react";
+import {
+  ClauseBuilder,
+  type SchemaType,
+  type StandardizedQueryResult,
+  type SubscriptionCallbackArgs,
+  ToriiQueryBuilder,
+} from "@dojoengine/sdk";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { addAddressPadding } from "starknet";
 import { NAMESPACE } from "@/config";
-import { UsageModel } from "@/models/usage";
+import { useDojoSdk } from "@/hooks/dojo";
+import { Usage, type UsageModel } from "@/models/usage";
 
 type UsageProviderProps = {
   children: React.ReactNode;
@@ -12,44 +25,92 @@ type UsageProviderProps = {
 
 type UsageProviderState = {
   usage?: UsageModel;
+  refresh: () => Promise<void>;
 };
 
 const UsageProviderContext = createContext<UsageProviderState | undefined>(
   undefined,
 );
 
+const getUsageQuery = () => {
+  return new ToriiQueryBuilder()
+    .withEntityModels([`${NAMESPACE}-${Usage.getModelName()}`])
+    .withClause(
+      new ClauseBuilder()
+        .keys([`${NAMESPACE}-Usage`], [addAddressPadding("0x0")], "FixedLen")
+        .build(),
+    )
+    .withLimit(1)
+    .includeHashedKeys();
+};
+
 export function UsageProvider({ children, ...props }: UsageProviderProps) {
-  const { account } = useAccount();
+  const { sdk } = useDojoSdk();
+  const [usage, setUsage] = useState<UsageModel | undefined>(undefined);
 
-  const configQuery = useMemo(() => {
-    return new ToriiQueryBuilder()
-      .withEntityModels([`${NAMESPACE}-Usage`])
-      .withClause(
-        new ClauseBuilder()
-          .keys([`${NAMESPACE}-Usage`], [addAddressPadding("0x0")], "FixedLen")
-          .build(),
+  const subscriptionRef = useRef<any>(null);
+
+  const query = useMemo(() => {
+    return getUsageQuery();
+  }, []);
+
+  const onUpdate = useCallback(
+    ({
+      data,
+      error,
+    }: SubscriptionCallbackArgs<
+      StandardizedQueryResult<SchemaType>,
+      Error
+    >) => {
+      if (
+        error ||
+        !data ||
+        data.length === 0 ||
+        BigInt(data[0].entityId) === 0n
       )
-      .withLimit(1)
-      .includeHashedKeys();
-  }, [account?.address]);
+        return;
+      const entity = data[0];
+      if (BigInt(entity.entityId) === 0n) return;
+      if (!entity.models[NAMESPACE]?.[Usage.getModelName()]) return;
+      const usage = Usage.parse(entity as any);
+      setUsage(usage);
+    },
+    [],
+  );
 
-  useEntityQuery(configQuery);
+  const refresh = useCallback(async () => {
+    if (subscriptionRef.current) {
+      subscriptionRef.current = null;
+    }
 
-  const items = useModels(`${NAMESPACE}-Usage`);
+    const [result, subscription] = await sdk.subscribeEntityQuery({
+      query: query,
+      callback: onUpdate,
+    });
+    subscriptionRef.current = subscription;
 
-  const { usage } = useMemo(() => {
-    if (!items || !items[0]) return { usage: undefined };
-    const item = Object.values(items[0])[0];
-    return {
-      usage: UsageModel.from(item.entityId, item),
+    const items = result.getItems();
+    if (items && items.length > 0) {
+      onUpdate({ data: items, error: undefined });
+    }
+  }, [query, onUpdate]);
+
+  useEffect(() => {
+    refresh();
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.cancel();
+      }
     };
-  }, [items]);
+  }, [subscriptionRef, sdk, query, refresh]);
 
   return (
     <UsageProviderContext.Provider
       {...props}
       value={{
         usage,
+        refresh,
       }}
     >
       {children}

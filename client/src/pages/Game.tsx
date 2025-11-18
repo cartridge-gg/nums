@@ -882,6 +882,11 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
     setPoints(60 - totalCost);
   }, [costs, selection, setPoints]);
 
+  // Reset selection when usage changes
+  useEffect(() => {
+    setSelection([]);
+  }, [usage]);
+
   return (
     <div
       className="relative flex flex-col justify-center h-full grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 md:px-16"
@@ -1131,6 +1136,7 @@ export const GameStartPlay = ({
         variant="default"
         className="h-10 w-full md:w-auto"
         onClick={handleStartGame}
+        disabled={loading || selection.length === 0}
       >
         {loading ? (
           <Loader2 className="size-6 animate-spin" />

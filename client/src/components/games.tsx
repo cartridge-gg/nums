@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRightIcon,
   EyeIcon,
@@ -139,12 +139,6 @@ export const EmptyGames = () => {
 };
 
 export const GameDetails = ({ game }: { game: GameModel }) => {
-  const navigate = useNavigate();
-
-  const handleContinueGame = useCallback(() => {
-    navigate(`/${game.id}`);
-  }, [navigate, game.id]);
-
   return (
     <div className="flex gap-4 items-center">
       <div className="h-10 grow px-3 py-2 rounded-lg flex gap-2 items-center bg-white-900 border border-white-900">
@@ -176,52 +170,54 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
           )}
         </div>
       </div>
-      {game.hasStarted() && !game.over ? (
-        <Button
-          variant="secondary"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
-          onClick={handleContinueGame}
-        >
-          <p
-            className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+      <Link to={`/${game.id}`}>
+        {game.hasStarted() && !game.over ? (
+          <Button
+            variant="secondary"
+            className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
           >
-            Continue
-          </p>
-          <ArrowRightIcon className="size-6 block md:hidden" variant="solid" />
-        </Button>
-      ) : !game.over ? (
-        <Button
-          variant="default"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
-          onClick={handleContinueGame}
-        >
-          <p
-            className="font-[PixelGame] text-[28px] translate-y-0.5 hidden md:block"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            <p
+              className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Continue
+            </p>
+            <ArrowRightIcon
+              className="size-6 block md:hidden"
+              variant="solid"
+            />
+          </Button>
+        ) : !game.over ? (
+          <Button
+            variant="default"
+            className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 [&_svg]:size-6"
           >
-            Play!
-          </p>
-          <ArrowRightIcon
-            className="text-brown-100 block md:hidden"
-            variant="solid"
-          />
-        </Button>
-      ) : (
-        <Button
-          variant="secondary"
-          className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 grayscale [&_svg]:size-6"
-          onClick={handleContinueGame}
-        >
-          <p
-            className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            <p
+              className="font-[PixelGame] text-[28px] translate-y-0.5 hidden md:block"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Play!
+            </p>
+            <ArrowRightIcon
+              className="text-brown-100 block md:hidden"
+              variant="solid"
+            />
+          </Button>
+        ) : (
+          <Button
+            variant="secondary"
+            className="h-10 w-10 md:w-[108px] px-2 md:px-2.5 grayscale [&_svg]:size-6"
           >
-            View
-          </p>
-          <EyeIcon className="size-6 block md:hidden" variant="solid" />
-        </Button>
-      )}
+            <p
+              className="font-[PixelGame] text-[22px] translate-y-0.5 hidden md:block"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              View
+            </p>
+            <EyeIcon className="size-6 block md:hidden" variant="solid" />
+          </Button>
+        )}
+      </Link>
     </div>
   );
 };

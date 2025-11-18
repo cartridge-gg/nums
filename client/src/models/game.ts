@@ -6,7 +6,7 @@ import { Power } from "@/types/power";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
-const REWARDS: number[] = [
+export const REWARDS: number[] = [
   0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500,
   8000, 10000, 20000, 42000,
 ];

@@ -234,7 +234,7 @@ export const PrizePoolModal = ({
                   className="text-white-100 text-[28px]/[19px] translate-y-0.5 tracking-wide"
                   style={{ textShadow: "4px 4px 0px rgba(28, 3, 101, 1)" }}
                 >
-                  {`${prize.formattedAmount || "-"} ${prize.metadata?.symbol || ""}`}
+                  {`${Number(prize.formattedAmount).toLocaleString() || "-"} ${prize.metadata?.symbol || ""}`}
                 </strong>
               </div>
               <span className="text-white-400 text-2xl/3 font-ppneuebit">

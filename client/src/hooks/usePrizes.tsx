@@ -67,7 +67,7 @@ export function calculateBalance(amount: string, decimals: number): Balance {
 
   const adjusted = parseFloat(decimalStr);
   const rounded = Math.round(adjusted * 100) / 100;
-  const formatted = rounded.toLocaleString();
+  const formatted = rounded.toString();
 
   return {
     value,
@@ -123,7 +123,7 @@ const fetchTokenUsdPrice = async (
 ): Promise<string | null> => {
   try {
     const swap = await getSwapQuote(100e18, tokenAddress, USDC_ADDRESS);
-    const price = (swap.total / 1e6 / 100).toFixed(2);
+    const price = (swap.total / 1e6 / 100).toString();
     return price;
   } catch (error) {
     console.error(`Failed to fetch price for ${tokenAddress}:`, error);
@@ -216,7 +216,11 @@ export const usePrizeTokens = (prizes: PrizeModel[]) => {
  */
 export const usePrizeUsdValues = (prizes: PrizeModel[]) => {
   const tokenAddresses = useMemo(() => {
-    return Array.from(new Set(prizes.map((p) => p.address)));
+    return Array.from(new Set(prizes.map((p) => p.address))).filter(
+      (address) =>
+        address !==
+        "0x03e6f513ad6a9acf40beb59545334caf9d961c8bad7b4b7d6bf4dc5eec28bc1c",
+    );
   }, [prizes]);
 
   const query = useQuery({
@@ -249,8 +253,8 @@ export const usePrizeUsdValues = (prizes: PrizeModel[]) => {
         prize.price,
         prize.metadata,
         prize.formattedAmount,
-        usdPrice || undefined,
-        totalUsd || undefined,
+        usdPrice || "0.00",
+        totalUsd || "0.00",
       );
     });
   }, [prizes, query.data]);

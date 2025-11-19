@@ -205,14 +205,14 @@ pub mod PlayableComponent {
                 game_id, settings.slot_count, settings.slot_min, settings.slot_max,
             );
 
+            // [Check] Powers are valid
+            let usage = UsageTrait::from(0);
+            usage.assert_valid_powers(powers);
             // [Check] Handle default and specific games separately
             if !self.is_default_game(world, game_id) {
                 // [Effect] Start specific game
                 game.start(0, number, powers);
             } else {
-                // [Check] Powers are valid
-                let mut usage = store.usage();
-                usage.assert_valid_powers(powers);
                 // [Effect] Enter tournament
                 let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
                 let tournament = tournament_component.enter(world);
@@ -223,6 +223,7 @@ pub mod PlayableComponent {
                 let achievable = get_dep_component!(@self, Achievable);
                 achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
                 // [Effect] Update usage
+                let mut usage = store.usage();
                 usage.insert(powers);
                 store.set_usage(@usage);
             }

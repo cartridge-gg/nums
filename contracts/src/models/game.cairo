@@ -178,12 +178,14 @@ pub impl GameImpl of GameTrait {
                 continue;
             }
             total += 1;
+            // Cap the slot to the max slot value to not extrapolate
+            let slot_u32 = core::cmp::min(slot.into(), slot_max);
             // Rounding to the nearest integer to perfectly center
             let uniform: u32 = slot_min + (index * step + HALF_SCALE_FACTOR) / SCALE_FACTOR;
-            let r = if slot.into() < uniform {
-                uniform - slot.into()
+            let r = if slot_u32 < uniform {
+                uniform - slot_u32
             } else {
-                slot.into() - uniform
+                slot_u32 - uniform
             };
             sum_r += r * r;
         }
@@ -439,7 +441,7 @@ mod tests {
         let mut game = create();
         let slots: u256 = Packer::pack(array![5_u8, 5], SLOT_SIZE);
         game.slots = slots.try_into().unwrap();
-        assert(!game.is_valid(), 'Equal elements valid');
+        assert(game.is_valid(), 'Equal elements invalid');
     }
 
     #[test]

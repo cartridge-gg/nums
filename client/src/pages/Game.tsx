@@ -883,9 +883,9 @@ export const GameStart = ({ gameId }: { gameId: number }) => {
   }, [costs, selection, setPoints]);
 
   // Reset selection when usage changes
-  useEffect(() => {
-    setSelection([]);
-  }, [usage]);
+  // useEffect(() => {
+  //   setSelection([]);
+  // }, [usage]);
 
   return (
     <div

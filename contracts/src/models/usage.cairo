@@ -25,6 +25,11 @@ pub impl UsageImpl of UsageTrait {
     }
 
     #[inline]
+    fn from(board: felt252) -> Usage {
+        Usage { world_resource: 0, last_update: 0, board: board }
+    }
+
+    #[inline]
     fn insert(ref self: Usage, uses: u16) {
         // [Effect] Update usage
         let board: u256 = self.board.into();

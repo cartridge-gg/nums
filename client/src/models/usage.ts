@@ -16,7 +16,8 @@ export class UsageModel {
     this.identifier = identifier;
     this.world_resource = world_resource;
     this.last_update = last_update;
-    this.board = board;
+    // this.board = board;
+    this.board = 0n;
   }
 
   static from(identifier: string, model: any) {

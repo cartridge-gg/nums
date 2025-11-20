@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useAudio } from "@/context/audio";
 import { useTournaments } from "@/context/tournaments";
-import { useUsage } from "@/context/usage";
 import { useGame } from "@/hooks/useGame";
 import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
@@ -837,13 +836,12 @@ export const GameOverButton = () => {
 };
 
 export const GameStart = ({ gameId }: { gameId: number }) => {
-  const { usage } = useUsage();
   const [selection, setSelection] = useState<Power[]>([]);
   const [points, setPoints] = useState(DEFAULT_POWER_POINTS);
 
   const costs = useMemo(() => {
-    return Power.getCosts(usage?.board || 0n) || [];
-  }, [usage]);
+    return Power.getCosts(0n) || [];
+  }, []);
 
   const handleToggle = useCallback((power: Power) => {
     setSelection((prev) => {

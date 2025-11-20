@@ -18,7 +18,6 @@ import { DojoSdkProviderInitialized } from "./context/dojo";
 import { ModalProvider } from "./context/modal";
 import { TokenPricesProvider } from "./context/tokenPrices";
 import { TournamentProvider } from "./context/tournaments";
-import { UsageProvider } from "./context/usage";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
 import { queryClient } from "./queries";
@@ -115,22 +114,20 @@ function App() {
           <DojoSdkProviderInitialized>
             <AudioProvider>
               <ConfigProvider>
-                <UsageProvider>
-                  <ControllersProvider>
-                    <TournamentProvider>
-                      <TokenPricesProvider>
-                        <ModalProvider>
-                          <Router>
-                            <Routes>
-                              <Route path="/" element={<Home />} />
-                              <Route path="/:gameId" element={<Game />} />
-                            </Routes>
-                          </Router>
-                        </ModalProvider>
-                      </TokenPricesProvider>
-                    </TournamentProvider>
-                  </ControllersProvider>
-                </UsageProvider>
+                <ControllersProvider>
+                  <TournamentProvider>
+                    <TokenPricesProvider>
+                      <ModalProvider>
+                        <Router>
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/:gameId" element={<Game />} />
+                          </Routes>
+                        </Router>
+                      </ModalProvider>
+                    </TokenPricesProvider>
+                  </TournamentProvider>
+                </ControllersProvider>
               </ConfigProvider>
             </AudioProvider>
           </DojoSdkProviderInitialized>

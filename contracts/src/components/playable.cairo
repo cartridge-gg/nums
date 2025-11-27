@@ -15,8 +15,6 @@ pub mod PlayableComponent {
         IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
     };
     use starknet::ContractAddress;
-    use crate::components::merkledrop::MerkledropComponent;
-    use crate::components::merkledrop::MerkledropComponent::InternalImpl as MerkledropInternalImpl;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::components::tournament::TournamentComponent;
@@ -47,45 +45,6 @@ pub mod PlayableComponent {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {}
-
-    // Types
-
-    #[derive(Drop, Copy, Clone, Serde, PartialEq)]
-    pub struct LeafData {
-        pub player_name: felt252,
-        pub quantity: u32,
-    }
-
-    #[generate_trait]
-    pub impl MerkledropImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl Merkledrop: MerkledropComponent::HasComponent<TContractState>,
-    > of MerkledropTrait<TContractState> {
-        fn on_claim(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            recipient: ContractAddress,
-            leaf_data: Span<felt252>,
-        ) {
-            // [Check] Caller is allowed
-            let merkledrop = get_dep_component!(@self, Merkledrop);
-            merkledrop.assert_is_allowed(world);
-
-            // [Check] Merkledrop is valid
-            merkledrop.assert_is_valid(world);
-
-            // [Interaction] Mint a game
-            let mut leaf_data = leaf_data;
-            let data = Serde::<LeafData>::deserialize(ref leaf_data).unwrap();
-            let player_name = data.player_name;
-            let mut quantity = data.quantity;
-            while quantity > 0 {
-                self.mint_game(world, Option::Some(player_name), recipient, false);
-                quantity -= 1;
-            }
-        }
-    }
 
     #[generate_trait]
     pub impl StarterpackImpl<
@@ -161,17 +120,12 @@ pub mod PlayableComponent {
                     .create(
                         world,
                         id: achievement.identifier(),
-                        hidden: achievement.hidden(),
-                        index: achievement.index(),
-                        points: achievement.points(),
+                        rewarder: 0.try_into().unwrap(),
                         start: 0,
                         end: 0,
-                        group: achievement.group(),
-                        icon: achievement.icon(),
-                        title: achievement.title(),
-                        description: achievement.description(),
                         tasks: achievement.tasks(),
-                        data: achievement.data(),
+                        metadata: achievement.metadata(),
+                        to_store: true,
                     );
                 achievement_id -= 1;
             }
@@ -210,18 +164,24 @@ pub mod PlayableComponent {
             usage.assert_valid_powers(powers);
             // [Check] Handle default and specific games separately
             if !self.is_default_game(world, game_id) {
+                // [Check] Powers are valid
+                let usage = UsageTrait::from(0);
+                usage.assert_valid_powers(powers);
                 // [Effect] Start specific game
                 game.start(0, number, powers);
             } else {
                 // [Effect] Enter tournament
                 let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
                 let tournament = tournament_component.enter(world);
+                // [Check] Powers are valid
+                let usage = UsageTrait::from(tournament.usage);
+                usage.assert_valid_powers(powers);
                 // [Effect] Start tournament game
                 game.start(tournament.id, number, powers);
                 // [Effect] Update achievement progression for the player - Grinder task
                 let player = starknet::get_caller_address();
                 let achievable = get_dep_component!(@self, Achievable);
-                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
+                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1, true);
                 // [Effect] Update usage
                 let mut usage = store.usage();
                 usage.insert(powers);
@@ -287,7 +247,9 @@ pub mod PlayableComponent {
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
             achievable
-                .progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
+                .progress(
+                    world, player.into(), Task::Claimer.identifier(), game.reward.into(), false,
+                );
 
             // [Effect] Update leaderboard
             let mut leaderboard = store.leaderboard(game.tournament_id);
@@ -296,38 +258,42 @@ pub mod PlayableComponent {
 
             // [Effect] Update King achievement if first place
             if is_first {
-                achievable.progress(world, player.into(), Task::King.identifier(), 1);
+                achievable.progress(world, player.into(), Task::King.identifier(), 1, false);
             }
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
             if filled_slots == 10 {
-                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
             } else if filled_slots == 15 {
-                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1, true);
             } else if filled_slots == 17 {
-                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1, true);
             } else if filled_slots == 19 {
-                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1, true);
             } else if filled_slots == 20 {
-                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression for the player - Reference tasks
             if target_number == 21 {
-                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1, true);
             } else if target_number == 42 {
-                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1, true);
             } else if target_number == 404 {
-                achievable.progress(world, player.into(), Task::ReferenceThree.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceThree.identifier(), 1, true);
             } else if target_number == 777 {
-                achievable.progress(world, player.into(), Task::ReferenceFour.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFour.identifier(), 1, true);
             } else if target_number == 911 {
-                achievable.progress(world, player.into(), Task::ReferenceFive.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFive.identifier(), 1, true);
             } else if target_number == 420 {
-                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1, true);
             } else if target_number == 69 {
-                achievable.progress(world, player.into(), Task::ReferenceSeven.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceSeven.identifier(), 1, true);
             }
 
             // [Interaction] Perform post actions

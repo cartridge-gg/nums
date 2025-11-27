@@ -59,7 +59,6 @@ pub impl TaskImpl of TaskTrait {
         }
     }
 
-
     fn description(self: Task, count: u32) -> ByteArray {
         match self {
             Task::None => "",
@@ -83,7 +82,6 @@ pub impl TaskImpl of TaskTrait {
             Task::Claimer => tasks::claimer::Claimer::description(count),
         }
     }
-
 
     fn tasks(self: Task, count: u32) -> Span<ArcadeTask> {
         let task_id: felt252 = self.identifier();

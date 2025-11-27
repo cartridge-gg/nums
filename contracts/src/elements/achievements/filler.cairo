@@ -12,16 +12,13 @@ pub impl Filler of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
 
-
     fn hidden(level: u8) -> bool {
         false
     }
-
 
     fn points(level: u8) -> u16 {
         match level {
@@ -34,11 +31,9 @@ pub impl Filler of AchievementTrait {
         }
     }
 
-
     fn group() -> felt252 {
         'Filler'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -51,7 +46,6 @@ pub impl Filler of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Halfway There',
@@ -63,7 +57,6 @@ pub impl Filler of AchievementTrait {
         }
     }
 
-
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "You're making progress, but there's still a long way to go.",
@@ -74,7 +67,6 @@ pub impl Filler of AchievementTrait {
             _ => "",
         }
     }
-
 
     fn tasks(level: u8) -> Span<ArcadeTask> {
         match level {

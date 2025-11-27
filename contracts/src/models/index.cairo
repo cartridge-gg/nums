@@ -11,6 +11,7 @@ pub struct Config {
     pub forwarder: ContractAddress,
     pub owner: ContractAddress,
     pub entry_price: u128,
+    pub target_supply: u256,
     pub count: u32,
 }
 
@@ -64,6 +65,7 @@ pub struct Tournament {
     pub entry_count: u32,
     pub start_time: u64,
     pub end_time: u64,
+    pub usage: felt252,
 }
 
 #[dojo::model]

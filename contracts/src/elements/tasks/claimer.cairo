@@ -5,7 +5,6 @@ pub impl Claimer of TaskTrait {
         'CLAIMER'
     }
 
-
     fn description(count: u32) -> ByteArray {
         "Claim more tokens"
     }

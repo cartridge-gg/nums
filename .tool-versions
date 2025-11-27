@@ -1,5 +1,4 @@
 scarb 2.13.1
 starkli 0.4.2
-sozo 1.8.0-aead87cc
-torii 1.7.2
-katana 1.7.2
+sozo 1.8.2
+nodejs 22.12.0

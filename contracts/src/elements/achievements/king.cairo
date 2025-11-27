@@ -12,16 +12,13 @@ pub impl King of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
 
-
     fn hidden(level: u8) -> bool {
         false
     }
-
 
     fn points(level: u8) -> u16 {
         match level {
@@ -34,11 +31,9 @@ pub impl King of AchievementTrait {
         }
     }
 
-
     fn group() -> felt252 {
         'King of the Hill'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -51,7 +46,6 @@ pub impl King of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Lucky',
@@ -63,7 +57,6 @@ pub impl King of AchievementTrait {
         }
     }
 
-
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "Better lucky than good!",
@@ -74,7 +67,6 @@ pub impl King of AchievementTrait {
             _ => "",
         }
     }
-
 
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {

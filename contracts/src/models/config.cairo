@@ -20,6 +20,7 @@ pub impl ConfigImpl of ConfigTrait {
         forwarder: ContractAddress,
         owner: ContractAddress,
         entry_price: u128,
+        target_supply: u256,
     ) -> Config {
         Config {
             world_resource: world_resource,
@@ -29,6 +30,7 @@ pub impl ConfigImpl of ConfigTrait {
             forwarder: forwarder,
             owner: owner,
             entry_price: entry_price,
+            target_supply: target_supply,
             count: 0,
         }
     }

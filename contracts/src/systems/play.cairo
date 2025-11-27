@@ -56,7 +56,6 @@ pub mod Play {
     use achievement::components::achievable::AchievableComponent;
     use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
-    use crate::components::merkledrop::MerkledropComponent;
     use crate::components::playable::PlayableComponent;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::tournament::TournamentComponent;
@@ -73,11 +72,8 @@ pub mod Play {
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
     impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
-    impl PlayableMerkledropImpl = PlayableComponent::MerkledropImpl<ContractState>;
     component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
     impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
-    component!(path: MerkledropComponent, storage: merkledrop, event: MerkledropEvent);
-    impl MerkledropInternalImpl = MerkledropComponent::InternalImpl<ContractState>;
 
     // Storage
 
@@ -91,8 +87,6 @@ pub mod Play {
         tournament: TournamentComponent::Storage,
         #[substorage(v0)]
         starterpack: StarterpackComponent::Storage,
-        #[substorage(v0)]
-        merkledrop: MerkledropComponent::Storage,
     }
 
     // Events
@@ -108,8 +102,6 @@ pub mod Play {
         TournamentEvent: TournamentComponent::Event,
         #[flat]
         StarterpackEvent: StarterpackComponent::Event,
-        #[flat]
-        MerkledropEvent: MerkledropComponent::Event,
     }
 
     fn dojo_init(ref self: ContractState) {
@@ -119,19 +111,6 @@ pub mod Play {
         self.tournament.initialize(world);
         self.starterpack.initialize(world);
         self.playable.initialize(world);
-        self.merkledrop.initialize(world, 0);
-    }
-
-    #[abi(embed_v0)]
-    impl MerkledropImpl of IMerkledrop<ContractState> {
-        fn on_claim(
-            ref self: ContractState, recipient: starknet::ContractAddress, leaf_data: Span<felt252>,
-        ) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Claim games
-            self.playable.on_claim(world, recipient, leaf_data)
-        }
     }
 
     #[abi(embed_v0)]

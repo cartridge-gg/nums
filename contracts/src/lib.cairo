@@ -13,7 +13,6 @@ pub mod systems {
 }
 
 pub mod components {
-    pub mod merkledrop;
     pub mod playable;
     pub mod renderable;
     pub mod starterpack;
@@ -50,6 +49,7 @@ pub mod helpers {
     pub mod heap;
     pub mod packer;
     pub mod power;
+    pub mod rewarder;
 }
 
 pub mod assets {

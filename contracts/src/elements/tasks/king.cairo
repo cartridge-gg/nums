@@ -5,7 +5,6 @@ pub impl King of TaskTrait {
         'KING'
     }
 
-
     fn description(count: u32) -> ByteArray {
         match count {
             0 => "",

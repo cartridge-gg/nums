@@ -18,12 +18,19 @@ pub const ONE_WEEK: u64 = 7 * 24 * 60 * 60;
 #[generate_trait]
 pub impl TournamentImpl of TournamentTrait {
     #[inline]
-    fn new(id: u16) -> Tournament {
+    fn new(id: u16, usage: felt252) -> Tournament {
         // [Check] Times are valid
         let start_time = Self::start_time(id);
         let end_time = start_time + Self::duration(id);
         // [Return] New tournament
-        Tournament { id: id, powers: 0, entry_count: 0, start_time: start_time, end_time: end_time }
+        Tournament {
+            id: id,
+            powers: 0,
+            entry_count: 0,
+            start_time: start_time,
+            end_time: end_time,
+            usage: usage,
+        }
     }
 
     #[inline]
@@ -103,44 +110,45 @@ mod tests {
     use super::{TournamentAssert, TournamentTrait};
 
     pub const TOURNAMENT_ID: u16 = 1;
+    pub const USAGE: felt252 = 12345;
 
     #[test]
     fn test_tournament_has_started() {
-        let tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         set_block_timestamp(tournament.start_time - 1);
         assert_eq!(tournament.has_started(), false);
     }
 
     #[test]
     fn test_tournament_is_over() {
-        let tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         set_block_timestamp(tournament.end_time + 1);
         assert_eq!(tournament.is_over(), true);
     }
 
     #[test]
     fn test_tournament_assert_has_started() {
-        let tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         set_block_timestamp(tournament.start_time + 1);
         TournamentAssert::assert_has_started(@tournament);
     }
 
     #[test]
     fn test_tournament_assert_is_over() {
-        let tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         set_block_timestamp(tournament.end_time + 1);
         TournamentAssert::assert_is_over(@tournament);
     }
 
     #[test]
     fn test_tournament_assert_does_exist() {
-        let tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         TournamentAssert::assert_does_exist(@tournament);
     }
 
     #[test]
     fn test_tournament_assert_not_exist() {
-        let mut tournament = TournamentTrait::new(TOURNAMENT_ID);
+        let mut tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         tournament.end_time = 0;
         TournamentAssert::assert_not_exist(@tournament);
     }

@@ -44,7 +44,7 @@ pub mod TournamentComponent {
             tournament.assert_not_exist();
 
             // [Effect] Create tournament
-            let tournament = TournamentTrait::new(identifier);
+            let tournament = TournamentTrait::new(identifier, 0);
             store.set_tournament(@tournament);
         }
 
@@ -55,8 +55,9 @@ pub mod TournamentComponent {
             // [Effect] Create next tournament if it doesn't exist
             let identifier = TournamentTrait::uuid() + 1;
             let tournament = store.tournament(identifier);
+            let usage = store.usage();
             if !tournament.exists() {
-                let tournament = TournamentTrait::new(identifier);
+                let tournament = TournamentTrait::new(identifier, usage.board);
                 store.set_tournament(@tournament);
             }
 
@@ -64,7 +65,7 @@ pub mod TournamentComponent {
             let identifier = TournamentTrait::uuid();
             let mut tournament = store.tournament(identifier);
             if !tournament.exists() {
-                tournament = TournamentTrait::new(identifier);
+                tournament = TournamentTrait::new(identifier, usage.board);
             }
             tournament.enter();
             store.set_tournament(@tournament);

@@ -12,7 +12,6 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
@@ -21,7 +20,6 @@ pub impl Claimer of AchievementTrait {
     fn hidden(level: u8) -> bool {
         false
     }
-
 
     fn points(level: u8) -> u16 {
         match level {
@@ -34,11 +32,9 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn group() -> felt252 {
         'Claimer'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -51,7 +47,6 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'First Million',
@@ -63,7 +58,6 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "The first step to fortune. Just a few more to go!",
@@ -74,7 +68,6 @@ pub impl Claimer of AchievementTrait {
             _ => "",
         }
     }
-
 
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = match level {

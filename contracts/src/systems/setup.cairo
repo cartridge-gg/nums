@@ -30,6 +30,7 @@ pub mod Setup {
         forwarder_address: ContractAddress,
         owner_address: ContractAddress,
         entry_price: u128,
+        target_supply: u256,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -58,6 +59,7 @@ pub mod Setup {
             forwarder: forwarder_address,
             owner: owner_address,
             entry_price: entry_price,
+            target_supply: target_supply,
         );
         store.set_config(config);
         // [Effect] Create usage

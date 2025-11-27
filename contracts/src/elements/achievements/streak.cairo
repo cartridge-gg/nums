@@ -10,16 +10,13 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
 
-
     fn hidden(level: u8) -> bool {
         false
     }
-
 
     fn points(level: u8) -> u16 {
         match level {
@@ -30,11 +27,9 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn group() -> felt252 {
         'Streak'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -45,7 +40,6 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Double Trouble',
@@ -55,7 +49,6 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn description(level: u8) -> ByteArray {
         match level {
             0 => "Coincidence or strategy? Either way, it's a streak!",
@@ -64,7 +57,6 @@ pub impl Streak of AchievementTrait {
             _ => "",
         }
     }
-
 
     fn tasks(level: u8) -> Span<ArcadeTask> {
         let count: u32 = 1;

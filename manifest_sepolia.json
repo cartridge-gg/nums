@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x79ddb00f5186905686fe3c5e5cf8aa7f904fa294a3b9415fccdf3016fc219a4",
-    "seed": "nums-v1.0.17",
+    "address": "0x18569f069aae3e60889b1673d38d6105e4d7c8e8487da461b63cbd76cd84ded",
+    "seed": "nums-v1.0.19",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x1baa7d0ebddb47e743d985c7f2b66f8f71151812649cedac8d7672535b7c4c3",
+      "address": "0x2a2fe37f24f2c073ec6d397831227239b354b34ef0a5ec9cfc72e281d4bcbb",
       "class_hash": "0x4e26ac0beefb561561c5c36522e449cc0932a09f9795d0a0f3dfc7f1c53b1d0",
       "init_calldata": [
         "0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776"
@@ -46,8 +46,8 @@
       ]
     },
     {
-      "address": "0x45177a25603aabda258e992262f6345b0b23fbb14a2c12ef977a679af5e48e0",
-      "class_hash": "0xeb27d548dc03edf3099db420c2f3a6521b874a31cb13283c795c081fefbc16",
+      "address": "0x5d22d6c0dfb0086afb6769151ca3e4be8cc6ffde64fe9ff69d4e6eef20ecf4d",
+      "class_hash": "0x262f4f656e2e898b5671ee315297be75d236281d31209f8c331840caee4e7f4",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -70,7 +70,7 @@
       ]
     },
     {
-      "address": "0x66676dd4f2c26282bc51988ff5ad1fbad094459bbda13ec729583d9a2a0f55",
+      "address": "0x68cfa931a4d7f71e327dbe49c1c7eee2adf3499cf928bb0358e15d7b7761a26",
       "class_hash": "0x3fdf1e0c4098b8d5d1025ef80936e0617535ed87f8c7382dfb5119497f7cb86",
       "init_calldata": [],
       "tag": "NUMS-Renderer",
@@ -80,8 +80,8 @@
       ]
     },
     {
-      "address": "0x687afc79e7feb4d64ebcffd1aac65aa04cf852ec523fcf49c93f55276ad4e09",
-      "class_hash": "0x5e7959d2fbd6f841ac37ad663206f9a820e7e646da5a935f64f0f211c30de38",
+      "address": "0x551c2320ee874d463c484909d9875359651f4392a39e03f19207d981f532002",
+      "class_hash": "0x5291e1bc359df1cb04f31800b90d115264f9322380beb91ae798398f95ba4c3",
       "init_calldata": [],
       "tag": "NUMS-Settings",
       "selector": "0x3a8a51ced8a284536514e5ec51aaecd4a14a260f1b7fc335b7c3975a87dbeed",
@@ -92,8 +92,8 @@
       ]
     },
     {
-      "address": "0x22558380b520003dfbc275bd26754fb6ef33e418b8fbf9e5910112c385475e3",
-      "class_hash": "0x311bf285e0bd766e2c14f9e88b1f4d2a9d18cb8649b757a88cebea2476896ea",
+      "address": "0x69c6271d689490db17ae0b9983c9c644e48cac3af164abcc1a69dc9591ecd8b",
+      "class_hash": "0x6bfa9e2c8c81c26004150e982964a0dd4594c6de34f1804c10d12dd184c18f3",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -101,7 +101,6 @@
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
         "0x0",
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
-        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x6C6B935B8BBD400000",
         "0x6765C793FA10079D0000000",
@@ -275,11 +274,6 @@
           "key": false
         },
         {
-          "name": "forwarder",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
           "name": "owner",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
@@ -300,7 +294,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x1d81b4529daf1ba791c96dc800a496e8f5640f76cf6735692859c624bd28b29",
+      "class_hash": "0x1cf5de6276ff5c1976c79fa200db32615114dec1ca9a2d44bc0ec719526fd2b",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -844,6 +838,38 @@
       "class_hash": "0x1a7633ac9f51d670e91d6fd88303ddc000ad033c81678d38144e2f1c6345c0d",
       "tag": "NUMS-GameReward",
       "selector": "0x7da6aada2ec88c0706895237ddf9097895eed70ea9bb0142732bd066a1d50e4"
+    },
+    {
+      "members": [
+        {
+          "name": "leaderboard_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x2c067e1c1069a68aca73f8cf4f0000fb9c584455bb60fadde7ee05fbeb62372",
+      "tag": "NUMS-LeaderboardScore",
+      "selector": "0x3b5d184f66bf1446e882a4eab8662010f7108b42fb2d2aafe6d2721f625154e"
     },
     {
       "members": [
@@ -3471,10 +3497,6 @@
           "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
         },
         {
-          "name": "forwarder_address",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "owner_address",
           "type": "core::starknet::contract_address::ContractAddress"
         },
@@ -3866,6 +3888,68 @@
     },
     {
       "type": "event",
+      "name": "leaderboard::components::rankable::RankableComponent::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "leaderboard::events::index::LeaderboardScore",
+      "members": [
+        {
+          "name": "leaderboard_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "game_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "player",
+          "type": "core::felt252"
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "leaderboard::events::index::LeaderboardScoreValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::felt252"
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "leaderboard::events::index::e_LeaderboardScore::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "nums::components::initializable::InitializableComponent::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
       "name": "nums::components::playable::PlayableComponent::Event",
       "kind": "enum",
       "variants": []
@@ -3967,10 +4051,6 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "forwarder",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "owner",
           "type": "core::starknet::contract_address::ContractAddress"
         },
@@ -4002,10 +4082,6 @@
         },
         {
           "name": "starterpack",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "forwarder",
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
@@ -4773,7 +4849,7 @@
             },
             {
               "name": "position",
-              "type": "core::integer::u32"
+              "type": "core::integer::u8"
             }
           ],
           "outputs": [],
@@ -4815,6 +4891,11 @@
         {
           "name": "AchievableEvent",
           "type": "achievement::components::achievable::AchievableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "RankableEvent",
+          "type": "leaderboard::components::rankable::RankableComponent::Event",
           "kind": "flat"
         },
         {
@@ -5053,6 +5134,21 @@
           "name": "WorldProviderEvent",
           "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
           "kind": "nested"
+        },
+        {
+          "name": "InitializableEvent",
+          "type": "nums::components::initializable::InitializableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "AchievableEvent",
+          "type": "achievement::components::achievable::AchievableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "QuestableEvent",
+          "type": "quest::components::questable::QuestableComponent::Event",
+          "kind": "flat"
         }
       ]
     },

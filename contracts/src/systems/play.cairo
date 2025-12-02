@@ -1,6 +1,5 @@
 use starknet::ContractAddress;
 
-
 #[inline]
 pub fn NAME() -> ByteArray {
     "Play"
@@ -22,11 +21,7 @@ pub trait IMerkledrop<T> {
 pub trait ITournament<T> {
     fn sponsor(ref self: T, tournament_id: u16, token_address: ContractAddress, amount: u128);
     fn claim(
-        ref self: T,
-        tournament_id: u16,
-        token_address: ContractAddress,
-        game_id: u64,
-        position: u32,
+        ref self: T, tournament_id: u16, token_address: ContractAddress, game_id: u64, position: u8,
     );
     fn rescue(ref self: T, tournament_id: u16, token_address: ContractAddress);
 }
@@ -54,6 +49,7 @@ pub trait IExternal<T> {
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
+    use leaderboard::components::rankable::RankableComponent;
     use quest::components::questable::QuestableComponent;
     use quest::interfaces::IQuestRewarder;
     use starknet::ContractAddress;
@@ -69,6 +65,8 @@ pub mod Play {
 
     component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
     impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+    component!(path: RankableComponent, storage: rankable, event: RankableEvent);
+    impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
     component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
     impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
     component!(path: TournamentComponent, storage: tournament, event: TournamentEvent);
@@ -87,6 +85,8 @@ pub mod Play {
         #[substorage(v0)]
         achievable: AchievableComponent::Storage,
         #[substorage(v0)]
+        rankable: RankableComponent::Storage,
+        #[substorage(v0)]
         questable: QuestableComponent::Storage,
         #[substorage(v0)]
         playable: PlayableComponent::Storage,
@@ -104,6 +104,8 @@ pub mod Play {
         #[flat]
         AchievableEvent: AchievableComponent::Event,
         #[flat]
+        RankableEvent: RankableComponent::Event,
+        #[flat]
         QuestableEvent: QuestableComponent::Event,
         #[flat]
         PlayableEvent: PlayableComponent::Event,
@@ -119,7 +121,6 @@ pub mod Play {
         // [Effect] Initialize components
         self.tournament.initialize(world);
         self.starterpack.initialize(world);
-        self.playable.initialize(world);
     }
 
     #[abi(embed_v0)]
@@ -218,7 +219,7 @@ pub mod Play {
             tournament_id: u16,
             token_address: ContractAddress,
             game_id: u64,
-            position: u32,
+            position: u8,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());

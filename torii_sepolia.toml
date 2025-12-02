@@ -1,4 +1,4 @@
-world_address = "0x079ddb00f5186905686fe3c5e5cf8aa7f904fa294a3b9415fccdf3016fc219a4"
+world_address = "0x018569f069aae3e60889b1673d38d6105e4d7c8e8487da461b63cbd76cd84ded"
 rpc = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [server]
@@ -17,7 +17,6 @@ contracts = [
     "ERC20:0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",   # NUMS
     "ERC721:0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan
 ]
-
 
 [sql]
 historical = ["NUMS-TrophyProgression"]

@@ -2,7 +2,6 @@ import { useAccount } from "@starknet-react/core";
 import { useMemo } from "react";
 import { CrownIcon, LaurelIcon } from "@/components/icons";
 import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
-import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTournamentGames } from "@/hooks/useTournamentGames";
@@ -41,7 +40,6 @@ const EmptyLeaderboard = () => {
 export const Leaderboard = ({ tournament }: LeaderboardProps) => {
   const tournamentId = tournament.id;
   const { account } = useAccount();
-  const { leaderboard } = useLeaderboard(tournamentId);
   const { games } = useTournamentGames(tournamentId);
   const { prizes } = usePrizesWithUsd();
 
@@ -60,15 +58,14 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
   }, [tournamentPrizes]);
 
   const rows: LeaderboardRow[] = useMemo(() => {
-    if (games.length === 0 || !leaderboard || !tournament) return [];
+    if (games.length === 0 || !tournament) return [];
     return games.map((game) => {
       const gameId = parseInt(game.token_id, 16);
-      const position = leaderboard.games.indexOf(gameId) + 1;
       const prize =
         PrizeModel.payout(
           totalPrize,
-          position,
-          leaderboard.getCapacity(tournament.entry_count),
+          game.rank,
+          tournament.getCapacity(games.length),
         ) || 0;
       return {
         rank: game.rank,
@@ -81,7 +78,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         share: Math.floor((Number(prize) / totalPrize) * 100),
       };
     });
-  }, [games, leaderboard, tournament, totalPrize]);
+  }, [games, tournament, totalPrize]);
 
   const hasData = games.length > 0;
 

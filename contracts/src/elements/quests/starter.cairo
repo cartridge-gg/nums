@@ -7,7 +7,7 @@ use super::index::{ICON, QuestMetadataTrait, QuestProps, QuestTrait};
 
 pub impl StarterOne of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_STARTER_ONE'
+        'PERMANENT_STARTER_ONE'
     }
 
     fn props() -> QuestProps {
@@ -36,7 +36,7 @@ pub impl StarterOne of QuestTrait {
 
 pub impl StarterTwo of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_STARTER_TWO'
+        'PERMANENT_STARTER_TWO'
     }
 
     fn props() -> QuestProps {
@@ -66,7 +66,7 @@ pub impl StarterTwo of QuestTrait {
 
 pub impl StarterThree of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_STARTER_THREE'
+        'PERMANENT_STARTER_THREE'
     }
 
     fn props() -> QuestProps {
@@ -96,7 +96,7 @@ pub impl StarterThree of QuestTrait {
 
 pub impl StarterFour of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_STARTER_FOUR'
+        'PERMANENT_STARTER_FOUR'
     }
 
     fn props() -> QuestProps {
@@ -126,7 +126,7 @@ pub impl StarterFour of QuestTrait {
 
 pub impl StarterFive of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_STARTER_FIVE'
+        'PERMANENT_STARTER_FIVE'
     }
 
     fn props() -> QuestProps {

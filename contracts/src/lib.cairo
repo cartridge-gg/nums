@@ -13,6 +13,7 @@ pub mod systems {
 }
 
 pub mod components {
+    pub mod initializable;
     pub mod playable;
     pub mod renderable;
     pub mod starterpack;
@@ -24,8 +25,6 @@ pub mod models {
     pub mod config;
     pub mod game;
     pub mod index;
-    pub mod leaderboard;
-    pub mod merkledrop;
     pub mod prize;
     pub mod reward;
     pub mod setting;

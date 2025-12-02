@@ -6,7 +6,7 @@ pub impl KingOne of TaskTrait {
     }
 
     fn description(count: u32) -> ByteArray {
-        "Take the honors"
+        "Take the honors finishing in the top 5"
     }
 }
 
@@ -17,7 +17,7 @@ pub impl KingTwo of TaskTrait {
     }
 
     fn description(count: u32) -> ByteArray {
-        "Take the laurels"
+        "Take the laurels finishing in the top 3"
     }
 }
 
@@ -28,6 +28,6 @@ pub impl KingThree of TaskTrait {
     }
 
     fn description(count: u32) -> ByteArray {
-        "Take the crown"
+        "Take the crown finishing in the top 1"
     }
 }

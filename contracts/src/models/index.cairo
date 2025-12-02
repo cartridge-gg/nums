@@ -8,7 +8,6 @@ pub struct Config {
     pub nums: ContractAddress,
     pub vrf: ContractAddress,
     pub starterpack: ContractAddress,
-    pub forwarder: ContractAddress,
     pub owner: ContractAddress,
     pub entry_price: u128,
     pub target_supply: u256,

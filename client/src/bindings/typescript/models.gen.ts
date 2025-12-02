@@ -2,15 +2,61 @@ import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
 import { CairoCustomEnum, CairoOption, CairoOptionVariant, BigNumberish } from 'starknet';
 
+// Type definition for `achievement::models::index::AchievementAdvancement` struct
+export interface AchievementAdvancement {
+	player_id: BigNumberish;
+	achievement_id: BigNumberish;
+	task_id: BigNumberish;
+	count: BigNumberish;
+	timestamp: BigNumberish;
+}
+
+// Type definition for `achievement::models::index::AchievementAssociation` struct
+export interface AchievementAssociation {
+	task_id: BigNumberish;
+	achievements: Array<BigNumberish>;
+}
+
+// Type definition for `achievement::models::index::AchievementCompletion` struct
+export interface AchievementCompletion {
+	player_id: BigNumberish;
+	achievement_id: BigNumberish;
+	timestamp: BigNumberish;
+	unclaimed: boolean;
+}
+
+// Type definition for `achievement::models::index::AchievementDefinition` struct
+export interface AchievementDefinition {
+	id: BigNumberish;
+	rewarder: string;
+	start: BigNumberish;
+	end: BigNumberish;
+	tasks: Array<Task>;
+}
+
+// Type definition for `achievement::types::task::Task` struct
+export interface Task {
+	id: BigNumberish;
+	total: BigNumberish;
+	description: string;
+}
+
+// Type definition for `nums::models::index::Claim` struct
+export interface Claim {
+	player: BigNumberish;
+	starterpack_id: BigNumberish;
+	claimed: boolean;
+}
+
 // Type definition for `nums::models::index::Config` struct
 export interface Config {
 	world_resource: BigNumberish;
 	nums: string;
 	vrf: string;
 	starterpack: string;
-	forwarder: string;
 	owner: string;
 	entry_price: BigNumberish;
+	target_supply: BigNumberish;
 	count: BigNumberish;
 }
 
@@ -28,8 +74,8 @@ export interface Game {
 	tournament_id: BigNumberish;
 	selected_powers: BigNumberish;
 	available_powers: BigNumberish;
-	reward: BigNumberish;
 	score: BigNumberish;
+	reward: BigNumberish;
 	slots: BigNumberish;
 }
 
@@ -79,6 +125,7 @@ export interface Setting {
 // Type definition for `nums::models::index::Starterpack` struct
 export interface Starterpack {
 	id: BigNumberish;
+	reissuable: boolean;
 	referral_percentage: BigNumberish;
 	price: BigNumberish;
 	payment_token: string;
@@ -91,6 +138,7 @@ export interface Tournament {
 	entry_count: BigNumberish;
 	start_time: BigNumberish;
 	end_time: BigNumberish;
+	usage: BigNumberish;
 }
 
 // Type definition for `nums::models::index::Usage` struct
@@ -98,6 +146,71 @@ export interface Usage {
 	world_resource: BigNumberish;
 	last_update: BigNumberish;
 	board: BigNumberish;
+}
+
+// Type definition for `quest::models::index::QuestAdvancement` struct
+export interface QuestAdvancement {
+	player_id: BigNumberish;
+	quest_id: BigNumberish;
+	task_id: BigNumberish;
+	interval_id: BigNumberish;
+	count: BigNumberish;
+	timestamp: BigNumberish;
+}
+
+// Type definition for `quest::models::index::QuestAssociation` struct
+export interface QuestAssociation {
+	task_id: BigNumberish;
+	quests: Array<BigNumberish>;
+}
+
+// Type definition for `quest::models::index::QuestCompletion` struct
+export interface QuestCompletion {
+	player_id: BigNumberish;
+	quest_id: BigNumberish;
+	interval_id: BigNumberish;
+	timestamp: BigNumberish;
+	unclaimed: boolean;
+	lock_count: BigNumberish;
+}
+
+// Type definition for `quest::models::index::QuestCondition` struct
+export interface QuestCondition {
+	quest_id: BigNumberish;
+	quests: Array<BigNumberish>;
+}
+
+// Type definition for `quest::models::index::QuestDefinition` struct
+export interface QuestDefinition {
+	id: BigNumberish;
+	rewarder: string;
+	start: BigNumberish;
+	end: BigNumberish;
+	duration: BigNumberish;
+	interval: BigNumberish;
+	tasks: Array<Task>;
+	conditions: Array<BigNumberish>;
+}
+
+// Type definition for `quest::types::task::Task` struct
+export interface Task {
+	id: BigNumberish;
+	total: BigNumberish;
+	description: string;
+}
+
+// Type definition for `achievement::events::index::AchievementClaimed` struct
+export interface AchievementClaimed {
+	player_id: BigNumberish;
+	achievement_id: BigNumberish;
+	time: BigNumberish;
+}
+
+// Type definition for `achievement::events::index::AchievementCompleted` struct
+export interface AchievementCompleted {
+	player_id: BigNumberish;
+	achievement_id: BigNumberish;
+	time: BigNumberish;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
@@ -124,11 +237,58 @@ export interface TrophyProgression {
 	time: BigNumberish;
 }
 
-// Type definition for `achievement::types::index::Task` struct
-export interface Task {
+// Type definition for `leaderboard::events::index::LeaderboardScore` struct
+export interface LeaderboardScore {
+	leaderboard_id: BigNumberish;
+	game_id: BigNumberish;
+	player: BigNumberish;
+	score: BigNumberish;
+	timestamp: BigNumberish;
+}
+
+// Type definition for `nums::events::index::GameReward` struct
+export interface GameReward {
+	game_id: BigNumberish;
+	reward: BigNumberish;
+}
+
+// Type definition for `quest::events::index::QuestClaimed` struct
+export interface QuestClaimed {
+	player_id: BigNumberish;
+	quest_id: BigNumberish;
+	interval_id: BigNumberish;
+	time: BigNumberish;
+}
+
+// Type definition for `quest::events::index::QuestCompleted` struct
+export interface QuestCompleted {
+	player_id: BigNumberish;
+	quest_id: BigNumberish;
+	interval_id: BigNumberish;
+	time: BigNumberish;
+}
+
+// Type definition for `quest::events::index::QuestCreation` struct
+export interface QuestCreation {
 	id: BigNumberish;
-	total: BigNumberish;
-	description: string;
+	definition: QuestDefinition;
+	metadata: string;
+}
+
+// Type definition for `quest::events::index::QuestProgression` struct
+export interface QuestProgression {
+	player_id: BigNumberish;
+	task_id: BigNumberish;
+	count: BigNumberish;
+	time: BigNumberish;
+}
+
+// Type definition for `quest::events::index::QuestUnlocked` struct
+export interface QuestUnlocked {
+	player_id: BigNumberish;
+	quest_id: BigNumberish;
+	interval_id: BigNumberish;
+	time: BigNumberish;
 }
 
 // Type definition for `game_components_metagame::extensions::context::structs::GameContext` struct
@@ -217,6 +377,12 @@ export type SourceEnum = CairoCustomEnum;
 
 export interface SchemaType extends ISchemaType {
 	nums: {
+		AchievementAdvancement: AchievementAdvancement,
+		AchievementAssociation: AchievementAssociation,
+		AchievementCompletion: AchievementCompletion,
+		AchievementDefinition: AchievementDefinition,
+		Task: Task,
+		Claim: Claim,
 		Config: Config,
 		Game: Game,
 		Leaderboard: Leaderboard,
@@ -227,9 +393,22 @@ export interface SchemaType extends ISchemaType {
 		Starterpack: Starterpack,
 		Tournament: Tournament,
 		Usage: Usage,
+		QuestAdvancement: QuestAdvancement,
+		QuestAssociation: QuestAssociation,
+		QuestCompletion: QuestCompletion,
+		QuestCondition: QuestCondition,
+		QuestDefinition: QuestDefinition,
+		AchievementClaimed: AchievementClaimed,
+		AchievementCompleted: AchievementCompleted,
 		TrophyCreation: TrophyCreation,
 		TrophyProgression: TrophyProgression,
-		Task: Task,
+		LeaderboardScore: LeaderboardScore,
+		GameReward: GameReward,
+		QuestClaimed: QuestClaimed,
+		QuestCompleted: QuestCompleted,
+		QuestCreation: QuestCreation,
+		QuestProgression: QuestProgression,
+		QuestUnlocked: QuestUnlocked,
 		GameContext: GameContext,
 		GameContextDetails: GameContextDetails,
 		GameSetting: GameSetting,
@@ -245,14 +424,48 @@ export interface SchemaType extends ISchemaType {
 }
 export const schema: SchemaType = {
 	nums: {
+		AchievementAdvancement: {
+			player_id: 0,
+			achievement_id: 0,
+			task_id: 0,
+			count: 0,
+			timestamp: 0,
+		},
+		AchievementAssociation: {
+			task_id: 0,
+			achievements: [0],
+		},
+		AchievementCompletion: {
+			player_id: 0,
+			achievement_id: 0,
+			timestamp: 0,
+			unclaimed: false,
+		},
+		AchievementDefinition: {
+			id: 0,
+			rewarder: "",
+			start: 0,
+			end: 0,
+			tasks: [{ id: 0, total: 0, description: "", }],
+		},
+		Task: {
+			id: 0,
+			total: 0,
+		description: "",
+		},
+		Claim: {
+			player: 0,
+			starterpack_id: 0,
+			claimed: false,
+		},
 		Config: {
 			world_resource: 0,
 			nums: "",
 			vrf: "",
 			starterpack: "",
-			forwarder: "",
 			owner: "",
 			entry_price: 0,
+		target_supply: 0,
 			count: 0,
 		},
 		Game: {
@@ -268,8 +481,8 @@ export const schema: SchemaType = {
 			tournament_id: 0,
 			selected_powers: 0,
 			available_powers: 0,
-			reward: 0,
 			score: 0,
+			reward: 0,
 			slots: 0,
 		},
 		Leaderboard: {
@@ -307,6 +520,7 @@ export const schema: SchemaType = {
 		},
 		Starterpack: {
 			id: 0,
+			reissuable: false,
 			referral_percentage: 0,
 		price: 0,
 			payment_token: "",
@@ -317,11 +531,56 @@ export const schema: SchemaType = {
 			entry_count: 0,
 			start_time: 0,
 			end_time: 0,
+			usage: 0,
 		},
 		Usage: {
 			world_resource: 0,
 			last_update: 0,
 			board: 0,
+		},
+		QuestAdvancement: {
+			player_id: 0,
+			quest_id: 0,
+			task_id: 0,
+			interval_id: 0,
+			count: 0,
+			timestamp: 0,
+		},
+		QuestAssociation: {
+			task_id: 0,
+			quests: [0],
+		},
+		QuestCompletion: {
+			player_id: 0,
+			quest_id: 0,
+			interval_id: 0,
+			timestamp: 0,
+			unclaimed: false,
+			lock_count: 0,
+		},
+		QuestCondition: {
+			quest_id: 0,
+			quests: [0],
+		},
+		QuestDefinition: {
+			id: 0,
+			rewarder: "",
+			start: 0,
+			end: 0,
+			duration: 0,
+			interval: 0,
+			tasks: [{ id: 0, total: 0, description: "", }],
+			conditions: [0],
+		},
+		AchievementClaimed: {
+			player_id: 0,
+			achievement_id: 0,
+			time: 0,
+		},
+		AchievementCompleted: {
+			player_id: 0,
+			achievement_id: 0,
+			time: 0,
 		},
 		TrophyCreation: {
 			id: 0,
@@ -343,10 +602,45 @@ export const schema: SchemaType = {
 			count: 0,
 			time: 0,
 		},
-		Task: {
+		LeaderboardScore: {
+			leaderboard_id: 0,
+			game_id: 0,
+			player: 0,
+			score: 0,
+			timestamp: 0,
+		},
+		GameReward: {
+			game_id: 0,
+			reward: 0,
+		},
+		QuestClaimed: {
+			player_id: 0,
+			quest_id: 0,
+			interval_id: 0,
+			time: 0,
+		},
+		QuestCompleted: {
+			player_id: 0,
+			quest_id: 0,
+			interval_id: 0,
+			time: 0,
+		},
+		QuestCreation: {
 			id: 0,
-			total: 0,
-		description: "",
+		definition: { id: 0, rewarder: "", start: 0, end: 0, duration: 0, interval: 0, tasks: [{ id: 0, total: 0, description: "", }], conditions: [0], },
+		metadata: "",
+		},
+		QuestProgression: {
+			player_id: 0,
+			task_id: 0,
+			count: 0,
+			time: 0,
+		},
+		QuestUnlocked: {
+			player_id: 0,
+			quest_id: 0,
+			interval_id: 0,
+			time: 0,
 		},
 		GameContext: {
 		name: "",
@@ -405,6 +699,11 @@ export const schema: SchemaType = {
 	},
 };
 export enum ModelsMapping {
+	AchievementAdvancement = 'achievement-AchievementAdvancement',
+	AchievementAssociation = 'achievement-AchievementAssociation',
+	AchievementCompletion = 'achievement-AchievementCompletion',
+	AchievementDefinition = 'achievement-AchievementDefinition',
+	Claim = 'nums-Claim',
 	Config = 'nums-Config',
 	Game = 'nums-Game',
 	Leaderboard = 'nums-Leaderboard',
@@ -415,9 +714,22 @@ export enum ModelsMapping {
 	Starterpack = 'nums-Starterpack',
 	Tournament = 'nums-Tournament',
 	Usage = 'nums-Usage',
+	QuestAdvancement = 'quest-QuestAdvancement',
+	QuestAssociation = 'quest-QuestAssociation',
+	QuestCompletion = 'quest-QuestCompletion',
+	QuestCondition = 'quest-QuestCondition',
+	QuestDefinition = 'quest-QuestDefinition',
+	AchievementClaimed = 'achievement-AchievementClaimed',
+	AchievementCompleted = 'achievement-AchievementCompleted',
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyProgression = 'achievement-TrophyProgression',
-	Task = 'achievement-Task',
+	LeaderboardScore = 'leaderboard-LeaderboardScore',
+	GameReward = 'nums-GameReward',
+	QuestClaimed = 'quest-QuestClaimed',
+	QuestCompleted = 'quest-QuestCompleted',
+	QuestCreation = 'quest-QuestCreation',
+	QuestProgression = 'quest-QuestProgression',
+	QuestUnlocked = 'quest-QuestUnlocked',
 	GameContext = 'game_components_metagame-GameContext',
 	GameContextDetails = 'game_components_metagame-GameContextDetails',
 	GameSetting = 'game_components_minigame-GameSetting',

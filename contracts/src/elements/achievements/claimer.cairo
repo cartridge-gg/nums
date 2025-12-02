@@ -71,11 +71,11 @@ pub impl Claimer of AchievementTrait {
 
     fn tasks(level: u8) -> Span<AchievementTask> {
         let count: u32 = match level {
-            0 => 1000000,
-            1 => 2000000,
-            2 => 4000000,
-            3 => 8000000,
-            4 => 16000000,
+            0 => 100_000,
+            1 => 200_000,
+            2 => 400_000,
+            3 => 800_000,
+            4 => 1_600_000,
             _ => 0,
         };
         Task::Claimer.tasks(count)

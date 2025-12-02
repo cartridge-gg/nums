@@ -12,9 +12,12 @@ pub trait ISetup<T> {
 
 #[dojo::contract]
 pub mod Setup {
+    use achievement::components::achievable::AchievableComponent;
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
+    use quest::components::questable::QuestableComponent;
     use starknet::ContractAddress;
     use crate::StoreImpl;
+    use crate::components::initializable::InitializableComponent;
     use crate::constants::{NAMESPACE, WORLD_RESOURCE};
     use crate::mocks::nums::NAME as NUMS;
     use crate::mocks::starterpack::NAME as STARTERPACK;
@@ -23,12 +26,45 @@ pub mod Setup {
     use crate::models::usage::UsageTrait;
     use super::ISetup;
 
+    // Components
+
+    component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
+    impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+    component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
+    impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+    impl InitializableInternalImpl = InitializableComponent::InternalImpl<ContractState>;
+
+    // Storage
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage,
+        #[substorage(v0)]
+        achievable: AchievableComponent::Storage,
+        #[substorage(v0)]
+        questable: QuestableComponent::Storage,
+    }
+
+    // Events
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        InitializableEvent: InitializableComponent::Event,
+        #[flat]
+        AchievableEvent: AchievableComponent::Event,
+        #[flat]
+        QuestableEvent: QuestableComponent::Event,
+    }
+
     fn dojo_init(
         ref self: ContractState,
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
         starterpack_address: Option<ContractAddress>,
-        forwarder_address: ContractAddress,
         owner_address: ContractAddress,
         entry_price: u128,
         target_supply: u256,
@@ -57,7 +93,6 @@ pub mod Setup {
             nums: nums_address,
             vrf: vrf_address,
             starterpack: starterpack_address,
-            forwarder: forwarder_address,
             owner: owner_address,
             entry_price: entry_price,
             target_supply: target_supply,
@@ -66,6 +101,8 @@ pub mod Setup {
         // [Effect] Create usage
         let usage = UsageTrait::new(WORLD_RESOURCE);
         store.set_usage(@usage);
+        // [Effect] Initialize components
+        self.initializable.initialize(world);
     }
 
     #[abi(embed_v0)]

@@ -29,12 +29,13 @@ build-external-contracts = [
     "quest::events::index::e_QuestUnlocked",
     "quest::events::index::e_QuestCompleted",
     "quest::events::index::e_QuestClaimed",
-    # "leaderboard::events::index::e_LeaderboardScore",
+    "leaderboard::events::index::e_LeaderboardScore",
 ]
 
 [dependencies]
 achievement.workspace = true
 quest.workspace = true
+leaderboard.workspace = true
 starterpack.workspace = true
 game_components.workspace = true
 graffiti.workspace = true

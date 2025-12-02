@@ -14,6 +14,8 @@ pub mod PlayableComponent {
     use game_components::token::extensions::minter::interface::{
         IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
     };
+    use leaderboard::components::rankable::RankableComponent;
+    use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
@@ -22,14 +24,12 @@ pub mod PlayableComponent {
     use crate::components::tournament::TournamentComponent;
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
     use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
-    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
     use crate::elements::quests::finisher;
-    use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
+    use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::leaderboard::LeaderboardTrait;
     use crate::models::starterpack::StarterpackTrait as PackTrait;
     use crate::models::tournament::TournamentAssert;
     use crate::models::usage::{UsageAssert, UsageTrait};
@@ -150,7 +150,9 @@ pub mod PlayableComponent {
             // [Interaction] Reward player with Nums
             let quest: QuestType = quest_id.into();
             let (amount, task) = quest.reward();
-            store.nums_disp().reward(recipient, amount);
+            if amount != 0 {
+                store.nums_disp().reward(recipient, amount);
+            }
 
             // [Effect] Update achievement progression for the player if available, otherwise return
             if task == Task::None {
@@ -169,51 +171,8 @@ pub mod PlayableComponent {
         impl Tournament: TournamentComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
-            // [Event] Initialize all Achievements
-            let contract_address = starknet::get_contract_address();
-            let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
-            while achievement_id > 0 {
-                let achievement: Achievement = achievement_id.into();
-                let achievable = get_dep_component!(@self, Achievable);
-                achievable
-                    .create(
-                        world,
-                        id: achievement.identifier(),
-                        rewarder: 0.try_into().unwrap(),
-                        start: 0,
-                        end: 0,
-                        tasks: achievement.tasks(),
-                        metadata: achievement.metadata(),
-                        to_store: true,
-                    );
-                achievement_id -= 1;
-            }
-            // [Event] Initialize all Quests
-            let mut quest_id: u8 = QUEST_COUNT;
-            while quest_id > 0 {
-                let quest_type: QuestType = quest_id.into();
-                let props: QuestProps = quest_type.props();
-                let questable = get_dep_component!(@self, Quest);
-                questable
-                    .create(
-                        world: world,
-                        id: props.id,
-                        rewarder: contract_address,
-                        start: props.start,
-                        end: props.end,
-                        duration: props.duration,
-                        interval: props.interval,
-                        tasks: props.tasks.span(),
-                        conditions: props.conditions.span(),
-                        metadata: props.metadata,
-                        to_store: true,
-                    );
-                quest_id -= 1;
-            };
-        }
-
         fn start(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -345,11 +304,17 @@ pub mod PlayableComponent {
             achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
             // [Effect] Update leaderboard if the game has been inserted
-            let mut leaderboard = store.leaderboard(game.tournament_id);
-            let inserted = leaderboard.insert(game, ref store);
-            if inserted {
-                store.set_leaderboard(@leaderboard);
-            }
+            let mut rankable = get_dep_component_mut!(ref self, Rankable);
+            rankable
+                .submit(
+                    world: world,
+                    leaderboard_id: tournament.id.into(),
+                    game_id: game.id,
+                    player_id: player.into(),
+                    score: game.score.into(),
+                    time: starknet::get_block_timestamp(),
+                    to_store: true,
+                );
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
@@ -455,7 +420,6 @@ pub mod PlayableComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        #[inline]
         fn mint_game(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -485,7 +449,6 @@ pub mod PlayableComponent {
             token_id
         }
 
-        #[inline]
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {
@@ -493,7 +456,6 @@ pub mod PlayableComponent {
             IMinigameDispatcher { contract_address: game_address }
         }
 
-        #[inline]
         fn get_renderer_address(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ContractAddress {
@@ -501,7 +463,6 @@ pub mod PlayableComponent {
             renderer_address
         }
 
-        #[inline]
         fn get_settings(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ISettingsDispatcher {
@@ -509,7 +470,6 @@ pub mod PlayableComponent {
             ISettingsDispatcher { contract_address: settings_address }
         }
 
-        #[inline]
         fn is_default_game(
             self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
         ) -> bool {

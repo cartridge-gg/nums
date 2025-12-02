@@ -15,6 +15,7 @@ pub impl RewardImpl of RewardTrait {
 
 #[generate_trait]
 pub impl RewardAssert of AssertTrait {
+    #[inline]
     fn assert_not_claimed(self: @Reward) {
         assert(!*self.claimed, errors::REWARD_ALREADY_CLAIMED);
     }

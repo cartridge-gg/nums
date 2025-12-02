@@ -7,7 +7,7 @@ use super::index::{ICON, QuestMetadataTrait, QuestProps, QuestTrait};
 
 pub impl LeaderOne of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_LEADER_ONE'
+        'PERMANENT_LEADER_ONE'
     }
 
     fn props() -> QuestProps {
@@ -36,7 +36,7 @@ pub impl LeaderOne of QuestTrait {
 
 pub impl LeaderTwo of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_LEADER_TWO'
+        'PERMANENT_LEADER_TWO'
     }
 
     fn props() -> QuestProps {
@@ -65,7 +65,7 @@ pub impl LeaderTwo of QuestTrait {
 
 pub impl LeaderThree of QuestTrait {
     fn identifier() -> felt252 {
-        'DAILY_LEADER_THREE'
+        'PERMANENT_LEADER_THREE'
     }
 
     fn props() -> QuestProps {

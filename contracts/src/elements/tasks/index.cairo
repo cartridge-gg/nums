@@ -1,6 +1,6 @@
 // External imports
 
-use achievement::types::task::{Task as ArcadeTask, TaskTrait as ArcadeTaskTrait};
+use achievement::types::task::{Task as AchievementTask, TaskTrait as AchievementTaskTrait};
 
 // Internal imports
 
@@ -8,10 +8,12 @@ use crate::elements::tasks;
 
 // Types
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, PartialEq)]
 pub enum Task {
     None,
-    King,
+    KingOne,
+    KingTwo,
+    KingThree,
     Grinder,
     ReferenceOne,
     ReferenceTwo,
@@ -25,10 +27,18 @@ pub enum Task {
     FillerThree,
     FillerFour,
     FillerFive,
+    FillerTen,
+    FillerThirteen,
+    FillerSixteen,
+    FillerSeventeen,
+    FillerEighteen,
+    FillerNineteen,
     StreakerOne,
     StreakerTwo,
     StreakerThree,
     Claimer,
+    MasterOne,
+    MasterTwo,
 }
 
 // Implementations
@@ -38,7 +48,9 @@ pub impl TaskImpl of TaskTrait {
     fn identifier(self: Task) -> felt252 {
         match self {
             Task::None => 0,
-            Task::King => tasks::king::King::identifier(),
+            Task::KingOne => tasks::king::KingOne::identifier(),
+            Task::KingTwo => tasks::king::KingTwo::identifier(),
+            Task::KingThree => tasks::king::KingThree::identifier(),
             Task::Grinder => tasks::grinder::Grinder::identifier(),
             Task::ReferenceOne => tasks::reference::ReferenceOne::identifier(),
             Task::ReferenceTwo => tasks::reference::ReferenceTwo::identifier(),
@@ -52,17 +64,27 @@ pub impl TaskImpl of TaskTrait {
             Task::FillerThree => tasks::filler::FillerThree::identifier(),
             Task::FillerFour => tasks::filler::FillerFour::identifier(),
             Task::FillerFive => tasks::filler::FillerFive::identifier(),
+            Task::FillerTen => tasks::filler::FillerTen::identifier(),
+            Task::FillerThirteen => tasks::filler::FillerThirteen::identifier(),
+            Task::FillerSixteen => tasks::filler::FillerSixteen::identifier(),
+            Task::FillerSeventeen => tasks::filler::FillerSeventeen::identifier(),
+            Task::FillerEighteen => tasks::filler::FillerEighteen::identifier(),
+            Task::FillerNineteen => tasks::filler::FillerNineteen::identifier(),
             Task::StreakerOne => tasks::streaker::StreakerOne::identifier(),
             Task::StreakerTwo => tasks::streaker::StreakerTwo::identifier(),
             Task::StreakerThree => tasks::streaker::StreakerThree::identifier(),
             Task::Claimer => tasks::claimer::Claimer::identifier(),
+            Task::MasterOne => tasks::master::DailyMaster::identifier(),
+            Task::MasterTwo => tasks::master::WeeklyMaster::identifier(),
         }
     }
 
     fn description(self: Task, count: u32) -> ByteArray {
         match self {
             Task::None => "",
-            Task::King => tasks::king::King::description(count),
+            Task::KingOne => tasks::king::KingOne::description(count),
+            Task::KingTwo => tasks::king::KingTwo::description(count),
+            Task::KingThree => tasks::king::KingThree::description(count),
             Task::Grinder => tasks::grinder::Grinder::description(count),
             Task::ReferenceOne => tasks::reference::ReferenceOne::description(count),
             Task::ReferenceTwo => tasks::reference::ReferenceTwo::description(count),
@@ -76,17 +98,25 @@ pub impl TaskImpl of TaskTrait {
             Task::FillerThree => tasks::filler::FillerThree::description(count),
             Task::FillerFour => tasks::filler::FillerFour::description(count),
             Task::FillerFive => tasks::filler::FillerFive::description(count),
+            Task::FillerTen => tasks::filler::FillerTen::description(count),
+            Task::FillerThirteen => tasks::filler::FillerThirteen::description(count),
+            Task::FillerSixteen => tasks::filler::FillerSixteen::description(count),
+            Task::FillerSeventeen => tasks::filler::FillerSeventeen::description(count),
+            Task::FillerEighteen => tasks::filler::FillerEighteen::description(count),
+            Task::FillerNineteen => tasks::filler::FillerNineteen::description(count),
             Task::StreakerOne => tasks::streaker::StreakerOne::description(count),
             Task::StreakerTwo => tasks::streaker::StreakerTwo::description(count),
             Task::StreakerThree => tasks::streaker::StreakerThree::description(count),
             Task::Claimer => tasks::claimer::Claimer::description(count),
+            Task::MasterOne => tasks::master::DailyMaster::description(count),
+            Task::MasterTwo => tasks::master::WeeklyMaster::description(count),
         }
     }
 
-    fn tasks(self: Task, count: u32) -> Span<ArcadeTask> {
+    fn tasks(self: Task, count: u32) -> Span<AchievementTask> {
         let task_id: felt252 = self.identifier();
         let description: ByteArray = self.description(count);
-        array![ArcadeTaskTrait::new(task_id, count.into(), description)].span()
+        array![AchievementTaskTrait::new(task_id, count.into(), description)].span()
     }
 }
 
@@ -94,24 +124,34 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
     fn into(self: Task) -> u8 {
         match self {
             Task::None => 0,
-            Task::King => 1,
-            Task::Grinder => 2,
-            Task::ReferenceOne => 3,
-            Task::ReferenceTwo => 4,
-            Task::ReferenceThree => 5,
-            Task::ReferenceFour => 6,
-            Task::ReferenceFive => 7,
-            Task::ReferenceSix => 8,
-            Task::ReferenceSeven => 9,
-            Task::FillerOne => 10,
-            Task::FillerTwo => 11,
-            Task::FillerThree => 12,
-            Task::FillerFour => 13,
-            Task::FillerFive => 14,
-            Task::StreakerOne => 15,
-            Task::StreakerTwo => 16,
-            Task::StreakerThree => 17,
-            Task::Claimer => 18,
+            Task::KingOne => 1,
+            Task::KingTwo => 2,
+            Task::KingThree => 3,
+            Task::Grinder => 4,
+            Task::ReferenceOne => 5,
+            Task::ReferenceTwo => 6,
+            Task::ReferenceThree => 7,
+            Task::ReferenceFour => 8,
+            Task::ReferenceFive => 9,
+            Task::ReferenceSix => 10,
+            Task::ReferenceSeven => 11,
+            Task::FillerOne => 12,
+            Task::FillerTwo => 13,
+            Task::FillerThree => 14,
+            Task::FillerFour => 15,
+            Task::FillerFive => 16,
+            Task::FillerTen => 17,
+            Task::FillerThirteen => 18,
+            Task::FillerSixteen => 19,
+            Task::FillerSeventeen => 20,
+            Task::FillerEighteen => 21,
+            Task::FillerNineteen => 22,
+            Task::StreakerOne => 23,
+            Task::StreakerTwo => 24,
+            Task::StreakerThree => 25,
+            Task::Claimer => 26,
+            Task::MasterOne => 27,
+            Task::MasterTwo => 28,
         }
     }
 }
@@ -121,24 +161,34 @@ impl IntoU8Task of core::traits::Into<u8, Task> {
         let card: felt252 = self.into();
         match card {
             0 => Task::None,
-            1 => Task::King,
-            2 => Task::Grinder,
-            3 => Task::ReferenceOne,
-            4 => Task::ReferenceTwo,
-            5 => Task::ReferenceThree,
-            6 => Task::ReferenceFour,
-            7 => Task::ReferenceFive,
-            8 => Task::ReferenceSix,
-            9 => Task::ReferenceSeven,
-            10 => Task::FillerOne,
-            11 => Task::FillerTwo,
-            12 => Task::FillerThree,
-            13 => Task::FillerFour,
-            14 => Task::FillerFive,
-            15 => Task::StreakerOne,
-            16 => Task::StreakerTwo,
-            17 => Task::StreakerThree,
-            18 => Task::Claimer,
+            1 => Task::KingOne,
+            2 => Task::KingTwo,
+            3 => Task::KingThree,
+            4 => Task::Grinder,
+            5 => Task::ReferenceOne,
+            6 => Task::ReferenceTwo,
+            7 => Task::ReferenceThree,
+            8 => Task::ReferenceFour,
+            9 => Task::ReferenceFive,
+            10 => Task::ReferenceSix,
+            11 => Task::ReferenceSeven,
+            12 => Task::FillerOne,
+            13 => Task::FillerTwo,
+            14 => Task::FillerThree,
+            15 => Task::FillerFour,
+            16 => Task::FillerFive,
+            17 => Task::FillerTen,
+            18 => Task::FillerThirteen,
+            19 => Task::FillerSixteen,
+            20 => Task::FillerSeventeen,
+            21 => Task::FillerEighteen,
+            22 => Task::FillerNineteen,
+            23 => Task::StreakerOne,
+            24 => Task::StreakerTwo,
+            25 => Task::StreakerThree,
+            26 => Task::Claimer,
+            27 => Task::MasterOne,
+            28 => Task::MasterTwo,
             _ => Task::None,
         }
     }

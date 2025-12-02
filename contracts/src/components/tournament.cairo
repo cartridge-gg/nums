@@ -6,8 +6,11 @@ pub mod TournamentComponent {
     use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+    use quest::components::questable::QuestableComponent;
+    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
     use crate::constants::{DEFAULT_MAX_CAPACITY, TEN_POW_18};
+    use crate::elements::quests::leader;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::GameAssert;
@@ -32,7 +35,9 @@ pub mod TournamentComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>,
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
             // [Setup] Store
@@ -164,6 +169,19 @@ pub mod TournamentComponent {
             let recipient = collection.owner_of(game_id.into());
             let payout = prize.payout(position, capacity);
             token.transfer(recipient, payout.into());
+
+            // [Effect] Update quest progression for the player - Leader tasks
+            let player: felt252 = recipient.into();
+            let questable = get_dep_component!(@self, Quest);
+            if position < 5 {
+                questable.progress(world, player, leader::LeaderOne::identifier(), 1, true);
+            }
+            if position < 3 {
+                questable.progress(world, player, leader::LeaderTwo::identifier(), 1, true);
+            }
+            if position == 1 {
+                questable.progress(world, player, leader::LeaderThree::identifier(), 1, true);
+            }
         }
 
         fn rescue(

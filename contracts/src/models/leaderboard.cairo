@@ -80,8 +80,8 @@ pub impl LeaderboardImpl of LeaderboardTrait {
         }
         self.games = leaderboard;
 
-        // [Return] Is new top score
-        position == 1
+        // [Return] Has been inserted
+        position != 0
     }
 
     #[inline]

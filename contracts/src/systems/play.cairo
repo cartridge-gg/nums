@@ -54,6 +54,8 @@ pub trait IExternal<T> {
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
+    use quest::components::questable::QuestableComponent;
+    use quest::interfaces::IQuestRewarder;
     use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
     use crate::components::playable::PlayableComponent;
@@ -67,11 +69,14 @@ pub mod Play {
 
     component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
     impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+    component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
+    impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
     component!(path: TournamentComponent, storage: tournament, event: TournamentEvent);
     impl TournamentInternalImpl = TournamentComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
     impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
+    impl PlayableQuestRewarderImpl = PlayableComponent::QuestRewarderImpl<ContractState>;
     component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
     impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
 
@@ -81,6 +86,8 @@ pub mod Play {
     struct Storage {
         #[substorage(v0)]
         achievable: AchievableComponent::Storage,
+        #[substorage(v0)]
+        questable: QuestableComponent::Storage,
         #[substorage(v0)]
         playable: PlayableComponent::Storage,
         #[substorage(v0)]
@@ -96,6 +103,8 @@ pub mod Play {
     enum Event {
         #[flat]
         AchievableEvent: AchievableComponent::Event,
+        #[flat]
+        QuestableEvent: QuestableComponent::Event,
         #[flat]
         PlayableEvent: PlayableComponent::Event,
         #[flat]
@@ -129,6 +138,40 @@ pub mod Play {
 
         fn supply(self: @ContractState, starterpack_id: u32) -> Option<u32> {
             Option::None
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl QuestRewarderImpl of IQuestRewarder<ContractState> {
+        fn on_quest_unlock(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {}
+
+        fn on_quest_complete(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Update quest progression for the player - Leader tasks
+            self.playable.on_quest_complete(world, recipient, quest_id, interval_id)
+        }
+
+        fn on_quest_claim(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Claim quest reward
+            self.playable.on_quest_claim(world, recipient, quest_id, interval_id)
         }
     }
 

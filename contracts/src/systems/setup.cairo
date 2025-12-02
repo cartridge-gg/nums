@@ -6,6 +6,7 @@ pub trait ISetup<T> {
     fn set_entry_price(ref self: T, entry_price: u128);
     fn set_starterpack(ref self: T, starterpack_address: ContractAddress);
     fn set_nums_address(ref self: T, nums_address: ContractAddress);
+    fn set_target_supply(ref self: T, supply: u256);
     fn set_owner_address(ref self: T, owner_address: ContractAddress);
 }
 
@@ -105,6 +106,19 @@ pub mod Setup {
             // [Effect] Update config
             let mut config = store.config();
             config.nums = nums_address;
+            store.set_config(config);
+        }
+
+        fn set_target_supply(ref self: ContractState, supply: u256) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            let caller = starknet::get_caller_address();
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            // [Effect] Update config
+            let mut config = store.config();
+            config.target_supply = supply;
             store.set_config(config);
         }
 

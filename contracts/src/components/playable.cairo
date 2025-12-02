@@ -14,6 +14,8 @@ pub mod PlayableComponent {
     use game_components::token::extensions::minter::interface::{
         IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
     };
+    use quest::components::questable::QuestableComponent;
+    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
@@ -21,6 +23,8 @@ pub mod PlayableComponent {
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
     use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
+    use crate::elements::quests::finisher;
+    use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::claim::{ClaimAssert, ClaimTrait};
@@ -103,15 +107,72 @@ pub mod PlayableComponent {
     }
 
     #[generate_trait]
+    pub impl QuestRewarderImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
+    > of QuestRewarderTrait<TContractState> {
+        fn on_quest_complete(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Effect] Update daily and weekly quest completions
+            let questable = get_dep_component!(@self, Quest);
+            let player = recipient.into();
+            if quest_id == QuestType::DailyContenderThree.identifier()
+                || quest_id == QuestType::DailyEarnerThree.identifier()
+                || quest_id == QuestType::DailyPlacerThree.identifier() {
+                questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
+            } else if quest_id == QuestType::WeeklyContenderThree.identifier()
+                || quest_id == QuestType::WeeklyEarnerThree.identifier()
+                || quest_id == QuestType::WeeklyPlacerThree.identifier() {
+                questable.progress(world, player, finisher::WeeklyFinisher::identifier(), 1, true);
+            }
+
+            // [Effect] Claim quest reward automatically
+            questable.claim(world, recipient.into(), quest_id, interval_id);
+        }
+
+        fn on_quest_claim(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Interaction] Reward player with Nums
+            let quest: QuestType = quest_id.into();
+            let (amount, task) = quest.reward();
+            store.nums_disp().reward(recipient, amount);
+
+            // [Effect] Update achievement progression for the player if available, otherwise return
+            if task == Task::None {
+                return;
+            }
+            let achievable = get_dep_component!(@self, Achievable);
+            achievable.progress(world, recipient.into(), task.identifier(), 1, true);
+        }
+    }
+
+    #[generate_trait]
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl Tournament: TournamentComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
             // [Event] Initialize all Achievements
+            let contract_address = starknet::get_contract_address();
             let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
             while achievement_id > 0 {
                 let achievement: Achievement = achievement_id.into();
@@ -129,6 +190,28 @@ pub mod PlayableComponent {
                     );
                 achievement_id -= 1;
             }
+            // [Event] Initialize all Quests
+            let mut quest_id: u8 = QUEST_COUNT;
+            while quest_id > 0 {
+                let quest_type: QuestType = quest_id.into();
+                let props: QuestProps = quest_type.props();
+                let questable = get_dep_component!(@self, Quest);
+                questable
+                    .create(
+                        world: world,
+                        id: props.id,
+                        rewarder: contract_address,
+                        start: props.start,
+                        end: props.end,
+                        duration: props.duration,
+                        interval: props.interval,
+                        tasks: props.tasks.span(),
+                        conditions: props.conditions.span(),
+                        metadata: props.metadata,
+                        to_store: true,
+                    );
+                quest_id -= 1;
+            };
         }
 
         fn start(
@@ -178,10 +261,14 @@ pub mod PlayableComponent {
                 usage.assert_valid_powers(powers);
                 // [Effect] Start tournament game
                 game.start(tournament.id, number, powers);
-                // [Effect] Update achievement progression for the player - Grinder task
+                // [Effect] Update quest progression for the player - Contender tasks
+                let questable = get_dep_component!(@self, Quest);
                 let player = starknet::get_caller_address();
+                let task = Task::Grinder;
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+                // [Effect] Update achievement progression for the player - Grinder task
                 let achievable = get_dep_component!(@self, Achievable);
-                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1, true);
+                achievable.progress(world, player.into(), task.identifier(), 1, true);
                 // [Effect] Update usage
                 let mut usage = store.usage();
                 usage.insert(powers);
@@ -224,7 +311,8 @@ pub mod PlayableComponent {
 
             // [Effect] Update game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            game.update(ref rand);
+            let reward = game
+                .update(ref rand, store.nums_disp().total_supply(), store.config().target_supply);
             store.set_game(@game);
 
             // [Check] Handle specific games and return prematurely
@@ -242,35 +330,52 @@ pub mod PlayableComponent {
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
-            store.nums_disp().reward(player, game.reward.into());
+            store.nums_disp().reward(player, reward);
+
+            // [Event] Emit reward event
+            store.game_reward(game_id, reward);
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Claimer;
+            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
-            achievable
-                .progress(
-                    world, player.into(), Task::Claimer.identifier(), game.reward.into(), false,
-                );
+            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
-            // [Effect] Update leaderboard
+            // [Effect] Update leaderboard if the game has been inserted
             let mut leaderboard = store.leaderboard(game.tournament_id);
-            let is_first = leaderboard.insert(game, ref store);
-            store.set_leaderboard(@leaderboard);
-
-            // [Effect] Update King achievement if first place
-            if is_first {
-                achievable.progress(world, player.into(), Task::King.identifier(), 1, false);
+            let inserted = leaderboard.insert(game, ref store);
+            if inserted {
+                store.set_leaderboard(@leaderboard);
             }
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
             if filled_slots == 10 {
                 achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
+                questable.progress(world, player.into(), Task::FillerTen.identifier(), 1, true);
+            } else if filled_slots == 13 {
+                achievable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
             } else if filled_slots == 15 {
                 achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1, true);
+            } else if filled_slots == 16 {
+                questable.progress(world, player.into(), Task::FillerSixteen.identifier(), 1, true);
             } else if filled_slots == 17 {
                 achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerSeventeen.identifier(), 1, true);
+            } else if filled_slots == 18 {
+                questable
+                    .progress(world, player.into(), Task::FillerEighteen.identifier(), 1, true);
             } else if filled_slots == 19 {
                 achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerNineteen.identifier(), 1, true);
             } else if filled_slots == 20 {
                 achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1, true);
             }

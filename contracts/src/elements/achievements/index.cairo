@@ -1,5 +1,5 @@
 use achievement::types::metadata::{AchievementMetadata, MetadataTrait};
-use achievement::types::task::Task as ArcadeTask;
+use achievement::types::task::Task as AchievementTask;
 use crate::elements::achievements;
 
 // Constants
@@ -36,11 +36,11 @@ pub enum Achievement {
     ClaimerThree,
     ClaimerFour,
     ClaimerFive,
+    DailyMaster,
+    WeeklyMaster,
     KingI,
     KingII,
     KingIII,
-    KingIV,
-    KingV,
 }
 
 #[generate_trait]
@@ -73,15 +73,15 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ClaimerThree => achievements::claimer::Claimer::identifier(2),
             Achievement::ClaimerFour => achievements::claimer::Claimer::identifier(3),
             Achievement::ClaimerFive => achievements::claimer::Claimer::identifier(4),
+            Achievement::DailyMaster => achievements::master::Master::identifier(0),
+            Achievement::WeeklyMaster => achievements::master::Master::identifier(1),
             Achievement::KingI => achievements::king::King::identifier(0),
             Achievement::KingII => achievements::king::King::identifier(1),
             Achievement::KingIII => achievements::king::King::identifier(2),
-            Achievement::KingIV => achievements::king::King::identifier(3),
-            Achievement::KingV => achievements::king::King::identifier(4),
         }
     }
 
-    fn tasks(self: Achievement) -> Span<ArcadeTask> {
+    fn tasks(self: Achievement) -> Span<AchievementTask> {
         match self {
             Achievement::None => [].span(),
             Achievement::GrinderI => achievements::grinder::Grinder::tasks(0),
@@ -109,11 +109,11 @@ pub impl AchievementImpl of AchievementTrait {
             Achievement::ClaimerThree => achievements::claimer::Claimer::tasks(2),
             Achievement::ClaimerFour => achievements::claimer::Claimer::tasks(3),
             Achievement::ClaimerFive => achievements::claimer::Claimer::tasks(4),
+            Achievement::DailyMaster => achievements::master::Master::tasks(0),
+            Achievement::WeeklyMaster => achievements::master::Master::tasks(1),
             Achievement::KingI => achievements::king::King::tasks(0),
             Achievement::KingII => achievements::king::King::tasks(1),
             Achievement::KingIII => achievements::king::King::tasks(2),
-            Achievement::KingIV => achievements::king::King::tasks(3),
-            Achievement::KingV => achievements::king::King::tasks(4),
         }
     }
 
@@ -405,6 +405,28 @@ pub impl AchievementImpl of AchievementTrait {
                 rewards: array![].span(),
                 data: "",
             ),
+            Achievement::DailyMaster => MetadataTrait::new(
+                title: achievements::master::Master::title(0),
+                description: achievements::master::Master::description(0),
+                icon: achievements::master::Master::icon(0),
+                points: achievements::master::Master::points(0),
+                hidden: achievements::master::Master::hidden(0),
+                index: achievements::master::Master::index(0),
+                group: achievements::master::Master::group(),
+                rewards: array![].span(),
+                data: "",
+            ),
+            Achievement::WeeklyMaster => MetadataTrait::new(
+                title: achievements::master::Master::title(1),
+                description: achievements::master::Master::description(1),
+                icon: achievements::master::Master::icon(1),
+                points: achievements::master::Master::points(1),
+                hidden: achievements::master::Master::hidden(1),
+                index: achievements::master::Master::index(1),
+                group: achievements::master::Master::group(),
+                rewards: array![].span(),
+                data: "",
+            ),
             Achievement::KingI => MetadataTrait::new(
                 title: achievements::king::King::title(0),
                 description: achievements::king::King::description(0),
@@ -434,28 +456,6 @@ pub impl AchievementImpl of AchievementTrait {
                 points: achievements::king::King::points(2),
                 hidden: achievements::king::King::hidden(2),
                 index: achievements::king::King::index(2),
-                group: achievements::king::King::group(),
-                rewards: array![].span(),
-                data: "",
-            ),
-            Achievement::KingIV => MetadataTrait::new(
-                title: achievements::king::King::title(3),
-                description: achievements::king::King::description(3),
-                icon: achievements::king::King::icon(3),
-                points: achievements::king::King::points(3),
-                hidden: achievements::king::King::hidden(3),
-                index: achievements::king::King::index(3),
-                group: achievements::king::King::group(),
-                rewards: array![].span(),
-                data: "",
-            ),
-            Achievement::KingV => MetadataTrait::new(
-                title: achievements::king::King::title(4),
-                description: achievements::king::King::description(4),
-                icon: achievements::king::King::icon(4),
-                points: achievements::king::King::points(4),
-                hidden: achievements::king::King::hidden(4),
-                index: achievements::king::King::index(4),
                 group: achievements::king::King::group(),
                 rewards: array![].span(),
                 data: "",
@@ -493,11 +493,11 @@ impl IntoAchievementU8 of core::traits::Into<Achievement, u8> {
             Achievement::ClaimerThree => 23,
             Achievement::ClaimerFour => 24,
             Achievement::ClaimerFive => 25,
-            Achievement::KingI => 26,
-            Achievement::KingII => 27,
-            Achievement::KingIII => 28,
-            Achievement::KingIV => 29,
-            Achievement::KingV => 30,
+            Achievement::DailyMaster => 26,
+            Achievement::WeeklyMaster => 27,
+            Achievement::KingI => 28,
+            Achievement::KingII => 29,
+            Achievement::KingIII => 30,
         }
     }
 }
@@ -532,11 +532,11 @@ impl IntoU8Achievement of core::traits::Into<u8, Achievement> {
             23 => Achievement::ClaimerThree,
             24 => Achievement::ClaimerFour,
             25 => Achievement::ClaimerFive,
-            26 => Achievement::KingI,
-            27 => Achievement::KingII,
-            28 => Achievement::KingIII,
-            29 => Achievement::KingIV,
-            30 => Achievement::KingV,
+            26 => Achievement::DailyMaster,
+            27 => Achievement::WeeklyMaster,
+            28 => Achievement::KingI,
+            29 => Achievement::KingII,
+            30 => Achievement::KingIII,
             _ => Achievement::None,
         }
     }

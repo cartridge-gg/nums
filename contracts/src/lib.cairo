@@ -34,6 +34,11 @@ pub mod models {
     pub mod usage;
 }
 
+pub mod events {
+    pub mod game_reward;
+    pub mod index;
+}
+
 pub mod svg {
     pub mod complete;
     pub mod font;
@@ -79,6 +84,7 @@ pub mod elements {
         pub mod index;
         pub mod interface;
         pub mod king;
+        pub mod master;
         pub mod reference;
         pub mod streak;
     }
@@ -89,6 +95,7 @@ pub mod elements {
         pub mod index;
         pub mod interface;
         pub mod king;
+        pub mod master;
         pub mod reference;
         pub mod streaker;
     }
@@ -101,6 +108,16 @@ pub mod elements {
         pub mod low;
         pub mod mirror;
         pub mod reroll;
+    }
+    pub mod quests {
+        pub mod contender;
+        pub mod earner;
+        pub mod finisher;
+        pub mod index;
+        pub mod interface;
+        pub mod leader;
+        pub mod placer;
+        pub mod starter;
     }
 }
 // pub mod tests {

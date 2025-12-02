@@ -1,4 +1,4 @@
-use crate::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
+use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
 
 pub impl Reference of AchievementTrait {
     fn identifier(level: u8) -> felt252 {
@@ -78,7 +78,7 @@ pub impl Reference of AchievementTrait {
         }
     }
 
-    fn tasks(level: u8) -> Span<ArcadeTask> {
+    fn tasks(level: u8) -> Span<AchievementTask> {
         let count: u32 = 1;
         match level {
             0 => Task::ReferenceOne.tasks(count),

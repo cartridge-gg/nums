@@ -51,8 +51,8 @@ pub struct Game {
     pub tournament_id: u16,
     pub selected_powers: u16,
     pub available_powers: u16,
-    pub reward: u32,
     pub score: u32,
+    pub reward: u64,
     pub slots: felt252,
 }
 

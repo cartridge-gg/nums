@@ -176,8 +176,6 @@ pub mod TournamentComponent {
             }
 
             // [Effect] Claim reward
-            let capacity = tournament
-                .capacity(rankable.len(tournament_id.into()), core::num::traits::Bounded::MAX);
             let reward = RewardTrait::new(tournament_id, token_address.into(), game_id);
             store.set_reward(@reward);
 
@@ -186,7 +184,7 @@ pub mod TournamentComponent {
             let collection_address = self.get_minigame(world).token_address();
             let collection = IERC721Dispatcher { contract_address: collection_address };
             let recipient = collection.owner_of(game_id.into());
-            let payout = prize.payout(position, capacity);
+            let payout = prize.payout(position, tournament.entry_count);
             token.transfer(recipient, payout.into());
 
             // [Effect] Update quest progression for the player - Leader tasks

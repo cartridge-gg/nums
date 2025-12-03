@@ -68,22 +68,6 @@ pub impl TournamentImpl of TournamentTrait {
         // [Effect] Increment entry count
         self.entry_count += 1;
     }
-
-    #[inline]
-    fn capacity(self: @Tournament, games_len: u32, max: u8) -> u32 {
-        // Top 10% of entrants with specific criteria for low entry counts
-        // https://www.wsoponline.com/how-to-play-poker/mtt-tournament-payouts/
-        let entry_count = *self.entry_count;
-        let entry_criteria = if entry_count < 3 {
-            1
-        } else if entry_count < 11 {
-            2
-        } else {
-            (entry_count + 9) / 10
-        };
-        let games_criteria = core::cmp::min(games_len, max.into());
-        core::cmp::min(entry_criteria, games_criteria)
-    }
 }
 
 #[generate_trait]
@@ -126,7 +110,6 @@ mod tests {
 
     pub const TOURNAMENT_ID: u16 = 1;
     pub const USAGE: felt252 = 12345;
-    pub const MAX_CAPACITY: u8 = 5;
 
     #[test]
     fn test_tournament_has_started() {
@@ -167,66 +150,5 @@ mod tests {
         let mut tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
         tournament.end_time = 0;
         TournamentAssert::assert_not_exist(@tournament);
-    }
-
-    #[test]
-    fn test_tournament_capacity() {
-        let mut tournament = TournamentTrait::new(TOURNAMENT_ID, USAGE);
-        // No games
-        tournament.entry_count = 0;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 1;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 5;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 10;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 30;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 40;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 41;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        tournament.entry_count = 100;
-        assert_eq!(tournament.capacity(0, MAX_CAPACITY), 0);
-        // One game
-        tournament.entry_count = 1;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 5;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 10;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 30;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 40;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 41;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        tournament.entry_count = 100;
-        assert_eq!(tournament.capacity(1, MAX_CAPACITY), 1);
-        // Five games
-        tournament.entry_count = 5;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        tournament.entry_count = 10;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        tournament.entry_count = 30;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        tournament.entry_count = 40;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        tournament.entry_count = 41;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        tournament.entry_count = 100;
-        assert_eq!(tournament.capacity(5, MAX_CAPACITY), 2);
-        // Ten games
-        tournament.entry_count = 10;
-        assert_eq!(tournament.capacity(10, MAX_CAPACITY), 2);
-        tournament.entry_count = 30;
-        assert_eq!(tournament.capacity(10, MAX_CAPACITY), 2);
-        tournament.entry_count = 40;
-        assert_eq!(tournament.capacity(10, MAX_CAPACITY), 2);
-        tournament.entry_count = 41;
-        assert_eq!(tournament.capacity(10, MAX_CAPACITY), 2);
-        tournament.entry_count = 100;
-        assert_eq!(tournament.capacity(10, MAX_CAPACITY), 2);
     }
 }

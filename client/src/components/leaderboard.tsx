@@ -65,7 +65,7 @@ export const Leaderboard = ({ tournament }: LeaderboardProps) => {
         PrizeModel.payout(
           totalPrize,
           game.rank,
-          tournament.getCapacity(games.length),
+          tournament.entry_count,
         ) || 0;
       return {
         rank: game.rank,

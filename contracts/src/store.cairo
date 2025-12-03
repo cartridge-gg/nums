@@ -1,6 +1,8 @@
+use dojo::event::EventStorage;
 use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
 use crate::constants::WORLD_RESOURCE;
+use crate::events::game_reward::GameRewardTrait;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::starterpack::IStarterpackDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
@@ -147,5 +149,12 @@ pub impl StoreImpl of StoreTrait {
 
     fn set_claim(ref self: Store, claim: @Claim) {
         self.world.write_model(claim)
+    }
+
+    // Reward
+
+    fn game_reward(ref self: Store, game_id: u64, reward: u64) {
+        let event = GameRewardTrait::new(game_id, reward);
+        self.world.emit_event(@event);
     }
 }

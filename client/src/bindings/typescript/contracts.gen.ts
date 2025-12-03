@@ -164,7 +164,7 @@ export function setupWorld(provider: DojoProvider) {
 	const build_MockNumsToken_balanceOf_calldata = (account: string): DojoCall => {
 		return {
 			contractName: "MockNumsToken",
-			entrypoint: "balance_of",
+			entrypoint: "balanceOf",
 			calldata: [account],
 		};
 	};
@@ -392,7 +392,7 @@ export function setupWorld(provider: DojoProvider) {
 	const build_MockNumsToken_totalSupply_calldata = (): DojoCall => {
 		return {
 			contractName: "MockNumsToken",
-			entrypoint: "total_supply",
+			entrypoint: "totalSupply",
 			calldata: [],
 		};
 	};
@@ -430,7 +430,7 @@ export function setupWorld(provider: DojoProvider) {
 	const build_MockNumsToken_transferFrom_calldata = (sender: string, recipient: string, amount: BigNumberish): DojoCall => {
 		return {
 			contractName: "MockNumsToken",
-			entrypoint: "transfer_from",
+			entrypoint: "transferFrom",
 			calldata: [sender, recipient, amount],
 		};
 	};
@@ -440,192 +440,6 @@ export function setupWorld(provider: DojoProvider) {
 			return await provider.execute(
 				snAccount,
 				build_MockNumsToken_transferFrom_calldata(sender, recipient, amount),
-				"NUMS",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_allowance_calldata = (owner: string, spender: string): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "allowance",
-			calldata: [owner, spender],
-		};
-	};
-
-	const MockRewardToken_allowance = async (owner: string, spender: string) => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_allowance_calldata(owner, spender));
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_approve_calldata = (spender: string, amount: BigNumberish): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "approve",
-			calldata: [spender, amount],
-		};
-	};
-
-	const MockRewardToken_approve = async (snAccount: Account | AccountInterface, spender: string, amount: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_MockRewardToken_approve_calldata(spender, amount),
-				"NUMS",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_balanceOf_calldata = (account: string): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "balance_of",
-			calldata: [account],
-		};
-	};
-
-	const MockRewardToken_balanceOf = async (account: string) => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_balanceOf_calldata(account));
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_decimals_calldata = (): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "decimals",
-			calldata: [],
-		};
-	};
-
-	const MockRewardToken_decimals = async () => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_decimals_calldata());
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_mint_calldata = (recipient: string, amount: BigNumberish): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "mint",
-			calldata: [recipient, amount],
-		};
-	};
-
-	const MockRewardToken_mint = async (snAccount: Account | AccountInterface, recipient: string, amount: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_MockRewardToken_mint_calldata(recipient, amount),
-				"NUMS",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_name_calldata = (): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "name",
-			calldata: [],
-		};
-	};
-
-	const MockRewardToken_name = async () => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_name_calldata());
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_symbol_calldata = (): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "symbol",
-			calldata: [],
-		};
-	};
-
-	const MockRewardToken_symbol = async () => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_symbol_calldata());
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_totalSupply_calldata = (): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "total_supply",
-			calldata: [],
-		};
-	};
-
-	const MockRewardToken_totalSupply = async () => {
-		try {
-			return await provider.call("NUMS", build_MockRewardToken_totalSupply_calldata());
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_transfer_calldata = (recipient: string, amount: BigNumberish): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "transfer",
-			calldata: [recipient, amount],
-		};
-	};
-
-	const MockRewardToken_transfer = async (snAccount: Account | AccountInterface, recipient: string, amount: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_MockRewardToken_transfer_calldata(recipient, amount),
-				"NUMS",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_MockRewardToken_transferFrom_calldata = (sender: string, recipient: string, amount: BigNumberish): DojoCall => {
-		return {
-			contractName: "MockRewardToken",
-			entrypoint: "transfer_from",
-			calldata: [sender, recipient, amount],
-		};
-	};
-
-	const MockRewardToken_transferFrom = async (snAccount: Account | AccountInterface, sender: string, recipient: string, amount: BigNumberish) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_MockRewardToken_transferFrom_calldata(sender, recipient, amount),
 				"NUMS",
 			);
 		} catch (error) {
@@ -802,27 +616,6 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_Play_onClaim_calldata = (recipient: string, leafData: Array<BigNumberish>): DojoCall => {
-		return {
-			contractName: "Play",
-			entrypoint: "on_claim",
-			calldata: [recipient, leafData],
-		};
-	};
-
-	const Play_onClaim = async (snAccount: Account | AccountInterface, recipient: string, leafData: Array<BigNumberish>) => {
-		try {
-			return await provider.execute(
-				snAccount,
-				build_Play_onClaim_calldata(recipient, leafData),
-				"NUMS",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
 	const build_Play_onIssue_calldata = (recipient: string, starterpackId: BigNumberish, quantity: BigNumberish): DojoCall => {
 		return {
 			contractName: "Play",
@@ -836,6 +629,69 @@ export function setupWorld(provider: DojoProvider) {
 			return await provider.execute(
 				snAccount,
 				build_Play_onIssue_calldata(recipient, starterpackId, quantity),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_Play_onQuestClaim_calldata = (recipient: string, questId: BigNumberish, intervalId: BigNumberish): DojoCall => {
+		return {
+			contractName: "Play",
+			entrypoint: "on_quest_claim",
+			calldata: [recipient, questId, intervalId],
+		};
+	};
+
+	const Play_onQuestClaim = async (snAccount: Account | AccountInterface, recipient: string, questId: BigNumberish, intervalId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Play_onQuestClaim_calldata(recipient, questId, intervalId),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_Play_onQuestComplete_calldata = (recipient: string, questId: BigNumberish, intervalId: BigNumberish): DojoCall => {
+		return {
+			contractName: "Play",
+			entrypoint: "on_quest_complete",
+			calldata: [recipient, questId, intervalId],
+		};
+	};
+
+	const Play_onQuestComplete = async (snAccount: Account | AccountInterface, recipient: string, questId: BigNumberish, intervalId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Play_onQuestComplete_calldata(recipient, questId, intervalId),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_Play_onQuestUnlock_calldata = (recipient: string, questId: BigNumberish, intervalId: BigNumberish): DojoCall => {
+		return {
+			contractName: "Play",
+			entrypoint: "on_quest_unlock",
+			calldata: [recipient, questId, intervalId],
+		};
+	};
+
+	const Play_onQuestUnlock = async (snAccount: Account | AccountInterface, recipient: string, questId: BigNumberish, intervalId: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Play_onQuestUnlock_calldata(recipient, questId, intervalId),
 				"NUMS",
 			);
 		} catch (error) {
@@ -1220,6 +1076,48 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_Setup_setNumsAddress_calldata = (numsAddress: string): DojoCall => {
+		return {
+			contractName: "Setup",
+			entrypoint: "set_nums_address",
+			calldata: [numsAddress],
+		};
+	};
+
+	const Setup_setNumsAddress = async (snAccount: Account | AccountInterface, numsAddress: string) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Setup_setNumsAddress_calldata(numsAddress),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_Setup_setOwnerAddress_calldata = (ownerAddress: string): DojoCall => {
+		return {
+			contractName: "Setup",
+			entrypoint: "set_owner_address",
+			calldata: [ownerAddress],
+		};
+	};
+
+	const Setup_setOwnerAddress = async (snAccount: Account | AccountInterface, ownerAddress: string) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Setup_setOwnerAddress_calldata(ownerAddress),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_Setup_setStarterpack_calldata = (starterpackAddress: string): DojoCall => {
 		return {
 			contractName: "Setup",
@@ -1233,6 +1131,27 @@ export function setupWorld(provider: DojoProvider) {
 			return await provider.execute(
 				snAccount,
 				build_Setup_setStarterpack_calldata(starterpackAddress),
+				"NUMS",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_Setup_setTargetSupply_calldata = (supply: BigNumberish): DojoCall => {
+		return {
+			contractName: "Setup",
+			entrypoint: "set_target_supply",
+			calldata: [supply],
+		};
+	};
+
+	const Setup_setTargetSupply = async (snAccount: Account | AccountInterface, supply: BigNumberish) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_Setup_setTargetSupply_calldata(supply),
 				"NUMS",
 			);
 		} catch (error) {
@@ -1296,28 +1215,6 @@ export function setupWorld(provider: DojoProvider) {
 			transferFrom: MockNumsToken_transferFrom,
 			buildTransferFromCalldata: build_MockNumsToken_transferFrom_calldata,
 		},
-		MockRewardToken: {
-			allowance: MockRewardToken_allowance,
-			buildAllowanceCalldata: build_MockRewardToken_allowance_calldata,
-			approve: MockRewardToken_approve,
-			buildApproveCalldata: build_MockRewardToken_approve_calldata,
-			balanceOf: MockRewardToken_balanceOf,
-			buildBalanceOfCalldata: build_MockRewardToken_balanceOf_calldata,
-			decimals: MockRewardToken_decimals,
-			buildDecimalsCalldata: build_MockRewardToken_decimals_calldata,
-			mint: MockRewardToken_mint,
-			buildMintCalldata: build_MockRewardToken_mint_calldata,
-			name: MockRewardToken_name,
-			buildNameCalldata: build_MockRewardToken_name_calldata,
-			symbol: MockRewardToken_symbol,
-			buildSymbolCalldata: build_MockRewardToken_symbol_calldata,
-			totalSupply: MockRewardToken_totalSupply,
-			buildTotalSupplyCalldata: build_MockRewardToken_totalSupply_calldata,
-			transfer: MockRewardToken_transfer,
-			buildTransferCalldata: build_MockRewardToken_transfer_calldata,
-			transferFrom: MockRewardToken_transferFrom,
-			buildTransferFromCalldata: build_MockRewardToken_transferFrom_calldata,
-		},
 		MockStarterpack: {
 			register: MockStarterpack_register,
 			buildRegisterCalldata: build_MockStarterpack_register_calldata,
@@ -1339,10 +1236,14 @@ export function setupWorld(provider: DojoProvider) {
 			buildApplyCalldata: build_Play_apply_calldata,
 			claim: Play_claim,
 			buildClaimCalldata: build_Play_claim_calldata,
-			onClaim: Play_onClaim,
-			buildOnClaimCalldata: build_Play_onClaim_calldata,
 			onIssue: Play_onIssue,
 			buildOnIssueCalldata: build_Play_onIssue_calldata,
+			onQuestClaim: Play_onQuestClaim,
+			buildOnQuestClaimCalldata: build_Play_onQuestClaim_calldata,
+			onQuestComplete: Play_onQuestComplete,
+			buildOnQuestCompleteCalldata: build_Play_onQuestComplete_calldata,
+			onQuestUnlock: Play_onQuestUnlock,
+			buildOnQuestUnlockCalldata: build_Play_onQuestUnlock_calldata,
 			registerStarterpack: Play_registerStarterpack,
 			buildRegisterStarterpackCalldata: build_Play_registerStarterpack_calldata,
 			rescue: Play_rescue,
@@ -1389,8 +1290,14 @@ export function setupWorld(provider: DojoProvider) {
 		Setup: {
 			setEntryPrice: Setup_setEntryPrice,
 			buildSetEntryPriceCalldata: build_Setup_setEntryPrice_calldata,
+			setNumsAddress: Setup_setNumsAddress,
+			buildSetNumsAddressCalldata: build_Setup_setNumsAddress_calldata,
+			setOwnerAddress: Setup_setOwnerAddress,
+			buildSetOwnerAddressCalldata: build_Setup_setOwnerAddress_calldata,
 			setStarterpack: Setup_setStarterpack,
 			buildSetStarterpackCalldata: build_Setup_setStarterpack_calldata,
+			setTargetSupply: Setup_setTargetSupply,
+			buildSetTargetSupplyCalldata: build_Setup_setTargetSupply_calldata,
 		},
 	};
 }

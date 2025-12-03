@@ -2,22 +2,36 @@
 pub mod TournamentComponent {
     // Imports
 
+    use achievement::components::achievable::AchievableComponent;
+    use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
+    use leaderboard::components::rankable::RankableComponent;
+    use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+    use quest::components::questable::QuestableComponent;
+    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
     use crate::constants::{DEFAULT_MAX_CAPACITY, TEN_POW_18};
+    use crate::elements::quests::leader;
+    use crate::elements::tasks::king;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::GameAssert;
-    use crate::models::leaderboard::{LeaderboardAssert, LeaderboardTrait};
     use crate::models::prize::{PrizeAssert, PrizeTrait};
     use crate::models::reward::{RewardAssert, RewardTrait};
     use crate::models::tournament::{Tournament, TournamentAssert, TournamentTrait};
     use crate::random::RandomImpl;
     use crate::systems::minigame::NAME as MINIGAME;
     use crate::{StoreImpl, StoreTrait};
+
+    // Errors
+
+    pub mod Errors {
+        pub const TOURNAMENT_INVALID_RANK: felt252 = 'Tournament: invalid rank';
+        pub const TOURNAMENT_INVALID_LEADERBOARD: felt252 = 'Tournament: invalid leaderboard';
+    }
 
     // Storage
 
@@ -32,7 +46,12 @@ pub mod TournamentComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>,
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl Rankable: RankableComponent::HasComponent<TContractState>,
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
             // [Setup] Store
@@ -44,7 +63,7 @@ pub mod TournamentComponent {
             tournament.assert_not_exist();
 
             // [Effect] Create tournament
-            let tournament = TournamentTrait::new(identifier);
+            let tournament = TournamentTrait::new(identifier, 0);
             store.set_tournament(@tournament);
         }
 
@@ -55,8 +74,9 @@ pub mod TournamentComponent {
             // [Effect] Create next tournament if it doesn't exist
             let identifier = TournamentTrait::uuid() + 1;
             let tournament = store.tournament(identifier);
+            let usage = store.usage();
             if !tournament.exists() {
-                let tournament = TournamentTrait::new(identifier);
+                let tournament = TournamentTrait::new(identifier, usage.board);
                 store.set_tournament(@tournament);
             }
 
@@ -64,16 +84,15 @@ pub mod TournamentComponent {
             let identifier = TournamentTrait::uuid();
             let mut tournament = store.tournament(identifier);
             if !tournament.exists() {
-                tournament = TournamentTrait::new(identifier);
+                tournament = TournamentTrait::new(identifier, usage.board);
             }
             tournament.enter();
             store.set_tournament(@tournament);
 
             // [Effect] Create leaderboard if it doesn't exist
-            let leaderboard = store.leaderboard(tournament.id);
-            if !leaderboard.exists() {
-                let leaderboard = LeaderboardTrait::new(tournament.id, DEFAULT_MAX_CAPACITY);
-                store.set_leaderboard(@leaderboard);
+            let mut rankable = get_dep_component_mut!(ref self, Rankable);
+            if rankable.cap(tournament.id.into()) == 0 {
+                rankable.set(tournament.id.into(), DEFAULT_MAX_CAPACITY);
             }
 
             // [Effect] Update prize
@@ -123,7 +142,7 @@ pub mod TournamentComponent {
             tournament_id: u16,
             token_address: ContractAddress,
             game_id: u64,
-            position: u32,
+            position: u8,
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -148,11 +167,15 @@ pub mod TournamentComponent {
             game.assert_does_exist();
 
             // [Check] Game position in the leaderboard is correct
-            let leaderboard = store.leaderboard(tournament_id);
-            leaderboard.assert_at_position(game_id, position);
+            let mut rankable = get_dep_component_mut!(ref self, Rankable);
+            match rankable.at(tournament_id.into(), position) {
+                Option::Some(item) => {
+                    assert(item.key == game_id, Errors::TOURNAMENT_INVALID_RANK);
+                },
+                Option::None => { assert(false, Errors::TOURNAMENT_INVALID_RANK); },
+            }
 
             // [Effect] Claim reward
-            let capacity = leaderboard.capacity(tournament.entry_count);
             let reward = RewardTrait::new(tournament_id, token_address.into(), game_id);
             store.set_reward(@reward);
 
@@ -161,8 +184,25 @@ pub mod TournamentComponent {
             let collection_address = self.get_minigame(world).token_address();
             let collection = IERC721Dispatcher { contract_address: collection_address };
             let recipient = collection.owner_of(game_id.into());
-            let payout = prize.payout(position, capacity);
+            let payout = prize.payout(position, tournament.entry_count);
             token.transfer(recipient, payout.into());
+
+            // [Effect] Update quest progression for the player - Leader tasks
+            let player: felt252 = recipient.into();
+            let achievable = get_dep_component!(@self, Achievable);
+            let questable = get_dep_component!(@self, Quest);
+            if position < 5 {
+                achievable.progress(world, player, king::KingOne::identifier(), 1, true);
+                questable.progress(world, player, leader::LeaderOne::identifier(), 1, true);
+            }
+            if position < 3 {
+                achievable.progress(world, player, king::KingTwo::identifier(), 1, true);
+                questable.progress(world, player, leader::LeaderTwo::identifier(), 1, true);
+            }
+            if position == 1 {
+                achievable.progress(world, player, king::KingThree::identifier(), 1, true);
+                questable.progress(world, player, leader::LeaderThree::identifier(), 1, true);
+            }
         }
 
         fn rescue(
@@ -186,8 +226,8 @@ pub mod TournamentComponent {
             prize.assert_does_exist();
 
             // [Check] Leaderboard is empty
-            let leaderboard = store.leaderboard(tournament_id);
-            leaderboard.assert_is_empty();
+            let rankable = get_dep_component!(@self, Rankable);
+            assert(rankable.len(tournament_id.into()) == 0, Errors::TOURNAMENT_INVALID_LEADERBOARD);
 
             // [Check] Caller is allowed
             let config = store.config();
@@ -209,7 +249,6 @@ pub mod TournamentComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        #[inline]
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {

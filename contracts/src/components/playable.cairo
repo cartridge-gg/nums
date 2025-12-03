@@ -14,20 +14,22 @@ pub mod PlayableComponent {
     use game_components::token::extensions::minter::interface::{
         IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
     };
+    use leaderboard::components::rankable::RankableComponent;
+    use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
+    use quest::components::questable::QuestableComponent;
+    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
-    use crate::components::merkledrop::MerkledropComponent;
-    use crate::components::merkledrop::MerkledropComponent::InternalImpl as MerkledropInternalImpl;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::components::tournament::TournamentComponent;
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
     use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
-    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
+    use crate::elements::quests::finisher;
+    use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::leaderboard::LeaderboardTrait;
     use crate::models::starterpack::StarterpackTrait as PackTrait;
     use crate::models::tournament::TournamentAssert;
     use crate::models::usage::{UsageAssert, UsageTrait};
@@ -47,45 +49,6 @@ pub mod PlayableComponent {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {}
-
-    // Types
-
-    #[derive(Drop, Copy, Clone, Serde, PartialEq)]
-    pub struct LeafData {
-        pub player_name: felt252,
-        pub quantity: u32,
-    }
-
-    #[generate_trait]
-    pub impl MerkledropImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl Merkledrop: MerkledropComponent::HasComponent<TContractState>,
-    > of MerkledropTrait<TContractState> {
-        fn on_claim(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            recipient: ContractAddress,
-            leaf_data: Span<felt252>,
-        ) {
-            // [Check] Caller is allowed
-            let merkledrop = get_dep_component!(@self, Merkledrop);
-            merkledrop.assert_is_allowed(world);
-
-            // [Check] Merkledrop is valid
-            merkledrop.assert_is_valid(world);
-
-            // [Interaction] Mint a game
-            let mut leaf_data = leaf_data;
-            let data = Serde::<LeafData>::deserialize(ref leaf_data).unwrap();
-            let player_name = data.player_name;
-            let mut quantity = data.quantity;
-            while quantity > 0 {
-                self.mint_game(world, Option::Some(player_name), recipient, false);
-                quantity -= 1;
-            }
-        }
-    }
 
     #[generate_trait]
     pub impl StarterpackImpl<
@@ -144,39 +107,72 @@ pub mod PlayableComponent {
     }
 
     #[generate_trait]
+    pub impl QuestRewarderImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
+    > of QuestRewarderTrait<TContractState> {
+        fn on_quest_complete(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Effect] Update daily and weekly quest completions
+            let questable = get_dep_component!(@self, Quest);
+            let player = recipient.into();
+            if quest_id == QuestType::DailyContenderThree.identifier()
+                || quest_id == QuestType::DailyEarnerThree.identifier()
+                || quest_id == QuestType::DailyPlacerThree.identifier() {
+                questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
+            } else if quest_id == QuestType::WeeklyContenderThree.identifier()
+                || quest_id == QuestType::WeeklyEarnerThree.identifier()
+                || quest_id == QuestType::WeeklyPlacerThree.identifier() {
+                questable.progress(world, player, finisher::WeeklyFinisher::identifier(), 1, true);
+            }
+
+            // [Effect] Claim quest reward automatically
+            questable.claim(world, recipient.into(), quest_id, interval_id);
+        }
+
+        fn on_quest_claim(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Interaction] Reward player with Nums
+            let quest: QuestType = quest_id.into();
+            let (amount, task) = quest.reward();
+            if amount != 0 {
+                store.nums_disp().reward(recipient, amount);
+            }
+
+            // [Effect] Update achievement progression for the player if available, otherwise return
+            if task == Task::None {
+                return;
+            }
+            let achievable = get_dep_component!(@self, Achievable);
+            achievable.progress(world, recipient.into(), task.identifier(), 1, true);
+        }
+    }
+
+    #[generate_trait]
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl Tournament: TournamentComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
-            // [Event] Initialize all Achievements
-            let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
-            while achievement_id > 0 {
-                let achievement: Achievement = achievement_id.into();
-                let achievable = get_dep_component!(@self, Achievable);
-                achievable
-                    .create(
-                        world,
-                        id: achievement.identifier(),
-                        hidden: achievement.hidden(),
-                        index: achievement.index(),
-                        points: achievement.points(),
-                        start: 0,
-                        end: 0,
-                        group: achievement.group(),
-                        icon: achievement.icon(),
-                        title: achievement.title(),
-                        description: achievement.description(),
-                        tasks: achievement.tasks(),
-                        data: achievement.data(),
-                    );
-                achievement_id -= 1;
-            }
-        }
-
         fn start(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -210,18 +206,28 @@ pub mod PlayableComponent {
             usage.assert_valid_powers(powers);
             // [Check] Handle default and specific games separately
             if !self.is_default_game(world, game_id) {
+                // [Check] Powers are valid
+                let usage = UsageTrait::from(0);
+                usage.assert_valid_powers(powers);
                 // [Effect] Start specific game
                 game.start(0, number, powers);
             } else {
                 // [Effect] Enter tournament
                 let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
                 let tournament = tournament_component.enter(world);
+                // [Check] Powers are valid
+                let usage = UsageTrait::from(tournament.usage);
+                usage.assert_valid_powers(powers);
                 // [Effect] Start tournament game
                 game.start(tournament.id, number, powers);
-                // [Effect] Update achievement progression for the player - Grinder task
+                // [Effect] Update quest progression for the player - Contender tasks
+                let questable = get_dep_component!(@self, Quest);
                 let player = starknet::get_caller_address();
+                let task = Task::Grinder;
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+                // [Effect] Update achievement progression for the player - Grinder task
                 let achievable = get_dep_component!(@self, Achievable);
-                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
+                achievable.progress(world, player.into(), task.identifier(), 1, true);
                 // [Effect] Update usage
                 let mut usage = store.usage();
                 usage.insert(powers);
@@ -264,7 +270,8 @@ pub mod PlayableComponent {
 
             // [Effect] Update game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            game.update(ref rand);
+            let reward = game
+                .update(ref rand, store.nums_disp().total_supply(), store.config().target_supply);
             store.set_game(@game);
 
             // [Check] Handle specific games and return prematurely
@@ -282,52 +289,81 @@ pub mod PlayableComponent {
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
-            store.nums_disp().reward(player, game.reward.into());
+            store.nums_disp().reward(player, reward);
+
+            // [Event] Emit reward event
+            store.game_reward(game_id, reward);
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Claimer;
+            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
-            achievable
-                .progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
+            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
-            // [Effect] Update leaderboard
-            let mut leaderboard = store.leaderboard(game.tournament_id);
-            let is_first = leaderboard.insert(game, ref store);
-            store.set_leaderboard(@leaderboard);
-
-            // [Effect] Update King achievement if first place
-            if is_first {
-                achievable.progress(world, player.into(), Task::King.identifier(), 1);
-            }
+            // [Effect] Update leaderboard if the game has been inserted
+            let mut rankable = get_dep_component_mut!(ref self, Rankable);
+            rankable
+                .submit(
+                    world: world,
+                    leaderboard_id: tournament.id.into(),
+                    game_id: game.id,
+                    player_id: player.into(),
+                    score: game.score.into(),
+                    time: starknet::get_block_timestamp(),
+                    to_store: true,
+                );
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
             if filled_slots == 10 {
-                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
+                questable.progress(world, player.into(), Task::FillerTen.identifier(), 1, true);
+            } else if filled_slots == 13 {
+                achievable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
             } else if filled_slots == 15 {
-                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1, true);
+            } else if filled_slots == 16 {
+                questable.progress(world, player.into(), Task::FillerSixteen.identifier(), 1, true);
             } else if filled_slots == 17 {
-                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerSeventeen.identifier(), 1, true);
+            } else if filled_slots == 18 {
+                questable
+                    .progress(world, player.into(), Task::FillerEighteen.identifier(), 1, true);
             } else if filled_slots == 19 {
-                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerNineteen.identifier(), 1, true);
             } else if filled_slots == 20 {
-                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression for the player - Reference tasks
             if target_number == 21 {
-                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1, true);
             } else if target_number == 42 {
-                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1, true);
             } else if target_number == 404 {
-                achievable.progress(world, player.into(), Task::ReferenceThree.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceThree.identifier(), 1, true);
             } else if target_number == 777 {
-                achievable.progress(world, player.into(), Task::ReferenceFour.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFour.identifier(), 1, true);
             } else if target_number == 911 {
-                achievable.progress(world, player.into(), Task::ReferenceFive.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFive.identifier(), 1, true);
             } else if target_number == 420 {
-                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1, true);
             } else if target_number == 69 {
-                achievable.progress(world, player.into(), Task::ReferenceSeven.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceSeven.identifier(), 1, true);
             }
 
             // [Interaction] Perform post actions
@@ -384,7 +420,6 @@ pub mod PlayableComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        #[inline]
         fn mint_game(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -414,7 +449,6 @@ pub mod PlayableComponent {
             token_id
         }
 
-        #[inline]
         fn get_minigame(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> IMinigameDispatcher {
@@ -422,7 +456,6 @@ pub mod PlayableComponent {
             IMinigameDispatcher { contract_address: game_address }
         }
 
-        #[inline]
         fn get_renderer_address(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ContractAddress {
@@ -430,7 +463,6 @@ pub mod PlayableComponent {
             renderer_address
         }
 
-        #[inline]
         fn get_settings(
             self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ISettingsDispatcher {
@@ -438,7 +470,6 @@ pub mod PlayableComponent {
             ISettingsDispatcher { contract_address: settings_address }
         }
 
-        #[inline]
         fn is_default_game(
             self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
         ) -> bool {

@@ -47,7 +47,6 @@ pub mod RenderableComponent {
                 .span()
         }
 
-
         fn get_token_metadata(
             self: @ComponentState<TContractState>, world: WorldStorage, token_id: u256,
         ) -> (Span<u16>, u16, bool, bool) {

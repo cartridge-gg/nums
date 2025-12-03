@@ -3,7 +3,6 @@ import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import type { BigNumberish } from "starknet";
 import type {
-  Leaderboard as LeaderboardModel,
   Tournament as TournamentEntity,
 } from "@/bindings";
 import { NAMESPACE } from "@/config";
@@ -16,10 +15,8 @@ type TournamentProviderProps = {
 
 type TournamentProviderState = {
   tournaments?: TournamentModel[];
-  leaderboards?: LeaderboardModel[];
   prizes?: PrizeModel[];
   getTournamentById: (id: BigNumberish) => TournamentModel | undefined;
-  getLeaderboardById: (id: BigNumberish) => LeaderboardModel | undefined;
   getPrizeByTournamentId: (
     tournamentId: BigNumberish,
   ) => PrizeModel | undefined;
@@ -81,14 +78,6 @@ export function TournamentProvider({
     });
   }, [tournamentItems]);
 
-  const leaderboardItems = useModels(`${NAMESPACE}-Leaderboard`);
-  const leaderboards = useMemo(() => {
-    return Object.keys(leaderboardItems).flatMap((key) => {
-      const items = leaderboardItems[key] as LeaderboardModel[];
-      return Object.values(items);
-    });
-  }, [leaderboardItems]);
-
   const prizeItems = useModels(`${NAMESPACE}-Prize`);
   const prizes = useMemo(() => {
     return Object.keys(prizeItems).flatMap((key) => {
@@ -96,13 +85,6 @@ export function TournamentProvider({
       return Object.values(items);
     });
   }, [prizeItems]);
-
-  const getLeaderboardById = useCallback(
-    (id: BigNumberish) => {
-      return leaderboards.find((i) => i.tournament_id === id);
-    },
-    [leaderboards],
-  );
 
   const getTournamentById = useCallback(
     (id: BigNumberish) => {
@@ -123,10 +105,8 @@ export function TournamentProvider({
       {...props}
       value={{
         tournaments: tournaments.sort((a, b) => b.id - a.id),
-        leaderboards,
         prizes,
         getTournamentById,
-        getLeaderboardById,
         getPrizeByTournamentId,
       }}
     >

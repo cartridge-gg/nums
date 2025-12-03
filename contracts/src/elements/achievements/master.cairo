@@ -1,11 +1,10 @@
 use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
 
-pub impl Streak of AchievementTrait {
+pub impl Master of AchievementTrait {
     fn identifier(level: u8) -> felt252 {
         match level {
-            0 => 'STREAK_I',
-            1 => 'STREAK_II',
-            2 => 'STREAK_III',
+            0 => 'MASTER_I',
+            1 => 'MASTER_II',
             _ => '',
         }
     }
@@ -20,50 +19,44 @@ pub impl Streak of AchievementTrait {
 
     fn points(level: u8) -> u16 {
         match level {
-            0 => 25,
-            1 => 75,
-            2 => 100,
+            0 => 100,
+            1 => 100,
             _ => 0,
         }
     }
 
     fn group() -> felt252 {
-        'Streak'
+        'Master'
     }
 
     fn icon(level: u8) -> felt252 {
         match level {
-            0 => 'fa-circle-2',
-            1 => 'fa-circle-3',
-            2 => 'fa-circle-4',
+            0 => 'fa-star-shooting',
+            1 => 'fa-meteor',
             _ => '',
         }
     }
 
     fn title(level: u8) -> felt252 {
         match level {
-            0 => 'Double Trouble',
-            1 => 'Triple Threat',
-            2 => 'Against All Odds',
+            0 => 'Daily Master',
+            1 => 'Weekly Master',
             _ => '',
         }
     }
 
     fn description(level: u8) -> ByteArray {
         match level {
-            0 => "Coincidence or strategy? Either way, it's a streak!",
-            1 => "Now you're getting into the rhythm!",
-            2 => "A rare sight indeed! Fate must be on your side.",
+            0 => "You didn't just play the day. You conquered it.",
+            1 => "A week well played is a week well won.",
             _ => "",
         }
     }
 
     fn tasks(level: u8) -> Span<AchievementTask> {
-        let count: u32 = 1;
         match level {
-            0 => Task::StreakerOne.tasks(count),
-            1 => Task::StreakerTwo.tasks(count),
-            2 => Task::StreakerThree.tasks(count),
+            0 => Task::MasterOne.tasks(1),
+            1 => Task::MasterTwo.tasks(1),
             _ => [].span(),
         }
     }

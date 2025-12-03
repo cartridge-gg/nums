@@ -8,9 +8,9 @@ pub struct Config {
     pub nums: ContractAddress,
     pub vrf: ContractAddress,
     pub starterpack: ContractAddress,
-    pub forwarder: ContractAddress,
     pub owner: ContractAddress,
     pub entry_price: u128,
+    pub target_supply: u256,
     pub count: u32,
 }
 
@@ -50,8 +50,8 @@ pub struct Game {
     pub tournament_id: u16,
     pub selected_powers: u16,
     pub available_powers: u16,
-    pub reward: u32,
     pub score: u32,
+    pub reward: u64,
     pub slots: felt252,
 }
 
@@ -64,6 +64,7 @@ pub struct Tournament {
     pub entry_count: u32,
     pub start_time: u64,
     pub end_time: u64,
+    pub usage: felt252,
 }
 
 #[dojo::model]

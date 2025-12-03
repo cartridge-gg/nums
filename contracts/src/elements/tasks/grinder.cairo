@@ -5,7 +5,6 @@ pub impl Grinder of TaskTrait {
         'GRINDER'
     }
 
-
     fn description(count: u32) -> ByteArray {
         match count {
             0 => "",

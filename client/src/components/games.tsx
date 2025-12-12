@@ -33,6 +33,8 @@ export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
       .sort((a, b) => (b.over ? -1 : a.over ? 1 : 0));
   }, [games, tournament]);
 
+  console.log({ gameIds, games, filteredGames });
+
   if (isLoading) {
     return (
       <div className="h-full overflow-hidden flex flex-col gap-6">

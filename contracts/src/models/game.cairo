@@ -2,6 +2,7 @@ use core::array::ArrayTrait;
 use crate::constants::SLOT_SIZE;
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
+use crate::helpers::rewarder::Rewarder;
 pub use crate::models::index::Game;
 use crate::random::{Random, RandomImpl};
 pub use crate::types::power::{POWER_COUNT, Power, PowerTrait};
@@ -22,11 +23,6 @@ pub mod errors {
     pub const GAME_SLOTS_PACK_FAILED: felt252 = 'Game: slots pack failed';
     pub const GAME_POWERS_TOO_EXPENSIVE: felt252 = 'Game: powers too expensive';
 }
-
-pub const REWARD_LEVELS: [u32; 21] = [
-    0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500, 8000, 10000,
-    20000, 42000,
-];
 
 pub const SCALE_FACTOR: u32 = 100;
 pub const HALF_SCALE_FACTOR: u32 = 50;
@@ -258,8 +254,10 @@ pub impl GameImpl of GameTrait {
 
     /// Rewards the game for the current level.
     #[inline]
-    fn reward(ref self: Game) {
-        self.reward = *REWARD_LEVELS.span().at(self.level.into());
+    fn reward(ref self: Game, supply: u256, target: u256) -> u64 {
+        let reward = Rewarder::amount(self.level, self.slot_count, supply, target);
+        self.reward += reward;
+        reward
     }
 
     /// Levels up the game.
@@ -286,15 +284,16 @@ pub impl GameImpl of GameTrait {
 
     /// Updates the game state.
     #[inline]
-    fn update(ref self: Game, ref rand: Random) {
+    fn update(ref self: Game, ref rand: Random, supply: u256, target: u256) -> u64 {
         self.level_up();
-        self.reward();
+        let reward = self.reward(supply, target);
         let mut slots = self.slots();
         if !self.is_completed() {
             self.number = self.next(@slots, ref rand);
         }
         self.over = self.is_over(slots.clone());
         self.score = self.score(ref slots);
+        reward
     }
 }
 

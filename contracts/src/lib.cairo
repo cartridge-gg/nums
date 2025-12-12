@@ -5,17 +5,14 @@ pub mod store;
 pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
-    pub mod minigame;
+    pub mod collection;
     pub mod play;
-    pub mod renderer;
-    pub mod settings;
     pub mod setup;
 }
 
 pub mod components {
-    pub mod merkledrop;
+    pub mod initializable;
     pub mod playable;
-    pub mod renderable;
     pub mod starterpack;
     pub mod tournament;
 }
@@ -25,14 +22,16 @@ pub mod models {
     pub mod config;
     pub mod game;
     pub mod index;
-    pub mod leaderboard;
-    pub mod merkledrop;
     pub mod prize;
     pub mod reward;
-    pub mod setting;
     pub mod starterpack;
     pub mod tournament;
     pub mod usage;
+}
+
+pub mod events {
+    pub mod game_reward;
+    pub mod index;
 }
 
 pub mod svg {
@@ -50,6 +49,7 @@ pub mod helpers {
     pub mod heap;
     pub mod packer;
     pub mod power;
+    pub mod rewarder;
 }
 
 pub mod assets {
@@ -58,6 +58,7 @@ pub mod assets {
 }
 
 pub mod types {
+    pub mod metadata;
     pub mod power;
     pub mod svg;
 }
@@ -79,6 +80,7 @@ pub mod elements {
         pub mod index;
         pub mod interface;
         pub mod king;
+        pub mod master;
         pub mod reference;
         pub mod streak;
     }
@@ -89,6 +91,7 @@ pub mod elements {
         pub mod index;
         pub mod interface;
         pub mod king;
+        pub mod master;
         pub mod reference;
         pub mod streaker;
     }
@@ -101,6 +104,15 @@ pub mod elements {
         pub mod low;
         pub mod mirror;
         pub mod reroll;
+    }
+    pub mod quests {
+        pub mod contender;
+        pub mod earner;
+        pub mod finisher;
+        pub mod index;
+        pub mod interface;
+        pub mod placer;
+        pub mod starter;
     }
 }
 // pub mod tests {

@@ -1,6 +1,5 @@
 use starknet::ContractAddress;
 
-
 #[inline]
 pub fn NAME() -> ByteArray {
     "Play"
@@ -15,18 +14,14 @@ pub trait IPlay<T> {
 
 #[starknet::interface]
 pub trait IMerkledrop<T> {
-    fn on_claim(ref self: T, recipient: ContractAddress, leaf_data: Span<felt252>);
+    fn on_claim(ref self: T, player: ContractAddress, leaf_data: Span<felt252>);
 }
 
 #[starknet::interface]
 pub trait ITournament<T> {
     fn sponsor(ref self: T, tournament_id: u16, token_address: ContractAddress, amount: u128);
     fn claim(
-        ref self: T,
-        tournament_id: u16,
-        token_address: ContractAddress,
-        game_id: u64,
-        position: u32,
+        ref self: T, tournament_id: u16, token_address: ContractAddress, game_id: u64, position: u8,
     );
     fn rescue(ref self: T, tournament_id: u16, token_address: ContractAddress);
 }
@@ -54,9 +49,11 @@ pub trait IExternal<T> {
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
+    use leaderboard::components::rankable::RankableComponent;
+    use quest::components::questable::QuestableComponent;
+    use quest::interfaces::IQuestRewarder;
     use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
-    use crate::components::merkledrop::MerkledropComponent;
     use crate::components::playable::PlayableComponent;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::tournament::TournamentComponent;
@@ -68,16 +65,18 @@ pub mod Play {
 
     component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
     impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
+    component!(path: RankableComponent, storage: rankable, event: RankableEvent);
+    impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
+    component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
+    impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
     component!(path: TournamentComponent, storage: tournament, event: TournamentEvent);
     impl TournamentInternalImpl = TournamentComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
     impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
-    impl PlayableMerkledropImpl = PlayableComponent::MerkledropImpl<ContractState>;
+    impl PlayableQuestRewarderImpl = PlayableComponent::QuestRewarderImpl<ContractState>;
     component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
     impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
-    component!(path: MerkledropComponent, storage: merkledrop, event: MerkledropEvent);
-    impl MerkledropInternalImpl = MerkledropComponent::InternalImpl<ContractState>;
 
     // Storage
 
@@ -86,13 +85,15 @@ pub mod Play {
         #[substorage(v0)]
         achievable: AchievableComponent::Storage,
         #[substorage(v0)]
+        rankable: RankableComponent::Storage,
+        #[substorage(v0)]
+        questable: QuestableComponent::Storage,
+        #[substorage(v0)]
         playable: PlayableComponent::Storage,
         #[substorage(v0)]
         tournament: TournamentComponent::Storage,
         #[substorage(v0)]
         starterpack: StarterpackComponent::Storage,
-        #[substorage(v0)]
-        merkledrop: MerkledropComponent::Storage,
     }
 
     // Events
@@ -103,13 +104,15 @@ pub mod Play {
         #[flat]
         AchievableEvent: AchievableComponent::Event,
         #[flat]
+        RankableEvent: RankableComponent::Event,
+        #[flat]
+        QuestableEvent: QuestableComponent::Event,
+        #[flat]
         PlayableEvent: PlayableComponent::Event,
         #[flat]
         TournamentEvent: TournamentComponent::Event,
         #[flat]
         StarterpackEvent: StarterpackComponent::Event,
-        #[flat]
-        MerkledropEvent: MerkledropComponent::Event,
     }
 
     fn dojo_init(ref self: ContractState) {
@@ -118,29 +121,12 @@ pub mod Play {
         // [Effect] Initialize components
         self.tournament.initialize(world);
         self.starterpack.initialize(world);
-        self.playable.initialize(world);
-        self.merkledrop.initialize(world, 0);
-    }
-
-    #[abi(embed_v0)]
-    impl MerkledropImpl of IMerkledrop<ContractState> {
-        fn on_claim(
-            ref self: ContractState, recipient: starknet::ContractAddress, leaf_data: Span<felt252>,
-        ) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Claim games
-            self.playable.on_claim(world, recipient, leaf_data)
-        }
     }
 
     #[abi(embed_v0)]
     impl StarterpackImpl of IStarterpack<ContractState> {
         fn on_issue(
-            ref self: ContractState,
-            recipient: starknet::ContractAddress,
-            starterpack_id: u32,
-            quantity: u32,
+            ref self: ContractState, recipient: ContractAddress, starterpack_id: u32, quantity: u32,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -150,6 +136,31 @@ pub mod Play {
 
         fn supply(self: @ContractState, starterpack_id: u32) -> Option<u32> {
             Option::None
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl QuestRewarderImpl of IQuestRewarder<ContractState> {
+        fn on_quest_unlock(
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
+        ) {}
+
+        fn on_quest_complete(
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Update quest progression for the player - Leader tasks
+            self.playable.on_quest_complete(world, player, quest_id, interval_id)
+        }
+
+        fn on_quest_claim(
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
+        ) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Claim quest reward
+            self.playable.on_quest_claim(world, player, quest_id, interval_id)
         }
     }
 
@@ -196,7 +207,7 @@ pub mod Play {
             tournament_id: u16,
             token_address: ContractAddress,
             game_id: u64,
-            position: u32,
+            position: u8,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());

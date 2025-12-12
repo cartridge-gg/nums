@@ -60,6 +60,13 @@
   }
 }
 
+#cartridge-toast-container p {
+  font-family: "PPNeueBit", monospace !important;
+  font-size: 18px !important;
+  font-weight: 200 !important;
+  transform: translateY(2px) !important;
+}
+
 #root {
   overflow: hidden;
   height: 100%;

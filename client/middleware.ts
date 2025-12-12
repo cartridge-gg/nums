@@ -1,16 +1,16 @@
-import { geolocation } from '@vercel/functions';
+import { geolocation } from "@vercel/functions";
 
 // US states where skill-based real money gaming is illegal
 const BLOCKED_STATES = [
-  'AZ', // Arizona
-  'AR', // Arkansas
-  'CT', // Connecticut
-  'DE', // Delaware
-  'LA', // Louisiana
-  'MT', // Montana
-  'SC', // South Carolina
-  'SD', // South Dakota
-  'TN', // Tennessee
+  "AZ", // Arizona
+  "AR", // Arkansas
+  "CT", // Connecticut
+  "DE", // Delaware
+  "LA", // Louisiana
+  "MT", // Montana
+  "SC", // South Carolina
+  "SD", // South Dakota
+  "TN", // Tennessee
 ];
 
 const BLOCKED_HTML = `<!DOCTYPE html>
@@ -54,11 +54,9 @@ export default function middleware(request: Request) {
 
   // Allow static assets to pass through
   if (
-    url.pathname.startsWith('/assets/') ||
-    url.pathname.startsWith('/favicon') ||
-    url.pathname.startsWith('/ingest') ||
-    url.pathname.startsWith('/api/') ||
-    url.pathname === '/logo.png'
+    url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/favicon") ||
+    url.pathname === "/logo.png"
   ) {
     return;
   }
@@ -66,16 +64,20 @@ export default function middleware(request: Request) {
   const { country, countryRegion } = geolocation(request);
 
   // Block US users in restricted states
-  if (country === 'US' && countryRegion && BLOCKED_STATES.includes(countryRegion)) {
+  if (
+    country === "US" &&
+    countryRegion &&
+    BLOCKED_STATES.includes(countryRegion)
+  ) {
     return new Response(BLOCKED_HTML, {
       status: 451,
       headers: {
-        'Content-Type': 'text/html',
+        "Content-Type": "text/html",
       },
     });
   }
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets/|logo.png).*)'],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|assets/|logo.png).*)"],
 };

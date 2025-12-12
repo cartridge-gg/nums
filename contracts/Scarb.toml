@@ -33,11 +33,11 @@ build-external-contracts = [
 ]
 
 [dependencies]
+collection.workspace = true
 achievement.workspace = true
 quest.workspace = true
 leaderboard.workspace = true
 starterpack.workspace = true
-game_components.workspace = true
 graffiti.workspace = true
 openzeppelin.workspace = true
 alexandria_encoding.workspace = true

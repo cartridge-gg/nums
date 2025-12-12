@@ -1,5 +1,6 @@
 use quest::types::reward::RewardTrait;
 use quest::types::task::{Task as QuestTask, TaskTrait as QuestTaskTrait};
+use starknet::ContractAddress;
 use crate::elements::quests::contender::DailyContenderThree;
 use crate::elements::quests::earner::DailyEarnerThree;
 use crate::elements::quests::placer::DailyPlacerThree;
@@ -10,12 +11,13 @@ pub impl StarterOne of QuestTrait {
         'PERMANENT_STARTER_ONE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let reward = RewardTrait::new("Quest Reward", "200 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "First Steps",
             description: "Every journey starts with... clicking play.",
             icon: "fa-shoe-prints",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -39,12 +41,13 @@ pub impl StarterTwo of QuestTrait {
         'PERMANENT_STARTER_TWO'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let reward = RewardTrait::new("Quest Reward", "300 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Power Surge",
             description: "Choose wisely. Or just choose quickly.",
             icon: "fa-bolt",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -69,12 +72,13 @@ pub impl StarterThree of QuestTrait {
         'PERMANENT_STARTER_THREE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let reward = RewardTrait::new("Quest Reward", "400 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "The First Drop",
             description: "And so the chaos begins.",
             icon: "fa-hand-pointer",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -99,12 +103,13 @@ pub impl StarterFour of QuestTrait {
         'PERMANENT_STARTER_FOUR'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let reward = RewardTrait::new("Quest Reward", "500 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Chasing Coins",
             description: "The first earn hits different.",
             icon: "fa-circle-dollar-to-slot",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -129,12 +134,13 @@ pub impl StarterFive of QuestTrait {
         'PERMANENT_STARTER_FIVE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let reward = RewardTrait::new("Quest Reward", "600 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "The Completionist",
             description: "Start strong. Finish stronger.",
             icon: "fa-flag-checkered",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![

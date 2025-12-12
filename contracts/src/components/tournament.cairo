@@ -5,7 +5,6 @@ pub mod TournamentComponent {
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -14,7 +13,6 @@ pub mod TournamentComponent {
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
     use crate::constants::{DEFAULT_MAX_CAPACITY, TEN_POW_18};
-    use crate::elements::quests::leader;
     use crate::elements::tasks::king;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
@@ -23,7 +21,7 @@ pub mod TournamentComponent {
     use crate::models::reward::{RewardAssert, RewardTrait};
     use crate::models::tournament::{Tournament, TournamentAssert, TournamentTrait};
     use crate::random::RandomImpl;
-    use crate::systems::minigame::NAME as MINIGAME;
+    use crate::systems::collection::NAME as COLLECTION;
     use crate::{StoreImpl, StoreTrait};
 
     // Errors
@@ -181,8 +179,7 @@ pub mod TournamentComponent {
 
             // [Interaction] Send reward to the game owner
             let token = IERC20Dispatcher { contract_address: token_address };
-            let collection_address = self.get_minigame(world).token_address();
-            let collection = IERC721Dispatcher { contract_address: collection_address };
+            let collection = self.get_collection(world);
             let recipient = collection.owner_of(game_id.into());
             let payout = prize.payout(position, tournament.entry_count);
             token.transfer(recipient, payout.into());
@@ -190,18 +187,14 @@ pub mod TournamentComponent {
             // [Effect] Update quest progression for the player - Leader tasks
             let player: felt252 = recipient.into();
             let achievable = get_dep_component!(@self, Achievable);
-            let questable = get_dep_component!(@self, Quest);
             if position < 5 {
                 achievable.progress(world, player, king::KingOne::identifier(), 1, true);
-                questable.progress(world, player, leader::LeaderOne::identifier(), 1, true);
             }
             if position < 3 {
                 achievable.progress(world, player, king::KingTwo::identifier(), 1, true);
-                questable.progress(world, player, leader::LeaderTwo::identifier(), 1, true);
             }
             if position == 1 {
                 achievable.progress(world, player, king::KingThree::identifier(), 1, true);
-                questable.progress(world, player, leader::LeaderThree::identifier(), 1, true);
             }
         }
 
@@ -249,11 +242,11 @@ pub mod TournamentComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        fn get_minigame(
+        fn get_collection(
             self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@MINIGAME()).unwrap();
-            IMinigameDispatcher { contract_address: game_address }
+        ) -> IERC721Dispatcher {
+            let (collection_address, _) = world.dns(@COLLECTION()).unwrap();
+            IERC721Dispatcher { contract_address: collection_address }
         }
     }
 }

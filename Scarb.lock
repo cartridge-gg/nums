@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "dojo",
  "graffiti",
@@ -66,7 +66,7 @@ dependencies = [
 [[package]]
 name = "collection"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "graffiti",
  "openzeppelin",
@@ -97,80 +97,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "game_components"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_test_starknet",
- "game_components_token",
- "game_components_utils",
-]
-
-[[package]]
-name = "game_components_metagame"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_minigame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_minigame"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_test_starknet"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_token"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_test_starknet",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_utils"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "alexandria_encoding",
- "game_components_metagame",
- "game_components_minigame",
- "game_components_token",
- "graffiti",
-]
-
-[[package]]
 name = "graffiti"
 version = "0.1.0"
 source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798ebbcebde504ea299ed556900564ff2"
@@ -178,7 +104,7 @@ source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798eb
 [[package]]
 name = "leaderboard"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "dojo",
  "graffiti",
@@ -187,7 +113,7 @@ dependencies = [
 [[package]]
 name = "models"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "dojo",
  "registry",
@@ -199,10 +125,10 @@ version = "0.1.0"
 dependencies = [
  "achievement",
  "alexandria_encoding",
+ "collection",
  "dojo",
  "dojo_cairo_macros",
  "dojo_cairo_test",
- "game_components",
  "graffiti",
  "leaderboard",
  "openzeppelin",
@@ -331,7 +257,7 @@ checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc
 [[package]]
 name = "quest"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "dojo",
  "graffiti",
@@ -340,7 +266,7 @@ dependencies = [
 [[package]]
 name = "registry"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "collection",
  "dojo",
@@ -350,7 +276,7 @@ dependencies = [
 [[package]]
 name = "starterpack"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=c82ea39#c82ea39e5fa359cf1e1a3a65cfe8698578f78081"
+source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
 dependencies = [
  "dojo",
  "models",

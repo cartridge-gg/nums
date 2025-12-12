@@ -1,5 +1,6 @@
 use quest::types::reward::RewardTrait;
 use quest::types::task::{Task as QuestTask, TaskTrait as QuestTaskTrait};
+use starknet::ContractAddress;
 use crate::elements::tasks::filler;
 use super::index::{ICON, ONE_DAY, ONE_WEEK, QuestMetadataTrait, QuestProps, QuestTrait};
 
@@ -8,13 +9,14 @@ pub impl DailyPlacerOne of QuestTrait {
         'DAILY_PLACER_ONE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 10;
         let reward = RewardTrait::new("Quest Reward", "200 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Halfway Hero",
             description: "10 down, 10 to go. Easy, right?",
             icon: "fa-bars-progress",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -40,13 +42,14 @@ pub impl DailyPlacerTwo of QuestTrait {
         'DAILY_PLACER_TWO'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 13;
         let reward = RewardTrait::new("Quest Reward", "400 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Lucky Thirteen",
             description: "Unlucky for some. Not for you.",
             icon: "fa-hashtag",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -73,13 +76,14 @@ pub impl DailyPlacerThree of QuestTrait {
         'DAILY_PLACER_THREE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 16;
         let reward = RewardTrait::new("Quest Reward", "800 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Deep Diver",
             description: "You're really going all in, huh?",
             icon: "fa-layer-group",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -106,13 +110,14 @@ pub impl WeeklyPlacerOne of QuestTrait {
         'WEEKLY_PLACER_ONE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 17;
         let reward = RewardTrait::new("Quest Reward", "1000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Precision Pilot",
             description: "You're threading the needle now.",
             icon: "fa-bullseye",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -140,13 +145,14 @@ pub impl WeeklyPlacerTwo of QuestTrait {
         'WEEKLY_PLACER_TWO'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 18;
         let reward = RewardTrait::new("Quest Reward", "2000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Edge Runner",
             description: "One mistake and yeah, don't mistake.",
             icon: "fa-mountain",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -173,13 +179,14 @@ pub impl WeeklyPlacerThree of QuestTrait {
         'WEEKLY_PLACER_THREE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 19;
         let reward = RewardTrait::new("Quest Reward", "4000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Almost Perfect",
             description: "Nineteen out of twenty? Chef's kiss.",
             icon: "fa-star-half-stroke",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![

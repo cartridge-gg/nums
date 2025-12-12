@@ -5,17 +5,14 @@ pub mod store;
 pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
-    pub mod minigame;
+    pub mod collection;
     pub mod play;
-    pub mod renderer;
-    pub mod settings;
     pub mod setup;
 }
 
 pub mod components {
     pub mod initializable;
     pub mod playable;
-    pub mod renderable;
     pub mod starterpack;
     pub mod tournament;
 }
@@ -27,7 +24,6 @@ pub mod models {
     pub mod index;
     pub mod prize;
     pub mod reward;
-    pub mod setting;
     pub mod starterpack;
     pub mod tournament;
     pub mod usage;
@@ -62,6 +58,7 @@ pub mod assets {
 }
 
 pub mod types {
+    pub mod metadata;
     pub mod power;
     pub mod svg;
 }
@@ -114,7 +111,6 @@ pub mod elements {
         pub mod finisher;
         pub mod index;
         pub mod interface;
-        pub mod leader;
         pub mod placer;
         pub mod starter;
     }

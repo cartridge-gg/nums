@@ -1,6 +1,7 @@
+use starknet::ContractAddress;
 use crate::elements::quests::index::QuestProps;
 
 pub trait QuestTrait {
     fn identifier() -> felt252;
-    fn props() -> QuestProps;
+    fn props(registry: ContractAddress) -> QuestProps;
 }

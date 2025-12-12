@@ -5,15 +5,6 @@ pub mod PlayableComponent {
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
-    use game_components::minigame::libs;
-    use game_components::minigame::libs::{assert_token_ownership, post_action, pre_action};
-    use game_components::token::core::interface::{
-        IMinigameTokenDispatcher, IMinigameTokenDispatcherTrait,
-    };
-    use game_components::token::extensions::minter::interface::{
-        IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
-    };
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use quest::components::questable::QuestableComponent;
@@ -23,7 +14,7 @@ pub mod PlayableComponent {
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::components::tournament::TournamentComponent;
     use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
-    use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
+    use crate::constants::{DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
@@ -34,9 +25,9 @@ pub mod PlayableComponent {
     use crate::models::tournament::TournamentAssert;
     use crate::models::usage::{UsageAssert, UsageTrait};
     use crate::random::RandomImpl;
-    use crate::systems::minigame::NAME as MINIGAME;
-    use crate::systems::renderer::NAME as RENDERER;
-    use crate::systems::settings::{ISettingsDispatcher, ISettingsDispatcherTrait, NAME as SETTINGS};
+    use crate::systems::collection::{
+        ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
+    };
     use crate::{StoreImpl, StoreTrait};
 
     // Storage
@@ -55,6 +46,7 @@ pub mod PlayableComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl Starterpack: StarterpackComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of StarterpackTrait<TContractState> {
         fn on_issue(
             ref self: ComponentState<TContractState>,
@@ -73,11 +65,16 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
+            // [Effect] Quest progression
+            let questable = get_dep_component!(@self, Quest);
+            let task = QuestType::StarterOne;
+            let player = recipient.into();
+            questable.progress(world, player, task.identifier(), 1, true);
+
             // [Check] Free game
             let pack = store.starterpack(starterpack_id);
             if !pack.reissuable {
                 // [Check] Free game not already claimed
-                let player = recipient.into();
                 let mut claim = store.claim(player, starterpack_id);
                 claim.assert_not_claimed();
                 // [Effect] Claim free game
@@ -91,14 +88,14 @@ pub mod PlayableComponent {
             store.nums_disp().burn(amount);
 
             // [Interaction] Mint games
-            let settings = store.setting(DEFAULT_SETTINGS_ID);
+            let collection = self.get_collection(world);
             while quantity > 0 {
                 // [Interaction] Mint a game
-                let game_id = self.mint_game(world, Option::None, recipient, true);
+                let game_id = collection.mint(recipient, true);
 
                 // [Effect] Create game
                 let game = GameTrait::new(
-                    game_id, settings.slot_count, settings.slot_min, settings.slot_max,
+                    game_id, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX,
                 );
                 store.set_game(@game);
                 quantity -= 1;
@@ -123,16 +120,27 @@ pub mod PlayableComponent {
             // [Effect] Update daily and weekly quest completions
             let questable = get_dep_component!(@self, Quest);
             let player = recipient.into();
-            if quest_id == QuestType::DailyContenderThree.identifier()
+            if quest_id == QuestType::DailyContenderOne.identifier()
+                || quest_id == QuestType::DailyContenderTwo.identifier()
+                || quest_id == QuestType::DailyContenderThree.identifier()
+                || quest_id == QuestType::DailyEarnerOne.identifier()
+                || quest_id == QuestType::DailyEarnerTwo.identifier()
                 || quest_id == QuestType::DailyEarnerThree.identifier()
+                || quest_id == QuestType::DailyPlacerOne.identifier()
+                || quest_id == QuestType::DailyPlacerTwo.identifier()
                 || quest_id == QuestType::DailyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
-            } else if quest_id == QuestType::WeeklyContenderThree.identifier()
+            } else if quest_id == QuestType::WeeklyContenderOne.identifier()
+                || quest_id == QuestType::WeeklyContenderTwo.identifier()
+                || quest_id == QuestType::WeeklyContenderThree.identifier()
+                || quest_id == QuestType::WeeklyEarnerOne.identifier()
+                || quest_id == QuestType::WeeklyEarnerTwo.identifier()
                 || quest_id == QuestType::WeeklyEarnerThree.identifier()
+                || quest_id == QuestType::WeeklyPlacerOne.identifier()
+                || quest_id == QuestType::WeeklyPlacerTwo.identifier()
                 || quest_id == QuestType::WeeklyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::WeeklyFinisher::identifier(), 1, true);
             }
-
             // [Effect] Claim quest reward automatically
             questable.claim(world, recipient.into(), quest_id, interval_id);
         }
@@ -149,17 +157,10 @@ pub mod PlayableComponent {
 
             // [Interaction] Reward player with Nums
             let quest: QuestType = quest_id.into();
-            let (amount, task) = quest.reward();
+            let amount = quest.reward();
             if amount != 0 {
                 store.nums_disp().reward(recipient, amount);
             }
-
-            // [Effect] Update achievement progression for the player if available, otherwise return
-            if task == Task::None {
-                return;
-            }
-            let achievable = get_dep_component!(@self, Achievable);
-            achievable.progress(world, recipient.into(), task.identifier(), 1, true);
         }
     }
 
@@ -183,60 +184,54 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Check] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game not started yet
-            let game = store.game(game_id);
+            let mut game = store.game(game_id);
             game.assert_not_started();
 
             // [Effect] Create and setup game
-            let settings = self.get_settings(world).game_setting(game_id);
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let number = rand.between::<u16>(settings.slot_min, settings.slot_max);
-            let mut game = GameTrait::new(
-                game_id, settings.slot_count, settings.slot_min, settings.slot_max,
-            );
+            let number = rand.between::<u16>(DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
 
             // [Check] Powers are valid
             let usage = UsageTrait::from(0);
             usage.assert_valid_powers(powers);
-            // [Check] Handle default and specific games separately
-            if !self.is_default_game(world, game_id) {
-                // [Check] Powers are valid
-                let usage = UsageTrait::from(0);
-                usage.assert_valid_powers(powers);
-                // [Effect] Start specific game
-                game.start(0, number, powers);
-            } else {
-                // [Effect] Enter tournament
-                let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
-                let tournament = tournament_component.enter(world);
-                // [Check] Powers are valid
-                let usage = UsageTrait::from(tournament.usage);
-                usage.assert_valid_powers(powers);
-                // [Effect] Start tournament game
-                game.start(tournament.id, number, powers);
-                // [Effect] Update quest progression for the player - Contender tasks
-                let questable = get_dep_component!(@self, Quest);
-                let player = starknet::get_caller_address();
-                let task = Task::Grinder;
-                questable.progress(world, player.into(), task.identifier(), 1, true);
-                // [Effect] Update achievement progression for the player - Grinder task
-                let achievable = get_dep_component!(@self, Achievable);
-                achievable.progress(world, player.into(), task.identifier(), 1, true);
-                // [Effect] Update usage
-                let mut usage = store.usage();
-                usage.insert(powers);
-                store.set_usage(@usage);
-            }
+
+            // [Effect] Enter tournament
+            let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
+            let tournament = tournament_component.enter(world);
+
+            // [Check] Powers are valid
+            let usage = UsageTrait::from(tournament.usage);
+            usage.assert_valid_powers(powers);
+
+            // [Effect] Start tournament game
+            game.start(tournament.id, number, powers);
             store.set_game(@game);
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let player = starknet::get_caller_address();
+            let task = Task::Grinder;
+            questable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update quest progression for the player - StarterTwo
+            let task = QuestType::StarterTwo;
+            questable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update achievement progression for the player - Grinder task
+            let achievable = get_dep_component!(@self, Achievable);
+            achievable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update usage
+            let mut usage = store.usage();
+            usage.insert(powers);
+            store.set_usage(@usage);
+
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             (game_id, number)
         }
@@ -249,11 +244,8 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Interaction] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game exists
             let mut game = store.game(game_id);
@@ -274,15 +266,6 @@ pub mod PlayableComponent {
                 .update(ref rand, store.nums_disp().total_supply(), store.config().target_supply);
             store.set_game(@game);
 
-            // [Check] Handle specific games and return prematurely
-            if !self.is_default_game(world, game_id) {
-                // [Interaction] Perform post actions
-                post_action(token_address, game_id);
-
-                // [Return] Game number
-                return game.number;
-            }
-
             // [Check] Tournament is not over
             let tournament = store.tournament(game.tournament_id);
             tournament.assert_not_over();
@@ -298,6 +281,20 @@ pub mod PlayableComponent {
             let questable = get_dep_component!(@self, Quest);
             let task = Task::Claimer;
             questable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Effect] Update quest progression for the player - StarterThree
+            let task = QuestType::StarterThree;
+            questable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update quest progression for the player - StarterFour
+            let task = QuestType::StarterFour;
+            questable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update quest progression for the player - StarterFive
+            if game.over {
+                let task = QuestType::StarterFive;
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
@@ -366,8 +363,8 @@ pub mod PlayableComponent {
                     .progress(world, player.into(), Task::ReferenceSeven.identifier(), 1, true);
             }
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             // [Return] Next number
             game.number
@@ -381,11 +378,8 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Interaction] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game exists
             let mut game = store.game(game_id);
@@ -395,11 +389,9 @@ pub mod PlayableComponent {
             game.assert_has_started();
             game.assert_not_over();
 
-            // [Check] Handle default and specific games separately
-            if self.is_default_game(world, game_id) {
-                let tournament = store.tournament(game.tournament_id);
-                tournament.assert_not_over();
-            }
+            // [Check] Tournament is not over
+            let tournament = store.tournament(game.tournament_id);
+            tournament.assert_not_over();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -408,8 +400,8 @@ pub mod PlayableComponent {
             // [Effect] Update game
             store.set_game(@game);
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             // [Return] Next number
             game.number
@@ -420,67 +412,11 @@ pub mod PlayableComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        fn mint_game(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            player_name: Option<felt252>,
-            to: ContractAddress,
-            soulbound: bool,
-        ) -> u64 {
-            let minigame = self.get_minigame(world);
-            let game_address = minigame.contract_address;
-            let collection_address = minigame.token_address();
-            let renderer_address = self.get_renderer_address(world);
-            let token_id = libs::mint(
-                minigame_token_address: collection_address,
-                game_address: game_address,
-                player_name: player_name,
-                settings_id: Option::Some(DEFAULT_SETTINGS_ID),
-                start: Option::None,
-                end: Option::None,
-                objective_ids: Option::None,
-                context: Option::None,
-                client_url: Option::Some(CLIENT_URL()),
-                renderer_address: Option::Some(renderer_address),
-                to: to,
-                soulbound: soulbound,
-            );
-
-            token_id
-        }
-
-        fn get_minigame(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
-            IMinigameDispatcher { contract_address: game_address }
-        }
-
-        fn get_renderer_address(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> ContractAddress {
-            let (renderer_address, _) = world.dns(@RENDERER()).expect('Renderer not found!');
-            renderer_address
-        }
-
-        fn get_settings(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> ISettingsDispatcher {
-            let (settings_address, _) = world.dns(@SETTINGS()).expect('Settings not found!');
-            ISettingsDispatcher { contract_address: settings_address }
-        }
-
-        fn is_default_game(
-            self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
-        ) -> bool {
-            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
-            let minigame = IMinigameDispatcher { contract_address: game_address };
-            let token_address = minigame.token_address();
-            let token = IMinigameTokenDispatcher { contract_address: token_address };
-            let token_metadata = token.token_metadata(game_id);
-            let minter = IMinigameTokenMinterDispatcher { contract_address: token_address };
-            let minted_by_address = minter.get_minter_address(token_metadata.minted_by);
-            minted_by_address == starknet::get_contract_address()
+        fn get_collection(
+            ref self: ComponentState<TContractState>, world: WorldStorage,
+        ) -> ICollectionDispatcher {
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            ICollectionDispatcher { contract_address: collection_address }
         }
     }
 }

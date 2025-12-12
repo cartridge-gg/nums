@@ -1,13 +1,21 @@
 use core::num::traits::Pow;
 
+#[inline]
 pub fn NAMESPACE() -> ByteArray {
     "NUMS"
 }
 
+#[inline]
 pub fn NAME() -> ByteArray {
     "Nums"
 }
 
+#[inline]
+pub fn SYMBOL() -> ByteArray {
+    "NUMS"
+}
+
+#[inline]
 pub fn DESCRIPTION() -> ByteArray {
     "Number Challenge is a fully onchain game built using Dojo Engine on Starknet that blends strategy and chance. The goal is to place 20 randomly generated numbers into slots in ascending order to win significant prizes."
 }
@@ -26,6 +34,10 @@ pub fn GENRE() -> ByteArray {
 
 pub fn IMAGE() -> ByteArray {
     "https://static.cartridge.gg/presets/nums/icon.png"
+}
+
+pub fn BANNER() -> ByteArray {
+    "https://static.cartridge.gg/presets/nums/cover.png"
 }
 
 pub fn CLIENT_URL() -> ByteArray {

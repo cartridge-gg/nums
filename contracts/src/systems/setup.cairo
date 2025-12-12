@@ -15,6 +15,7 @@ pub mod Setup {
     use achievement::components::achievable::AchievableComponent;
     use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use quest::components::questable::QuestableComponent;
+    use quest::interfaces::IQuestRegistry;
     use starknet::ContractAddress;
     use crate::StoreImpl;
     use crate::components::initializable::InitializableComponent;
@@ -103,6 +104,28 @@ pub mod Setup {
         store.set_usage(@usage);
         // [Effect] Initialize components
         self.initializable.initialize(world);
+
+        // [Event] Emit a new registered contract for torii to index
+        let instance_name: felt252 = nums_address.into();
+        world
+            .dispatcher
+            .register_external_contract(
+                namespace: NAMESPACE(),
+                contract_name: "ERC20",
+                instance_name: format!("{}", instance_name),
+                contract_address: nums_address,
+                block_number: 1,
+            )
+    }
+
+    #[abi(embed_v0)]
+    impl QuestRegistryImpl of IQuestRegistry<ContractState> {
+        fn quest_claim(
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
+        ) {
+            let world = self.world(@NAMESPACE());
+            self.questable.claim(world, player.into(), quest_id, interval_id);
+        }
     }
 
     #[abi(embed_v0)]

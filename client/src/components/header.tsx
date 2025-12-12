@@ -26,6 +26,7 @@ import { useMintNums } from "@/hooks/useMintNums";
 import { useTokens } from "@/hooks/useTokens";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { toast } from "@cartridge/controller";
 
 export const Header = () => {
   const { chain } = useChain();
@@ -34,6 +35,13 @@ export const Header = () => {
   const [run, setRun] = useState(false);
   const [recycle, setRecycle] = useState(true);
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
+
+  const pop = () => {
+    toast({
+      variant: "error",
+      message: "Transaction failed",
+    });
+  }
 
   return (
     <div className="w-full min-h-16 md:min-h-24 max-h-24 px-3 md:px-8 flex items-center justify-between border-b border-[rgba(0,0,0,0.24)] bg-[linear-gradient(0deg,rgba(0,0,0,0.24)_0%,rgba(0,0,0,0.16)_100%)]">
@@ -67,6 +75,7 @@ export const Header = () => {
         {address && <Claim setRun={setRun} setRecycle={setRecycle} />}
         {address ? <Profile /> : <Connect />}
         {address && <Disconnect />}
+        <div onClick={pop}>TOAST</div>
       </div>
       <Confetti width={width} height={height} recycle={recycle} run={run} />
     </div>

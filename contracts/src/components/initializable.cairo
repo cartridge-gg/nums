@@ -53,9 +53,10 @@ pub mod InitializableComponent {
             // [Event] Initialize all Quests
             let mut quest_id: u8 = QUEST_COUNT;
             let questable = get_dep_component!(@self, Quest);
+            let registry = starknet::get_contract_address();
             while quest_id > 0 {
                 let quest_type: QuestType = quest_id.into();
-                let props: QuestProps = quest_type.props();
+                let props: QuestProps = quest_type.props(registry);
                 questable
                     .create(
                         world: world,

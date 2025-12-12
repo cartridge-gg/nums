@@ -1,5 +1,6 @@
 use quest::types::reward::RewardTrait;
 use quest::types::task::{Task as QuestTask, TaskTrait as QuestTaskTrait};
+use starknet::ContractAddress;
 use crate::elements::tasks::grinder::Grinder;
 use super::index::{ICON, ONE_DAY, ONE_WEEK, QuestMetadataTrait, QuestProps, QuestTrait};
 
@@ -8,13 +9,14 @@ pub impl DailyContenderOne of QuestTrait {
         'DAILY_CONTENDER_ONE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 1;
         let reward = RewardTrait::new("Quest Reward", "200 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Warm-Up Run",
             description: "One game a day keeps the boredom away.",
             icon: "fa-play",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -38,13 +40,14 @@ pub impl DailyContenderTwo of QuestTrait {
         'DAILY_CONTENDER_TWO'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 3;
         let reward = RewardTrait::new("Quest Reward", "400 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Triple Trouble",
             description: "Because one is never enough.",
             icon: "fa-dice",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -69,13 +72,14 @@ pub impl DailyContenderThree of QuestTrait {
         'DAILY_CONTENDER_THREE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 5;
         let reward = RewardTrait::new("Quest Reward", "800 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Game Grinder",
             description: "Five shots, no misses. Hopefully.",
             icon: "fa-fire",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -100,13 +104,14 @@ pub impl WeeklyContenderOne of QuestTrait {
         'WEEKLY_CONTENDER_ONE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 10;
         let reward = RewardTrait::new("Quest Reward", "1000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Tenacity",
             description: "Ten games? That's just Monday for you.",
             icon: "fa-forward",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -130,13 +135,14 @@ pub impl WeeklyContenderTwo of QuestTrait {
         'WEEKLY_CONTENDER_TWO'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 30;
         let reward = RewardTrait::new("Quest Reward", "2000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Thirty Thruster",
             description: "When in doubt, play it out.",
             icon: "fa-rocket",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![
@@ -161,13 +167,14 @@ pub impl WeeklyContenderThree of QuestTrait {
         'WEEKLY_CONTENDER_THREE'
     }
 
-    fn props() -> QuestProps {
+    fn props(registry: ContractAddress) -> QuestProps {
         let total = 50;
         let reward = RewardTrait::new("Quest Reward", "4000 NUMS", ICON());
         let metadata = QuestMetadataTrait::new(
             name: "Weekend Warrior",
             description: "Fifty games. Touch grass later.",
             icon: "fa-chess-knight",
+            registry: registry,
             rewards: array![reward].span(),
         );
         let tasks: Array<QuestTask> = array![

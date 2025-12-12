@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.19"
+seed = "nums-v1.0.24"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,34 +9,22 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x018569f069aae3e60889b1673d38d6105e4d7c8e8487da461b63cbd76cd84ded"
+world_address = "0x02577dae7023b0ef1d589136934cc678c9ac2e1f92428cf07e2cbbfd42b7af26"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
 [migration]
-order_inits = [
-    "NUMS-Setup",
-    "NUMS-Minigame",
-    "NUMS-Renderer",
-    "NUMS-Settings",
-    "NUMS-Play",
-]
+order_inits = ["NUMS-Setup", "NUMS-Play", "NUMS-Collection"]
 skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken", "NUMS-MockStarterpack"]
 disable_multicall = true
 
 [writers]
-"NUMS" = [
-    "NUMS-Setup",
-    "NUMS-Minigame",
-    "NUMS-Renderer",
-    "NUMS-Settings",
-    "NUMS-Play",
-]
+"NUMS" = ["NUMS-Play"]
+
+[owners]
+"NUMS" = ["NUMS-Setup", "NUMS-Collection"]
 
 [init_call_args]
-"NUMS-Minigame" = [
-    "0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan address
-]
 "NUMS-Setup" = [
     "0x0",                                                                # Option::Some
     "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",  # nums_address

@@ -14,7 +14,7 @@ pub trait IPlay<T> {
 
 #[starknet::interface]
 pub trait IMerkledrop<T> {
-    fn on_claim(ref self: T, recipient: ContractAddress, leaf_data: Span<felt252>);
+    fn on_claim(ref self: T, player: ContractAddress, leaf_data: Span<felt252>);
 }
 
 #[starknet::interface]
@@ -126,10 +126,7 @@ pub mod Play {
     #[abi(embed_v0)]
     impl StarterpackImpl of IStarterpack<ContractState> {
         fn on_issue(
-            ref self: ContractState,
-            recipient: starknet::ContractAddress,
-            starterpack_id: u32,
-            quantity: u32,
+            ref self: ContractState, recipient: ContractAddress, starterpack_id: u32, quantity: u32,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -145,34 +142,25 @@ pub mod Play {
     #[abi(embed_v0)]
     impl QuestRewarderImpl of IQuestRewarder<ContractState> {
         fn on_quest_unlock(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            quest_id: felt252,
-            interval_id: u64,
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
         ) {}
 
         fn on_quest_complete(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            quest_id: felt252,
-            interval_id: u64,
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
             // [Effect] Update quest progression for the player - Leader tasks
-            self.playable.on_quest_complete(world, recipient, quest_id, interval_id)
+            self.playable.on_quest_complete(world, player, quest_id, interval_id)
         }
 
         fn on_quest_claim(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            quest_id: felt252,
-            interval_id: u64,
+            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
         ) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
             // [Effect] Claim quest reward
-            self.playable.on_quest_claim(world, recipient, quest_id, interval_id)
+            self.playable.on_quest_claim(world, player, quest_id, interval_id)
         }
     }
 

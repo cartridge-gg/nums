@@ -13,16 +13,52 @@ const BLOCKED_STATES = [
   'TN', // Tennessee
 ];
 
+const BLOCKED_HTML = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Nums - Not Available</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        background-color: rgba(89, 31, 255, 100%);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .container { text-align: center; max-width: 480px; }
+      .logo { width: 120px; height: 120px; margin-bottom: 32px; }
+      h1 { font-size: 32px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+      p { font-size: 18px; line-height: 1.6; opacity: 0.9; margin-bottom: 24px; }
+      .code { font-size: 14px; opacity: 0.6; font-family: monospace; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="/logo.png" alt="Nums" class="logo" />
+      <h1>Not Available in Your Region</h1>
+      <p>Unfortunately, Nums is not available in your state due to local regulations regarding skill-based gaming.</p>
+      <p class="code">HTTP 451 - Unavailable For Legal Reasons</p>
+    </div>
+  </body>
+</html>`;
+
 export default function middleware(request: Request) {
   const url = new URL(request.url);
 
-  // Allow blocked page and static assets to pass through
+  // Allow static assets to pass through
   if (
-    url.pathname === '/blocked.html' ||
     url.pathname.startsWith('/assets/') ||
     url.pathname.startsWith('/favicon') ||
     url.pathname.startsWith('/ingest') ||
-    url.pathname.startsWith('/api/')
+    url.pathname.startsWith('/api/') ||
+    url.pathname === '/logo.png'
   ) {
     return;
   }
@@ -31,15 +67,15 @@ export default function middleware(request: Request) {
 
   // Block US users in restricted states
   if (country === 'US' && countryRegion && BLOCKED_STATES.includes(countryRegion)) {
-    return new Response(null, {
-      status: 307,
+    return new Response(BLOCKED_HTML, {
+      status: 451,
       headers: {
-        Location: '/blocked.html',
+        'Content-Type': 'text/html',
       },
     });
   }
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|blocked.html|assets/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets/|logo.png).*)'],
 };

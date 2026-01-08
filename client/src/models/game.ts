@@ -31,6 +31,8 @@ export class GameModel {
     public reward: number,
     public score: number,
     public slots: number[],
+    public usage: bigint,
+    public supply: bigint,
   ) {
     this.identifier = identifier;
     this.id = id;
@@ -48,6 +50,8 @@ export class GameModel {
     this.reward = reward;
     this.score = score;
     this.slots = slots;
+    this.usage = usage;
+    this.supply = supply;
   }
 
   static from(identifier: string, model: any) {
@@ -67,6 +71,8 @@ export class GameModel {
     const reward = Number(model.reward);
     const score = Number(model.score);
     const slots = Packer.sized_unpack(BigInt(model.slots), SLOT_SIZE, 20);
+    const usage = BigInt(model.usage);
+    const supply = BigInt(model.supply);
     return new GameModel(
       identifier,
       id,
@@ -84,6 +90,8 @@ export class GameModel {
       reward,
       score,
       slots,
+      usage,
+      supply,
     );
   }
 
@@ -105,6 +113,8 @@ export class GameModel {
       0,
       0,
       [],
+      0n,
+      0n,
     );
   }
 
@@ -199,6 +209,8 @@ export class GameModel {
       this.reward,
       this.score,
       [...this.slots],
+      this.usage,
+      this.supply,
     );
   }
 }

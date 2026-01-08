@@ -29,19 +29,20 @@ pub mod StarterpackComponent {
             let mut store = StoreImpl::new(world);
             let config = store.config();
             // [Interaction] Register starterpack
-            let starterpack_dispo = store.starterpack_disp();
-            let payment_token = store.nums_disp().contract_address;
+            let starterpack_disp = store.starterpack_disp();
+            let nums_address = store.nums_disp().contract_address;
+            let payment_token = store.quote_disp().contract_address;
             let reissuable = true;
             let referral_percentage = 0;
             let price = config.entry_price.into();
-            let default_id = starterpack_dispo
+            let default_id = starterpack_disp
                 .register(
                     implementation: starknet::get_contract_address(),
                     referral_percentage: 0,
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
-                    metadata: StarterpackTrait::metadata(),
+                    metadata: StarterpackTrait::metadata(nums_address),
                 );
             // [Effect] Create default starterpack
             let default = StarterpackTrait::new(
@@ -52,14 +53,14 @@ pub mod StarterpackComponent {
             let reissuable = false;
             let referral_percentage = 0;
             let price = 0;
-            let free_id = starterpack_dispo
+            let free_id = starterpack_disp
                 .register(
                     implementation: starknet::get_contract_address(),
                     referral_percentage: referral_percentage,
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
-                    metadata: StarterpackTrait::metadata(),
+                    metadata: StarterpackTrait::metadata(nums_address),
                 );
             // [Effect] Create free starterpack
             let free = StarterpackTrait::new(
@@ -85,6 +86,7 @@ pub mod StarterpackComponent {
             config.assert_is_owner(caller);
 
             // [Interaction] Register starterpack
+            let nums_address = store.nums_disp().contract_address;
             let starterpack_id = store
                 .starterpack_disp()
                 .register(
@@ -93,7 +95,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
-                    metadata: StarterpackTrait::metadata(),
+                    metadata: StarterpackTrait::metadata(nums_address),
                 );
 
             // [Effect] Create starterpack
@@ -154,8 +156,10 @@ pub mod StarterpackComponent {
             store.starterpack(starterpack_id).assert_does_exist();
 
             // [Interaction] Update metadata
+            let nums_address = store.nums_disp().contract_address;
             let starterpack_disp = store.starterpack_disp();
-            starterpack_disp.update_metadata(starterpack_id, StarterpackTrait::metadata());
+            starterpack_disp
+                .update_metadata(starterpack_id, StarterpackTrait::metadata(nums_address));
         }
 
         fn remove(

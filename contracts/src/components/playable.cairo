@@ -5,36 +5,27 @@ pub mod PlayableComponent {
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use game_components::minigame::interface::{IMinigameDispatcher, IMinigameDispatcherTrait};
-    use game_components::minigame::libs;
-    use game_components::minigame::libs::{assert_token_ownership, post_action, pre_action};
-    use game_components::token::core::interface::{
-        IMinigameTokenDispatcher, IMinigameTokenDispatcherTrait,
-    };
-    use game_components::token::extensions::minter::interface::{
-        IMinigameTokenMinterDispatcher, IMinigameTokenMinterDispatcherTrait,
-    };
+    use ekubo::components::clear::IClearDispatcherTrait;
+    use ekubo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use ekubo::interfaces::router::{IRouterDispatcherTrait, RouteNode, TokenAmount};
+    use ekubo::types::i129::i129;
+    use ekubo::types::keys::PoolKey;
+    use quest::components::questable::QuestableComponent;
+    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
-    use crate::components::merkledrop::MerkledropComponent;
-    use crate::components::merkledrop::MerkledropComponent::InternalImpl as MerkledropInternalImpl;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
-    use crate::components::tournament::TournamentComponent;
-    use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
-    use crate::constants::{CLIENT_URL, DEFAULT_SETTINGS_ID};
-    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
+    use crate::elements::quests::finisher;
+    use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::leaderboard::LeaderboardTrait;
-    use crate::models::starterpack::StarterpackTrait as PackTrait;
-    use crate::models::tournament::TournamentAssert;
     use crate::models::usage::{UsageAssert, UsageTrait};
     use crate::random::RandomImpl;
-    use crate::systems::minigame::NAME as MINIGAME;
-    use crate::systems::renderer::NAME as RENDERER;
-    use crate::systems::settings::{ISettingsDispatcher, ISettingsDispatcherTrait, NAME as SETTINGS};
+    use crate::systems::collection::{
+        ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
+    };
     use crate::{StoreImpl, StoreTrait};
 
     // Storage
@@ -48,50 +39,12 @@ pub mod PlayableComponent {
     #[derive(Drop, starknet::Event)]
     pub enum Event {}
 
-    // Types
-
-    #[derive(Drop, Copy, Clone, Serde, PartialEq)]
-    pub struct LeafData {
-        pub player_name: felt252,
-        pub quantity: u32,
-    }
-
-    #[generate_trait]
-    pub impl MerkledropImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl Merkledrop: MerkledropComponent::HasComponent<TContractState>,
-    > of MerkledropTrait<TContractState> {
-        fn on_claim(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            recipient: ContractAddress,
-            leaf_data: Span<felt252>,
-        ) {
-            // [Check] Caller is allowed
-            let merkledrop = get_dep_component!(@self, Merkledrop);
-            merkledrop.assert_is_allowed(world);
-
-            // [Check] Merkledrop is valid
-            merkledrop.assert_is_valid(world);
-
-            // [Interaction] Mint a game
-            let mut leaf_data = leaf_data;
-            let data = Serde::<LeafData>::deserialize(ref leaf_data).unwrap();
-            let player_name = data.player_name;
-            let mut quantity = data.quantity;
-            while quantity > 0 {
-                self.mint_game(world, Option::Some(player_name), recipient, false);
-                quantity -= 1;
-            }
-        }
-    }
-
     #[generate_trait]
     pub impl StarterpackImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl Starterpack: StarterpackComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of StarterpackTrait<TContractState> {
         fn on_issue(
             ref self: ComponentState<TContractState>,
@@ -101,7 +54,7 @@ pub mod PlayableComponent {
             mut quantity: u32,
         ) {
             // [Setup] Store
-            let mut store = StoreImpl::new(world);
+            let store = StoreImpl::new(world);
 
             // [Check] Caller is allowed
             let starterpack = get_dep_component!(@self, Starterpack);
@@ -110,11 +63,18 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
+            // [Effect] Quest progression
+            let questable = get_dep_component!(@self, Quest);
+            let task = QuestType::StarterOne;
+            let player = recipient.into();
+            if !questable.is_completed(world, player, task.identifier(), 0) {
+                questable.progress(world, player, task.identifier(), 1, true);
+            }
+
             // [Check] Free game
             let pack = store.starterpack(starterpack_id);
             if !pack.reissuable {
                 // [Check] Free game not already claimed
-                let player = recipient.into();
                 let mut claim = store.claim(player, starterpack_id);
                 claim.assert_not_claimed();
                 // [Effect] Claim free game
@@ -122,24 +82,126 @@ pub mod PlayableComponent {
                 store.set_claim(@claim);
             }
 
-            // [Interaction] Burn the entry price
-            let pack = store.starterpack(starterpack_id);
-            let amount = pack.amount(quantity);
-            store.nums_disp().burn(amount);
-
             // [Interaction] Mint games
-            let settings = store.setting(DEFAULT_SETTINGS_ID);
+            let config = store.config();
+            let usage = store.usage();
+            let nums_supply = store.nums_disp().total_supply();
+            let collection = self.get_collection(world);
             while quantity > 0 {
                 // [Interaction] Mint a game
-                let game_id = self.mint_game(world, Option::None, recipient, true);
+                let game_id = collection.mint(recipient, true);
 
                 // [Effect] Create game
                 let game = GameTrait::new(
-                    game_id, settings.slot_count, settings.slot_min, settings.slot_max,
+                    id: game_id,
+                    slot_count: config.slot_count,
+                    slot_min: config.slot_min,
+                    slot_max: config.slot_max,
+                    usage: usage.board,
+                    supply: nums_supply,
                 );
                 store.set_game(@game);
                 quantity -= 1;
             }
+
+            // [Interaction] Transfer quote token to Ekubo
+            let pack = store.starterpack(starterpack_id);
+            let quote = IERC20Dispatcher { contract_address: pack.payment_token };
+            let quote_address = quote.contract_address;
+            let nums = store.nums_disp();
+            let nums_address = nums.contract_address;
+            let this = starknet::get_contract_address();
+            let amount = quote.balanceOf(this);
+            let router = store.ekubo_router();
+            quote.transfer(router.contract_address, amount);
+
+            // [Interaction] Swap Quote token for Nums
+            let pool_key = PoolKey {
+                token0: quote.contract_address,
+                token1: nums_address,
+                fee: 0x0, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
+                tick_spacing: 0x56a4c,
+                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
+                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
+                extension: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
+                    .try_into()
+                    .unwrap(),
+            };
+            let route_node = RouteNode {
+                pool_key: pool_key, sqrt_ratio_limit: 0x1000003f7f1380b75, skip_ahead: 0,
+            };
+            let token_amount = TokenAmount {
+                token: quote_address, amount: i129 { mag: amount.low, sign: false },
+            };
+            router.swap(route_node, token_amount);
+
+            // [Interaction] Clear minimum
+            let clearer = store.ekubo_clearer();
+            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
+            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
+
+            // [Interaction] Burn the entry price
+            let amount = nums.balance_of(this);
+            nums.burn(amount);
+        }
+    }
+
+    #[generate_trait]
+    pub impl QuestRewarderImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
+    > of QuestRewarderTrait<TContractState> {
+        fn on_quest_complete(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Effect] Update daily quest completions
+            let questable = get_dep_component!(@self, Quest);
+            let player = recipient.into();
+            if quest_id == QuestType::DailyContenderOne.identifier()
+                || quest_id == QuestType::DailyContenderTwo.identifier()
+                || quest_id == QuestType::DailyContenderThree.identifier()
+                || quest_id == QuestType::DailyEarnerOne.identifier()
+                || quest_id == QuestType::DailyEarnerTwo.identifier()
+                || quest_id == QuestType::DailyEarnerThree.identifier()
+                || quest_id == QuestType::DailyPlacerOne.identifier()
+                || quest_id == QuestType::DailyPlacerTwo.identifier()
+                || quest_id == QuestType::DailyPlacerThree.identifier() {
+                questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
+            }
+            // [Effect] Claim quest reward automatically
+        // questable.claim(world, recipient.into(), quest_id, interval_id);
+        }
+
+        fn on_quest_claim(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+            quest_id: felt252,
+            interval_id: u64,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Interaction] Reward player with Nums
+            let quest: QuestType = quest_id.into();
+            let (amount, task) = quest.reward();
+            if amount != 0 {
+                store.nums_disp().reward(recipient, amount);
+            }
+
+            // [Effect] Update achievement progression for daily quest completions
+            if (task == Task::None) {
+                return;
+            }
+            let achievable = get_dep_component!(@self, Achievable);
+            let player: felt252 = recipient.into();
+            achievable.progress(world, player, task.identifier(), 1, true);
         }
     }
 
@@ -148,35 +210,9 @@ pub mod PlayableComponent {
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
-        impl Tournament: TournamentComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
-            // [Event] Initialize all Achievements
-            let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
-            while achievement_id > 0 {
-                let achievement: Achievement = achievement_id.into();
-                let achievable = get_dep_component!(@self, Achievable);
-                achievable
-                    .create(
-                        world,
-                        id: achievement.identifier(),
-                        hidden: achievement.hidden(),
-                        index: achievement.index(),
-                        points: achievement.points(),
-                        start: 0,
-                        end: 0,
-                        group: achievement.group(),
-                        icon: achievement.icon(),
-                        title: achievement.title(),
-                        description: achievement.description(),
-                        tasks: achievement.tasks(),
-                        data: achievement.data(),
-                    );
-                achievement_id -= 1;
-            }
-        }
-
         fn start(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -187,50 +223,48 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Check] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game not started yet
-            let game = store.game(game_id);
+            let mut game = store.game(game_id);
             game.assert_not_started();
 
             // [Effect] Create and setup game
-            let settings = self.get_settings(world).game_setting(game_id);
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let number = rand.between::<u16>(settings.slot_min, settings.slot_max);
-            let mut game = GameTrait::new(
-                game_id, settings.slot_count, settings.slot_min, settings.slot_max,
-            );
+            let number = rand.between::<u16>(game.slot_min, game.slot_max);
 
             // [Check] Powers are valid
-            let usage = UsageTrait::from(0);
+            let usage = UsageTrait::from(game.usage);
             usage.assert_valid_powers(powers);
-            // [Check] Handle default and specific games separately
-            if !self.is_default_game(world, game_id) {
-                // [Effect] Start specific game
-                game.start(0, number, powers);
-            } else {
-                // [Effect] Enter tournament
-                let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
-                let tournament = tournament_component.enter(world);
-                // [Effect] Start tournament game
-                game.start(tournament.id, number, powers);
-                // [Effect] Update achievement progression for the player - Grinder task
-                let player = starknet::get_caller_address();
-                let achievable = get_dep_component!(@self, Achievable);
-                achievable.progress(world, player.into(), Task::Grinder.identifier(), 1);
-                // [Effect] Update usage
-                let mut usage = store.usage();
-                usage.insert(powers);
-                store.set_usage(@usage);
-            }
+
+            // [Effect] Start game
+            game.start(number, powers);
             store.set_game(@game);
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let player = starknet::get_caller_address();
+            let task = Task::Grinder;
+            questable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update quest progression for the player - StarterTwo
+            let task = QuestType::StarterTwo;
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
+
+            // [Effect] Update achievement progression for the player - Grinder task
+            let achievable = get_dep_component!(@self, Achievable);
+            achievable.progress(world, player.into(), task.identifier(), 1, true);
+
+            // [Effect] Update usage
+            let mut usage = store.usage();
+            usage.insert(powers);
+            store.set_usage(@usage);
+
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             (game_id, number)
         }
@@ -243,11 +277,8 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Interaction] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game exists
             let mut game = store.game(game_id);
@@ -264,74 +295,96 @@ pub mod PlayableComponent {
 
             // [Effect] Update game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            game.update(ref rand);
+            let reward = game.update(ref rand, store.config().target_supply);
             store.set_game(@game);
-
-            // [Check] Handle specific games and return prematurely
-            if !self.is_default_game(world, game_id) {
-                // [Interaction] Perform post actions
-                post_action(token_address, game_id);
-
-                // [Return] Game number
-                return game.number;
-            }
-
-            // [Check] Tournament is not over
-            let tournament = store.tournament(game.tournament_id);
-            tournament.assert_not_over();
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
-            store.nums_disp().reward(player, game.reward.into());
+            store.nums_disp().reward(player, reward);
+
+            // [Event] Emit reward event
+            store.reward(game_id, reward);
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Claimer;
+            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Effect] Update quest progression for the player - StarterThree
+            let task = QuestType::StarterThree;
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
+
+            // [Effect] Update quest progression for the player - StarterFour
+            let task = QuestType::StarterFour;
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
+
+            // [Effect] Update quest progression for the player - StarterFive
+            let task = QuestType::StarterFive;
+            if game.over && !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
-            achievable
-                .progress(world, player.into(), Task::Claimer.identifier(), game.reward.into());
-
-            // [Effect] Update leaderboard
-            let mut leaderboard = store.leaderboard(game.tournament_id);
-            let is_first = leaderboard.insert(game, ref store);
-            store.set_leaderboard(@leaderboard);
-
-            // [Effect] Update King achievement if first place
-            if is_first {
-                achievable.progress(world, player.into(), Task::King.identifier(), 1);
-            }
+            let task = Task::Claimer;
+            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
             if filled_slots == 10 {
-                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
+                questable.progress(world, player.into(), Task::FillerTen.identifier(), 1, true);
+            } else if filled_slots == 13 {
+                achievable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerThirteen.identifier(), 1, true);
             } else if filled_slots == 15 {
-                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerTwo.identifier(), 1, true);
+            } else if filled_slots == 16 {
+                questable.progress(world, player.into(), Task::FillerSixteen.identifier(), 1, true);
             } else if filled_slots == 17 {
-                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerThree.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerSeventeen.identifier(), 1, true);
+            } else if filled_slots == 18 {
+                questable
+                    .progress(world, player.into(), Task::FillerEighteen.identifier(), 1, true);
             } else if filled_slots == 19 {
-                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFour.identifier(), 1, true);
+                questable
+                    .progress(world, player.into(), Task::FillerNineteen.identifier(), 1, true);
             } else if filled_slots == 20 {
-                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1);
+                achievable.progress(world, player.into(), Task::FillerFive.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression for the player - Reference tasks
             if target_number == 21 {
-                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1, true);
             } else if target_number == 42 {
-                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1, true);
             } else if target_number == 404 {
-                achievable.progress(world, player.into(), Task::ReferenceThree.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceThree.identifier(), 1, true);
             } else if target_number == 777 {
-                achievable.progress(world, player.into(), Task::ReferenceFour.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFour.identifier(), 1, true);
             } else if target_number == 911 {
-                achievable.progress(world, player.into(), Task::ReferenceFive.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceFive.identifier(), 1, true);
             } else if target_number == 420 {
-                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1);
+                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1, true);
             } else if target_number == 69 {
-                achievable.progress(world, player.into(), Task::ReferenceSeven.identifier(), 1);
+                achievable
+                    .progress(world, player.into(), Task::ReferenceSeven.identifier(), 1, true);
             }
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             // [Return] Next number
             game.number
@@ -345,11 +398,8 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Check] Token ownership
-            let token_address = self.get_minigame(world).token_address();
-            assert_token_ownership(token_address, game_id);
-
-            // [Interaction] Perform pre actions
-            pre_action(token_address, game_id);
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
             // [Check] Game exists
             let mut game = store.game(game_id);
@@ -359,12 +409,6 @@ pub mod PlayableComponent {
             game.assert_has_started();
             game.assert_not_over();
 
-            // [Check] Handle default and specific games separately
-            if self.is_default_game(world, game_id) {
-                let tournament = store.tournament(game.tournament_id);
-                tournament.assert_not_over();
-            }
-
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             game.apply(power, ref rand);
@@ -372,8 +416,8 @@ pub mod PlayableComponent {
             // [Effect] Update game
             store.set_game(@game);
 
-            // [Interaction] Perform post actions
-            post_action(token_address, game_id);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
 
             // [Return] Next number
             game.number
@@ -384,72 +428,11 @@ pub mod PlayableComponent {
     pub impl PrivateImpl<
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
-        #[inline]
-        fn mint_game(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            player_name: Option<felt252>,
-            to: ContractAddress,
-            soulbound: bool,
-        ) -> u64 {
-            let minigame = self.get_minigame(world);
-            let game_address = minigame.contract_address;
-            let collection_address = minigame.token_address();
-            let renderer_address = self.get_renderer_address(world);
-            let token_id = libs::mint(
-                minigame_token_address: collection_address,
-                game_address: game_address,
-                player_name: player_name,
-                settings_id: Option::Some(DEFAULT_SETTINGS_ID),
-                start: Option::None,
-                end: Option::None,
-                objective_ids: Option::None,
-                context: Option::None,
-                client_url: Option::Some(CLIENT_URL()),
-                renderer_address: Option::Some(renderer_address),
-                to: to,
-                soulbound: soulbound,
-            );
-
-            token_id
-        }
-
-        #[inline]
-        fn get_minigame(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> IMinigameDispatcher {
-            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
-            IMinigameDispatcher { contract_address: game_address }
-        }
-
-        #[inline]
-        fn get_renderer_address(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> ContractAddress {
-            let (renderer_address, _) = world.dns(@RENDERER()).expect('Renderer not found!');
-            renderer_address
-        }
-
-        #[inline]
-        fn get_settings(
-            self: @ComponentState<TContractState>, world: WorldStorage,
-        ) -> ISettingsDispatcher {
-            let (settings_address, _) = world.dns(@SETTINGS()).expect('Settings not found!');
-            ISettingsDispatcher { contract_address: settings_address }
-        }
-
-        #[inline]
-        fn is_default_game(
-            self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
-        ) -> bool {
-            let (game_address, _) = world.dns(@MINIGAME()).expect('Minigame not found!');
-            let minigame = IMinigameDispatcher { contract_address: game_address };
-            let token_address = minigame.token_address();
-            let token = IMinigameTokenDispatcher { contract_address: token_address };
-            let token_metadata = token.token_metadata(game_id);
-            let minter = IMinigameTokenMinterDispatcher { contract_address: token_address };
-            let minted_by_address = minter.get_minter_address(token_metadata.minted_by);
-            minted_by_address == starknet::get_contract_address()
+        fn get_collection(
+            ref self: ComponentState<TContractState>, world: WorldStorage,
+        ) -> ICollectionDispatcher {
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            ICollectionDispatcher { contract_address: collection_address }
         }
     }
 }

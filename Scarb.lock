@@ -4,9 +4,10 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
+ "graffiti",
 ]
 
 [[package]]
@@ -65,7 +66,7 @@ dependencies = [
 [[package]]
 name = "collection"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "graffiti",
  "openzeppelin",
@@ -74,7 +75,8 @@ dependencies = [
 [[package]]
 name = "dojo"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:a9c35305a81e68a49de85b8f07c1f8a93e27492c6b16c304d1f7961dcd5d350f"
 dependencies = [
  "dojo_cairo_macros",
 ]
@@ -82,89 +84,22 @@ dependencies = [
 [[package]]
 name = "dojo_cairo_macros"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:c4aa04037a0c5029b05b78229dae22bf02269b9912e8a8c12f8af34aa6b72051"
 
 [[package]]
 name = "dojo_cairo_test"
 version = "1.8.0"
-source = "git+https://github.com/dojoengine/dojo.git?rev=aead87cc#aead87ccf799a8f75dd11744947f28258c68175d"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:0cab4c86390b6ee9c3969b82d27f46ecd7f14e686b9868528506103944638465"
 dependencies = [
  "dojo",
 ]
 
 [[package]]
-name = "game_components"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_test_starknet",
- "game_components_token",
- "game_components_utils",
-]
-
-[[package]]
-name = "game_components_metagame"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_minigame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_minigame"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_test_starknet"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_token",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_token"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "game_components_metagame",
- "game_components_minigame",
- "game_components_test_starknet",
- "game_components_utils",
- "openzeppelin_introspection",
- "openzeppelin_token",
-]
-
-[[package]]
-name = "game_components_utils"
-version = "1.5.1"
-source = "git+https://github.com/bal7hazar/game-components?rev=60b4e21#60b4e21f33559270abf6d6e9b43f5800ac91d0cf"
-dependencies = [
- "alexandria_encoding",
- "game_components_metagame",
- "game_components_minigame",
- "game_components_token",
- "graffiti",
-]
+name = "ekubo"
+version = "0.1.0"
+source = "git+https://github.com/EkuboProtocol/starknet-contracts?rev=cf2e95f#cf2e95fd124bfb19491e1a7da9ffba4b63cc6c4e"
 
 [[package]]
 name = "graffiti"
@@ -174,7 +109,7 @@ source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798eb
 [[package]]
 name = "models"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
  "registry",
@@ -186,12 +121,14 @@ version = "0.1.0"
 dependencies = [
  "achievement",
  "alexandria_encoding",
+ "collection",
  "dojo",
  "dojo_cairo_macros",
  "dojo_cairo_test",
- "game_components",
+ "ekubo",
  "graffiti",
  "openzeppelin",
+ "quest",
  "starterpack",
 ]
 
@@ -314,9 +251,18 @@ source = "registry+https://scarbs.xyz/"
 checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc505"
 
 [[package]]
+name = "quest"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
+dependencies = [
+ "dojo",
+ "graffiti",
+]
+
+[[package]]
 name = "registry"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "collection",
  "dojo",
@@ -326,9 +272,10 @@ dependencies = [
 [[package]]
 name = "starterpack"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=6cb83b6#6cb83b66177b059ffc61cfe1779f26ede6bc7657"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
+ "graffiti",
  "models",
  "openzeppelin",
 ]

@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.15"
+seed = "nums-v1.0.26"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,34 +9,22 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x0759585c5f69cefd47e7e9c1d996060c31341d21bed9d3542644dadc7213a786"
+world_address = "0x11aa166107b68bc42ed50ad08c32ddcc034676fb2f20306b57ddb2df571b0bd"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
 [migration]
-order_inits = [
-    "NUMS-Setup",
-    "NUMS-Minigame",
-    "NUMS-Renderer",
-    "NUMS-Settings",
-    "NUMS-Play",
-]
+order_inits = ["NUMS-Setup", "NUMS-Play", "NUMS-Collection"]
 skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken", "NUMS-MockStarterpack"]
 disable_multicall = true
 
 [writers]
-"NUMS" = [
-    "NUMS-Setup",
-    "NUMS-Minigame",
-    "NUMS-Renderer",
-    "NUMS-Settings",
-    "NUMS-Play",
-]
+"NUMS" = ["NUMS-Play"]
+
+[owners]
+"NUMS" = ["NUMS-Setup", "NUMS-Collection"]
 
 [init_call_args]
-"NUMS-Minigame" = [
-    "0x02334dc9c950c74c3228e2a343d495ae36f0b4edf06767a679569e9f9de08776", # Denshokan address
-]
 "NUMS-Setup" = [
     "0x0",                                                                # Option::Some
     "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",  # nums_address
@@ -44,7 +32,8 @@ disable_multicall = true
     "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
     "0x0",                                                                # Option::Some
     "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
-    "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # forwarder_address
     "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
-    "0x6C6B935B8BBD400000",                                               # entry_price
+    "0xF423F",                                                            # entry_price: 0.990000 USDC
+    "0x6765C793FA10079D0000000",                                          # target_supply - low
+    "0x0",                                                                # target_supply - high
 ]

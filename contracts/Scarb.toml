@@ -11,20 +11,38 @@ sierra = true
 casm = true
 build-external-contracts = [
     "dojo::world::world_contract::world",
+    "achievement::models::index::m_AchievementDefinition",
+    "achievement::models::index::m_AchievementCompletion",
+    "achievement::models::index::m_AchievementAdvancement",
+    "achievement::models::index::m_AchievementAssociation",
     "achievement::events::index::e_TrophyCreation",
     "achievement::events::index::e_TrophyProgression",
+    "achievement::events::index::e_AchievementCompleted",
+    "achievement::events::index::e_AchievementClaimed",
+    "quest::models::index::m_QuestDefinition",
+    "quest::models::index::m_QuestCompletion",
+    "quest::models::index::m_QuestAdvancement",
+    "quest::models::index::m_QuestAssociation",
+    "quest::models::index::m_QuestCondition",
+    "quest::events::index::e_QuestCreation",
+    "quest::events::index::e_QuestProgression",
+    "quest::events::index::e_QuestUnlocked",
+    "quest::events::index::e_QuestCompleted",
+    "quest::events::index::e_QuestClaimed",
 ]
 
 [dependencies]
+collection.workspace = true
 achievement.workspace = true
+quest.workspace = true
 starterpack.workspace = true
-game_components.workspace = true
 graffiti.workspace = true
 openzeppelin.workspace = true
 alexandria_encoding.workspace = true
 dojo.workspace = true
 dojo_cairo_macros.workspace = true
 starknet.workspace = true
+ekubo.workspace = true
 
 [dev-dependencies]
 dojo_cairo_test.workspace = true

@@ -1,13 +1,20 @@
-use crate::elements::powers::interface::{Game, PowerTrait, Random};
+use crate::elements::powers::interface::{Game, GameTrait, PowerTrait, Random};
 
 pub impl Halve of PowerTrait {
     #[inline]
     fn apply(ref game: Game, ref rand: Random) {
-        game.number = game.number / 2;
+        game.number = halve(game.number);
     }
 
     #[inline]
-    fn condition() -> u8 {
-        4
+    fn rescue(game: @Game, slots: @Array<u16>) -> bool {
+        let mut game = *game;
+        game.number = halve(game.number);
+        !game.is_over(slots)
     }
+}
+
+#[inline]
+fn halve(number: u16) -> u16 {
+    number / 2
 }

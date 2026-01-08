@@ -1,3 +1,5 @@
+use starterpack::types::item::ItemTrait;
+use starterpack::types::metadata::MetadataTrait;
 pub use crate::constants::IMAGE;
 use crate::models::index::Starterpack;
 
@@ -44,24 +46,18 @@ pub impl StarterpackImpl of StarterpackTrait {
     }
 
     #[inline]
-    fn metadata() -> ByteArray {
-        let item = "{\"name\":\""
-            + "Game"
-            + "\",\"description\":\""
-            + "A standard game playable on nums.gg"
-            + "\",\"image_uri\":\""
-            + IMAGE()
-            + "\"}";
-        let metadata = "{\"name\":\""
-            + "Nums Starterpack"
-            + "\",\"description\":\""
-            + "This starterpack contains Nums games"
-            + "\",\"image_uri\":\""
-            + IMAGE()
-            + "\",\"items\":["
-            + item
-            + "]}";
-        metadata
+    fn metadata(payment_token: starknet::ContractAddress) -> ByteArray {
+        let item = ItemTrait::new(
+            name: "Game", description: "A standard game playable on nums.gg", image_uri: IMAGE(),
+        );
+        let metadata = MetadataTrait::new(
+            name: "Nums Starterpack",
+            description: "This starterpack contains Nums games",
+            image_uri: IMAGE(),
+            items: array![item].span(),
+            tokens: array![payment_token].span(),
+        );
+        metadata.jsonify()
     }
 
     #[inline]

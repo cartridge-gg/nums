@@ -75,16 +75,10 @@ mod MockNumsToken {
 
     fn dojo_init(ref self: ContractState) {
         self.erc20.initializer("Mock NUMS", "mNUMS");
-
         let mut world = self.world(@NAMESPACE());
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
-
-        // dojo_init is called by the world, we need to use starknet::get_tx_info() to retrieve
-        // deployer account
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
-
         self.accesscontrol.initializer();
-
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
     }
@@ -115,7 +109,6 @@ mod MockNumsToken {
             self.erc20.mint(recipient, amount.into() * TEN_POW_18.into());
             true
         }
-
 
         #[external(v0)]
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {

@@ -17,7 +17,7 @@ import { ControllersProvider } from "./context/controllers";
 import { DojoSdkProviderInitialized } from "./context/dojo";
 import { ModalProvider } from "./context/modal";
 import { TokenPricesProvider } from "./context/tokenPrices";
-import { TournamentProvider } from "./context/tournaments";
+import { EntitiesProvider } from "./context/entities";
 import { Game } from "./pages/Game";
 import { Home } from "./pages/Home";
 import { queryClient } from "./queries";
@@ -115,7 +115,7 @@ function App() {
             <AudioProvider>
               <ConfigProvider>
                 <ControllersProvider>
-                  <TournamentProvider>
+                  <EntitiesProvider>
                     <TokenPricesProvider>
                       <ModalProvider>
                         <Router>
@@ -126,7 +126,7 @@ function App() {
                         </Router>
                       </ModalProvider>
                     </TokenPricesProvider>
-                  </TournamentProvider>
+                  </EntitiesProvider>
                 </ControllersProvider>
               </ConfigProvider>
             </AudioProvider>

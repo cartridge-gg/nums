@@ -2,35 +2,25 @@ import { useAccount, useConnect } from "@starknet-react/core";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addAddressPadding, getChecksumAddress } from "starknet";
-import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
+
+const background = "/assets/tunnel-background.svg";
 import {
   CircleInfoIcon,
   CopyIcon,
-  LiveIcon,
   LogoIcon,
   TrophyIcon,
 } from "@/components/icons";
 import { Close, Inventory } from "@/components/inventory";
-import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
+import { PrizePoolModal } from "@/components/jackpot-details";
 import { Leaderboard } from "@/components/leaderboard";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getNumsAddress } from "@/config";
 import { useModal } from "@/context/modal";
-import { useTournaments } from "@/context/tournaments";
+import { useEntities } from "@/context/entities";
 import useChain from "@/hooks/chain";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useTokenContracts } from "@/hooks/useTokenContracts";
 import { cn } from "@/lib/utils";
-import type { TournamentModel } from "@/models/tournament";
 
 export const Home = () => {
   const { isInventoryOpen, closeInventory } = useModal();
@@ -98,33 +88,10 @@ export const Main = ({
   closeInfo: () => void;
   isInfoClosing: boolean;
 }) => {
-  const { tournaments } = useTournaments();
-  const { prizes } = usePrizesWithUsd();
+  const { config, usage } = useEntities();
   const { isInventoryOpen, openInventory, closeInventory } = useModal();
-  const [selectedTournament, setSelectedTournament] = useState<
-    number | undefined
-  >();
 
-  useEffect(() => {
-    if (
-      !tournaments ||
-      tournaments.length === 0 ||
-      selectedTournament !== undefined
-    )
-      return;
-    const activeTournament = tournaments.find((tournament) =>
-      tournament.isActive(),
-    );
-    setSelectedTournament(activeTournament?.id || tournaments[0].id);
-  }, [tournaments, selectedTournament]);
-
-  const handleSelect = (value: string) => {
-    setSelectedTournament(Number(value));
-  };
-
-  const selectedTournamentPrizes = useMemo(() => {
-    return prizes.filter((p) => p.tournament_id === selectedTournament);
-  }, [prizes, selectedTournament]);
+  console.log({ config, usage });
 
   return (
     <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 pb-[28px] md:px-16 md:py-12 overflow-hidden">
@@ -133,13 +100,7 @@ export const Main = ({
           className="absolute inset-0 z-50 p-2 md:p-6"
           onClick={closeInventory}
         >
-          <Inventory
-            tournament={
-              tournaments?.find(
-                (tournament) => tournament.id === selectedTournament,
-              ) as TournamentModel | undefined
-            }
-          />
+          <Inventory />
         </div>
       )}
       {isInfoOpen && (
@@ -158,19 +119,11 @@ export const Main = ({
           className="w-full absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50 p-2 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <PrizePoolModal
-            prizes={selectedTournamentPrizes}
-            setModal={setPrizePoolModal}
-          />
+          <PrizePoolModal prizes={[]} setModal={setPrizePoolModal} />
         </div>
       )}
       <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4 overflow-hidden">
         <div className="flex justify-between items-center">
-          <JackpotSelector
-            tournaments={tournaments || []}
-            selected={selectedTournament}
-            handleSelect={handleSelect}
-          />
           <div className="flex gap-3">
             <Info
               onClick={(event) => {
@@ -183,26 +136,8 @@ export const Main = ({
             </div>
           </div>
         </div>
-        {!!selectedTournament && (
-          <JackpotDetails
-            tournament={
-              tournaments?.find(
-                (tournament) => tournament.id === selectedTournament,
-              ) as TournamentModel
-            }
-            onOpenPrizeModal={() => setPrizePoolModal(true)}
-          />
-        )}
         <div className="h-full overflow-hidden">
-          {selectedTournament && (
-            <Leaderboard
-              tournament={
-                tournaments?.find(
-                  (tournament) => tournament.id === selectedTournament,
-                ) as TournamentModel
-              }
-            />
-          )}
+          <Leaderboard />
         </div>
         <div className="block md:hidden">
           <Play onClick={openInventory} />
@@ -442,113 +377,5 @@ export const Play = ({ onClick }: { onClick: () => void }) => {
         Play!
       </p>
     </Button>
-  );
-};
-
-export const JackpotSelector = ({
-  tournaments,
-  selected,
-  handleSelect,
-}: {
-  tournaments: TournamentModel[];
-  selected: number | undefined;
-  handleSelect: (value: string) => void;
-}) => {
-  const { prizes } = usePrizesWithUsd();
-  const isNarrow = useMediaQuery("(max-width: 767px)");
-
-  const getTournamentPrizeTotal = (tournamentId: number) => {
-    const tournamentPrizes = prizes.filter(
-      (p) => p.tournament_id === tournamentId,
-    );
-    const total = tournamentPrizes.reduce((sum, prize) => {
-      if (prize.totalUsd) {
-        return sum + parseFloat(prize.totalUsd);
-      }
-      return sum;
-    }, 0);
-    return total > 0 ? `$${total.toFixed(2)}` : "$0.00";
-  };
-
-  const selectedTournament = tournaments.find(
-    (tournament) => tournament.id === selected,
-  );
-
-  return (
-    <Select value={selected?.toString()} onValueChange={handleSelect}>
-      <SelectTrigger className="w-[218px] h-10 rounded-lg gap-2 px-3 py-2 tracking-wide bg-purple-600 border-0 focus:ring-0 focus:outline-none shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_0px_rgba(255,255,255,0.12)]">
-        {selectedTournament ? (
-          <div className="flex items-center gap-2">
-            <TrophyIcon variant="solid" />
-            <span
-              className="text-white text-2xl translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0,0,0,1)" }}
-            >{`Jackpot #${selectedTournament.id}`}</span>
-          </div>
-        ) : (
-          <SelectValue placeholder="Coming soon" />
-        )}
-      </SelectTrigger>
-      <SelectContent
-        fullWidth={isNarrow}
-        className={cn(
-          "max-h-[360px] rounded-lg border-2 border-black-300 px-2 md:px-3 py-0 bg-black-300 backdrop-blur-xl tracking-wide shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
-          isNarrow && "w-full",
-        )}
-      >
-        <div className="flex flex-col gap-2 py-2 md:py-3">
-          {tournaments?.map((tournament) => (
-            <SelectItem
-              key={tournament.id}
-              value={tournament.id.toString()}
-              className={cn(
-                "md:w-[364px] h-10 rounded px-3 py-2 bg-purple-600 focus:bg-purple-500 cursor-pointer justify-between",
-                selected === tournament.id &&
-                  "bg-purple-500 hover:bg-purple-500 pointer-events-none cursor-default",
-              )}
-            >
-              <div className="w-full flex gap-2 justify-between items-center">
-                <div className="flex items-center gap-2">
-                  {tournament.hasStarted() && !tournament.hasEnded() ? (
-                    <div className="animate-pulse p-1 flex justify-center items-center [&_svg]:size-4">
-                      <LiveIcon />
-                    </div>
-                  ) : (
-                    <TrophyIcon variant="solid" />
-                  )}
-                  <span
-                    className="text-white text-2xl translate-y-0.5"
-                    style={{ textShadow: "2px 2px 0px rgba(0,0,0,1)" }}
-                  >{`Jackpot #${tournament.id}`}</span>
-                </div>
-                <div className="leading-[12px] translate-y-0.5 text-lg uppercase">
-                  {tournament.hasEnded() ? (
-                    <span
-                      className="text-purple-300"
-                      style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.25)" }}
-                    >
-                      Completed
-                    </span>
-                  ) : !tournament.hasStarted() ? (
-                    <span
-                      className="text-white-200"
-                      style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.25)" }}
-                    >
-                      Upcoming
-                    </span>
-                  ) : (
-                    <span
-                      style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.25)" }}
-                    >
-                      {getTournamentPrizeTotal(tournament.id)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </SelectItem>
-          ))}
-        </div>
-      </SelectContent>
-    </Select>
   );
 };

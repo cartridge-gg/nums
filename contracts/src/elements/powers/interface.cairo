@@ -3,5 +3,5 @@ pub use crate::random::Random;
 
 pub trait PowerTrait {
     fn apply(ref game: Game, ref rand: Random);
-    fn condition() -> u8;
+    fn rescue(game: @Game, slots: @Array<u16>) -> bool;
 }

@@ -22,18 +22,20 @@
     "test": "vitest run",
     "test:ts": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@cartridge/connector": "0.11.2",
-    "@cartridge/controller": "0.11.2",
-    "@cartridge/presets": "^0.5.2",
-    "@cartridge/ui": "github:cartridge-gg/ui#a823aea",
-    "@dojoengine/core": "1.8.5",
-    "@dojoengine/sdk": "1.8.7",
-    "@dojoengine/torii-client": "1.8.1",
-    "@dojoengine/torii-wasm": "1.8.1",
-    "@dojoengine/utils": "1.8.1",
+    "@cartridge/connector": "catalog:",
+    "@cartridge/controller": "catalog:",
+    "@cartridge/presets": "catalog:",
+    "@cartridge/ui": "catalog:",
+    "@dojoengine/core": "catalog:",
+    "@dojoengine/sdk": "catalog:",
+    "@dojoengine/torii-client": "catalog:",
+    "@dojoengine/torii-wasm": "catalog:",
+    "@dojoengine/utils": "catalog:",
     "@emotion/react": "^11.14.0",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
@@ -106,7 +108,11 @@
     "vite": "^5.4.21",
     "vite-plugin-pwa": "^0.20.5",
     "vite-plugin-vercel": "^9.0.8",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "storybook": "^10.1.11",
+    "@storybook/react-vite": "^10.1.11",
+    "@storybook/addon-links": "^10.1.11",
+    "@storybook/addon-docs": "^10.1.11"
   },
   "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }

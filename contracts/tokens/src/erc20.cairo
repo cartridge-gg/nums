@@ -92,7 +92,9 @@ mod NumsToken {
     #[abi(embed_v0)]
     impl NumsTokenImpl of super::INumsToken<ContractState> {
         fn initialize_access_control(
-            ref self: ContractState, game_contract: ContractAddress, claim_contract: ContractAddress,
+            ref self: ContractState,
+            game_contract: ContractAddress,
+            claim_contract: ContractAddress,
         ) {
             let caller = get_caller_address();
             self.ownable.assert_only_owner();

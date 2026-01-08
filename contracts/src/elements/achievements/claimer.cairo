@@ -1,4 +1,4 @@
-use crate::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
+use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
 
 pub impl Claimer of AchievementTrait {
     fn identifier(level: u8) -> felt252 {
@@ -12,7 +12,6 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
@@ -22,23 +21,20 @@ pub impl Claimer of AchievementTrait {
         false
     }
 
-
     fn points(level: u8) -> u16 {
         match level {
-            0 => 30,
-            1 => 40,
-            2 => 50,
-            3 => 60,
-            4 => 70,
+            0 => 10,
+            1 => 15,
+            2 => 20,
+            3 => 25,
+            4 => 40,
             _ => 0,
         }
     }
 
-
     fn group() -> felt252 {
         'Claimer'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -51,7 +47,6 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'First Million',
@@ -62,7 +57,6 @@ pub impl Claimer of AchievementTrait {
             _ => '',
         }
     }
-
 
     fn description(level: u8) -> ByteArray {
         match level {
@@ -75,14 +69,13 @@ pub impl Claimer of AchievementTrait {
         }
     }
 
-
-    fn tasks(level: u8) -> Span<ArcadeTask> {
+    fn tasks(level: u8) -> Span<AchievementTask> {
         let count: u32 = match level {
-            0 => 1000000,
-            1 => 2000000,
-            2 => 4000000,
-            3 => 8000000,
-            4 => 16000000,
+            0 => 100_000,
+            1 => 200_000,
+            2 => 400_000,
+            3 => 800_000,
+            4 => 1_600_000,
             _ => 0,
         };
         Task::Claimer.tasks(count)

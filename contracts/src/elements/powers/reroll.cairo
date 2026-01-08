@@ -7,7 +7,7 @@ pub impl Reroll of PowerTrait {
     }
 
     #[inline]
-    fn condition() -> u8 {
-        2
+    fn rescue(game: @Game, slots: @Array<u16>) -> bool {
+        true
     }
 }

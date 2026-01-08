@@ -1,4 +1,4 @@
-use crate::elements::achievements::interface::{AchievementTrait, ArcadeTask, Task, TaskTrait};
+use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
 
 pub impl Streak of AchievementTrait {
     fn identifier(level: u8) -> felt252 {
@@ -10,16 +10,13 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn index(level: u8) -> u8 {
         level
     }
 
-
     fn hidden(level: u8) -> bool {
         false
     }
-
 
     fn points(level: u8) -> u16 {
         match level {
@@ -30,11 +27,9 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn group() -> felt252 {
         'Streak'
     }
-
 
     fn icon(level: u8) -> felt252 {
         match level {
@@ -45,7 +40,6 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
     fn title(level: u8) -> felt252 {
         match level {
             0 => 'Double Trouble',
@@ -54,7 +48,6 @@ pub impl Streak of AchievementTrait {
             _ => '',
         }
     }
-
 
     fn description(level: u8) -> ByteArray {
         match level {
@@ -65,8 +58,7 @@ pub impl Streak of AchievementTrait {
         }
     }
 
-
-    fn tasks(level: u8) -> Span<ArcadeTask> {
+    fn tasks(level: u8) -> Span<AchievementTask> {
         let count: u32 = 1;
         match level {
             0 => Task::StreakerOne.tasks(count),

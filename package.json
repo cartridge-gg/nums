@@ -15,9 +15,10 @@
     "format:all": "turbo run format:all",
     "format:check:all": "turbo run format:check:all",
     "type:check": "turbo run type:check",
-    "storybook": "pnpm --filter @cartridge/nums storybook",
-    "storybook:build": "pnpm --filter @cartridge/nums build-storybook",
-    "build-storybook": "pnpm --filter @cartridge/nums build-storybook"
+    "storybook": "cd client && pnpm storybook",
+    "storybook:build": "cd client && pnpm storybook:build",
+    "storybook:serve": "cd client && pnpm storybook:build --quiet && pnpm http-server -c-1 storybook-static --port 6001 --silent",
+    "build-storybook": "cd client && pnpm build-storybook"
   },
   "dependencies": {
     "@bal7hazar/arcade-sdk": "^0.0.74",

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::models::config::{Config, GameConfig, RewardLevel, SlotReward, SlotRewardTrait};
     use starknet::ContractAddress;
+    use crate::models::config::{Config, GameConfig, RewardLevel, SlotReward, SlotRewardTrait};
     fn REWARD(token: ContractAddress) -> SlotReward {
         SlotReward {
             token,

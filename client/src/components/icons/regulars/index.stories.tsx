@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as Icons from "@/components/icons/regulars";
 
 const meta = {
-  title: "Components/Icons/Regulars",
+  title: "Icons/Regulars",
   parameters: {
     layout: "centered",
     backgrounds: {
@@ -24,7 +24,6 @@ const regularIcons = [
   { name: "CheckIcon", component: Icons.CheckIcon },
   { name: "CircleInfoIcon", component: Icons.CircleInfoIcon },
   { name: "CircleQuestionIcon", component: Icons.CircleQuestionIcon },
-  { name: "CloseIcon", component: Icons.CloseIcon },
   { name: "ControllerIcon", component: Icons.ControllerIcon },
   { name: "CopyIcon", component: Icons.CopyIcon },
   { name: "CrownIcon", component: Icons.CrownIcon },

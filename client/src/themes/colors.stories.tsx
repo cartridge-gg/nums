@@ -63,6 +63,13 @@ export const Orange: Story = {
         <Palette color="bg-orange" label="bg-orange" />
         <Palette color="bg-orange-100" label="bg-orange-100" />
         <Palette color="bg-orange-200" label="bg-orange-200" />
+        <Palette color="bg-orange-300" label="bg-orange-300" />
+        <Palette color="bg-orange-400" label="bg-orange-400" />
+        <Palette color="bg-orange-500" label="bg-orange-500" />
+        <Palette color="bg-orange-600" label="bg-orange-600" />
+        <Palette color="bg-orange-700" label="bg-orange-700" />
+        <Palette color="bg-orange-800" label="bg-orange-800" />
+        <Palette color="bg-orange-900" label="bg-orange-900" />
       </div>
     ),
   },
@@ -74,6 +81,14 @@ export const Red: Story = {
       <div className="flex gap-4 flex-wrap">
         <Palette color="bg-red" label="bg-red" />
         <Palette color="bg-red-100" label="bg-red-100" />
+        <Palette color="bg-red-200" label="bg-red-200" />
+        <Palette color="bg-red-300" label="bg-red-300" />
+        <Palette color="bg-red-400" label="bg-red-400" />
+        <Palette color="bg-red-500" label="bg-red-500" />
+        <Palette color="bg-red-600" label="bg-red-600" />
+        <Palette color="bg-red-700" label="bg-red-700" />
+        <Palette color="bg-red-800" label="bg-red-800" />
+        <Palette color="bg-red-900" label="bg-red-900" />
       </div>
     ),
   },
@@ -86,6 +101,13 @@ export const Green: Story = {
         <Palette color="bg-green" label="bg-green" />
         <Palette color="bg-green-100" label="bg-green-100" />
         <Palette color="bg-green-200" label="bg-green-200" />
+        <Palette color="bg-green-300" label="bg-green-300" />
+        <Palette color="bg-green-400" label="bg-green-400" />
+        <Palette color="bg-green-500" label="bg-green-500" />
+        <Palette color="bg-green-600" label="bg-green-600" />
+        <Palette color="bg-green-700" label="bg-green-700" />
+        <Palette color="bg-green-800" label="bg-green-800" />
+        <Palette color="bg-green-900" label="bg-green-900" />
       </div>
     ),
   },
@@ -98,6 +120,13 @@ export const Pink: Story = {
         <Palette color="bg-pink" label="bg-pink" />
         <Palette color="bg-pink-100" label="bg-pink-100" />
         <Palette color="bg-pink-200" label="bg-pink-200" />
+        <Palette color="bg-pink-300" label="bg-pink-300" />
+        <Palette color="bg-pink-400" label="bg-pink-400" />
+        <Palette color="bg-pink-500" label="bg-pink-500" />
+        <Palette color="bg-pink-600" label="bg-pink-600" />
+        <Palette color="bg-pink-700" label="bg-pink-700" />
+        <Palette color="bg-pink-800" label="bg-pink-800" />
+        <Palette color="bg-pink-900" label="bg-pink-900" />
       </div>
     ),
   },
@@ -109,6 +138,14 @@ export const Brown: Story = {
       <div className="flex gap-4 flex-wrap">
         <Palette color="bg-brown" label="bg-brown" />
         <Palette color="bg-brown-100" label="bg-brown-100" />
+        <Palette color="bg-brown-200" label="bg-brown-200" />
+        <Palette color="bg-brown-300" label="bg-brown-300" />
+        <Palette color="bg-brown-400" label="bg-brown-400" />
+        <Palette color="bg-brown-500" label="bg-brown-500" />
+        <Palette color="bg-brown-600" label="bg-brown-600" />
+        <Palette color="bg-brown-700" label="bg-brown-700" />
+        <Palette color="bg-brown-800" label="bg-brown-800" />
+        <Palette color="bg-brown-900" label="bg-brown-900" />
       </div>
     ),
   },

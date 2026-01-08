@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as Icons from "@/components/icons/states";
 
 const meta = {
-  title: "Components/Icons/States",
+  title: "Icons/States",
   parameters: {
     layout: "centered",
     backgrounds: {
@@ -18,7 +18,6 @@ type Story = StoryObj<typeof meta>;
 // Icônes avec variant (solid/line)
 const stateIcons = [
   { name: "TrophyIcon", component: Icons.TrophyIcon },
-  { name: "GiftIcon", component: Icons.GiftIcon },
   { name: "SoundOffIcon", component: Icons.SoundOffIcon },
   { name: "SoundOnIcon", component: Icons.SoundOnIcon },
   { name: "HomeIcon", component: Icons.HomeIcon },

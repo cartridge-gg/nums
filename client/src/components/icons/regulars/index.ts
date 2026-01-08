@@ -5,7 +5,6 @@ export * from "./cartridge";
 export * from "./check";
 export * from "./circle-info";
 export * from "./circle-question";
-export * from "./close";
 export * from "./controller";
 export * from "./copy";
 export * from "./crown";

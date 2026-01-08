@@ -16,6 +16,7 @@ mod MockStarterpack {
             reissuable: bool,
             price: u256,
             payment_token: ContractAddress,
+            payment_receiver: Option<ContractAddress>,
             metadata: ByteArray,
         ) -> u32 {
             0
@@ -29,6 +30,7 @@ mod MockStarterpack {
             reissuable: bool,
             price: u256,
             payment_token: ContractAddress,
+            payment_receiver: Option<ContractAddress>,
         ) {}
 
         fn update_metadata(ref self: ContractState, starterpack_id: u32, metadata: ByteArray) {}

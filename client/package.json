@@ -48,6 +48,7 @@
     "@tanstack/react-db": "^0.1.44",
     "@tanstack/react-query": "^5.90.9",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/functions": "^1.4.0",
     "@vitejs/plugin-react": "^5.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

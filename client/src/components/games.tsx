@@ -1,11 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRightIcon,
-  EyeIcon,
-  LiveIcon,
-  NumsIcon,
-} from "@/components/icons";
+import { ArrowRightIcon, EyeIcon } from "@/components/icons";
+import { LiveIcon, NumsIcon } from "@/components/icons/exotics";
 import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";

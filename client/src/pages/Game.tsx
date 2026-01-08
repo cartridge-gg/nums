@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/header";
 
 const background = "/assets/tunnel-background.svg";
-import { CloseIcon, HomeIcon, PointsIcon } from "@/components/icons";
+import { CloseIcon, HomeIcon } from "@/components/icons";
 import { PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
@@ -916,8 +916,7 @@ export const GameStartHeader = ({
         <p className="text-purple-300 tracking-wider text-lg/6">
           Points remaining
         </p>
-        <div className="h-11 flex gap-2 items-center p-3 md:px-4 md:py-2.5 rounded bg-white-900 border border-white-900 [&_svg]:size-5 md:[&_svg]:size-6">
-          <PointsIcon />
+        <div className="h-11 flex gap-2 items-center p-3 md:px-4 md:py-2.5 rounded bg-white-900 border border-white-900">
           <p className="text-white-100 text-[28px]/[19px] md:text-[36px]/[24px] translate-y-0.5">
             {points}
           </p>
@@ -1031,7 +1030,6 @@ export const GameStartPowerup = ({
       </div>
       <div className="flex gap-4 h-10">
         <div className="h-full flex gap-1 items-center px-3 py-2 rounded bg-white-900 border border-white-900">
-          <PointsIcon size="sm" />
           <p className="text-white-100 text-[28px]/[19px] translate-y-0.5">
             {cost}
           </p>

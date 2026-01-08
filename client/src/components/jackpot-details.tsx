@@ -1,5 +1,5 @@
 import makeBlockie from "ethereum-blockies-base64";
-import { LiveIcon } from "@/components/icons";
+import { LiveIcon } from "@/components/icons/exotics";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

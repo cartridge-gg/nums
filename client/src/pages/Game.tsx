@@ -800,7 +800,7 @@ export const GameOverButton = () => {
         className="gap-1 h-[56px] w-full md:w-[146px]"
       >
         <div className="[&_svg]:size-8">
-          <HomeIcon />
+          <HomeIcon variant="solid" />
         </div>
         <p
           className="text-[28px]/[19px] tracking-wide translate-y-0.5 px-1"

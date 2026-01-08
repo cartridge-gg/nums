@@ -170,10 +170,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
             >
               Continue
             </p>
-            <ArrowRightIcon
-              className="size-6 block md:hidden"
-              variant="solid"
-            />
+            <ArrowRightIcon className="size-6 block md:hidden" />
           </Button>
         ) : !game.over ? (
           <Button
@@ -186,10 +183,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
             >
               Play!
             </p>
-            <ArrowRightIcon
-              className="text-brown-100 block md:hidden"
-              variant="solid"
-            />
+            <ArrowRightIcon className="text-brown-100 block md:hidden" />
           </Button>
         ) : (
           <Button
@@ -202,7 +196,7 @@ export const GameDetails = ({ game }: { game: GameModel }) => {
             >
               View
             </p>
-            <EyeIcon className="size-6 block md:hidden" variant="solid" />
+            <EyeIcon className="size-6 block md:hidden" />
           </Button>
         )}
       </Link>

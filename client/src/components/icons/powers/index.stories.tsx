@@ -102,6 +102,12 @@ const powers = [
     used: Icons.SquareUpUsedIcon,
   },
   {
+    name: "Swap",
+    normal: Icons.SwapIcon,
+    locked: Icons.SwapLockedIcon,
+    used: Icons.SwapUsedIcon,
+  },
+  {
     name: "Wildcard",
     normal: Icons.WildcardIcon,
     locked: Icons.WildcardLockedIcon,

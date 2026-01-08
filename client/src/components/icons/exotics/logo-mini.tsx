@@ -1,5 +1,5 @@
 import { forwardRef, memo } from "react";
-import type { IconProps } from "..";
+import { iconVariants, type IconProps } from "..";
 
 export const LogoMiniIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
@@ -10,6 +10,7 @@ export const LogoMiniIcon = memo(
         viewBox="0 0 20 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        className={iconVariants({ size, className })}
         {...props}
       >
         <path

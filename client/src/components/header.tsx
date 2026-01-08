@@ -77,7 +77,11 @@ export const Sound = () => {
       onClick={() => toggleMute()}
       className="h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8"
     >
-      {isMuted ? <SoundOffIcon size="lg" /> : <SoundOnIcon size="lg" />}
+      {isMuted ? (
+        <SoundOffIcon size="lg" variant="solid" />
+      ) : (
+        <SoundOnIcon size="lg" variant="solid" />
+      )}
     </Button>
   );
 };

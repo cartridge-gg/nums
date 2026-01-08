@@ -40,11 +40,7 @@ export const JackpotDetails = ({
         </div>
       </div>
       <div className="flex flex-row-reverse gap-2 justify-between items-center max-h-3 translate-y-0.5">
-        <div
-          className={cn(
-            "flex gap-2 items-center",
-          )}
-        >
+        <div className={cn("flex gap-2 items-center")}>
           <div className="animate-pulse hidden md:block">
             <LiveIcon />
           </div>
@@ -60,7 +56,14 @@ export const JackpotDetails = ({
   );
 };
 
-export const PrizePoolTokens = ({ prizes }: { prizes: { address: string, metadata: { name: string, symbol: string, logoUrl: string } }[] }) => {
+export const PrizePoolTokens = ({
+  prizes,
+}: {
+  prizes: {
+    address: string;
+    metadata: { name: string; symbol: string; logoUrl: string };
+  }[];
+}) => {
   return (
     <div className="select-none flex justify-center items-center bg-purple-600 rounded-full p-0.5">
       {prizes.map((prize, index) => (
@@ -87,7 +90,12 @@ export const PrizePoolModal = ({
   prizes,
   setModal,
 }: {
-  prizes: { address: string, metadata: { name: string, symbol: string, logoUrl: string }, formattedAmount: string, totalUsd: string }[];
+  prizes: {
+    address: string;
+    metadata: { name: string; symbol: string; logoUrl: string };
+    formattedAmount: string;
+    totalUsd: string;
+  }[];
   setModal: (modal: boolean) => void;
 }) => {
   return (

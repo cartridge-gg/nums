@@ -8,7 +8,9 @@ function Colors(props: PropsWithChildren) {
 function Palette({ color, label }: { color: string; label: string }) {
   return (
     <div className="size-36 flex flex-shrink-0 flex-col rounded-lg overflow-hidden">
-      <div className={`${color} h-2/3 flex justify-center items-center font-secondary text-base`}>
+      <div
+        className={`${color} h-2/3 flex justify-center items-center font-secondary text-base`}
+      >
         {window
           .getComputedStyle(document.documentElement)
           .getPropertyValue(color.replace("bg", "-"))}

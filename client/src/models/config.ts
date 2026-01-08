@@ -48,11 +48,37 @@ export class ConfigModel {
     const slot_count = Number(model.slot_count);
     const slot_min = Number(model.slot_min);
     const slot_max = Number(model.slot_max);
-    return new ConfigModel(identifier, world_resource, nums, vrf, starterpack, owner, entry_price, target_supply, count, slot_count, slot_min, slot_max);
+    return new ConfigModel(
+      identifier,
+      world_resource,
+      nums,
+      vrf,
+      starterpack,
+      owner,
+      entry_price,
+      target_supply,
+      count,
+      slot_count,
+      slot_min,
+      slot_max,
+    );
   }
 
   static default(identifier: string) {
-    return new ConfigModel(identifier, "0x0", "0x0", "0x0", "0x0", "0x0", 0n, 0n, 0, 0, 0, 0);
+    return new ConfigModel(
+      identifier,
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      0n,
+      0n,
+      0,
+      0,
+      0,
+      0,
+    );
   }
 
   static isType(model: ConfigModel) {

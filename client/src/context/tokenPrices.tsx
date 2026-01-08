@@ -25,7 +25,11 @@ const fetchTokenUsdPrice = async (
   tokenAddress: string,
 ): Promise<string | null> => {
   try {
-    const swap = await getSwapQuote(100n * 10n ** 18n, tokenAddress, USDC_ADDRESS);
+    const swap = await getSwapQuote(
+      100n * 10n ** 18n,
+      tokenAddress,
+      USDC_ADDRESS,
+    );
     const price = (swap.total / 1e6 / 100).toString();
     return price;
   } catch (error) {

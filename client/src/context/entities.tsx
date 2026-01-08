@@ -1,10 +1,7 @@
 import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
 import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
 import { createContext, useContext, useMemo } from "react";
-import type {
-  Config as ConfigEntity,
-  Usage as UsageEntity,
-} from "@/bindings";
+import type { Config as ConfigEntity, Usage as UsageEntity } from "@/bindings";
 import { NAMESPACE } from "@/config";
 import { Usage, UsageModel } from "@/models/usage";
 import { Config, ConfigModel } from "@/models/config";
@@ -33,14 +30,14 @@ const usageQuery = new ToriiQueryBuilder()
   .includeHashedKeys();
 
 const configQuery = new ToriiQueryBuilder()
-.withEntityModels([`${NAMESPACE}-${Config.getModelName()}`])
-.withClause(
-  new ClauseBuilder()
-    .keys([`${NAMESPACE}-${Config.getModelName()}`], [undefined], "FixedLen")
-    .build(),
-)
-.withLimit(1)
-.includeHashedKeys();
+  .withEntityModels([`${NAMESPACE}-${Config.getModelName()}`])
+  .withClause(
+    new ClauseBuilder()
+      .keys([`${NAMESPACE}-${Config.getModelName()}`], [undefined], "FixedLen")
+      .build(),
+  )
+  .withLimit(1)
+  .includeHashedKeys();
 
 export function EntitiesProvider({
   children,
@@ -53,9 +50,7 @@ export function EntitiesProvider({
   const usage = useMemo(() => {
     const usages = Object.keys(usageItems).flatMap((key) => {
       const items = usageItems[key] as UsageEntity[];
-      return Object.values(items).map((entity) =>
-        UsageModel.from(key, entity),
-      );
+      return Object.values(items).map((entity) => UsageModel.from(key, entity));
     });
     return usages[0];
   }, [usageItems]);
@@ -72,10 +67,7 @@ export function EntitiesProvider({
   }, [configItems]);
 
   return (
-    <EntitiesProviderContext.Provider
-      {...props}
-      value={{ config, usage, }}
-    >
+    <EntitiesProviderContext.Provider {...props} value={{ config, usage }}>
       {children}
     </EntitiesProviderContext.Provider>
   );

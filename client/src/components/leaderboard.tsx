@@ -57,8 +57,8 @@ const DATA = [
     game_id: 4,
     prize: 70,
     share: 70,
-  }
-]
+  },
+];
 
 const EmptyLeaderboard = () => {
   return (

@@ -90,7 +90,7 @@ export const Main = ({
   const { config, usage } = useEntities();
   const { isInventoryOpen, openInventory, closeInventory } = useModal();
 
-  console.log({config, usage});
+  console.log({ config, usage });
 
   return (
     <div className="relative grow w-full bg-[linear-gradient(180deg,rgba(0,0,0,0.32)_0%,rgba(0,0,0,0.12)_100%)] p-4 pb-[28px] md:px-16 md:py-12 overflow-hidden">
@@ -118,10 +118,7 @@ export const Main = ({
           className="w-full absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/4 z-50 p-2 flex justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <PrizePoolModal
-            prizes={[]}
-            setModal={setPrizePoolModal}
-          />
+          <PrizePoolModal prizes={[]} setModal={setPrizePoolModal} />
         </div>
       )}
       <div className="h-full max-w-[784px] mx-auto flex flex-col gap-4 overflow-hidden">

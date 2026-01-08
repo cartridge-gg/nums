@@ -89,11 +89,7 @@ export const useTournamentGames = (tournamentId: number) => {
   const query = useQuery({
     queryKey: ["tournamentGames", tournamentId, chain.id.toString()],
     queryFn: async () => {
-      return await executeSqlQuery(
-        toriiUrl,
-        collectionAddress,
-        tournamentId,
-      );
+      return await executeSqlQuery(toriiUrl, collectionAddress, tournamentId);
     },
     staleTime: 30000, // 30 seconds
     gcTime: 60000, // 1 minute

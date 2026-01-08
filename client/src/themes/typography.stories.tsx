@@ -49,7 +49,10 @@ export const Primary: Story = {
   args: {
     children: (
       <div className="flex gap-4 w-full overflow-hidden max-h-screen">
-        <div className="flex flex-col gap-4 text-white w-full overflow-y-scroll h-full" style={{ scrollbarWidth: "none" }}>
+        <div
+          className="flex flex-col gap-4 text-white w-full overflow-y-scroll h-full"
+          style={{ scrollbarWidth: "none" }}
+        >
           <Title
             name="Text 10XL"
             label="PixelGame - Regular - 136pt"

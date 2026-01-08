@@ -30,7 +30,7 @@ export const Header = () => {
       variant: "error",
       message: "Transaction failed",
     });
-  }
+  };
 
   return (
     <div className="w-full min-h-16 md:min-h-24 max-h-24 px-3 md:px-8 flex items-center justify-between border-b border-[rgba(0,0,0,0.24)] bg-[linear-gradient(0deg,rgba(0,0,0,0.24)_0%,rgba(0,0,0,0.16)_100%)]">

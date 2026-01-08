@@ -50,25 +50,6 @@ pub mod StarterpackComponent {
                 default_id, reissuable, referral_percentage, price, payment_token,
             );
             store.set_starterpack(@default);
-            // [Interaction] Register free starterpack
-            let reissuable = false;
-            let referral_percentage = 0;
-            let price = 0;
-            let free_id = starterpack_disp
-                .register(
-                    implementation: starknet::get_contract_address(),
-                    referral_percentage: referral_percentage,
-                    reissuable: reissuable,
-                    price: price,
-                    payment_token: payment_token,
-                    payment_receiver: None,
-                    metadata: StarterpackTrait::metadata(nums_address),
-                );
-            // [Effect] Create free starterpack
-            let free = StarterpackTrait::new(
-                free_id, reissuable, referral_percentage, price, payment_token,
-            );
-            store.set_starterpack(@free);
         }
 
         fn register(

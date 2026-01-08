@@ -170,9 +170,9 @@ export const Row = ({
     >
       <p className="truncate md:hidden" title={`Rank #${item.rank}`}>
         {item.rank === 1 && prize ? (
-          <CrownIcon variant="solid" />
+          <CrownIcon />
         ) : prize ? (
-          <LaurelIcon variant="solid" />
+          <LaurelIcon />
         ) : (
           item.rank
         )}
@@ -182,9 +182,9 @@ export const Row = ({
       </p>
       <div className="flex items-center gap-1.5">
         {item.rank === 1 && prize ? (
-          <CrownIcon variant="solid" className="hidden md:block" />
+          <CrownIcon className="hidden md:block" />
         ) : prize ? (
-          <LaurelIcon variant="solid" className="hidden md:block" />
+          <LaurelIcon className="hidden md:block" />
         ) : null}
         <p className="truncate" title={item.username}>
           {item.username}

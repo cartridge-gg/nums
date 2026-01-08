@@ -1,0 +1,11 @@
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for(const registration of registrations) {
+        registration.unregister();
+        console.log('Service Worker unregistered');
+      }
+    });
+  }
+</script>

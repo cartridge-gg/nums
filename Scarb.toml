@@ -8,12 +8,13 @@ version = "0.0.0"
 edition = "2024_07"
 
 [workspace.dependencies]
-achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "00209a2" }
-starterpack = { git = "https://github.com/cartridge-gg/arcade", rev = "00209a2" }
-leaderboard = { git = "https://github.com/cartridge-gg/arcade", rev = "00209a2" }
-collection = { git = "https://github.com/cartridge-gg/arcade", rev = "00209a2" }
-quest = { git = "https://github.com/cartridge-gg/arcade", rev = "00209a2" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "e3c5c27" }
+starterpack = { git = "https://github.com/cartridge-gg/arcade", rev = "e3c5c27" }
+leaderboard = { git = "https://github.com/cartridge-gg/arcade", rev = "e3c5c27" }
+collection = { git = "https://github.com/cartridge-gg/arcade", rev = "e3c5c27" }
+quest = { git = "https://github.com/cartridge-gg/arcade", rev = "e3c5c27" }
 graffiti = { git = "https://github.com/bal7hazar/graffiti.git", rev = "e8b0854" }
+ekubo = { git = "https://github.com/EkuboProtocol/starknet-contracts", rev = "cf2e95f" }
 dojo = "1.8.0"
 dojo_cairo_macros = "1.8.0"
 dojo_cairo_test = "1.8.0"

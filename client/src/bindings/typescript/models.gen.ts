@@ -1,6 +1,6 @@
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
-import { CairoCustomEnum, CairoOption, CairoOptionVariant, BigNumberish } from 'starknet';
+import { CairoCustomEnum, BigNumberish } from 'starknet';
 
 // Type definition for `achievement::models::index::AchievementAdvancement` struct
 export interface AchievementAdvancement {
@@ -58,6 +58,9 @@ export interface Config {
 	entry_price: BigNumberish;
 	target_supply: BigNumberish;
 	count: BigNumberish;
+	slot_count: BigNumberish;
+	slot_min: BigNumberish;
+	slot_max: BigNumberish;
 }
 
 // Type definition for `nums::models::index::Game` struct
@@ -71,55 +74,13 @@ export interface Game {
 	slot_max: BigNumberish;
 	number: BigNumberish;
 	next_number: BigNumberish;
-	tournament_id: BigNumberish;
 	selected_powers: BigNumberish;
 	available_powers: BigNumberish;
 	score: BigNumberish;
 	reward: BigNumberish;
 	slots: BigNumberish;
-}
-
-// Type definition for `nums::models::index::Leaderboard` struct
-export interface Leaderboard {
-	tournament_id: BigNumberish;
-	capacity: BigNumberish;
-	requirement: BigNumberish;
-	games: Array<BigNumberish>;
-}
-
-// Type definition for `nums::models::index::Merkledrop` struct
-export interface Merkledrop {
-	id: BigNumberish;
-	active: boolean;
-	end: BigNumberish;
-}
-
-// Type definition for `nums::models::index::Prize` struct
-export interface Prize {
-	tournament_id: BigNumberish;
-	address: BigNumberish;
-	amount: BigNumberish;
-}
-
-// Type definition for `nums::models::index::Reward` struct
-export interface Reward {
-	tournament_id: BigNumberish;
-	address: BigNumberish;
-	game_id: BigNumberish;
-	claimed: boolean;
-}
-
-// Type definition for `nums::models::index::Setting` struct
-export interface Setting {
-	id: BigNumberish;
-	slot_count: BigNumberish;
-	slot_min: BigNumberish;
-	slot_max: BigNumberish;
-	powers: BigNumberish;
-	name: string;
-	description: string;
-	created_by: string;
-	created_at: BigNumberish;
+	usage: BigNumberish;
+	supply: BigNumberish;
 }
 
 // Type definition for `nums::models::index::Starterpack` struct
@@ -129,16 +90,6 @@ export interface Starterpack {
 	referral_percentage: BigNumberish;
 	price: BigNumberish;
 	payment_token: string;
-}
-
-// Type definition for `nums::models::index::Tournament` struct
-export interface Tournament {
-	id: BigNumberish;
-	powers: BigNumberish;
-	entry_count: BigNumberish;
-	start_time: BigNumberish;
-	end_time: BigNumberish;
-	usage: BigNumberish;
 }
 
 // Type definition for `nums::models::index::Usage` struct
@@ -237,17 +188,8 @@ export interface TrophyProgression {
 	time: BigNumberish;
 }
 
-// Type definition for `leaderboard::events::index::LeaderboardScore` struct
-export interface LeaderboardScore {
-	leaderboard_id: BigNumberish;
-	game_id: BigNumberish;
-	player: BigNumberish;
-	score: BigNumberish;
-	timestamp: BigNumberish;
-}
-
-// Type definition for `nums::events::index::GameReward` struct
-export interface GameReward {
+// Type definition for `nums::events::index::Reward` struct
+export interface Reward {
 	game_id: BigNumberish;
 	reward: BigNumberish;
 }
@@ -291,37 +233,15 @@ export interface QuestUnlocked {
 	time: BigNumberish;
 }
 
-// Type definition for `game_components_metagame::extensions::context::structs::GameContext` struct
-export interface GameContext {
-	name: string;
-	value: string;
+// Type definition for `collection::components::erc4906::erc4906::ERC4906Component::BatchMetadataUpdate` struct
+export interface BatchMetadataUpdate {
+	from_token_id: BigNumberish;
+	to_token_id: BigNumberish;
 }
 
-// Type definition for `game_components_metagame::extensions::context::structs::GameContextDetails` struct
-export interface GameContextDetails {
-	name: string;
-	description: string;
-	id: CairoOption<BigNumberish>;
-	context: Array<GameContext>;
-}
-
-// Type definition for `game_components_minigame::extensions::settings::structs::GameSetting` struct
-export interface GameSetting {
-	name: string;
-	value: string;
-}
-
-// Type definition for `game_components_minigame::extensions::settings::structs::GameSettingDetails` struct
-export interface GameSettingDetails {
-	name: string;
-	description: string;
-	settings: Array<GameSetting>;
-}
-
-// Type definition for `game_components_minigame::structs::GameDetail` struct
-export interface GameDetail {
-	name: string;
-	value: string;
+// Type definition for `collection::components::erc4906::erc4906::ERC4906Component::MetadataUpdate` struct
+export interface MetadataUpdate {
+	token_id: BigNumberish;
 }
 
 // Type definition for `openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged` struct
@@ -353,6 +273,18 @@ export interface RoleRevoked {
 	sender: string;
 }
 
+// Type definition for `openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted` struct
+export interface OwnershipTransferStarted {
+	previous_owner: string;
+	new_owner: string;
+}
+
+// Type definition for `openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred` struct
+export interface OwnershipTransferred {
+	previous_owner: string;
+	new_owner: string;
+}
+
 // Type definition for `openzeppelin_token::erc20::erc20::ERC20Component::Approval` struct
 export interface Approval {
 	owner: string;
@@ -365,6 +297,27 @@ export interface Transfer {
 	from: string;
 	to: string;
 	value: BigNumberish;
+}
+
+// Type definition for `openzeppelin_token::erc721::erc721::ERC721Component::Approval` struct
+export interface Approval {
+	owner: string;
+	approved: string;
+	token_id: BigNumberish;
+}
+
+// Type definition for `openzeppelin_token::erc721::erc721::ERC721Component::ApprovalForAll` struct
+export interface ApprovalForAll {
+	owner: string;
+	operator: string;
+	approved: boolean;
+}
+
+// Type definition for `openzeppelin_token::erc721::erc721::ERC721Component::Transfer` struct
+export interface Transfer {
+	from: string;
+	to: string;
+	token_id: BigNumberish;
 }
 
 // Type definition for `nums::interfaces::vrf::Source` enum
@@ -385,13 +338,7 @@ export interface SchemaType extends ISchemaType {
 		Claim: Claim,
 		Config: Config,
 		Game: Game,
-		Leaderboard: Leaderboard,
-		Merkledrop: Merkledrop,
-		Prize: Prize,
-		Reward: Reward,
-		Setting: Setting,
 		Starterpack: Starterpack,
-		Tournament: Tournament,
 		Usage: Usage,
 		QuestAdvancement: QuestAdvancement,
 		QuestAssociation: QuestAssociation,
@@ -402,24 +349,23 @@ export interface SchemaType extends ISchemaType {
 		AchievementCompleted: AchievementCompleted,
 		TrophyCreation: TrophyCreation,
 		TrophyProgression: TrophyProgression,
-		LeaderboardScore: LeaderboardScore,
-		GameReward: GameReward,
+		Reward: Reward,
 		QuestClaimed: QuestClaimed,
 		QuestCompleted: QuestCompleted,
 		QuestCreation: QuestCreation,
 		QuestProgression: QuestProgression,
 		QuestUnlocked: QuestUnlocked,
-		GameContext: GameContext,
-		GameContextDetails: GameContextDetails,
-		GameSetting: GameSetting,
-		GameSettingDetails: GameSettingDetails,
-		GameDetail: GameDetail,
+		BatchMetadataUpdate: BatchMetadataUpdate,
+		MetadataUpdate: MetadataUpdate,
 		RoleAdminChanged: RoleAdminChanged,
 		RoleGranted: RoleGranted,
 		RoleGrantedWithDelay: RoleGrantedWithDelay,
 		RoleRevoked: RoleRevoked,
+		OwnershipTransferStarted: OwnershipTransferStarted,
+		OwnershipTransferred: OwnershipTransferred,
 		Approval: Approval,
 		Transfer: Transfer,
+		ApprovalForAll: ApprovalForAll,
 	},
 }
 export const schema: SchemaType = {
@@ -467,6 +413,9 @@ export const schema: SchemaType = {
 			entry_price: 0,
 		target_supply: 0,
 			count: 0,
+			slot_count: 0,
+			slot_min: 0,
+			slot_max: 0,
 		},
 		Game: {
 			id: 0,
@@ -478,45 +427,13 @@ export const schema: SchemaType = {
 			slot_max: 0,
 			number: 0,
 			next_number: 0,
-			tournament_id: 0,
 			selected_powers: 0,
 			available_powers: 0,
 			score: 0,
 			reward: 0,
 			slots: 0,
-		},
-		Leaderboard: {
-			tournament_id: 0,
-			capacity: 0,
-			requirement: 0,
-			games: [0],
-		},
-		Merkledrop: {
-			id: 0,
-			active: false,
-			end: 0,
-		},
-		Prize: {
-			tournament_id: 0,
-			address: 0,
-			amount: 0,
-		},
-		Reward: {
-			tournament_id: 0,
-			address: 0,
-			game_id: 0,
-			claimed: false,
-		},
-		Setting: {
-			id: 0,
-			slot_count: 0,
-			slot_min: 0,
-			slot_max: 0,
-			powers: 0,
-		name: "",
-		description: "",
-			created_by: "",
-			created_at: 0,
+			usage: 0,
+			supply: 0,
 		},
 		Starterpack: {
 			id: 0,
@@ -524,14 +441,6 @@ export const schema: SchemaType = {
 			referral_percentage: 0,
 		price: 0,
 			payment_token: "",
-		},
-		Tournament: {
-			id: 0,
-			powers: 0,
-			entry_count: 0,
-			start_time: 0,
-			end_time: 0,
-			usage: 0,
 		},
 		Usage: {
 			world_resource: 0,
@@ -602,14 +511,7 @@ export const schema: SchemaType = {
 			count: 0,
 			time: 0,
 		},
-		LeaderboardScore: {
-			leaderboard_id: 0,
-			game_id: 0,
-			player: 0,
-			score: 0,
-			timestamp: 0,
-		},
-		GameReward: {
+		Reward: {
 			game_id: 0,
 			reward: 0,
 		},
@@ -642,28 +544,12 @@ export const schema: SchemaType = {
 			interval_id: 0,
 			time: 0,
 		},
-		GameContext: {
-		name: "",
-		value: "",
+		BatchMetadataUpdate: {
+		from_token_id: 0,
+		to_token_id: 0,
 		},
-		GameContextDetails: {
-		name: "",
-		description: "",
-			id: new CairoOption(CairoOptionVariant.None),
-			context: [{ name: "", value: "", }],
-		},
-		GameSetting: {
-		name: "",
-		value: "",
-		},
-		GameSettingDetails: {
-		name: "",
-		description: "",
-			settings: [{ name: "", value: "", }],
-		},
-		GameDetail: {
-		name: "",
-		value: "",
+		MetadataUpdate: {
+		token_id: 0,
 		},
 		RoleAdminChanged: {
 			role: 0,
@@ -686,15 +572,31 @@ export const schema: SchemaType = {
 			account: "",
 			sender: "",
 		},
+		OwnershipTransferStarted: {
+			previous_owner: "",
+			new_owner: "",
+		},
+		OwnershipTransferred: {
+			previous_owner: "",
+			new_owner: "",
+		},
+		ApprovalForAll: {
+			owner: "",
+			operator: "",
+			approved: false,
+		},
 		Approval: {
 			owner: "",
+			approved: "",
+			token_id: 0,
 			spender: "",
-		value: 0,
+			value: 0,
 		},
 		Transfer: {
 			from: "",
 			to: "",
-		value: 0,
+			token_id: 0,
+			value: 0,
 		},
 	},
 };
@@ -703,16 +605,11 @@ export enum ModelsMapping {
 	AchievementAssociation = 'achievement-AchievementAssociation',
 	AchievementCompletion = 'achievement-AchievementCompletion',
 	AchievementDefinition = 'achievement-AchievementDefinition',
+	Task = 'achievement-Task',
 	Claim = 'nums-Claim',
 	Config = 'nums-Config',
 	Game = 'nums-Game',
-	Leaderboard = 'nums-Leaderboard',
-	Merkledrop = 'nums-Merkledrop',
-	Prize = 'nums-Prize',
-	Reward = 'nums-Reward',
-	Setting = 'nums-Setting',
 	Starterpack = 'nums-Starterpack',
-	Tournament = 'nums-Tournament',
 	Usage = 'nums-Usage',
 	QuestAdvancement = 'quest-QuestAdvancement',
 	QuestAssociation = 'quest-QuestAssociation',
@@ -723,23 +620,23 @@ export enum ModelsMapping {
 	AchievementCompleted = 'achievement-AchievementCompleted',
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyProgression = 'achievement-TrophyProgression',
-	LeaderboardScore = 'leaderboard-LeaderboardScore',
-	GameReward = 'nums-GameReward',
+	Reward = 'nums-Reward',
 	QuestClaimed = 'quest-QuestClaimed',
 	QuestCompleted = 'quest-QuestCompleted',
 	QuestCreation = 'quest-QuestCreation',
 	QuestProgression = 'quest-QuestProgression',
 	QuestUnlocked = 'quest-QuestUnlocked',
-	GameContext = 'game_components_metagame-GameContext',
-	GameContextDetails = 'game_components_metagame-GameContextDetails',
-	GameSetting = 'game_components_minigame-GameSetting',
-	GameSettingDetails = 'game_components_minigame-GameSettingDetails',
-	GameDetail = 'game_components_minigame-GameDetail',
+	BatchMetadataUpdate = 'collection-BatchMetadataUpdate',
+	MetadataUpdate = 'collection-MetadataUpdate',
+	ContractURIUpdated = 'collection-ContractURIUpdated',
 	Source = 'nums-Source',
 	RoleAdminChanged = 'openzeppelin_access-RoleAdminChanged',
 	RoleGranted = 'openzeppelin_access-RoleGranted',
 	RoleGrantedWithDelay = 'openzeppelin_access-RoleGrantedWithDelay',
 	RoleRevoked = 'openzeppelin_access-RoleRevoked',
+	OwnershipTransferStarted = 'openzeppelin_access-OwnershipTransferStarted',
+	OwnershipTransferred = 'openzeppelin_access-OwnershipTransferred',
 	Approval = 'openzeppelin_token-Approval',
 	Transfer = 'openzeppelin_token-Transfer',
+	ApprovalForAll = 'openzeppelin_token-ApprovalForAll',
 }

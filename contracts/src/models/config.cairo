@@ -1,4 +1,5 @@
 use starknet::ContractAddress;
+use crate::constants;
 pub use crate::models::index::Config;
 
 pub mod errors {
@@ -28,6 +29,9 @@ pub impl ConfigImpl of ConfigTrait {
             entry_price: entry_price,
             target_supply: target_supply,
             count: 0,
+            slot_count: constants::DEFAULT_SLOT_COUNT,
+            slot_min: constants::DEFAULT_SLOT_MIN,
+            slot_max: constants::DEFAULT_SLOT_MAX,
         }
     }
 

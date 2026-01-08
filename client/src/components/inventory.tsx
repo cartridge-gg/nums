@@ -4,18 +4,16 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CloseIcon } from "@/components/icons";
 import { useModal } from "@/context/modal";
-import { Formatter } from "@/helpers";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 import { useStarterpackPrice } from "@/hooks/useStarterpackPrice";
 import { useStarterpacks } from "@/hooks/useStarterpacks";
-import type { TournamentModel } from "@/models/tournament";
 import { Games } from "./games";
 import { Button } from "./ui/button";
 
 export type InventoryProps = {};
 
-export const Inventory = ({ tournament }: { tournament?: TournamentModel }) => {
+export const Inventory = () => {
   const { isInventoryClosing, closeInventory, finalizeCloseInventory } =
     useModal();
   const { gameIds } = usePlayerGames();
@@ -65,10 +63,9 @@ export const Inventory = ({ tournament }: { tournament?: TournamentModel }) => {
         <Close close={closeInventory} />
         <div className="max-w-[784px] mx-auto pt-16 md:py-[120px] flex flex-col gap-6 h-full overflow-hidden">
           <div className="flex flex-col items-start gap-6">
-            {tournament && <Header tournament={tournament} />}
             <Purchases />
           </div>
-          <Games tournament={tournament} />
+          <Games />
         </div>
       </div>
     </div>
@@ -84,50 +81,6 @@ export const Close = ({ close }: { close: () => void }) => {
     >
       <CloseIcon size="lg" />
     </Button>
-  );
-};
-
-export const Header = ({ tournament }: { tournament: TournamentModel }) => {
-  const started = useMemo(() => {
-    return tournament.hasStarted();
-  }, [tournament]);
-
-  const ended = useMemo(() => {
-    return tournament.hasEnded();
-  }, [tournament]);
-
-  const [remainingTime, setRemainingTime] = useState<string | undefined>();
-
-  useEffect(() => {
-    if (ended) return;
-    setRemainingTime(
-      Formatter.time(tournament.end_time.getTime() - Date.now()),
-    );
-    const interval = setInterval(() => {
-      const remainingTime = tournament.end_time.getTime() - Date.now();
-      setRemainingTime(Formatter.time(remainingTime));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [tournament, ended, started]);
-
-  return (
-    <div className="flex flex-col items-start md:gap-2">
-      <h1
-        className="text-[36px] md:text-[68px] leading-[42px] uppercase translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        Enter Jackpot #{tournament.id}
-      </h1>
-      <p
-        className="text-lg leading-[12px] tracking-wide text-white-400 translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        <span className="hidden md:block">
-          Tournament ends in: {remainingTime}
-        </span>
-        <span className="block md:hidden">Ends in: {remainingTime}</span>
-      </p>
-    </div>
   );
 };
 
@@ -163,8 +116,8 @@ export const Purchases = ({}: {}) => {
     if (usdPrice) {
       return `$${usdPrice}`;
     }
-    const priceInTokens = Number(payPack.price / 10n ** 18n);
-    return `${priceInTokens.toFixed(0)} NUMS`;
+    const priceInTokens = Number(payPack.price / 10n ** 6n);
+    return `${priceInTokens.toFixed(2)}$`;
   }, [usdPrice, payPack]);
 
   return (

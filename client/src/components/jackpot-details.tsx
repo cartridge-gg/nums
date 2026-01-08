@@ -1,85 +1,17 @@
 import makeBlockie from "ethereum-blockies-base64";
-import { useEffect, useMemo, useState } from "react";
 import { LiveIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Formatter } from "@/helpers/formatter";
-import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { cn } from "@/lib/utils";
-import type { PrizeModel } from "@/models/prize";
-import type { TournamentModel } from "@/models/tournament";
 
 export const JackpotDetails = ({
-  tournament,
   onOpenPrizeModal,
 }: {
-  tournament: TournamentModel | undefined;
   onOpenPrizeModal?: () => void;
 }) => {
-  const { prizes } = usePrizesWithUsd();
-
-  const tournamentPrizes = useMemo(() => {
-    if (!tournament) return [];
-    return prizes.filter((p) => p.tournament_id === tournament.id);
-  }, [prizes, tournament]);
-
-  const totalPrizeUsd = useMemo(() => {
-    const total = tournamentPrizes.reduce((sum, prize) => {
-      if (prize.totalUsd) {
-        return sum + parseFloat(prize.totalUsd);
-      }
-      return sum;
-    }, 0);
-    return total > 0 ? `$${total.toFixed(2)}` : "$0.00";
-  }, [tournamentPrizes]);
-
-  const started = useMemo(() => {
-    return tournament?.hasStarted() || false;
-  }, [tournament]);
-
-  const ended = useMemo(() => {
-    return tournament?.hasEnded() || false;
-  }, [tournament]);
-
-  const [remainingTime, setRemainingTime] = useState<string | undefined>();
-
-  useEffect(() => {
-    if (!tournament || ended) return;
-    setRemainingTime(
-      Formatter.time(tournament.end_time.getTime() - Date.now()),
-    );
-    const interval = setInterval(() => {
-      const remainingTime = tournament.end_time.getTime() - Date.now();
-      setRemainingTime(Formatter.time(remainingTime));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [tournament, ended, started]);
-
-  if (!tournament) {
-    return (
-      <div
-        className={cn(
-          "h-[76px] select-none flex flex-col gap-2 md:gap-6 w-full rounded-lg p-4 md:p-6 bg-[rgba(0,0,0,0.04)]",
-          tournamentPrizes.length === 0
-            ? "pointer-events-none"
-            : "cursor-pointer",
-        )}
-        style={{
-          boxShadow:
-            "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
-        }}
-      >
-        <p className="text-purple-300 text-2xl/3 m-auto">Budokan game</p>
-      </div>
-    );
-  }
-
   return (
     <div
       className={cn(
-        "select-none flex flex-col gap-2 md:gap-6 w-full rounded-lg p-4 md:p-6 bg-[rgba(0,0,0,0.04)]",
-        tournamentPrizes.length === 0
-          ? "pointer-events-none"
-          : "cursor-pointer",
+        "select-none flex flex-col gap-2 md:gap-6 w-full rounded-lg p-4 md:p-6 bg-[rgba(0,0,0,0.04)] cursor-pointer",
       )}
       style={{
         boxShadow:
@@ -87,7 +19,6 @@ export const JackpotDetails = ({
       }}
       onClick={(e) => {
         e.stopPropagation();
-        if (tournamentPrizes.length === 0) return;
         onOpenPrizeModal?.();
       }}
     >
@@ -96,66 +27,22 @@ export const JackpotDetails = ({
           className="text-[28px]/[19px] md:text-4xl/[24px] uppercase translate-y-0.5"
           style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
         >
-          Jackpot #{tournament.id}
+          Play and earn NUMS up to
         </h2>
         <div className="flex items-center gap-2 md:gap-3">
-          <PrizePoolTokens prizes={tournamentPrizes} />
+          <PrizePoolTokens prizes={[]} />
           <span
             className="text-[28px]/[19px] md:text-4xl/[24px] uppercase translate-y-0.5"
             style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
           >
-            {totalPrizeUsd}
+            {12345}
           </span>
         </div>
       </div>
       <div className="flex flex-row-reverse gap-2 justify-between items-center max-h-3 translate-y-0.5">
-        {ended ? (
-          <div className="text-purple-300 leading-[12px]">
-            <span
-              className="text-lg"
-              style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              <p className="hidden md:block">Tournament completed</p>
-              <p className="block md:hidden">Completed</p>
-            </span>
-          </div>
-        ) : !started ? (
-          <div className="flex gap-2 justify-between text-purple-300 leading-[12px] translate-y-0.5">
-            <span
-              className="text-lg"
-              style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              <p className="hidden md:block">Tournament starts in:</p>
-              <p className="block md:hidden">Starts in:</p>
-            </span>
-            <span
-              className="text-lg"
-              style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              {Formatter.time(tournament.start_time.getTime() - Date.now())}
-            </span>
-          </div>
-        ) : (
-          <div className="flex gap-2 justify-between text-purple-300 leading-[12px] translate-y-0.5">
-            <span
-              className="text-lg"
-              style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              <p className="hidden md:block">Tournament ends in:</p>
-              <p className="block md:hidden">Ends in:</p>
-            </span>
-            <span
-              className="text-lg"
-              style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              {remainingTime}
-            </span>
-          </div>
-        )}
         <div
           className={cn(
             "flex gap-2 items-center",
-            (!started || ended) && "hidden",
           )}
         >
           <div className="animate-pulse hidden md:block">
@@ -173,7 +60,7 @@ export const JackpotDetails = ({
   );
 };
 
-export const PrizePoolTokens = ({ prizes }: { prizes: PrizeModel[] }) => {
+export const PrizePoolTokens = ({ prizes }: { prizes: { address: string, metadata: { name: string, symbol: string, logoUrl: string } }[] }) => {
   return (
     <div className="select-none flex justify-center items-center bg-purple-600 rounded-full p-0.5">
       {prizes.map((prize, index) => (
@@ -200,7 +87,7 @@ export const PrizePoolModal = ({
   prizes,
   setModal,
 }: {
-  prizes: PrizeModel[];
+  prizes: { address: string, metadata: { name: string, symbol: string, logoUrl: string }, formattedAmount: string, totalUsd: string }[];
   setModal: (modal: boolean) => void;
 }) => {
   return (

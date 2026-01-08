@@ -1,16 +1,11 @@
 import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
-import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Confetti from "react-confetti";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import Sparkles from "react-sparkle";
-import { useWindowSize } from "react-use";
 import { addAddressPadding, num } from "starknet";
 import {
   ControllerIcon,
   DisconnectIcon,
-  GiftIcon,
   LogoIcon,
   LogoMiniIcon,
   SoundOffIcon,
@@ -18,10 +13,7 @@ import {
 } from "@/components/icons";
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import { useAudio } from "@/context/audio";
-import { useTournaments } from "@/context/tournaments";
 import useChain from "@/hooks/chain";
-import { useClaim } from "@/hooks/useClaim";
-import { useClaimableRewards } from "@/hooks/useClaimableRewards";
 import { useMintNums } from "@/hooks/useMintNums";
 import { useTokens } from "@/hooks/useTokens";
 import { cn } from "@/lib/utils";
@@ -31,9 +23,6 @@ import { toast } from "@cartridge/controller";
 export const Header = () => {
   const { chain } = useChain();
   const { address } = useAccount();
-  const { width, height } = useWindowSize();
-  const [run, setRun] = useState(false);
-  const [recycle, setRecycle] = useState(true);
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
 
   const pop = () => {
@@ -72,12 +61,10 @@ export const Header = () => {
         ) : (
           <Balance />
         )}
-        {address && <Claim setRun={setRun} setRecycle={setRecycle} />}
         {address ? <Profile /> : <Connect />}
         {address && <Disconnect />}
         <div onClick={pop}>TOAST</div>
       </div>
-      <Confetti width={width} height={height} recycle={recycle} run={run} />
     </div>
   );
 };
@@ -224,81 +211,6 @@ export const Disconnect = () => {
       onClick={() => disconnect()}
     >
       <DisconnectIcon size="lg" />
-    </Button>
-  );
-};
-
-export const Claim = ({
-  setRun,
-  setRecycle,
-}: {
-  setRun: (run: boolean) => void;
-  setRecycle: (recycle: boolean) => void;
-}) => {
-  const { claim } = useClaim();
-  const { tournaments } = useTournaments();
-  const { claimableRewards } = useClaimableRewards();
-  const [loading, setLoading] = useState(false);
-  const [claimed, setClaimed] = useState(false);
-  const [render, setRender] = useState(false);
-
-  const claims = useMemo(() => {
-    if (!tournaments) return [];
-    const ids = tournaments
-      .filter((tournament) => tournament.hasEnded())
-      .map((tournament) => tournament.id);
-    return claimableRewards
-      .filter((reward) => ids.includes(reward.tournamentId))
-      .map((reward) => ({
-        tournamentId: reward.tournamentId,
-        tokenAddress: reward.tokenAddress,
-        gameId: reward.gameId,
-        position: reward.position,
-      }));
-  }, [claimableRewards, tournaments]);
-
-  const disabled = useMemo(() => {
-    return loading || claims.length === 0 || claimed;
-  }, [loading, claims, claimed]);
-
-  const handleClaim = useCallback(async () => {
-    if (claims.length === 0) return;
-    setLoading(true);
-    setRender(true);
-    const claimsToMake = claims.map((reward) => ({
-      tournamentId: reward.tournamentId,
-      tokenAddress: reward.tokenAddress,
-      gameId: reward.gameId,
-      position: reward.position,
-    }));
-
-    const success = await claim(claimsToMake);
-    if (success) {
-      setRun(true);
-      setClaimed(true);
-    }
-    setTimeout(() => {
-      setRecycle(false);
-    }, 10000);
-    setLoading(false);
-  }, [claims, claim, setLoading, setRun, setRecycle, setClaimed]);
-
-  // Don't show the button if there are no claimable rewards
-  if (claims.length === 0 && !render) return null;
-
-  return (
-    <Button
-      variant="secondary"
-      className="relative h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8 gap-2 bg-pink-100 hover:bg-pink-200"
-      onClick={handleClaim}
-      disabled={disabled}
-    >
-      {!disabled && <Sparkles flicker={false} />}
-      {loading ? (
-        <Loader2 className="p-0.5 md:p-1 animate-spin" />
-      ) : (
-        <GiftIcon variant="solid" />
-      )}
     </Button>
   );
 };

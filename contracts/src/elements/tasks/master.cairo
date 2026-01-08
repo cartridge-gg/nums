@@ -10,13 +10,3 @@ pub impl DailyMaster of TaskTrait {
     }
 }
 
-
-pub impl WeeklyMaster of TaskTrait {
-    fn identifier() -> felt252 {
-        'WEEKLY_MASTER'
-    }
-
-    fn description(count: u32) -> ByteArray {
-        "Complete all weekly quests"
-    }
-}

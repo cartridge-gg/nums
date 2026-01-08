@@ -49,14 +49,12 @@ pub trait IExternal<T> {
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
-    use leaderboard::components::rankable::RankableComponent;
     use quest::components::questable::QuestableComponent;
     use quest::interfaces::IQuestRewarder;
     use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
     use crate::components::playable::PlayableComponent;
     use crate::components::starterpack::StarterpackComponent;
-    use crate::components::tournament::TournamentComponent;
     use crate::constants::NAMESPACE;
     use crate::models::starterpack::StarterpackAssert;
     use super::*;
@@ -65,12 +63,8 @@ pub mod Play {
 
     component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
     impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
-    component!(path: RankableComponent, storage: rankable, event: RankableEvent);
-    impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
     component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
     impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
-    component!(path: TournamentComponent, storage: tournament, event: TournamentEvent);
-    impl TournamentInternalImpl = TournamentComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
     impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
@@ -85,13 +79,9 @@ pub mod Play {
         #[substorage(v0)]
         achievable: AchievableComponent::Storage,
         #[substorage(v0)]
-        rankable: RankableComponent::Storage,
-        #[substorage(v0)]
         questable: QuestableComponent::Storage,
         #[substorage(v0)]
         playable: PlayableComponent::Storage,
-        #[substorage(v0)]
-        tournament: TournamentComponent::Storage,
         #[substorage(v0)]
         starterpack: StarterpackComponent::Storage,
     }
@@ -104,13 +94,9 @@ pub mod Play {
         #[flat]
         AchievableEvent: AchievableComponent::Event,
         #[flat]
-        RankableEvent: RankableComponent::Event,
-        #[flat]
         QuestableEvent: QuestableComponent::Event,
         #[flat]
         PlayableEvent: PlayableComponent::Event,
-        #[flat]
-        TournamentEvent: TournamentComponent::Event,
         #[flat]
         StarterpackEvent: StarterpackComponent::Event,
     }
@@ -119,7 +105,6 @@ pub mod Play {
         // [Setup] World
         let world = self.world(@NAMESPACE());
         // [Effect] Initialize components
-        self.tournament.initialize(world);
         self.starterpack.initialize(world);
     }
 
@@ -185,41 +170,6 @@ pub mod Play {
             let world = self.world(@NAMESPACE());
             // [Effect] Apply power
             self.playable.apply(world, game_id, power)
-        }
-    }
-
-    #[abi(embed_v0)]
-    impl TournamentImpl of ITournament<ContractState> {
-        fn sponsor(
-            ref self: ContractState,
-            tournament_id: u16,
-            token_address: ContractAddress,
-            amount: u128,
-        ) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Sponsor tournament
-            self.tournament.sponsor(world, tournament_id, token_address, amount)
-        }
-
-        fn claim(
-            ref self: ContractState,
-            tournament_id: u16,
-            token_address: ContractAddress,
-            game_id: u64,
-            position: u8,
-        ) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Claim tournament
-            self.tournament.claim(world, tournament_id, token_address, game_id, position)
-        }
-
-        fn rescue(ref self: ContractState, tournament_id: u16, token_address: ContractAddress) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Rescue tournament
-            self.tournament.rescue(world, tournament_id, token_address)
         }
     }
 

@@ -10,7 +10,22 @@ pub impl High of PowerTrait {
     }
 
     #[inline]
-    fn condition() -> u8 {
-        3
+    fn rescue(game: @Game, slots: @Array<u16>) -> bool {
+        // [Check] There is a valid empty slot for next number
+        let min: u32 = 0;
+        let number = *game.number;
+        let mut idx = (*game.slot_count).into() - 1;
+        let mut slot = *slots.at(idx);
+        while idx > min && slot >= number {
+            let previous_slot = *slots.at(idx - 1);
+            if slot == 0 {
+                return true;
+            }
+            slot = previous_slot;
+            idx -= 1
+        }
+
+        // [Check] Rescuable if last slot is empty
+        slot == 0
     }
 }

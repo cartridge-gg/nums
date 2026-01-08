@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "achievement"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
  "graffiti",
@@ -66,7 +66,7 @@ dependencies = [
 [[package]]
 name = "collection"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "graffiti",
  "openzeppelin",
@@ -97,23 +97,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ekubo"
+version = "0.1.0"
+source = "git+https://github.com/EkuboProtocol/starknet-contracts?rev=cf2e95f#cf2e95fd124bfb19491e1a7da9ffba4b63cc6c4e"
+
+[[package]]
 name = "graffiti"
 version = "0.1.0"
 source = "git+https://github.com/bal7hazar/graffiti.git?rev=e8b0854#e8b0854798ebbcebde504ea299ed556900564ff2"
 
 [[package]]
-name = "leaderboard"
-version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
-dependencies = [
- "dojo",
- "graffiti",
-]
-
-[[package]]
 name = "models"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
  "registry",
@@ -129,8 +125,8 @@ dependencies = [
  "dojo",
  "dojo_cairo_macros",
  "dojo_cairo_test",
+ "ekubo",
  "graffiti",
- "leaderboard",
  "openzeppelin",
  "quest",
  "starterpack",
@@ -257,7 +253,7 @@ checksum = "sha256:bf799c794139837f397975ffdf6a7ed5032d198bbf70e87a8f44f144a9dfc
 [[package]]
 name = "quest"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
  "graffiti",
@@ -266,7 +262,7 @@ dependencies = [
 [[package]]
 name = "registry"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "collection",
  "dojo",
@@ -276,9 +272,10 @@ dependencies = [
 [[package]]
 name = "starterpack"
 version = "0.0.0"
-source = "git+https://github.com/cartridge-gg/arcade?rev=00209a2#00209a2afb746b23dc74d00659e93b95ad68466d"
+source = "git+https://github.com/cartridge-gg/arcade?rev=e3c5c27#e3c5c27cfca0b478b79d40315e5e9c3bff964bc8"
 dependencies = [
  "dojo",
+ "graffiti",
  "models",
  "openzeppelin",
 ]

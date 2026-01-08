@@ -29,14 +29,12 @@ build-external-contracts = [
     "quest::events::index::e_QuestUnlocked",
     "quest::events::index::e_QuestCompleted",
     "quest::events::index::e_QuestClaimed",
-    "leaderboard::events::index::e_LeaderboardScore",
 ]
 
 [dependencies]
 collection.workspace = true
 achievement.workspace = true
 quest.workspace = true
-leaderboard.workspace = true
 starterpack.workspace = true
 graffiti.workspace = true
 openzeppelin.workspace = true
@@ -44,6 +42,7 @@ alexandria_encoding.workspace = true
 dojo.workspace = true
 dojo_cairo_macros.workspace = true
 starknet.workspace = true
+ekubo.workspace = true
 
 [dev-dependencies]
 dojo_cairo_test.workspace = true

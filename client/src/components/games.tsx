@@ -10,30 +10,20 @@ import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { usePlayerGames } from "@/hooks/useAssets";
 import { useGames } from "@/hooks/useGames";
 import type { GameModel } from "@/models/game";
-import type { TournamentModel } from "@/models/tournament";
 import { Button } from "./ui/button";
 
 export type GamesProps = {};
 
-export const Games = ({ tournament }: { tournament?: TournamentModel }) => {
+export const Games = () => {
   const { gameIds, isLoading, error } = usePlayerGames();
   const { games } = useGames(gameIds || []);
 
   const filteredGames = useMemo(() => {
-    if (!tournament) return [];
     return games
-      .filter(
-        (game) =>
-          (game.tournament_id === tournament?.id &&
-            (game.over || tournament.isActive())) ||
-          (!game.hasStarted() && tournament.isActive()),
-      )
       .sort((a, b) => a.id - b.id)
       .sort((a, b) => (b.hasStarted() ? 1 : a.hasStarted() ? -1 : 0))
       .sort((a, b) => (b.over ? -1 : a.over ? 1 : 0));
-  }, [games, tournament]);
-
-  console.log({ gameIds, games, filteredGames });
+  }, [games]);
 
   if (isLoading) {
     return (

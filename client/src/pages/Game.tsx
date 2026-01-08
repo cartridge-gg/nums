@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
 import { CloseIcon, HomeIcon, PointsIcon } from "@/components/icons";
-import { JackpotDetails, PrizePoolModal } from "@/components/jackpot-details";
+import { PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,12 +18,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAudio } from "@/context/audio";
-import { useTournaments } from "@/context/tournaments";
 import { useGame } from "@/hooks/useGame";
 import { useGameApply } from "@/hooks/useGameApply";
 import { useGameSet } from "@/hooks/useGameSet";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePrizesWithUsd } from "@/hooks/usePrizes";
 import { useStartGame } from "@/hooks/useStartGame";
 import { cn } from "@/lib/utils";
 import { GameModel, REWARDS } from "@/models/game";
@@ -61,9 +59,7 @@ export const Main = ({
   setPrizePoolModal: (value: boolean) => void;
 }) => {
   const { gameId } = useParams();
-  const { tournaments } = useTournaments();
   const { game } = useGame(Number(gameId));
-  const { prizes } = usePrizesWithUsd();
   const { setSlot } = useGameSet({ gameId: Number(gameId) });
   const { applyPower } = useGameApply({ gameId: Number(gameId) });
   const { playReplay, playPositive, playNegative } = useAudio();
@@ -76,13 +72,6 @@ export const Main = ({
     Array<{ slotIndex: number; amount: number; id: string }>
   >([]);
   const hasStartedRef = useRef<boolean>(false);
-
-  const tournament = useMemo(() => {
-    if (!game || !tournaments) return undefined;
-    return tournaments?.find(
-      (tournament) => tournament.id === game.tournament_id,
-    );
-  }, [tournaments, game]);
 
   useEffect(() => {
     if (!game) return;
@@ -181,11 +170,6 @@ export const Main = ({
     }
   }, [game?.available_powers, loadingPower]);
 
-  const tournamentPrizes = useMemo(() => {
-    if (!tournament) return [];
-    return prizes.filter((p) => p.tournament_id === tournament.id);
-  }, [prizes, tournament]);
-
   if (!gameId) return null;
 
   if (!game?.hasStarted()) return <GameStart gameId={Number(gameId)} />;
@@ -233,7 +217,7 @@ export const Main = ({
           onClick={(e) => e.stopPropagation()}
         >
           <PrizePoolModal
-            prizes={tournamentPrizes}
+            prizes={[]}
             setModal={setPrizePoolModal}
           />
         </div>
@@ -254,10 +238,6 @@ export const Main = ({
             highlights={game.over ? game.closests() : []}
             alloweds={game.alloweds()}
             activeRewards={activeRewards}
-          />
-          <JackpotDetails
-            tournament={tournament}
-            onOpenPrizeModal={() => setPrizePoolModal(true)}
           />
         </div>
       </div>

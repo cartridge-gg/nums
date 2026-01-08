@@ -37,8 +37,7 @@ pub enum Task {
     StreakerTwo,
     StreakerThree,
     Claimer,
-    MasterOne,
-    MasterTwo,
+    Master,
 }
 
 // Implementations
@@ -74,8 +73,7 @@ pub impl TaskImpl of TaskTrait {
             Task::StreakerTwo => tasks::streaker::StreakerTwo::identifier(),
             Task::StreakerThree => tasks::streaker::StreakerThree::identifier(),
             Task::Claimer => tasks::claimer::Claimer::identifier(),
-            Task::MasterOne => tasks::master::DailyMaster::identifier(),
-            Task::MasterTwo => tasks::master::WeeklyMaster::identifier(),
+            Task::Master => tasks::master::DailyMaster::identifier(),
         }
     }
 
@@ -108,8 +106,7 @@ pub impl TaskImpl of TaskTrait {
             Task::StreakerTwo => tasks::streaker::StreakerTwo::description(count),
             Task::StreakerThree => tasks::streaker::StreakerThree::description(count),
             Task::Claimer => tasks::claimer::Claimer::description(count),
-            Task::MasterOne => tasks::master::DailyMaster::description(count),
-            Task::MasterTwo => tasks::master::WeeklyMaster::description(count),
+            Task::Master => tasks::master::DailyMaster::description(count),
         }
     }
 
@@ -150,8 +147,7 @@ impl IntoTaskU8 of core::traits::Into<Task, u8> {
             Task::StreakerTwo => 24,
             Task::StreakerThree => 25,
             Task::Claimer => 26,
-            Task::MasterOne => 27,
-            Task::MasterTwo => 28,
+            Task::Master => 27,
         }
     }
 }
@@ -187,8 +183,7 @@ impl IntoU8Task of core::traits::Into<u8, Task> {
             24 => Task::StreakerTwo,
             25 => Task::StreakerThree,
             26 => Task::Claimer,
-            27 => Task::MasterOne,
-            28 => Task::MasterTwo,
+            27 => Task::Master,
             _ => Task::None,
         }
     }

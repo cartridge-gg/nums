@@ -7,7 +7,7 @@ pub impl Foresight of PowerTrait {
     }
 
     #[inline]
-    fn condition() -> u8 {
-        6
+    fn rescue(game: @Game, slots: @Array<u16>) -> bool {
+        false
     }
 }

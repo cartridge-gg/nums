@@ -32,7 +32,9 @@ pub const HALF_SCALE_FACTOR: u32 = 50;
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
-    fn new(id: u64, slot_count: u8, slot_min: u16, slot_max: u16) -> Game {
+    fn new(
+        id: u64, slot_count: u8, slot_min: u16, slot_max: u16, usage: felt252, supply: u256,
+    ) -> Game {
         // [Return] Game
         Game {
             id: id,
@@ -48,19 +50,19 @@ pub impl GameImpl of GameTrait {
             available_powers: 0,
             reward: 0,
             score: 0,
-            tournament_id: 0,
             slots: 0,
+            usage: usage,
+            supply: supply.try_into().unwrap(),
         }
     }
 
     #[inline]
-    fn start(ref self: Game, tournament_id: u16, number: u16, powers: u16) {
+    fn start(ref self: Game, number: u16, powers: u16) {
         // [Check] Game has not started yet
         self.assert_not_started();
         // [Check] Number is valid
         GameAssert::assert_valid_number(number);
         // [Effect] Start game
-        self.tournament_id = tournament_id;
         self.selected_powers = powers;
         self.available_powers = powers;
         self.number = number;
@@ -77,7 +79,8 @@ pub impl GameImpl of GameTrait {
         let power: Power = PowerTrait::from(index);
         power.apply(ref self, ref rand);
         // [Effect] Update game over
-        self.over = self.is_over(self.slots());
+        let slots = self.slots();
+        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
     }
 
     #[inline]
@@ -201,7 +204,7 @@ pub impl GameImpl of GameTrait {
     }
 
     /// Determines if the game has ended based on current state and configuration.
-    fn is_over(self: @Game, slots: Array<u16>) -> bool {
+    fn is_over(self: @Game, slots: @Array<u16>) -> bool {
         // [Check] All slots have been filled
         if self.level == self.slot_count {
             return true;
@@ -237,15 +240,25 @@ pub impl GameImpl of GameTrait {
         slot != 0
     }
 
+    fn is_rescuable(self: @Game, slots: @Array<u16>) -> bool {
+        let mut index: u8 = 0;
+        while index != POWER_COUNT {
+            if (Bitmap::get(*self.available_powers, index) == 0) {
+                index += 1;
+                continue;
+            }
+            let power: Power = PowerTrait::from(index);
+            if power.rescue(self, slots) {
+                return true;
+            }
+            index += 1;
+        }
+        false
+    }
+
     /// Generates a random `u16` number between `min` and `max` that is not already present in the
     /// given array `nums`.
     fn next(ref self: Game, slots: @Array<u16>, ref rand: Random) -> u16 {
-        // [Check] Next number is set
-        if self.next_number != 0 {
-            let number = self.next_number;
-            self.next_number = 0;
-            return number;
-        }
         // [Compute] Draw a random number between the min and max
         let min = self.slot_min;
         let max = self.slot_max;
@@ -284,14 +297,15 @@ pub impl GameImpl of GameTrait {
 
     /// Updates the game state.
     #[inline]
-    fn update(ref self: Game, ref rand: Random, supply: u256, target: u256) -> u64 {
+    fn update(ref self: Game, ref rand: Random, target: u256) -> u64 {
         self.level_up();
-        let reward = self.reward(supply, target);
+        let reward = self.reward(self.supply.into(), target);
         let mut slots = self.slots();
         if !self.is_completed() {
-            self.number = self.next(@slots, ref rand);
+            self.number = self.next_number;
+            self.next_number = self.next(@slots, ref rand);
         }
-        self.over = self.is_over(slots.clone());
+        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
         self.score = self.score(ref slots);
         reward
     }
@@ -387,21 +401,27 @@ mod tests {
     use crate::helpers::packer::Packer;
     use super::{Game, GameAssert, GameTrait};
 
+    const USAGE: felt252 = 0;
+    const SUPPLY: u256 = 1;
+
     /// Helper function to create a test game instance
     fn create() -> Game {
-        let mut game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
-        game.start(1, 10, 0b0000111);
+        let mut game = GameTrait::new(
+            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, USAGE, SUPPLY,
+        );
+        game.start(1, 0b0000111);
         game
     }
 
     #[test]
     fn test_new_game_creation() {
-        let game = GameTrait::new(1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
+        let game = GameTrait::new(
+            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, USAGE, SUPPLY,
+        );
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
         assert(game.reward == 0, 'Initial reward should be 0');
-        assert(game.tournament_id == 0, 'Initial jackpot ID should be 0');
         assert(!game.over, 'Game is over initially');
     }
 
@@ -506,7 +526,7 @@ mod tests {
         );
         game.slots = slots.try_into().unwrap();
         let slots = game.slots();
-        assert(game.is_over(slots), 'Not over with full slots');
+        assert(game.is_over(@slots), 'Not over with full slots');
     }
 
     #[test]
@@ -519,7 +539,7 @@ mod tests {
         ];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(slots), 'Over but can fit at end');
+        assert(!game.is_over(@slots), 'Over but can fit at end');
     }
 
     #[test]
@@ -533,7 +553,7 @@ mod tests {
         ];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(game.is_over(slots), 'Not over but cannot fit');
+        assert(game.is_over(@slots), 'Not over but cannot fit');
     }
 
     #[test]
@@ -547,7 +567,7 @@ mod tests {
         ];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(slots), 'Over but can fit at start');
+        assert(!game.is_over(@slots), 'Over but can fit at start');
     }
 
     #[test]
@@ -558,7 +578,7 @@ mod tests {
         let slots: Array<u16> = array![10, 20, 30, 100, 0, 0, 200];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(slots), 'Over but can fit in middle');
+        assert(!game.is_over(@slots), 'Over but can fit in middle');
     }
 
     #[test]
@@ -569,7 +589,7 @@ mod tests {
         let slots: Array<u16> = array![10, 20, 30, 100, 200];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(game.is_over(game.slots()), 'Not over but too large');
+        assert(game.is_over(@game.slots()), 'Not over but too large');
     }
 
     #[test]
@@ -580,7 +600,7 @@ mod tests {
         let slots: Array<u16> = array![10, 50, 100];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(game.is_over(slots), 'Not over with small number');
+        assert(game.is_over(@slots), 'Not over with small number');
     }
 
     #[test]
@@ -591,7 +611,7 @@ mod tests {
         let slots: Array<u16> = array![10, 50, 0, 100, 500];
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(slots), 'Over with valid gap');
+        assert(!game.is_over(@slots), 'Over with valid gap');
     }
 
     #[test]
@@ -603,7 +623,7 @@ mod tests {
         let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
         game.slots = pack.try_into().unwrap();
         let slots = game.slots();
-        assert(!game.is_over(slots), 'Over with one slot filled');
+        assert(!game.is_over(@slots), 'Over with one slot filled');
     }
 
     #[test]

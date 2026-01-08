@@ -8,9 +8,8 @@ pub use crate::elements::tasks::index::{Task, TaskTrait};
 
 // Constants
 
-pub const QUEST_COUNT: u8 = 25;
+pub const QUEST_COUNT: u8 = 15;
 pub const ONE_DAY: u64 = 24 * 60 * 60;
-pub const ONE_WEEK: u64 = 7 * 24 * 60 * 60;
 
 pub fn ICON() -> ByteArray {
     "https://imagedelivery.net/0xPAQaDtnQhBs8IzYRIlNg/90868d05-cb75-4c42-278c-5a540db2cf00/logo"
@@ -38,17 +37,6 @@ pub enum QuestType {
     DailyPlacerTwo,
     DailyPlacerThree,
     DailyFinisher,
-    // Weekly quests
-    WeeklyContenderOne,
-    WeeklyContenderTwo,
-    WeeklyContenderThree,
-    WeeklyEarnerOne,
-    WeeklyEarnerTwo,
-    WeeklyEarnerThree,
-    WeeklyPlacerOne,
-    WeeklyPlacerTwo,
-    WeeklyPlacerThree,
-    WeeklyFinisher,
 }
 
 #[derive(Clone, Drop, Serde)]
@@ -82,16 +70,6 @@ pub impl QuestImpl of IQuest {
             QuestType::DailyPlacerTwo => quests::placer::DailyPlacerTwo::identifier(),
             QuestType::DailyPlacerThree => quests::placer::DailyPlacerThree::identifier(),
             QuestType::DailyFinisher => quests::finisher::DailyFinisher::identifier(),
-            QuestType::WeeklyContenderOne => quests::contender::WeeklyContenderOne::identifier(),
-            QuestType::WeeklyContenderTwo => quests::contender::WeeklyContenderTwo::identifier(),
-            QuestType::WeeklyContenderThree => quests::contender::WeeklyContenderThree::identifier(),
-            QuestType::WeeklyEarnerOne => quests::earner::WeeklyEarnerOne::identifier(),
-            QuestType::WeeklyEarnerTwo => quests::earner::WeeklyEarnerTwo::identifier(),
-            QuestType::WeeklyEarnerThree => quests::earner::WeeklyEarnerThree::identifier(),
-            QuestType::WeeklyPlacerOne => quests::placer::WeeklyPlacerOne::identifier(),
-            QuestType::WeeklyPlacerTwo => quests::placer::WeeklyPlacerTwo::identifier(),
-            QuestType::WeeklyPlacerThree => quests::placer::WeeklyPlacerThree::identifier(),
-            QuestType::WeeklyFinisher => quests::finisher::WeeklyFinisher::identifier(),
             QuestType::None => 0,
         }
     }
@@ -115,50 +93,28 @@ pub impl QuestImpl of IQuest {
             QuestType::DailyPlacerTwo => quests::placer::DailyPlacerTwo::props(registry),
             QuestType::DailyPlacerThree => quests::placer::DailyPlacerThree::props(registry),
             QuestType::DailyFinisher => quests::finisher::DailyFinisher::props(registry),
-            QuestType::WeeklyContenderOne => quests::contender::WeeklyContenderOne::props(registry),
-            QuestType::WeeklyContenderTwo => quests::contender::WeeklyContenderTwo::props(registry),
-            QuestType::WeeklyContenderThree => quests::contender::WeeklyContenderThree::props(
-                registry,
-            ),
-            QuestType::WeeklyEarnerOne => quests::earner::WeeklyEarnerOne::props(registry),
-            QuestType::WeeklyEarnerTwo => quests::earner::WeeklyEarnerTwo::props(registry),
-            QuestType::WeeklyEarnerThree => quests::earner::WeeklyEarnerThree::props(registry),
-            QuestType::WeeklyPlacerOne => quests::placer::WeeklyPlacerOne::props(registry),
-            QuestType::WeeklyPlacerTwo => quests::placer::WeeklyPlacerTwo::props(registry),
-            QuestType::WeeklyPlacerThree => quests::placer::WeeklyPlacerThree::props(registry),
-            QuestType::WeeklyFinisher => quests::finisher::WeeklyFinisher::props(registry),
             _ => Default::default(),
         }
     }
 
-    fn reward(self: QuestType) -> u64 {
+    fn reward(self: QuestType) -> (u64, Task) {
         match self {
-            QuestType::StarterOne => 200,
-            QuestType::StarterTwo => 300,
-            QuestType::StarterThree => 400,
-            QuestType::StarterFour => 500,
-            QuestType::StarterFive => 600,
-            QuestType::DailyContenderOne => 200,
-            QuestType::DailyContenderTwo => 400,
-            QuestType::DailyContenderThree => 800,
-            QuestType::DailyEarnerOne => 200,
-            QuestType::DailyEarnerTwo => 400,
-            QuestType::DailyEarnerThree => 800,
-            QuestType::DailyPlacerOne => 200,
-            QuestType::DailyPlacerTwo => 400,
-            QuestType::DailyPlacerThree => 800,
-            QuestType::DailyFinisher => 800,
-            QuestType::WeeklyContenderOne => 1000,
-            QuestType::WeeklyContenderTwo => 2000,
-            QuestType::WeeklyContenderThree => 4000,
-            QuestType::WeeklyEarnerOne => 1000,
-            QuestType::WeeklyEarnerTwo => 2000,
-            QuestType::WeeklyEarnerThree => 4000,
-            QuestType::WeeklyPlacerOne => 1000,
-            QuestType::WeeklyPlacerTwo => 2000,
-            QuestType::WeeklyPlacerThree => 4000,
-            QuestType::WeeklyFinisher => 4000,
-            _ => 0,
+            QuestType::StarterOne => (200, Task::None),
+            QuestType::StarterTwo => (300, Task::None),
+            QuestType::StarterThree => (400, Task::None),
+            QuestType::StarterFour => (500, Task::None),
+            QuestType::StarterFive => (600, Task::None),
+            QuestType::DailyContenderOne => (200, Task::None),
+            QuestType::DailyContenderTwo => (400, Task::None),
+            QuestType::DailyContenderThree => (800, Task::None),
+            QuestType::DailyEarnerOne => (200, Task::None),
+            QuestType::DailyEarnerTwo => (400, Task::None),
+            QuestType::DailyEarnerThree => (800, Task::None),
+            QuestType::DailyPlacerOne => (200, Task::None),
+            QuestType::DailyPlacerTwo => (400, Task::None),
+            QuestType::DailyPlacerThree => (800, Task::None),
+            QuestType::DailyFinisher => (800, Task::Master),
+            _ => (0, Task::None),
         }
     }
 }
@@ -183,16 +139,6 @@ impl IntoQuestU8 of core::traits::Into<QuestType, u8> {
             QuestType::DailyPlacerTwo => 13,
             QuestType::DailyPlacerThree => 14,
             QuestType::DailyFinisher => 15,
-            QuestType::WeeklyContenderOne => 16,
-            QuestType::WeeklyContenderTwo => 17,
-            QuestType::WeeklyContenderThree => 18,
-            QuestType::WeeklyEarnerOne => 19,
-            QuestType::WeeklyEarnerTwo => 20,
-            QuestType::WeeklyEarnerThree => 21,
-            QuestType::WeeklyPlacerOne => 22,
-            QuestType::WeeklyPlacerTwo => 23,
-            QuestType::WeeklyPlacerThree => 24,
-            QuestType::WeeklyFinisher => 25,
         }
     }
 }
@@ -216,16 +162,6 @@ impl IntoU8Quest of core::traits::Into<u8, QuestType> {
             13 => QuestType::DailyPlacerTwo,
             14 => QuestType::DailyPlacerThree,
             15 => QuestType::DailyFinisher,
-            16 => QuestType::WeeklyContenderOne,
-            17 => QuestType::WeeklyContenderTwo,
-            18 => QuestType::WeeklyContenderThree,
-            19 => QuestType::WeeklyEarnerOne,
-            20 => QuestType::WeeklyEarnerTwo,
-            21 => QuestType::WeeklyEarnerThree,
-            22 => QuestType::WeeklyPlacerOne,
-            23 => QuestType::WeeklyPlacerTwo,
-            24 => QuestType::WeeklyPlacerThree,
-            25 => QuestType::WeeklyFinisher,
             _ => QuestType::None,
         }
     }
@@ -263,26 +199,6 @@ impl IntoFelt252Quest of core::traits::Into<felt252, QuestType> {
             return QuestType::DailyPlacerThree;
         } else if self == quests::finisher::DailyFinisher::identifier() {
             return QuestType::DailyFinisher;
-        } else if self == quests::contender::WeeklyContenderOne::identifier() {
-            return QuestType::WeeklyContenderOne;
-        } else if self == quests::contender::WeeklyContenderTwo::identifier() {
-            return QuestType::WeeklyContenderTwo;
-        } else if self == quests::contender::WeeklyContenderThree::identifier() {
-            return QuestType::WeeklyContenderThree;
-        } else if self == quests::earner::WeeklyEarnerOne::identifier() {
-            return QuestType::WeeklyEarnerOne;
-        } else if self == quests::earner::WeeklyEarnerTwo::identifier() {
-            return QuestType::WeeklyEarnerTwo;
-        } else if self == quests::earner::WeeklyEarnerThree::identifier() {
-            return QuestType::WeeklyEarnerThree;
-        } else if self == quests::placer::WeeklyPlacerOne::identifier() {
-            return QuestType::WeeklyPlacerOne;
-        } else if self == quests::placer::WeeklyPlacerTwo::identifier() {
-            return QuestType::WeeklyPlacerTwo;
-        } else if self == quests::placer::WeeklyPlacerThree::identifier() {
-            return QuestType::WeeklyPlacerThree;
-        } else if self == quests::finisher::WeeklyFinisher::identifier() {
-            return QuestType::WeeklyFinisher;
         } else {
             return QuestType::None;
         }

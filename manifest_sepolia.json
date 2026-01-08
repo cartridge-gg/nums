@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x2577dae7023b0ef1d589136934cc678c9ac2e1f92428cf07e2cbbfd42b7af26",
-    "seed": "nums-v1.0.24",
+    "address": "0x11aa166107b68bc42ed50ad08c32ddcc034676fb2f20306b57ddb2df571b0bd",
+    "seed": "nums-v1.0.26",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x2e3c9c04d2a03c5211d2cd8d9881f2e325a101f4af129aeac15b5e26a8f93b3",
-      "class_hash": "0x1ce9eb36abebb468cc2b65777eb4d7b0ee770f037c01a3a3ccabea086fb8789",
+      "address": "0x320171f2a9ed887101cd9393f7be34a9787282ffc526948e9be0614d1a35cf",
+      "class_hash": "0x5bcea9bce204d5e508e7c137fce6ff3f7db5f7e90d5a2438066c1e5b5ceab36",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x53dae0cd2c61f746e2a618617b5559d0949972e774ebbfe991fd3f81839b592",
-      "class_hash": "0x5f6b24ad63676b4b704e3a9e489d98a7e6c59ca121b6677c25dc2436b794cc",
+      "address": "0x45bbd01d67b8499475f01faba0185c527891ff25df56eb24d848d430af7654b",
+      "class_hash": "0x3b66cec17d5620e74ac28ef62202f2ed4a730b614e34e0f20f1cca42876ba3a",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -71,9 +71,6 @@
         "start",
         "set",
         "apply",
-        "sponsor",
-        "claim",
-        "rescue",
         "register_starterpack",
         "update_starterpack",
         "update_metadata",
@@ -81,8 +78,8 @@
       ]
     },
     {
-      "address": "0x15ac46ee24c7ca1e37e79e081bdca95c35761eb5a86281f840f68bdc62ab0b1",
-      "class_hash": "0x1d25e0b0bfa24d4648716f3726ebbb5ed31e7b6c386ded2fecac9f5ea2f9f6e",
+      "address": "0x1c1d0db081d5e8cba6ea20bb7e992c746db1727696014502a0007dcaca0b412",
+      "class_hash": "0x13c6975074a3c8334e456cf26ae04fb33c666e5ee732f99c3b0f88b0ee3003b",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -91,7 +88,7 @@
         "0x0",
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
-        "0x6C6B935B8BBD400000",
+        "0xF423F",
         "0x6765C793FA10079D0000000",
         "0x0"
       ],
@@ -282,9 +279,24 @@
           "name": "count",
           "type": "core::integer::u32",
           "key": false
+        },
+        {
+          "name": "slot_count",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "slot_min",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "slot_max",
+          "type": "core::integer::u16",
+          "key": false
         }
       ],
-      "class_hash": "0x1cf5de6276ff5c1976c79fa200db32615114dec1ca9a2d44bc0ec719526fd2b",
+      "class_hash": "0x49da3e5192e56870d4de86054de86802172b18773685e68d486b566fcee7d3c",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -336,11 +348,6 @@
           "key": false
         },
         {
-          "name": "tournament_id",
-          "type": "core::integer::u16",
-          "key": false
-        },
-        {
           "name": "selected_powers",
           "type": "core::integer::u16",
           "key": false
@@ -364,82 +371,21 @@
           "name": "slots",
           "type": "core::felt252",
           "key": false
+        },
+        {
+          "name": "usage",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "supply",
+          "type": "core::felt252",
+          "key": false
         }
       ],
-      "class_hash": "0x4d575dc521c39c20fe8df903123c2869745fc6794fbb2288bfa3e6cf2d85d48",
+      "class_hash": "0x490632dba1a2b7219957efa83d54b4e56ae3a9aace2292cc62621deb18d0a45",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
-    },
-    {
-      "members": [
-        {
-          "name": "tournament_id",
-          "type": "core::integer::u16",
-          "key": true
-        },
-        {
-          "name": "capacity",
-          "type": "core::integer::u32",
-          "key": false
-        },
-        {
-          "name": "requirement",
-          "type": "core::integer::u32",
-          "key": false
-        },
-        {
-          "name": "games",
-          "type": "core::array::Array::<core::integer::u64>",
-          "key": false
-        }
-      ],
-      "class_hash": "0x63d0c68280aae5118ef27b2f7a52aade3e4843116bddd4c1e7706bba0ac6608",
-      "tag": "NUMS-Leaderboard",
-      "selector": "0x5829a8c4449aac108aff13f5f36c328a8ea6422394bd6d1f0ce4f5069804511"
-    },
-    {
-      "members": [
-        {
-          "name": "id",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "active",
-          "type": "core::bool",
-          "key": false
-        },
-        {
-          "name": "end",
-          "type": "core::integer::u64",
-          "key": false
-        }
-      ],
-      "class_hash": "0x1ffa1a7bfe0302bd619bce5d4d7be194a9f30da101c6ba524730d4193531de0",
-      "tag": "NUMS-Merkledrop",
-      "selector": "0x6695eb1e5f162d18818f26bd29e6d5a1cc15d35ffb76f00298ad16ba8ae32ac"
-    },
-    {
-      "members": [
-        {
-          "name": "tournament_id",
-          "type": "core::integer::u16",
-          "key": true
-        },
-        {
-          "name": "address",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "amount",
-          "type": "core::integer::u128",
-          "key": false
-        }
-      ],
-      "class_hash": "0x6fe3338aab380bb23743f845560c580d1b379282ac1e610b169cf751251e78d",
-      "tag": "NUMS-Prize",
-      "selector": "0x7c1c759a60d582822b3468a7e011748e7eec88c6aded8b83525a94a9f3ea098"
     },
     {
       "members": [
@@ -599,85 +545,6 @@
     {
       "members": [
         {
-          "name": "tournament_id",
-          "type": "core::integer::u16",
-          "key": true
-        },
-        {
-          "name": "address",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "game_id",
-          "type": "core::integer::u64",
-          "key": true
-        },
-        {
-          "name": "claimed",
-          "type": "core::bool",
-          "key": false
-        }
-      ],
-      "class_hash": "0x4a0eeba585e62e4dbc5e5b9c2660b5a28816168258702030725080f5f1bbcd0",
-      "tag": "NUMS-Reward",
-      "selector": "0x25d15cba6a316568b47986ae9b27a718c9d3a64865b65a1e84fdb2c3c186ee8"
-    },
-    {
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u32",
-          "key": true
-        },
-        {
-          "name": "slot_count",
-          "type": "core::integer::u8",
-          "key": false
-        },
-        {
-          "name": "slot_min",
-          "type": "core::integer::u16",
-          "key": false
-        },
-        {
-          "name": "slot_max",
-          "type": "core::integer::u16",
-          "key": false
-        },
-        {
-          "name": "powers",
-          "type": "core::integer::u16",
-          "key": false
-        },
-        {
-          "name": "name",
-          "type": "core::byte_array::ByteArray",
-          "key": false
-        },
-        {
-          "name": "description",
-          "type": "core::byte_array::ByteArray",
-          "key": false
-        },
-        {
-          "name": "created_by",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
-          "name": "created_at",
-          "type": "core::integer::u64",
-          "key": false
-        }
-      ],
-      "class_hash": "0x5cc98962421a0ab2ee91726604ee4a710cb4623d83d6d0961580fbcd9c25d91",
-      "tag": "NUMS-Setting",
-      "selector": "0x4ace4b74c84db14ebfabb6dfa56f9fb82f54f176cda5ea0d6c32af6fecfc5e4"
-    },
-    {
-      "members": [
-        {
           "name": "id",
           "type": "core::integer::u32",
           "key": true
@@ -706,43 +573,6 @@
       "class_hash": "0x444887bd991577346d24ea9fd5c1329327fe4858631800b7d77c7712b9ba7bf",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
-    },
-    {
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u16",
-          "key": true
-        },
-        {
-          "name": "powers",
-          "type": "core::integer::u16",
-          "key": false
-        },
-        {
-          "name": "entry_count",
-          "type": "core::integer::u32",
-          "key": false
-        },
-        {
-          "name": "start_time",
-          "type": "core::integer::u64",
-          "key": false
-        },
-        {
-          "name": "end_time",
-          "type": "core::integer::u64",
-          "key": false
-        },
-        {
-          "name": "usage",
-          "type": "core::felt252",
-          "key": false
-        }
-      ],
-      "class_hash": "0x7625a9638354f8d981a0576661206497e4cae67f42c80afefb3cd5883a9fdfb",
-      "tag": "NUMS-Tournament",
-      "selector": "0x73fae1bd4df456659957ea06fb2dc8f38967c671b7c2d16d29bc515766a4635"
     },
     {
       "members": [
@@ -811,55 +641,6 @@
       "class_hash": "0x7862bab5e54ec6aa89c4a0ef6f39ca01a6440434b08d4fdd8098ee6e920e9a6",
       "tag": "NUMS-AchievementCompleted",
       "selector": "0x7e4cf0da0a14e4bdd3787a6d2a3a5c8ed8d4e96101d0ff6281928e147ea817f"
-    },
-    {
-      "members": [
-        {
-          "name": "game_id",
-          "type": "core::integer::u64",
-          "key": true
-        },
-        {
-          "name": "reward",
-          "type": "core::integer::u64",
-          "key": false
-        }
-      ],
-      "class_hash": "0x1a7633ac9f51d670e91d6fd88303ddc000ad033c81678d38144e2f1c6345c0d",
-      "tag": "NUMS-GameReward",
-      "selector": "0x7da6aada2ec88c0706895237ddf9097895eed70ea9bb0142732bd066a1d50e4"
-    },
-    {
-      "members": [
-        {
-          "name": "leaderboard_id",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "game_id",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "player",
-          "type": "core::felt252",
-          "key": false
-        },
-        {
-          "name": "score",
-          "type": "core::integer::u64",
-          "key": false
-        },
-        {
-          "name": "timestamp",
-          "type": "core::integer::u64",
-          "key": false
-        }
-      ],
-      "class_hash": "0x2c067e1c1069a68aca73f8cf4f0000fb9c584455bb60fadde7ee05fbeb62372",
-      "tag": "NUMS-LeaderboardScore",
-      "selector": "0x3b5d184f66bf1446e882a4eab8662010f7108b42fb2d2aafe6d2721f625154e"
     },
     {
       "members": [
@@ -990,6 +771,23 @@
       "class_hash": "0x4323e58925dd9a9d34b95a5051f39876ed0ad489ec9288e326c8920a2b89f2",
       "tag": "NUMS-QuestUnlocked",
       "selector": "0x429873f72ed812577ccc849f659e2ced72baa11056deff6e4d146c5b8381e53"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "reward",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x5436eaf9d9a13440928e0c465fec528724f69d0c32d7300ccb0d6cd0b5c1e13",
+      "tag": "NUMS-Reward",
+      "selector": "0x25d15cba6a316568b47986ae9b27a718c9d3a64865b65a1e84fdb2c3c186ee8"
     },
     {
       "members": [
@@ -3506,62 +3304,6 @@
     },
     {
       "type": "event",
-      "name": "leaderboard::components::rankable::RankableComponent::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "struct",
-      "name": "leaderboard::events::index::LeaderboardScore",
-      "members": [
-        {
-          "name": "leaderboard_id",
-          "type": "core::felt252"
-        },
-        {
-          "name": "game_id",
-          "type": "core::felt252"
-        },
-        {
-          "name": "player",
-          "type": "core::felt252"
-        },
-        {
-          "name": "score",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "timestamp",
-          "type": "core::integer::u64"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "leaderboard::events::index::LeaderboardScoreValue",
-      "members": [
-        {
-          "name": "player",
-          "type": "core::felt252"
-        },
-        {
-          "name": "score",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "timestamp",
-          "type": "core::integer::u64"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "leaderboard::events::index::e_LeaderboardScore::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
       "name": "nums::components::initializable::InitializableComponent::Event",
       "kind": "enum",
       "variants": []
@@ -3579,14 +3321,8 @@
       "variants": []
     },
     {
-      "type": "event",
-      "name": "nums::components::tournament::TournamentComponent::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
       "type": "struct",
-      "name": "nums::events::index::GameReward",
+      "name": "nums::events::index::Reward",
       "members": [
         {
           "name": "game_id",
@@ -3600,7 +3336,7 @@
     },
     {
       "type": "struct",
-      "name": "nums::events::index::GameRewardValue",
+      "name": "nums::events::index::RewardValue",
       "members": [
         {
           "name": "reward",
@@ -3610,7 +3346,7 @@
     },
     {
       "type": "event",
-      "name": "nums::events::index::e_GameReward::Event",
+      "name": "nums::events::index::e_Reward::Event",
       "kind": "enum",
       "variants": []
     },
@@ -3677,6 +3413,18 @@
         {
           "name": "count",
           "type": "core::integer::u32"
+        },
+        {
+          "name": "slot_count",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "slot_min",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "slot_max",
+          "type": "core::integer::u16"
         }
       ]
     },
@@ -3711,6 +3459,18 @@
         {
           "name": "count",
           "type": "core::integer::u32"
+        },
+        {
+          "name": "slot_count",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "slot_min",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "slot_max",
+          "type": "core::integer::u16"
         }
       ]
     },
@@ -3755,10 +3515,6 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "tournament_id",
-          "type": "core::integer::u16"
-        },
-        {
           "name": "selected_powers",
           "type": "core::integer::u16"
         },
@@ -3776,6 +3532,14 @@
         },
         {
           "name": "slots",
+          "type": "core::felt252"
+        },
+        {
+          "name": "usage",
+          "type": "core::felt252"
+        },
+        {
+          "name": "supply",
           "type": "core::felt252"
         }
       ]
@@ -3817,10 +3581,6 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "tournament_id",
-          "type": "core::integer::u16"
-        },
-        {
           "name": "selected_powers",
           "type": "core::integer::u16"
         },
@@ -3839,218 +3599,14 @@
         {
           "name": "slots",
           "type": "core::felt252"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Leaderboard",
-      "members": [
-        {
-          "name": "tournament_id",
-          "type": "core::integer::u16"
         },
         {
-          "name": "capacity",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "requirement",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "games",
-          "type": "core::array::Array::<core::integer::u64>"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::LeaderboardValue",
-      "members": [
-        {
-          "name": "capacity",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "requirement",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "games",
-          "type": "core::array::Array::<core::integer::u64>"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Merkledrop",
-      "members": [
-        {
-          "name": "id",
+          "name": "usage",
           "type": "core::felt252"
         },
         {
-          "name": "active",
-          "type": "core::bool"
-        },
-        {
-          "name": "end",
-          "type": "core::integer::u64"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::MerkledropValue",
-      "members": [
-        {
-          "name": "active",
-          "type": "core::bool"
-        },
-        {
-          "name": "end",
-          "type": "core::integer::u64"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Prize",
-      "members": [
-        {
-          "name": "tournament_id",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "address",
+          "name": "supply",
           "type": "core::felt252"
-        },
-        {
-          "name": "amount",
-          "type": "core::integer::u128"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::PrizeValue",
-      "members": [
-        {
-          "name": "amount",
-          "type": "core::integer::u128"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Reward",
-      "members": [
-        {
-          "name": "tournament_id",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "address",
-          "type": "core::felt252"
-        },
-        {
-          "name": "game_id",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "claimed",
-          "type": "core::bool"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::RewardValue",
-      "members": [
-        {
-          "name": "claimed",
-          "type": "core::bool"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Setting",
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "slot_count",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "slot_min",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "slot_max",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "name",
-          "type": "core::byte_array::ByteArray"
-        },
-        {
-          "name": "description",
-          "type": "core::byte_array::ByteArray"
-        },
-        {
-          "name": "created_by",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "created_at",
-          "type": "core::integer::u64"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::SettingValue",
-      "members": [
-        {
-          "name": "slot_count",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "slot_min",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "slot_max",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "name",
-          "type": "core::byte_array::ByteArray"
-        },
-        {
-          "name": "description",
-          "type": "core::byte_array::ByteArray"
-        },
-        {
-          "name": "created_by",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "created_at",
-          "type": "core::integer::u64"
         }
       ]
     },
@@ -4099,62 +3655,6 @@
         {
           "name": "payment_token",
           "type": "core::starknet::contract_address::ContractAddress"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::Tournament",
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "entry_count",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "start_time",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "end_time",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "usage",
-          "type": "core::felt252"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::TournamentValue",
-      "members": [
-        {
-          "name": "powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "entry_count",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "start_time",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "end_time",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "usage",
-          "type": "core::felt252"
         }
       ]
     },
@@ -4210,43 +3710,7 @@
     },
     {
       "type": "event",
-      "name": "nums::models::index::m_Leaderboard::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Merkledrop::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Prize::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Reward::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Setting::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
       "name": "nums::models::index::m_Starterpack::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Tournament::Event",
       "kind": "enum",
       "variants": []
     },
@@ -4506,72 +3970,6 @@
       ]
     },
     {
-      "type": "interface",
-      "name": "nums::systems::play::ITournament",
-      "items": [
-        {
-          "type": "function",
-          "name": "sponsor",
-          "inputs": [
-            {
-              "name": "tournament_id",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "token_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "amount",
-              "type": "core::integer::u128"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "claim",
-          "inputs": [
-            {
-              "name": "tournament_id",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "token_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "game_id",
-              "type": "core::integer::u64"
-            },
-            {
-              "name": "position",
-              "type": "core::integer::u8"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "rescue",
-          "inputs": [
-            {
-              "name": "tournament_id",
-              "type": "core::integer::u16"
-            },
-            {
-              "name": "token_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
-    },
-    {
       "type": "event",
       "name": "nums::systems::play::Play::Event",
       "kind": "enum",
@@ -4592,11 +3990,6 @@
           "kind": "flat"
         },
         {
-          "name": "RankableEvent",
-          "type": "leaderboard::components::rankable::RankableComponent::Event",
-          "kind": "flat"
-        },
-        {
           "name": "QuestableEvent",
           "type": "quest::components::questable::QuestableComponent::Event",
           "kind": "flat"
@@ -4604,11 +3997,6 @@
         {
           "name": "PlayableEvent",
           "type": "nums::components::playable::PlayableComponent::Event",
-          "kind": "flat"
-        },
-        {
-          "name": "TournamentEvent",
-          "type": "nums::components::tournament::TournamentComponent::Event",
           "kind": "flat"
         },
         {

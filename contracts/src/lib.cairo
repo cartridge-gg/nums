@@ -14,7 +14,6 @@ pub mod components {
     pub mod initializable;
     pub mod playable;
     pub mod starterpack;
-    pub mod tournament;
 }
 
 pub mod models {
@@ -22,16 +21,13 @@ pub mod models {
     pub mod config;
     pub mod game;
     pub mod index;
-    pub mod prize;
-    pub mod reward;
     pub mod starterpack;
-    pub mod tournament;
     pub mod usage;
 }
 
 pub mod events {
-    pub mod game_reward;
     pub mod index;
+    pub mod reward;
 }
 
 pub mod svg {
@@ -79,7 +75,6 @@ pub mod elements {
         pub mod grinder;
         pub mod index;
         pub mod interface;
-        pub mod king;
         pub mod master;
         pub mod reference;
         pub mod streak;
@@ -104,6 +99,7 @@ pub mod elements {
         pub mod low;
         pub mod mirror;
         pub mod reroll;
+        pub mod swap;
     }
     pub mod quests {
         pub mod contender;

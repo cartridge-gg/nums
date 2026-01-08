@@ -34,16 +34,16 @@ pub impl PowerImpl of PowerTrait {
     }
 
     #[inline]
-    fn is_unlocked(self: Power, value: u8) -> bool {
+    fn rescue(self: Power, game: @Game, slots: @Array<u16>) -> bool {
         match self {
             Power::None => false,
-            Power::Reroll => value >= powers::reroll::Reroll::condition(),
-            Power::High => value >= powers::high::High::condition(),
-            Power::Low => value >= powers::low::Low::condition(),
-            Power::Foresight => value >= powers::foresight::Foresight::condition(),
-            Power::DoubleUp => value >= powers::double_up::DoubleUp::condition(),
-            Power::Halve => value >= powers::halve::Halve::condition(),
-            Power::Mirror => value >= powers::mirror::Mirror::condition(),
+            Power::Reroll => powers::reroll::Reroll::rescue(game, slots),
+            Power::High => powers::high::High::rescue(game, slots),
+            Power::Low => powers::low::Low::rescue(game, slots),
+            Power::Foresight => powers::foresight::Foresight::rescue(game, slots),
+            Power::DoubleUp => powers::double_up::DoubleUp::rescue(game, slots),
+            Power::Halve => powers::halve::Halve::rescue(game, slots),
+            Power::Mirror => powers::mirror::Mirror::rescue(game, slots),
         }
     }
 

@@ -3,15 +3,8 @@ import { useMemo } from "react";
 import { CrownIcon, LaurelIcon } from "@/components/icons";
 import { formatCompactNumber, formatScore8Digits } from "@/helpers/number";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePrizesWithUsd } from "@/hooks/usePrizes";
-import { useTournamentGames } from "@/hooks/useTournamentGames";
 import { cn } from "@/lib/utils";
-import { PrizeModel } from "@/models/prize";
-import type { TournamentModel } from "@/models/tournament";
-
-export type LeaderboardProps = {
-  tournament: TournamentModel;
-};
+import { useEntities } from "@/context/entities";
 
 export type LeaderboardRow = {
   rank: number;
@@ -23,6 +16,49 @@ export type LeaderboardRow = {
   prize: number;
   share: number;
 };
+
+const DATA = [
+  {
+    rank: 1,
+    username: "John Doe",
+    address: "0x1234567890123456789012345678901234567890",
+    score: 100,
+    level: 1,
+    game_id: 1,
+    prize: 100,
+    share: 100,
+  },
+  {
+    rank: 2,
+    username: "Jane Doe",
+    address: "0x1234567890123456789012345678901234567890",
+    score: 90,
+    level: 1,
+    game_id: 2,
+    prize: 90,
+    share: 90,
+  },
+  {
+    rank: 3,
+    username: "John Smith",
+    address: "0x1234567890123456789012345678901234567890",
+    score: 80,
+    level: 1,
+    game_id: 3,
+    prize: 80,
+    share: 80,
+  },
+  {
+    rank: 4,
+    username: "Jane Smith",
+    address: "0x1234567890123456789012345678901234567890",
+    score: 70,
+    level: 1,
+    game_id: 4,
+    prize: 70,
+    share: 70,
+  }
+]
 
 const EmptyLeaderboard = () => {
   return (
@@ -37,50 +73,27 @@ const EmptyLeaderboard = () => {
   );
 };
 
-export const Leaderboard = ({ tournament }: LeaderboardProps) => {
-  const tournamentId = tournament.id;
+export const Leaderboard = () => {
   const { account } = useAccount();
-  const { games } = useTournamentGames(tournamentId);
-  const { prizes } = usePrizesWithUsd();
-
-  const tournamentPrizes = useMemo(() => {
-    return prizes.filter((p) => p.tournament_id === tournamentId);
-  }, [prizes, tournamentId]);
-
-  const totalPrize = useMemo(() => {
-    const total = tournamentPrizes.reduce((sum, prize) => {
-      if (prize.totalUsd) {
-        return sum + parseFloat(prize.totalUsd);
-      }
-      return sum;
-    }, 0);
-    return total > 0 ? total : 0;
-  }, [tournamentPrizes]);
+  const { config, usage } = useEntities();
 
   const rows: LeaderboardRow[] = useMemo(() => {
-    if (games.length === 0 || !tournament) return [];
-    return games.map((game) => {
-      const gameId = parseInt(game.token_id, 16);
-      const prize =
-        PrizeModel.payout(
-          totalPrize,
-          game.rank,
-          tournament.entry_count,
-        ) || 0;
+    if (!config || !usage) return [];
+    return DATA.map((game) => {
       return {
         rank: game.rank,
         username: game.username,
         address: game.address,
         score: game.score,
         level: game.level,
-        game_id: gameId,
-        prize: Number(prize),
-        share: Math.floor((Number(prize) / totalPrize) * 100),
+        game_id: 1,
+        prize: Number(1),
+        share: Math.floor((Number(1) / 1) * 100),
       };
     });
-  }, [games, tournament, totalPrize]);
+  }, [config, usage]);
 
-  const hasData = games.length > 0;
+  const hasData = rows.length > 0;
 
   return (
     <div

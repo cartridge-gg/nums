@@ -5,24 +5,22 @@ pub mod PlayableComponent {
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use leaderboard::components::rankable::RankableComponent;
-    use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
+    use ekubo::components::clear::IClearDispatcherTrait;
+    use ekubo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use ekubo::interfaces::router::{IRouterDispatcherTrait, RouteNode, TokenAmount};
+    use ekubo::types::i129::i129;
+    use ekubo::types::keys::PoolKey;
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
-    use crate::components::tournament::TournamentComponent;
-    use crate::components::tournament::TournamentComponent::InternalImpl as TournamentInternalImpl;
-    use crate::constants::{DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::starterpack::StarterpackTrait as PackTrait;
-    use crate::models::tournament::TournamentAssert;
     use crate::models::usage::{UsageAssert, UsageTrait};
     use crate::random::RandomImpl;
     use crate::systems::collection::{
@@ -56,7 +54,7 @@ pub mod PlayableComponent {
             mut quantity: u32,
         ) {
             // [Setup] Store
-            let mut store = StoreImpl::new(world);
+            let store = StoreImpl::new(world);
 
             // [Check] Caller is allowed
             let starterpack = get_dep_component!(@self, Starterpack);
@@ -69,7 +67,9 @@ pub mod PlayableComponent {
             let questable = get_dep_component!(@self, Quest);
             let task = QuestType::StarterOne;
             let player = recipient.into();
-            questable.progress(world, player, task.identifier(), 1, true);
+            if !questable.is_completed(world, player, task.identifier(), 0) {
+                questable.progress(world, player, task.identifier(), 1, true);
+            }
 
             // [Check] Free game
             let pack = store.starterpack(starterpack_id);
@@ -82,12 +82,10 @@ pub mod PlayableComponent {
                 store.set_claim(@claim);
             }
 
-            // [Interaction] Burn the entry price
-            let pack = store.starterpack(starterpack_id);
-            let amount = pack.amount(quantity);
-            store.nums_disp().burn(amount);
-
             // [Interaction] Mint games
+            let config = store.config();
+            let usage = store.usage();
+            let nums_supply = store.nums_disp().total_supply();
             let collection = self.get_collection(world);
             while quantity > 0 {
                 // [Interaction] Mint a game
@@ -95,11 +93,56 @@ pub mod PlayableComponent {
 
                 // [Effect] Create game
                 let game = GameTrait::new(
-                    game_id, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX,
+                    id: game_id,
+                    slot_count: config.slot_count,
+                    slot_min: config.slot_min,
+                    slot_max: config.slot_max,
+                    usage: usage.board,
+                    supply: nums_supply,
                 );
                 store.set_game(@game);
                 quantity -= 1;
             }
+
+            // [Interaction] Transfer quote token to Ekubo
+            let pack = store.starterpack(starterpack_id);
+            let quote = IERC20Dispatcher { contract_address: pack.payment_token };
+            let quote_address = quote.contract_address;
+            let nums = store.nums_disp();
+            let nums_address = nums.contract_address;
+            let this = starknet::get_contract_address();
+            let amount = quote.balanceOf(this);
+            let router = store.ekubo_router();
+            quote.transfer(router.contract_address, amount);
+
+            // [Interaction] Swap Quote token for Nums
+            let pool_key = PoolKey {
+                token0: quote.contract_address,
+                token1: nums_address,
+                fee: 0x0, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
+                tick_spacing: 0x56a4c,
+                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
+                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
+                extension: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
+                    .try_into()
+                    .unwrap(),
+            };
+            let route_node = RouteNode {
+                pool_key: pool_key, sqrt_ratio_limit: 0x1000003f7f1380b75, skip_ahead: 0,
+            };
+            let token_amount = TokenAmount {
+                token: quote_address, amount: i129 { mag: amount.low, sign: false },
+            };
+            router.swap(route_node, token_amount);
+
+            // [Interaction] Clear minimum
+            let clearer = store.ekubo_clearer();
+            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
+            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
+
+            // [Interaction] Burn the entry price
+            let amount = nums.balance_of(this);
+            nums.burn(amount);
         }
     }
 
@@ -117,7 +160,7 @@ pub mod PlayableComponent {
             quest_id: felt252,
             interval_id: u64,
         ) {
-            // [Effect] Update daily and weekly quest completions
+            // [Effect] Update daily quest completions
             let questable = get_dep_component!(@self, Quest);
             let player = recipient.into();
             if quest_id == QuestType::DailyContenderOne.identifier()
@@ -130,19 +173,9 @@ pub mod PlayableComponent {
                 || quest_id == QuestType::DailyPlacerTwo.identifier()
                 || quest_id == QuestType::DailyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
-            } else if quest_id == QuestType::WeeklyContenderOne.identifier()
-                || quest_id == QuestType::WeeklyContenderTwo.identifier()
-                || quest_id == QuestType::WeeklyContenderThree.identifier()
-                || quest_id == QuestType::WeeklyEarnerOne.identifier()
-                || quest_id == QuestType::WeeklyEarnerTwo.identifier()
-                || quest_id == QuestType::WeeklyEarnerThree.identifier()
-                || quest_id == QuestType::WeeklyPlacerOne.identifier()
-                || quest_id == QuestType::WeeklyPlacerTwo.identifier()
-                || quest_id == QuestType::WeeklyPlacerThree.identifier() {
-                questable.progress(world, player, finisher::WeeklyFinisher::identifier(), 1, true);
             }
             // [Effect] Claim quest reward automatically
-            questable.claim(world, recipient.into(), quest_id, interval_id);
+        // questable.claim(world, recipient.into(), quest_id, interval_id);
         }
 
         fn on_quest_claim(
@@ -157,10 +190,18 @@ pub mod PlayableComponent {
 
             // [Interaction] Reward player with Nums
             let quest: QuestType = quest_id.into();
-            let amount = quest.reward();
+            let (amount, task) = quest.reward();
             if amount != 0 {
                 store.nums_disp().reward(recipient, amount);
             }
+
+            // [Effect] Update achievement progression for daily quest completions
+            if (task == Task::None) {
+                return;
+            }
+            let achievable = get_dep_component!(@self, Achievable);
+            let player: felt252 = recipient.into();
+            achievable.progress(world, player, task.identifier(), 1, true);
         }
     }
 
@@ -169,10 +210,8 @@ pub mod PlayableComponent {
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
-        impl Tournament: TournamentComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
-        impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         fn start(
             ref self: ComponentState<TContractState>,
@@ -193,22 +232,14 @@ pub mod PlayableComponent {
 
             // [Effect] Create and setup game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let number = rand.between::<u16>(DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX);
+            let number = rand.between::<u16>(game.slot_min, game.slot_max);
 
             // [Check] Powers are valid
-            let usage = UsageTrait::from(0);
+            let usage = UsageTrait::from(game.usage);
             usage.assert_valid_powers(powers);
 
-            // [Effect] Enter tournament
-            let mut tournament_component = get_dep_component_mut!(ref self, Tournament);
-            let tournament = tournament_component.enter(world);
-
-            // [Check] Powers are valid
-            let usage = UsageTrait::from(tournament.usage);
-            usage.assert_valid_powers(powers);
-
-            // [Effect] Start tournament game
-            game.start(tournament.id, number, powers);
+            // [Effect] Start game
+            game.start(number, powers);
             store.set_game(@game);
 
             // [Effect] Update quest progression for the player - Contender tasks
@@ -219,7 +250,9 @@ pub mod PlayableComponent {
 
             // [Effect] Update quest progression for the player - StarterTwo
             let task = QuestType::StarterTwo;
-            questable.progress(world, player.into(), task.identifier(), 1, true);
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
 
             // [Effect] Update achievement progression for the player - Grinder task
             let achievable = get_dep_component!(@self, Achievable);
@@ -262,20 +295,15 @@ pub mod PlayableComponent {
 
             // [Effect] Update game
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let reward = game
-                .update(ref rand, store.nums_disp().total_supply(), store.config().target_supply);
+            let reward = game.update(ref rand, store.config().target_supply);
             store.set_game(@game);
-
-            // [Check] Tournament is not over
-            let tournament = store.tournament(game.tournament_id);
-            tournament.assert_not_over();
 
             // [Interaction] Pay user reward
             let player = starknet::get_caller_address();
             store.nums_disp().reward(player, reward);
 
             // [Event] Emit reward event
-            store.game_reward(game_id, reward);
+            store.reward(game_id, reward);
 
             // [Effect] Update quest progression for the player - Contender tasks
             let questable = get_dep_component!(@self, Quest);
@@ -284,34 +312,26 @@ pub mod PlayableComponent {
 
             // [Effect] Update quest progression for the player - StarterThree
             let task = QuestType::StarterThree;
-            questable.progress(world, player.into(), task.identifier(), 1, true);
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
 
             // [Effect] Update quest progression for the player - StarterFour
             let task = QuestType::StarterFour;
-            questable.progress(world, player.into(), task.identifier(), 1, true);
+            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
+                questable.progress(world, player.into(), task.identifier(), 1, true);
+            }
 
             // [Effect] Update quest progression for the player - StarterFive
-            if game.over {
-                let task = QuestType::StarterFive;
+            let task = QuestType::StarterFive;
+            if game.over && !questable.is_completed(world, player.into(), task.identifier(), 0) {
                 questable.progress(world, player.into(), task.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
+            let task = Task::Claimer;
             achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
-            // [Effect] Update leaderboard if the game has been inserted
-            let mut rankable = get_dep_component_mut!(ref self, Rankable);
-            rankable
-                .submit(
-                    world: world,
-                    leaderboard_id: tournament.id.into(),
-                    game_id: game.id,
-                    player_id: player.into(),
-                    score: game.score.into(),
-                    time: starknet::get_block_timestamp(),
-                    to_store: true,
-                );
 
             // [Effect] Update achievement progression for the player - Filler tasks
             let filled_slots = game.level;
@@ -388,10 +408,6 @@ pub mod PlayableComponent {
             // [Check] Game has started and is not over
             game.assert_has_started();
             game.assert_not_over();
-
-            // [Check] Tournament is not over
-            let tournament = store.tournament(game.tournament_id);
-            tournament.assert_not_over();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());

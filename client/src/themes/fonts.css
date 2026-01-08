@@ -1,0 +1,63 @@
+@font-face {
+  font-family: "PixelGame";
+  src: url("/assets/fonts/pixel-game.regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PPNeueBit";
+  src: url("/assets/fonts/pp-neue-bit.bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Regular";
+  src: url("/assets/fonts/dm-mono.regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Italic";
+  src: url("/assets/fonts/dm-mono.italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Light";
+  src: url("/assets/fonts/dm-mono.light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-LightItalic";
+  src: url("/assets/fonts/dm-mono.light-italic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-Medium";
+  src: url("/assets/fonts/dm-mono.medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DMMono-MediumItalic";
+  src: url("/assets/fonts/dm-mono.medium-italic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}

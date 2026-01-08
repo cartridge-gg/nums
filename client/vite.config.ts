@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { VitePWA } from "vite-plugin-pwa";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -52,14 +51,6 @@ export default defineConfig({
         background_color: "#591FFF",
         display: "standalone",
       },
-    }),
-    viteStaticCopy({
-      targets: [
-        {
-          src: "src/assets/fonts/*",
-          dest: "assets/fonts",
-        },
-      ],
     }),
   ],
   resolve: {

@@ -6,8 +6,9 @@ import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
-import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
+
+const background = "/assets/tunnel-background.svg";
 import { CloseIcon, HomeIcon, PointsIcon } from "@/components/icons";
 import { PrizePoolModal } from "@/components/jackpot-details";
 import { Button } from "@/components/ui/button";

@@ -2,8 +2,9 @@ import { useAccount, useConnect } from "@starknet-react/core";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addAddressPadding, getChecksumAddress } from "starknet";
-import background from "@/assets/tunnel-background.svg";
 import { Header } from "@/components/header";
+
+const background = "/assets/tunnel-background.svg";
 import {
   CircleInfoIcon,
   CopyIcon,

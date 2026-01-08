@@ -1,26 +1,28 @@
 import type { ComponentType } from "react";
-import { BoostHighIcon } from "@/components/icons/powers/boost-high-icon";
-import { BoostHighLockedIcon } from "@/components/icons/powers/boost-high-locked-icon";
-import { BoostHighUsedIcon } from "@/components/icons/powers/boost-high-used-icon";
-import { BoostLowIcon } from "@/components/icons/powers/boost-low-icon";
-import { BoostLowLockedIcon } from "@/components/icons/powers/boost-low-locked-icon";
-import { BoostLowUsedIcon } from "@/components/icons/powers/boost-low-used-icon";
-import { DoubleUpIcon } from "@/components/icons/powers/double-up-icon";
-import { DoubleUpLockedIcon } from "@/components/icons/powers/double-up-locked-icon";
-import { DoubleUpUsedIcon } from "@/components/icons/powers/double-up-used-icon";
-import { ForesightIcon } from "@/components/icons/powers/foresight-icon";
-import { ForesightLockedIcon } from "@/components/icons/powers/foresight-locked-icon";
-import { ForesightUsedIcon } from "@/components/icons/powers/foresight-used-icon";
-import { HalveIcon } from "@/components/icons/powers/halve-icon";
-import { HalveLockedIcon } from "@/components/icons/powers/halve-locked-icon";
-import { HalveUsedIcon } from "@/components/icons/powers/halve-used-icon";
-import { MirrorIcon } from "@/components/icons/powers/mirror-icon";
-import { MirrorLockedIcon } from "@/components/icons/powers/mirror-locked-icon";
-import { MirrorUsedIcon } from "@/components/icons/powers/mirror-used-icon";
-import { RerollIcon } from "@/components/icons/powers/reroll-icon";
-import { RerollLockedIcon } from "@/components/icons/powers/reroll-locked-icon";
-import { RerollUsedIcon } from "@/components/icons/powers/reroll-used-icon";
-import type { IconProps } from "@/components/icons/types";
+import {
+  BoostHighIcon,
+  BoostHighLockedIcon,
+  BoostHighUsedIcon,
+  BoostLowIcon,
+  BoostLowLockedIcon,
+  BoostLowUsedIcon,
+  DoubleUpIcon,
+  DoubleUpLockedIcon,
+  DoubleUpUsedIcon,
+  ForesightIcon,
+  ForesightLockedIcon,
+  ForesightUsedIcon,
+  HalveIcon,
+  HalveLockedIcon,
+  HalveUsedIcon,
+  MirrorIcon,
+  MirrorLockedIcon,
+  MirrorUsedIcon,
+  RerollIcon,
+  RerollLockedIcon,
+  RerollUsedIcon,
+  type IconProps,
+} from "@/components/icons";
 import { Packer } from "@/helpers/packer";
 
 export const POWER_COUNT = 7;

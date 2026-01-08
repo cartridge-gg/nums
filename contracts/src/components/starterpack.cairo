@@ -42,6 +42,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
+                    payment_receiver: None,
                     metadata: StarterpackTrait::metadata(nums_address),
                 );
             // [Effect] Create default starterpack
@@ -60,6 +61,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
+                    payment_receiver: None,
                     metadata: StarterpackTrait::metadata(nums_address),
                 );
             // [Effect] Create free starterpack
@@ -95,6 +97,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
+                    payment_receiver: None,
                     metadata: StarterpackTrait::metadata(nums_address),
                 );
 
@@ -140,6 +143,7 @@ pub mod StarterpackComponent {
                     reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
+                    payment_receiver: None,
                 );
         }
 

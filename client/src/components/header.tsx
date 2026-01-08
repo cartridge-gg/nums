@@ -5,12 +5,11 @@ import { Link } from "react-router-dom";
 import { addAddressPadding, num } from "starknet";
 import {
   ControllerIcon,
-  DisconnectIcon,
-  LogoIcon,
-  LogoMiniIcon,
+  SignOutIcon,
   SoundOffIcon,
   SoundOnIcon,
 } from "@/components/icons";
+import { LogoIcon, LogoMiniIcon } from "@/components/icons/exotics";
 import { getNumsAddress, MAINNET_CHAIN_ID } from "@/config";
 import { useAudio } from "@/context/audio";
 import useChain from "@/hooks/chain";
@@ -210,7 +209,7 @@ export const Disconnect = () => {
       className="h-10 md:h-12 w-10 md:w-auto px-3 md:px-4 py-2 [&_svg]:size-6 md:[&_svg]:size-8 gap-1"
       onClick={() => disconnect()}
     >
-      <DisconnectIcon size="lg" />
+      <SignOutIcon size="lg" />
     </Button>
   );
 };

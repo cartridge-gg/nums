@@ -9,6 +9,7 @@ pub trait IStarterpack<TContractState> {
         reissuable: bool,
         price: u256,
         payment_token: ContractAddress,
+        payment_receiver: Option<ContractAddress>,
         metadata: ByteArray,
     ) -> u32;
     fn update(
@@ -19,6 +20,7 @@ pub trait IStarterpack<TContractState> {
         reissuable: bool,
         price: u256,
         payment_token: ContractAddress,
+        payment_receiver: Option<ContractAddress>,
     );
     fn update_metadata(ref self: TContractState, starterpack_id: u32, metadata: ByteArray);
 }

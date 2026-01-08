@@ -1,14 +1,8 @@
 import type { VariantProps } from "class-variance-authority";
-import type { SVGAttributes } from "react";
-import type { iconVariants } from "./utils";
+import type { iconVariants } from ".";
 
-export type IconProps = SVGAttributes<SVGElement> &
+export type IconProps = React.SVGAttributes<SVGElement> &
   VariantProps<typeof iconVariants>;
 
-export type DirectionalIconProps = SVGAttributes<SVGElement> &
-  VariantProps<typeof iconVariants> & { variant: Direction };
-
-export type Direction = "up" | "right" | "down" | "left";
-
-export type StateIconProps = SVGAttributes<SVGElement> &
+export type StateIconProps = React.SVGAttributes<SVGElement> &
   VariantProps<typeof iconVariants> & { variant: "solid" | "line" };

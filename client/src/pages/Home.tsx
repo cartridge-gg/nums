@@ -5,12 +5,8 @@ import { addAddressPadding, getChecksumAddress } from "starknet";
 import { Header } from "@/components/header";
 
 const background = "/assets/tunnel-background.svg";
-import {
-  CircleInfoIcon,
-  CopyIcon,
-  LogoIcon,
-  TrophyIcon,
-} from "@/components/icons";
+import { CircleInfoIcon, CopyIcon, TrophyIcon } from "@/components/icons";
+import { LogoIcon } from "@/components/icons/exotics";
 import { Close, Inventory } from "@/components/inventory";
 import { PrizePoolModal } from "@/components/jackpot-details";
 import { Leaderboard } from "@/components/leaderboard";

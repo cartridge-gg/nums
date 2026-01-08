@@ -24,7 +24,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook:build": "storybook build",
+    "storybook:serve": "storybook build --quiet && http-server -c-1 storybook-static --port 6001 --silent"
   },
   "dependencies": {
     "@cartridge/connector": "catalog:",

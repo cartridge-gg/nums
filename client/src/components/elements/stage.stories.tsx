@@ -23,8 +23,8 @@ type Story = StoryObj<typeof meta>;
 
 const states: Array<StageState> = [
   {},
-  { gem: true },
   { completed: true },
+  { gem: true },
   { completed: true, gem: true },
   { breakeven: true },
   { breakeven: true, gem: true },

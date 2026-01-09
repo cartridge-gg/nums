@@ -285,7 +285,7 @@ export const GameNumber = ({
 }) => {
   return (
     <div className="flex flex-col gap-1 md:gap-2">
-      <span className="text-purple-300 tracking-wide text-lg/6 whitespace-nowrap">
+      <span className="text-mauve-100 tracking-wide text-lg/6 whitespace-nowrap">
         Your number is...
       </span>
       <div
@@ -430,7 +430,7 @@ export const PowerUps = ({
   return (
     <div className="flex flex-col gap-2 justify-start">
       <div className="flex justify-end items-center gap-2">
-        <span className="text-purple-300 tracking-wide text-lg/6 ">
+        <span className="text-mauve-100 tracking-wide text-lg/6 ">
           Power ups
         </span>
       </div>
@@ -598,12 +598,12 @@ const GameSlot = ({
   return (
     <>
       <div className="flex justify-between items-center max-w-[108px] h-10 overflow-visible relative">
-        <p className="text-purple-300 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
+        <p className="text-mauve-100 tracking-wide text-[28px] min-w-8">{`${index + 1}.`}</p>
         <div className="relative overflow-visible">
           {slot ? (
             <div
               ref={slotRef as React.RefObject<HTMLDivElement>}
-              className="h-10 w-16 rounded-xl flex justify-center items-center bg-purple-300"
+              className="h-10 w-16 rounded-xl flex justify-center items-center bg-mauve-100"
               style={{
                 boxShadow:
                   "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
@@ -769,7 +769,7 @@ export const GameOverDetails = ({ game }: { game: GameModel }) => {
 export const GameOverScore = ({ score }: { score: number }) => {
   return (
     <div className="md:grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-lg">
-      <p className="text-purple-300 tracking-wide text-lg/3">Score</p>
+      <p className="text-mauve-100 tracking-wide text-lg/3">Score</p>
       <p
         className="text-[28px]/[19px] tracking-wide"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
@@ -783,7 +783,7 @@ export const GameOverScore = ({ score }: { score: number }) => {
 export const GameOverEarning = ({ earning }: { earning: number }) => {
   return (
     <div className="md:grow flex flex-col gap-3 justify-between px-5 py-4 bg-white-900 border border-white-900 rounded-lg">
-      <p className="text-purple-300 tracking-wide text-lg/3">Earned</p>
+      <p className="text-mauve-100 tracking-wide text-lg/3">Earned</p>
       <p
         className="text-[28px]/[19px] tracking-wide"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
@@ -903,7 +903,7 @@ export const GameStartHeader = ({
       className={cn("flex h-[76px] items-stretch justify-between", className)}
     >
       <div className="flex flex-col gap-2 justify-between">
-        <p className="text-purple-300 tracking-wider text-lg/6">
+        <p className="text-mauve-100 tracking-wider text-lg/6">
           Choose your...
         </p>
         <div className="grow flex justify-center items-start">
@@ -913,7 +913,7 @@ export const GameStartHeader = ({
         </div>
       </div>
       <div className="flex flex-col items-end gap-2">
-        <p className="text-purple-300 tracking-wider text-lg/6">
+        <p className="text-mauve-100 tracking-wider text-lg/6">
           Points remaining
         </p>
         <div className="h-11 flex gap-2 items-center p-3 md:px-4 md:py-2.5 rounded bg-white-900 border border-white-900">
@@ -1039,10 +1039,10 @@ export const GameStartPowerup = ({
           variant="secondary"
           className={cn(
             "h-full w-full transition-all duration-0",
-            selected && !hover && "bg-purple-400 text-white-400",
+            selected && !hover && "bg-mauve-400 text-white-400",
             selected &&
               inside &&
-              "hover:bg-purple-400 hover:text-white-400 cursor-default pointer-events-none",
+              "hover:bg-mauve-400 hover:text-white-400 cursor-default pointer-events-none",
           )}
           onClick={handleClick}
           onMouseEnter={handleMouseEnter}

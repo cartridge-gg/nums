@@ -65,7 +65,7 @@ export const PrizePoolTokens = ({
   }[];
 }) => {
   return (
-    <div className="select-none flex justify-center items-center bg-purple-600 rounded-full p-0.5">
+    <div className="select-none flex justify-center items-center bg-mauve-700 rounded-full p-0.5">
       {prizes.map((prize, index) => (
         <div
           key={prize.address}
@@ -113,9 +113,9 @@ export const PrizePoolModal = ({
         {prizes.map((prize) => (
           <div
             key={prize.address}
-            className="h-16 flex items-center justify-between gap-3 px-3 rounded-xl bg-purple-700"
+            className="h-16 flex items-center justify-between gap-3 px-3 rounded-xl bg-mauve-800"
           >
-            <div className="flex items-center justify-center h-10 w-10 bg-purple-700 p-0.5 rounded-full">
+            <div className="flex items-center justify-center h-10 w-10 bg-mauve-800 p-0.5 rounded-full">
               <img
                 draggable={false}
                 src={prize.metadata?.logoUrl || makeBlockie(prize.address)}

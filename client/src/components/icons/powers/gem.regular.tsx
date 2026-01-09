@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react";
 import { iconVariants, type IconProps } from "..";
 
-export const PowerIcon = memo(
+export const GemIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
     ({ className, size, ...props }, forwardedRef) => (
       <svg
@@ -64,4 +64,4 @@ export const PowerIcon = memo(
   ),
 );
 
-PowerIcon.displayName = "PowerIcon";
+GemIcon.displayName = "GemIcon";

@@ -24,7 +24,6 @@ pub mod Setup {
     use crate::mocks::starterpack::NAME as STARTERPACK;
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
-    use crate::models::usage::UsageTrait;
     use super::ISetup;
 
     // Components
@@ -99,9 +98,6 @@ pub mod Setup {
             target_supply: target_supply,
         );
         store.set_config(config);
-        // [Effect] Create usage
-        let usage = UsageTrait::new(WORLD_RESOURCE);
-        store.set_usage(@usage);
         // [Effect] Initialize components
         self.initializable.initialize(world);
 

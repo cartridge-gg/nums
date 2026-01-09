@@ -19,9 +19,7 @@ pub mod PlayableComponent {
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
-    use crate::models::claim::{ClaimAssert, ClaimTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::usage::{UsageAssert, UsageTrait};
     use crate::random::RandomImpl;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
@@ -44,6 +42,7 @@ pub mod PlayableComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl Starterpack: StarterpackComponent::HasComponent<TContractState>,
+        impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of StarterpackTrait<TContractState> {
         fn on_issue(
@@ -51,7 +50,7 @@ pub mod PlayableComponent {
             world: WorldStorage,
             recipient: ContractAddress,
             starterpack_id: u32,
-            mut quantity: u32,
+            quantity: u32,
         ) {
             // [Setup] Store
             let store = StoreImpl::new(world);
@@ -71,38 +70,51 @@ pub mod PlayableComponent {
                 questable.progress(world, player, task.identifier(), 1, true);
             }
 
-            // [Check] Free game
-            let pack = store.starterpack(starterpack_id);
-            if !pack.reissuable {
-                // [Check] Free game not already claimed
-                let mut claim = store.claim(player, starterpack_id);
-                claim.assert_not_claimed();
-                // [Effect] Claim free game
-                claim.claim();
-                store.set_claim(@claim);
-            }
-
             // [Interaction] Mint games
             let config = store.config();
-            let usage = store.usage();
             let nums_supply = store.nums_disp().total_supply();
             let collection = self.get_collection(world);
-            while quantity > 0 {
+            let mut count = quantity;
+            while count > 0 {
                 // [Interaction] Mint a game
                 let game_id = collection.mint(recipient, true);
 
                 // [Effect] Create game
-                let game = GameTrait::new(
+                let mut game = GameTrait::new(
                     id: game_id,
                     slot_count: config.slot_count,
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
-                    usage: usage.board,
                     supply: nums_supply,
                 );
+                // [Effect] Create and setup game
+                // let mut rand = RandomImpl::new_vrf(store.vrf_disp());
+                let mut rand = RandomImpl::new_with_salt(game_id);
+                let number = rand.between::<u16>(game.slot_min, game.slot_max);
+                let next = rand.between::<u16>(game.slot_min, game.slot_max);
+                // [Effect] Start game
+                game.start(number, next);
                 store.set_game(@game);
-                quantity -= 1;
+                // [Interaction] Update token metadata
+                collection.update(game_id.into());
+                // [Compute] Update count
+                count -= 1;
             }
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Grinder;
+            questable.progress(world, player, task.identifier(), quantity.into(), true);
+
+            // [Effect] Update quest progression for the player - StarterTwo
+            let task = QuestType::StarterTwo;
+            if !questable.is_completed(world, player, task.identifier(), 0) {
+                questable.progress(world, player, task.identifier(), quantity.into(), true);
+            }
+
+            // [Effect] Update achievement progression for the player - Grinder task
+            let achievable = get_dep_component!(@self, Achievable);
+            achievable.progress(world, player, task.identifier(), quantity.into(), true);
 
             // [Interaction] Transfer quote token to Ekubo
             let pack = store.starterpack(starterpack_id);
@@ -174,8 +186,6 @@ pub mod PlayableComponent {
                 || quest_id == QuestType::DailyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
             }
-            // [Effect] Claim quest reward automatically
-        // questable.claim(world, recipient.into(), quest_id, interval_id);
         }
 
         fn on_quest_claim(
@@ -213,62 +223,6 @@ pub mod PlayableComponent {
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn start(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            game_id: u64,
-            powers: u16,
-        ) -> (u64, u16) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
-            // [Check] Token ownership
-            let collection = self.get_collection(world);
-            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
-
-            // [Check] Game not started yet
-            let mut game = store.game(game_id);
-            game.assert_not_started();
-
-            // [Effect] Create and setup game
-            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let number = rand.between::<u16>(game.slot_min, game.slot_max);
-
-            // [Check] Powers are valid
-            let usage = UsageTrait::from(game.usage);
-            usage.assert_valid_powers(powers);
-
-            // [Effect] Start game
-            game.start(number, powers);
-            store.set_game(@game);
-
-            // [Effect] Update quest progression for the player - Contender tasks
-            let questable = get_dep_component!(@self, Quest);
-            let player = starknet::get_caller_address();
-            let task = Task::Grinder;
-            questable.progress(world, player.into(), task.identifier(), 1, true);
-
-            // [Effect] Update quest progression for the player - StarterTwo
-            let task = QuestType::StarterTwo;
-            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
-                questable.progress(world, player.into(), task.identifier(), 1, true);
-            }
-
-            // [Effect] Update achievement progression for the player - Grinder task
-            let achievable = get_dep_component!(@self, Achievable);
-            achievable.progress(world, player.into(), task.identifier(), 1, true);
-
-            // [Effect] Update usage
-            let mut usage = store.usage();
-            usage.insert(powers);
-            store.set_usage(@usage);
-
-            // [Interaction] Update token metadata
-            collection.update(game_id.into());
-
-            (game_id, number)
-        }
-
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
         fn set(
             ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
@@ -390,9 +344,36 @@ pub mod PlayableComponent {
             game.number
         }
 
+        /// Selects a power for a game. It ensures the power is valid and not already selected.
+        fn select(
+            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Check] Token ownership
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
+
+            // [Check] Game state
+            let mut game = store.game(game_id);
+            game.assert_does_exist();
+            game.assert_has_started();
+            game.assert_not_over();
+
+            // [Effect] Select power
+            game.select(index);
+
+            // [Effect] Update game
+            store.set_game(@game);
+
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
+        }
+
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
         fn apply(
-            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, power: u8,
+            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
         ) -> u16 {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -401,17 +382,15 @@ pub mod PlayableComponent {
             let collection = self.get_collection(world);
             collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
-            // [Check] Game exists
+            // [Check] Game state
             let mut game = store.game(game_id);
             game.assert_does_exist();
-
-            // [Check] Game has started and is not over
             game.assert_has_started();
             game.assert_not_over();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            game.apply(power, ref rand);
+            game.apply(index, ref rand);
 
             // [Effect] Update game
             store.set_game(@game);

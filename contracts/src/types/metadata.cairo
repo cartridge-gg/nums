@@ -12,7 +12,6 @@ pub impl Metadata of MetadataTrait {
         game_slots: Span<u16>,
         game_id: u64,
         game_number: u16,
-        game_score: u32,
         game_level: u8,
         game_completed: bool,
         game_over: bool,
@@ -20,9 +19,8 @@ pub impl Metadata of MetadataTrait {
         let svg = SvgTrait::eval(game_number, game_completed, game_over);
         let attributes = array![
             Attribute { trait_type: "Game ID", value: format!("{}", game_id) }.jsonify(),
-            Attribute { trait_type: "Game Score", value: format!("{}", game_score) }.jsonify(),
+            Attribute { trait_type: "Game Score", value: format!("{}", game_level) }.jsonify(),
             Attribute { trait_type: "Game Over", value: format!("{}", game_over) }.jsonify(),
-            Attribute { trait_type: "Game Level", value: format!("{}", game_level) }.jsonify(),
         ]
             .span();
         let metadata = JsonImpl::new()
@@ -45,12 +43,11 @@ mod tests {
             .span();
         let id = 1;
         let number = 1;
-        let score = 100;
         let level = 1;
         let completed = true;
         let over = false;
         let metadata = Metadata::gen(
-            "Test Game", "This is a test game", slots, id, number, score, level, completed, over,
+            "Test Game", "This is a test game", slots, id, number, level, completed, over,
         );
         assert_eq!(metadata.len() > 0, true);
     }

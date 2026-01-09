@@ -35,6 +35,7 @@ pub impl Packer<
     +TryInto<T, U>,
     +Drop<U>,
     +Copy<U>,
+    +Zero<U>,
     V,
     +Into<V, T>,
     +Drop<V>,
@@ -66,7 +67,7 @@ pub impl Packer<
         let mut result: Array<U> = array![];
         let modulo: T = size.into();
         let mut index: u8 = 0;
-        while index.into() < len {
+        while index.into() < len || (len.is_zero() && packed.is_non_zero()) {
             let value: U = (packed % modulo)
                 .try_into()
                 .expect(errors::PACKER_VALUE_CONVERSION_FAILED);

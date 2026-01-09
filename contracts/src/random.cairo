@@ -15,6 +15,10 @@ pub impl RandomImpl of RandomTrait {
         Random { seed: seed(get_contract_address()), nonce: 0 }
     }
 
+    fn new_with_salt(salt: u64) -> Random {
+        Random { seed: pedersen(salt.into(), salt.into()), nonce: 0 }
+    }
+
     // https://docs.cartridge.gg/vrf/overview
     fn new_vrf(vrf_provider_disp: IVrfProviderDispatcher) -> Random {
         let seed = vrf_provider_disp.consume_random(Source::Nonce(get_contract_address()));

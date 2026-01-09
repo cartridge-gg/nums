@@ -7,9 +7,9 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait IPlay<T> {
-    fn start(ref self: T, game_id: u64, powers: u16) -> (u64, u16);
     fn set(ref self: T, game_id: u64, index: u8) -> u16;
-    fn apply(ref self: T, game_id: u64, power: u8) -> u16;
+    fn select(ref self: T, game_id: u64, index: u8);
+    fn apply(ref self: T, game_id: u64, index: u8) -> u16;
 }
 
 #[starknet::interface]
@@ -151,13 +151,6 @@ pub mod Play {
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
-        fn start(ref self: ContractState, game_id: u64, powers: u16) -> (u64, u16) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Start game
-            self.playable.start(world, game_id, powers)
-        }
-
         fn set(ref self: ContractState, game_id: u64, index: u8) -> u16 {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -165,11 +158,18 @@ pub mod Play {
             self.playable.set(world, game_id, index)
         }
 
-        fn apply(ref self: ContractState, game_id: u64, power: u8) -> u16 {
+        fn select(ref self: ContractState, game_id: u64, index: u8) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Select power
+            self.playable.select(world, game_id, index)
+        }
+
+        fn apply(ref self: ContractState, game_id: u64, index: u8) -> u16 {
             // [Setup] World
             let world = self.world(@NAMESPACE());
             // [Effect] Apply power
-            self.playable.apply(world, game_id, power)
+            self.playable.apply(world, game_id, index)
         }
     }
 

@@ -71,7 +71,7 @@ const getStageState = (state: StageState): StageStateConfig => {
   }
   if (completed) {
     return {
-      className: "bg-black-900 text-white-100",
+      className: "bg-black-800 text-white-100",
       icon: <icons.CheckIcon size="sm" />,
     };
   }

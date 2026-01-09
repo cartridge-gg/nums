@@ -26,19 +26,19 @@ export const Games = () => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="md:w-[188px] tracking-wide text-mauve-100 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
           </p>
           <p
-            className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="grow tracking-wide text-mauve-100 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Score
           </p>
         </div>
-        <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
+        <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-mauve-700">
           <p
             className="text-[22px] text-white-400 tracking-wide text-center"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
@@ -55,19 +55,19 @@ export const Games = () => {
       <div className="h-full overflow-hidden flex flex-col gap-6">
         <div className="flex items-center gap-2 px-4 h-3">
           <p
-            className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="md:w-[188px] tracking-wide text-mauve-100 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Game ID
           </p>
           <p
-            className="grow tracking-wide text-purple-300 text-lg leading-[22px]"
+            className="grow tracking-wide text-mauve-100 text-lg leading-[22px]"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
           >
             Score
           </p>
         </div>
-        <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
+        <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-mauve-700">
           <p
             className="text-[22px] text-white-400 tracking-wide text-center"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
@@ -83,13 +83,13 @@ export const Games = () => {
     <div className="h-full overflow-hidden flex flex-col gap-6">
       <div className="w-full flex items-center gap-2 px-4 h-3 justify-between md:justify-start pr-[72px] md:pr-0">
         <p
-          className="md:w-[188px] tracking-wide text-purple-300 text-lg leading-[22px]"
+          className="md:w-[188px] tracking-wide text-mauve-100 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Game ID
         </p>
         <p
-          className="tracking-wide text-purple-300 text-lg leading-[22px]"
+          className="tracking-wide text-mauve-100 text-lg leading-[22px]"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Score
@@ -113,7 +113,7 @@ export const Games = () => {
 
 export const EmptyGames = () => {
   return (
-    <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-purple-600">
+    <div className="h-full rounded-lg flex justify-center items-center bg-black-900 border border-mauve-700">
       <p
         className="text-[22px] text-white-400 tracking-wide text-center"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

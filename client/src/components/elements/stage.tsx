@@ -23,20 +23,20 @@ const getStageState = (state: StageState): StageStateConfig => {
   } = state;
   if (completed && crown) {
     return {
-      className: "bg-red-800 text-pink-100",
+      className: "bg-pink-600 text-pink-100",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
   if (crown) {
     return {
-      className: "bg-red-800 text-red-100",
+      className: "bg-pink-600 text-pink-100",
       icon: <icons.KingIcon size="sm" />,
     };
   }
   if (breakeven && completed && gem) {
     return {
       className: "bg-green-400 text-green-100",
-      icon: <icons.PowerUsedIcon size="sm" />,
+      icon: <icons.GemUsedIcon size="sm" />,
     };
   }
   if (breakeven && completed) {
@@ -48,7 +48,7 @@ const getStageState = (state: StageState): StageStateConfig => {
   if (breakeven && gem) {
     return {
       className: "bg-green-600 text-green-100",
-      icon: <icons.PowerIcon size="sm" />,
+      icon: <icons.GemIcon size="sm" />,
     };
   }
   if (breakeven) {
@@ -59,8 +59,14 @@ const getStageState = (state: StageState): StageStateConfig => {
   }
   if (completed && gem) {
     return {
-      className: "bg-orange-700 text-orange-100",
-      icon: <icons.PowerUsedIcon size="sm" />,
+      className: "bg-blue-600 text-blue-100",
+      icon: <icons.GemUsedIcon size="sm" />,
+    };
+  }
+  if (gem) {
+    return {
+      className: "bg-blue-600 text-blue-100",
+      icon: <icons.GemIcon size="sm" />,
     };
   }
   if (completed) {
@@ -69,13 +75,7 @@ const getStageState = (state: StageState): StageStateConfig => {
       icon: <icons.CheckIcon size="sm" />,
     };
   }
-  if (gem) {
-    return {
-      className: "bg-black-800 text-orange-100",
-      icon: <icons.PowerIcon size="sm" />,
-    };
-  }
-  return { className: "bg-black-800", icon: null };
+  return { className: "bg-black-900", icon: <div className="h-4 w-4"/> };
 };
 
 export interface StageProps

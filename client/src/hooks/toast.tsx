@@ -62,7 +62,7 @@ const useToast = () => {
   const showJackpotEvent = (
     title: string,
     description: string,
-    color = "purple-300",
+    color = "mauve-100",
   ) => {
     toast(
       <div className="flex flex-col gap-0">

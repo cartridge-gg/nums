@@ -62,7 +62,7 @@ const DATA = [
 
 const EmptyLeaderboard = () => {
   return (
-    <div className="select-none w-full h-full p-6 rounded-lg bg-black-900 border border-purple-600 flex justify-center items-center">
+    <div className="select-none w-full h-full p-6 rounded-lg bg-black-900 border border-mauve-700 flex justify-center items-center">
       <p
         className="text-white-400 tracking-wide text-xl"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
@@ -104,7 +104,7 @@ export const Leaderboard = () => {
       }}
     >
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="px-3 md:px-4 grid grid-cols-[1fr_4fr_2fr_1fr] md:grid-cols-[1fr_3fr_2fr_1fr_1fr] gap-4 pb-4 text-purple-300 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
+        <div className="px-3 md:px-4 grid grid-cols-[1fr_4fr_2fr_1fr] md:grid-cols-[1fr_3fr_2fr_1fr_1fr] gap-4 pb-4 text-mauve-100 text-lg leading-[22px] uppercase tracking-wide sticky top-0">
           <div style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}>
             Rank
           </div>
@@ -165,7 +165,7 @@ export const Row = ({
     <div
       className={cn(
         "h-[45px] px-3 md:px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(0,4fr)_minmax(0,2fr)_minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 items-center min-w-0 border border-black-900 rounded-lg [&_svg]:size-5",
-        self ? "text-orange-100 bg-black-900" : "text-white-100",
+        self ? "text-yellow-100 bg-black-900" : "text-white-100",
       )}
     >
       <p className="truncate md:hidden" title={`Rank #${item.rank}`}>
@@ -213,7 +213,7 @@ export const Share = ({ share, self }: { share: number; self: boolean }) => {
       <div
         className={cn(
           "h-full w-full absolute top-0 left-0",
-          self ? "bg-orange-100" : "bg-white-100",
+          self ? "bg-yellow-100" : "bg-white-100",
         )}
         style={{ width: `${share}%` }}
       />

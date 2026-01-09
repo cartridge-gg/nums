@@ -52,7 +52,7 @@ const PaginationLink = ({
     return (
       <a
         aria-current="page"
-        className={cn(baseStyles, "w-12 h-10 p-3 bg-purple-300", className)}
+        className={cn(baseStyles, "w-12 h-10 p-3 bg-mauve-100", className)}
         style={{
           boxShadow:
             "1px 1px 0px 0px rgba(255, 255, 255, 0.08) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
@@ -65,7 +65,7 @@ const PaginationLink = ({
 
   return (
     <a
-      className={cn(baseStyles, "w-12 h-10 p-3 bg-purple-600", className)}
+      className={cn(baseStyles, "w-12 h-10 p-3 bg-mauve-700", className)}
       style={{
         boxShadow:
           "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
@@ -90,7 +90,7 @@ const PaginationPrevious = ({
       aria-label="Go to previous page"
       className={cn(
         baseStyles,
-        isDisabled ? "bg-purple-700" : "bg-purple-600",
+        isDisabled ? "bg-mauve-800" : "bg-mauve-700",
         className,
       )}
       style={{
@@ -129,7 +129,7 @@ const PaginationNext = ({
       aria-label="Go to next page"
       className={cn(
         baseStyles,
-        isDisabled ? "bg-purple-700" : "bg-purple-600",
+        isDisabled ? "bg-mauve-800" : "bg-mauve-700",
         className,
       )}
       style={{

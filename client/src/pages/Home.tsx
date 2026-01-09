@@ -229,9 +229,9 @@ const InfoModal = ({
                 key={id}
                 variant="muted"
                 className={cn(
-                  "h-10 px-4 py-2 flex items-center gap-0.5 uppercase tracking-wide text-[28px]/[19px] [&_svg]:size-6 bg-purple-600 text-white-400 [&_svg]:text-white-400 transition-all duration-0",
+                  "h-10 px-4 py-2 flex items-center gap-0.5 uppercase tracking-wide text-[28px]/[19px] [&_svg]:size-6 bg-mauve-700 text-white-400 [&_svg]:text-white-400 transition-all duration-0",
                   activeTab === id &&
-                    "bg-purple-500 text-white-100 [&_svg]:text-white-100 cursor-default pointer-events-none",
+                    "bg-mauve-500 text-white-100 [&_svg]:text-white-100 cursor-default pointer-events-none",
                 )}
                 onClick={() => setActiveTab(id)}
               >
@@ -280,7 +280,7 @@ const InfoModal = ({
                 <TokenAddressCard />
                 <div className="flex flex-col rounded border border-white-900 bg-white-900 px-5 py-4 gap-3">
                   <strong
-                    className="font-pixel text-lg/3 tracking-wider text-purple-300"
+                    className="font-pixel text-lg/3 tracking-wider text-mauve-100"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
                   >
                     Token supply
@@ -318,7 +318,7 @@ const TokenAddressCard = () => {
     <div className="relative flex flex-col gap-2 rounded border border-white-900 bg-white-900 px-5 py-4">
       <div className="flex items-center justify-between gap-2">
         <strong
-          className="font-pixel text-lg/3 tracking-wider text-purple-300"
+          className="font-pixel text-lg/3 tracking-wider text-mauve-100"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           NUMS Token Address
@@ -338,7 +338,7 @@ const TokenAddressCard = () => {
       </div>
       <span className="font-mono text-sm break-all pr-6">{tokenAddress}</span>
       {copied && (
-        <span className="font-pixel absolute right-3 top-1/4 md:top-3 -translate-x-1/2 text-xs text-purple-300 tracking-wide animate-copy-pop">
+        <span className="font-pixel absolute right-3 top-1/4 md:top-3 -translate-x-1/2 text-xs text-mauve-100 tracking-wide animate-copy-pop">
           Copied!
         </span>
       )}

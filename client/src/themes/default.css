@@ -1,5 +1,7 @@
 @layer base {
   :root {
+    --radius: 0.5rem;
+
     --purple-100: rgba(89, 31, 255, 100%);
     --purple-200: rgba(89, 31, 255, 80%);
     --purple-300: rgba(89, 31, 255, 64%);

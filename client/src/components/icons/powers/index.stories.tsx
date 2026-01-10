@@ -134,11 +134,15 @@ const powers = [
 export const Default: Story = {
   render: () => (
     <div className="flex flex-col gap-4 text-white">
-    <div className="flex flex-wrap gap-4">
-      {powers.map((power) => (
-        <power.normal key={`${power.name}-normal`} size="xl" className={power.color} />
-      ))}
-    </div>
+      <div className="flex flex-wrap gap-4">
+        {powers.map((power) => (
+          <power.normal
+            key={`${power.name}-normal`}
+            size="xl"
+            className={power.color}
+          />
+        ))}
+      </div>
       <div className="flex flex-wrap gap-4">
         {powers.map((power) => (
           <power.normal key={`${power.name}-normal`} size="xl" />
@@ -146,7 +150,11 @@ export const Default: Story = {
       </div>
       <div className="flex flex-wrap gap-4">
         {powers.map((power) => (
-          <power.used key={`${power.name}-used`} size="xl" className={"text-white-400"} />
+          <power.used
+            key={`${power.name}-used`}
+            size="xl"
+            className={"text-white-400"}
+          />
         ))}
       </div>
       <div className="flex flex-wrap gap-4">
@@ -156,7 +164,11 @@ export const Default: Story = {
       </div>
       <div className="flex flex-wrap gap-4">
         {powers.map((power) => (
-          <power.locked key={`${power.name}-locked`} size="xl" className={power.color} />
+          <power.locked
+            key={`${power.name}-locked`}
+            size="xl"
+            className={power.color}
+          />
         ))}
       </div>
     </div>

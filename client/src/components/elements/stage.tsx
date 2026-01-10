@@ -75,7 +75,7 @@ const getStageState = (state: StageState): StageStateConfig => {
       icon: <icons.CheckIcon size="sm" />,
     };
   }
-  return { className: "bg-black-900", icon: <div className="h-4 w-4"/> };
+  return { className: "bg-black-800", icon: <div className="h-4 w-4" /> };
 };
 
 export interface StageProps

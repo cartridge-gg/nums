@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Stage, StageState} from "@/components/elements";
+import { Stage, type StageState } from "@/components/elements";
 
 export interface StageProps
   extends React.HTMLAttributes<HTMLUListElement>,
@@ -9,7 +9,7 @@ export interface StageProps
 }
 
 const stageVariants = cva(
-  "select-none relative rounded grid grid-cols-10 gap-1.5",
+  "select-none relative rounded grid grid-cols-10 gap-2",
   {
     variants: {
       variant: {
@@ -34,12 +34,7 @@ export const Stages = ({
   ...props
 }: StageProps) => {
   return (
-    <ul
-      className={cn(
-        stageVariants({ variant, size, className }),
-      )}
-      {...props}
-    >
+    <ul className={cn(stageVariants({ variant, size, className }))} {...props}>
       {states.map((state, index) => (
         <li key={`${index}-${JSON.stringify(state)}`}>
           <Stage state={state} className="" />

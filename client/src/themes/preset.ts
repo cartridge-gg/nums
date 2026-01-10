@@ -162,7 +162,7 @@ export const preset: Partial<Config> = {
           600: "var(--power-600)",
           650: "var(--power-650)",
           700: "var(--power-700)",
-        }
+        },
       },
       fontFamily: {
         body: ["PixelGame", "sans"],

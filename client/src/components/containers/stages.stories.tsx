@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Stages } from "./stages";
-import { StageState } from "../elements";
+import type { StageState } from "../elements";
 
 const meta = {
   title: "Containers/Stages",
@@ -12,7 +12,7 @@ const meta = {
       options: {
         dark: {
           name: "dark",
-          value: "#444444",
+          value: "#4419C5",
         },
       },
     },

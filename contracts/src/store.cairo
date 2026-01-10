@@ -9,7 +9,7 @@ use crate::events::reward::GameRewardTrait;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::starterpack::IStarterpackDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Claim, Config, Game, Starterpack, Usage};
+use crate::models::index::{Config, Game, Starterpack};
 
 #[derive(Copy, Drop)]
 pub struct Store {
@@ -78,16 +78,6 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@config)
     }
 
-    // Usage
-
-    fn usage(self: @Store) -> Usage {
-        self.world.read_model(WORLD_RESOURCE)
-    }
-
-    fn set_usage(mut self: Store, usage: @Usage) {
-        self.world.write_model(usage)
-    }
-
     // Game
 
     fn game(self: @Store, game_id: u64) -> Game {
@@ -106,16 +96,6 @@ pub impl StoreImpl of StoreTrait {
 
     fn set_starterpack(mut self: Store, starterpack: @Starterpack) {
         self.world.write_model(starterpack)
-    }
-
-    // Claim
-
-    fn claim(self: @Store, player: felt252, starterpack_id: u32) -> Claim {
-        self.world.read_model((player, starterpack_id))
-    }
-
-    fn set_claim(mut self: Store, claim: @Claim) {
-        self.world.write_model(claim)
     }
 
     // Reward

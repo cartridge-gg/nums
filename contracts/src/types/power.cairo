@@ -1,9 +1,9 @@
 use crate::elements::powers;
+use crate::helpers::deck::DeckTrait;
 use crate::models::game::Game;
 use crate::random::Random;
 
 pub const POWER_COUNT: u8 = 7;
-pub const POWER_COSTS: [u8; POWER_COUNT.into()] = [35, 30, 25, 20, 15, 10, 5];
 
 #[derive(Drop, Copy, Serde, PartialEq, Debug)]
 pub enum Power {
@@ -11,7 +11,7 @@ pub enum Power {
     Reroll,
     High,
     Low,
-    Foresight,
+    Swap,
     DoubleUp,
     Halve,
     Mirror,
@@ -26,7 +26,7 @@ pub impl PowerImpl of PowerTrait {
             Power::Reroll => powers::reroll::Reroll::apply(ref game, ref rand),
             Power::High => powers::high::High::apply(ref game, ref rand),
             Power::Low => powers::low::Low::apply(ref game, ref rand),
-            Power::Foresight => powers::foresight::Foresight::apply(ref game, ref rand),
+            Power::Swap => powers::swap::Swap::apply(ref game, ref rand),
             Power::DoubleUp => powers::double_up::DoubleUp::apply(ref game, ref rand),
             Power::Halve => powers::halve::Halve::apply(ref game, ref rand),
             Power::Mirror => powers::mirror::Mirror::apply(ref game, ref rand),
@@ -40,7 +40,7 @@ pub impl PowerImpl of PowerTrait {
             Power::Reroll => powers::reroll::Reroll::rescue(game, slots),
             Power::High => powers::high::High::rescue(game, slots),
             Power::Low => powers::low::Low::rescue(game, slots),
-            Power::Foresight => powers::foresight::Foresight::rescue(game, slots),
+            Power::Swap => powers::swap::Swap::rescue(game, slots),
             Power::DoubleUp => powers::double_up::DoubleUp::rescue(game, slots),
             Power::Halve => powers::halve::Halve::rescue(game, slots),
             Power::Mirror => powers::mirror::Mirror::rescue(game, slots),
@@ -55,22 +55,9 @@ pub impl PowerImpl of PowerTrait {
     }
 
     #[inline]
-    fn from(index: u8) -> Power {
-        match index {
-            0 => Power::Reroll,
-            1 => Power::High,
-            2 => Power::Low,
-            3 => Power::Foresight,
-            4 => Power::DoubleUp,
-            5 => Power::Halve,
-            6 => Power::Mirror,
-            _ => Power::None,
-        }
-    }
-
-    #[inline]
-    fn cost(self: Power, index: u8) -> u8 {
-        *POWER_COSTS.span().at(index.into())
+    fn draw(seed: felt252, count: u8) -> Array<u8> {
+        let mut deck = DeckTrait::new(seed, POWER_COUNT.into());
+        array![deck.draw(), deck.draw()]
     }
 }
 
@@ -81,7 +68,7 @@ pub impl PowerIntoU8 of Into<Power, u8> {
             Power::Reroll => 1,
             Power::High => 2,
             Power::Low => 3,
-            Power::Foresight => 4,
+            Power::Swap => 4,
             Power::DoubleUp => 5,
             Power::Halve => 6,
             Power::Mirror => 7,
@@ -96,7 +83,7 @@ pub impl U8IntoPower of Into<u8, Power> {
             1 => Power::Reroll,
             2 => Power::High,
             3 => Power::Low,
-            4 => Power::Foresight,
+            4 => Power::Swap,
             5 => Power::DoubleUp,
             6 => Power::Halve,
             7 => Power::Mirror,

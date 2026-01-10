@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x11aa166107b68bc42ed50ad08c32ddcc034676fb2f20306b57ddb2df571b0bd",
-    "seed": "nums-v1.0.26",
+    "address": "0x4ab20897d666b7df906bcddbfcad44d2746dbdb6782b2f169692d46a30ea46d",
+    "seed": "nums-v1.0.27",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x320171f2a9ed887101cd9393f7be34a9787282ffc526948e9be0614d1a35cf",
-      "class_hash": "0x5bcea9bce204d5e508e7c137fce6ff3f7db5f7e90d5a2438066c1e5b5ceab36",
+      "address": "0x5fe3a027a809d02641fa1a30f7822a47f1290c4ea84f83f197e547ac8949c41",
+      "class_hash": "0x4794cda37e31607945fdac11fee816d57acd2d5e20b37aab6e56699b9c7ea3f",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x45bbd01d67b8499475f01faba0185c527891ff25df56eb24d848d430af7654b",
-      "class_hash": "0x3b66cec17d5620e74ac28ef62202f2ed4a730b614e34e0f20f1cca42876ba3a",
+      "address": "0x3ab5def1fc7d93cd8f535762ca94f92316e62611107fc511eb6fb30f3dad015",
+      "class_hash": "0x57c18d1d44b67559ca1489e7b95755e04c55163bc76ac228b4f1b07d3423480",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -68,8 +68,8 @@
         "on_quest_unlock",
         "on_quest_complete",
         "on_quest_claim",
-        "start",
         "set",
+        "select",
         "apply",
         "register_starterpack",
         "update_starterpack",
@@ -78,8 +78,8 @@
       ]
     },
     {
-      "address": "0x1c1d0db081d5e8cba6ea20bb7e992c746db1727696014502a0007dcaca0b412",
-      "class_hash": "0x13c6975074a3c8334e456cf26ae04fb33c666e5ee732f99c3b0f88b0ee3003b",
+      "address": "0x7712c3aeab4818facf2e781db7fa9581e363c07839b90bf423341d7a4682386",
+      "class_hash": "0x1cb051122047c6f8fe6abf9272c5a7ff05a11f577d7d1156a0938d96b983fd7",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -219,28 +219,6 @@
     {
       "members": [
         {
-          "name": "player",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "starterpack_id",
-          "type": "core::integer::u32",
-          "key": true
-        },
-        {
-          "name": "claimed",
-          "type": "core::bool",
-          "key": false
-        }
-      ],
-      "class_hash": "0x1ade22f3cb3a7dc042a3a53c8a9f0d3007b201fa51b8279bc24eb946ca4e564",
-      "tag": "NUMS-Claim",
-      "selector": "0x41a0d67a5f667d867683898d1cfd2022f73a8b03d9ececfa06aecc51a3bce9a"
-    },
-    {
-      "members": [
-        {
           "name": "world_resource",
           "type": "core::felt252",
           "key": true
@@ -348,6 +326,11 @@
           "key": false
         },
         {
+          "name": "selectable_powers",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
           "name": "selected_powers",
           "type": "core::integer::u16",
           "key": false
@@ -355,11 +338,6 @@
         {
           "name": "available_powers",
           "type": "core::integer::u16",
-          "key": false
-        },
-        {
-          "name": "score",
-          "type": "core::integer::u32",
           "key": false
         },
         {
@@ -373,17 +351,12 @@
           "key": false
         },
         {
-          "name": "usage",
-          "type": "core::felt252",
-          "key": false
-        },
-        {
           "name": "supply",
           "type": "core::felt252",
           "key": false
         }
       ],
-      "class_hash": "0x490632dba1a2b7219957efa83d54b4e56ae3a9aace2292cc62621deb18d0a45",
+      "class_hash": "0x1bcf6d5e711f1c6cd201c8e932a5d1c9e59cf34d93d7afd1ff7b45dedd81dca",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -573,28 +546,6 @@
       "class_hash": "0x444887bd991577346d24ea9fd5c1329327fe4858631800b7d77c7712b9ba7bf",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
-    },
-    {
-      "members": [
-        {
-          "name": "world_resource",
-          "type": "core::felt252",
-          "key": true
-        },
-        {
-          "name": "last_update",
-          "type": "core::integer::u64",
-          "key": false
-        },
-        {
-          "name": "board",
-          "type": "core::felt252",
-          "key": false
-        }
-      ],
-      "class_hash": "0x79cfd78c3dd97d0cdc9459d0535cf684bad9a23f4861cd92b29432ba61c8ad5",
-      "tag": "NUMS-Usage",
-      "selector": "0x53de18e17cbaeb36e51d6e498296522fc29c7ba84d66e4fcb9f64d237bc2526"
     }
   ],
   "events": [
@@ -3352,34 +3303,6 @@
     },
     {
       "type": "struct",
-      "name": "nums::models::index::Claim",
-      "members": [
-        {
-          "name": "player",
-          "type": "core::felt252"
-        },
-        {
-          "name": "starterpack_id",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "claimed",
-          "type": "core::bool"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::ClaimValue",
-      "members": [
-        {
-          "name": "claimed",
-          "type": "core::bool"
-        }
-      ]
-    },
-    {
-      "type": "struct",
       "name": "nums::models::index::Config",
       "members": [
         {
@@ -3515,6 +3438,10 @@
           "type": "core::integer::u16"
         },
         {
+          "name": "selectable_powers",
+          "type": "core::integer::u8"
+        },
+        {
           "name": "selected_powers",
           "type": "core::integer::u16"
         },
@@ -3523,19 +3450,11 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "score",
-          "type": "core::integer::u32"
-        },
-        {
           "name": "reward",
           "type": "core::integer::u64"
         },
         {
           "name": "slots",
-          "type": "core::felt252"
-        },
-        {
-          "name": "usage",
           "type": "core::felt252"
         },
         {
@@ -3581,6 +3500,10 @@
           "type": "core::integer::u16"
         },
         {
+          "name": "selectable_powers",
+          "type": "core::integer::u8"
+        },
+        {
           "name": "selected_powers",
           "type": "core::integer::u16"
         },
@@ -3589,19 +3512,11 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "score",
-          "type": "core::integer::u32"
-        },
-        {
           "name": "reward",
           "type": "core::integer::u64"
         },
         {
           "name": "slots",
-          "type": "core::felt252"
-        },
-        {
-          "name": "usage",
           "type": "core::felt252"
         },
         {
@@ -3659,44 +3574,6 @@
       ]
     },
     {
-      "type": "struct",
-      "name": "nums::models::index::Usage",
-      "members": [
-        {
-          "name": "world_resource",
-          "type": "core::felt252"
-        },
-        {
-          "name": "last_update",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "board",
-          "type": "core::felt252"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::UsageValue",
-      "members": [
-        {
-          "name": "last_update",
-          "type": "core::integer::u64"
-        },
-        {
-          "name": "board",
-          "type": "core::felt252"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Claim::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
       "type": "event",
       "name": "nums::models::index::m_Config::Event",
       "kind": "enum",
@@ -3711,12 +3588,6 @@
     {
       "type": "event",
       "name": "nums::models::index::m_Starterpack::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Usage::Event",
       "kind": "enum",
       "variants": []
     },
@@ -3909,26 +3780,6 @@
       "items": [
         {
           "type": "function",
-          "name": "start",
-          "inputs": [
-            {
-              "name": "game_id",
-              "type": "core::integer::u64"
-            },
-            {
-              "name": "powers",
-              "type": "core::integer::u16"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "(core::integer::u64, core::integer::u16)"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
           "name": "set",
           "inputs": [
             {
@@ -3949,6 +3800,22 @@
         },
         {
           "type": "function",
+          "name": "select",
+          "inputs": [
+            {
+              "name": "game_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "index",
+              "type": "core::integer::u8"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
           "name": "apply",
           "inputs": [
             {
@@ -3956,7 +3823,7 @@
               "type": "core::integer::u64"
             },
             {
-              "name": "power",
+              "name": "index",
               "type": "core::integer::u8"
             }
           ],

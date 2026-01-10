@@ -1,5 +1,5 @@
 use core::array::ArrayTrait;
-use crate::constants::SLOT_SIZE;
+use crate::constants::{DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, POWER_SIZE, SLOT_SIZE};
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
 use crate::helpers::rewarder::Rewarder;
@@ -18,23 +18,18 @@ pub mod errors {
     pub const GAME_ALREADY_STARTED: felt252 = 'Game: already started';
     pub const GAME_SLOT_NOT_EMPTY: felt252 = 'Game: slot not empty';
     pub const GAME_POWER_NOT_AVAILABLE: felt252 = 'Game: power not available';
-    pub const GAME_POWER_NOT_UNLOCKED: felt252 = 'Game: power not unlocked';
     pub const GAME_HAS_NOT_STARTED: felt252 = 'Game: has not started';
     pub const GAME_SLOTS_PACK_FAILED: felt252 = 'Game: slots pack failed';
-    pub const GAME_POWERS_TOO_EXPENSIVE: felt252 = 'Game: powers too expensive';
+    pub const GAME_INVALID_SELECTION: felt252 = 'Game: invalid power selection';
+    pub const GAME_SELECTABLE_POWERS: felt252 = 'Game: power must be selected';
 }
-
-pub const SCALE_FACTOR: u32 = 100;
-pub const HALF_SCALE_FACTOR: u32 = 50;
 
 /// Implementation of core game logic and state management
 #[generate_trait]
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
-    fn new(
-        id: u64, slot_count: u8, slot_min: u16, slot_max: u16, usage: felt252, supply: u256,
-    ) -> Game {
+    fn new(id: u64, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256) -> Game {
         // [Return] Game
         Game {
             id: id,
@@ -46,41 +41,25 @@ pub impl GameImpl of GameTrait {
             slot_max: slot_max,
             number: 0,
             next_number: 0,
+            selectable_powers: 0,
             selected_powers: 0,
             available_powers: 0,
             reward: 0,
-            score: 0,
             slots: 0,
-            usage: usage,
             supply: supply.try_into().unwrap(),
         }
     }
 
     #[inline]
-    fn start(ref self: Game, number: u16, powers: u16) {
+    fn start(ref self: Game, number: u16, next: u16) {
         // [Check] Game has not started yet
         self.assert_not_started();
-        // [Check] Number is valid
+        // [Check] Numbers are valid
         GameAssert::assert_valid_number(number);
+        GameAssert::assert_valid_number(next);
         // [Effect] Start game
-        self.selected_powers = powers;
-        self.available_powers = powers;
         self.number = number;
-    }
-
-    #[inline]
-    fn apply(ref self: Game, index: u8, ref rand: Random) {
-        // [Check] Power is valid
-        let available = Bitmap::get(self.available_powers, index);
-        assert(available == 1, errors::GAME_POWER_NOT_AVAILABLE);
-        // [Effect] Update power availability
-        self.available_powers = Bitmap::unset(self.available_powers, index);
-        // [Effect] Apply power
-        let power: Power = PowerTrait::from(index);
-        power.apply(ref self, ref rand);
-        // [Effect] Update game over
-        let slots = self.slots();
-        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
+        self.next_number = next;
     }
 
     #[inline]
@@ -108,32 +87,6 @@ pub impl GameImpl of GameTrait {
         valid
     }
 
-    /// Returns the count of adjacent numbers in the game.
-    fn adjacent(ref slots: Array<u16>) -> u8 {
-        let mut count = 0;
-        let mut previous_filled = false;
-        let mut previous_accounted = false;
-        while let Option::Some(slot) = slots.pop_front() {
-            if slot == 0 {
-                previous_filled = false;
-                previous_accounted = false;
-                continue;
-            }
-            if !previous_filled {
-                previous_filled = true;
-                previous_accounted = false;
-                continue;
-            }
-            if !previous_accounted {
-                count += 2;
-                previous_accounted = true;
-                continue;
-            }
-            count += 1;
-        }
-        count
-    }
-
     /// Returns the largest streak of consecutive numbers in the game.
     fn streak(ref slots: Array<u16>) -> u8 {
         let mut count = 0;
@@ -157,46 +110,6 @@ pub impl GameImpl of GameTrait {
             return count;
         }
         streak
-    }
-
-    /// Returns the score of the game.
-    fn score(self: @Game, ref slots: Array<u16>) -> u32 {
-        // [Compute] Difficulty score
-        let step: u32 = (*self.slot_max - *self.slot_min).into()
-            * SCALE_FACTOR
-            / (*self.slot_count + 1).into();
-
-        let mut total = 0;
-        let mut index = 0;
-        let mut sum_r = 0;
-        let slot_min: u32 = (*self.slot_min).into();
-        let slot_max: u32 = (*self.slot_max).into();
-        while let Option::Some(slot) = slots.pop_front() {
-            index += 1;
-            if slot == 0 {
-                continue;
-            }
-            total += 1;
-            // Cap the slot to the max slot value to not extrapolate
-            let slot_u32 = core::cmp::min(slot.into(), slot_max);
-            // Rounding to the nearest integer to perfectly center
-            let uniform: u32 = slot_min + (index * step + HALF_SCALE_FACTOR) / SCALE_FACTOR;
-            let r = if slot_u32 < uniform {
-                uniform - slot_u32
-            } else {
-                slot_u32 - uniform
-            };
-            sum_r += r * r;
-        }
-
-        let difficulty_score = sum_r / total;
-
-        // [Compute] Base score
-        let count = slot_max + slot_min;
-        let base_score = count * count * total;
-
-        // [Return] Score
-        difficulty_score + base_score
     }
 
     fn is_completed(self: @Game) -> bool {
@@ -240,14 +153,16 @@ pub impl GameImpl of GameTrait {
         slot != 0
     }
 
+    /// Determines if the game is rescuable based on the available powers
     fn is_rescuable(self: @Game, slots: @Array<u16>) -> bool {
+        let powers: Array<u8> = Packer::unpack(*self.available_powers, POWER_SIZE, 0);
         let mut index: u8 = 0;
         while index != POWER_COUNT {
             if (Bitmap::get(*self.available_powers, index) == 0) {
                 index += 1;
                 continue;
             }
-            let power: Power = PowerTrait::from(index);
+            let power: Power = (*powers.at(index.into())).into();
             if power.rescue(self, slots) {
                 return true;
             }
@@ -279,7 +194,15 @@ pub impl GameImpl of GameTrait {
         self.level += 1;
     }
 
+    #[inline]
+    fn is_drawable(self: @Game) -> bool {
+        *self.selectable_powers == 0
+            && !self.is_completed()
+            && (*self.level % DEFAULT_DRAW_STAGE) == 0
+    }
+
     /// Place number
+    #[inline]
     fn place(ref self: Game, index: u8) {
         // [Check] Index is valid
         self.assert_valid_index(index);
@@ -295,19 +218,70 @@ pub impl GameImpl of GameTrait {
             .expect(errors::GAME_SLOTS_PACK_FAILED);
     }
 
+    /// Select a selectable power.
+    #[inline]
+    fn select(ref self: Game, index: u8) {
+        // [Check] Power is selectable
+        self.assert_is_selectable(index);
+        // [Effect] Select power and add to selected powers
+        let powers: Array<u8> = Packer::unpack(self.selectable_powers, POWER_SIZE, 0);
+        let power: u8 = *powers.at(index.into());
+        let mut selected: Array<u8> = Packer::unpack(self.selected_powers, POWER_SIZE, 0);
+        selected.append(power);
+        self.selected_powers = Packer::pack(selected, POWER_SIZE);
+        // [Effect] Erase selectable powers
+        self.selectable_powers = 0;
+        // [Effect] Update game over
+        let slots = self.slots();
+        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
+    }
+
+    /// Applies a power to the game.
+    #[inline]
+    fn apply(ref self: Game, index: u8, ref rand: Random) {
+        // [Check] Power is valid
+        let powers: Array<u8> = Packer::unpack(self.selected_powers, POWER_SIZE, 0);
+        let power: Power = (*powers
+            .get(index.into())
+            .expect(errors::GAME_POWER_NOT_AVAILABLE)
+            .unbox())
+            .into();
+        assert(Bitmap::get(self.available_powers, index) == 0, errors::GAME_POWER_NOT_AVAILABLE);
+        // [Effect] Update power availability
+        self.available_powers = Bitmap::set(self.available_powers, index);
+        // [Effect] Apply power
+        power.apply(ref self, ref rand);
+        // [Effect] Update game over
+        let slots = self.slots();
+        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
+    }
+
     /// Updates the game state.
     #[inline]
     fn update(ref self: Game, ref rand: Random, target: u256) -> u64 {
+        // [Effect] Level up
         self.level_up();
-        let reward = self.reward(self.supply.into(), target);
+        // [Effect] Update numbers if the game is not completed
         let mut slots = self.slots();
         if !self.is_completed() {
             self.number = self.next_number;
             self.next_number = self.next(@slots, ref rand);
         }
-        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
-        self.score = self.score(ref slots);
-        reward
+        // [Effect] Draw new powers if possible
+        if self.is_drawable() {
+            let powers = PowerTrait::draw(rand.next_seed(), DEFAULT_DRAW_COUNT);
+            self.selectable_powers = Packer::pack(powers, POWER_SIZE)
+        }
+        // [Effect] Assess game over
+        // [Info] Game is over if:
+        // - number cannot be placed
+        // - powers cannot save the game
+        // - no powers can be selected
+        self.over = self.is_over(@slots)
+            && !self.is_rescuable(@slots)
+            && self.selectable_powers == 0;
+        // [Return] Reward
+        self.reward(self.supply.into(), target)
     }
 }
 
@@ -376,6 +350,20 @@ pub impl GameAssert of AssertTrait {
         assert(index < *self.slot_count, errors::GAME_INDEX_NOT_VALID);
     }
 
+    /// Asserts that the given power is selectable.
+    #[inline]
+    fn assert_is_selectable(self: @Game, index: u8) {
+        assert(
+            self.selectable_powers != @0 && index < DEFAULT_DRAW_COUNT,
+            errors::GAME_INVALID_SELECTION,
+        );
+    }
+
+    #[inline]
+    fn assert_not_selectable(self: @Game) {
+        assert(self.selectable_powers == @0, errors::GAME_SELECTABLE_POWERS);
+    }
+
     /// Asserts that the game has not started yet.
     #[inline]
     fn assert_not_started(self: @Game) {
@@ -397,17 +385,19 @@ pub impl GameAssert of AssertTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, SLOT_SIZE};
+    use crate::constants::{
+        DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
+        SLOT_SIZE,
+    };
     use crate::helpers::packer::Packer;
     use super::{Game, GameAssert, GameTrait};
 
-    const USAGE: felt252 = 0;
     const SUPPLY: u256 = 1;
 
     /// Helper function to create a test game instance
     fn create() -> Game {
         let mut game = GameTrait::new(
-            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, USAGE, SUPPLY,
+            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
         );
         game.start(1, 0b0000111);
         game
@@ -416,7 +406,7 @@ mod tests {
     #[test]
     fn test_new_game_creation() {
         let game = GameTrait::new(
-            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, USAGE, SUPPLY,
+            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
         );
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
@@ -627,72 +617,6 @@ mod tests {
     }
 
     #[test]
-    fn test_score_with_uniform_distribution() {
-        let mut game = create();
-        let mut slots = array![
-            47, 95, 142, 190, 238, 285, 333, 380, 428, 476, 523, 571, 619, 666, 714, 761, 809, 857,
-            904, 952,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let score = game.score(ref slots);
-        assert(score == 20000000, 'Score should be 0');
-    }
-
-    #[test]
-    fn test_score_with_non_uniform_distribution_symmetric() {
-        let mut game = create();
-        let mut slots = array![
-            980, 981, 982, 983, 984, 985, 986, 987, 988, 989, 990, 991, 992, 993, 994, 995, 996,
-            997, 998, 999,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let high_score = game.score(ref slots);
-        let mut slots = array![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let low_score = game.score(ref slots);
-        assert_eq!(high_score, low_score, "High and low scores should be equal");
-    }
-
-    #[test]
-    fn test_score_with_highest_scores() {
-        let mut game = create();
-        let mut slots = array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let low_score = game.score(ref slots);
-        let mut slots = array![999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let high_score = game.score(ref slots);
-        assert_eq!(low_score, high_score, "Low and high scores should be equal");
-    }
-
-    #[test]
-    fn test_game_adjacent_several() {
-        let mut slots = array![1, 2, 3, 0, 0, 7, 8, 9, 0, 0, 12, 0, 14, 0, 16, 0, 18, 0, 20];
-        assert_eq!(GameTrait::adjacent(ref slots), 6);
-    }
-
-    #[test]
-    fn test_game_adjacent_none() {
-        let mut slots = array![1, 0, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17, 0, 19, 0];
-        assert_eq!(GameTrait::adjacent(ref slots), 0);
-    }
-
-    #[test]
-    fn test_game_adjacent_full() {
-        let mut slots = array![
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        ];
-        assert_eq!(GameTrait::adjacent(ref slots), 20);
-    }
-
-    #[test]
     fn test_game_streak_several() {
         let mut slots = array![1, 2, 3, 0, 0, 7, 8, 9, 0, 0, 12, 0, 14, 0, 16, 0, 18, 0, 20];
         assert_eq!(GameTrait::streak(ref slots), 3);
@@ -713,18 +637,68 @@ mod tests {
     }
 
     #[test]
-    fn test_game_is_valid_error_01() {
+    fn test_select_power_success() {
         let mut game = create();
-        game.slots = 0x362000000000000000000000000000000000000000000;
-        game.slots();
+        // Create selectable powers: [1, 2]
+        let selectable_powers: Array<u8> = array![1_u8, 2];
+        game.selectable_powers = Packer::pack(selectable_powers, POWER_SIZE);
+
+        // Select power at index 0 (power 1)
+        game.select(0);
+
+        // Verify selectable_powers is cleared
+        assert(game.selectable_powers == 0, 'selectable powers cleared');
+
+        // Verify selected_powers contains the selected power
+        let selected: Array<u8> = Packer::unpack(game.selected_powers, POWER_SIZE, 0);
+        assert(selected.len() == 1, 'selected has one power');
+        assert(*selected.at(0) == 1, 'selected power is 1');
     }
 
     #[test]
-    fn test_game_is_valid_error_02() {
+    fn test_select_power_multiple_selections() {
         let mut game = create();
-        game.slots = 0x0000000000362000000000000000000000000000000000000000000000000000;
-        game.number = 88;
-        game.place(2);
-        game.slots();
+        // Create selectable powers: [3, 5]
+        let selectable_powers: Array<u8> = array![3_u8, 5];
+        game.selectable_powers = Packer::pack(selectable_powers, POWER_SIZE);
+
+        // Select power at index 1 (power 5)
+        game.select(1);
+
+        // Verify selected_powers contains power 5
+        let selected: Array<u8> = Packer::unpack(game.selected_powers, POWER_SIZE, 0);
+        assert(*selected.at(0) == 5, 'selected power is 5');
+
+        // Add more selectable powers and select again
+        let new_selectable: Array<u8> = array![7_u8, 9];
+        game.selectable_powers = Packer::pack(new_selectable, POWER_SIZE);
+        game.select(0);
+
+        // Verify both powers are in selected_powers
+        let selected_after: Array<u8> = Packer::unpack(game.selected_powers, POWER_SIZE, 0);
+        assert(selected_after.len() == 2, 'has two');
+        assert(*selected_after.at(0) == 5, 'first is 5');
+        assert(*selected_after.at(1) == 7, 'second is 7');
+    }
+
+    #[test]
+    #[should_panic(expected: ('Game: invalid power selection',))]
+    fn test_select_power_no_selectable_powers() {
+        let mut game = create();
+        // No selectable powers set (default is 0)
+        game.select(0);
+    }
+
+    #[test]
+    #[should_panic(expected: ('Game: invalid power selection',))]
+    fn test_select_power_invalid_index() {
+        let mut game = create();
+        // Create selectable powers: [1, 2] (only 2 powers, indices 0 and 1 are valid)
+        let selectable_powers: Array<u8> = array![1_u8, 2];
+        game.selectable_powers = Packer::pack(selectable_powers, POWER_SIZE);
+
+        // Try to select with invalid index (>= DEFAULT_DRAW_COUNT which is 2)
+        // Using index 2 which is >= DEFAULT_DRAW_COUNT (2)
+        game.select(DEFAULT_DRAW_COUNT);
     }
 }

@@ -237,7 +237,6 @@ pub mod Collection {
                 game_slots: game.slots().span(),
                 game_id: game.id,
                 game_number: game.number,
-                game_score: game.score,
                 game_level: game.level,
                 game_completed: game.over && game.level == game.slot_count,
                 game_over: game.over,

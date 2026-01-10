@@ -41,32 +41,10 @@ pub struct Game {
     pub slot_max: u16,
     pub number: u16,
     pub next_number: u16,
+    pub selectable_powers: u8,
     pub selected_powers: u16,
     pub available_powers: u16,
-    pub score: u32,
     pub reward: u64,
     pub slots: felt252,
-    pub usage: felt252,
     pub supply: felt252,
 }
-
-#[derive(Introspect, Drop, Serde)]
-#[dojo::model]
-pub struct Usage {
-    #[key]
-    pub world_resource: felt252,
-    pub last_update: u64,
-    pub board: felt252,
-}
-
-
-#[derive(Introspect, Drop, Serde)]
-#[dojo::model]
-pub struct Claim {
-    #[key]
-    pub player: felt252,
-    #[key]
-    pub starterpack_id: u32,
-    pub claimed: bool,
-}
-

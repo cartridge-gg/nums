@@ -6,14 +6,10 @@ const meta = {
   component: Slots,
   parameters: {
     layout: "padded",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      options: {
-        dark: {
-          name: "dark",
-          value: "#4419C5",
-        },
-      },
+      value: "dark",
     },
   },
 } satisfies Meta<typeof Slots>;
@@ -26,19 +22,6 @@ export const Default: Story = {
     number: 262,
     slots: [0, 0, 0, 0, 0, 0, 300, 312, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
-  decorators: [
-    (Story) => (
-      <div
-        style={{
-          backgroundColor: "#4419C5",
-          padding: "2rem",
-          minHeight: "100vh",
-        }}
-      >
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export const Valid: Story = {
@@ -49,19 +32,6 @@ export const Valid: Story = {
       0, 903,
     ],
   },
-  decorators: [
-    (Story) => (
-      <div
-        style={{
-          backgroundColor: "#4419C5",
-          padding: "2rem",
-          minHeight: "100vh",
-        }}
-      >
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export const Invalid: Story = {
@@ -72,17 +42,4 @@ export const Invalid: Story = {
       903, 903,
     ],
   },
-  decorators: [
-    (Story) => (
-      <div
-        style={{
-          backgroundColor: "#4419C5",
-          padding: "2rem",
-          minHeight: "100vh",
-        }}
-      >
-        <Story />
-      </div>
-    ),
-  ],
 };

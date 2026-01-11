@@ -16,5 +16,5 @@ pub impl DoubleUp of PowerTrait {
 
 #[inline]
 fn double(number: u16) -> u16 {
-    number * 2
+    core::cmp::min(number * 2, 999)
 }

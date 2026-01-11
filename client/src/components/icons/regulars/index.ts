@@ -8,6 +8,7 @@ export * from "./circle-question";
 export * from "./controller";
 export * from "./copy";
 export * from "./crown";
+export * from "./diamond";
 export * from "./eye";
 export * from "./laurel";
 export * from "./link";

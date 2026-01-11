@@ -7,14 +7,10 @@ const meta = {
   component: Slot,
   parameters: {
     layout: "centered",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      options: {
-        dark: {
-          name: "dark",
-          value: "#4419C5",
-        },
-      },
+      value: "dark",
     },
   },
   argTypes: {

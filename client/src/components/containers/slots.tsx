@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "@/components/elements";
+import { Grid } from "@/helpers";
 
 export interface StageProps
   extends React.HTMLAttributes<HTMLUListElement>,
@@ -11,11 +12,11 @@ export interface StageProps
 }
 
 const stageVariants = cva(
-  "select-none relative rounded grid grid-flow-col grid-rows-7 md:grid-rows-5 gap-4 overflow-y-auto",
+  "select-none relative rounded flex flex-col flex-wrap space-between items-center gap-3 md:gap-4 w-full",
   {
     variants: {
       variant: {
-        default: "p-3",
+        default: "md:p-3 max-h-[352px] md:max-h-[288px]",
       },
     },
     defaultVariants: {
@@ -24,52 +25,19 @@ const stageVariants = cva(
   },
 );
 
-const closests = (slots: Array<number>, number: number): [number, number] => {
-  // Return 2 indexes closest lower and higher to the number
-  let closest_lower = -1;
-  let closest_higher = -1;
-  for (let idx = 0; idx < slots.length; idx++) {
-    const slot = slots[idx];
-    if (slot < number && slot !== 0) {
-      closest_lower = idx;
-    }
-    if (slot > number && slot !== 0) {
-      closest_higher = idx;
-      break;
-    }
-  }
-  return [closest_lower, closest_higher];
-};
-
-const alloweds = (slots: Array<number>, number: number): number[] => {
-  // Return the indexes of the slots that are allowed to be set based on the number
-  const [low, high] = closests(slots, number);
-  if (high === -1 && low === -1)
-    return Array.from({ length: slots.length }, (_, idx) => idx);
-  if (high === low) return [];
-  if (low === -1) return Array.from({ length: high }, (_, idx) => idx);
-  if (high === -1)
-    return Array.from(
-      { length: slots.length - low - 1 },
-      (_, idx) => low + idx + 1,
-    );
-  return Array.from({ length: high - low - 1 }, (_, idx) => low + idx + 1);
-};
-
 export const Slots = ({
   number,
   slots,
   variant,
   className,
-  style,
   ...props
 }: StageProps) => {
   const allowedIndexes = useMemo(
-    () => alloweds(slots, number),
+    () => Grid.alloweds(slots, number),
     [slots, number],
   );
   const [closestLower, closestHigher] = useMemo(
-    () => closests(slots, number),
+    () => Grid.closests(slots, number),
     [slots, number],
   );
 
@@ -99,13 +67,9 @@ export const Slots = ({
   }, [slots, allowedIndexes, closestLower, closestHigher]);
 
   return (
-    <ul
-      className={cn(stageVariants({ variant, className }))}
-      style={{ scrollbarWidth: "none", ...style }}
-      {...props}
-    >
+    <ul className={cn(stageVariants({ variant, className }))} {...props}>
       {slots.map((slot, index) => (
-        <li key={`${index}-${slot}`}>
+        <li key={`${index}-${slot}`} className="flex justify-center">
           <Slot
             label={index + 1}
             value={slot}
@@ -114,8 +78,8 @@ export const Slots = ({
           />
         </li>
       ))}
-      <li>
-        <Slot variant="placeholder" className="md:hidden" />
+      <li className="flex justify-center md:hidden">
+        <Slot variant="placeholder" />
       </li>
     </ul>
   );

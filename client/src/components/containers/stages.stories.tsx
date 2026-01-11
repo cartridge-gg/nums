@@ -7,14 +7,10 @@ const meta = {
   component: Stages,
   parameters: {
     layout: "padded",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      options: {
-        dark: {
-          name: "dark",
-          value: "#4419C5",
-        },
-      },
+      value: "dark",
     },
   },
 } satisfies Meta<typeof Stages>;

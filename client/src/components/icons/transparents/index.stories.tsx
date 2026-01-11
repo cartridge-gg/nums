@@ -5,9 +5,10 @@ const meta = {
   title: "Icons/Transparents",
   parameters: {
     layout: "centered",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      values: [{ name: "dark", value: "#0F1410" }],
+      value: "dark",
     },
   },
 } satisfies Meta;

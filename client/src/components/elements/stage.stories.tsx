@@ -6,14 +6,10 @@ const meta = {
   component: Stage,
   parameters: {
     layout: "centered",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      options: {
-        dark: {
-          name: "dark",
-          value: "#444444",
-        },
-      },
+      value: "dark",
     },
   },
 } satisfies Meta<typeof Stage>;

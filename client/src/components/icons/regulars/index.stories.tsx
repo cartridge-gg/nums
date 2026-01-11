@@ -5,9 +5,10 @@ const meta = {
   title: "Icons/Regulars",
   parameters: {
     layout: "centered",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      values: [{ name: "dark", value: "#0F1410" }],
+      value: "dark",
     },
   },
 } satisfies Meta;
@@ -27,6 +28,7 @@ const regularIcons = [
   { name: "ControllerIcon", component: Icons.ControllerIcon },
   { name: "CopyIcon", component: Icons.CopyIcon },
   { name: "CrownIcon", component: Icons.CrownIcon },
+  { name: "DiamondIcon", component: Icons.DiamondIcon },
   { name: "EyeIcon", component: Icons.EyeIcon },
   { name: "LaurelIcon", component: Icons.LaurelIcon },
   { name: "LinkIcon", component: Icons.LinkIcon },

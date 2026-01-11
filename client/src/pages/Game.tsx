@@ -315,7 +315,7 @@ export const GameNextNumber = ({
   number: number;
   setModal: (modal: boolean) => void;
 }) => {
-  const power = new Power(PowerType.Foresight);
+  const power = new Power(PowerType.Swap);
   const Icon = power.icon();
   return (
     <div

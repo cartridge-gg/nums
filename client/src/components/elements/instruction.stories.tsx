@@ -6,14 +6,10 @@ const meta = {
   component: Instruction,
   parameters: {
     layout: "padded",
+  },
+  globals: {
     backgrounds: {
-      default: "dark",
-      options: {
-        dark: {
-          name: "dark",
-          value: "#444444",
-        },
-      },
+      value: "dark",
     },
   },
   argTypes: {
@@ -23,7 +19,7 @@ const meta = {
     },
     variant: {
       control: "select",
-      options: ["default"],
+      options: ["default", "destructive"],
       description: "The visual variant of the instruction",
     },
     size: {
@@ -39,6 +35,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    content: "Set Number",
+    content: "Set Tile",
+  },
+};
+
+export const Destructive: Story = {
+  args: {
+    content: "Game Over",
+    variant: "destructive",
   },
 };

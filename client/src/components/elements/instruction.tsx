@@ -12,7 +12,8 @@ const instructionVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-black-800 text-white-100 md:text-mauve-100",
+        default: "bg-black-800 text-mauve-100",
+        destructive: "bg-black-800 text-red-100",
       },
       size: {
         md: "h-10 md:h-12 w-full",
@@ -37,10 +38,7 @@ export const Instruction = ({
       className={cn(instructionVariants({ variant, size, className }))}
       {...props}
     >
-      <span
-        className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px]"
-        style={{ textShadow: "2px 2px 0px rgba(28, 3, 101, 0.5)" }}
-      >
+      <span className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px]">
         {content}
       </span>
     </div>

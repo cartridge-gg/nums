@@ -19,7 +19,7 @@ const powerUpVariants = cva(
         default: "bg-black-800",
       },
       size: {
-        md: "min-h-12 min-w-12 md:min-h-[68px] md:min-w-[68px]",
+        md: "min-h-[56px] min-w-[56px] md:min-h-[68px] md:min-w-[68px]",
       },
     },
     defaultVariants: {

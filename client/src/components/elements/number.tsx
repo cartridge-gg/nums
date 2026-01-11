@@ -10,12 +10,12 @@ export interface NumberProps
 }
 
 const numberVariants = cva(
-  "select-none relative rounded-lg flex items-center justify-center px-2 py-1 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none relative rounded-lg flex items-center justify-center px-2 py-1",
   {
     variants: {
       variant: {
         default:
-          "bg-mauve-100 text-white-100 data-[invalid=true]:bg-mauve-700 data-[invalid=true]:text-red-100 text-[96px]/[63px] md:text-[136px]/[89px] font-normal [&_span]:translate-y-[2px] md:[&_span]:translate-y-[3px]",
+          "bg-mauve-700 text-white-100 data-[invalid=true]:bg-mauve-700 data-[invalid=true]:text-red-100 text-[96px]/[63px] md:text-[136px]/[89px] font-normal [&_span]:translate-y-[2px] md:[&_span]:translate-y-[3px]  shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         secondary:
           "bg-black-800 text-mauve-100 text-[56px]/[38px] md:text-[88px]/[58px] font-normal [&_span]:translate-y-[1.5px] md:[&_span]:translate-y-[2.5px]",
       },
@@ -34,13 +34,12 @@ export const Number = ({
   style,
   ...props
 }: NumberProps) => {
-  console.log(value);
   return (
     <div
       data-invalid={invalid}
       className={cn(numberVariants({ variant, className }))}
       style={{
-        textShadow: "4px 4px 0px rgba(28, 3, 101, 1)",
+        textShadow: `4px 4px 0px rgba(28, 3, 101, ${variant === "secondary" ? 0.5 : 1})`,
         ...style,
       }}
       {...props}

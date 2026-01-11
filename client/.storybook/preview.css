@@ -1,0 +1,8 @@
+/* Override global body background in Storybook to allow story backgrounds to show */
+/* Set background to match the most common story background to avoid white flash */
+body {
+  background-color: #4419C5 !important;
+}
+
+/* Storybook applies backgrounds on a wrapper element */
+/* The wrapper will override the body background when Storybook is ready */

@@ -17,7 +17,7 @@ const config = {
         desktop: "600px",
       },
       screens: {
-        lg: "1200px",
+        xs: "360px",
       },
     },
   },

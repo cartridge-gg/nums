@@ -4,19 +4,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "@/components/elements";
 import { Grid } from "@/helpers";
 
-export interface StageProps
+export interface SlotsProps
   extends React.HTMLAttributes<HTMLUListElement>,
-    VariantProps<typeof stageVariants> {
+    VariantProps<typeof slotsVariants> {
   number: number;
   slots: Array<number>;
 }
 
-const stageVariants = cva(
-  "select-none relative rounded flex flex-col flex-wrap space-between items-center gap-3 md:gap-4 w-full",
+const slotsVariants = cva(
+  "select-none relative rounded grid grid-flow-col grid-rows-10 xs:grid-rows-7 md:grid-rows-5 gap-3 md:gap-4 w-full",
   {
     variants: {
       variant: {
-        default: "md:p-3 max-h-[352px] md:max-h-[288px]",
+        default: "md:p-3",
       },
     },
     defaultVariants: {
@@ -31,7 +31,7 @@ export const Slots = ({
   variant,
   className,
   ...props
-}: StageProps) => {
+}: SlotsProps) => {
   const allowedIndexes = useMemo(
     () => Grid.alloweds(slots, number),
     [slots, number],
@@ -67,9 +67,9 @@ export const Slots = ({
   }, [slots, allowedIndexes, closestLower, closestHigher]);
 
   return (
-    <ul className={cn(stageVariants({ variant, className }))} {...props}>
+    <ul className={cn(slotsVariants({ variant, className }))} {...props}>
       {slots.map((slot, index) => (
-        <li key={`${index}-${slot}`} className="flex justify-center">
+        <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
             label={index + 1}
             value={slot}
@@ -78,7 +78,7 @@ export const Slots = ({
           />
         </li>
       ))}
-      <li className="flex justify-center md:hidden">
+      <li className="justify-center hidden xs:flex md:hidden">
         <Slot variant="placeholder" />
       </li>
     </ul>

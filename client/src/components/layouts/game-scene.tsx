@@ -67,10 +67,10 @@ export const GameScene = ({
       {...props}
     >
       <div className="flex justify-between items-end md:gap-8 w-full">
-        <div className="flex justify-between items-center gap-6">
+        <div className="flex justify-between items-center h-full gap-2 xs:gap-6">
           <Number value={currentNumber} invalid={isOver} />
-          <div className="flex flex-col justify-between items-start gap-2">
-            <p className="text-mauve-100 text-lg leading-5 md:leading-6 uppercase tracking-wider">
+          <div className="flex flex-col justify-between items-start h-full gap-2">
+            <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
               Up next
             </p>
             <Number variant="secondary" value={nextNumber} />

@@ -4,3 +4,7 @@ export * from "./power-up";
 export * from "./number";
 export * from "./instruction";
 export * from "./stage-info";
+export * from "./sound";
+export * from "./balance";
+export * from "./profile";
+export * from "./connect";

@@ -2,7 +2,8 @@ import { useAccount, useConnect } from "@starknet-react/core";
 import type { MouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addAddressPadding, getChecksumAddress } from "starknet";
-import { Header } from "@/components/header";
+import { Header } from "@/components/layouts/header";
+import { useHeader } from "@/hooks/header";
 
 const background = "/assets/tunnel-background.svg";
 import { CircleInfoIcon, CopyIcon, TrophyIcon } from "@/components/icons";
@@ -19,6 +20,7 @@ import { useTokenContracts } from "@/hooks/useTokenContracts";
 import { cn } from "@/lib/utils";
 
 export const Home = () => {
+  const headerData = useHeader();
   const { isInventoryOpen, closeInventory } = useModal();
   const [prizePoolModal, setPrizePoolModal] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
@@ -56,7 +58,17 @@ export const Home = () => {
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
-      <Header />
+      <Header
+        isMuted={headerData.isMuted}
+        onToggleMute={headerData.toggleMute}
+        balance={headerData.balance}
+        username={headerData.username}
+        address={headerData.address}
+        isMainnet={headerData.isMainnet}
+        onConnect={headerData.handleConnect}
+        onOpenProfile={headerData.handleOpenProfile}
+        onMint={headerData.mintMockNums}
+      />
       <Main
         prizePoolModal={prizePoolModal}
         setPrizePoolModal={setPrizePoolModal}

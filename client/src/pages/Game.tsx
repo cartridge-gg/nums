@@ -6,7 +6,8 @@ import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
 import SlotCounter from "react-slot-counter";
 import { toast } from "sonner";
-import { Header } from "@/components/header";
+import { Header } from "@/components/layouts/header";
+import { useHeader } from "@/hooks/header";
 
 const background = "/assets/tunnel-background.svg";
 import { CloseIcon, HomeIcon } from "@/components/icons";
@@ -29,6 +30,7 @@ import { GameModel, REWARDS } from "@/models/game";
 import { DEFAULT_POWER_POINTS, Power, PowerType } from "@/types/power";
 
 export const Game = () => {
+  const headerData = useHeader();
   const [prizePoolModal, setPrizePoolModal] = useState(false);
 
   return (
@@ -43,7 +45,17 @@ export const Game = () => {
         alt="Background"
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
-      <Header />
+      <Header
+        isMuted={headerData.isMuted}
+        onToggleMute={headerData.toggleMute}
+        balance={headerData.balance}
+        username={headerData.username}
+        address={headerData.address}
+        isMainnet={headerData.isMainnet}
+        onConnect={headerData.handleConnect}
+        onOpenProfile={headerData.handleOpenProfile}
+        onMint={headerData.mintMockNums}
+      />
       <Main
         prizePoolModal={prizePoolModal}
         setPrizePoolModal={setPrizePoolModal}

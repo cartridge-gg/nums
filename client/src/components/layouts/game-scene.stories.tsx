@@ -3,7 +3,7 @@ import { GameScene } from "./game-scene";
 import { Power, PowerType } from "@/types/power";
 
 const meta = {
-  title: "Layout/Game Scene",
+  title: "Layouts/Game Scene",
   component: GameScene,
   parameters: {
     layout: "padded",

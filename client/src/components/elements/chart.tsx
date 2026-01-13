@@ -37,11 +37,18 @@ const chartVariants = cva(
 );
 
 // Custom tick component for X-axis
-const CustomXAxisTick = ({ x, y, payload, showLabel, abscissa, orientation }: any) => {
+const CustomXAxisTick = ({
+  x,
+  y,
+  payload,
+  showLabel,
+  abscissa,
+  orientation,
+}: any) => {
   if (!showLabel) return null;
   const isTop = orientation === "top";
   const isAbscissaValue = Math.abs(payload.value - abscissa) < 0.001;
-  
+
   // For top axis, show "Break Even" label at abscissa position with mauve-700 background
   if (isTop && isAbscissaValue) {
     const text = "Break Even";
@@ -51,7 +58,7 @@ const CustomXAxisTick = ({ x, y, payload, showLabel, abscissa, orientation }: an
     const rectX = x - rectWidth / 2; // Center the rectangle
     const rectY = y - rectHeight - 8; // Position above the axis line
     const borderRadius = 4; // rounded = 0.25rem = 4px
-    
+
     return (
       <g transform={`translate(0, -4)`}>
         <rect
@@ -71,16 +78,17 @@ const CustomXAxisTick = ({ x, y, payload, showLabel, abscissa, orientation }: an
           fontSize={18}
           letterSpacing="0.05em"
           dominantBaseline="middle"
+          filter="url(#ticker-shadow)"
         >
           {text}
         </Text>
       </g>
     );
   }
-  
+
   // For top axis (non-abscissa values), don't show anything
   if (isTop) return null;
-  
+
   // For bottom axis, show numeric values
   return (
     <Text
@@ -98,11 +106,20 @@ const CustomXAxisTick = ({ x, y, payload, showLabel, abscissa, orientation }: an
 };
 
 // Custom tick component for Y-axis
-const CustomYAxisTick = ({ x, y, payload, showLabel, tickFormatter, abscissaY }: any) => {
+const CustomYAxisTick = ({
+  x,
+  y,
+  payload,
+  showLabel,
+  tickFormatter,
+  abscissaY,
+}: any) => {
   if (!showLabel) return null;
-  const formattedValue = tickFormatter ? tickFormatter(payload.value) : payload.value;
+  const formattedValue = tickFormatter
+    ? tickFormatter(payload.value)
+    : payload.value;
   const isAbscissaValue = Math.abs(payload.value - abscissaY) < 0.001; // Compare with small epsilon for float comparison
-  
+
   // Estimate text width (approximate: fontSize * characterCount * 0.55)
   const textWidth = formattedValue.length * 18 * 0.55;
   const rectWidth = textWidth;
@@ -110,7 +127,7 @@ const CustomYAxisTick = ({ x, y, payload, showLabel, tickFormatter, abscissaY }:
   const rectX = x - rectWidth - 5; // Position to the left of the text
   const rectY = y - rectHeight / 2;
   const borderRadius = 4; // rounded = 0.25rem = 4px
-  
+
   return (
     <g transform={`translate(0, 4)`}>
       {isAbscissaValue && (
@@ -132,6 +149,7 @@ const CustomYAxisTick = ({ x, y, payload, showLabel, tickFormatter, abscissaY }:
         fontSize={18}
         letterSpacing="0.05em"
         dominantBaseline="middle"
+        filter={isAbscissaValue ? "url(#ticker-shadow)" : undefined}
       >
         {formattedValue}
       </Text>
@@ -159,9 +177,7 @@ export const Chart = ({
 
   // Create data points: (0,0), (1, values[0]), ..., (20, values[19])
   const data = useMemo(() => {
-    const points: Array<{ x: number; y: number }> = [
-      { x: 0, y: 0 },
-    ];
+    const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
 
     // Add points for each value
     for (let i = 0; i < values.length; i++) {
@@ -213,7 +229,6 @@ export const Chart = ({
     return "";
   };
 
-
   return (
     <div className={cn(chartVariants({ variant, size, className }))} {...props}>
       <ResponsiveContainer width="100%" height="100%">
@@ -221,6 +236,22 @@ export const Chart = ({
           data={data}
           margin={{ top: 20, right: 5, bottom: 5, left: 10 }}
         >
+          <defs>
+            <filter
+              id="ticker-shadow"
+              x="-50%"
+              y="-50%"
+              width="200%"
+              height="200%"
+            >
+              <feDropShadow
+                dx="1"
+                dy="1"
+                stdDeviation="0"
+                floodColor="rgba(0, 0, 0, 0.12)"
+              />
+            </filter>
+          </defs>
           {/* X-axis (top) - same as bottom */}
           <XAxis
             xAxisId="top"
@@ -232,7 +263,13 @@ export const Chart = ({
             tickLine={false}
             ticks={xTicks}
             tickFormatter={xTickFormatter}
-            tick={<CustomXAxisTick showLabel={true} abscissa={abscissa} orientation="top" />}
+            tick={
+              <CustomXAxisTick
+                showLabel={true}
+                abscissa={abscissa}
+                orientation="top"
+              />
+            }
           />
 
           {/* X-axis (bottom) - shows numeric values */}
@@ -245,7 +282,13 @@ export const Chart = ({
             tickLine={false}
             ticks={xTicks}
             tickFormatter={xTickFormatter}
-            tick={<CustomXAxisTick showLabel={true} abscissa={abscissa} orientation="bottom" />}
+            tick={
+              <CustomXAxisTick
+                showLabel={true}
+                abscissa={abscissa}
+                orientation="bottom"
+              />
+            }
           />
 
           {/* Y-axis */}
@@ -256,7 +299,13 @@ export const Chart = ({
             tickLine={false}
             ticks={yTicks}
             tickFormatter={yTickFormatter}
-            tick={<CustomYAxisTick showLabel={true} tickFormatter={yTickFormatter} abscissaY={abscissaY} />}
+            tick={
+              <CustomYAxisTick
+                showLabel={true}
+                tickFormatter={yTickFormatter}
+                abscissaY={abscissaY}
+              />
+            }
           />
 
           {/* Reference lines for abscissa - vertical line (from top to abscissaY) */}
@@ -281,9 +330,9 @@ export const Chart = ({
             ]}
           />
 
-          {/* Step line chart with rounded corners using spline */}
+          {/* Step line chart (partie entière) */}
           <Line
-            type="monotone"
+            type="stepAfter"
             dataKey="y"
             stroke="var(--green-100)"
             strokeWidth={2}

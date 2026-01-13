@@ -21,7 +21,8 @@ const meta = {
       control: "number",
       min: 0,
       max: 20,
-      description: "The x-coordinate for the reference lines (between 0 and 20)",
+      description:
+        "The x-coordinate for the reference lines (between 0 and 20)",
     },
     variant: {
       control: "select",
@@ -36,7 +37,8 @@ const meta = {
   },
   args: {
     values: [
-      0.01, 0.02, 0.04, 0.08, 0.13, 0.19, 0.27, 0.35, 0.45, 0.56, 0.68, 0.82, 0.96, 1.12, 1.29, 1.47, 1.67, 1.87, 2.09, 2.32,
+      0.01, 0.02, 0.04, 0.08, 0.13, 0.19, 0.27, 0.35, 0.45, 0.56, 0.68, 0.82,
+      0.96, 1.12, 1.29, 1.47, 1.67, 1.87, 2.09, 2.32,
     ],
     abscissa: 14,
   },

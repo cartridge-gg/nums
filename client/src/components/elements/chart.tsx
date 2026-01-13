@@ -175,18 +175,6 @@ export const Chart = ({
     throw new Error("Abscissa must be between 0 and 20");
   }
 
-  // Create data points: (0,0), (1, values[0]), ..., (20, values[19])
-  const data = useMemo(() => {
-    const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
-
-    // Add points for each value
-    for (let i = 0; i < values.length; i++) {
-      points.push({ x: i + 1, y: values[i] });
-    }
-
-    return points;
-  }, [values]);
-
   // Get the y value for the given abscissa
   const abscissaY = useMemo(() => {
     if (abscissa === 0) return 0;
@@ -196,6 +184,34 @@ export const Chart = ({
     if (index >= 20) return values[19];
     return values[index - 1];
   }, [abscissa, values]);
+
+  // Create data points: (0,0), (1, values[0]), ..., (20, values[19])
+  // Also add the abscissa point if it's not already in the data
+  const data = useMemo(() => {
+    const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
+
+    // Add points for each value
+    for (let i = 0; i < values.length; i++) {
+      points.push({ x: i + 1, y: values[i] });
+    }
+
+    // Add abscissa point if it's not already in the data
+    // For stepAfter, the point at abscissa should have y = abscissaY
+    const abscissaIndex = points.findIndex(
+      (p) => Math.abs(p.x - abscissa) < 0.001,
+    );
+    if (abscissaIndex === -1 && abscissa > 0 && abscissa < 20) {
+      // Insert abscissa point in the correct position (sorted by x)
+      const insertIndex = points.findIndex((p) => p.x > abscissa);
+      if (insertIndex === -1) {
+        points.push({ x: abscissa, y: abscissaY });
+      } else {
+        points.splice(insertIndex, 0, { x: abscissa, y: abscissaY });
+      }
+    }
+
+    return points;
+  }, [values, abscissa, abscissaY]);
 
   const maxY = Math.max(...values, 0);
 
@@ -227,6 +243,25 @@ export const Chart = ({
   const yTickFormatter = (value: number) => {
     if (yTicks.includes(value)) return `$${value.toFixed(2)}`;
     return "";
+  };
+
+  // Custom dot component that only shows at the abscissa point
+  const AbscissaDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    // Only show dot if this point corresponds to the abscissa
+    if (Math.abs(payload.x - abscissa) < 0.001) {
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={3}
+          fill="var(--white-100)"
+          stroke="var(--black-400)"
+          strokeWidth={1}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -336,7 +371,7 @@ export const Chart = ({
             dataKey="y"
             stroke="var(--green-100)"
             strokeWidth={2}
-            dot={false}
+            dot={AbscissaDot}
             activeDot={false}
             connectNulls={false}
           />

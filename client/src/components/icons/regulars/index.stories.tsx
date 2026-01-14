@@ -20,9 +20,12 @@ type Story = StoryObj<typeof meta>;
 const regularIcons = [
   { name: "ArrowLeftIcon", component: Icons.ArrowLeftIcon },
   { name: "ArrowRightIcon", component: Icons.ArrowRightIcon },
+  { name: "AsteriskIcon", component: Icons.AsteriskIcon },
   { name: "BrandIcon", component: Icons.BrandIcon },
   { name: "CartridgeIcon", component: Icons.CartridgeIcon },
   { name: "CheckIcon", component: Icons.CheckIcon },
+  { name: "CheckboxCheckedIcon", component: Icons.CheckboxCheckedIcon },
+  { name: "CheckboxUncheckedIcon", component: Icons.CheckboxUncheckedIcon },
   { name: "CircleInfoIcon", component: Icons.CircleInfoIcon },
   { name: "CircleQuestionIcon", component: Icons.CircleQuestionIcon },
   { name: "ControllerIcon", component: Icons.ControllerIcon },

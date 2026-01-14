@@ -1,0 +1,172 @@
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/button";
+import {
+  CheckIcon,
+  CheckboxCheckedIcon,
+  CheckboxUncheckedIcon,
+} from "@/components/icons";
+import { Formatter } from "@/helpers";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+
+export interface QuestProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof questVariants> {
+  title: string;
+  task: string;
+  count: number;
+  total: number;
+  expiration?: number;
+  claimed: boolean;
+  onClaim?: () => void;
+}
+
+const questVariants = cva(
+  "select-none flex flex-col gap-3 rounded-lg p-4 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  {
+    variants: {
+      variant: {
+        default: "bg-black-900",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
+// Initialize countdown immediately
+const getCountdown = (exp: number) => {
+  if (!exp) return Formatter.countdown(0);
+  const now = new Date();
+  const diff = exp * 1000 - now.getTime();
+  return Formatter.countdown(diff);
+};
+
+export const Quest = ({
+  title,
+  task,
+  count,
+  total,
+  expiration = 0,
+  claimed,
+  onClaim,
+  variant,
+  className,
+  ...props
+}: QuestProps) => {
+  const isCompleted = count >= total;
+  const progress = Math.min((count / total) * 100, 100);
+
+  const [countdown, setCountdown] = useState<string>(() =>
+    getCountdown(expiration),
+  );
+
+  useEffect(() => {
+    setCountdown(getCountdown(expiration));
+    if (!expiration) return;
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = expiration * 1000 - now.getTime();
+      setCountdown(Formatter.countdown(diff));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiration]);
+
+  return (
+    <div className={cn(questVariants({ variant, className }))} {...props}>
+      {/* Top section: left (title/task) and right (claim button) */}
+      <div className="flex justify-between items-start gap-4">
+        {/* Left: title and task with checkbox */}
+        <div className="flex flex-col gap-3">
+          <h3
+            className="font-primary text-[22px]/[15px] md:text-[28px]/[19px] tracking-wider text-white-100 uppercase translate-y-0.5"
+            style={{
+              textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+            }}
+          >
+            {title}
+          </h3>
+          <div
+            className={cn(
+              "flex items-center gap-2",
+              claimed ? "text-white-400" : "text-white-100",
+            )}
+          >
+            {claimed ? (
+              <CheckboxCheckedIcon size="sm" />
+            ) : (
+              <CheckboxUncheckedIcon size="sm" />
+            )}
+            <span
+              className="text-[14px]/[18px] tracking-normal font-sans"
+              style={{ fontWeight: 450 }}
+            >
+              {task}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: claim button (desktop only) */}
+        {claimed ? (
+          <div className="px-5 py-1 bg-black-800 rounded-lg h-10 flex items-center justify-center">
+            <p
+              className="text-[22px]/[15px] tracking-wider text-white-100 translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Claimed
+            </p>
+          </div>
+        ) : isCompleted && onClaim ? (
+          <Button
+            variant="default"
+            onClick={onClaim}
+            className="bg-green-100 hover:bg-green-300"
+          >
+            <p className="text-[28px] translate-y-0.5">Claim</p>
+          </Button>
+        ) : (
+          <div className="px-5 py-1 bg-black-800 rounded-lg h-10 flex items-center justify-center">
+            <p
+              className="text-[22px]/[15px] tracking-wider text-white-100 translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              {countdown}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom section: progress bar and count */}
+      <div className="flex items-center gap-3 h-5">
+        {/* Progress bar */}
+        <div className="flex-1 h-4 p-1 bg-black-800 rounded-full overflow-hidden">
+          <motion.div
+            className={cn(
+              "h-full rounded-full",
+              claimed ? "bg-mauve-100" : "bg-green-100",
+            )}
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut",
+            }}
+          />
+        </div>
+
+        {/* Count display */}
+        <p
+          className="flex items-center gap-2 text-[14px] leading-[100%] tracking-normal text-white-100 font-sans"
+          style={{ fontWeight: 450 }}
+        >
+          {isCompleted && <CheckIcon className="w-4 h-4" size="sm" />}
+          <span>
+            {count} of {total}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+};

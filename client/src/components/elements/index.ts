@@ -8,3 +8,4 @@ export * from "./sound";
 export * from "./balance";
 export * from "./profile";
 export * from "./connect";
+export * from "./chart";

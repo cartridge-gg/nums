@@ -11,16 +11,20 @@ export interface QuestsProps
   expiration: number;
 }
 
-const questsVariants = cva("flex flex-col gap-6 p-6", {
-  variants: {
-    variant: {
-      default: "",
+const questsVariants = cva(
+  "w-full flex flex-col gap-4 md:gap-6 p-4 md:p-6 pb-0 rounded-lg overflow-hidden",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-black-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+);
 
 // Helper function to get countdown
 const getCountdown = (exp: number) => {
@@ -59,14 +63,14 @@ export const Quests = ({
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2
-          className="font-primary text-[36px]/[24px] tracking-wider text-white-100 uppercase translate-y-0.5"
+          className="font-primary text-[36px]/[24px] tracking-wider text-mauve-100 uppercase translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           DailyQuest
         </h2>
         {allCompleted && (
           <p
-            className="text-[22px]/[15px] tracking-wider text-white-100 translate-y-0.5"
+            className="text-[22px]/[15px] tracking-wider text-mauve-300 translate-y-0.5"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             {`Refresh in ${countdown}`}
@@ -75,7 +79,10 @@ export const Quests = ({
       </div>
 
       {/* Quests list */}
-      <div className="flex flex-col gap-4">
+      <div
+        className="flex flex-col gap-4 overflow-y-auto pb-4 md:pb-6"
+        style={{ scrollbarWidth: "none" }}
+      >
         {quests.map((quest, index) => (
           <Quest key={index} {...quest} />
         ))}

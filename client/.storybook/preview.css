@@ -1,7 +1,13 @@
 /* Override global body background in Storybook to allow story backgrounds to show */
 /* Set background to match the most common story background to avoid white flash */
+html,
 body {
+  height: 100%;
   background-color: #4419C5 !important;
+}
+
+#storybook-root {
+  height: 100%;
 }
 
 /* Storybook applies backgrounds on a wrapper element */

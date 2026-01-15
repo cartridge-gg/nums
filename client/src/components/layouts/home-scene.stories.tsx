@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Quests } from "./quests";
+import { HomeScene } from "./home-scene";
 import { fn } from "storybook/test";
 
 const meta = {
-  title: "Containers/Quests",
-  component: Quests,
+  title: "Layouts/Home Scene",
+  component: HomeScene,
   parameters: {
     layout: "padded",
   },
@@ -20,7 +20,7 @@ const meta = {
       value: "dark",
     },
   },
-} satisfies Meta<typeof Quests>;
+} satisfies Meta<typeof HomeScene>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -55,16 +55,34 @@ const sampleQuests = [
   },
 ];
 
+const sampleRows = [
+  {
+    rank: 1,
+    username: "clicksave",
+    total: 25,
+    score: 13.3,
+    variant: "primary" as const,
+  },
+  {
+    rank: 2,
+    username: "bal7hazar",
+    total: 312,
+    score: 13.1,
+  },
+  {
+    rank: 3,
+    username: "ashe",
+    total: 12,
+    score: 14.6,
+  },
+];
+
 export const Default: Story = {
   args: {
     quests: sampleQuests,
-    expiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
-  },
-};
-
-export const Completed: Story = {
-  args: {
-    quests: sampleQuests.map((quest) => ({ ...quest, count: quest.total })),
-    expiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
+    questsExpiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
+    leaderboardRows: sampleRows,
+    totalGames: "241",
+    avgScore: "14.3",
   },
 };

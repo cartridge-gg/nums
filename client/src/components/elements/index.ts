@@ -14,3 +14,5 @@ export * from "./quest";
 export * from "./leaderboard-row";
 export * from "./leaderboard-tab";
 export * from "./quest-tab";
+export * from "./info";
+export * from "./play";

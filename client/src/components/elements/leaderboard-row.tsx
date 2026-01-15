@@ -11,7 +11,7 @@ export interface LeaderboardRowProps
 }
 
 const leaderboardRowVariants = cva(
-  "flex items-center gap-4 h-11 rounded-lg py-3 px-4 border",
+  "flex items-center gap-3 md:gap-4 h-11 rounded-lg py-3 px-4 border",
   {
     variants: {
       variant: {
@@ -40,7 +40,7 @@ export const LeaderboardRow = ({
       {...props}
     >
       {/* Rank */}
-      <div className="w-20 text-left">
+      <div className="flex-1 text-left">
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",
@@ -53,7 +53,7 @@ export const LeaderboardRow = ({
       </div>
 
       {/* Player */}
-      <div className="flex-[2] min-w-0 text-left">
+      <div className="flex-[3] min-w-0 text-left">
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans truncate block",
@@ -65,7 +65,7 @@ export const LeaderboardRow = ({
       </div>
 
       {/* Total games */}
-      <div className="flex-1 text-left">
+      <div className="flex-[2] text-left">
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",
@@ -77,7 +77,7 @@ export const LeaderboardRow = ({
       </div>
 
       {/* Avg. score */}
-      <div className="flex-1 text-left">
+      <div className="flex-[2] text-left">
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",

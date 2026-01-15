@@ -7,6 +7,13 @@ const meta = {
   parameters: {
     layout: "padded",
   },
+  decorators: [
+    (Story) => (
+      <div className="flex h-full w-full">
+        <Story />
+      </div>
+    ),
+  ],
   globals: {
     backgrounds: {
       value: "dark",
@@ -74,13 +81,13 @@ const sampleRows = [
     score: 10.1,
   },
   {
-    rank: 9,
+    rank: 10,
     username: "tarrence",
     total: 123,
     score: 9.9,
   },
   {
-    rank: 10,
+    rank: 11,
     username: "mickey",
     total: 321,
     score: 8.9,
@@ -90,20 +97,18 @@ const sampleRows = [
 export const Default: Story = {
   args: {
     rows: sampleRows,
-    className: "h-[613px]",
+    className: "grow",
   },
 };
 
 export const Empty: Story = {
   args: {
     rows: [],
-    className: "h-[613px]",
   },
 };
 
 export const SingleRow: Story = {
   args: {
     rows: [sampleRows[0]],
-    className: "h-[613px]",
   },
 };

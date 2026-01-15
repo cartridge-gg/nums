@@ -20,10 +20,13 @@ const preview: Preview = {
           name: "purple",
           value: "#4419C5",
         },
+        modal: {
+          name: "modal",
+          value: "#0D0525",
+        },
       },
     },
   },
-
   initialGlobals: {
     backgrounds: {
       value: "purple",

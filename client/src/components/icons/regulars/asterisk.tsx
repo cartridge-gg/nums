@@ -1,33 +1,32 @@
 import { forwardRef, memo } from "react";
 import { iconVariants, type IconProps } from "..";
 
-export const CloseIcon = memo(
+export const AsteriskIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
     ({ className, size, ...props }, forwardedRef) => (
       <svg
-        width="32"
-        height="32"
-        viewBox="0 0 32 32"
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={iconVariants({ size, className })}
         ref={forwardedRef}
         {...props}
       >
-        <g filter="url(#filter0_d_858_10001)">
+        <g filter="url(#filter0_d_1524_8618)">
           <path
-            d="M24.8744 22.9501C25.421 23.4952 25.421 24.3796 24.8744 24.9248C24.3278 25.47 23.441 25.4699 22.8944 24.9248L16.001 17.9989L9.05859 24.9225C8.51201 25.4676 7.62519 25.4676 7.07855 24.9225C6.53191 24.3774 6.53197 23.493 7.07855 22.9478L14.0233 16.0265L7.07662 9.05053C6.53004 8.50542 6.53004 7.621 7.07662 7.07584C7.6232 6.53068 8.51002 6.53074 9.05666 7.07584L16.001 14.0541L22.9434 7.13053C23.4899 6.58543 24.3768 6.58543 24.9234 7.13053C25.47 7.67564 25.47 8.56006 24.9234 9.10522L17.9787 16.0265L24.8744 22.9501Z"
+            d="M6.63243 5.25843L8.62703 4.55056L9 5.76405L6.98919 6.45506L8.31892 8.22472L7.32973 9L5.98378 7.16292L4.71892 8.98315L3.72973 8.20787L5.01081 6.45506L3 5.76405L3.37297 4.55056L5.35135 5.27528V3H6.63243V5.25843Z"
             fill="currentColor"
-            shapeRendering="crispEdges"
           />
         </g>
         <defs>
           <filter
-            id="filter0_d_858_10001"
-            x="6.66669"
-            y="6.66699"
-            width="20.6667"
-            height="20.667"
+            id="filter0_d_1524_8618"
+            x="3"
+            y="3"
+            width="7"
+            height="7"
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
@@ -38,21 +37,21 @@ export const CloseIcon = memo(
               values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
               result="hardAlpha"
             />
-            <feOffset dx="2" dy="2" />
+            <feOffset dx="1" dy="1" />
             <feComposite in2="hardAlpha" operator="out" />
             <feColorMatrix
               type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"
             />
             <feBlend
               mode="normal"
               in2="BackgroundImageFix"
-              result="effect1_dropShadow_858_10001"
+              result="effect1_dropShadow_1524_8618"
             />
             <feBlend
               mode="normal"
               in="SourceGraphic"
-              in2="effect1_dropShadow_858_10001"
+              in2="effect1_dropShadow_1524_8618"
               result="shape"
             />
           </filter>
@@ -62,4 +61,4 @@ export const CloseIcon = memo(
   ),
 );
 
-CloseIcon.displayName = "CloseIcon";
+AsteriskIcon.displayName = "AsteriskIcon";

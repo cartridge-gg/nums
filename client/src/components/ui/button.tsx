@@ -10,13 +10,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-yellow-100 text-brown-100 rounded-lg hover:bg-yellow-400",
+        default:
+          "bg-yellow-100 text-brown-100 rounded-lg hover:bg-yellow-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] disabled:shadow-none",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 ",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-purple-100 rounded-lg hover:bg-purple-200",
-        muted: "bg-mauve-500 rounded-lg hover:bg-mauve-400",
+        secondary:
+          "bg-purple-100 rounded-lg hover:bg-purple-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] disabled:shadow-none",
+        muted:
+          "bg-mauve-500 rounded-lg hover:bg-mauve-400 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] disabled:shadow-none",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -64,8 +67,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       !disabled &&
       (variant === "secondary" || variant === "default" || variant === "muted")
         ? {
-            boxShadow:
-              "1px 1px 0px 0px rgba(255, 255, 255, 0.12) inset, 1px 1px 0px 0px rgba(0, 0, 0, 0.12)",
             ...style,
           }
         : style;

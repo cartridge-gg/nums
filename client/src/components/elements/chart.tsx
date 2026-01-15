@@ -19,7 +19,7 @@ export interface ChartProps
 }
 
 const chartVariants = cva(
-  "select-none relative rounded-lg flex items-center justify-center",
+  "select-none relative rounded-lg flex items-center justify-center outline-none focus-visible:outline-none [&_svg]:outline-none [&_svg]:focus:outline-none [&_svg]:focus-visible:outline-none [&_*]:outline-none [&_*]:focus:outline-none [&_*]:focus-visible:outline-none",
   {
     variants: {
       variant: {
@@ -265,11 +265,22 @@ export const Chart = ({
   };
 
   return (
-    <div className={cn(chartVariants({ variant, size, className }))} {...props}>
-      <ResponsiveContainer width="100%" height="100%">
+    <div
+      className={cn(chartVariants({ variant, size, className }))}
+      {...props}
+      tabIndex={-1}
+      style={{ outline: "none", ...props.style }}
+      onFocus={(e) => e.currentTarget.blur()}
+    >
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        className="chart-container"
+      >
         <LineChart
           data={data}
           margin={{ top: 20, right: 5, bottom: 5, left: 10 }}
+          style={{ outline: "none" }}
         >
           <defs>
             <filter

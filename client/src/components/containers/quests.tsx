@@ -12,7 +12,7 @@ export interface QuestsProps
 }
 
 const questsVariants = cva(
-  "w-full flex flex-col gap-4 md:gap-6 p-4 md:p-6 pb-0 rounded-lg overflow-hidden",
+  "w-full flex flex-col gap-4 md:gap-6 p-4 md:p-6 pb-0 md:pb-0 rounded-lg overflow-hidden",
   {
     variants: {
       variant: {

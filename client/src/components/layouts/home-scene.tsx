@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
 import type * as TabsPrimitive from "@radix-ui/react-tabs";
-import { QuestTab, LeaderboardTab } from "@/components/elements";
+import { Tab } from "@/components/elements";
+import * as icons from "@/components/icons";
 import { Info, Play, Highlight } from "@/components/elements";
 import { Quests, type QuestsProps } from "@/components/containers/quests";
 import {
@@ -60,8 +61,13 @@ export const HomeScene = ({
       {/* Header with tabs and buttons */}
       <div className="flex justify-between items-center gap-4">
         <TabsList className="gap-3 bg-transparent p-0">
-          <QuestTab value="quest" />
-          <LeaderboardTab value="leaderboard" />
+          <Tab value="quest" label="Quest" icon={icons.QuestIcon} />
+          <Tab
+            value="leaderboard"
+            label="Leaderboard"
+            icon={icons.TrophyIcon}
+            iconProps={{ variant: "solid" }}
+          />
         </TabsList>
         <div className="flex items-center gap-3">
           <Info />

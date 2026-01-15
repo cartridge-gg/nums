@@ -17,7 +17,7 @@ const meta = {
   ],
   globals: {
     backgrounds: {
-      value: "dark",
+      value: "purple",
     },
   },
 } satisfies Meta<typeof HomeScene>;

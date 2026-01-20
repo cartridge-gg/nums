@@ -53,7 +53,6 @@ export const useGames = (gameIds: number[]) => {
 
   const onUpdate = useCallback(
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      console.log({ data });
       if (!data || data.error) return;
       const games: Game[] = [];
       (data.data || [data] || []).forEach((entity) => {

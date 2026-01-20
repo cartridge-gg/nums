@@ -3,8 +3,8 @@ import { mainnet, sepolia } from "@starknet-react/chains";
 import { shortString } from "starknet";
 import manifestMainnet from "../../manifest_mainnet.json"; // todo: update when deployed
 import manifestSepolia from "../../manifest_sepolia.json";
+import { NAMESPACE } from "@/constants";
 
-export const NAMESPACE = "NUMS";
 export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN;
 export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
   import.meta.env.VITE_DEFAULT_CHAIN,
@@ -71,7 +71,7 @@ export const getVrfAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "MockVRF");
 };
 
-export const getNumsAddress = (chainId: bigint) => {
+export const getTokenAddress = (chainId: bigint) => {
   const decodedChainId = shortString.decodeShortString(
     `0x${chainId.toString(16)}`,
   );
@@ -82,4 +82,8 @@ export const getNumsAddress = (chainId: bigint) => {
 
 export const getGameAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "Play");
+};
+
+export const getSetupAddress = (chainId: bigint) => {
+  return getContractAddress(chainId, NAMESPACE, "Setup");
 };

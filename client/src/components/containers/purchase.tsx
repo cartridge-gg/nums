@@ -17,6 +17,7 @@ export interface PurchaseProps
   chartAbscissa: ChartProps["abscissa"];
   numsPrice: number; // Price in USD (e.g., 0.003)
   playPrice: number; // Price in USD (e.g., 1.00)
+  onPurchase: () => void;
 }
 
 const purchaseVariants = cva(
@@ -38,6 +39,7 @@ export const Purchase = ({
   chartAbscissa,
   numsPrice,
   playPrice,
+  onPurchase,
   variant,
   className,
   ...props
@@ -79,7 +81,7 @@ export const Purchase = ({
         </div>
 
         {/* Play button */}
-        <Button variant="default" className="w-full">
+        <Button variant="default" className="w-full" onClick={onPurchase}>
           <p
             className="text-[28px]/[15px] tracking-wide translate-y-0.5"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
@@ -105,7 +107,7 @@ const PurchaseInfoBox = ({ numsPrice }: { numsPrice: number }) => {
         Rewards are denominated in NUMS tokens
       </p>
       <p className="font-sans text-sm leading-normal text-white-100">
-        1 NUMS = ${numsPrice.toFixed(3)} USD
+        1 NUMS = ${numsPrice.toFixed(5)} USD
       </p>
     </div>
   );

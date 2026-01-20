@@ -14,13 +14,13 @@ pub trait IERC20Metadata<TState> {
 }
 
 pub fn NAME() -> ByteArray {
-    "MockNumsToken"
+    "Token"
 }
 
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[dojo::contract]
-mod MockNumsToken {
+mod Token {
     use dojo::world::WorldStorageTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin::introspection::src5::SRC5Component;

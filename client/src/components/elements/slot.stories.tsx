@@ -54,7 +54,7 @@ export const Disabled: Story = {
   },
 };
 
-export const Set: Story = {
+export const Placed: Story = {
   args: {
     value: 100,
   },

@@ -10,17 +10,14 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import { chains, DEFAULT_CHAIN_ID, getNumsAddress } from "@/config";
+import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
-import { ConfigProvider } from "./context/config";
 import { ControllersProvider } from "./context/controllers";
-import { DojoSdkProviderInitialized } from "./context/dojo";
-import { ModalProvider } from "./context/modal";
-import { TokenPricesProvider } from "./context/tokenPrices";
 import { EntitiesProvider } from "./context/entities";
-import { Game } from "./pages/Game";
-import { Home } from "./pages/Home";
+import { Game, Home } from "./pages";
 import { queryClient } from "./queries";
+import { QuestsProvider } from "./context/quests";
+import { PricesProvider } from "./context/prices";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -34,34 +31,6 @@ const provider = jsonRpcProvider({
     }
   },
 });
-
-// const buildPolicies = () => {
-//   const chain = chains[DEFAULT_CHAIN_ID];
-
-//   const vrfAddress = getVrfAddress(chain.id);
-//   const numsAddress = getNumsAddress(chain.id);
-//   const gameAddress = getContractAddress(chain.id, NAMESPACE, "Play");
-
-//   const policies: SessionPolicies = {
-//     contracts: {
-//       [vrfAddress]: {
-//         methods: [{ entrypoint: "request_random" }],
-//       },
-//       [numsAddress]: {
-//         methods: [{ entrypoint: "approve" }],
-//       },
-//       [gameAddress]: {
-//         methods: [
-//           { entrypoint: "start" },
-//           { entrypoint: "set" },
-//           { entrypoint: "apply" },
-//         ],
-//       },
-//     },
-//   };
-
-//   return policies;
-// };
 
 const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
@@ -77,7 +46,7 @@ const buildChains = () => {
 
 const buildTokens = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
-  const numsAddress = getNumsAddress(chain.id);
+  const numsAddress = getTokenAddress(chain.id);
   return {
     erc20: [numsAddress],
   };
@@ -111,26 +80,22 @@ function App() {
           explorer={voyager}
           provider={provider}
         >
-          <DojoSdkProviderInitialized>
-            <AudioProvider>
-              <ConfigProvider>
-                <ControllersProvider>
-                  <EntitiesProvider>
-                    <TokenPricesProvider>
-                      <ModalProvider>
-                        <Router>
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/:gameId" element={<Game />} />
-                          </Routes>
-                        </Router>
-                      </ModalProvider>
-                    </TokenPricesProvider>
-                  </EntitiesProvider>
-                </ControllersProvider>
-              </ConfigProvider>
-            </AudioProvider>
-          </DojoSdkProviderInitialized>
+          <AudioProvider>
+            <EntitiesProvider>
+              <ControllersProvider>
+                <QuestsProvider>
+                  <PricesProvider>
+                    <Router>
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/:gameId" element={<Game />} />
+                      </Routes>
+                    </Router>
+                  </PricesProvider>
+                </QuestsProvider>
+              </ControllersProvider>
+            </EntitiesProvider>
+          </AudioProvider>
         </StarknetConfig>
       </QueryClientProvider>
       <Toaster position="top-right" richColors />

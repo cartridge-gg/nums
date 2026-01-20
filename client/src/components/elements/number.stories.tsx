@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Number } from "./number";
+import { Num } from "./number";
 import { Button } from "@/components/ui/button";
 
 const meta = {
-  title: "Elements/Number",
-  component: Number,
+  title: "Elements/Num",
+  component: Num,
   parameters: {
     layout: "centered",
   },
@@ -29,7 +29,7 @@ const meta = {
       description: "The visual variant of the number",
     },
   },
-} satisfies Meta<typeof Number>;
+} satisfies Meta<typeof Num>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -65,7 +65,7 @@ export const Interactive: Story = {
 
     return (
       <div className="flex flex-col gap-4 items-center">
-        <Number value={value} />
+        <Num value={value} />
         <Button onClick={generateRandomValue} variant="default">
           Generate Random (1-999)
         </Button>

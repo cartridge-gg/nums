@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.27"
+seed = "nums-v1.0.29"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,13 +9,13 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x04ab20897d666b7df906bcddbfcad44d2746dbdb6782b2f169692d46a30ea46d"
+world_address = "0x025de742cfc2b9887d5008f8eef2d14c55ed1c3b88771ead8b4b736a9a01bc5f"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
 [migration]
 order_inits = ["NUMS-Setup", "NUMS-Play", "NUMS-Collection"]
-skip_contracts = ["NUMS-MockVRF", "NUMS-MockNumsToken", "NUMS-MockStarterpack"]
+skip_contracts = ["NUMS-Vrf", "NUMS-Token", "NUMS-Registry"]
 disable_multicall = true
 
 [writers]
@@ -34,6 +34,5 @@ disable_multicall = true
   "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
   "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
   "0xF423F",                                                            # entry_price: 0.990000 USDC
-  "0x6765C793FA10079D0000000",                                          # target_supply - low
-  "0x0",                                                                # target_supply - high
+  "0x6765C793FA10079D0000000",                                          # target_supply
 ]

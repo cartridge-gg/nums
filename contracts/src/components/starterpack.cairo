@@ -3,7 +3,7 @@ pub mod StarterpackComponent {
     // Imports
 
     use dojo::world::WorldStorage;
-    use crate::interfaces::starterpack::IStarterpackDispatcherTrait;
+    use crate::interfaces::registry::IStarterpackRegistryDispatcherTrait;
     use crate::models::config;
     use crate::models::config::ConfigAssert;
     use crate::models::starterpack::{StarterpackAssert, StarterpackTrait};

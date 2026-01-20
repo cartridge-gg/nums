@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x4ab20897d666b7df906bcddbfcad44d2746dbdb6782b2f169692d46a30ea46d",
-    "seed": "nums-v1.0.27",
+    "address": "0x25de742cfc2b9887d5008f8eef2d14c55ed1c3b88771ead8b4b736a9a01bc5f",
+    "seed": "nums-v1.0.29",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x5fe3a027a809d02641fa1a30f7822a47f1290c4ea84f83f197e547ac8949c41",
+      "address": "0x581b68a9268be9c278321a79080d6d1ccc733af44ff8d9046dd9d2ba8d34ad8",
       "class_hash": "0x4794cda37e31607945fdac11fee816d57acd2d5e20b37aab6e56699b9c7ea3f",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x3ab5def1fc7d93cd8f535762ca94f92316e62611107fc511eb6fb30f3dad015",
-      "class_hash": "0x57c18d1d44b67559ca1489e7b95755e04c55163bc76ac228b4f1b07d3423480",
+      "address": "0x6eb180628fd7ff69716545aa429e2d39f3471451d26f62cad5c8b72a48b9250",
+      "class_hash": "0x28726b7eb85b26ec0efb250f5857ce0a46cff8624b25ff3e7cf7a55a312eb1f",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -78,8 +78,8 @@
       ]
     },
     {
-      "address": "0x7712c3aeab4818facf2e781db7fa9581e363c07839b90bf423341d7a4682386",
-      "class_hash": "0x1cb051122047c6f8fe6abf9272c5a7ff05a11f577d7d1156a0938d96b983fd7",
+      "address": "0x5d65c20b16bb7386c1cf90cb8402a57aedfcc039219da3bbfe6bc21c2574daa",
+      "class_hash": "0x3e8bde4f8067c6ef9899ff749359e53ce9ccca34123a872812bf1f00b732061",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -89,8 +89,7 @@
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0xF423F",
-        "0x6765C793FA10079D0000000",
-        "0x0"
+        "0x6765C793FA10079D0000000"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
@@ -592,6 +591,38 @@
       "class_hash": "0x7862bab5e54ec6aa89c4a0ef6f39ca01a6440434b08d4fdd8098ee6e920e9a6",
       "tag": "NUMS-AchievementCompleted",
       "selector": "0x7e4cf0da0a14e4bdd3787a6d2a3a5c8ed8d4e96101d0ff6281928e147ea817f"
+    },
+    {
+      "members": [
+        {
+          "name": "leaderboard_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x2c067e1c1069a68aca73f8cf4f0000fb9c584455bb60fadde7ee05fbeb62372",
+      "tag": "NUMS-LeaderboardScore",
+      "selector": "0x3b5d184f66bf1446e882a4eab8662010f7108b42fb2d2aafe6d2721f625154e"
     },
     {
       "members": [
@@ -3216,7 +3247,7 @@
         },
         {
           "name": "target_supply",
-          "type": "core::integer::u256"
+          "type": "core::felt252"
         }
       ],
       "outputs": [],
@@ -3252,6 +3283,62 @@
       ],
       "outputs": [],
       "state_mutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "leaderboard::components::rankable::RankableComponent::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "leaderboard::events::index::LeaderboardScore",
+      "members": [
+        {
+          "name": "leaderboard_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "game_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "player",
+          "type": "core::felt252"
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "leaderboard::events::index::LeaderboardScoreValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::felt252"
+        },
+        {
+          "name": "score",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "leaderboard::events::index::e_LeaderboardScore::Event",
+      "kind": "enum",
+      "variants": []
     },
     {
       "type": "event",
@@ -3859,6 +3946,11 @@
         {
           "name": "QuestableEvent",
           "type": "quest::components::questable::QuestableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "RankableEvent",
+          "type": "leaderboard::components::rankable::RankableComponent::Event",
           "kind": "flat"
         },
         {

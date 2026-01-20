@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Purchase } from "./purchase";
+import { fn } from "storybook/test";
 
 const meta = {
   title: "Containers/Purchase",
@@ -28,5 +29,6 @@ export const Default: Story = {
     chartAbscissa: 14,
     numsPrice: 0.003,
     playPrice: 1.0,
+    onPurchase: fn(),
   },
 };

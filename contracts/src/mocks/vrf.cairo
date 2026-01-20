@@ -1,13 +1,12 @@
 pub fn NAME() -> ByteArray {
-    "MockVRF"
+    "Vrf"
 }
 
 #[dojo::contract]
-mod MockVRF {
+mod Vrf {
     use starknet::ContractAddress;
+    use crate::helpers::random::RandomImpl;
     use crate::interfaces::vrf::Source;
-    use crate::random::RandomImpl;
-    // fn dojo_init(ref self: ContractState) {}
 
     #[generate_trait]
     #[abi(per_item)]
@@ -17,8 +16,7 @@ mod MockVRF {
 
         #[external(v0)]
         fn consume_random(ref self: ContractState, source: Source) -> felt252 {
-            let mut random = RandomImpl::new();
-            random.felt()
+            starknet::get_tx_info().unbox().transaction_hash
         }
 
         #[external(v0)]

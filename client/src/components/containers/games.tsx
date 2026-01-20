@@ -4,7 +4,7 @@ import { GameRow, type GameRowProps } from "@/components/elements/game-row";
 
 export interface GamesProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof gamesVariants> {
+  VariantProps<typeof gamesVariants> {
   games: Array<Pick<GameRowProps, "gameId" | "score" | "maxPayout" | "onPlay">>;
 }
 
@@ -30,7 +30,7 @@ export const Games = ({ games, variant, className, ...props }: GamesProps) => {
         Play Nums
       </h2>
 
-      <div className="flex flex-col items-stretch gap-6">
+      <div className="grow flex flex-col items-stretch gap-6 overflow-hidden">
         {/* Headers */}
         <div className="flex items-center gap-3 pr-[60px]">
           <div className="flex-[2] text-left">
@@ -66,11 +66,24 @@ export const Games = ({ games, variant, className, ...props }: GamesProps) => {
         </div>
 
         {/* Games list */}
-        <div className="flex flex-col gap-3">
-          {games.map((game, index) => (
-            <GameRow key={index} {...game} />
-          ))}
-        </div>
+        {games.length > 0 ? (
+          <div
+            className="flex flex-col gap-3 overflow-y-auto"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {games.map((game, index) => (
+              <GameRow key={index} {...game} />
+            ))}
+          </div>
+        ) : (
+          <div className="grow flex justify-center items-center border border-mauve-700 rounded-lg p-16">
+            <p className="uppercase tracking-wider text-white-400 text-[22px]/[20px] text-center">
+              You do not have any
+              <br />
+              nums tickets
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

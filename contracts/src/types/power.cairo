@@ -1,7 +1,7 @@
 use crate::elements::powers;
 use crate::helpers::deck::DeckTrait;
+use crate::helpers::random::Random;
 use crate::models::game::Game;
-use crate::random::Random;
 
 pub const POWER_COUNT: u8 = 7;
 

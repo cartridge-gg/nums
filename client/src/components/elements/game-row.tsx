@@ -10,6 +10,7 @@ export interface GameRowProps
     VariantProps<typeof gameRowVariants> {
   gameId: string | number;
   score?: number;
+  over?: boolean;
   maxPayout: string | number;
   onPlay?: () => void;
 }
@@ -28,6 +29,7 @@ const gameRowVariants = cva("select-none flex gap-3 items-center", {
 export const GameRow = ({
   gameId,
   score,
+  over,
   maxPayout,
   onPlay,
   variant,
@@ -35,8 +37,8 @@ export const GameRow = ({
   ...props
 }: GameRowProps) => {
   const filterId = useId();
-  const Icon = score !== undefined ? LiveIcon : BrandIcon;
-  const buttonVariant = score !== undefined ? "default" : "secondary";
+  const Icon = !!score && !over ? LiveIcon : BrandIcon;
+  const buttonVariant = score ? "secondary" : "default";
 
   return (
     <div className={cn(gameRowVariants({ variant, className }))} {...props}>
@@ -46,8 +48,8 @@ export const GameRow = ({
           <div className="h-10 flex items-center gap-2 rounded-lg px-3 py-2">
             <div className="w-5 flex items-center justify-center">
               <Icon
-                size={score !== undefined ? "2xs" : "sm"}
-                className={cn(score !== undefined ? "animate-pulse" : "")}
+                size={!!score && !over ? "2xs" : "sm"}
+                className={cn(!!score && !over ? "animate-pulse" : "")}
               />
             </div>
             <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 whitespace-nowrap">
@@ -77,7 +79,11 @@ export const GameRow = ({
         </div>
       </div>
 
-      <Button variant={buttonVariant} onClick={onPlay} className="px-3">
+      <Button
+        variant={buttonVariant}
+        onClick={onPlay}
+        className={cn("px-3", over && "bg-gray-200 hover:bg-gray-100")}
+      >
         <svg width="0" height="0" style={{ position: "absolute" }}>
           <defs>
             <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">

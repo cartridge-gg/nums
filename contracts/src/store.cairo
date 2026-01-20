@@ -7,7 +7,7 @@ use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
 use crate::events::reward::GameRewardTrait;
 use crate::interfaces::nums::INumsTokenDispatcher;
-use crate::interfaces::starterpack::IStarterpackDispatcher;
+use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{Config, Game, Starterpack};
 
@@ -61,9 +61,9 @@ pub impl StoreImpl of StoreTrait {
         IVrfProviderDispatcher { contract_address: config.vrf }
     }
 
-    fn starterpack_disp(ref self: Store) -> IStarterpackDispatcher {
+    fn starterpack_disp(ref self: Store) -> IStarterpackRegistryDispatcher {
         let config = self.config();
-        IStarterpackDispatcher { contract_address: config.starterpack }
+        IStarterpackRegistryDispatcher { contract_address: config.starterpack }
     }
 
     // Config

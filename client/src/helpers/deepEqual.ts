@@ -1,4 +1,5 @@
-export function deepEqual(a: any, b: any): boolean {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function equal(a: any, b: any): boolean {
   // If the values are strictly equal, return true
   if (a === b) return true;
 
@@ -17,7 +18,7 @@ export function deepEqual(a: any, b: any): boolean {
     if (a.length !== b.length) return false;
 
     for (let i = 0; i < a.length; i++) {
-      if (!deepEqual(a[i], b[i])) {
+      if (!equal(a[i], b[i])) {
         return false;
       }
     }
@@ -45,5 +46,5 @@ export function deepEqual(a: any, b: any): boolean {
   }
 
   // Check if every key in a exists in b and has the same value
-  return keysA.every((key) => key in b && deepEqual(a[key], b[key]));
+  return keysA.every((key) => key in b && equal(a[key], b[key]));
 }

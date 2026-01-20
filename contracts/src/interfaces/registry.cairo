@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-pub trait IStarterpack<TContractState> {
+pub trait IStarterpackRegistry<TContractState> {
     fn register(
         ref self: TContractState,
         implementation: ContractAddress,

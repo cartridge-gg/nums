@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import type { BigNumberish } from "starknet";
-import { useDojoSdk } from "../hooks/dojo";
+import { useEntities } from "./entities";
 
 type ControllersProviderProps = {
   children: React.ReactNode;
@@ -15,8 +15,8 @@ type ControllersProviderProps = {
 
 type ControllersProviderState = {
   controllers?: Controller[];
-  refreshControllers: any;
-  findController: (address: string) => Controller | undefined;
+  refresh: () => Promise<void>;
+  find: (address: string) => Controller | undefined;
 };
 
 const ControllersProviderContext = createContext<
@@ -27,22 +27,26 @@ export function ControllersProvider({
   children,
   ...props
 }: ControllersProviderProps) {
-  const { sdk } = useDojoSdk();
+  const { client } = useEntities();
   const [controllers, setControllers] = useState<Controller[]>();
 
-  const refreshControllers = async () => {
+  const refresh = async () => {
+    if (!client) return;
     // fetch all
-    const res = await sdk.getControllers([], [], {
-      cursor: undefined,
-      direction: "Backward",
-      limit: 50_000,
-      order_by: [],
+    const res = await client.getControllers({
+      contract_addresses: [],
+      usernames: [],
+      pagination: {
+        cursor: undefined,
+        direction: "Backward",
+        limit: 50_000,
+        order_by: [],
+      },
     });
-
     setControllers(res.items as Controller[]);
   };
 
-  const findController = useCallback(
+  const find = useCallback(
     (address: BigNumberish) => {
       try {
         return controllers?.find((i) => BigInt(i.address) === BigInt(address));
@@ -54,18 +58,16 @@ export function ControllersProvider({
   );
 
   useEffect(() => {
-    refreshControllers();
-  }, []);
-
-  if (!controllers) return null;
+    refresh();
+  }, [client]);
 
   return (
     <ControllersProviderContext.Provider
       {...props}
       value={{
-        controllers,
-        refreshControllers,
-        findController,
+        controllers: controllers ?? [],
+        refresh,
+        find,
       }}
     >
       {children}

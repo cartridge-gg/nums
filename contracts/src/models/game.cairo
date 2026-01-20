@@ -2,9 +2,9 @@ use core::array::ArrayTrait;
 use crate::constants::{DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, POWER_SIZE, SLOT_SIZE};
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
+use crate::helpers::random::{Random, RandomImpl};
 use crate::helpers::rewarder::Rewarder;
 pub use crate::models::index::Game;
-use crate::random::{Random, RandomImpl};
 pub use crate::types::power::{POWER_COUNT, Power, PowerTrait};
 
 /// Game-related error constants
@@ -155,10 +155,10 @@ pub impl GameImpl of GameTrait {
 
     /// Determines if the game is rescuable based on the available powers
     fn is_rescuable(self: @Game, slots: @Array<u16>) -> bool {
-        let powers: Array<u8> = Packer::unpack(*self.available_powers, POWER_SIZE, 0);
+        let powers: Array<u8> = Packer::unpack(*self.selected_powers, POWER_SIZE, 0);
         let mut index: u8 = 0;
-        while index != POWER_COUNT {
-            if (Bitmap::get(*self.available_powers, index) == 0) {
+        while index.into() < powers.len() {
+            if (Bitmap::get(*self.available_powers, index) != 0) {
                 index += 1;
                 continue;
             }
@@ -239,6 +239,8 @@ pub impl GameImpl of GameTrait {
     /// Applies a power to the game.
     #[inline]
     fn apply(ref self: Game, index: u8, ref rand: Random) {
+        // [Check] Power is not selectable
+        self.assert_not_selectable();
         // [Check] Power is valid
         let powers: Array<u8> = Packer::unpack(self.selected_powers, POWER_SIZE, 0);
         let power: Power = (*powers
@@ -259,6 +261,8 @@ pub impl GameImpl of GameTrait {
     /// Updates the game state.
     #[inline]
     fn update(ref self: Game, ref rand: Random, target: u256) -> u64 {
+        // [Check] Power is not selectable
+        self.assert_not_selectable();
         // [Effect] Level up
         self.level_up();
         // [Effect] Update numbers if the game is not completed
@@ -390,7 +394,7 @@ mod tests {
         SLOT_SIZE,
     };
     use crate::helpers::packer::Packer;
-    use super::{Game, GameAssert, GameTrait};
+    use super::{Game, GameAssert, GameTrait, RandomImpl};
 
     const SUPPLY: u256 = 1;
 
@@ -701,4 +705,22 @@ mod tests {
         // Using index 2 which is >= DEFAULT_DRAW_COUNT (2)
         game.select(DEFAULT_DRAW_COUNT);
     }
+
+    #[test]
+    fn test_apply_powers() {
+        let mut game = create();
+        let available_powers = 0b0011;
+        game.available_powers = available_powers;
+        game.level = 16;
+        game.number = 725;
+        game.next_number = 749;
+        game.selected_powers = 0x3451;
+        game.slots = 0x00003e70003212e228126e00023320f0001bd1b700013312f09b07d07001900e;
+        let mut random = RandomImpl::new();
+        game.apply(3, ref random);
+        assert(game.available_powers == available_powers | 0b1000, 'Game: invalid powers');
+        game.apply(2, ref random);
+        assert(game.available_powers == available_powers | 0b1100, 'Game: invalid powers');
+    }
 }
+

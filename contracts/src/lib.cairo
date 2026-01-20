@@ -1,5 +1,4 @@
 pub mod constants;
-pub mod random;
 pub mod store;
 
 pub use store::{Store, StoreImpl, StoreTrait};
@@ -44,6 +43,7 @@ pub mod helpers {
     pub mod heap;
     pub mod packer;
     pub mod power;
+    pub mod random;
     pub mod rewarder;
 }
 
@@ -62,7 +62,7 @@ pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
     pub mod nums;
-    pub mod starterpack;
+    pub mod registry;
     pub mod token;
     pub mod vrf;
 }
@@ -107,17 +107,18 @@ pub mod elements {
         pub mod index;
         pub mod interface;
         pub mod placer;
-        pub mod starter;
     }
 }
-// pub mod tests {
-//     pub mod test_game;
-//     pub mod test_reward;
-// }
 
 pub mod mocks {
-    pub mod nums;
-    pub mod starterpack;
+    pub mod registry;
+    pub mod token;
     pub mod vrf;
+}
+
+#[cfg(test)]
+pub mod tests {
+    pub mod setup;
+    pub mod test_setup;
 }
 

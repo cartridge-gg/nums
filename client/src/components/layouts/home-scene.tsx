@@ -23,10 +23,12 @@ export interface HomeSceneProps
   leaderboardRows: LeaderboardProps["rows"];
   totalGames: string;
   avgScore: string;
+  onPlayClick?: () => void;
+  onTabChange?: (tab: string) => void;
 }
 
 const homeSceneVariants = cva(
-  "select-none flex flex-col gap-4 md:gap-6 w-full h-full p-6 pb-8 md:p-0 md:pb-0",
+  "select-none flex flex-col gap-4 md:gap-6 w-full max-w-[800px] h-full p-6 pb-8 md:p-0 md:pb-0",
   {
     variants: {
       variant: {
@@ -45,16 +47,23 @@ export const HomeScene = ({
   leaderboardRows,
   totalGames,
   avgScore,
+  onPlayClick,
+  onTabChange,
   variant,
   className,
   ...props
 }: HomeSceneProps) => {
   const [activeTab, setActiveTab] = useState<string>("quest");
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    onTabChange?.(value);
+  };
+
   return (
     <Tabs
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={handleTabChange}
       className={cn(homeSceneVariants({ variant, className }))}
       {...props}
     >
@@ -71,7 +80,7 @@ export const HomeScene = ({
         </TabsList>
         <div className="flex items-center gap-3">
           <Info />
-          <Play className="hidden md:flex" />
+          <Play className="hidden md:flex" onClick={onPlayClick} />
         </div>
       </div>
 
@@ -105,7 +114,7 @@ export const HomeScene = ({
           <Leaderboard rows={leaderboardRows} className="h-full" />
         </TabsContent>
       )}
-      <Play className="md:hidden" />
+      <Play className="md:hidden" onClick={onPlayClick} />
     </Tabs>
   );
 };

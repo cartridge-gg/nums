@@ -34,10 +34,10 @@ export const Leaderboard = ({
   return (
     <div className={cn(leaderboardVariants({ variant, className }))} {...props}>
       {/* Headers */}
-      <div className="flex items-center gap-4 h-3">
+      <div className="flex items-center gap-4 h-3 px-4">
         <div className="flex-1 text-left">
           <span
-            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5 pl-4"
+            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}

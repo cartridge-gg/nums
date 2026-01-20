@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CloseIcon } from "@/components/icons";
 import { useModal } from "@/context/modal";
-import { usePlayerGames } from "@/hooks/useAssets";
+import { usePlayerGames } from "@/hooks/assets";
 import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 import { useStarterpackPrice } from "@/hooks/useStarterpackPrice";
 import { useStarterpacks } from "@/hooks/useStarterpacks";

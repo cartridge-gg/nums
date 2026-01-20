@@ -1,14 +1,14 @@
 pub fn NAME() -> ByteArray {
-    "MockStarterpack"
+    "Registry"
 }
 
 #[dojo::contract]
-mod MockStarterpack {
+mod Registry {
     use starknet::ContractAddress;
-    use crate::interfaces::starterpack::IStarterpack;
+    use crate::interfaces::registry::IStarterpackRegistry;
 
     #[abi(embed_v0)]
-    impl ExternalImpl of IStarterpack<ContractState> {
+    impl ExternalImpl of IStarterpackRegistry<ContractState> {
         fn register(
             ref self: ContractState,
             implementation: ContractAddress,

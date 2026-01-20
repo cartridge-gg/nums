@@ -1,17 +1,12 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PowerUp } from "@/components/elements";
+import { PowerUp, type PowerUpProps } from "@/components/elements";
 import { CircleInfoIcon } from "@/components/icons";
-import { Power, PowerIconStatus } from "@/types/power";
 
 export interface PowerUpsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof powerUpsVariants> {
-  powers: Array<{
-    power?: Power;
-    status?: PowerIconStatus;
-    onClick?: (index: number) => void;
-  }>;
+  powers: PowerUpProps[];
   onInfoClick?: () => void;
 }
 
@@ -56,13 +51,11 @@ export const PowerUps = ({
         <CircleInfoIcon className="text-mauve-100 group-hover:text-mauve-200 transition-colors duration-150" />
       </div>
       <ul className="flex justify-center gap-3 w-full">
-        {powers.map((power, index) => (
+        {powers.map((powerProps, index) => (
           <li key={`${index}`} className="w-full md:w-auto">
             <PowerUp
-              power={power.power}
-              status={power.status}
-              onClick={() => power.onClick?.(index)}
-              className="w-full md:w-auto"
+              {...powerProps}
+              className={cn("w-full md:w-auto", powerProps.className)}
             />
           </li>
         ))}

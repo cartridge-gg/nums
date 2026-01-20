@@ -6,7 +6,7 @@ const meta = {
   title: "Layouts/PurchaseScene",
   component: PurchaseScene,
   parameters: {
-    layout: "fullscreen",
+    layout: "padded",
   },
   globals: {
     backgrounds: {
@@ -49,6 +49,7 @@ export const Default: Story = {
       chartAbscissa: 10,
       numsPrice: 0.003,
       playPrice: 1.0,
+      onPurchase: fn(),
     },
     gamesProps: {
       games: sampleGames,

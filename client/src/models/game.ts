@@ -1,8 +1,6 @@
-import type { ParsedEntity } from "@dojoengine/sdk";
-import type { SchemaType } from "@/bindings/typescript/models.gen";
-import { NAMESPACE } from "@/constants";
 import { Packer } from "@/helpers/packer";
 import { Power } from "@/types/power";
+import type { RawGame } from "@/models";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
@@ -11,11 +9,14 @@ export const REWARDS: number[] = [
   8000, 10000, 20000, 42000,
 ];
 
-export class GameModel {
+// Constants matching rewarder.cairo
+const NUMERATOR = 270_000_000_000n;
+const MIN_REWARD = 1n;
+
+export class Game {
   type = MODEL_NAME;
 
   constructor(
-    public identifier: string,
     public id: number,
     public over: boolean,
     public claimed: boolean,
@@ -25,16 +26,13 @@ export class GameModel {
     public slot_max: number,
     public number: number,
     public next_number: number,
-    public tournament_id: number,
     public selected_powers: Power[],
-    public available_powers: Power[],
+    public selectable_powers: Power[],
+    public available_powers: boolean[],
     public reward: number,
-    public score: number,
     public slots: number[],
-    public usage: bigint,
     public supply: bigint,
   ) {
-    this.identifier = identifier;
     this.id = id;
     this.over = over;
     this.claimed = claimed;
@@ -44,82 +42,73 @@ export class GameModel {
     this.slot_max = slot_max;
     this.number = number;
     this.next_number = next_number;
-    this.tournament_id = tournament_id;
     this.selected_powers = selected_powers;
+    this.selectable_powers = selectable_powers;
     this.available_powers = available_powers;
     this.reward = reward;
-    this.score = score;
     this.slots = slots;
-    this.usage = usage;
     this.supply = supply;
   }
 
-  static from(identifier: string, model: any) {
-    if (!model) return GameModel.default(identifier);
-    const id = Number(model.id);
-    const over = !!model.over;
-    const claimed = !!model.claimed;
-    const level = Number(model.level);
-    const slot_count = Number(model.slot_count);
-    const slot_min = Number(model.slot_min);
-    const slot_max = Number(model.slot_max);
-    const number = Number(model.number);
-    const next_number = Number(model.next_number);
-    const tournament_id = Number(model.tournament_id);
-    const selected_powers = Power.getPowers(BigInt(model.selected_powers));
-    const available_powers = Power.getPowers(BigInt(model.available_powers));
-    const reward = Number(model.reward);
-    const score = Number(model.score);
-    const slots = Packer.sized_unpack(BigInt(model.slots), SLOT_SIZE, 20);
-    const usage = BigInt(model.usage);
-    const supply = BigInt(model.supply);
-    return new GameModel(
-      identifier,
-      id,
-      over,
-      claimed,
-      level,
-      slot_count,
-      slot_min,
-      slot_max,
-      number,
-      next_number,
-      tournament_id,
-      selected_powers,
-      available_powers,
-      reward,
-      score,
-      slots,
-      usage,
-      supply,
+  static getModelName(): string {
+    return MODEL_NAME;
+  }
+
+  static from(data: RawGame): Game {
+    return Game.parse(data);
+  }
+
+  static parse(data: RawGame) {
+    const props = {
+      id: Number(data.id.value),
+      over: !!data.over.value,
+      claimed: !!data.claimed.value,
+      level: Number(data.level.value),
+      slot_count: Number(data.slot_count.value),
+      slot_min: Number(data.slot_min.value),
+      slot_max: Number(data.slot_max.value),
+      number: Number(data.number.value),
+      next_number: Number(data.next_number.value),
+      selected_powers: Power.getPowers(BigInt(data.selected_powers.value)),
+      selectable_powers: Power.getPowers(BigInt(data.selectable_powers.value)),
+      available_powers: Packer.sized_unpack(
+        BigInt(data.available_powers.value),
+        1n,
+        4,
+      ).map((index) => index !== 1),
+      reward: Number(data.reward.value),
+      slots: Packer.sized_unpack(BigInt(data.slots.value), SLOT_SIZE, 20),
+      supply: BigInt(data.supply.value),
+    };
+    // Selected powers must be a 4 power array size, add None powers if needed
+    props.selected_powers = props.selected_powers.concat(
+      Array.from({ length: 4 - props.selected_powers.length }, () =>
+        Power.from(0),
+      ),
+    );
+    return new Game(
+      props.id,
+      props.over,
+      props.claimed,
+      props.level,
+      props.slot_count,
+      props.slot_min,
+      props.slot_max,
+      props.number,
+      props.next_number,
+      props.selected_powers,
+      props.selectable_powers,
+      props.available_powers,
+      props.reward,
+      props.slots,
+      props.supply,
     );
   }
 
-  static default(identifier: string) {
-    return new GameModel(
-      identifier,
-      0,
-      false,
-      false,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      [],
-      [],
-      0,
-      0,
-      [],
-      0n,
-      0n,
+  static deduplicate(items: Game[]): Game[] {
+    return items.filter(
+      (item, index, self) => index === self.findIndex((t) => t.id === item.id),
     );
-  }
-
-  static isType(model: GameModel) {
-    return model.type === MODEL_NAME;
   }
 
   exists() {
@@ -132,6 +121,78 @@ export class GameModel {
 
   public static totalReward(level: number): number {
     return REWARDS.slice(0, level + 1).reduce((acc, curr) => acc + curr, 0);
+  }
+
+  /**
+   * Calculate reward amount for a given level, matching the Cairo implementation in rewarder.cairo
+   * @param level - The level of the reward (0-20)
+   * @param slotCount - The number of slots in the game (default: 20)
+   * @param supply - The current supply of the game
+   * @param targetSupply - The target supply of the game
+   * @returns The reward amount in wei (u64 equivalent)
+   */
+  public static calculateReward(
+    level: number,
+    slotCount: number,
+    supply: bigint,
+    targetSupply: bigint,
+  ): number {
+    // [Check] Manage the specific case where the supply is twice the target
+    if (supply > targetSupply * 2n) {
+      return 0;
+    }
+
+    // [Compute] Calculate the numerator based on supply vs target
+    let num: bigint;
+    if (supply < targetSupply) {
+      // Supply is below target: increase reward
+      const diff = targetSupply - supply;
+      num = NUMERATOR + (NUMERATOR * diff) / targetSupply;
+    } else {
+      // Supply is above target: decrease reward
+      const diff = supply - targetSupply;
+      num = NUMERATOR - (NUMERATOR * diff) / targetSupply;
+    }
+
+    // Calculate denominator: (slot_count + 3)^5
+    const slotCountBigInt = BigInt(slotCount);
+    const denBase = slotCountBigInt + 3n;
+    const den = denBase ** 5n;
+
+    // Calculate level power: level^5
+    const levelBigInt = BigInt(level);
+    const levelPow = levelBigInt ** 5n;
+
+    // Calculate reward: num / (den - level_pow) - (num - MIN_REWARD * den) / den
+    const denominator = den - levelPow;
+    if (denominator === 0n) {
+      return 0; // Avoid division by zero
+    }
+
+    const firstTerm = num / denominator;
+    const secondTerm = (num - MIN_REWARD * den) / den;
+    const result = firstTerm - secondTerm;
+
+    // Convert to number (u64 equivalent)
+    return Number(result);
+  }
+
+  /**
+   * Calculate rewards for all 20 levels (1-20) based on supply and target supply
+   * @param slotCount - The number of slots in the game (default: 20)
+   * @param supply - The current supply of the game
+   * @param targetSupply - The target supply of the game
+   * @returns Array of 20 reward values, one for each level
+   */
+  public static rewards(
+    slotCount: number,
+    supply: bigint,
+    targetSupply: bigint,
+  ): number[] {
+    return Array.from({ length: 20 }, (_, index) => {
+      const level = index + 1;
+      return Game.calculateReward(level, slotCount, supply, targetSupply);
+    });
   }
 
   alloweds(): number[] {
@@ -165,67 +226,4 @@ export class GameModel {
     }
     return [closest_lower, closest_higher];
   }
-
-  adjacent(): number {
-    let count = 0;
-    let previous_filled = false;
-    let previous_accounted = false;
-    for (const slot of this.slots) {
-      if (slot === 0) {
-        previous_filled = false;
-        previous_accounted = false;
-        continue;
-      }
-      if (!previous_filled) {
-        previous_filled = true;
-        previous_accounted = false;
-        continue;
-      }
-      if (!previous_accounted) {
-        count += 2;
-        previous_accounted = true;
-        continue;
-      }
-      count += 1;
-    }
-    return count;
-  }
-
-  clone(): GameModel {
-    return new GameModel(
-      this.identifier,
-      this.id,
-      this.over,
-      this.claimed,
-      this.level,
-      this.slot_count,
-      this.slot_min,
-      this.slot_max,
-      this.number,
-      this.next_number,
-      this.tournament_id,
-      this.selected_powers,
-      this.available_powers,
-      this.reward,
-      this.score,
-      [...this.slots],
-      this.usage,
-      this.supply,
-    );
-  }
 }
-
-export const Game = {
-  parse: (entity: ParsedEntity<SchemaType>) => {
-    return GameModel.from(
-      entity.entityId,
-      entity.models[NAMESPACE]?.[MODEL_NAME],
-    );
-  },
-
-  getModelName: () => {
-    return MODEL_NAME;
-  },
-
-  getMethods: () => [],
-};

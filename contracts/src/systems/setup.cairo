@@ -1,5 +1,9 @@
 use starknet::ContractAddress;
 
+#[inline]
+pub fn NAME() -> ByteArray {
+    "Setup"
+}
 
 #[starknet::interface]
 pub trait ISetup<T> {
@@ -20,8 +24,8 @@ pub mod Setup {
     use crate::StoreImpl;
     use crate::components::initializable::InitializableComponent;
     use crate::constants::{NAMESPACE, WORLD_RESOURCE};
-    use crate::mocks::nums::NAME as NUMS;
-    use crate::mocks::starterpack::NAME as STARTERPACK;
+    use crate::mocks::registry::NAME as REGISTRY;
+    use crate::mocks::token::NAME as TOKEN;
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
     use super::ISetup;
@@ -67,7 +71,7 @@ pub mod Setup {
         starterpack_address: Option<ContractAddress>,
         owner_address: ContractAddress,
         entry_price: u128,
-        target_supply: u256,
+        target_supply: felt252,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -76,17 +80,17 @@ pub mod Setup {
         let nums_address = if let Option::Some(nums_address) = nums_address {
             nums_address
         } else {
-            world.dns_address(@NUMS()).expect('MockNumsToken not found!')
+            world.dns_address(@TOKEN()).expect('Token not found!')
         };
         let vrf_address = if let Option::Some(vrf_address) = vrf_address {
             vrf_address
         } else {
-            world.dns_address(@VRF()).expect('MockVRF not found!')
+            world.dns_address(@VRF()).expect('VRF not found!')
         };
         let starterpack_address = if let Option::Some(starterpack_address) = starterpack_address {
             starterpack_address
         } else {
-            world.dns_address(@STARTERPACK()).expect('MockStarterpack not found!')
+            world.dns_address(@REGISTRY()).expect('Registry not found!')
         };
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
@@ -95,7 +99,7 @@ pub mod Setup {
             starterpack: starterpack_address,
             owner: owner_address,
             entry_price: entry_price,
-            target_supply: target_supply,
+            target_supply: target_supply.into(),
         );
         store.set_config(config);
         // [Effect] Initialize components

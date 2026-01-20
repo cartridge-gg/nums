@@ -10,6 +10,9 @@ pub mod PlayableComponent {
     use ekubo::interfaces::router::{IRouterDispatcherTrait, RouteNode, TokenAmount};
     use ekubo::types::i129::i129;
     use ekubo::types::keys::PoolKey;
+    use leaderboard::components::rankable::RankableComponent;
+    use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
+    use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
@@ -18,13 +21,17 @@ pub mod PlayableComponent {
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
+    use crate::helpers::random::RandomImpl;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::random::RandomImpl;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
     use crate::{StoreImpl, StoreTrait};
+
+    // Constants
+
+    const LEADERBOARD_ID: felt252 = 1;
 
     // Storage
 
@@ -62,14 +69,6 @@ pub mod PlayableComponent {
             // [Check] Starterpack is valid
             starterpack.assert_is_valid(world, starterpack_id);
 
-            // [Effect] Quest progression
-            let questable = get_dep_component!(@self, Quest);
-            let task = QuestType::StarterOne;
-            let player = recipient.into();
-            if !questable.is_completed(world, player, task.identifier(), 0) {
-                questable.progress(world, player, task.identifier(), 1, true);
-            }
-
             // [Interaction] Mint games
             let config = store.config();
             let nums_supply = store.nums_disp().total_supply();
@@ -103,14 +102,9 @@ pub mod PlayableComponent {
 
             // [Effect] Update quest progression for the player - Contender tasks
             let questable = get_dep_component!(@self, Quest);
+            let player = recipient.into();
             let task = Task::Grinder;
             questable.progress(world, player, task.identifier(), quantity.into(), true);
-
-            // [Effect] Update quest progression for the player - StarterTwo
-            let task = QuestType::StarterTwo;
-            if !questable.is_completed(world, player, task.identifier(), 0) {
-                questable.progress(world, player, task.identifier(), quantity.into(), true);
-            }
 
             // [Effect] Update achievement progression for the player - Grinder task
             let achievable = get_dep_component!(@self, Achievable);
@@ -222,6 +216,7 @@ pub mod PlayableComponent {
         +Drop<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
         fn set(
@@ -253,34 +248,32 @@ pub mod PlayableComponent {
             store.set_game(@game);
 
             // [Interaction] Pay user reward
-            let player = starknet::get_caller_address();
+            let player = self.owner(world, game_id);
             store.nums_disp().reward(player, reward);
 
             // [Event] Emit reward event
             store.reward(game_id, reward);
 
+            // [Event] Emit leaderboard score if game is over
+            let time = starknet::get_block_timestamp();
+            if game.over {
+                let mut rankable = get_dep_component_mut!(ref self, Rankable);
+                rankable
+                    .submit(
+                        world: world,
+                        leaderboard_id: LEADERBOARD_ID,
+                        game_id: game.id,
+                        player_id: player.into(),
+                        score: game.level.into(),
+                        time: time,
+                        to_store: true,
+                    );
+            }
+
             // [Effect] Update quest progression for the player - Contender tasks
             let questable = get_dep_component!(@self, Quest);
             let task = Task::Claimer;
             questable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
-            // [Effect] Update quest progression for the player - StarterThree
-            let task = QuestType::StarterThree;
-            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
-                questable.progress(world, player.into(), task.identifier(), 1, true);
-            }
-
-            // [Effect] Update quest progression for the player - StarterFour
-            let task = QuestType::StarterFour;
-            if !questable.is_completed(world, player.into(), task.identifier(), 0) {
-                questable.progress(world, player.into(), task.identifier(), 1, true);
-            }
-
-            // [Effect] Update quest progression for the player - StarterFive
-            let task = QuestType::StarterFive;
-            if game.over && !questable.is_completed(world, player.into(), task.identifier(), 0) {
-                questable.progress(world, player.into(), task.identifier(), 1, true);
-            }
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
@@ -367,6 +360,23 @@ pub mod PlayableComponent {
             // [Effect] Update game
             store.set_game(@game);
 
+            // [Event] Emit leaderboard score if game is over
+            let player = self.owner(world, game_id);
+            let time = starknet::get_block_timestamp();
+            if game.over {
+                let mut rankable = get_dep_component_mut!(ref self, Rankable);
+                rankable
+                    .submit(
+                        world: world,
+                        leaderboard_id: LEADERBOARD_ID,
+                        game_id: game.id,
+                        player_id: player.into(),
+                        score: game.level.into(),
+                        time: time,
+                        to_store: true,
+                    );
+            }
+
             // [Interaction] Update token metadata
             collection.update(game_id.into());
         }
@@ -395,6 +405,23 @@ pub mod PlayableComponent {
             // [Effect] Update game
             store.set_game(@game);
 
+            // [Event] Emit leaderboard score if game is over
+            let player = self.owner(world, game_id);
+            let time = starknet::get_block_timestamp();
+            if game.over {
+                let mut rankable = get_dep_component_mut!(ref self, Rankable);
+                rankable
+                    .submit(
+                        world: world,
+                        leaderboard_id: LEADERBOARD_ID,
+                        game_id: game.id,
+                        player_id: player.into(),
+                        score: game.level.into(),
+                        time: time,
+                        to_store: true,
+                    );
+            }
+
             // [Interaction] Update token metadata
             collection.update(game_id.into());
 
@@ -412,6 +439,14 @@ pub mod PlayableComponent {
         ) -> ICollectionDispatcher {
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             ICollectionDispatcher { contract_address: collection_address }
+        }
+
+        fn owner(
+            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64,
+        ) -> ContractAddress {
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = IERC721Dispatcher { contract_address: collection_address };
+            collection.owner_of(game_id.into())
         }
     }
 }

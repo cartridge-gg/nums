@@ -37,7 +37,7 @@ export const Progress: Story = {
     count: 240,
     total: 2000,
     claimed: false,
-    expiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
+    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     onClaim: fn(),
   },
 };

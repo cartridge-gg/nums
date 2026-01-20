@@ -41,7 +41,7 @@ const sampleQuests = [
     count: 240,
     total: 2000,
     claimed: false,
-    expiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
+    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     onClaim: fn(),
   },
   {
@@ -80,7 +80,7 @@ const sampleRows = [
 export const Default: Story = {
   args: {
     quests: sampleQuests,
-    questsExpiration: new Date().getTime() / 1000 + 12 * 3600 + 24 * 60,
+    questsExpiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     leaderboardRows: sampleRows,
     totalGames: "241",
     avgScore: "14.3",

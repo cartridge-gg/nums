@@ -60,7 +60,7 @@ const CustomXAxisTick = ({
     const borderRadius = 4; // rounded = 0.25rem = 4px
 
     return (
-      <g transform={`translate(0, -4)`}>
+      <g transform={"translate(0, -4)"}>
         <rect
           x={rectX}
           y={rectY}
@@ -129,7 +129,7 @@ const CustomYAxisTick = ({
   const borderRadius = 4; // rounded = 0.25rem = 4px
 
   return (
-    <g transform={`translate(0, 4)`}>
+    <g transform={"translate(0, 4)"}>
       {isAbscissaValue && (
         <rect
           x={rectX}
@@ -279,7 +279,7 @@ export const Chart = ({
       >
         <LineChart
           data={data}
-          margin={{ top: 20, right: 5, bottom: 5, left: 10 }}
+          margin={{ top: 20, right: 12, bottom: 5, left: 16 }}
           style={{ outline: "none" }}
         >
           <defs>

@@ -13,20 +13,6 @@ pub trait IPlay<T> {
 }
 
 #[starknet::interface]
-pub trait IMerkledrop<T> {
-    fn on_claim(ref self: T, player: ContractAddress, leaf_data: Span<felt252>);
-}
-
-#[starknet::interface]
-pub trait ITournament<T> {
-    fn sponsor(ref self: T, tournament_id: u16, token_address: ContractAddress, amount: u128);
-    fn claim(
-        ref self: T, tournament_id: u16, token_address: ContractAddress, game_id: u64, position: u8,
-    );
-    fn rescue(ref self: T, tournament_id: u16, token_address: ContractAddress);
-}
-
-#[starknet::interface]
 pub trait IExternal<T> {
     fn register_starterpack(
         ref self: T,
@@ -49,6 +35,7 @@ pub trait IExternal<T> {
 #[dojo::contract]
 pub mod Play {
     use achievement::components::achievable::AchievableComponent;
+    use leaderboard::components::rankable::RankableComponent;
     use quest::components::questable::QuestableComponent;
     use quest::interfaces::IQuestRewarder;
     use starknet::ContractAddress;
@@ -65,6 +52,8 @@ pub mod Play {
     impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
     component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
     impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
+    component!(path: RankableComponent, storage: rankable, event: RankableEvent);
+    impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
     impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
@@ -81,6 +70,8 @@ pub mod Play {
         #[substorage(v0)]
         questable: QuestableComponent::Storage,
         #[substorage(v0)]
+        rankable: RankableComponent::Storage,
+        #[substorage(v0)]
         playable: PlayableComponent::Storage,
         #[substorage(v0)]
         starterpack: StarterpackComponent::Storage,
@@ -95,6 +86,8 @@ pub mod Play {
         AchievableEvent: AchievableComponent::Event,
         #[flat]
         QuestableEvent: QuestableComponent::Event,
+        #[flat]
+        RankableEvent: RankableComponent::Event,
         #[flat]
         PlayableEvent: PlayableComponent::Event,
         #[flat]

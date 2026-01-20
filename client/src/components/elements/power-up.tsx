@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { Power, type PowerIconStatus } from "@/types/power";
+import type { Power, PowerIconStatus } from "@/types/power";
 import { DiamondIcon } from "@/components/icons";
 
 export interface PowerUpProps
@@ -9,6 +9,7 @@ export interface PowerUpProps
     VariantProps<typeof powerUpVariants> {
   power?: Power;
   status?: PowerIconStatus;
+  disabled?: boolean;
 }
 
 const powerUpVariants = cva(
@@ -34,13 +35,14 @@ export const PowerUp = ({
   status,
   variant,
   size,
+  disabled,
   className,
   ...props
 }: PowerUpProps) => {
   const Icon = power?.icon(status);
   return (
     <Button
-      disabled={!!status || !power}
+      disabled={!!status || !power || power.isNone() || disabled}
       variant="muted"
       className={cn(
         powerUpVariants({ variant, size, className }),

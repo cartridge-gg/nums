@@ -1,14 +1,14 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Slot } from "@/components/elements";
+import { Slot, type SlotProps } from "@/components/elements";
 import { Grid } from "@/helpers";
 
 export interface SlotsProps
   extends React.HTMLAttributes<HTMLUListElement>,
     VariantProps<typeof slotsVariants> {
   number: number;
-  slots: Array<number>;
+  slots: Array<SlotProps>;
 }
 
 const slotsVariants = cva(
@@ -33,11 +33,19 @@ export const Slots = ({
   ...props
 }: SlotsProps) => {
   const allowedIndexes = useMemo(
-    () => Grid.alloweds(slots, number),
+    () =>
+      Grid.alloweds(
+        slots.map((slot) => slot.value || 0),
+        number,
+      ),
     [slots, number],
   );
   const [closestLower, closestHigher] = useMemo(
-    () => Grid.closests(slots, number),
+    () =>
+      Grid.closests(
+        slots.map((slot) => slot.value || 0),
+        number,
+      ),
     [slots, number],
   );
 
@@ -50,14 +58,14 @@ export const Slots = ({
       if (closestHigher !== -1) invalid.add(closestHigher);
       // Also mark all empty slots as invalid
       slots.forEach((slot, index) => {
-        if (slot === 0) {
+        if (!slot.value) {
           invalid.add(index);
         }
       });
     } else {
       // Mark empty slots that are not allowed as invalid
       slots.forEach((slot, index) => {
-        if (slot === 0 && !allowedIndexes.includes(index)) {
+        if (!slot.value && !allowedIndexes.includes(index)) {
           invalid.add(index);
         }
       });
@@ -71,10 +79,10 @@ export const Slots = ({
       {slots.map((slot, index) => (
         <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
-            label={index + 1}
-            value={slot}
-            invalid={invalidIndexes.has(index)}
-            onSlotClick={() => {}}
+            label={slot.label || index + 1}
+            value={slot.value || 0}
+            invalid={slot.invalid || invalidIndexes.has(index)}
+            onSlotClick={slot.onSlotClick}
           />
         </li>
       ))}

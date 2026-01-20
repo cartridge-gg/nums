@@ -14,11 +14,12 @@ export interface PurchaseSceneProps
 }
 
 const purchaseSceneVariants = cva(
-  "select-none relative fixed inset-0 flex flex-col md:flex-row gap-6 md:gap-10 p-2 xs:p-6 rounded-xl",
+  "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-2 xs:p-4 md:p-6 rounded-xl",
   {
     variants: {
       variant: {
-        default: "",
+        default:
+          "bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300",
       },
     },
     defaultVariants: {
@@ -38,17 +39,11 @@ export const PurchaseScene = ({
   return (
     <div
       className={cn(purchaseSceneVariants({ variant, className }))}
-      style={{
-        background: "rgba(0, 0, 0, 0.64)",
-        border: "2px solid rgba(0, 0, 0, 0.64)",
-        backdropFilter: "blur(8px)",
-        boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)",
-      }}
       {...props}
     >
       {/* Mobile: Games first, then Purchase */}
       <div
-        className="flex flex-col md:hidden gap-6 w-full h-full overflow-y-auto p-4 pb-8"
+        className="flex flex-col md:hidden gap-6 w-full h-full overflow-y-auto pb-2"
         style={{ scrollbarWidth: "none" }}
       >
         {/* Mobile header with close button */}
@@ -68,7 +63,7 @@ export const PurchaseScene = ({
       </div>
 
       {/* Desktop: Purchase left, Games right */}
-      <div className="hidden md:flex gap-10 overflow-hidden m-auto">
+      <div className="hidden md:flex gap-10 overflow-hidden m-auto max-h-[510px]">
         {/* Desktop close button */}
         {onClose && (
           <Button
@@ -79,7 +74,7 @@ export const PurchaseScene = ({
             <CloseIcon size="lg" />
           </Button>
         )}
-        <Purchase {...purchaseProps} className="w-[420px]" />
+        <Purchase {...purchaseProps} className="w-[420px] self-center" />
         <Games {...gamesProps} className="w-[420px]" />
       </div>
     </div>

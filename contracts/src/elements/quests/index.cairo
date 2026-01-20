@@ -8,7 +8,7 @@ pub use crate::elements::tasks::index::{Task, TaskTrait};
 
 // Constants
 
-pub const QUEST_COUNT: u8 = 15;
+pub const QUEST_COUNT: u8 = 10;
 pub const ONE_DAY: u64 = 24 * 60 * 60;
 
 pub fn ICON() -> ByteArray {
@@ -20,13 +20,6 @@ pub fn ICON() -> ByteArray {
 #[derive(Copy, Drop)]
 pub enum QuestType {
     None,
-    // Permanent quests
-    StarterOne,
-    StarterTwo,
-    StarterThree,
-    StarterFour,
-    StarterFive,
-    // Daily quests
     DailyContenderOne,
     DailyContenderTwo,
     DailyContenderThree,
@@ -55,11 +48,6 @@ pub struct QuestProps {
 pub impl QuestImpl of IQuest {
     fn identifier(self: QuestType) -> felt252 {
         match self {
-            QuestType::StarterOne => quests::starter::StarterOne::identifier(),
-            QuestType::StarterTwo => quests::starter::StarterTwo::identifier(),
-            QuestType::StarterThree => quests::starter::StarterThree::identifier(),
-            QuestType::StarterFour => quests::starter::StarterFour::identifier(),
-            QuestType::StarterFive => quests::starter::StarterFive::identifier(),
             QuestType::DailyContenderOne => quests::contender::DailyContenderOne::identifier(),
             QuestType::DailyContenderTwo => quests::contender::DailyContenderTwo::identifier(),
             QuestType::DailyContenderThree => quests::contender::DailyContenderThree::identifier(),
@@ -76,11 +64,6 @@ pub impl QuestImpl of IQuest {
 
     fn props(self: QuestType, registry: ContractAddress) -> QuestProps {
         match self {
-            QuestType::StarterOne => quests::starter::StarterOne::props(registry),
-            QuestType::StarterTwo => quests::starter::StarterTwo::props(registry),
-            QuestType::StarterThree => quests::starter::StarterThree::props(registry),
-            QuestType::StarterFour => quests::starter::StarterFour::props(registry),
-            QuestType::StarterFive => quests::starter::StarterFive::props(registry),
             QuestType::DailyContenderOne => quests::contender::DailyContenderOne::props(registry),
             QuestType::DailyContenderTwo => quests::contender::DailyContenderTwo::props(registry),
             QuestType::DailyContenderThree => quests::contender::DailyContenderThree::props(
@@ -99,11 +82,6 @@ pub impl QuestImpl of IQuest {
 
     fn reward(self: QuestType) -> (u64, Task) {
         match self {
-            QuestType::StarterOne => (200, Task::None),
-            QuestType::StarterTwo => (300, Task::None),
-            QuestType::StarterThree => (400, Task::None),
-            QuestType::StarterFour => (500, Task::None),
-            QuestType::StarterFive => (600, Task::None),
             QuestType::DailyContenderOne => (200, Task::None),
             QuestType::DailyContenderTwo => (400, Task::None),
             QuestType::DailyContenderThree => (800, Task::None),
@@ -124,21 +102,16 @@ impl IntoQuestU8 of core::traits::Into<QuestType, u8> {
     fn into(self: QuestType) -> u8 {
         match self {
             QuestType::None => 0,
-            QuestType::StarterOne => 1,
-            QuestType::StarterTwo => 2,
-            QuestType::StarterThree => 3,
-            QuestType::StarterFour => 4,
-            QuestType::StarterFive => 5,
-            QuestType::DailyContenderOne => 6,
-            QuestType::DailyContenderTwo => 7,
-            QuestType::DailyContenderThree => 8,
-            QuestType::DailyEarnerOne => 9,
-            QuestType::DailyEarnerTwo => 10,
-            QuestType::DailyEarnerThree => 11,
-            QuestType::DailyPlacerOne => 12,
-            QuestType::DailyPlacerTwo => 13,
-            QuestType::DailyPlacerThree => 14,
-            QuestType::DailyFinisher => 15,
+            QuestType::DailyContenderOne => 1,
+            QuestType::DailyContenderTwo => 2,
+            QuestType::DailyContenderThree => 3,
+            QuestType::DailyEarnerOne => 4,
+            QuestType::DailyEarnerTwo => 5,
+            QuestType::DailyEarnerThree => 6,
+            QuestType::DailyPlacerOne => 7,
+            QuestType::DailyPlacerTwo => 8,
+            QuestType::DailyPlacerThree => 9,
+            QuestType::DailyFinisher => 10,
         }
     }
 }
@@ -147,21 +120,16 @@ impl IntoU8Quest of core::traits::Into<u8, QuestType> {
     fn into(self: u8) -> QuestType {
         match self {
             0 => QuestType::None,
-            1 => QuestType::StarterOne,
-            2 => QuestType::StarterTwo,
-            3 => QuestType::StarterThree,
-            4 => QuestType::StarterFour,
-            5 => QuestType::StarterFive,
-            6 => QuestType::DailyContenderOne,
-            7 => QuestType::DailyContenderTwo,
-            8 => QuestType::DailyContenderThree,
-            9 => QuestType::DailyEarnerOne,
-            10 => QuestType::DailyEarnerTwo,
-            11 => QuestType::DailyEarnerThree,
-            12 => QuestType::DailyPlacerOne,
-            13 => QuestType::DailyPlacerTwo,
-            14 => QuestType::DailyPlacerThree,
-            15 => QuestType::DailyFinisher,
+            1 => QuestType::DailyContenderOne,
+            2 => QuestType::DailyContenderTwo,
+            3 => QuestType::DailyContenderThree,
+            4 => QuestType::DailyEarnerOne,
+            5 => QuestType::DailyEarnerTwo,
+            6 => QuestType::DailyEarnerThree,
+            7 => QuestType::DailyPlacerOne,
+            8 => QuestType::DailyPlacerTwo,
+            9 => QuestType::DailyPlacerThree,
+            10 => QuestType::DailyFinisher,
             _ => QuestType::None,
         }
     }
@@ -169,17 +137,7 @@ impl IntoU8Quest of core::traits::Into<u8, QuestType> {
 
 impl IntoFelt252Quest of core::traits::Into<felt252, QuestType> {
     fn into(self: felt252) -> QuestType {
-        if self == quests::starter::StarterOne::identifier() {
-            return QuestType::StarterOne;
-        } else if self == quests::starter::StarterTwo::identifier() {
-            return QuestType::StarterTwo;
-        } else if self == quests::starter::StarterThree::identifier() {
-            return QuestType::StarterThree;
-        } else if self == quests::starter::StarterFour::identifier() {
-            return QuestType::StarterFour;
-        } else if self == quests::starter::StarterFive::identifier() {
-            return QuestType::StarterFive;
-        } else if self == quests::contender::DailyContenderOne::identifier() {
+        if self == quests::contender::DailyContenderOne::identifier() {
             return QuestType::DailyContenderOne;
         } else if self == quests::contender::DailyContenderTwo::identifier() {
             return QuestType::DailyContenderTwo;

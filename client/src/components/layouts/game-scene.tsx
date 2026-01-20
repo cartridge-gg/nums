@@ -1,23 +1,24 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Power, PowerIconStatus } from "@/types/power";
 import {
-  StageState,
-  Number,
+  type StageState,
+  Num,
   Instruction,
   StageInfo,
+  type SlotProps,
+  type PowerUpProps,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
 import { Grid } from "@/helpers";
 
 export interface GameSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof gameSceneVariants> {
+  VariantProps<typeof gameSceneVariants> {
   currentNumber: number;
   nextNumber: number;
-  powers: Array<{ power?: Power; status?: PowerIconStatus }>;
-  slots: Array<number>;
+  powers: PowerUpProps[];
+  slots: Array<SlotProps>;
   stages: Array<StageState>;
 }
 
@@ -52,12 +53,17 @@ export const GameScene = ({
   ...props
 }: GameSceneProps) => {
   const isOver = useMemo(() => {
-    const allowedIndexes = Grid.alloweds(slots, currentNumber);
+    const allowedIndexes = Grid.alloweds(
+      slots.map((slot) => slot.value || 0),
+      currentNumber,
+    );
     return allowedIndexes.length === 0;
   }, [slots, currentNumber]);
 
   const isRescuable = useMemo(() => {
-    return powers.some((power) => !!power.power && !power.status);
+    return powers.some(
+      (powerProps) => !!powerProps.power && !powerProps.status,
+    );
   }, [powers]);
 
   return (
@@ -68,17 +74,17 @@ export const GameScene = ({
     >
       <div className="flex justify-between items-end md:gap-8 w-full">
         <div className="flex justify-between items-center h-full gap-2 xs:gap-6">
-          <Number value={currentNumber} invalid={isOver} />
+          <Num value={currentNumber} invalid={isOver} />
           <div className="flex flex-col justify-between items-start h-full gap-2">
             <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
               Up next
             </p>
-            <Number variant="secondary" value={nextNumber} />
+            <Num variant="secondary" value={nextNumber} />
           </div>
         </div>
         <PowerUps
           powers={powers}
-          onInfoClick={() => {}}
+          onInfoClick={() => { }}
           className="hidden md:flex"
         />
         <StageInfo className="md:hidden" />
@@ -108,7 +114,7 @@ export const GameScene = ({
       </div>
       <PowerUps
         powers={powers}
-        onInfoClick={() => {}}
+        onInfoClick={() => { }}
         className="w-full md:hidden"
       />
     </div>

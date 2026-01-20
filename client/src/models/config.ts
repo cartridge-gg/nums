@@ -1,14 +1,11 @@
-import type { ParsedEntity } from "@dojoengine/sdk";
-import type { SchemaType } from "@/bindings/typescript/models.gen";
-import { NAMESPACE } from "@/constants";
+import type { RawConfig } from "@/models";
 
 const MODEL_NAME = "Config";
 
-export class ConfigModel {
+export class Config {
   type = MODEL_NAME;
 
   constructor(
-    public identifier: string,
     public world_resource: string,
     public nums: string,
     public vrf: string,
@@ -21,7 +18,6 @@ export class ConfigModel {
     public slot_min: number,
     public slot_max: number,
   ) {
-    this.identifier = identifier;
     this.world_resource = world_resource;
     this.nums = nums;
     this.vrf = vrf;
@@ -35,89 +31,48 @@ export class ConfigModel {
     this.slot_max = slot_max;
   }
 
-  static from(identifier: string, model: any) {
-    if (!model) return ConfigModel.default(identifier);
-    const world_resource = model.world_resource;
-    const nums = model.nums;
-    const vrf = model.vrf;
-    const starterpack = model.starterpack;
-    const owner = model.owner;
-    const entry_price = BigInt(model.entry_price);
-    const target_supply = BigInt(model.target_supply);
-    const count = Number(model.count);
-    const slot_count = Number(model.slot_count);
-    const slot_min = Number(model.slot_min);
-    const slot_max = Number(model.slot_max);
-    return new ConfigModel(
-      identifier,
-      world_resource,
-      nums,
-      vrf,
-      starterpack,
-      owner,
-      entry_price,
-      target_supply,
-      count,
-      slot_count,
-      slot_min,
-      slot_max,
+  static getModelName(): string {
+    return MODEL_NAME;
+  }
+
+  static from(data: RawConfig): Config {
+    return Config.parse(data);
+  }
+
+  static parse(data: RawConfig) {
+    const props = {
+      world_resource: data.world_resource.value,
+      nums: data.nums.value,
+      vrf: data.vrf.value,
+      starterpack: data.starterpack.value,
+      owner: data.owner.value,
+      entry_price: BigInt(data.entry_price.value),
+      target_supply: BigInt(data.target_supply.value),
+      count: Number(data.count.value),
+      slot_count: Number(data.slot_count.value),
+      slot_min: Number(data.slot_min.value),
+      slot_max: Number(data.slot_max.value),
+    };
+    return new Config(
+      props.world_resource,
+      props.nums,
+      props.vrf,
+      props.starterpack,
+      props.owner,
+      props.entry_price,
+      props.target_supply,
+      props.count,
+      props.slot_count,
+      props.slot_min,
+      props.slot_max,
     );
   }
 
-  static default(identifier: string) {
-    return new ConfigModel(
-      identifier,
-      "0x0",
-      "0x0",
-      "0x0",
-      "0x0",
-      "0x0",
-      0n,
-      0n,
-      0,
-      0,
-      0,
-      0,
-    );
-  }
-
-  static isType(model: ConfigModel) {
+  static isType(model: Config) {
     return model.type === MODEL_NAME;
   }
 
   exists() {
     return this.owner !== "0x0";
   }
-
-  clone(): ConfigModel {
-    return new ConfigModel(
-      this.identifier,
-      this.world_resource,
-      this.nums,
-      this.vrf,
-      this.starterpack,
-      this.owner,
-      this.entry_price,
-      this.target_supply,
-      this.count,
-      this.slot_count,
-      this.slot_min,
-      this.slot_max,
-    );
-  }
 }
-
-export const Config = {
-  parse: (entity: ParsedEntity<SchemaType>) => {
-    return ConfigModel.from(
-      entity.entityId,
-      entity.models[NAMESPACE]?.[MODEL_NAME],
-    );
-  },
-
-  getModelName: () => {
-    return MODEL_NAME;
-  },
-
-  getMethods: () => [],
-};

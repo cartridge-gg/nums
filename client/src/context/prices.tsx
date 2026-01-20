@@ -1,25 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
 import { getSwapQuote } from "@/api/ekubo";
-import { getNumsAddress } from "@/config";
+import { getTokenAddress } from "@/config";
 import useChain from "@/hooks/chain";
 
 const USDC_ADDRESS =
-  "0x053C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8";
+  "0x53C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8";
 
-type TokenPricesProviderProps = {
+type PricesProviderProps = {
   children: React.ReactNode;
 };
 
-type TokenPricesProviderState = {
+type PricesProviderState = {
   getTokenPrice: (tokenAddress: string) => string | null;
   getNumsPrice: () => string | null;
   isLoading: boolean;
 };
 
-const TokenPricesProviderContext = createContext<
-  TokenPricesProviderState | undefined
->(undefined);
+const PricesProviderContext = createContext<PricesProviderState | undefined>(
+  undefined,
+);
 
 const fetchTokenUsdPrice = async (
   tokenAddress: string,
@@ -58,12 +58,9 @@ const fetchAllPrices = async (
   return priceMap;
 };
 
-export function TokenPricesProvider({
-  children,
-  ...props
-}: TokenPricesProviderProps) {
+export function PricesProvider({ children, ...props }: PricesProviderProps) {
   const { chain } = useChain();
-  const numsAddress = useMemo(() => getNumsAddress(chain.id), [chain.id]);
+  const numsAddress = useMemo(() => getTokenAddress(chain.id), [chain.id]);
 
   // Track all token addresses that need prices
   // For now, we'll fetch NUMS price by default
@@ -92,7 +89,7 @@ export function TokenPricesProvider({
   }, [getTokenPrice, numsAddress]);
 
   return (
-    <TokenPricesProviderContext.Provider
+    <PricesProviderContext.Provider
       {...props}
       value={{
         getTokenPrice,
@@ -101,14 +98,14 @@ export function TokenPricesProvider({
       }}
     >
       {children}
-    </TokenPricesProviderContext.Provider>
+    </PricesProviderContext.Provider>
   );
 }
 
-export const useTokenPrices = () => {
-  const context = useContext(TokenPricesProviderContext);
+export const usePrices = () => {
+  const context = useContext(PricesProviderContext);
   if (context === undefined) {
-    throw new Error("useTokenPrices must be used within TokenPricesProvider");
+    throw new Error("usePrices must be used within PricesProvider");
   }
   return context;
 };

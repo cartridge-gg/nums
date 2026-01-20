@@ -16,3 +16,5 @@ export * from "./tab";
 export * from "./info";
 export * from "./play";
 export * from "./game-row";
+export * from "./selection";
+export * from "./stat";

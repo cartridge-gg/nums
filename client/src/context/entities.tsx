@@ -1,73 +1,158 @@
-import { ClauseBuilder, ToriiQueryBuilder } from "@dojoengine/sdk";
-import { useEntityQuery, useModels } from "@dojoengine/sdk/react";
-import { createContext, useContext, useMemo } from "react";
-import type { Config as ConfigEntity, Usage as UsageEntity } from "@/bindings";
-import { NAMESPACE } from "@/config";
-import { Usage, UsageModel } from "@/models/usage";
-import { Config, ConfigModel } from "@/models/config";
+import {
+  ClauseBuilder,
+  type SubscriptionCallbackArgs,
+  ToriiQueryBuilder,
+} from "@dojoengine/sdk";
+import * as torii from "@dojoengine/torii-wasm";
+import { useAccount } from "@starknet-react/core";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { NAMESPACE } from "@/constants";
+import { Config, type RawConfig, type RawStarterpack, Starterpack } from "@/models";
+import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 type EntitiesProviderProps = {
   children: React.ReactNode;
 };
 
 type EntitiesProviderState = {
-  config?: ConfigModel;
-  usage?: UsageModel;
+  client?: torii.ToriiClient;
+  config?: Config;
+  starterpack?: Starterpack;
+  status: "loading" | "error" | "success";
+  refresh: () => Promise<void>;
 };
 
 const EntitiesProviderContext = createContext<
   EntitiesProviderState | undefined
 >(undefined);
 
-const usageQuery = new ToriiQueryBuilder()
-  .withEntityModels([`${NAMESPACE}-${Usage.getModelName()}`])
-  .withClause(
-    new ClauseBuilder()
-      .keys([`${NAMESPACE}-${Usage.getModelName()}`], [undefined], "FixedLen")
-      .build(),
-  )
-  .withLimit(1)
-  .includeHashedKeys();
-
-const configQuery = new ToriiQueryBuilder()
-  .withEntityModels([`${NAMESPACE}-${Config.getModelName()}`])
-  .withClause(
-    new ClauseBuilder()
-      .keys([`${NAMESPACE}-${Config.getModelName()}`], [undefined], "FixedLen")
-      .build(),
-  )
-  .withLimit(1)
-  .includeHashedKeys();
+const getEntityQuery = (namespace: string) => {
+  const config: `${string}-${string}` = `${namespace}-${Config.getModelName()}`;
+  const starterpack: `${string}-${string}` = `${namespace}-${Starterpack.getModelName()}`;
+  const clauses = new ClauseBuilder().keys(
+    [config, starterpack],
+    [undefined],
+    "FixedLen",
+  );
+  return new ToriiQueryBuilder()
+    .withClause(clauses.build())
+    .includeHashedKeys();
+};
 
 export function EntitiesProvider({
   children,
   ...props
 }: EntitiesProviderProps) {
-  useEntityQuery(usageQuery);
-  useEntityQuery(configQuery);
+  const account = useAccount();
+  const [client, setClient] = useState<torii.ToriiClient>();
+  const entitiesSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const [config, setConfig] = useState<Config>();
+  const [starterpack, setStarterpack] = useState<Starterpack>();
+  const [status, setStatus] = useState<"loading" | "error" | "success">(
+    "loading",
+  );
 
-  const usageItems = useModels(`${NAMESPACE}-${Usage.getModelName()}`);
-  const usage = useMemo(() => {
-    const usages = Object.keys(usageItems).flatMap((key) => {
-      const items = usageItems[key] as UsageEntity[];
-      return Object.values(items).map((entity) => UsageModel.from(key, entity));
-    });
-    return usages[0];
-  }, [usageItems]);
+  // Initialize Torii client
+  useEffect(() => {
+    const getClient = async () => {
+      const toriiUrl = dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl;
+      const client = await new torii.ToriiClient({
+        toriiUrl: toriiUrl,
+        worldAddress: "0x0",
+      });
+      setClient(client);
+    };
+    getClient();
+  }, []);
 
-  const configItems = useModels(`${NAMESPACE}-${Config.getModelName()}`);
-  const config = useMemo(() => {
-    const configs = Object.keys(configItems).flatMap((key) => {
-      const items = configItems[key] as ConfigEntity[];
-      return Object.values(items).map((entity) =>
-        ConfigModel.from(key, entity),
-      );
-    });
-    return configs[0];
-  }, [configItems]);
+  // Handler for entity updates (packs)
+  const onEntityUpdate = useCallback(
+    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
+      if (!data || data.error) return;
+      (data.data || [data] || []).forEach((entity) => {
+        if (entity.models[`${NAMESPACE}-${Config.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Config.getModelName()}`
+          ] as unknown as RawConfig;
+          const parsed = Config.parse(model);
+          if (parsed) setConfig(parsed);
+        }
+        if (entity.models[`${NAMESPACE}-${Starterpack.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Starterpack.getModelName()}`
+          ] as unknown as RawStarterpack;
+          const parsed = Starterpack.parse(model);
+          if (parsed) setStarterpack(parsed);
+        }
+      });
+    },
+    [],
+  );
+
+  // Refresh function to fetch and subscribe to data
+  const refresh = useCallback(async () => {
+    if (!client || !account) return;
+
+    // Cancel existing subscriptions
+    entitiesSubscriptionRef.current = null;
+
+    // Create queries
+    const query = getEntityQuery(NAMESPACE);
+
+    // Fetch initial data
+    await Promise.all([
+      client
+        .getEntities(query.build())
+        .then((result) =>
+          onEntityUpdate({ data: result.items, error: undefined }),
+        ),
+    ]);
+
+    // Subscribe to entity and event updates
+    client
+      .onEntityUpdated(query.build().clause, [], onEntityUpdate)
+      .then((response) => {
+        entitiesSubscriptionRef.current = response;
+      });
+  }, [client, account, onEntityUpdate]);
+
+  // Initial fetch and subscription setup
+  useEffect(() => {
+    if (entitiesSubscriptionRef.current) return;
+    setStatus("loading");
+    refresh()
+      .then(() => {
+        setStatus("success");
+      })
+      .catch((error: Error) => {
+        console.error(error);
+        setStatus("error");
+      });
+
+    return () => {
+      if (entitiesSubscriptionRef.current) {
+        entitiesSubscriptionRef.current.cancel();
+      }
+    };
+  }, [refresh]);
+
+  const value: EntitiesProviderState = {
+    client,
+    config,
+    starterpack,
+    status,
+    refresh,
+  };
 
   return (
-    <EntitiesProviderContext.Provider {...props} value={{ config, usage }}>
+    <EntitiesProviderContext.Provider {...props} value={value}>
       {children}
     </EntitiesProviderContext.Provider>
   );

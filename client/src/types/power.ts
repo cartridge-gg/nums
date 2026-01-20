@@ -1,4 +1,4 @@
-import * as React from "react";
+import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers/packer";
 
@@ -59,11 +59,9 @@ export class Power {
   }
 
   public static getPowers(bitmap: bigint): Power[] {
-    // Extract indexes from bitmap for set bits
-    const indexes = Packer.unpack(bitmap, 1n)
-      .map((bit, index) => (bit === 1 ? index : undefined))
-      .filter((index) => index !== undefined);
-    return indexes.map((index) => Power.from(index + 1));
+    // Extract indexes from packed
+    const indexes = Packer.unpack(bitmap, 4n);
+    return indexes.map((index) => Power.from(index));
   }
 
   public getCost(board: bigint): number {

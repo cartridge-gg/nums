@@ -4,7 +4,7 @@ import { GameRow, type GameRowProps } from "@/components/elements/game-row";
 
 export interface GamesProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof gamesVariants> {
+    VariantProps<typeof gamesVariants> {
   games: Array<Pick<GameRowProps, "gameId" | "score" | "maxPayout" | "onPlay">>;
 }
 

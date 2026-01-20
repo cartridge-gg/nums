@@ -14,7 +14,7 @@ import { Grid } from "@/helpers";
 
 export interface GameSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof gameSceneVariants> {
+    VariantProps<typeof gameSceneVariants> {
   currentNumber: number;
   nextNumber: number;
   powers: PowerUpProps[];
@@ -84,7 +84,7 @@ export const GameScene = ({
         </div>
         <PowerUps
           powers={powers}
-          onInfoClick={() => { }}
+          onInfoClick={() => {}}
           className="hidden md:flex"
         />
         <StageInfo className="md:hidden" />
@@ -114,7 +114,7 @@ export const GameScene = ({
       </div>
       <PowerUps
         powers={powers}
-        onInfoClick={() => { }}
+        onInfoClick={() => {}}
         className="w-full md:hidden"
       />
     </div>

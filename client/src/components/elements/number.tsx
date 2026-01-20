@@ -4,7 +4,7 @@ import SlotCounter from "react-slot-counter";
 
 export interface NumberProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof numberVariants> {
+    VariantProps<typeof numberVariants> {
   value?: number;
   invalid?: boolean;
 }

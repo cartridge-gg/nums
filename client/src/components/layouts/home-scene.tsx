@@ -14,10 +14,10 @@ import {
 
 export interface HomeSceneProps
   extends Omit<
-    React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
-    "value" | "onValueChange" | "defaultValue"
-  >,
-  VariantProps<typeof homeSceneVariants> {
+      React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
+      "value" | "onValueChange" | "defaultValue"
+    >,
+    VariantProps<typeof homeSceneVariants> {
   quests: QuestsProps["quests"];
   questsExpiration: QuestsProps["expiration"];
   leaderboardRows: LeaderboardProps["rows"];

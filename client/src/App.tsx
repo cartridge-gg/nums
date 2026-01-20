@@ -88,7 +88,7 @@ function App() {
                     <Router>
                       <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/:gameId" element={<Game />} />
+                        <Route path="/game" element={<Game />} />
                       </Routes>
                     </Router>
                   </PricesProvider>

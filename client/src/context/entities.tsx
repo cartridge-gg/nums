@@ -14,7 +14,12 @@ import {
   useState,
 } from "react";
 import { NAMESPACE } from "@/constants";
-import { Config, type RawConfig, type RawStarterpack, Starterpack } from "@/models";
+import {
+  Config,
+  type RawConfig,
+  type RawStarterpack,
+  Starterpack,
+} from "@/models";
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 type EntitiesProviderProps = {

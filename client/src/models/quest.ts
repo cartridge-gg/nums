@@ -448,10 +448,10 @@ export class QuestDefinition {
       rewarder: getChecksumAddress(
         `0x${BigInt(data.rewarder.value).toString(16)}`,
       ),
-      start: parseInt(data.start.value, 16),
-      end: parseInt(data.end.value, 16),
-      duration: parseInt(data.duration.value, 16),
-      interval: parseInt(data.interval.value, 16),
+      start: parseInt(data.start.value, 10),
+      end: parseInt(data.end.value, 10),
+      duration: parseInt(data.duration.value, 10),
+      interval: parseInt(data.interval.value, 10),
       tasks: data.tasks.value.map((task) => QuestTask.parse(task.value)),
       conditions: data.conditions.value.map((condition) =>
         shortString.decodeShortString(
@@ -553,8 +553,8 @@ export class QuestCompletion {
       quest_id: shortString.decodeShortString(
         `0x${BigInt(data.quest_id.value).toString(16)}`,
       ),
-      interval_id: parseInt(data.interval_id.value, 16),
-      timestamp: parseInt(data.timestamp.value, 16),
+      interval_id: parseInt(data.interval_id.value, 10),
+      timestamp: parseInt(data.timestamp.value, 10),
       unclaimed: data.unclaimed.value,
       lock_count: parseInt(data.lock_count.value, 10),
     };
@@ -625,8 +625,8 @@ export class QuestAdvancement {
       task_id: shortString.decodeShortString(
         `0x${BigInt(data.task_id.value).toString(16)}`,
       ),
-      interval_id: parseInt(data.interval_id.value, 16),
-      timestamp: parseInt(data.timestamp.value, 16),
+      interval_id: parseInt(data.interval_id.value, 10),
+      timestamp: parseInt(data.timestamp.value, 10),
       count: BigInt(data.count.value),
     };
     return new QuestAdvancement(
@@ -803,7 +803,7 @@ export class QuestProgression {
       task_id: shortString.decodeShortString(
         `0x${BigInt(data.task_id.value).toString(16)}`,
       ),
-      timestamp: parseInt(data.time.value, 16),
+      timestamp: parseInt(data.time.value, 10),
       count: BigInt(data.count.value),
     };
     return new QuestProgression(
@@ -963,8 +963,8 @@ export class QuestUnlocked {
       quest_id: shortString.decodeShortString(
         `0x${BigInt(data.quest_id.value).toString(16)}`,
       ),
-      interval_id: parseInt(data.interval_id.value, 16),
-      time: parseInt(data.time.value, 16),
+      interval_id: parseInt(data.interval_id.value, 10),
+      time: parseInt(data.time.value, 10),
     };
     return new QuestUnlocked(
       props.player_id,
@@ -1022,8 +1022,8 @@ export class QuestCompleted {
       quest_id: shortString.decodeShortString(
         `0x${BigInt(data.quest_id.value).toString(16)}`,
       ),
-      interval_id: parseInt(data.interval_id.value, 16),
-      time: parseInt(data.time.value, 16),
+      interval_id: parseInt(data.interval_id.value, 10),
+      time: parseInt(data.time.value, 10),
     };
     return new QuestCompleted(
       props.player_id,
@@ -1081,8 +1081,8 @@ export class QuestClaimed {
       quest_id: shortString.decodeShortString(
         `0x${BigInt(data.quest_id.value).toString(16)}`,
       ),
-      interval_id: parseInt(data.interval_id.value, 16),
-      time: parseInt(data.time.value, 16),
+      interval_id: parseInt(data.interval_id.value, 10),
+      time: parseInt(data.time.value, 10),
     };
     return new QuestClaimed(
       props.player_id,

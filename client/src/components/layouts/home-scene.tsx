@@ -14,10 +14,10 @@ import {
 
 export interface HomeSceneProps
   extends Omit<
-      React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
-      "value" | "onValueChange" | "defaultValue"
-    >,
-    VariantProps<typeof homeSceneVariants> {
+    React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
+    "value" | "onValueChange" | "defaultValue"
+  >,
+  VariantProps<typeof homeSceneVariants> {
   quests: QuestsProps["quests"];
   questsExpiration: QuestsProps["expiration"];
   leaderboardRows: LeaderboardProps["rows"];
@@ -54,7 +54,6 @@ export const HomeScene = ({
   ...props
 }: HomeSceneProps) => {
   const [activeTab, setActiveTab] = useState<string>("quest");
-
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     onTabChange?.(value);

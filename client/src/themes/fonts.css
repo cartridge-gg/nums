@@ -61,3 +61,27 @@
   font-style: italic;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "Circular-LL";
+  src: url("/assets/fonts/circular-ll.regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular-LL-Book";
+  src: url("/assets/fonts/circular-ll.book.ttf") format("truetype");
+  font-weight: 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular-LL-Medium";
+  src: url("/assets/fonts/circular-ll.medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}

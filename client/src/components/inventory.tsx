@@ -8,7 +8,6 @@ import { usePlayerGames } from "@/hooks/assets";
 import { useStarterpackClaim } from "@/hooks/useStarterpackClaim";
 import { useStarterpackPrice } from "@/hooks/useStarterpackPrice";
 import { useStarterpacks } from "@/hooks/useStarterpacks";
-import { Games } from "./games";
 import { Button } from "./ui/button";
 
 export type InventoryProps = {};
@@ -65,7 +64,6 @@ export const Inventory = () => {
           <div className="flex flex-col items-start gap-6">
             <Purchases />
           </div>
-          <Games />
         </div>
       </div>
     </div>

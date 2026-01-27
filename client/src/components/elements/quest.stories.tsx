@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Quest } from "./quest";
 import { fn } from "storybook/test";
+import { QuestReward } from "@/models/quest";
 
 const meta = {
   title: "Elements/Quest",
@@ -18,6 +19,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const REWARDS = [
+  new QuestReward("Quest Reward", "200 NUMS", "/assets/token.png"),
+];
+
 export const Completed: Story = {
   args: {
     title: "Claim a game",
@@ -26,6 +31,7 @@ export const Completed: Story = {
     total: 3,
     claimed: false,
     expiration: 0,
+    rewards: REWARDS,
     onClaim: fn(),
   },
 };
@@ -38,6 +44,7 @@ export const Progress: Story = {
     total: 2000,
     claimed: false,
     expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
+    rewards: REWARDS,
     onClaim: fn(),
   },
 };
@@ -50,6 +57,7 @@ export const Claimed: Story = {
     total: 1,
     claimed: true,
     expiration: 0,
+    rewards: REWARDS,
     onClaim: fn(),
   },
 };
@@ -62,6 +70,7 @@ export const Empty: Story = {
     total: 2000,
     claimed: false,
     expiration: 0,
+    rewards: REWARDS,
     onClaim: fn(),
   },
 };

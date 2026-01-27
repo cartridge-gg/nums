@@ -123,5 +123,15 @@
     --power-600: rgba(165, 148, 249, 100%);
     --power-650: rgba(251, 111, 146, 100%);
     --power-700: rgba(255, 217, 125, 100%);
+
+    --glitchbomb-100: rgba(54, 248, 24, 100%);
+    --glitchbomb-200: rgba(54, 248, 24, 80%);
+    --glitchbomb-300: rgba(54, 248, 24, 64%);
+    --glitchbomb-400: rgba(54, 248, 24, 48%);
+    --glitchbomb-500: rgba(54, 248, 24, 32%);
+    --glitchbomb-600: rgba(54, 248, 24, 24%);
+    --glitchbomb-700: rgba(54, 248, 24, 16%);
+    --glitchbomb-800: rgba(54, 248, 24, 8%);
+    --glitchbomb-900: rgba(54, 248, 24, 4%);
   }
 }

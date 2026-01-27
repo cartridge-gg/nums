@@ -36,7 +36,7 @@ import { useEntities } from "./entities";
 import { NAMESPACE } from "@/constants";
 import type { QuestReward } from "@/models/quest";
 
-export type QuestProps = {
+export type Quests = {
   id: string;
   intervalId: number;
   name: string;
@@ -55,7 +55,7 @@ export type QuestProps = {
 };
 
 interface QuestsContextType {
-  quests: QuestProps[];
+  quests: Quests[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 }
@@ -307,7 +307,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
   }, [refresh, client]);
 
   // Compute quests from the raw data
-  const quests: QuestProps[] = useMemo(() => {
+  const quests: Quests[] = useMemo(() => {
     const questList = definitions.map((definition) => {
       const intervalId = definition.getIntervalId();
       const creation = creations.find(

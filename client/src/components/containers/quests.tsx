@@ -1,8 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Quest, type QuestProps } from "@/components/elements/quest";
-import { Formatter } from "@/helpers";
-import { useEffect, useState } from "react";
 
 export interface QuestsProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -12,12 +10,11 @@ export interface QuestsProps
 }
 
 const questsVariants = cva(
-  "w-full flex flex-col gap-4 md:gap-6 p-4 md:p-6 pb-0 md:pb-0 rounded-lg overflow-hidden",
+  "h-full w-full flex flex-col gap-4 overflow-y-auto pb-px pr-px grow",
   {
     variants: {
       variant: {
-        default:
-          "bg-black-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        default: "",
       },
     },
     defaultVariants: {
@@ -26,67 +23,37 @@ const questsVariants = cva(
   },
 );
 
-// Helper function to get countdown
-const getCountdown = (exp: number) => {
-  if (!exp) return Formatter.countdown(0);
-  const now = new Date();
-  const diff = exp * 1000 - now.getTime();
-  return Formatter.countdown(diff);
-};
-
 export const Quests = ({
   quests,
   expiration,
   variant,
   className,
+  style,
   ...props
 }: QuestsProps) => {
-  const allCompleted = quests.every((quest) => quest.count >= quest.total);
-
-  const [countdown, setCountdown] = useState<string>(() =>
-    getCountdown(expiration),
-  );
-
-  useEffect(() => {
-    setCountdown(getCountdown(expiration));
-    if (!expiration) return;
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = expiration * 1000 - now.getTime();
-      setCountdown(Formatter.countdown(diff));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [expiration]);
-
   return (
-    <div className={cn(questsVariants({ variant, className }))} {...props}>
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2
-          className="font-primary text-[36px]/[24px] tracking-wider text-mauve-100 uppercase translate-y-0.5"
-          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-        >
-          DailyQuest
-        </h2>
-        {allCompleted && (
+    <div
+      className={cn(questsVariants({ variant, className }))}
+      style={{ scrollbarWidth: "none", ...style }}
+      {...props}
+    >
+      {quests.length === 0 ? (
+        <div className="bg-black-900 border border-white-800 rounded-lg py-12 flex items-center justify-center h-full">
           <p
-            className="text-[22px]/[15px] tracking-wider text-mauve-300 translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            className="text-white-300 text-lg/6 tracking-wider translate-y-0.5 w-1/2 text-center"
+            style={{
+              textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+            }}
           >
-            {`Refresh in ${countdown}`}
+            No quests available yet
           </p>
-        )}
-      </div>
-
-      {/* Quests list */}
-      <div
-        className="flex flex-col gap-4 overflow-y-auto pb-4 md:pb-6"
-        style={{ scrollbarWidth: "none" }}
-      >
-        {quests.map((quest, index) => (
-          <Quest key={index} {...quest} />
-        ))}
-      </div>
+        </div>
+      ) : (
+        quests
+          .sort((a, b) => b.count / b.total - a.count / a.total)
+          .sort((a, b) => (a.claimed ? 1 : b.claimed ? -1 : 0))
+          .map((quest, index) => <Quest key={index} {...quest} />)
+      )}
     </div>
   );
 };

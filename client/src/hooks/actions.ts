@@ -128,6 +128,32 @@ export const useActions = () => {
     [account, chain.id],
   );
 
+  const claims = useCallback(
+    async (
+      params: { playerAddress: string; questId: string; intervalId: number }[],
+    ) => {
+      try {
+        if (!account?.address) return false;
+        const setupAddress = getSetupAddress(chain.id);
+        const calls = params.map(({ playerAddress, questId, intervalId }) => ({
+          contractAddress: setupAddress,
+          entrypoint: "quest_claim",
+          calldata: CallData.compile({
+            player: playerAddress,
+            quest_id: questId,
+            interval_id: intervalId,
+          }),
+        }));
+        await account.execute(calls);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
   const mint = useCallback(
     async (tokenAddress?: string) => {
       try {
@@ -157,6 +183,7 @@ export const useActions = () => {
     select,
     apply,
     claim,
+    claims,
     mint,
   };
 };

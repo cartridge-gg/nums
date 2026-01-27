@@ -38,10 +38,56 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    balance: "100200",
+  },
+};
 
 export const Empty: Story = {
   args: {
     balance: "0",
+  },
+};
+
+export const Small: Story = {
+  args: {
+    balance: "123",
+  },
+};
+
+export const Thousands: Story = {
+  args: {
+    balance: "1234",
+  },
+};
+
+export const TenThousands: Story = {
+  args: {
+    balance: "12345",
+  },
+};
+
+export const HundredThousands: Story = {
+  args: {
+    balance: "123456",
+  },
+};
+
+export const Millions: Story = {
+  args: {
+    balance: "1234567",
+  },
+};
+
+export const Billions: Story = {
+  args: {
+    balance: "1234567890",
+  },
+};
+
+export const Negative: Story = {
+  args: {
+    balance: "-100",
   },
 };

@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { LogoIcon } from "@/components/icons/exotics";
+import { QuestIcon, TrophyIcon } from "@/components/icons";
 import { Sound, Balance, Profile, Connect } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/button";
+import { useId } from "react";
 
 export interface HeaderProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -15,6 +18,8 @@ export interface HeaderProps
   username?: string;
   onConnect: () => void;
   onProfile: () => void;
+  onQuests?: () => void;
+  onLeaderboard?: () => void;
 }
 
 const headerVariants = cva(
@@ -40,10 +45,14 @@ export const Header = ({
   username,
   onConnect,
   onProfile,
+  onQuests,
+  onLeaderboard,
   variant,
   className,
   ...props
 }: HeaderProps) => {
+  const questId = useId();
+  const trophyId = useId();
   return (
     <div className={cn(headerVariants({ variant, className }))} {...props}>
       <Link
@@ -63,6 +72,69 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
+        {onQuests && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onQuests}
+          >
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <filter
+                  id={questId}
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feDropShadow
+                    dx="2"
+                    dy="2"
+                    stdDeviation="0"
+                    floodColor="rgba(0, 0, 0, 0.95)"
+                  />
+                </filter>
+              </defs>
+            </svg>
+            <QuestIcon
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${questId})` }}
+            />
+          </Button>
+        )}
+        {onLeaderboard && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onLeaderboard}
+          >
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <filter
+                  id={trophyId}
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feDropShadow
+                    dx="2"
+                    dy="2"
+                    stdDeviation="0"
+                    floodColor="rgba(0, 0, 0, 0.95)"
+                  />
+                </filter>
+              </defs>
+            </svg>
+            <TrophyIcon
+              variant="solid"
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${trophyId})` }}
+            />
+          </Button>
+        )}
         <Sound isMuted={isMuted} onClick={onToggleMute} />
         {username ? (
           <>

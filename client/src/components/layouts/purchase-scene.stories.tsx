@@ -6,8 +6,15 @@ const meta = {
   title: "Layouts/PurchaseScene",
   component: PurchaseScene,
   parameters: {
-    layout: "padded",
+    layout: "fullscreen",
   },
+  decorators: [
+    (Story) => (
+      <div className="flex h-screen w-full p-4 md:p-6">
+        <Story />
+      </div>
+    ),
+  ],
   globals: {
     backgrounds: {
       value: "purple",
@@ -23,37 +30,15 @@ const sampleChartValues = [
   1.12, 1.29, 1.47, 1.67, 1.87, 2.09, 2.32,
 ];
 
-const sampleGames = [
-  {
-    gameId: "12345",
-    maxPayout: "$100",
-    onPlay: fn(),
-  },
-  {
-    gameId: "67890",
-    score: 150,
-    maxPayout: "$250",
-    onPlay: fn(),
-  },
-  {
-    gameId: "11111",
-    maxPayout: "$50",
-    onPlay: fn(),
-  },
-];
-
 export const Default: Story = {
   args: {
     purchaseProps: {
       chartValues: sampleChartValues,
       chartAbscissa: 10,
       numsPrice: 0.003,
-      playPrice: 1.0,
       onPurchase: fn(),
     },
-    gamesProps: {
-      games: sampleGames,
-    },
     onClose: fn(),
+    onPurchase: fn(),
   },
 };

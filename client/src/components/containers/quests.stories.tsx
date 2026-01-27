@@ -68,3 +68,21 @@ export const Completed: Story = {
     expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
   },
 };
+
+export const Claimed: Story = {
+  args: {
+    quests: sampleQuests.map((quest) => ({
+      ...quest,
+      count: quest.total,
+      claimed: true,
+    })),
+    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
+  },
+};
+
+export const Empty: Story = {
+  args: {
+    quests: [],
+    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
+  },
+};

@@ -1,112 +1,34 @@
-import { useQuests } from "@/context/quests";
 import { HomeScene } from "@/components/layouts/home-scene";
-import { Header } from "@/components/layouts/header";
-import { PurchaseScene } from "@/components/layouts/purchase-scene";
-import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
-import { useControllers } from "@/context/controllers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useActions } from "@/hooks/actions";
-import { usePrices } from "@/context/prices";
 import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
-import { useStats } from "@/hooks/stats";
-import { useLeaderboard } from "@/hooks/leaderboard";
+import { useActivities } from "@/hooks/activities";
+import { usePurchaseModal } from "@/context/purchase-modal";
+import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { Game } from "@/models/game";
-import type ControllerConnector from "@cartridge/connector/controller";
-import { useNavigate } from "react-router-dom";
-
-const background = "/assets/tunnel-background.svg";
 
 export const Home = () => {
-  const { account, connector } = useAccount();
-  const { starterpack, config } = useEntities();
-  const { mint, claim } = useActions();
-  const { quests } = useQuests();
-  const { find } = useControllers();
-  const headerData = useHeader();
+  const { account } = useAccount();
+  const { config } = useEntities();
   const { getNumsPrice } = usePrices();
   const { gameIds } = useAssets();
   const { games } = useGames(gameIds);
-  const { data: stats, refetch: refetchStats } = useStats(account?.address);
-  const { data: leaderboardRows, refetch: refetchLeaderboard } = useLeaderboard(
-    account?.address,
-  );
-  const navigate = useNavigate();
-  const [showPurchaseScene, setShowPurchaseScene] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("quest");
+  const { data: allActivities = [] } = useActivities(account?.address);
+  const { openPurchaseScene } = usePurchaseModal();
 
-  // Get username from controllers if account is connected
-  const username = useMemo(() => {
-    if (!account?.address) return undefined;
-    const controller = find(account.address);
-    return controller?.username;
-  }, [account?.address, find]);
-
-  // Transform quests from context format to component format
-  const transformedQuests = useMemo(() => {
-    return quests
-      .filter((quest) => !quest.locked)
-      .map((quest) => {
-        // Get the first task for now (or combine all tasks)
-        const firstTask = quest.tasks[0];
-        const totalCount = quest.tasks.reduce(
-          (acc, task) => acc + Number(task.count),
-          0,
-        );
-        const totalTotal = quest.tasks.reduce(
-          (acc, task) => acc + Number(task.total),
-          0,
-        );
-
-        return {
-          title: quest.name,
-          task: firstTask?.description || "Complete quest",
-          count: totalCount,
-          total: totalTotal,
-          expiration: quest.end,
-          claimed: quest.claimed,
-          onClaim: () => {
-            if (!account?.address) return;
-            claim(account?.address, quest.id, quest.intervalId).then(
-              (success) => {
-                if (success) {
-                  console.log("Quest claimed");
-                }
-              },
-            );
-          },
-        };
-      });
-  }, [quests, claim]);
-
-  // Get expiration from the first quest (assuming all quests have the same expiration)
-  const questsExpiration = useMemo(() => {
-    if (quests.length === 0) return 0;
-    return quests[0].end;
-  }, [quests]);
-
-  // Get totalGames and avgScore from stats
-  const totalGames = useMemo(() => {
-    if (!stats) return "0";
-    return stats.total_games.toString();
-  }, [stats]);
-
-  const avgScore = useMemo(() => {
-    if (!stats) return "0";
-    return Math.round(stats.average_score).toString();
-  }, [stats]);
-
-  // Prepare PurchaseScene data
-  const numsPrice = useMemo(() => {
-    const price = getNumsPrice();
-    return price ? parseFloat(price) : 0.003; // Default fallback
-  }, [getNumsPrice]);
+  // Filter activities to only include games that are over
+  const activities = useMemo(() => {
+    const overGameIds = new Set(games.filter((g) => g.over).map((g) => g.id));
+    return allActivities.filter((activity) => overGameIds.has(activity.gameId));
+  }, [allActivities, games]);
+  const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const playPrice = 1.0; // TODO: Get actual play price
 
   // Chart data - calculate rewards for each level (1-20) based on current supply
+  // Note: This is needed for activeGamesData calculation
   const chartValues = useMemo(() => {
     if (!config?.target_supply) {
       return Array.from({ length: 20 }, () => 0);
@@ -156,102 +78,57 @@ export const Home = () => {
     return breakevenIndex !== -1 ? breakevenIndex + 1 : 20;
   }, [chartValues, playPrice]);
 
-  // Transform games for Games component
-  const gamesData = useMemo(() => {
+  // Transform games for Games component (only non-over games)
+  const activeGamesData = useMemo(() => {
     // Get max payout from the last value of chartValues (level 20 cumulative reward)
     const maxPayoutValue =
       chartValues.length > 0 ? chartValues[chartValues.length - 1] : 0;
     const maxPayout = `$${maxPayoutValue.toFixed(2)}`;
 
-    return games.map((game) => ({
-      gameId: game.id,
-      score: game.level === 0 ? undefined : game.level,
-      over: game.over,
-      maxPayout,
-      onPlay: () => {
-        navigate(`/game?id=${game.id}`);
-      },
-    }));
-  }, [games, chartValues, navigate]);
+    // Calculate breakEven (the level where cumulative rewards exceed playPrice)
+    const breakEven = chartAbscissa.toString();
 
-  const handlePurchase = useCallback(() => {
-    if (starterpack) {
-      (connector as ControllerConnector)?.controller.openStarterPack(
-        starterpack.id.toString(),
-      );
-    }
-  }, [connector, starterpack]);
+    return games
+      .filter((game) => !game.over)
+      .map((game) => ({
+        gameId: game.id,
+        score: game.level === 0 ? undefined : game.level,
+        breakEven,
+        payout: maxPayout,
+      }));
+  }, [games, chartValues, chartAbscissa]);
 
-  // Refetch stats when Quest tab becomes active
+  // Set initial gameId to the first active game if available
   useEffect(() => {
-    if (activeTab === "quest" && account?.address) {
-      refetchStats();
+    if (games.length > 0 && gameId === undefined) {
+      const firstActiveGame = games.find((g) => !g.over);
+      if (firstActiveGame) {
+        setGameId(firstActiveGame.id);
+      }
     }
-  }, [activeTab, account?.address, refetchStats]);
+  }, [games, gameId]);
 
-  // Refetch leaderboard when Leaderboard tab becomes active
-  useEffect(() => {
-    if (activeTab === "leaderboard") {
-      refetchLeaderboard();
-    }
-  }, [activeTab, refetchLeaderboard]);
+  const handlePracticeClick = useCallback(() => {
+    openPurchaseScene();
+  }, [openPurchaseScene]);
 
-  const handleTabChange = useCallback((tab: string) => {
-    setActiveTab(tab);
-  }, []);
+  const handlePurchaseClick = useCallback(() => {
+    openPurchaseScene();
+  }, [openPurchaseScene]);
 
   return (
-    <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-      <img
-        src={background}
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover z-[-1]"
-      />
-      <Header
-        isMainnet={headerData.isMainnet}
-        isMuted={headerData.isMuted}
-        onToggleMute={headerData.toggleMute}
-        balance={headerData.balance}
-        username={username}
-        onConnect={headerData.handleConnect}
-        onProfile={headerData.handleOpenProfile}
-        onBalance={() => mint()}
-      />
-      <div
-        className="relative flex-1 min-h-0 flex items-center justify-center p-0 md:px-16 md:py-12"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
-        }}
-      >
-        <HomeScene
-          quests={transformedQuests}
-          questsExpiration={questsExpiration}
-          leaderboardRows={leaderboardRows || []}
-          totalGames={totalGames}
-          avgScore={avgScore}
-          onPlayClick={() => setShowPurchaseScene(true)}
-          onTabChange={handleTabChange}
-        />
-        {showPurchaseScene && (
-          <div className="absolute inset-0 top-0 z-50 m-2 md:m-6 flex-1 overflow-hidden shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl">
-            <PurchaseScene
-              purchaseProps={{
-                chartValues,
-                chartAbscissa,
-                numsPrice,
-                playPrice,
-                onPurchase: handlePurchase,
-              }}
-              gamesProps={{
-                games: gamesData,
-              }}
-              onClose={() => setShowPurchaseScene(false)}
-              className="h-full"
-            />
-          </div>
-        )}
-      </div>
-    </div>
+    <HomeScene
+      gameId={gameId}
+      activeGamesProps={{
+        games: activeGamesData,
+        gameId,
+        setGameId,
+      }}
+      activitiesProps={{
+        activities,
+      }}
+      onPracticeClick={handlePracticeClick}
+      onPurchaseClick={handlePurchaseClick}
+    />
   );
 };

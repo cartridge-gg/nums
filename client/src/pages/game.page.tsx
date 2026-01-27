@@ -1,12 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Header } from "@/components/layouts/header";
 import { GameScene } from "@/components/layouts/game-scene";
 import { Selections } from "@/components/containers/selections";
 import { GameOver } from "@/components/containers/game-over";
-import { useHeader } from "@/hooks/header";
-import { useAccount } from "@starknet-react/core";
-import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useGame } from "@/hooks/game";
 import { usePrices } from "@/context/prices";
@@ -15,13 +11,8 @@ import type { SelectionProps } from "@/components/elements/selection";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import type { StatProps } from "@/components/elements/stat";
 
-const background = "/assets/tunnel-background.svg";
-
 export const Game = () => {
-  const { account } = useAccount();
-  const { find } = useControllers();
-  const headerData = useHeader();
-  const { mint, set, select, apply } = useActions();
+  const { set, select, apply } = useActions();
   const { getNumsPrice } = usePrices();
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
@@ -34,13 +25,6 @@ export const Game = () => {
 
   // Load game data
   const game = useGame(gameId);
-
-  // Get username from controllers if account is connected
-  const username = useMemo(() => {
-    if (!account?.address) return undefined;
-    const controller = find(account.address);
-    return controller?.username;
-  }, [account?.address, find]);
 
   // Transform game data for GameScene
   const gameSceneData = useMemo(() => {
@@ -148,84 +132,39 @@ export const Game = () => {
   // Show loading state if game ID is invalid or game is not loaded
   if (!gameId || !game) {
     return (
-      <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-        <img
-          src={background}
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover z-[-1]"
-        />
-        <Header
-          isMainnet={headerData.isMainnet}
-          isMuted={headerData.isMuted}
-          onToggleMute={headerData.toggleMute}
-          balance={headerData.balance}
-          username={username}
-          onConnect={headerData.handleConnect}
-          onProfile={headerData.handleOpenProfile}
-          onBalance={() => mint()}
-        />
-        <div className="relative flex-1 min-h-0 flex items-center justify-center p-0 md:px-16 md:py-12">
-          <div className="text-white-100 text-xl">
-            {!gameId ? "Game ID not found" : "Loading game..."}
-          </div>
-        </div>
+      <div className="text-white-100 text-xl">
+        {!gameId ? "Game ID not found" : "Loading game..."}
       </div>
     );
   }
 
   return (
-    <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-      <img
-        src={background}
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover z-[-1]"
+    <>
+      <GameScene
+        currentNumber={gameSceneData.currentNumber}
+        nextNumber={gameSceneData.nextNumber}
+        powers={gameSceneData.powers}
+        slots={gameSceneData.slots}
+        stages={gameSceneData.stages}
+        className="md:max-h-[588px] p-6 pb-8 md:p-0 md:pb-0"
       />
-      <Header
-        isMainnet={headerData.isMainnet}
-        isMuted={headerData.isMuted}
-        onToggleMute={headerData.toggleMute}
-        balance={headerData.balance}
-        username={username}
-        onConnect={headerData.handleConnect}
-        onProfile={headerData.handleOpenProfile}
-        onBalance={() => mint()}
-      />
-      <div
-        className="relative flex-1 min-h-0 flex items-center justify-center p-0 md:px-16 md:py-12"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
-        }}
-      >
-        <GameScene
-          currentNumber={gameSceneData.currentNumber}
-          nextNumber={gameSceneData.nextNumber}
-          powers={gameSceneData.powers}
-          slots={gameSceneData.slots}
-          stages={gameSceneData.stages}
-          className="md:max-h-[588px] p-6 pb-8 md:p-0 md:pb-0"
-        />
-        {/* Overlay and Selections modal when selectable powers exist */}
-        {hasSelectablePowers && selections.length > 0 && (
-          <>
-            {/* Overlay to block interactions with GameScene */}
-            <div className="absolute inset-0 bg-black-900/80 z-40" />
-            {/* Selections modal */}
-            <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
-              <Selections
-                selections={selections}
-                className="max-w-2xl w-full"
-              />
-            </div>
-          </>
-        )}
-        {/* Overlay and GameOver modal when game is over */}
-        {showGameOver && gameOverStats.length > 0 && (
+      {/* Overlay and Selections modal when selectable powers exist */}
+      {hasSelectablePowers && selections.length > 0 && (
+        <>
+          {/* Overlay to block interactions with GameScene */}
+          <div className="absolute inset-0 bg-black-900/80 z-40" />
+          {/* Selections modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
-            <GameOver stats={gameOverStats} />
+            <Selections selections={selections} className="max-w-2xl w-full" />
           </div>
-        )}
-      </div>
-    </div>
+        </>
+      )}
+      {/* Overlay and GameOver modal when game is over */}
+      {showGameOver && gameOverStats.length > 0 && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+          <GameOver stats={gameOverStats} />
+        </div>
+      )}
+    </>
   );
 };

@@ -267,3 +267,22 @@ export const Power: Story = {
     ),
   },
 };
+
+export const Brand: Story = {
+  args: {
+    children: (
+      <div className="flex gap-4 flex-wrap">
+        <Palette color="bg-glitchbomb" label="bg-glitchbomb" />
+        <Palette color="bg-glitchbomb-100" label="bg-glitchbomb-100" />
+        <Palette color="bg-glitchbomb-200" label="bg-glitchbomb-200" />
+        <Palette color="bg-glitchbomb-300" label="bg-glitchbomb-300" />
+        <Palette color="bg-glitchbomb-400" label="bg-glitchbomb-400" />
+        <Palette color="bg-glitchbomb-500" label="bg-glitchbomb-500" />
+        <Palette color="bg-glitchbomb-600" label="bg-glitchbomb-600" />
+        <Palette color="bg-glitchbomb-700" label="bg-glitchbomb-700" />
+        <Palette color="bg-glitchbomb-800" label="bg-glitchbomb-800" />
+        <Palette color="bg-glitchbomb-900" label="bg-glitchbomb-900" />
+      </div>
+    ),
+  },
+};

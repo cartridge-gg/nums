@@ -1,90 +1,217 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { GameRow, type GameRowProps } from "@/components/elements/game-row";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import { Game } from "@/components/elements/game";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
+import { useEffect, useId, useState } from "react";
 
 export interface GamesProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gamesVariants> {
-  games: Array<Pick<GameRowProps, "gameId" | "score" | "maxPayout" | "onPlay">>;
+  games: Array<{
+    gameId: number;
+    score?: number;
+    breakEven?: string | number;
+    payout?: string | number;
+  }>;
+  gameId?: number;
+  setGameId: (id: number) => void;
 }
 
-const gamesVariants = cva("select-none w-full flex flex-col gap-8", {
-  variants: {
-    variant: {
-      default: "",
+const gamesVariants = cva(
+  "select-none relative w-full flex flex-col gap-4 md:gap-6",
+  {
+    variants: {
+      variant: {
+        default: "",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+);
 
-export const Games = ({ games, variant, className, ...props }: GamesProps) => {
+export const Games = ({
+  games,
+  gameId,
+  setGameId,
+  variant,
+  className,
+  ...props
+}: GamesProps) => {
+  const [api, setApi] = useState<CarouselApi>();
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  const filterId = useId();
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCanScrollPrev(api.canScrollPrev());
+    setCanScrollNext(api.canScrollNext());
+
+    const onSelect = () => {
+      setCanScrollPrev(api.canScrollPrev());
+      setCanScrollNext(api.canScrollNext());
+
+      // Update gameId when carousel selection changes
+      const selectedIndex = api.selectedScrollSnap();
+      if (selectedIndex === games.length) {
+        // New card selected
+        setGameId(0);
+      } else if (selectedIndex >= 0 && selectedIndex < games.length) {
+        // Game card selected
+        const selectedGame = games[selectedIndex];
+        if (selectedGame) {
+          setGameId(selectedGame.gameId);
+        }
+      }
+    };
+
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api, games, setGameId]);
+
+  // Find the index of the active gameId, or the last index (new card) if gameId is 0 or undefined
+  useEffect(() => {
+    if (!api) return;
+
+    if (gameId === 0 || gameId === undefined) {
+      // Scroll to the last item (new card)
+      api.scrollTo(games.length);
+    } else {
+      // Find the index of the gameId
+      const index = games.findIndex((g) => g.gameId === gameId);
+      if (index !== -1) {
+        api.scrollTo(index);
+      }
+    }
+  }, [api, gameId, games]);
+
+  const handleCardClick = (clickedGameId: number | undefined) => {
+    if (clickedGameId === undefined) {
+      // New card clicked
+      setGameId(0);
+    } else {
+      setGameId(clickedGameId);
+    }
+  };
+
+  const scrollPrev = () => {
+    api?.scrollPrev();
+  };
+
+  const scrollNext = () => {
+    api?.scrollNext();
+  };
+
   return (
-    <div className={cn(gamesVariants({ variant, className }))} {...props}>
-      {/* Title */}
-      <h2
-        className="font-primary text-[64px]/[44px] tracking-wider text-white-100 uppercase translate-y-1"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        Play Nums
-      </h2>
-
-      <div className="grow flex flex-col items-stretch gap-6 overflow-hidden">
-        {/* Headers */}
-        <div className="flex items-center gap-3 pr-[60px]">
-          <div className="flex-[2] text-left">
-            <span
-              className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5 pl-2 whitespace-nowrap"
+    <div
+      className={cn(gamesVariants({ variant, className }), "w-full")}
+      {...props}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="min-h-8 flex items-center">
+            <h2
+              className="text-[28px]/[19px] md:text-[36px]/[24px] tracking-wider text-white-100 translate-y-0.5"
               style={{
                 textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
               }}
             >
-              Game Id
-            </span>
+              My Games
+            </h2>
           </div>
-          <div className="flex-[1] text-left">
+          <div className="h-8 flex justify-center items-center px-3 bg-black-800 rounded-full">
             <span
-              className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5 whitespace-nowrap"
+              className="text-[22px]/[15px] tracking-wider translate-y-0.5"
               style={{
-                textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+                textShadow: "1px 1px 0px rgba(0, 0, 0, 0.25)",
               }}
             >
-              Score
-            </span>
-          </div>
-          <div className="flex-1 md:flex-[2] text-left">
-            <span
-              className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5 whitespace-nowrap"
-              style={{
-                textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-              }}
-            >
-              Max Payout
+              {games.length}
             </span>
           </div>
         </div>
-
-        {/* Games list */}
-        {games.length > 0 ? (
-          <div
-            className="flex flex-col gap-3 overflow-y-auto"
-            style={{ scrollbarWidth: "none" }}
+        <div className="flex items-center gap-3">
+          <svg width="0" height="0" style={{ position: "absolute" }}>
+            <defs>
+              <filter
+                id={filterId}
+                x="-50%"
+                y="-50%"
+                width="200%"
+                height="200%"
+              >
+                <feDropShadow
+                  dx="2"
+                  dy="2"
+                  stdDeviation="0"
+                  floodColor="rgba(0, 0, 0, 0.25)"
+                />
+              </filter>
+            </defs>
+          </svg>
+          <Button
+            variant="muted"
+            size="icon"
+            onClick={scrollPrev}
+            disabled={!canScrollPrev}
+            className="h-8 w-8 rounded-full bg-mauve-700 hover:bg-mauve-600"
           >
-            {games.map((game, index) => (
-              <GameRow key={index} {...game} />
-            ))}
-          </div>
-        ) : (
-          <div className="grow flex justify-center items-center border border-mauve-700 rounded-lg p-16">
-            <p className="uppercase tracking-wider text-white-400 text-[22px]/[20px] text-center">
-              You do not have any
-              <br />
-              nums tickets
-            </p>
-          </div>
-        )}
+            <ArrowLeftIcon size="md" style={{ filter: `url(#${filterId})` }} />
+          </Button>
+          <Button
+            variant="muted"
+            size="icon"
+            onClick={scrollNext}
+            disabled={!canScrollNext}
+            className="h-8 w-8 rounded-full bg-mauve-700 hover:bg-mauve-600"
+          >
+            <ArrowRightIcon size="md" style={{ filter: `url(#${filterId})` }} />
+          </Button>
+        </div>
       </div>
+
+      {/* Carousel */}
+      <Carousel opts={{ loop: false }} setApi={setApi} className="w-full">
+        <CarouselContent className="w-full">
+          {games.map((game) => (
+            <CarouselItem key={game.gameId}>
+              <Game
+                gameId={game.gameId}
+                score={game.score}
+                breakEven={game.breakEven}
+                payout={game.payout}
+                variant={gameId === game.gameId ? "default" : "default"}
+                onClick={() => handleCardClick(game.gameId)}
+              />
+            </CarouselItem>
+          ))}
+          {/* New card */}
+          <CarouselItem>
+            <Game
+              variant="new"
+              breakEven="14"
+              payout="$100"
+              onClick={() => handleCardClick(undefined)}
+            />
+          </CarouselItem>
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 };

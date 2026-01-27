@@ -52,7 +52,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       asChild = false,
-      style,
       onClick,
       onMouseEnter,
       disabled,
@@ -62,14 +61,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Comp = asChild ? Slot : "button";
     const { playClick } = useAudio();
-
-    const combinedStyle =
-      !disabled &&
-      (variant === "secondary" || variant === "default" || variant === "muted")
-        ? {
-            ...style,
-          }
-        : style;
 
     const handleClick = React.useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,7 +75,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
-        style={combinedStyle}
         ref={ref}
         disabled={disabled}
         onClick={handleClick}

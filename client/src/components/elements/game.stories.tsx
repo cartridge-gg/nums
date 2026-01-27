@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { GameRow } from "./game-row";
+import { Game } from "./game";
 import { fn } from "storybook/test";
 
 const meta = {
-  title: "Elements/GameRow",
-  component: GameRow,
+  title: "Elements/Game",
+  component: Game,
   parameters: {
     layout: "padded",
   },
@@ -13,24 +13,34 @@ const meta = {
       value: "dark",
     },
   },
-} satisfies Meta<typeof GameRow>;
+} satisfies Meta<typeof Game>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    gameId: "12345",
-    maxPayout: "$100",
+    gameId: "1144",
+    score: 10,
+    breakEven: "14",
+    payout: "$100",
     onPlay: fn(),
   },
 };
 
-export const Continue: Story = {
+export const New: Story = {
   args: {
-    gameId: "67890",
-    score: 150,
-    maxPayout: "$250",
+    variant: "new",
+    gameId: "1144",
+    score: 10,
+    breakEven: "14",
+    payout: "$100",
+    onPlay: fn(),
+  },
+};
+
+export const Empty: Story = {
+  args: {
     onPlay: fn(),
   },
 };

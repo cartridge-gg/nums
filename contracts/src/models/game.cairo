@@ -51,15 +51,14 @@ pub impl GameImpl of GameTrait {
     }
 
     #[inline]
-    fn start(ref self: Game, number: u16, next: u16) {
+    fn start(ref self: Game, ref rand: Random) {
         // [Check] Game has not started yet
         self.assert_not_started();
-        // [Check] Numbers are valid
-        GameAssert::assert_valid_number(number);
-        GameAssert::assert_valid_number(next);
         // [Effect] Start game
-        self.number = number;
-        self.next_number = next;
+        let mut slots = array![];
+        self.number = self.next(@slots, ref rand);
+        slots.append(self.number);
+        self.next_number = self.next(@slots, ref rand);
     }
 
     #[inline]
@@ -403,7 +402,8 @@ mod tests {
         let mut game = GameTrait::new(
             1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
         );
-        game.start(1, 0b0000111);
+        let mut rand = RandomImpl::new_with_salt(1);
+        game.start(ref rand);
         game
     }
 

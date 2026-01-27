@@ -86,13 +86,9 @@ pub mod PlayableComponent {
                     slot_max: config.slot_max,
                     supply: nums_supply,
                 );
-                // [Effect] Create and setup game
-                // let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-                let mut rand = RandomImpl::new_with_salt(game_id);
-                let number = rand.between::<u16>(game.slot_min, game.slot_max);
-                let next = rand.between::<u16>(game.slot_min, game.slot_max);
                 // [Effect] Start game
-                game.start(number, next);
+                let mut rand = RandomImpl::new_with_salt(game_id);
+                game.start(ref rand);
                 store.set_game(@game);
                 // [Interaction] Update token metadata
                 collection.update(game_id.into());

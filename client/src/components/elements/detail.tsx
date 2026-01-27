@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 export interface DetailProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof detailVariants> {
+  VariantProps<typeof detailVariants> {
   title: string;
   content: string;
 }
@@ -35,7 +35,7 @@ export const Detail = ({
       >
         {title}
       </h3>
-      <p className="font-sans text-white-100 text-xs/5">{content}</p>
+      <p className="font-sans text-white-100 text-base/5">{content}</p>
     </div>
   );
 };

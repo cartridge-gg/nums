@@ -13,7 +13,7 @@ import { QuestReward } from "@/models/quest";
 
 export interface QuestProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof questVariants> {
+  VariantProps<typeof questVariants> {
   title: string;
   task: string;
   count: number;
@@ -143,7 +143,7 @@ export const Quest = ({
             alt={reward.name}
             className="w-6 h-6 rounded-full"
           />
-          <p className="text-xs font-sans px-2">{reward.description}</p>
+          <p className="text-base font-sans px-2">{reward.description}</p>
         </div>
       ))}
 

@@ -12,15 +12,16 @@ pub impl DailyFinisher of QuestTrait {
     }
 
     fn props(registry: ContractAddress) -> QuestProps {
-        let reward = RewardTrait::new(
-            "Quest Reward", "800 NUMS and an exclusive achievement", ICON(),
-        );
+        let rewards = array![
+            RewardTrait::new("Quest Reward", "800 NUMS", ICON()),
+            RewardTrait::new("Quest Reward", "Exclusive achievement", "fa-medal"),
+        ];
         let metadata = QuestMetadataTrait::new(
             name: "Daily Dominator",
             description: "You didn't just play the day. You conquered it.",
             icon: "fa-trophy",
             registry: registry,
-            rewards: array![reward].span(),
+            rewards: rewards.span(),
         );
         let tasks: Array<QuestTask> = array![
             QuestTaskTrait::new(Self::identifier(), 9, "Complete all the daily quests"),

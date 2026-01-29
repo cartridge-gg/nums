@@ -88,7 +88,7 @@ export const QuestScene = ({
       </div>
 
       {/* Desktop */}
-      <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full max-h-[573px]">
+      <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full max-h-[581px]">
         {/* Close button */}
         {onClose && (
           <Button

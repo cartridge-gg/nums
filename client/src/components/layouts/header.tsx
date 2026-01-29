@@ -72,6 +72,7 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
+        <Sound isMuted={isMuted} onClick={onToggleMute} />
         {onQuests && (
           <Button
             variant="muted"
@@ -135,7 +136,6 @@ export const Header = ({
             />
           </Button>
         )}
-        <Sound isMuted={isMuted} onClick={onToggleMute} />
         {username ? (
           <>
             {isMainnet ? (

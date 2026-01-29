@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CrownIcon, EyeIcon, RefreshIcon } from "@/components/icons";
 import { useId, useState, useEffect } from "react";
 import Confetti from "react-confetti";
+import { Link } from "react-router-dom";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -11,6 +12,7 @@ export interface GameOverProps
   payout: number;
   value: number;
   score: number;
+  newGameId: number;
   newGameCount: number;
   onSpecate: () => void;
   onPlayAgain: () => void;
@@ -36,6 +38,7 @@ export const GameOver = ({
   payout,
   value,
   score,
+  newGameId,
   newGameCount,
   onSpecate,
   onPlayAgain,
@@ -108,11 +111,7 @@ export const GameOver = ({
       {/* Home Button */}
       <div className="w-full md:w-auto flex flex-col md:flex-row gap-4 md:gap-8 items-stretch md:items-center">
         <Specate filterId={filterId} onClick={onSpecate} />
-        <Replay
-          filterId={filterId}
-          count={newGameCount}
-          onClick={onPlayAgain}
-        />
+        <Replay filterId={filterId} gameId={newGameId} count={newGameCount} />
       </div>
     </div>
   );
@@ -248,37 +247,41 @@ export const Specate = ({
 
 export const Replay = ({
   filterId,
+  gameId,
   count,
-  onClick,
   className,
 }: {
   filterId: string;
+  gameId: number;
   count: number;
-  onClick: () => void;
   className?: string;
 }) => {
   return (
     <Button
       variant="secondary"
       className={cn("h-12 gap-1", className)}
-      onClick={onClick}
       disabled={count === 0}
     >
-      <RefreshIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-      <p
-        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      <Link
+        to={`/game?id=${gameId}`}
+        className="w-full h-full flex items-center justify-center"
       >
-        Play Again
-      </p>
-      <p className="ml-2 px-3 h-8 rounded-full bg-black-700 flex items-center justify-center">
-        <span
-          className="text-[28px]/[19px] tracking-wide translate-y-0.5"
+        <RefreshIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+        <p
+          className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
-          {count}
-        </span>
-      </p>
+          Play Again
+        </p>
+        <p className="ml-2 px-3 h-8 rounded-full bg-black-700 flex items-center justify-center">
+          <span
+            className="text-[28px]/[19px] tracking-wide translate-y-0.5"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+          >
+            {count}
+          </span>
+        </p>
+      </Link>
     </Button>
   );
 };

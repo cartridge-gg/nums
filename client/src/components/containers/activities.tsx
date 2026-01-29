@@ -152,12 +152,14 @@ export const Activities = ({
         {sections.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p
-              className="text-white-300 text-lg/6 tracking-wider translate-y-0.5 w-1/2 text-center"
+              className="text-mauve-100 text-[22px]/7 tracking-wider translate-y-0.5 text-center"
               style={{
                 textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
               }}
             >
-              No activities available yet
+              You have not played
+              <br />
+              any games yet
             </p>
           </div>
         ) : (

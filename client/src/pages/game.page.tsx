@@ -123,12 +123,15 @@ export const Game = () => {
     const payout = game.reward;
     const value = payout * price;
     const score = game.level;
-    const newGameCount = games.filter((g) => !g.over).length;
+    const newGames = games.filter((g) => !g.over).sort((a, b) => b.id - a.id);
+    const newGameId = newGames[0]?.id || 0;
+    const newGameCount = newGames.length;
 
     return {
       payout,
       value,
       score,
+      newGameId,
       newGameCount,
     };
   }, [game, getNumsPrice, games]);
@@ -182,6 +185,7 @@ export const Game = () => {
             payout={gameOverData.payout}
             value={gameOverData.value}
             score={gameOverData.score}
+            newGameId={gameOverData.newGameId}
             newGameCount={gameOverData.newGameCount}
             onSpecate={handleSpecate}
             onPlayAgain={handlePlayAgain}

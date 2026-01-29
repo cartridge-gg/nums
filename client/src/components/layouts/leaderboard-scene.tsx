@@ -107,23 +107,21 @@ export const LeaderboardScene = ({
         style={{ scrollbarWidth: "none" }}
       >
         {/* Mobile header with close button */}
-        <div className="flex flex-col w-full items-start gap-2">
-          <div className="flex items-center justify-between w-full">
-            <Title />
-            {onClose && (
-              <div className="flex justify-end flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
-                  onClick={onClose}
-                >
-                  <CloseIcon size="md" />
-                </Button>
-              </div>
-            )}
-          </div>
-          <Ranges value={range} onValueChange={setRange} className="w-full" />
+        <div className="flex items-center justify-between w-full">
+          <Title />
+          {onClose && (
+            <div className="flex justify-end flex-shrink-0">
+              <Button
+                variant="ghost"
+                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+                onClick={onClose}
+              >
+                <CloseIcon size="md" />
+              </Button>
+            </div>
+          )}
         </div>
+        <Ranges value={range} onValueChange={setRange} className="w-full" />
         <Leaderboard
           rows={transformedRows}
           currentUserAddress={currentUserAddress}

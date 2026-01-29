@@ -9,7 +9,7 @@ export interface SelectionsProps
 }
 
 const selectionsVariants = cva(
-  "select-none flex flex-col gap-6 p-6 md:gap-12 md:p-12",
+  "h-full md:h-auto select-none flex flex-col gap-6 p-6 md:gap-12 md:p-12",
   {
     variants: {
       variant: {

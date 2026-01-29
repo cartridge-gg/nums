@@ -22,6 +22,8 @@ const regularIcons = [
   { name: "ArrowRightIcon", component: Icons.ArrowRightIcon },
   { name: "AsteriskIcon", component: Icons.AsteriskIcon },
   { name: "BrandIcon", component: Icons.BrandIcon },
+  { name: "CalendarDayIcon", component: Icons.CalendarDayIcon },
+  { name: "CalendarWeekIcon", component: Icons.CalendarWeekIcon },
   { name: "CartridgeIcon", component: Icons.CartridgeIcon },
   { name: "CheckIcon", component: Icons.CheckIcon },
   { name: "CheckboxCheckedIcon", component: Icons.CheckboxCheckedIcon },

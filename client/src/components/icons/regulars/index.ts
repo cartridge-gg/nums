@@ -2,6 +2,8 @@ export * from "./arrow-left";
 export * from "./arrow-right";
 export * from "./asterisk";
 export * from "./brand";
+export * from "./calendar-day";
+export * from "./calendar-week";
 export * from "./cartridge";
 export * from "./check";
 export * from "./checkbox-checked";

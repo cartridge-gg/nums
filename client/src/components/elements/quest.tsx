@@ -133,16 +133,25 @@ export const Quest = ({
 
       {/* Reward section */}
       {rewards.map((reward) => (
-        <div className="flex items-center rounded-full w-full bg-white-900 p-1">
-          <img
-            src={
-              reward.description.includes("NUMS")
-                ? "/assets/token.png"
-                : reward.icon
-            }
-            alt={reward.name}
-            className="w-6 h-6 rounded-full"
-          />
+        <div
+          key={reward.name}
+          className="flex items-center rounded-full w-full bg-white-900 p-1"
+        >
+          {reward.icon.includes("fa-") ? (
+            <div className="w-6 h-6 flex items-center justify-center p-0.5">
+              <div className={cn("w-4/5 h-4/5 fa-solid", reward.icon)} />
+            </div>
+          ) : (
+            <img
+              src={
+                reward.description.includes("NUMS")
+                  ? "/assets/token.png"
+                  : reward.icon
+              }
+              alt={reward.name}
+              className="w-6 h-6 rounded-full"
+            />
+          )}
           <p className="text-base font-sans px-2">{reward.description}</p>
         </div>
       ))}

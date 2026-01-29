@@ -51,7 +51,7 @@ export const QuestScene = ({
               <div className="flex justify-end flex-shrink-0">
                 <Button
                   variant="ghost"
-                  className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+                  className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
                   onClick={onClose}
                 >
                   <CloseIcon size="md" />

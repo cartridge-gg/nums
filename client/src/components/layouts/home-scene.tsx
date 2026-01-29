@@ -16,8 +16,8 @@ export interface HomeSceneProps
   gameId?: number;
   activeGamesProps: GamesProps;
   activitiesProps: ActivitiesProps;
-  onPracticeClick?: () => void;
-  onPurchaseClick?: () => void;
+  onPractice?: () => void;
+  onPurchase?: () => void;
 }
 
 const homeSceneVariants = cva(
@@ -42,8 +42,8 @@ export const HomeScene = ({
   gameId,
   activeGamesProps,
   activitiesProps,
-  onPracticeClick,
-  onPurchaseClick,
+  onPractice,
+  onPurchase,
   variant,
   className,
   ...props
@@ -56,7 +56,7 @@ export const HomeScene = ({
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         <Button
           variant="secondary"
-          onClick={onPracticeClick}
+          onClick={onPractice}
           className="h-12 w-full"
           disabled
         >
@@ -67,7 +67,7 @@ export const HomeScene = ({
         {!gameId ? (
           <Button
             variant="default"
-            onClick={onPurchaseClick}
+            onClick={onPurchase}
             className="h-12 w-full rounded-b-[32px] md:rounded-b-lg"
           >
             <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">

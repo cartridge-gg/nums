@@ -20,6 +20,8 @@ export interface GamesProps
     breakEven?: string | number;
     payout?: string | number;
   }>;
+  breakEven?: string | number;
+  payout?: string | number;
   gameId?: number;
   setGameId: (id: number) => void;
 }
@@ -41,6 +43,8 @@ const gamesVariants = cva(
 export const Games = ({
   games,
   gameId,
+  breakEven,
+  payout,
   setGameId,
   variant,
   className,
@@ -205,8 +209,8 @@ export const Games = ({
           <CarouselItem>
             <Game
               variant="new"
-              breakEven="14"
-              payout="$100"
+              breakEven={breakEven}
+              payout={payout}
               onClick={() => handleCardClick(undefined)}
             />
           </CarouselItem>

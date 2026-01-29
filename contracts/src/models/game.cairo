@@ -33,7 +33,6 @@ pub impl GameImpl of GameTrait {
         // [Return] Game
         Game {
             id: id,
-            over: false,
             claimed: false,
             level: 0,
             slot_count: slot_count,
@@ -45,6 +44,7 @@ pub impl GameImpl of GameTrait {
             selected_powers: 0,
             available_powers: 0,
             reward: 0,
+            over: 0,
             slots: 0,
             supply: supply.try_into().unwrap(),
         }
@@ -232,7 +232,13 @@ pub impl GameImpl of GameTrait {
         self.selectable_powers = 0;
         // [Effect] Update game over
         let slots = self.slots();
-        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
+        self
+            .over =
+                if self.is_over(@slots) && !self.is_rescuable(@slots) {
+                    starknet::get_block_timestamp()
+                } else {
+                    self.over
+                };
     }
 
     /// Applies a power to the game.
@@ -254,7 +260,13 @@ pub impl GameImpl of GameTrait {
         power.apply(ref self, ref rand);
         // [Effect] Update game over
         let slots = self.slots();
-        self.over = self.is_over(@slots) && !self.is_rescuable(@slots);
+        self
+            .over =
+                if self.is_over(@slots) && !self.is_rescuable(@slots) {
+                    starknet::get_block_timestamp()
+                } else {
+                    self.over
+                };
     }
 
     /// Updates the game state.
@@ -280,9 +292,15 @@ pub impl GameImpl of GameTrait {
         // - number cannot be placed
         // - powers cannot save the game
         // - no powers can be selected
-        self.over = self.is_over(@slots)
-            && !self.is_rescuable(@slots)
-            && self.selectable_powers == 0;
+        self
+            .over =
+                if self.is_over(@slots)
+                    && !self.is_rescuable(@slots)
+                    && self.selectable_powers == 0 {
+                    starknet::get_block_timestamp()
+                } else {
+                    self.over
+                };
         // [Return] Reward
         self.reward(self.supply.into(), target)
     }
@@ -376,7 +394,7 @@ pub impl GameAssert of AssertTrait {
     /// Asserts game is not over.
     #[inline]
     fn assert_not_over(self: @Game) {
-        assert(!*self.over, errors::GAME_IS_OVER);
+        assert(self.over == @0, errors::GAME_IS_OVER);
     }
 
     /// Asserts that the game has started.
@@ -416,7 +434,7 @@ mod tests {
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
         assert(game.reward == 0, 'Initial reward should be 0');
-        assert(!game.over, 'Game is over initially');
+        assert(game.over == 0, 'Game is over initially');
     }
 
     #[test]

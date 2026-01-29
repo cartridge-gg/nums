@@ -33,7 +33,6 @@ pub struct Starterpack {
 pub struct Game {
     #[key]
     pub id: u64,
-    pub over: bool,
     pub claimed: bool,
     pub level: u8,
     pub slot_count: u8,
@@ -45,6 +44,7 @@ pub struct Game {
     pub selected_powers: u16,
     pub available_powers: u16,
     pub reward: u64,
+    pub over: u64,
     pub slots: felt252,
     pub supply: felt252,
 }

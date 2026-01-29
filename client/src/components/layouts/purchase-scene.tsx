@@ -10,6 +10,7 @@ export interface PurchaseSceneProps
     VariantProps<typeof purchaseSceneVariants> {
   purchaseProps: PurchaseProps;
   onClose?: () => void;
+  onConnect?: () => void;
   onPurchase?: () => void;
 }
 
@@ -31,6 +32,7 @@ const purchaseSceneVariants = cva(
 export const PurchaseScene = ({
   purchaseProps,
   onClose,
+  onConnect,
   onPurchase,
   variant,
   className,
@@ -74,18 +76,34 @@ export const PurchaseScene = ({
             maxPayout="29,000 NUMS ~ $25.12"
           />
         </div>
-        <Button
-          variant="default"
-          className="w-full min-h-12"
-          onClick={onPurchase}
-        >
-          <p
-            className="text-[28px]/[15px] tracking-wide translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        {onConnect ? (
+          <Button
+            variant="default"
+            className="w-full min-h-12"
+            onClick={onConnect}
           >
-            Purchase
-          </p>
-        </Button>
+            <p
+              className="text-[28px]/[15px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Connect
+            </p>
+          </Button>
+        ) : (
+          <Button
+            variant="default"
+            className="w-full min-h-12"
+            onClick={onPurchase}
+            disabled={!onPurchase}
+          >
+            <p
+              className="text-[28px]/[15px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Purchase
+            </p>
+          </Button>
+        )}
       </div>
 
       {/* Desktop */}
@@ -111,18 +129,34 @@ export const PurchaseScene = ({
                 breakEven="14"
                 maxPayout="29,000 NUMS ~ $25.12"
               />
-              <Button
-                variant="default"
-                className="w-full min-h-12"
-                onClick={onPurchase}
-              >
-                <p
-                  className="text-[28px]/[15px] tracking-wide translate-y-0.5"
-                  style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              {onConnect ? (
+                <Button
+                  variant="default"
+                  className="w-full min-h-12"
+                  onClick={onConnect}
                 >
-                  Purchase
-                </p>
-              </Button>
+                  <p
+                    className="text-[28px]/[15px] tracking-wide translate-y-0.5"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+                  >
+                    Connect
+                  </p>
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  className="w-full min-h-12"
+                  onClick={onPurchase}
+                  disabled={!onPurchase}
+                >
+                  <p
+                    className="text-[28px]/[15px] tracking-wide translate-y-0.5"
+                    style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+                  >
+                    Purchase
+                  </p>
+                </Button>
+              )}
             </div>
           </div>
         </div>

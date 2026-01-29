@@ -133,8 +133,8 @@ export interface RawGame {
   };
   over: {
     type: "primitive";
-    type_name: "bool";
-    value: boolean;
+    type_name: "u64";
+    value: string;
     key: boolean;
   };
   claimed: {

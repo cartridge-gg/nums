@@ -36,9 +36,9 @@ export const Default: Story = {
       chartValues: sampleChartValues,
       chartAbscissa: 10,
       numsPrice: 0.003,
-      onPurchase: fn(),
     },
     onClose: fn(),
+    onConnect: fn(),
     onPurchase: fn(),
   },
 };

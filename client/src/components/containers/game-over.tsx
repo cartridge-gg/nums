@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { CrownIcon, EyeIcon, RefreshIcon } from "@/components/icons";
+import { AddIcon, CrownIcon, EyeIcon, RefreshIcon } from "@/components/icons";
 import { useId, useState, useEffect } from "react";
 import Confetti from "react-confetti";
 import { Link } from "react-router-dom";
@@ -15,7 +15,6 @@ export interface GameOverProps
   newGameId: number;
   newGameCount: number;
   onSpecate: () => void;
-  onPlayAgain: () => void;
   onPurchase: () => void;
 }
 
@@ -41,7 +40,6 @@ export const GameOver = ({
   newGameId,
   newGameCount,
   onSpecate,
-  onPlayAgain,
   onPurchase,
   variant,
   className,
@@ -111,7 +109,11 @@ export const GameOver = ({
       {/* Home Button */}
       <div className="w-full md:w-auto flex flex-col md:flex-row gap-4 md:gap-8 items-stretch md:items-center">
         <Specate filterId={filterId} onClick={onSpecate} />
-        <Replay filterId={filterId} gameId={newGameId} count={newGameCount} />
+        {newGameCount > 0 ? (
+          <Replay filterId={filterId} gameId={newGameId} count={newGameCount} />
+        ) : (
+          <NewGame filterId={filterId} onClick={onPurchase} />
+        )}
       </div>
     </div>
   );
@@ -258,7 +260,7 @@ export const Replay = ({
 }) => {
   return (
     <Button
-      variant="secondary"
+      variant="default"
       className={cn("h-12 gap-1", className)}
       disabled={count === 0}
     >
@@ -282,6 +284,32 @@ export const Replay = ({
           </span>
         </p>
       </Link>
+    </Button>
+  );
+};
+
+export const NewGame = ({
+  filterId,
+  onClick,
+  className,
+}: {
+  filterId: string;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <Button
+      variant="default"
+      className={cn("h-12 gap-1", className)}
+      onClick={onClick}
+    >
+      <AddIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+      <p
+        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        New Game
+      </p>
     </Button>
   );
 };

@@ -12,6 +12,7 @@ import { useGames } from "@/hooks/games";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PowerUpProps } from "@/components/elements/power-up";
+import { Game as GameModel } from "@/models/game";
 
 export const Game = () => {
   const { set, select, apply } = useActions();
@@ -123,7 +124,9 @@ export const Game = () => {
     const payout = game.reward;
     const value = payout * price;
     const score = game.level;
-    const newGames = games.filter((g) => !g.over).sort((a, b) => b.id - a.id);
+    const newGames = GameModel.deduplicate([game, ...games])
+      .filter((g) => !g.over)
+      .sort((a, b) => b.id - a.id);
     const newGameId = newGames[0]?.id || 0;
     const newGameCount = newGames.length;
 
@@ -139,10 +142,6 @@ export const Game = () => {
   const handleSpecate = useCallback(() => {
     setShowGameOver(false);
   }, [setShowGameOver]);
-
-  const handlePlayAgain = useCallback(() => {
-    openPurchaseScene();
-  }, [openPurchaseScene]);
 
   const handlePurchase = useCallback(() => {
     openPurchaseScene();
@@ -188,7 +187,6 @@ export const Game = () => {
             newGameId={gameOverData.newGameId}
             newGameCount={gameOverData.newGameCount}
             onSpecate={handleSpecate}
-            onPlayAgain={handlePlayAgain}
             onPurchase={handlePurchase}
           />
         </div>

@@ -266,6 +266,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 chartAbscissa,
                 numsPrice,
               }}
+              onConnect={
+                account?.address ? undefined : headerData.handleConnect
+              }
               onPurchase={handlePurchase}
               onClose={() => setShowPurchaseScene(false)}
               className="h-full"

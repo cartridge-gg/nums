@@ -116,7 +116,7 @@ const fetchActivities = async (playerAddress: string): Promise<Activity[]> => {
       score,
       payout: calculatePayout(score),
       to: `/game?id=${gameId}`,
-      timestamp: Math.floor(timestamp / 1000), // Convert from milliseconds to seconds if needed
+      timestamp,
     };
   });
 };

@@ -35,7 +35,6 @@ export const Default: Story = {
     newGameId: 1,
     newGameCount: 5,
     onSpecate: fn(),
-    onPlayAgain: fn(),
     onPurchase: fn(),
   },
 };
@@ -48,7 +47,6 @@ export const Empty: Story = {
     newGameId: 0,
     newGameCount: 0,
     onSpecate: fn(),
-    onPlayAgain: fn(),
     onPurchase: fn(),
   },
 };

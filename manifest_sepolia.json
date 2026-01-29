@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x25de742cfc2b9887d5008f8eef2d14c55ed1c3b88771ead8b4b736a9a01bc5f",
-    "seed": "nums-v1.0.29",
+    "address": "0x3bd62173c1c2e908552a8bf6ba7547ac44b8d5a153e0789f2f7080089b4bf1",
+    "seed": "nums-v1.0.30",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x581b68a9268be9c278321a79080d6d1ccc733af44ff8d9046dd9d2ba8d34ad8",
-      "class_hash": "0x4794cda37e31607945fdac11fee816d57acd2d5e20b37aab6e56699b9c7ea3f",
+      "address": "0x5161597331207b648140048f8fab0144f9d2b8da1aa8197ddacc43492ff8b1b",
+      "class_hash": "0x2ef3e71a8b21ab037d183b5d5ed7ac04cdbbbadaa6fdecbd39c07e10e49f819",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x6eb180628fd7ff69716545aa429e2d39f3471451d26f62cad5c8b72a48b9250",
-      "class_hash": "0x28726b7eb85b26ec0efb250f5857ce0a46cff8624b25ff3e7cf7a55a312eb1f",
+      "address": "0x77c4349b1d19cf99df58c9765d3b5eb05558343c590ec5ba50fa66f52e54e3",
+      "class_hash": "0x4faaaf7ead0efe6aed142c703d2b9e67bd14f997b07d4234253a6de9a44932c",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -78,8 +78,8 @@
       ]
     },
     {
-      "address": "0x5d65c20b16bb7386c1cf90cb8402a57aedfcc039219da3bbfe6bc21c2574daa",
-      "class_hash": "0x3e8bde4f8067c6ef9899ff749359e53ce9ccca34123a872812bf1f00b732061",
+      "address": "0x1d53aba975a5626d94107f446226f63bd697b620d1779a8440ccfd422568286",
+      "class_hash": "0x2fb740b6dcd108ff32f1802b74969e844a3677349982ab232f0fd2ef14900a",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -88,7 +88,7 @@
         "0x0",
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
-        "0xF423F",
+        "0x1E847F",
         "0x6765C793FA10079D0000000"
       ],
       "tag": "NUMS-Setup",
@@ -285,11 +285,6 @@
           "key": true
         },
         {
-          "name": "over",
-          "type": "core::bool",
-          "key": false
-        },
-        {
           "name": "claimed",
           "type": "core::bool",
           "key": false
@@ -345,6 +340,11 @@
           "key": false
         },
         {
+          "name": "over",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
           "name": "slots",
           "type": "core::felt252",
           "key": false
@@ -355,7 +355,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x1bcf6d5e711f1c6cd201c8e932a5d1c9e59cf34d93d7afd1ff7b45dedd81dca",
+      "class_hash": "0x29e854e8060a3d6c551c96e6d46132db4ed83863a4ada1bc8c1e109d53cd3ec",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -3493,9 +3493,67 @@
           "type": "core::integer::u64"
         },
         {
-          "name": "over",
+          "name": "claimed",
           "type": "core::bool"
         },
+        {
+          "name": "level",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "slot_count",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "slot_min",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "slot_max",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "number",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "next_number",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "selectable_powers",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "selected_powers",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "available_powers",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "reward",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "over",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "slots",
+          "type": "core::felt252"
+        },
+        {
+          "name": "supply",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "nums::models::index::GameValue",
+      "members": [
         {
           "name": "claimed",
           "type": "core::bool"
@@ -3541,65 +3599,7 @@
           "type": "core::integer::u64"
         },
         {
-          "name": "slots",
-          "type": "core::felt252"
-        },
-        {
-          "name": "supply",
-          "type": "core::felt252"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::GameValue",
-      "members": [
-        {
           "name": "over",
-          "type": "core::bool"
-        },
-        {
-          "name": "claimed",
-          "type": "core::bool"
-        },
-        {
-          "name": "level",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "slot_count",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "slot_min",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "slot_max",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "number",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "next_number",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "selectable_powers",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "selected_powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "available_powers",
-          "type": "core::integer::u16"
-        },
-        {
-          "name": "reward",
           "type": "core::integer::u64"
         },
         {

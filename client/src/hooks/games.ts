@@ -13,7 +13,7 @@ import type { RawGame } from "@/models";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGameQuery = (gameIds: number[]) => {
+const getGamesQuery = (gameIds: number[]) => {
   const clauses = OrComposeClause(
     gameIds.map((id) =>
       MemberClause(
@@ -77,7 +77,7 @@ export const useGames = (gameIds: number[]) => {
     subscriptionRef.current = null;
 
     // Create queries
-    const query = getGameQuery(gameIds);
+    const query = getGamesQuery(gameIds);
 
     // Fetch initial data
     await Promise.all([

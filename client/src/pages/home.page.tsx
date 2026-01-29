@@ -1,28 +1,18 @@
 import { HomeScene } from "@/components/layouts/home-scene";
-import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
-import { useActivities } from "@/hooks/activities";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { Game } from "@/models/game";
 
 export const Home = () => {
-  const { account } = useAccount();
   const { config } = useEntities();
   const { getNumsPrice } = usePrices();
   const { gameIds } = useAssets();
   const { games } = useGames(gameIds);
-  const { data: allActivities = [] } = useActivities(account?.address);
   const { openPurchaseScene } = usePurchaseModal();
-
-  // Filter activities to only include games that are over
-  const activities = useMemo(() => {
-    const overGameIds = new Set(games.filter((g) => g.over).map((g) => g.id));
-    return allActivities.filter((activity) => overGameIds.has(activity.gameId));
-  }, [allActivities, games]);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const playPrice = 1.0; // TODO: Get actual play price
@@ -78,6 +68,20 @@ export const Home = () => {
     return breakevenIndex !== -1 ? breakevenIndex + 1 : 20;
   }, [chartValues, playPrice]);
 
+  const activities = useMemo(() => {
+    const price = parseFloat(getNumsPrice() || "0.003");
+    return games
+      .filter((game) => !!game.over)
+      .map((game) => ({
+        gameId: game.id,
+        score: game.level,
+        breakEven: chartAbscissa.toString(),
+        payout: `+$${(game.reward * price).toFixed(2)}`,
+        to: `/game/${game.id}`,
+        timestamp: game.over,
+      }));
+  }, [games]);
+
   // Transform games for Games component (only non-over games)
   const activeGamesData = useMemo(() => {
     // Get max payout from the last value of chartValues (level 20 cumulative reward)
@@ -121,14 +125,14 @@ export const Home = () => {
       gameId={gameId}
       activeGamesProps={{
         games: activeGamesData,
+        breakEven: chartAbscissa.toString(),
+        payout: `$${chartValues[chartValues.length - 1].toFixed(2)}`,
         gameId,
         setGameId,
       }}
-      activitiesProps={{
-        activities,
-      }}
-      onPracticeClick={handlePracticeClick}
-      onPurchaseClick={handlePurchaseClick}
+      activitiesProps={{ activities }}
+      onPractice={handlePracticeClick}
+      onPurchase={handlePurchaseClick}
     />
   );
 };

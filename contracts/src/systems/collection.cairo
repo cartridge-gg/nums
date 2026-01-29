@@ -238,8 +238,8 @@ pub mod Collection {
                 game_id: game.id,
                 game_number: game.number,
                 game_level: game.level,
-                game_completed: game.over && game.level == game.slot_count,
-                game_over: game.over,
+                game_completed: game.over != 0 && game.level == game.slot_count,
+                game_over: game.over != 0,
             )
         }
     }

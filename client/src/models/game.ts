@@ -18,7 +18,7 @@ export class Game {
 
   constructor(
     public id: number,
-    public over: boolean,
+    public over: number,
     public claimed: boolean,
     public level: number,
     public slot_count: number,
@@ -61,7 +61,7 @@ export class Game {
   static parse(data: RawGame) {
     const props = {
       id: Number(data.id.value),
-      over: !!data.over.value,
+      over: Number(data.over.value),
       claimed: !!data.claimed.value,
       level: Number(data.level.value),
       slot_count: Number(data.slot_count.value),
@@ -117,10 +117,6 @@ export class Game {
 
   hasStarted() {
     return this.number !== 0;
-  }
-
-  public static totalReward(level: number): number {
-    return REWARDS.slice(0, level + 1).reduce((acc, curr) => acc + curr, 0);
   }
 
   /**

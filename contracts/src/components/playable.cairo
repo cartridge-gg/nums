@@ -252,7 +252,7 @@ pub mod PlayableComponent {
 
             // [Event] Emit leaderboard score if game is over
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -359,7 +359,7 @@ pub mod PlayableComponent {
             // [Event] Emit leaderboard score if game is over
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -404,7 +404,7 @@ pub mod PlayableComponent {
             // [Event] Emit leaderboard score if game is over
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(

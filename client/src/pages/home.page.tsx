@@ -77,7 +77,7 @@ export const Home = () => {
         score: game.level,
         breakEven: chartAbscissa.toString(),
         payout: `+$${(game.reward * price).toFixed(2)}`,
-        to: `/game/${game.id}`,
+        to: `/game?id=${game.id}`,
         timestamp: game.over,
       }));
   }, [games]);

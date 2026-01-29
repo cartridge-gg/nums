@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 export interface DetailProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof detailVariants> {
+    VariantProps<typeof detailVariants> {
   title: string;
   content: string;
 }

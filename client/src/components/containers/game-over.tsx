@@ -1,24 +1,29 @@
-import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { Stat, type StatProps } from "@/components/elements";
-import { HomeIcon } from "@/components/icons";
-import { useId } from "react";
+import { CrownIcon, EyeIcon, RefreshIcon } from "@/components/icons";
+import { useId, useState, useEffect } from "react";
+import Confetti from "react-confetti";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gameOverVariants> {
-  stats: StatProps[];
+  payout: number;
+  value: number;
+  score: number;
+  newGameCount: number;
+  onSpecate: () => void;
+  onPlayAgain: () => void;
+  onPurchase: () => void;
 }
 
 const gameOverVariants = cva(
-  "select-none relative flex flex-col items-center gap-6 p-6 md:gap-12 md:p-12 h-full w-full md:justify-center",
+  "select-none relative flex flex-col items-center p-6 gap-6 md:gap-16 h-full w-full justify-center",
   {
     variants: {
       variant: {
         default:
-          "rounded-lg bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]",
+          "rounded-3xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]",
       },
     },
     defaultVariants: {
@@ -28,61 +33,252 @@ const gameOverVariants = cva(
 );
 
 export const GameOver = ({
-  stats,
+  payout,
+  value,
+  score,
+  newGameCount,
+  onSpecate,
+  onPlayAgain,
+  onPurchase,
   variant,
   className,
   ...props
 }: GameOverProps) => {
   const filterId = useId();
-  const navigate = useNavigate();
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, []);
 
   return (
     <div className={cn(gameOverVariants({ variant, className }))} {...props}>
-      {/* Title */}
-      <h2
-        className="font-primary text-[64px]/[44px] md:text-[136px]/[92px] tracking-wider uppercase translate-y-1"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        Game Over!
-      </h2>
+      {/* Confetti */}
+      {windowDimensions.width > 0 && windowDimensions.height > 0 && (
+        <Confetti
+          width={windowDimensions.width}
+          height={windowDimensions.height}
+          recycle={false}
+          numberOfPieces={200}
+        />
+      )}
 
-      {/* Stats */}
-      <div className="flex-1 md:flex-none w-full flex flex-col items-center gap-4 md:gap-6">
-        {stats.map((stat, index) => (
-          <Stat key={index} {...stat} className="w-full md:max-w-[320px]" />
-        ))}
+      {/* Filters */}
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow
+              dx="2"
+              dy="2"
+              stdDeviation="0"
+              floodColor="rgba(0, 0, 0, 0.24)"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Title */}
+      <Header
+        filterId={filterId}
+        className="absolute top-0 left-1/2 -translate-x-1/2"
+      />
+
+      {/* Payout and Score */}
+      <div className="w-full grow md:grow-0 flex flex-col justify-center items-center gap-10 md:gap-6">
+        <Payout payout={payout} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-6">
+          <Value value={value} className="flex md:hidden" />
+          <Score score={score} />
+          <Value value={value} className="hidden md:flex px-10" />
+        </div>
       </div>
 
       {/* Home Button */}
-      <Button
-        variant="secondary"
-        className="w-full md:w-auto gap-1 h-[52px]"
-        onClick={() => navigate("/")}
-      >
-        <svg width="0" height="0" style={{ position: "absolute" }}>
-          <defs>
-            <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow
-                dx="2"
-                dy="2"
-                stdDeviation="0"
-                floodColor="rgba(0, 0, 0, 0.24)"
-              />
-            </filter>
-          </defs>
-        </svg>
-        <HomeIcon
-          variant="solid"
-          size="lg"
-          style={{ filter: `url(#${filterId})` }}
+      <div className="w-full md:w-auto flex flex-col md:flex-row gap-4 md:gap-8 items-stretch md:items-center">
+        <Specate filterId={filterId} onClick={onSpecate} />
+        <Replay
+          filterId={filterId}
+          count={newGameCount}
+          onClick={onPlayAgain}
         />
-        <p
-          className="text-[28px]/[15px] tracking-wide px-1 translate-y-0.5"
-          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-        >
-          Home
-        </p>
-      </Button>
+      </div>
     </div>
+  );
+};
+
+const Header = ({
+  filterId,
+  className,
+}: {
+  filterId: string;
+  className?: string;
+}) => {
+  return (
+    <div
+      className={cn(
+        "h-12 md:h-[88px] flex items-center justify-between gap-2 md:gap-2.5 px-5 md:px-8 bg-mauve-700 rounded-b-[20px] md:rounded-b-[32px] text-mauve-100",
+        className,
+      )}
+    >
+      <strong
+        className="text-[36px]/[24px] md:text-[64px]/[44px] tracking-wide uppercase translate-y-0.5 md:translate-y-1 font-thin"
+        style={{ textShadow: "4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Game
+      </strong>
+      <CrownIcon
+        className="text-mauve-500"
+        size="lg"
+        style={{ filter: `url(#${filterId})` }}
+      />
+      <strong
+        className="text-[36px]/[24px] md:text-[64px]/[44px] tracking-wide uppercase translate-y-0.5 md:translate-y-1 font-thin"
+        style={{ textShadow: "4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Over
+      </strong>
+    </div>
+  );
+};
+
+const Payout = ({
+  payout,
+  className,
+}: {
+  payout: number;
+  className?: string;
+}) => {
+  return (
+    <div className={cn("flex flex-col items-center gap-4", className)}>
+      <p
+        className="text-[28px]/[19px] tracking-wide translate-y-0.5 text-yellow-400"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Payout
+      </p>
+      <p
+        className="text-[64px]/[44px] md:text-[136px]/[92px] text-center tracking-wide translate-y-1 md:translate-y-2 text-yellow-100 font-thin"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        <span className="hidden md:inline">{`${payout.toLocaleString()} NUMS`}</span>
+        <span className="block md:hidden">{`${payout.toLocaleString()}`}</span>
+        <span className="text-[36px]/[24px] text-center tracking-wide translate-y-0.5 block md:hidden">
+          NUMS
+        </span>
+      </p>
+    </div>
+  );
+};
+
+const Score = ({ score, className }: { score: number; className?: string }) => {
+  return (
+    <div className={cn("flex flex-col items-center gap-4", className)}>
+      <p
+        className="text-[28px]/[19px] tracking-wide translate-y-0.5 text-mauve-400"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Score
+      </p>
+      <p
+        className="text-[64px]/[44px] md:text-[96px]/[65px] tracking-wide translate-y-1 md:translate-y-2 text-mauve-100 font-thin"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        {score.toLocaleString()}
+      </p>
+    </div>
+  );
+};
+
+const Value = ({ value, className }: { value: number; className?: string }) => {
+  return (
+    <div className={cn("flex flex-col items-center gap-4", className)}>
+      <p
+        className="text-[28px]/[19px] tracking-wide translate-y-0.5 text-green-400"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        USD Value
+      </p>
+      <p
+        className="text-[64px]/[44px] md:text-[96px]/[65px] tracking-wide translate-y-1 md:translate-y-2 text-green-100 font-thin relative before:content-['~'] before:absolute before:right-full before:mr-2 before:leading-[inherit] before:text-green-400"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        {`$${value.toFixed(2)}`}
+      </p>
+    </div>
+  );
+};
+
+export const Specate = ({
+  filterId,
+  onClick,
+  className,
+}: {
+  filterId: string;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <Button
+      variant="secondary"
+      className={cn("h-12 gap-1", className)}
+      onClick={onClick}
+    >
+      <EyeIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+      <p
+        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Specate
+      </p>
+    </Button>
+  );
+};
+
+export const Replay = ({
+  filterId,
+  count,
+  onClick,
+  className,
+}: {
+  filterId: string;
+  count: number;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <Button
+      variant="secondary"
+      className={cn("h-12 gap-1", className)}
+      onClick={onClick}
+      disabled={count === 0}
+    >
+      <RefreshIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+      <p
+        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Play Again
+      </p>
+      <p className="ml-2 px-3 h-8 rounded-full bg-black-700 flex items-center justify-center">
+        <span
+          className="text-[28px]/[19px] tracking-wide translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          {count}
+        </span>
+      </p>
+    </Button>
   );
 };

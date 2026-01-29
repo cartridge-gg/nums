@@ -13,7 +13,7 @@ import { QuestReward } from "@/models/quest";
 
 export interface QuestProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof questVariants> {
+    VariantProps<typeof questVariants> {
   title: string;
   task: string;
   count: number;

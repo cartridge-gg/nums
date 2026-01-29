@@ -8,7 +8,7 @@ export interface StageInfoProps
     VariantProps<typeof stageInfoVariants> {}
 
 const stageInfoVariants = cva(
-  "select-none relative flex justify-center items-center rounded p-3",
+  "select-none relative flex justify-center items-center rounded-lg p-3",
   {
     variants: {
       variant: {

@@ -146,7 +146,7 @@ export const Activities = ({
 
       {/* Activities list */}
       <div
-        className="grow bg-black-900 border-2 border-black-800 rounded-lg flex flex-col p-4 gap-4 overflow-y-auto"
+        className="grow bg-black-900 border-2 border-black-800 rounded-xl flex flex-col p-4 gap-4 overflow-y-auto"
         style={{ scrollbarWidth: "none" }}
       >
         {sections.length === 0 ? (

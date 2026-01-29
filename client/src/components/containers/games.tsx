@@ -123,7 +123,7 @@ export const Games = ({
       {...props}
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-3">
           <div className="min-h-8 flex items-center">
             <h2
@@ -137,12 +137,12 @@ export const Games = ({
           </div>
           <div className="h-8 flex justify-center items-center px-3 bg-black-800 rounded-full">
             <span
-              className="text-[22px]/[15px] tracking-wider translate-y-0.5"
+              className="text-[22px]/[15px] md:text-[28px]/[19px] tracking-wide translate-y-0.5"
               style={{
                 textShadow: "1px 1px 0px rgba(0, 0, 0, 0.25)",
               }}
             >
-              {games.length}
+              {games.length ? games.length : "None"}
             </span>
           </div>
         </div>

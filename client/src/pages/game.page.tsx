@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { GameScene } from "@/components/layouts/game-scene";
 import { Selections } from "@/components/containers/selections";
@@ -6,14 +6,19 @@ import { GameOver } from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
 import { useGame } from "@/hooks/game";
 import { usePrices } from "@/context/prices";
+import { usePurchaseModal } from "@/context/purchase-modal";
+import { useAssets } from "@/hooks/assets";
+import { useGames } from "@/hooks/games";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PowerUpProps } from "@/components/elements/power-up";
-import type { StatProps } from "@/components/elements/stat";
 
 export const Game = () => {
   const { set, select, apply } = useActions();
   const { getNumsPrice } = usePrices();
+  const { openPurchaseScene } = usePurchaseModal();
+  const { gameIds } = useAssets();
+  const { games } = useGames(gameIds);
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
 
@@ -109,25 +114,36 @@ export const Game = () => {
     }
   }, [game?.over]);
 
-  // Calculate stats for GameOver
-  const gameOverStats = useMemo<StatProps[]>(() => {
-    if (!game) return [];
+  // Calculate GameOver props
+  const gameOverData = useMemo(() => {
+    if (!game) return null;
 
     const numsPrice = getNumsPrice();
     const price = numsPrice ? parseFloat(numsPrice) : 0.003; // Default fallback
-    const rewardInUsd = (game.reward / 1e18) * price;
+    const payout = game.reward;
+    const value = payout * price;
+    const score = game.level;
+    const newGameCount = games.filter((g) => !g.over).length;
 
-    return [
-      {
-        title: "score",
-        content: game.level.toString(),
-      },
-      {
-        title: "earned",
-        content: `${(game.reward / 1e18).toLocaleString()} Nums ~ $${rewardInUsd.toFixed(2)}`,
-      },
-    ];
-  }, [game, getNumsPrice]);
+    return {
+      payout,
+      value,
+      score,
+      newGameCount,
+    };
+  }, [game, getNumsPrice, games]);
+
+  const handleSpecate = useCallback(() => {
+    setShowGameOver(false);
+  }, [setShowGameOver]);
+
+  const handlePlayAgain = useCallback(() => {
+    openPurchaseScene();
+  }, [openPurchaseScene]);
+
+  const handlePurchase = useCallback(() => {
+    openPurchaseScene();
+  }, [openPurchaseScene]);
 
   // Show loading state if game ID is invalid or game is not loaded
   if (!gameId || !game) {
@@ -160,9 +176,17 @@ export const Game = () => {
         </>
       )}
       {/* Overlay and GameOver modal when game is over */}
-      {showGameOver && gameOverStats.length > 0 && (
+      {showGameOver && gameOverData && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
-          <GameOver stats={gameOverStats} />
+          <GameOver
+            payout={gameOverData.payout}
+            value={gameOverData.value}
+            score={gameOverData.score}
+            newGameCount={gameOverData.newGameCount}
+            onSpecate={handleSpecate}
+            onPlayAgain={handlePlayAgain}
+            onPurchase={handlePurchase}
+          />
         </div>
       )}
     </>

@@ -25,7 +25,7 @@ const bannerVariants = cva(
           "bg-gradient-to-t from-[rgba(4,6,3,1)] to-[rgba(12,24,6,1)]",
       },
       size: {
-        md: "h-[75px] md:h-24 w-full",
+        md: "h-16 md:h-24 w-full",
       },
     },
     defaultVariants: {
@@ -96,7 +96,7 @@ export const Banner = ({ variant, size, className, ...props }: BannerProps) => {
           >
             How to play!
           </strong>
-          <div className="align-middle relative flex flex-col md:flex-row gap-2 md:gap-6 whitespace-nowrap">
+          <div className="align-middle relative flex flex-col md:flex-row gap-1.5 md:gap-6 whitespace-nowrap">
             <div className="relative bg-black-800 px-2 md:px-3 py-1 md:py-2 flex gap-4 rounded-lg shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]">
               <p
                 className="text-[18px]/[12px] md:text-[28px]/[19px] tracking-wide translate-y-1 md:translate-y-[2.5px] uppercase"

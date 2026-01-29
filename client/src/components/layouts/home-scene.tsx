@@ -21,7 +21,7 @@ export interface HomeSceneProps
 }
 
 const homeSceneVariants = cva(
-  "select-none flex flex-col gap-4 md:gap-6 h-full w-full max-w-[800px] p-6 pb-8 md:p-0 md:pb-0 overflow-hidden",
+  "select-none flex flex-col gap-4 md:gap-6 h-full w-full max-w-[800px] p-2 py-4 md:p-0 md:py-0 overflow-hidden",
   {
     variants: {
       variant: {
@@ -52,12 +52,12 @@ export const HomeScene = ({
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <Banners />
       <Games {...activeGamesProps} />
-      <Activities {...activitiesProps} className="grow overflow-hidden" />
-      <div className="flex flex-col md:flex-row gap-3 md:gap-6">
+      <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
+      <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         <Button
           variant="secondary"
           onClick={onPracticeClick}
-          className="w-full"
+          className="h-12 w-full"
           disabled
         >
           <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
@@ -68,7 +68,7 @@ export const HomeScene = ({
           <Button
             variant="default"
             onClick={onPurchaseClick}
-            className="w-full"
+            className="h-12 w-full rounded-b-[32px] md:rounded-b-lg"
           >
             <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
               New Game
@@ -77,7 +77,7 @@ export const HomeScene = ({
         ) : (
           <Button
             variant="default"
-            className="w-full bg-green-100 hover:bg-green-200"
+            className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
           >
             <Link
               to={`/game?id=${gameId}`}

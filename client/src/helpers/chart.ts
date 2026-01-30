@@ -62,19 +62,6 @@ export const ChartHelper = {
     const maxPayoutNums = cumulativeRewards[cumulativeRewards.length - 1] || 0;
     const maxPayout = maxPayoutNums * numsPrice;
 
-    console.log({
-      currentSupply,
-      targetSupply,
-      slotCount,
-      numsPrice,
-      playPrice,
-      chartValues,
-      chartAbscissa,
-      cumulativeRewards,
-      maxPayout,
-      maxPayoutNums,
-    });
-
     return {
       chartValues,
       chartAbscissa,

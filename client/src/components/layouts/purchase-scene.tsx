@@ -3,11 +3,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { CloseIcon } from "@/components/icons/transparents";
 import { Purchase, type PurchaseProps } from "@/components/containers/purchase";
-import { Details } from "../containers";
+import { Details, DetailsProps } from "../containers";
 
 export interface PurchaseSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof purchaseSceneVariants> {
+  detailsProps: DetailsProps;
   purchaseProps: PurchaseProps;
   onClose?: () => void;
   onConnect?: () => void;
@@ -30,6 +31,7 @@ const purchaseSceneVariants = cva(
 );
 
 export const PurchaseScene = ({
+  detailsProps,
   purchaseProps,
   onClose,
   onConnect,
@@ -70,11 +72,7 @@ export const PurchaseScene = ({
           style={{ scrollbarWidth: "none" }}
         >
           <Purchase {...purchaseProps} />
-          <Details
-            entryFee={"$1.00"}
-            breakEven="14"
-            maxPayout="29,000 NUMS ~ $25.12"
-          />
+          <Details {...detailsProps} />
         </div>
         {onConnect ? (
           <Button
@@ -123,12 +121,7 @@ export const PurchaseScene = ({
           <div className="flex items-center justify-between gap-8">
             <Purchase {...purchaseProps} className="flex-1" />
             <div className="flex flex-col gap-6 flex-1">
-              <Details
-                className="grow overflow-hidden"
-                entryFee={"$1.00"}
-                breakEven="14"
-                maxPayout="29,000 NUMS ~ $25.12"
-              />
+              <Details className="grow overflow-hidden" {...detailsProps} />
               {onConnect ? (
                 <Button
                   variant="default"

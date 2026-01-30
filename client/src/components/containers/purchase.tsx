@@ -12,7 +12,7 @@ export interface PurchaseProps
     VariantProps<typeof purchaseVariants> {
   chartValues: ChartProps["values"];
   chartAbscissa: ChartProps["abscissa"];
-  numsPrice: number; // Price in USD (e.g., 0.003)
+  numsPrice: number;
 }
 
 const purchaseVariants = cva(
@@ -39,7 +39,7 @@ export const Purchase = ({
 }: PurchaseProps) => {
   return (
     <div className={cn(purchaseVariants({ variant, className }))} {...props}>
-      <div className="w-full h-[240px] min-h-[240px] pr-2">
+      <div className="w-full h-[240px] min-h-[240px] min-w-0 pr-2">
         <Chart values={chartValues} abscissa={chartAbscissa} />
       </div>
       <PurchaseInfoBox numsPrice={numsPrice} />

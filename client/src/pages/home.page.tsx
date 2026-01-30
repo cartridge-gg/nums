@@ -5,71 +5,41 @@ import { useGames } from "@/hooks/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
-import { Game } from "@/models/game";
+import { useHeader } from "@/hooks/header";
+import { ChartHelper } from "@/helpers/chart";
 
 export const Home = () => {
-  const { config } = useEntities();
+  const { config, starterpack } = useEntities();
   const { getNumsPrice } = usePrices();
+  const { supply: currentSupply } = useHeader();
   const { gameIds } = useAssets();
   const { games } = useGames(gameIds);
   const { openPurchaseScene } = usePurchaseModal();
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
-  const playPrice = 1.0; // TODO: Get actual play price
+  const numsPrice = useMemo(() => {
+    return parseFloat(getNumsPrice() || "0.0");
+  }, [getNumsPrice]);
+
+  const playPrice = useMemo(() => {
+    return Number(starterpack?.price || 0n) / 10 ** 6;
+  }, [starterpack]);
 
   // Chart data - calculate rewards for each level (1-20) based on current supply
-  // Note: This is needed for activeGamesData calculation
-  const chartValues = useMemo(() => {
-    if (!config?.target_supply) {
-      return Array.from({ length: 20 }, () => 0);
-    }
-
-    // Use the average supply from games, or target_supply if no games
-    const currentSupply =
-      games.length > 0
-        ? games.reduce((sum, game) => sum + game.supply, 0n) /
-          BigInt(games.length)
-        : config.target_supply;
-
-    const slotCount = config.slot_count || 20;
-
-    // Get Nums price for conversion to USD
-    const numsPrice = getNumsPrice();
-    const price = numsPrice ? parseFloat(numsPrice) : 0.003; // Default fallback
-
-    // Calculate rewards in Nums for each level
-    const rewards = Game.rewards(
-      slotCount,
+  const chartData = useMemo(() => {
+    return ChartHelper.calculate({
+      slotCount: config?.slot_count || 20,
       currentSupply,
-      config.target_supply,
-    );
+      targetSupply: config?.target_supply || 0n,
+      numsPrice: numsPrice,
+      playPrice,
+    });
+  }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
 
-    // Calculate cumulative sum of rewards
-    const cumulativeRewards = rewards.reduce((acc, reward, index) => {
-      const previousSum = index === 0 ? 0 : acc[index - 1];
-      acc.push(previousSum + reward);
-      return acc;
-    }, [] as number[]);
-
-    // Convert cumulative rewards to USD value
-    return cumulativeRewards.map((reward) => reward * price);
-  }, [config, games, getNumsPrice]);
-
-  // Chart abscissa - find the first level where cumulative rewards (in USD) exceed playPrice
-  const chartAbscissa = useMemo(() => {
-    if (chartValues.length === 0) {
-      return 0;
-    }
-
-    // Find the first level where cumulative reward value exceeds playPrice
-    const breakevenIndex = chartValues.findIndex((value) => value > playPrice);
-
-    // Return the level (1-indexed), or 20 (last level) if break-even is never reached
-    return breakevenIndex !== -1 ? breakevenIndex + 1 : 20;
-  }, [chartValues, playPrice]);
+  const { chartAbscissa } = chartData;
 
   const activities = useMemo(() => {
-    const price = parseFloat(getNumsPrice() || "0.003");
+    const price = parseFloat(getNumsPrice() || "0.0");
     return games
       .filter((game) => !!game.over)
       .map((game) => ({
@@ -83,24 +53,37 @@ export const Home = () => {
   }, [games]);
 
   // Transform games for Games component (only non-over games)
-  const activeGamesData = useMemo(() => {
-    // Get max payout from the last value of chartValues (level 20 cumulative reward)
-    const maxPayoutValue =
-      chartValues.length > 0 ? chartValues[chartValues.length - 1] : 0;
-    const maxPayout = `$${maxPayoutValue.toFixed(2)}`;
-
-    // Calculate breakEven (the level where cumulative rewards exceed playPrice)
-    const breakEven = chartAbscissa.toString();
-
-    return games
+  const gamesProps = useMemo(() => {
+    // Existing game details
+    const gameData = games
       .filter((game) => !game.over)
-      .map((game) => ({
-        gameId: game.id,
-        score: game.level === 0 ? undefined : game.level,
-        breakEven,
-        payout: maxPayout,
-      }));
-  }, [games, chartValues, chartAbscissa]);
+      .map((game) => {
+        const { chartAbscissa, maxPayout } = ChartHelper.calculate({
+          slotCount: game.slot_count,
+          currentSupply: game.supply,
+          targetSupply: config?.target_supply || 0n,
+          numsPrice: numsPrice,
+          playPrice,
+        });
+        return {
+          gameId: game.id,
+          score: game.level === 0 ? undefined : game.level,
+          breakEven: chartAbscissa,
+          payout: `$${maxPayout.toFixed(2)}`,
+        };
+      });
+
+    const newGame = {
+      breakEven: chartAbscissa.toString(),
+      payout: `$${chartData.maxPayout.toFixed(2)}`,
+    };
+
+    return {
+      games: [...gameData, newGame],
+      gameId,
+      setGameId,
+    };
+  }, [games, chartData, chartAbscissa, gameId, setGameId]);
 
   // Set initial gameId to the first active game if available
   useEffect(() => {
@@ -112,10 +95,6 @@ export const Home = () => {
     }
   }, [games, gameId]);
 
-  const handlePracticeClick = useCallback(() => {
-    openPurchaseScene();
-  }, [openPurchaseScene]);
-
   const handlePurchaseClick = useCallback(() => {
     openPurchaseScene();
   }, [openPurchaseScene]);
@@ -123,15 +102,9 @@ export const Home = () => {
   return (
     <HomeScene
       gameId={gameId}
-      activeGamesProps={{
-        games: activeGamesData,
-        breakEven: chartAbscissa.toString(),
-        payout: `$${chartValues[chartValues.length - 1].toFixed(2)}`,
-        gameId,
-        setGameId,
-      }}
+      gamesProps={gamesProps}
       activitiesProps={{ activities }}
-      onPractice={handlePracticeClick}
+      onPractice={() => {}}
       onPurchase={handlePurchaseClick}
     />
   );

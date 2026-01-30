@@ -26,7 +26,7 @@ const chartVariants = cva(
         default: "",
       },
       size: {
-        md: "w-full h-full",
+        md: "w-full h-full min-h-[240px] min-w-0",
       },
     },
     defaultVariants: {
@@ -269,13 +269,14 @@ export const Chart = ({
       className={cn(chartVariants({ variant, size, className }))}
       {...props}
       tabIndex={-1}
-      style={{ outline: "none", ...props.style }}
+      style={{ outline: "none", minHeight: 0, minWidth: 0, ...props.style }}
       onFocus={(e) => e.currentTarget.blur()}
     >
       <ResponsiveContainer
         width="100%"
         height="100%"
         className="chart-container"
+        minHeight={240}
       >
         <LineChart
           data={data}

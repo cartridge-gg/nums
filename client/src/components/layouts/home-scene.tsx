@@ -9,12 +9,14 @@ import {
 } from "../containers";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import { AddIcon, ShadowEffect } from "../icons";
+import { useId } from "react";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
-  activeGamesProps: GamesProps;
+  gamesProps: GamesProps;
   activitiesProps: ActivitiesProps;
   onPractice?: () => void;
   onPurchase?: () => void;
@@ -40,7 +42,7 @@ const homeSceneVariants = cva(
 
 export const HomeScene = ({
   gameId,
-  activeGamesProps,
+  gamesProps,
   activitiesProps,
   onPractice,
   onPurchase,
@@ -48,10 +50,13 @@ export const HomeScene = ({
   className,
   ...props
 }: HomeSceneProps) => {
+  const filterId = useId();
+
   return (
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
+      <ShadowEffect filterId={filterId} />
       <Banners />
-      <Games {...activeGamesProps} />
+      <Games {...gamesProps} />
       <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         <Button
@@ -65,15 +70,7 @@ export const HomeScene = ({
           </span>
         </Button>
         {!gameId ? (
-          <Button
-            variant="default"
-            onClick={onPurchase}
-            className="h-12 w-full rounded-b-[32px] md:rounded-b-lg"
-          >
-            <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-              New Game
-            </span>
-          </Button>
+          <NewGame filterId={filterId} onClick={onPurchase || (() => {})} />
         ) : (
           <Button
             variant="default"
@@ -91,5 +88,34 @@ export const HomeScene = ({
         )}
       </div>
     </div>
+  );
+};
+
+export const NewGame = ({
+  filterId,
+  onClick,
+  className,
+}: {
+  filterId: string;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <Button
+      variant="default"
+      className={cn(
+        "h-12 w-full rounded-b-[32px] md:rounded-b-lg gap-1",
+        className,
+      )}
+      onClick={onClick}
+    >
+      <AddIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+      <p
+        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        New Game
+      </p>
+    </Button>
   );
 };

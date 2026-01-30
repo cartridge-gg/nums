@@ -120,7 +120,7 @@ export const Game = () => {
     if (!game) return null;
 
     const numsPrice = getNumsPrice();
-    const price = numsPrice ? parseFloat(numsPrice) : 0.003; // Default fallback
+    const price = numsPrice ? parseFloat(numsPrice) : 0.0; // Default fallback
     const payout = game.reward;
     const value = payout * price;
     const score = game.level;

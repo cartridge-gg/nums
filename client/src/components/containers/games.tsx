@@ -15,13 +15,11 @@ export interface GamesProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gamesVariants> {
   games: Array<{
-    gameId: number;
+    gameId?: number;
     score?: number;
     breakEven?: string | number;
     payout?: string | number;
   }>;
-  breakEven?: string | number;
-  payout?: string | number;
   gameId?: number;
   setGameId: (id: number) => void;
 }
@@ -43,8 +41,6 @@ const gamesVariants = cva(
 export const Games = ({
   games,
   gameId,
-  breakEven,
-  payout,
   setGameId,
   variant,
   className,
@@ -76,7 +72,7 @@ export const Games = ({
         // Game card selected
         const selectedGame = games[selectedIndex];
         if (selectedGame) {
-          setGameId(selectedGame.gameId);
+          setGameId(selectedGame.gameId || 0);
         }
       }
     };
@@ -103,15 +99,6 @@ export const Games = ({
       }
     }
   }, [api, gameId, games]);
-
-  const handleCardClick = (clickedGameId: number | undefined) => {
-    if (clickedGameId === undefined) {
-      // New card clicked
-      setGameId(0);
-    } else {
-      setGameId(clickedGameId);
-    }
-  };
 
   const scrollPrev = () => {
     api?.scrollPrev();
@@ -196,24 +183,14 @@ export const Games = ({
           {games.map((game) => (
             <CarouselItem key={game.gameId}>
               <Game
-                gameId={game.gameId}
+                gameId={!game.gameId ? undefined : game.gameId}
                 score={game.score}
                 breakEven={game.breakEven}
                 payout={game.payout}
-                variant={gameId === game.gameId ? "default" : "default"}
-                onClick={() => handleCardClick(game.gameId)}
+                variant={!game.gameId ? "new" : "default"}
               />
             </CarouselItem>
           ))}
-          {/* New card */}
-          <CarouselItem>
-            <Game
-              variant="new"
-              breakEven={breakEven}
-              payout={payout}
-              onClick={() => handleCardClick(undefined)}
-            />
-          </CarouselItem>
         </CarouselContent>
       </Carousel>
     </div>

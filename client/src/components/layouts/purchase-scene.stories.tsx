@@ -32,6 +32,11 @@ const sampleChartValues = [
 
 export const Default: Story = {
   args: {
+    detailsProps: {
+      entryFee: "1.99",
+      breakEven: "14",
+      maxPayout: "29,000 NUMS ~ $25.12",
+    },
     purchaseProps: {
       chartValues: sampleChartValues,
       chartAbscissa: 10,

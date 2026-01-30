@@ -33,6 +33,6 @@ disable_multicall = true
   "0x0",                                                                # Option::Some
   "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
   "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
-  "0x1E847F",                                                           # entry_price: 1.990000 USDC
+  "0x1E5D70",                                                           # entry_price: 1.990000 USDC
   "0x6765C793FA10079D0000000",                                          # target_supply
 ]

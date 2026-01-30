@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { AddIcon, CrownIcon, EyeIcon, RefreshIcon } from "@/components/icons";
+import {
+  AddIcon,
+  CrownIcon,
+  EyeIcon,
+  RefreshIcon,
+  ShadowEffect,
+} from "@/components/icons";
 import { useId, useState, useEffect } from "react";
 import Confetti from "react-confetti";
 import { Link } from "react-router-dom";
@@ -77,18 +83,7 @@ export const GameOver = ({
       )}
 
       {/* Filters */}
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <defs>
-          <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow
-              dx="2"
-              dy="2"
-              stdDeviation="0"
-              floodColor="rgba(0, 0, 0, 0.24)"
-            />
-          </filter>
-        </defs>
-      </svg>
+      <ShadowEffect filterId={filterId} />
 
       {/* Title */}
       <Header

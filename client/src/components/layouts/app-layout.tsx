@@ -14,9 +14,9 @@ import { usePrices } from "@/context/prices";
 import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
-import { Game } from "@/models/game";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
+import { ChartHelper } from "@/helpers/chart";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -33,6 +33,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { data: leaderboardData } = useLeaderboard();
   const { starterpack, config } = useEntities();
   const { getNumsPrice } = usePrices();
+  const { supply: currentSupply } = useHeader();
   const { gameIds } = useAssets();
   const { games } = useGames(gameIds);
   const navigate = useNavigate();
@@ -48,60 +49,42 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     return controller?.username;
   }, [account?.address, find]);
 
-  // Prepare PurchaseScene data
-  const playPrice = 1.0; // TODO: Get actual play price
   const numsPrice = useMemo(() => {
-    const price = getNumsPrice();
-    return price ? parseFloat(price) : 0.003; // Default fallback
+    return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
 
-  const chartValues = useMemo(() => {
-    if (!config?.target_supply) {
-      return Array.from({ length: 20 }, () => 0);
-    }
+  const playPrice = useMemo(() => {
+    return Number((starterpack?.price || 0n) / 10n ** 6n);
+  }, [starterpack]);
 
-    // Use the average supply from games, or target_supply if no games
-    const currentSupply =
-      games.length > 0
-        ? games.reduce((sum, game) => sum + game.supply, 0n) /
-          BigInt(games.length)
-        : config.target_supply;
-
-    const slotCount = config.slot_count || 20;
-
-    // Get Nums price for conversion to USD
-    const numsPrice = getNumsPrice();
-    const price = numsPrice ? parseFloat(numsPrice) : 0.003; // Default fallback
-
-    // Calculate rewards in Nums for each level
-    const rewards = Game.rewards(
-      slotCount,
+  // Calculate chart data using ChartHelper
+  const chartData = useMemo(() => {
+    return ChartHelper.calculate({
+      slotCount: config?.slot_count || 20,
       currentSupply,
-      config.target_supply,
-    );
+      targetSupply: config?.target_supply || 0n,
+      numsPrice: numsPrice,
+      playPrice,
+    });
+  }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
 
-    // Calculate cumulative sum of rewards
-    const cumulativeRewards = rewards.reduce((acc, reward, index) => {
-      const previousSum = index === 0 ? 0 : acc[index - 1];
-      acc.push(previousSum + reward);
-      return acc;
-    }, [] as number[]);
+  const { chartValues, chartAbscissa } = chartData;
 
-    // Convert cumulative rewards to USD value
-    return cumulativeRewards.map((reward) => reward * price);
-  }, [config, games, getNumsPrice]);
+  const detailsProps = useMemo(() => {
+    return {
+      entryFee: playPrice.toFixed(2).toLocaleString(),
+      breakEven: chartAbscissa.toString(),
+      maxPayout: `${chartData.maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${chartData.maxPayout.toFixed(2).toLocaleString()}`,
+    };
+  }, [playPrice, chartAbscissa, chartData]);
 
-  const chartAbscissa = useMemo(() => {
-    if (chartValues.length === 0) {
-      return 0;
-    }
-
-    // Find the first level where cumulative reward value exceeds playPrice
-    const breakevenIndex = chartValues.findIndex((value) => value > playPrice);
-
-    // Return the level (1-indexed), or 20 (last level) if break-even is never reached
-    return breakevenIndex !== -1 ? breakevenIndex + 1 : 20;
-  }, [chartValues, playPrice]);
+  const purchaseProps = useMemo(() => {
+    return {
+      chartValues,
+      chartAbscissa,
+      numsPrice,
+    };
+  }, [chartValues, chartAbscissa, numsPrice]);
 
   const handlePurchase = useCallback(() => {
     if (starterpack) {
@@ -261,11 +244,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         {showPurchaseScene && (
           <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 overflow-hidden shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl">
             <PurchaseScene
-              purchaseProps={{
-                chartValues,
-                chartAbscissa,
-                numsPrice,
-              }}
+              detailsProps={detailsProps}
+              purchaseProps={purchaseProps}
               onConnect={
                 account?.address ? undefined : headerData.handleConnect
               }

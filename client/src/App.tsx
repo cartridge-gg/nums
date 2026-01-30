@@ -86,7 +86,12 @@ function App() {
               <ControllersProvider>
                 <QuestsProvider>
                   <PricesProvider>
-                    <Router>
+                    <Router
+                      future={{
+                        v7_startTransition: true,
+                        v7_relativeSplatPath: true,
+                      }}
+                    >
                       <AppLayout>
                         <Routes>
                           <Route path="/" element={<Home />} />

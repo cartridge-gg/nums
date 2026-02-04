@@ -29,6 +29,63 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    stages: {
+      states: [
+        { completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        { completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        { crown: true },
+      ],
+    },
+    payout: 29000,
+    value: 2.123456789,
+    score: 15,
+    newGameId: 1,
+    newGameCount: 5,
+    onClaim: fn(),
+    onSpecate: fn(),
+    onPurchase: fn(),
+  },
+};
+
+export const Claimed: Story = {
+  args: {
+    stages: {
+      states: [
+        { completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        { completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        { completed: true },
+        { completed: true },
+        { gem: true, completed: true },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        { crown: true },
+      ],
+    },
     payout: 29000,
     value: 2.123456789,
     score: 15,
@@ -41,6 +98,28 @@ export const Default: Story = {
 
 export const Empty: Story = {
   args: {
+    stages: {
+      states: [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+      ],
+    },
     payout: 0,
     value: 0,
     score: 0,

@@ -28,7 +28,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { account, connector } = useAccount();
   const { find } = useControllers();
   const headerData = useHeader();
-  const { mint, claim, claims } = useActions();
+  const {
+    mint,
+    quest: { claims, claim },
+  } = useActions();
   const { quests } = useQuests();
   const { data: leaderboardData } = useLeaderboard();
   const { starterpack, config } = useEntities();
@@ -54,7 +57,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, [getNumsPrice]);
 
   const playPrice = useMemo(() => {
-    return Number((starterpack?.price || 0n) / 10n ** 6n);
+    return Number(starterpack?.price || 0n) / 10 ** 6;
   }, [starterpack]);
 
   // Calculate chart data using ChartHelper
@@ -72,7 +75,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   const detailsProps = useMemo(() => {
     return {
-      entryFee: playPrice.toFixed(2).toLocaleString(),
+      entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
       breakEven: chartAbscissa.toString(),
       maxPayout: `${chartData.maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${chartData.maxPayout.toFixed(2).toLocaleString()}`,
     };

@@ -14,6 +14,7 @@ const stagesVariants = cva(
     variants: {
       variant: {
         default: "",
+        over: "",
       },
       size: {
         md: "",
@@ -37,7 +38,7 @@ export const Stages = ({
     <ul className={cn(stagesVariants({ variant, size, className }))} {...props}>
       {states.map((state, index) => (
         <li key={`${index}-${JSON.stringify(state)}`}>
-          <Stage state={state} className="" />
+          <Stage state={state} className="" variant={variant} />
         </li>
       ))}
     </ul>

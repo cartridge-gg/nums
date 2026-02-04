@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity } from "./activity";
 import { BrowserRouter } from "react-router-dom";
+import { fn } from "storybook/test";
 
 const meta = {
   title: "Elements/Activity",
@@ -31,5 +32,15 @@ export const Default: Story = {
     score: 14,
     payout: "+$0.72",
     to: "#",
+  },
+};
+
+export const Claimable: Story = {
+  args: {
+    gameId: 1144,
+    score: 14,
+    payout: "+$0.72",
+    to: "#",
+    onClaim: fn(),
   },
 };

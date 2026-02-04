@@ -104,18 +104,16 @@ export const useActions = () => {
   );
 
   const claim = useCallback(
-    async (playerAddress: string, questId: string, intervalId: number) => {
+    async (gameId: number) => {
       try {
         if (!account?.address) return false;
-        const setupAddress = getSetupAddress(chain.id);
+        const gameAddress = getGameAddress(chain.id);
         await account.execute([
           {
-            contractAddress: setupAddress,
-            entrypoint: "quest_claim",
+            contractAddress: gameAddress,
+            entrypoint: "claim",
             calldata: CallData.compile({
-              player: playerAddress,
-              quest_id: questId,
-              interval_id: intervalId,
+              gameId: gameId,
             }),
           },
         ]);
@@ -128,7 +126,7 @@ export const useActions = () => {
     [account, chain.id],
   );
 
-  const claims = useCallback(
+  const questClaims = useCallback(
     async (
       params: { playerAddress: string; questId: string; intervalId: number }[],
     ) => {
@@ -145,6 +143,31 @@ export const useActions = () => {
           }),
         }));
         await account.execute(calls);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
+  const questClaim = useCallback(
+    async (playerAddress: string, questId: string, intervalId: number) => {
+      try {
+        if (!account?.address) return false;
+        const setupAddress = getSetupAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: setupAddress,
+            entrypoint: "quest_claim",
+            calldata: CallData.compile({
+              player: playerAddress,
+              quest_id: questId,
+              interval_id: intervalId,
+            }),
+          },
+        ]);
         return true;
       } catch (e) {
         console.log({ e });
@@ -183,7 +206,10 @@ export const useActions = () => {
     select,
     apply,
     claim,
-    claims,
     mint,
+    quest: {
+      claims: questClaims,
+      claim: questClaim,
+    },
   };
 };

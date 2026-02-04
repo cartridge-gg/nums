@@ -12,6 +12,7 @@ export interface ActivityProps
   score: number;
   payout: string;
   to: string;
+  onClaim?: (gameId: number) => void;
 }
 
 const activityVariants = cva("select-none flex gap-3 items-center", {
@@ -30,6 +31,7 @@ export const Activity = ({
   score,
   payout,
   to,
+  onClaim,
   variant,
   className,
   ...props
@@ -66,33 +68,48 @@ export const Activity = ({
         </div>
       </div>
 
-      <Button
-        variant="muted"
-        asChild
-        className="px-3 bg-black-900 hover:bg-black-800"
-      >
-        <Link to={to}>
-          <svg width="0" height="0" style={{ position: "absolute" }}>
-            <defs>
-              <filter
-                id={filterId}
-                x="-50%"
-                y="-50%"
-                width="200%"
-                height="200%"
-              >
-                <feDropShadow
-                  dx="2"
-                  dy="2"
-                  stdDeviation="0"
-                  floodColor="rgba(0, 0, 0, 0.24)"
-                />
-              </filter>
-            </defs>
-          </svg>
-          <EyeIcon size="md" style={{ filter: `url(#${filterId})` }} />
-        </Link>
-      </Button>
+      {!onClaim ? (
+        <Button
+          variant="muted"
+          asChild
+          className="px-3 bg-black-900 hover:bg-black-800"
+        >
+          <Link to={to}>
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <filter
+                  id={filterId}
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feDropShadow
+                    dx="2"
+                    dy="2"
+                    stdDeviation="0"
+                    floodColor="rgba(0, 0, 0, 0.24)"
+                  />
+                </filter>
+              </defs>
+            </svg>
+            <EyeIcon size="md" style={{ filter: `url(#${filterId})` }} />
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          variant="default"
+          className="bg-green-100 hover:bg-green-200 px-3 py-1"
+          onClick={() => onClaim(gameId)}
+        >
+          <p
+            className="text-[28px]/[15px] tracking-wide translate-y-0.5"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            Claim
+          </p>
+        </Button>
+      )}
     </div>
   );
 };

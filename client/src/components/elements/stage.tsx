@@ -78,6 +78,47 @@ const getStageState = (state: StageState): StageStateConfig => {
   return { className: "bg-black-800", icon: <div className="h-4 w-4" /> };
 };
 
+const getOverState = (state: StageState): StageStateConfig => {
+  const { completed = false, gem = false, crown = false } = state;
+  if (completed && crown) {
+    return {
+      className: "bg-black-900 text-pink-100 border-white-900",
+      icon: <icons.KingUsedIcon size="sm" />,
+    };
+  }
+  if (crown) {
+    return {
+      className:
+        "bg-red-800 text-red-100 border border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
+      icon: <icons.KingIcon size="sm" />,
+    };
+  }
+  if (completed && gem) {
+    return {
+      className: "bg-black-900 text-yellow-100 border-white-900",
+      icon: <icons.GemUsedIcon size="sm" />,
+    };
+  }
+  if (gem) {
+    return {
+      className:
+        "bg-red-800 text-red-100 border border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
+      icon: <icons.GemIcon size="sm" />,
+    };
+  }
+  if (completed) {
+    return {
+      className: "bg-black-900 text-mauve-100 border-white-900",
+      icon: <icons.CheckIcon size="sm" />,
+    };
+  }
+  return {
+    className:
+      "bg-red-800 text-red-100 border border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
+    icon: <icons.CloseIcon size="sm" />,
+  };
+};
+
 export interface StageProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stageVariants> {
@@ -90,6 +131,7 @@ const stageVariants = cva(
     variants: {
       variant: {
         default: "",
+        over: "border border-transparent",
       },
       size: {
         md: "h-6",
@@ -109,7 +151,8 @@ export const Stage = ({
   className,
   ...props
 }: StageProps) => {
-  const { className: stateClassName, icon: Icon } = getStageState(state || {});
+  const { className: stateClassName, icon: Icon } =
+    variant === "over" ? getOverState(state || {}) : getStageState(state || {});
 
   return (
     <div

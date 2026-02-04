@@ -18,7 +18,7 @@ import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 
 export const Game = () => {
-  const { set, select, apply } = useActions();
+  const { set, select, apply, claim } = useActions();
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { gameIds } = useAssets();
@@ -173,6 +173,11 @@ export const Game = () => {
     };
   }, [game, getNumsPrice, games]);
 
+  const handleClaim = useCallback(() => {
+    if (!game || game.claimed) return;
+    claim(game.id);
+  }, [game, claim]);
+
   const handleSpecate = useCallback(() => {
     setShowGameOver(false);
   }, [setShowGameOver]);
@@ -298,6 +303,7 @@ export const Game = () => {
       {showGameOver && gameOverData && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
           <GameOver
+            stages={{ states: gameSceneData.stages }}
             payout={gameOverData.payout}
             value={gameOverData.value}
             score={gameOverData.score}
@@ -305,6 +311,7 @@ export const Game = () => {
             newGameCount={gameOverData.newGameCount}
             onSpecate={handleSpecate}
             onPurchase={handlePurchase}
+            onClaim={game.claimed ? undefined : handleClaim}
           />
         </div>
       )}

@@ -20,8 +20,6 @@ type Story = StoryObj<typeof meta>;
 
 const states: Array<StageState> = [
   {},
-  {},
-  {},
   { gem: true },
   {},
   {},

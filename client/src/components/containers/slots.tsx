@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot, type SlotProps } from "@/components/elements";
 import { Grid } from "@/helpers";
+import { DraggerIcon } from "../icons";
 
 export interface SlotsProps
   extends React.HTMLAttributes<HTMLUListElement>,
@@ -16,7 +17,7 @@ const slotsVariants = cva(
   {
     variants: {
       variant: {
-        default: "md:p-3",
+        default: "",
       },
     },
     defaultVariants: {
@@ -76,12 +77,17 @@ export const Slots = ({
 
   return (
     <ul className={cn(slotsVariants({ variant, className }))} {...props}>
+      <DraggerIcon className="absolute top-0 left-1/4 -translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
+      <DraggerIcon className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-auto text-black-700 hidden md:block" />
+      <DraggerIcon className="absolute top-0 right-1/4 translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
       {slots.map((slot, index) => (
         <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
             label={slot.label || index + 1}
             value={slot.value || 0}
             invalid={slot.invalid || invalidIndexes.has(index)}
+            inactive={slot.inactive}
+            trap={slot.trap}
             onSlotClick={slot.onSlotClick}
           />
         </li>

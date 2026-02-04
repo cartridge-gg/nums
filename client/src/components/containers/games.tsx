@@ -133,7 +133,7 @@ export const Games = ({
                 textShadow: "1px 1px 0px rgba(0, 0, 0, 0.25)",
               }}
             >
-              {games.length ? games.length : "None"}
+              {games.length - 1 > 0 ? games.length - 1 : "None"}
             </span>
           </div>
         </div>

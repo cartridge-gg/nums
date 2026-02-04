@@ -29,5 +29,5 @@ export * from "./exotics";
 export * from "./powers";
 export * from "./regulars";
 export * from "./states";
-export * from "./transparents";
+export * from "./traps";
 export * from "./types";

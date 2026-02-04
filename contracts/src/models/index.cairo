@@ -43,8 +43,10 @@ pub struct Game {
     pub selectable_powers: u8,
     pub selected_powers: u16,
     pub available_powers: u16,
+    pub disabled_traps: u32,
     pub reward: u64,
     pub over: u64,
+    pub traps: u128,
     pub slots: felt252,
     pub supply: felt252,
 }

@@ -24,3 +24,12 @@ body {
   touch-action: manipulation;
   height: 100%;
 }
+
+@layer utilities {
+  @media (min-width: 768px) {
+    .places-title {
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+  }
+}

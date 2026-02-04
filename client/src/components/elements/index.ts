@@ -16,6 +16,8 @@ export * from "./info";
 export * from "./play";
 export * from "./game";
 export * from "./selection";
+export * from "./place";
+export * from "./share";
 export * from "./stat";
 export * from "./ranges";
 export * from "./banner";

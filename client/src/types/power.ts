@@ -347,17 +347,17 @@ export class Power {
   public color(): string {
     switch (this.value) {
       case PowerType.Reroll:
-        return "text-power-150";
+        return "text-reroll-100";
       case PowerType.High:
-        return "text-power-650";
+        return "text-high-100";
       case PowerType.Low:
-        return "text-power-550";
+        return "text-low-100";
       case PowerType.Swap:
-        return "text-power-300";
+        return "text-swap-100";
       case PowerType.DoubleUp:
-        return "text-power-450";
+        return "text-double-100";
       case PowerType.Halve:
-        return "text-power-350";
+        return "text-halve-100";
       case PowerType.Mirror:
         return "text-blue-100";
       case PowerType.King:
@@ -365,21 +365,60 @@ export class Power {
       case PowerType.Erase:
         return "text-pink-100";
       case PowerType.Foresight:
-        return "text-power-600";
+        return "text-foresight-100";
       case PowerType.Override:
         return "text-red-300";
       case PowerType.Gem:
-        return "text-power-700";
+        return "text-gem-100";
       case PowerType.Ribbon:
-        return "text-power-450";
+        return "text-ribbon-100";
       case PowerType.SquareDown:
-        return "text-power-100";
+        return "text-down-100";
       case PowerType.SquareUp:
-        return "text-power-400";
+        return "text-up-100";
       case PowerType.Wildcard:
-        return "text-power-200";
+        return "text-wildcard-100";
       default:
-        return "text-power-100";
+        return "text-down-100";
+    }
+  }
+
+  public buttonColor(): string {
+    switch (this.value) {
+      case PowerType.Reroll:
+        return "bg-reroll-100 hover:bg-reroll-200";
+      case PowerType.High:
+        return "bg-high-100 hover:bg-high-200";
+      case PowerType.Low:
+        return "bg-low-100 hover:bg-low-200";
+      case PowerType.Swap:
+        return "bg-swap-100 hover:bg-swap-200";
+      case PowerType.DoubleUp:
+        return "bg-double-100 hover:bg-double-200";
+      case PowerType.Halve:
+        return "bg-halve-100 hover:bg-halve-200";
+      case PowerType.Mirror:
+        return "bg-blue-100 hover:bg-blue-200";
+      case PowerType.King:
+        return "bg-pink-100 hover:bg-pink-200";
+      case PowerType.Erase:
+        return "bg-pink-100 hover:bg-pink-200";
+      case PowerType.Foresight:
+        return "bg-foresight-100 hover:bg-foresight-200";
+      case PowerType.Override:
+        return "bg-red-100 hover:bg-red-200";
+      case PowerType.Gem:
+        return "bg-gem-100 hover:bg-gem-200";
+      case PowerType.Ribbon:
+        return "bg-ribbon-100 hover:bg-ribbon-200";
+      case PowerType.SquareDown:
+        return "bg-down-100 hover:bg-down-200";
+      case PowerType.SquareUp:
+        return "bg-up-100 hover:bg-up-200";
+      case PowerType.Wildcard:
+        return "bg-wildcard-100 hover:bg-wildcard-200";
+      default:
+        return "bg-down-100 hover:bg-down-200";
     }
   }
 }

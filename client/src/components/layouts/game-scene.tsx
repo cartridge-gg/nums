@@ -8,6 +8,7 @@ import {
   StageInfo,
   type SlotProps,
   type PowerUpProps,
+  Share,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
 import { Grid } from "@/helpers";
@@ -30,7 +31,7 @@ const gameSceneVariants = cva(
         default: "",
       },
       size: {
-        md: "h-full max-w-[720px] mx-auto",
+        md: "h-full md:w-[720px] mx-auto",
       },
     },
     defaultVariants: {
@@ -87,31 +88,31 @@ export const GameScene = ({
           onInfoClick={() => {}}
           className="hidden md:flex"
         />
-        <StageInfo className="md:hidden" />
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
-        <Instruction
-          content={
-            isOver && isRescuable
-              ? "Use Power up"
-              : isOver
-                ? "Game Over"
-                : "Set Tile"
-          }
-          variant={isOver && !isRescuable ? "destructive" : "default"}
-        />
+        <div className="flex justify-between items-center gap-4 w-full">
+          <Instruction
+            content={
+              isOver && isRescuable
+                ? "Use Power up"
+                : isOver
+                  ? "Game Over"
+                  : "Set Tile"
+            }
+            variant={isOver && !isRescuable ? "destructive" : "default"}
+          />
+          <Share disabled />
+          <StageInfo disabled />
+        </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>
       <div
-        className="overflow-y-auto w-full"
+        className="overflow-y-auto w-full p-3 px-6"
         style={{ scrollbarWidth: "none" }}
       >
-        <Slots number={currentNumber} slots={slots} className="md:px-9" />
+        <Slots number={currentNumber} slots={slots} />
       </div>
-      <div className="hidden md:flex justify-between items-center gap-6 w-full">
-        <Stages states={stages} className="grow" />
-        <StageInfo className="hidden md:block" />
-      </div>
+      <Stages states={stages} className="w-full hidden md:grid" />
       <PowerUps
         powers={powers}
         onInfoClick={() => {}}

@@ -87,7 +87,7 @@ pub mod PlayableComponent {
                     supply: nums_supply,
                 );
                 // [Effect] Start game
-                let mut rand = RandomImpl::new_with_salt(game_id);
+                let mut rand = RandomImpl::new(game_id.into());
                 game.start(ref rand);
                 store.set_game(@game);
                 // [Interaction] Update token metadata
@@ -234,23 +234,17 @@ pub mod PlayableComponent {
             game.assert_not_over();
 
             // [Effect] Place number
+            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let target_number = game.number;
-            game.place(index);
+            game.place(game.number, index, ref rand);
             game.assert_is_valid();
 
             // [Effect] Update game
-            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let reward = game.update(ref rand, store.config().target_supply);
+            game.update(ref rand, store.config().target_supply);
             store.set_game(@game);
 
-            // [Interaction] Pay user reward
-            let player = self.owner(world, game_id);
-            store.nums_disp().reward(player, reward);
-
-            // [Event] Emit reward event
-            store.reward(game_id, reward);
-
             // [Event] Emit leaderboard score if game is over
+            let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
             if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
@@ -266,17 +260,9 @@ pub mod PlayableComponent {
                     );
             }
 
-            // [Effect] Update quest progression for the player - Contender tasks
-            let questable = get_dep_component!(@self, Quest);
-            let task = Task::Claimer;
-            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
-            // [Effect] Update achievement progression for the player - Claimer tasks
-            let achievable = get_dep_component!(@self, Achievable);
-            let task = Task::Claimer;
-            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
             // [Effect] Update achievement progression for the player - Filler tasks
+            let questable = get_dep_component!(@self, Quest);
+            let achievable = get_dep_component!(@self, Achievable);
             let filled_slots = game.level;
             if filled_slots == 10 {
                 achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
@@ -423,6 +409,40 @@ pub mod PlayableComponent {
 
             // [Return] Next number
             game.number
+        }
+
+        fn claim(ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Check] Token ownership
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
+
+            // [Effect] Claim game
+            let mut game = store.game(game_id);
+            let reward = game.claim();
+
+            // [Effect] Update game
+            store.set_game(@game);
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let player = self.owner(world, game_id);
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Claimer;
+            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Effect] Update achievement progression for the player - Claimer tasks
+            let achievable = get_dep_component!(@self, Achievable);
+            let task = Task::Claimer;
+            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Interaction] Pay user reward
+            let player = self.owner(world, game_id);
+            store.nums_disp().reward(player, reward);
+
+            // [Event] Emit reward event
+            store.reward(game_id, reward);
         }
     }
 

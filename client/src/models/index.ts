@@ -131,12 +131,6 @@ export interface RawGame {
     value: string;
     key: boolean;
   };
-  over: {
-    type: "primitive";
-    type_name: "u64";
-    value: string;
-    key: boolean;
-  };
   claimed: {
     type: "primitive";
     type_name: "bool";
@@ -197,9 +191,27 @@ export interface RawGame {
     value: string;
     key: boolean;
   };
+  disabled_traps: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
   reward: {
     type: "primitive";
     type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  over: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  traps: {
+    type: "primitive";
+    type_name: "u128";
     value: string;
     key: boolean;
   };

@@ -1,6 +1,7 @@
 import { Packer } from "@/helpers/packer";
 import { Power } from "@/types/power";
 import type { RawGame } from "@/models";
+import { Trap } from "@/types/trap";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
@@ -18,7 +19,6 @@ export class Game {
 
   constructor(
     public id: number,
-    public over: number,
     public claimed: boolean,
     public level: number,
     public slot_count: number,
@@ -26,15 +26,17 @@ export class Game {
     public slot_max: number,
     public number: number,
     public next_number: number,
-    public selected_powers: Power[],
     public selectable_powers: Power[],
+    public selected_powers: Power[],
     public available_powers: boolean[],
+    public disabled_traps: boolean[],
     public reward: number,
+    public over: number,
+    public traps: Trap[],
     public slots: number[],
     public supply: bigint,
   ) {
     this.id = id;
-    this.over = over;
     this.claimed = claimed;
     this.level = level;
     this.slot_count = slot_count;
@@ -42,10 +44,13 @@ export class Game {
     this.slot_max = slot_max;
     this.number = number;
     this.next_number = next_number;
-    this.selected_powers = selected_powers;
     this.selectable_powers = selectable_powers;
+    this.selected_powers = selected_powers;
     this.available_powers = available_powers;
+    this.disabled_traps = disabled_traps;
     this.reward = reward;
+    this.over = over;
+    this.traps = traps;
     this.slots = slots;
     this.supply = supply;
   }
@@ -61,7 +66,6 @@ export class Game {
   static parse(data: RawGame) {
     const props = {
       id: Number(data.id.value),
-      over: Number(data.over.value),
       claimed: !!data.claimed.value,
       level: Number(data.level.value),
       slot_count: Number(data.slot_count.value),
@@ -69,26 +73,32 @@ export class Game {
       slot_max: Number(data.slot_max.value),
       number: Number(data.number.value),
       next_number: Number(data.next_number.value),
-      selected_powers: Power.getPowers(BigInt(data.selected_powers.value)),
       selectable_powers: Power.getPowers(BigInt(data.selectable_powers.value)),
+      selected_powers: Power.getPowers(BigInt(data.selected_powers.value)),
       available_powers: Packer.sized_unpack(
         BigInt(data.available_powers.value),
         1n,
-        4,
+        3,
       ).map((index) => index !== 1),
+      disabled_traps: Packer.sized_unpack(
+        BigInt(data.disabled_traps.value),
+        1n,
+        20,
+      ).map((index) => index === 1),
       reward: Number(data.reward.value),
+      over: Number(data.over.value),
+      traps: Trap.getTraps(BigInt(data.traps.value)),
       slots: Packer.sized_unpack(BigInt(data.slots.value), SLOT_SIZE, 20),
       supply: BigInt(data.supply.value),
     };
     // Selected powers must be a 4 power array size, add None powers if needed
     props.selected_powers = props.selected_powers.concat(
-      Array.from({ length: 4 - props.selected_powers.length }, () =>
+      Array.from({ length: 3 - props.selected_powers.length }, () =>
         Power.from(0),
       ),
     );
     return new Game(
       props.id,
-      props.over,
       props.claimed,
       props.level,
       props.slot_count,
@@ -96,10 +106,13 @@ export class Game {
       props.slot_max,
       props.number,
       props.next_number,
-      props.selected_powers,
       props.selectable_powers,
+      props.selected_powers,
       props.available_powers,
+      props.disabled_traps,
       props.reward,
+      props.over,
+      props.traps,
       props.slots,
       props.supply,
     );
@@ -117,6 +130,18 @@ export class Game {
 
   hasStarted() {
     return this.number !== 0;
+  }
+
+  getTrap(index: number): Trap | undefined {
+    const trap = this.traps[index];
+    if (trap.isNone()) {
+      return undefined;
+    }
+    return trap;
+  }
+
+  isInactive(index: number): boolean {
+    return this.disabled_traps[index];
   }
 
   /**

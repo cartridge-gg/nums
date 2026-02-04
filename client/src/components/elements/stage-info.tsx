@@ -1,48 +1,55 @@
 import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { CircleInfoIcon } from "@/components/icons";
+import { CircleInfoIcon, ShadowEffect } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 
 export interface StageInfoProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof stageInfoVariants> {}
+  extends React.HTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof stageInfoVariants> {
+  disabled?: boolean;
+}
 
 const stageInfoVariants = cva(
-  "select-none relative flex justify-center items-center rounded-lg p-3",
+  "select-none relative flex justify-center items-center rounded-lg p-2",
   {
     variants: {
       variant: {
         default:
           "bg-black-800 hover:bg-black-700 hover:cursor-pointer transition-colors duration-150",
       },
+      size: {
+        md: "h-10 w-10 md:h-12 md:w-12",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "md",
     },
   },
 );
 
-export const StageInfo = ({ variant, className, ...props }: StageInfoProps) => {
+export const StageInfo = ({
+  disabled = false,
+  variant,
+  size,
+  className,
+  ...props
+}: StageInfoProps) => {
   const filterId = useId();
 
   return (
-    <div className={cn(stageInfoVariants({ variant, className }))} {...props}>
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <defs>
-          <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow
-              dx="2"
-              dy="2"
-              stdDeviation="0"
-              floodColor="rgba(0, 0, 0, 0.25)"
-            />
-          </filter>
-        </defs>
-      </svg>
+    <Button
+      disabled={disabled}
+      variant="ghost"
+      className={cn(stageInfoVariants({ variant, size, className }))}
+      {...props}
+    >
+      <ShadowEffect filterId={filterId} />
       <CircleInfoIcon
         className="text-mauve-100 h-6 w-6 md:h-8 md:w-8"
         style={{ filter: `url(#${filterId})` }}
       />
-    </div>
+    </Button>
   );
 };

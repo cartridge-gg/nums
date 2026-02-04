@@ -2,6 +2,8 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { GameScene } from "@/components/layouts/game-scene";
 import { Selections } from "@/components/containers/selections";
+import { Places } from "@/components/containers/places";
+import { Uses } from "@/components/containers/uses";
 import { GameOver } from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
 import { useGame } from "@/hooks/game";
@@ -11,6 +13,7 @@ import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
+import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 
@@ -22,6 +25,14 @@ export const Game = () => {
   const { games } = useGames(gameIds);
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
+  const [showPlacesModal, setShowPlacesModal] = useState(false);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
+    null,
+  );
+  const [showUsesModal, setShowUsesModal] = useState(false);
+  const [selectedPowerIndex, setSelectedPowerIndex] = useState<number | null>(
+    null,
+  );
 
   // Get game ID from search params
   const gameId = useMemo(() => {
@@ -38,12 +49,12 @@ export const Game = () => {
       return {
         currentNumber: 0,
         nextNumber: 0,
-        powers: Array.from({ length: 4 }, () => ({})),
+        powers: Array.from({ length: 3 }, () => ({})),
         slots: Array.from({ length: 20 }, () => ({
           value: 0,
           onSlotClick: () => {},
         })),
-        stages: Array.from({ length: 20 }, () => ({})),
+        stages: Array.from({ length: 18 }, () => ({})),
       };
     }
 
@@ -55,13 +66,13 @@ export const Game = () => {
     }));
 
     // Calculate stages based on level and rewards
-    const stages: StageState[] = Array.from({ length: 20 }, (_, index) => {
-      const stageLevel = index + 1;
-      const isCompleted = stageLevel <= game.level;
+    const stages: StageState[] = Array.from({ length: 18 }, (_, index) => {
+      const stageLevel = index + 3;
+      const isCompleted = stageLevel <= game.level + 2;
       const isBreakeven = index === 13;
 
       // Determine if stage has gem (simplified logic - can be enhanced)
-      const hasGem = stageLevel % 4 === 0;
+      const hasGem = stageLevel % 6 === 0;
 
       // Determine if stage has crown (last stage)
       const hasCrown = stageLevel === 20;
@@ -79,16 +90,39 @@ export const Game = () => {
       nextNumber: game.next_number,
       powers: powers.map((power, index) => ({
         ...power,
-        onClick: () => apply(game.id, index),
+        onClick: () => {
+          // Open Uses modal instead of calling apply directly
+          setSelectedPowerIndex(index);
+          setShowUsesModal(true);
+        },
         disabled: game.over,
       })),
       slots: game.slots.map((slot, index) => ({
         value: slot,
-        onSlotClick: () => set(game.id, index),
+        trap: game.getTrap(index),
+        inactive: game.isInactive(index),
+        onSlotClick: () => {
+          const trap = game.getTrap(index);
+          if (trap && !trap.isNone()) {
+            // If slot has a trap, open the modal
+            setSelectedSlotIndex(index);
+            setShowPlacesModal(true);
+          } else {
+            // If no trap, call set directly
+            set(game.id, index);
+          }
+        },
       })),
       stages,
     };
-  }, [game, set]);
+  }, [
+    game,
+    set,
+    setShowPlacesModal,
+    setSelectedSlotIndex,
+    setShowUsesModal,
+    setSelectedPowerIndex,
+  ]);
 
   // Check if selectable powers exist and create selections
   const hasSelectablePowers = useMemo(() => {
@@ -147,6 +181,58 @@ export const Game = () => {
     openPurchaseScene();
   }, [openPurchaseScene]);
 
+  // Create place props for the modal (only the trap on the selected slot)
+  const place = useMemo<PlaceProps | null>(() => {
+    if (!game || selectedSlotIndex === null) return null;
+
+    // Get the trap on the selected slot
+    const trap = game.getTrap(selectedSlotIndex);
+    if (!trap || trap.isNone()) return null;
+
+    // Return single trap
+    return {
+      trap,
+      onClick: () => {
+        // Call set with the selected slot index
+        set(game.id, selectedSlotIndex);
+        // Close the modal
+        setShowPlacesModal(false);
+        setSelectedSlotIndex(null);
+      },
+    };
+  }, [game, selectedSlotIndex, set]);
+
+  const handleClosePlacesModal = useCallback(() => {
+    setShowPlacesModal(false);
+    setSelectedSlotIndex(null);
+  }, []);
+
+  // Create use props for the modal (only the power at the selected index)
+  const use = useMemo<SelectionProps | null>(() => {
+    if (!game || selectedPowerIndex === null) return null;
+
+    // Get the power at the selected index
+    const power = game.selected_powers[selectedPowerIndex];
+    if (!power || power.isNone()) return null;
+
+    // Return single power
+    return {
+      power,
+      onClick: () => {
+        // Call apply with the selected power index
+        apply(game.id, selectedPowerIndex);
+        // Close the modal
+        setShowUsesModal(false);
+        setSelectedPowerIndex(null);
+      },
+    };
+  }, [game, selectedPowerIndex, apply]);
+
+  const handleCloseUsesModal = useCallback(() => {
+    setShowUsesModal(false);
+    setSelectedPowerIndex(null);
+  }, []);
+
   // Show loading state if game ID is invalid or game is not loaded
   if (!gameId || !game) {
     return (
@@ -159,6 +245,7 @@ export const Game = () => {
   return (
     <>
       <GameScene
+        key={game.id}
         currentNumber={gameSceneData.currentNumber}
         nextNumber={gameSceneData.nextNumber}
         powers={gameSceneData.powers}
@@ -174,6 +261,36 @@ export const Game = () => {
           {/* Selections modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
             <Selections selections={selections} className="max-w-2xl w-full" />
+          </div>
+        </>
+      )}
+      {/* Overlay and Places modal when selecting a trap */}
+      {showPlacesModal && place && (
+        <>
+          {/* Overlay to block interactions with GameScene */}
+          <div className="absolute inset-0 bg-black-900/80 z-40" />
+          {/* Places modal */}
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+            <Places
+              place={place}
+              onClose={handleClosePlacesModal}
+              className="w-full md:max-w-[416px]"
+            />
+          </div>
+        </>
+      )}
+      {/* Overlay and Uses modal when selecting a power up */}
+      {showUsesModal && use && (
+        <>
+          {/* Overlay to block interactions with GameScene */}
+          <div className="absolute inset-0 bg-black-900/80 z-40" />
+          {/* Uses modal */}
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+            <Uses
+              use={use}
+              onClose={handleCloseUsesModal}
+              className="w-full md:max-w-[416px]"
+            />
           </div>
         </>
       )}

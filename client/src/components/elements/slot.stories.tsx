@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { Slot } from "./slot";
+import { Trap, TrapType } from "@/types/trap";
 
 const meta = {
   title: "Elements/Slot",
@@ -48,6 +49,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Loading: Story = {
+  args: {
+    loading: true,
+  },
+};
+
 export const Disabled: Story = {
   args: {
     invalid: true,
@@ -70,5 +77,62 @@ export const Invalid: Story = {
 export const Placeholder: Story = {
   args: {
     variant: "placeholder",
+  },
+};
+
+export const Bomb: Story = {
+  args: {
+    trap: new Trap(TrapType.Bomb),
+  },
+};
+
+export const BombValue: Story = {
+  args: {
+    value: 100,
+    trap: new Trap(TrapType.Bomb),
+  },
+};
+
+export const BombInvalid: Story = {
+  args: {
+    invalid: true,
+    trap: new Trap(TrapType.Bomb),
+  },
+};
+
+export const BombInactive: Story = {
+  args: {
+    inactive: true,
+    trap: new Trap(TrapType.Bomb),
+  },
+};
+
+export const Magnet: Story = {
+  args: {
+    trap: new Trap(TrapType.Magnet),
+  },
+};
+
+export const Windy: Story = {
+  args: {
+    trap: new Trap(TrapType.Windy),
+  },
+};
+
+export const Lucky: Story = {
+  args: {
+    trap: new Trap(TrapType.Lucky),
+  },
+};
+
+export const Slots: Story = {
+  args: {
+    trap: new Trap(TrapType.Slots),
+  },
+};
+
+export const UFO: Story = {
+  args: {
+    trap: new Trap(TrapType.UFO),
   },
 };

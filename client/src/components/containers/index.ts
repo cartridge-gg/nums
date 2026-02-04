@@ -5,6 +5,8 @@ export * from "./quests";
 export * from "./leaderboard";
 export * from "./purchase";
 export * from "./selections";
+export * from "./places";
+export * from "./uses";
 export * from "./game-over";
 export * from "./banners";
 export * from "./games";

@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { CloseIcon } from "@/components/icons/transparents";
+import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Quests, type QuestsProps } from "@/components/containers/quests";
 import { Claim } from "../elements";
+import { useId } from "react";
 
 export interface QuestSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -36,8 +37,12 @@ export const QuestScene = ({
   className,
   ...props
 }: QuestSceneProps) => {
+  const filterId = useId();
+
   return (
     <div className={cn(questSceneVariants({ variant, className }))} {...props}>
+      <ShadowEffect filterId={filterId} />
+
       {/* Mobile */}
       <div
         className="flex flex-col md:hidden gap-6 w-full h-full overflow-y-auto pb-2"
@@ -54,7 +59,10 @@ export const QuestScene = ({
                   className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
                   onClick={onClose}
                 >
-                  <CloseIcon size="md" />
+                  <CloseIcon
+                    size="md"
+                    style={{ filter: `url(#${filterId})` }}
+                  />
                 </Button>
               </div>
             )}
@@ -96,7 +104,7 @@ export const QuestScene = ({
             className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
             onClick={onClose}
           >
-            <CloseIcon size="lg" />
+            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
           </Button>
         )}
         <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col gap-6 md:gap-8">

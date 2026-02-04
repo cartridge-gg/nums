@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { CloseIcon } from "@/components/icons/transparents";
+import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Leaderboard } from "@/components/containers/leaderboard";
 import type { LeaderboardRowData } from "@/hooks/leaderboard";
 import { Ranges, type RangeType } from "@/components/elements/ranges";
 import { LeaderboardRowProps } from "../elements";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 export interface LeaderboardSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -39,6 +39,7 @@ export const LeaderboardScene = ({
   className,
   ...props
 }: LeaderboardSceneProps) => {
+  const filterId = useId();
   const [range, setRange] = useState<RangeType>("All");
 
   // Transform and filter rows based on range
@@ -101,6 +102,8 @@ export const LeaderboardScene = ({
       className={cn(leaderboardSceneVariants({ variant, className }))}
       {...props}
     >
+      <ShadowEffect filterId={filterId} />
+
       {/* Mobile */}
       <div
         className="flex flex-col md:hidden gap-6 w-full h-full overflow-y-auto pb-2"
@@ -116,7 +119,7 @@ export const LeaderboardScene = ({
                 className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
                 onClick={onClose}
               >
-                <CloseIcon size="md" />
+                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
               </Button>
             </div>
           )}
@@ -137,7 +140,7 @@ export const LeaderboardScene = ({
             className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
             onClick={onClose}
           >
-            <CloseIcon size="lg" />
+            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
           </Button>
         )}
         <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col gap-6 md:gap-8">

@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PowerUp, type PowerUpProps } from "@/components/elements";
-import { CircleInfoIcon } from "@/components/icons";
 import {
   Tooltip,
   TooltipContent,
@@ -48,15 +47,9 @@ export const PowerUps = ({
         className={cn(powerUpsVariants({ variant, size, className }))}
         {...props}
       >
-        <div
-          className="flex justify-between items-center w-full cursor-pointer group"
-          onClick={onInfoClick}
-        >
-          <p className="text-mauve-100 group-hover:text-mauve-200 text-lg/6 uppercase tracking-wider transition-colors duration-150">
-            Power Ups
-          </p>
-          <CircleInfoIcon className="text-mauve-100 group-hover:text-mauve-200 transition-colors duration-150" />
-        </div>
+        <p className="w-full text-mauve-100 text-lg/6 uppercase tracking-wider">
+          Power Ups
+        </p>
         <ul className="flex justify-center gap-3 w-full">
           {powers.map((powerProps, index) => {
             const power = powerProps.power;

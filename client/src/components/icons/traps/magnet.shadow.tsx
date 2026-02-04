@@ -1,33 +1,37 @@
 import { forwardRef, memo } from "react";
 import { iconVariants, type IconProps } from "..";
 
-export const CloseIcon = memo(
+export const MagnetShadowIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
     ({ className, size, ...props }, forwardedRef) => (
       <svg
-        width="32"
-        height="32"
-        viewBox="0 0 32 32"
+        width="64"
+        height="64"
+        viewBox="0 0 64 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={iconVariants({ size, className })}
         ref={forwardedRef}
         {...props}
       >
-        <g filter="url(#filter0_d_858_10001)">
+        <path
+          opacity="0.4"
+          d="M9.59961 12.8001V22.4001H22.3996V12.8001C22.3996 11.0301 20.9696 9.6001 19.1996 9.6001H12.7996C11.0296 9.6001 9.59961 11.0301 9.59961 12.8001ZM41.5996 12.8001V22.4001H54.3996V12.8001C54.3996 11.0301 52.9696 9.6001 51.1996 9.6001H44.7996C43.0296 9.6001 41.5996 11.0301 41.5996 12.8001Z"
+          fill="#FF9B85"
+        />
+        <g filter="url(#filter0_d_2361_13438)">
           <path
-            d="M24.8744 22.9501C25.421 23.4952 25.421 24.3796 24.8744 24.9248C24.3278 25.47 23.441 25.4699 22.8944 24.9248L16.001 17.9989L9.05859 24.9225C8.51201 25.4676 7.62519 25.4676 7.07855 24.9225C6.53191 24.3774 6.53197 23.493 7.07855 22.9478L14.0233 16.0265L7.07662 9.05053C6.53004 8.50542 6.53004 7.621 7.07662 7.07584C7.6232 6.53068 8.51002 6.53074 9.05666 7.07584L16.001 14.0541L22.9434 7.13053C23.4899 6.58543 24.3768 6.58543 24.9234 7.13053C25.47 7.67564 25.47 8.56006 24.9234 9.10522L17.9787 16.0265L24.8744 22.9501Z"
-            fill="currentColor"
-            shapeRendering="crispEdges"
+            d="M9.59961 22.3999V35.1999C9.59961 47.5699 19.6296 57.5999 31.9996 57.5999C44.3696 57.5999 54.3996 47.5699 54.3996 35.1999V22.3999H41.5996V35.1999C41.5996 40.4999 37.2996 44.7999 31.9996 44.7999C26.6996 44.7999 22.3996 40.4999 22.3996 35.1999V22.3999H9.59961Z"
+            fill="#FF9B85"
           />
         </g>
         <defs>
           <filter
-            id="filter0_d_858_10001"
-            x="6.66669"
-            y="6.66699"
-            width="20.6667"
-            height="20.667"
+            id="filter0_d_2361_13438"
+            x="9.59961"
+            y="22.3999"
+            width="46.8008"
+            height="37.2"
             filterUnits="userSpaceOnUse"
             colorInterpolationFilters="sRGB"
           >
@@ -42,17 +46,17 @@ export const CloseIcon = memo(
             <feComposite in2="hardAlpha" operator="out" />
             <feColorMatrix
               type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+              values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0"
             />
             <feBlend
               mode="normal"
               in2="BackgroundImageFix"
-              result="effect1_dropShadow_858_10001"
+              result="effect1_dropShadow_2361_13438"
             />
             <feBlend
               mode="normal"
               in="SourceGraphic"
-              in2="effect1_dropShadow_858_10001"
+              in2="effect1_dropShadow_2361_13438"
               result="shape"
             />
           </filter>
@@ -62,4 +66,4 @@ export const CloseIcon = memo(
   ),
 );
 
-CloseIcon.displayName = "CloseIcon";
+MagnetShadowIcon.displayName = "MagnetShadowIcon";

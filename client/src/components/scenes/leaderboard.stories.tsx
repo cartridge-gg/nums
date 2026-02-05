@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { LeaderboardScene } from "./leaderboard-scene";
+import { LeaderboardScene } from "./leaderboard";
 import { fn } from "storybook/test";
 import type { LeaderboardRowData } from "@/hooks/leaderboard";
 
 const meta = {
-  title: "Layouts/LeaderboardScene",
+  title: "Scenes/Leaderboard",
   component: LeaderboardScene,
   parameters: {
     layout: "fullscreen",

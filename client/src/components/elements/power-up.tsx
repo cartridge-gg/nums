@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import type { Power, PowerIconStatus } from "@/types/power";
 import { DiamondIcon } from "@/components/icons";
+import { useMemo } from "react";
 
 export interface PowerUpProps
   extends React.HTMLAttributes<HTMLButtonElement>,
@@ -40,16 +41,21 @@ export const PowerUp = ({
   ...props
 }: PowerUpProps) => {
   const Icon = power?.icon(status);
+
+  const isDisabled = useMemo(() => {
+    return !!status || !power || power.isNone() || disabled;
+  }, [status, power, disabled]);
+
   return (
     <Button
-      disabled={!!status || !power || power.isNone() || disabled}
+      disabled={isDisabled}
       variant="muted"
       className={cn(
         powerUpVariants({ variant, size, className }),
-        "p-2 md:p-4 disabled:opacity-100",
+        "p-3 md:p-4 disabled:opacity-100",
         power
-          ? "bg-mauve-700 hover:bg-mauve-500 disabled:bg-mauve-800"
-          : "bg-black-800",
+          ? "bg-mauve-700 hover:bg-mauve-500 disabled:bg-mauve-800 disabled:shadow-none"
+          : "bg-black-800 shadow-none",
       )}
       {...props}
     >

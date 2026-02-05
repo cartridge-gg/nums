@@ -18,7 +18,7 @@ import { Game, Home } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
-import { AppLayout } from "./components/layouts/app-layout";
+import { Layout } from "./components/layouts";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -92,12 +92,12 @@ function App() {
                         v7_relativeSplatPath: true,
                       }}
                     >
-                      <AppLayout>
+                      <Layout>
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/game" element={<Game />} />
                         </Routes>
-                      </AppLayout>
+                      </Layout>
                     </Router>
                   </PricesProvider>
                 </QuestsProvider>

@@ -1,4 +1,4 @@
-import { HomeScene } from "@/components/layouts/home-scene";
+import { HomeScene } from "@/components/scenes/home";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";

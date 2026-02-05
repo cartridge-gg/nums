@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { GameScene } from "./game-scene";
+import { GameScene } from "./game";
 import { Power, PowerType } from "@/types/power";
 import { Trap, TrapType } from "@/types/trap";
 
 const meta = {
-  title: "Layouts/Game Scene",
+  title: "Scenes/Game",
   component: GameScene,
   parameters: {
     layout: "padded",

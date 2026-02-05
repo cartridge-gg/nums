@@ -25,6 +25,7 @@ export interface GameSceneProps
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
+  onGameInfoClick?: () => void;
 }
 
 const gameSceneVariants = cva(
@@ -54,6 +55,7 @@ export const GameScene = ({
   powers,
   slots,
   stages,
+  onGameInfoClick,
   variant,
   size,
   className,
@@ -80,8 +82,8 @@ export const GameScene = ({
       style={{ scrollbarWidth: "none", ...style }}
       {...props}
     >
-      <div className="flex justify-between items-end md:gap-8 w-full">
-        <div className="flex justify-between items-center h-full gap-2 xs:gap-6">
+      <div className="flex justify-between items-end gap-2 xs:gap-3 md:gap-8 w-full">
+        <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
           <Num value={currentNumber} invalid={isOver} />
           <div className="flex flex-col justify-between items-start h-full gap-2">
             <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
@@ -110,12 +112,12 @@ export const GameScene = ({
             variant={isOver && !isRescuable ? "destructive" : "default"}
           />
           <Share disabled />
-          <GameInfo disabled />
+          <GameInfo onClick={onGameInfoClick} />
         </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>
       <div
-        className="overflow-y-auto w-full p-3 px-6"
+        className="overflow-y-auto w-full p-3"
         style={{ scrollbarWidth: "none" }}
       >
         <Slots

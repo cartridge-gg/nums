@@ -3,7 +3,7 @@ import { Header } from "./header";
 import { BrowserRouter } from "react-router-dom";
 
 const meta = {
-  title: "Layouts/Header",
+  title: "Containers/Header",
   component: Header,
   parameters: {
     layout: "fullscreen",

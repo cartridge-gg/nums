@@ -2,27 +2,35 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { ShadowEffect, CloseIcon } from "@/components/icons";
-import { Purchase, type PurchaseProps } from "@/components/containers/purchase";
-import { Details, DetailsProps } from "../containers";
-import { useId } from "react";
+import { Purchase } from "@/components/containers/purchase";
+import { Details } from "../containers";
+import { useId, useMemo, useState, useEffect } from "react";
+import { ChartHelper } from "@/helpers/chart";
+import { Formatter } from "@/helpers/formatter";
+import { DEFAULT_EXPIRATION } from "@/constants";
 
 export interface PurchaseSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof purchaseSceneVariants> {
-  detailsProps: DetailsProps;
-  purchaseProps: PurchaseProps;
+  slotCount: number;
+  playPrice: number;
+  numsPrice: number;
+  multiplier?: string;
+  expiration?: number; // Unix timestamp in seconds
+  targetSupply: bigint;
+  currentSupply: bigint;
   onClose?: () => void;
   onConnect?: () => void;
   onPurchase?: () => void;
 }
 
 const purchaseSceneVariants = cva(
-  "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6 rounded-xl w-full",
+  "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6",
   {
     variants: {
       variant: {
         default:
-          "bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300",
+          "rounded-t-2xl rounded-b-4xl md:rounded-3xl bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
       },
     },
     defaultVariants: {
@@ -32,8 +40,13 @@ const purchaseSceneVariants = cva(
 );
 
 export const PurchaseScene = ({
-  detailsProps,
-  purchaseProps,
+  slotCount,
+  playPrice,
+  numsPrice,
+  multiplier,
+  expiration,
+  targetSupply,
+  currentSupply,
   onClose,
   onConnect,
   onPurchase,
@@ -42,6 +55,68 @@ export const PurchaseScene = ({
   ...props
 }: PurchaseSceneProps) => {
   const filterId = useId();
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Calculate chart data using ChartHelper
+  const { chartValues, chartAbscissa, maxPayoutNums, maxPayout } =
+    useMemo(() => {
+      return ChartHelper.calculate({
+        slotCount,
+        currentSupply,
+        targetSupply,
+        numsPrice,
+        playPrice,
+      });
+    }, [slotCount, currentSupply, targetSupply, numsPrice, playPrice]);
+
+  // Calculate expiration time display
+  const expirationDisplay = useMemo(() => {
+    if (expiration) {
+      // Dynamic timer: calculate remaining time
+      const remainingMs = Math.max(0, expiration * 1000 - currentTime);
+      return Formatter.time(remainingMs);
+    } else {
+      // Static timer based on DEFAULT_EXPIRATION
+      return Formatter.time(DEFAULT_EXPIRATION * 1000);
+    }
+  }, [expiration, currentTime]);
+
+  // Update timer every second if expiration is provided
+  useEffect(() => {
+    if (expiration) {
+      const interval = setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [expiration]);
+
+  // Calculate details props
+  const detailsProps = useMemo(() => {
+    return {
+      entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
+      multiplier: multiplier || "1.0x",
+      breakEven: chartAbscissa.toString(),
+      expiration: expirationDisplay,
+      maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,
+    };
+  }, [
+    playPrice,
+    multiplier,
+    chartAbscissa,
+    expirationDisplay,
+    maxPayoutNums,
+    maxPayout,
+  ]);
+
+  // Calculate purchase props
+  const purchaseProps = useMemo(() => {
+    return {
+      chartValues,
+      chartAbscissa,
+      numsPrice,
+    };
+  }, [chartValues, chartAbscissa, numsPrice]);
 
   return (
     <div
@@ -59,7 +134,7 @@ export const PurchaseScene = ({
         <div className="flex flex-col w-full items-start gap-4">
           <div className="flex items-center justify-between w-full">
             <Title />
-            {onClose && (
+            {onClose && (!!onPurchase || !!onConnect) ? (
               <div className="flex justify-end flex-shrink-0">
                 <Button
                   variant="ghost"
@@ -72,6 +147,14 @@ export const PurchaseScene = ({
                   />
                 </Button>
               </div>
+            ) : (
+              <Button
+                variant="ghost"
+                className="h-10 w-10 p-0 text-white-400 hover:text-white-300 rounded"
+                onClick={onClose}
+              >
+                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
+              </Button>
             )}
           </div>
         </div>
@@ -115,7 +198,7 @@ export const PurchaseScene = ({
       {/* Desktop */}
       <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
         {/* Close button */}
-        {onClose && (
+        {onClose && (!!onPurchase || !!onConnect) ? (
           <Button
             variant="ghost"
             className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
@@ -123,11 +206,19 @@ export const PurchaseScene = ({
           >
             <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
           </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            className="absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+            onClick={onClose}
+          >
+            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+          </Button>
         )}
-        <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col justify-center gap-10">
+        <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-10">
           <Title />
-          <div className="flex items-center justify-between gap-8">
-            <Purchase {...purchaseProps} className="flex-1 h-full" />
+          <div className="flex items-stretch justify-between gap-8">
+            <Purchase {...purchaseProps} className="flex-1" />
             <div className="flex flex-col gap-6 flex-1">
               <Details className="grow overflow-hidden" {...detailsProps} />
               {onConnect ? (

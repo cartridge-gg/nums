@@ -56,6 +56,9 @@ export const Mix: Story = {
         status: "used" as const,
         onClick: fn(),
       },
+      {
+        power: undefined,
+      },
     ],
   },
 };

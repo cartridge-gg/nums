@@ -20,6 +20,8 @@ const config = {
         xs: "360px",
       },
       borderRadius: {
+        "2xl": "16px",
+        "3xl": "24px",
         "4xl": "32px",
       },
       keyframes: {

@@ -17,12 +17,12 @@ export interface LeaderboardSceneProps
 }
 
 const leaderboardSceneVariants = cva(
-  "select-none flex items-center justify-center gap-6 md:gap-10 p-2 xs:p-6 rounded-xl overflow-hidden w-full",
+  "select-none flex items-center justify-center gap-6 md:gap-10 p-2 xs:p-6 overflow-hidden w-full",
   {
     variants: {
       variant: {
         default:
-          "bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300",
+          "rounded-t-2xl rounded-b-4xl md:rounded-3xl bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
       },
     },
     defaultVariants: {

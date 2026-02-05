@@ -16,6 +16,7 @@ export class Game {
   constructor(
     public id: number,
     public claimed: boolean,
+    public multiplier: number,
     public level: number,
     public slot_count: number,
     public slot_min: number,
@@ -28,6 +29,7 @@ export class Game {
     public disabled_traps: boolean[],
     public reward: number,
     public over: number,
+    public expiration: number,
     public traps: Trap[],
     public slots: number[],
     public supply: bigint,
@@ -63,6 +65,7 @@ export class Game {
     const props = {
       id: Number(data.id.value),
       claimed: !!data.claimed.value,
+      multiplier: Number(data.multiplier.value),
       level: Number(data.level.value),
       slot_count: Number(data.slot_count.value),
       slot_min: Number(data.slot_min.value),
@@ -83,6 +86,7 @@ export class Game {
       ).map((index) => index === 1),
       reward: Number(data.reward.value),
       over: Number(data.over.value),
+      expiration: Number(data.expiration.value),
       traps: Trap.getTraps(BigInt(data.traps.value)),
       slots: Packer.sized_unpack(
         BigInt(data.slots.value),
@@ -100,6 +104,7 @@ export class Game {
     return new Game(
       props.id,
       props.claimed,
+      props.multiplier,
       props.level,
       props.slot_count,
       props.slot_min,
@@ -112,6 +117,7 @@ export class Game {
       props.disabled_traps,
       props.reward,
       props.over,
+      props.expiration,
       props.traps,
       props.slots,
       props.supply,

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { QuestScene } from "./quest-scene";
+import { QuestScene } from "./quest";
 import { fn } from "storybook/test";
 
 const meta = {
-  title: "Layouts/QuestScene",
+  title: "Scenes/Quest",
   component: QuestScene,
   parameters: {
     layout: "fullscreen",

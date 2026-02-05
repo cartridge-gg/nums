@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { GameScene } from "@/components/layouts/game-scene";
+import { GameScene } from "@/components/scenes/game";
+import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
 import { Places } from "@/components/containers/places";
 import { Uses } from "@/components/containers/uses";
@@ -11,6 +12,7 @@ import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
+import { useEntities } from "@/context/entities";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
@@ -23,6 +25,7 @@ export const Game = () => {
   const { openPurchaseScene } = usePurchaseModal();
   const { gameIds } = useAssets();
   const { games } = useGames(gameIds);
+  const { config, starterpack } = useEntities();
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
@@ -33,6 +36,7 @@ export const Game = () => {
   const [selectedPowerIndex, setSelectedPowerIndex] = useState<number | null>(
     null,
   );
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   // Get game ID from search params
   const gameId = useMemo(() => {
@@ -43,7 +47,15 @@ export const Game = () => {
   // Load game data
   const game = useGame(gameId);
 
-  // Transform game data for GameScene
+  const playPrice = useMemo(() => {
+    return Number(starterpack?.price || 0n) / 10 ** 6 || 0;
+  }, [starterpack]);
+
+  const numsPrice = useMemo(() => {
+    return parseFloat(getNumsPrice() || "0.0");
+  }, [getNumsPrice]);
+
+  // Transform game data for Game
   const gameSceneData = useMemo(() => {
     if (!game) {
       return {
@@ -98,8 +110,11 @@ export const Game = () => {
           setSelectedPowerIndex(index);
           setShowUsesModal(true);
         },
-        disabled: game.over,
+        disabled: !!game.over,
       })),
+      onGameInfoClick: () => {
+        setShowPurchaseModal(true);
+      },
       slots: game.slots.map((slot, index) => ({
         value: slot,
         trap: game.getTrap(index),
@@ -241,6 +256,25 @@ export const Game = () => {
     setSelectedPowerIndex(null);
   }, []);
 
+  const handleClosePurchaseModal = useCallback(() => {
+    setShowPurchaseModal(false);
+  }, []);
+
+  // Calculate PurchaseScene props from game data
+  const purchaseSceneData = useMemo(() => {
+    if (!game || !config) return null;
+
+    return {
+      slotCount: game.slot_count,
+      playPrice,
+      numsPrice,
+      multiplier: "1.0x",
+      expiration: game.expiration,
+      targetSupply: config.target_supply || 0n,
+      currentSupply: game.supply,
+    };
+  }, [game, config, playPrice, numsPrice]);
+
   // Show loading state if game ID is invalid or game is not loaded
   if (!gameId || !game) {
     return (
@@ -262,12 +296,13 @@ export const Game = () => {
         powers={gameSceneData.powers}
         slots={gameSceneData.slots}
         stages={gameSceneData.stages}
-        className="md:max-h-[588px] p-6 pb-8 md:p-0 md:pb-0"
+        onGameInfoClick={gameSceneData.onGameInfoClick}
+        className="md:max-h-[588px] p-3 md:p-0 md:pb-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
       {hasSelectablePowers && selections.length > 0 && (
         <>
-          {/* Overlay to block interactions with GameScene */}
+          {/* Overlay to block interactions with Game */}
           <div className="absolute inset-0 bg-black-900/80 z-40" />
           {/* Selections modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
@@ -278,7 +313,7 @@ export const Game = () => {
       {/* Overlay and Places modal when selecting a trap */}
       {showPlacesModal && place && (
         <>
-          {/* Overlay to block interactions with GameScene */}
+          {/* Overlay to block interactions with Game */}
           <div className="absolute inset-0 bg-black-900/80 z-40" />
           {/* Places modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
@@ -293,7 +328,7 @@ export const Game = () => {
       {/* Overlay and Uses modal when selecting a power up */}
       {showUsesModal && use && (
         <>
-          {/* Overlay to block interactions with GameScene */}
+          {/* Overlay to block interactions with Game */}
           <div className="absolute inset-0 bg-black-900/80 z-40" />
           {/* Uses modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
@@ -305,9 +340,25 @@ export const Game = () => {
           </div>
         </>
       )}
+      {/* Overlay and PurchaseScene modal when GameInfo is clicked */}
+      {showPurchaseModal && purchaseSceneData && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center m-2 md:m-6">
+          <PurchaseScene
+            slotCount={purchaseSceneData.slotCount}
+            playPrice={purchaseSceneData.playPrice}
+            numsPrice={purchaseSceneData.numsPrice}
+            multiplier={purchaseSceneData.multiplier}
+            expiration={purchaseSceneData.expiration}
+            targetSupply={purchaseSceneData.targetSupply}
+            currentSupply={purchaseSceneData.currentSupply}
+            onClose={handleClosePurchaseModal}
+            className="h-full w-full md:p-12 md:h-auto md:w-auto md:min-w-[848px]"
+          />
+        </div>
+      )}
       {/* Overlay and GameOver modal when game is over */}
       {showGameOver && gameOverData && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 z-50 flex items-center justify-center m-2 md:m-6">
           <GameOver
             stages={{ states: gameSceneData.stages }}
             payout={gameOverData.payout}

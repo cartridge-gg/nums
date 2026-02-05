@@ -137,6 +137,12 @@ export interface RawGame {
     value: boolean;
     key: boolean;
   };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
   level: {
     type: "primitive";
     type_name: "u8";
@@ -204,6 +210,12 @@ export interface RawGame {
     key: boolean;
   };
   over: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  expiration: {
     type: "primitive";
     type_name: "u64";
     value: string;

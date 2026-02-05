@@ -1,9 +1,9 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/layouts/header";
-import { QuestScene } from "@/components/layouts/quest-scene";
-import { LeaderboardScene } from "@/components/layouts/leaderboard-scene";
-import { PurchaseScene } from "@/components/layouts/purchase-scene";
+import { Header } from "@/components/containers/header";
+import { QuestScene } from "@/components/scenes/quest";
+import { LeaderboardScene } from "@/components/scenes/leaderboard";
+import { PurchaseScene } from "@/components/scenes/purchase";
 import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
@@ -16,16 +16,14 @@ import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
-import { ChartHelper } from "@/helpers/chart";
-import { DEFAULT_EXPIRATION } from "@/constants";
 
 const background = "/assets/tunnel-background.svg";
 
-export interface AppLayoutProps {
+export interface LayoutProps {
   children: React.ReactNode;
 }
 
-export const AppLayout = ({ children }: AppLayoutProps) => {
+export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find } = useControllers();
   const headerData = useHeader();
@@ -61,36 +59,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     return Number(starterpack?.price || 0n) / 10 ** 6;
   }, [starterpack]);
 
-  // Calculate chart data using ChartHelper
-  const { chartValues, chartAbscissa, maxPayoutNums, maxPayout } =
-    useMemo(() => {
-      return ChartHelper.calculate({
-        slotCount: config?.slot_count || 18,
-        currentSupply,
-        targetSupply: config?.target_supply || 0n,
-        numsPrice: numsPrice,
-        playPrice,
-      });
-    }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
-
-  const detailsProps = useMemo(() => {
-    return {
-      entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
-      multiplier: `1.0x`,
-      breakEven: chartAbscissa.toString(),
-      expiration: `${DEFAULT_EXPIRATION / 60 / 60}hrs`,
-      maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,
-    };
-  }, [playPrice, chartAbscissa, maxPayoutNums, maxPayout]);
-
-  const purchaseProps = useMemo(() => {
-    return {
-      chartValues,
-      chartAbscissa,
-      numsPrice,
-    };
-  }, [chartValues, chartAbscissa, numsPrice]);
-
   const handlePurchase = useCallback(() => {
     if (starterpack) {
       (connector as ControllerConnector)?.controller.openStarterPack(
@@ -122,7 +90,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     previousGamesLengthRef.current = currentLength;
   }, [games.length, games, navigate]);
 
-  // Prepare quests props for QuestScene
+  // Prepare quests props for Quest
   const questsProps = useMemo(() => {
     const questProps = quests
       .filter((quest) => !quest.locked)
@@ -227,7 +195,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           {children}
         </PurchaseModalProvider>
         {showQuestScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 overflow-hidden shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl">
+          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
             <QuestScene
               questsProps={questsProps}
               onClaimAll={questsProps.onClaimAll}
@@ -237,7 +205,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
         )}
         {showLeaderboardScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 overflow-hidden shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl">
+          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
             <LeaderboardScene
               rows={leaderboardData ?? []}
               currentUserAddress={account?.address}
@@ -247,10 +215,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
         )}
         {showPurchaseScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 overflow-hidden shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl">
+          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
             <PurchaseScene
-              detailsProps={detailsProps}
-              purchaseProps={purchaseProps}
+              slotCount={config?.slot_count || 18}
+              playPrice={playPrice}
+              numsPrice={numsPrice}
+              multiplier="1.0x"
+              targetSupply={config?.target_supply || 0n}
+              currentSupply={currentSupply}
               onConnect={
                 account?.address ? undefined : headerData.handleConnect
               }

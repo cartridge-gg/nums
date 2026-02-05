@@ -12,3 +12,4 @@ export * from "./banners";
 export * from "./games";
 export * from "./activities";
 export * from "./details";
+export * from "./header";

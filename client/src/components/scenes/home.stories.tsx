@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { HomeScene } from "./home-scene";
+import { HomeScene } from "./home";
 import { fn } from "storybook/test";
 import { BrowserRouter } from "react-router-dom";
 
 const meta = {
-  title: "Layouts/Home Scene",
+  title: "Scenes/Home",
   component: HomeScene,
   parameters: {
     layout: "fullscreen",

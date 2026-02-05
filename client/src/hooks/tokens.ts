@@ -4,6 +4,7 @@ import type {
   Subscription,
   TokenBalance,
   TokenContract,
+  TokenTransfer,
 } from "@dojoengine/torii-wasm";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -33,6 +34,8 @@ export function useTokenContracts(
     (GetTokenRequest & { contractType?: ContractType }) | null
   >(null);
 
+  const subscriptionRef = useRef<Subscription | null>(null);
+
   const fetchTokens = useCallback(async () => {
     if (!client) return;
     const contractType = request.contractType || "ERC20";
@@ -48,6 +51,29 @@ export function useTokenContracts(
         order_by: [],
       },
     });
+    // Subscribe to token transfer to update the token supply
+    const subscription = await client.onTokenTransferUpdated(
+      contractAddresses,
+      [],
+      [],
+      async (_data: TokenTransfer) => {
+        const tokens = await client.getTokenContracts({
+          contract_addresses: contractAddresses,
+          contract_types: [contractType],
+          pagination: {
+            cursor: undefined,
+            direction: "Backward",
+            limit: CONTRACT_LIMIT,
+            order_by: [],
+          },
+        });
+        setContracts(tokens.items);
+      },
+    );
+    if (subscriptionRef.current) {
+      subscriptionRef.current.cancel();
+    }
+    subscriptionRef.current = subscription;
     setContracts(tokens.items);
   }, [client, request]);
 

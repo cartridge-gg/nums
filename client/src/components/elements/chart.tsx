@@ -365,7 +365,8 @@ export const Chart = ({
             tickLine={false}
             ticks={yTicks}
             tickFormatter={yTickFormatter}
-            interval="preserveStartEnd"
+            interval={0}
+            allowDecimals={false}
             tick={
               <CustomYAxisTick
                 showLabel={true}

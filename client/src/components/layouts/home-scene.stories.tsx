@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { HomeScene } from "./home-scene";
 import { fn } from "storybook/test";
 import { BrowserRouter } from "react-router-dom";
-import { useState } from "react";
 
 const meta = {
   title: "Layouts/Home Scene",
@@ -45,7 +44,7 @@ const sampleGames = [
   {
     gameId: 1145,
     score: 25,
-    breakEven: "20",
+    breakEven: "18",
     payout: "$150",
   },
   {
@@ -116,7 +115,7 @@ const sampleActivities = [
   },
   {
     gameId: 1152,
-    score: 20,
+    score: 18,
     payout: "+$1.00",
     to: "/game?id=1152",
     timestamp: yesterday - 10800, // Yesterday, 3 hours earlier
@@ -190,42 +189,24 @@ const sampleActivities = [
 ];
 
 const Wrapper = (args: Parameters<typeof HomeScene>[0]) => {
-  const [gameId, setGameId] = useState<number | undefined>(
-    args.activeGamesProps.gameId,
-  );
-  return (
-    <HomeScene
-      {...args}
-      activeGamesProps={{
-        ...args.activeGamesProps,
-        gameId,
-        setGameId,
-      }}
-    />
-  );
+  return <HomeScene {...args} />;
 };
 
 export const Default: Story = {
   render: (args) => <Wrapper {...args} />,
   args: {
     gameId: 1144,
-    activeGamesProps: {
-      games: sampleGames,
-      gameId: 1144,
-      setGameId: fn(),
-    },
-    activitiesProps: {
-      activities: sampleActivities,
-    },
-    onPracticeClick: fn(),
-    onPurchaseClick: fn(),
+    gamesProps: { games: sampleGames, gameId: 1144, setGameId: fn() },
+    activitiesProps: { activities: sampleActivities },
+    onPractice: fn(),
+    onPurchase: fn(),
   },
 };
 
 export const Empty: Story = {
   args: {
     gameId: undefined,
-    activeGamesProps: {
+    gamesProps: {
       games: [],
       gameId: undefined,
       setGameId: fn(),

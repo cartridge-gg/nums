@@ -1,6 +1,7 @@
 use core::array::ArrayTrait;
 use crate::constants::{
-    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_SLOTS, POWER_SIZE, SLOT_SIZE, TRAP_SIZE,
+    BASE_MULTIPLIER, DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW,
+    POWER_SIZE, SLOT_SIZE, TRAP_SIZE,
 };
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
@@ -20,6 +21,8 @@ pub mod errors {
     pub const GAME_INDEX_NOT_VALID: felt252 = 'Game: index not valid';
     pub const GAME_IS_OVER: felt252 = 'Game: is over';
     pub const GAME_NOT_OVER: felt252 = 'Game: not over';
+    pub const GAME_HAS_EXPIRED: felt252 = 'Game: has expired';
+    pub const GAME_NOT_CLAIMABLE: felt252 = 'Game: not claimable';
     pub const GAME_ALREADY_STARTED: felt252 = 'Game: already started';
     pub const GAME_SLOT_NOT_EMPTY: felt252 = 'Game: slot not empty';
     pub const GAME_POWER_NOT_AVAILABLE: felt252 = 'Game: power not available';
@@ -35,11 +38,14 @@ pub mod errors {
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
-    fn new(id: u64, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256) -> Game {
+    fn new(
+        id: u64, multiplier: u8, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256,
+    ) -> Game {
         // [Return] Game
         Game {
             id: id,
             claimed: false,
+            multiplier: multiplier,
             level: 0,
             slot_count: slot_count,
             slot_min: slot_min,
@@ -52,6 +58,7 @@ pub impl GameImpl of GameTrait {
             disabled_traps: 0,
             reward: 0,
             over: 0,
+            expiration: 0,
             traps: 0,
             slots: 0,
             supply: supply.try_into().unwrap(),
@@ -62,9 +69,6 @@ pub impl GameImpl of GameTrait {
     fn start(ref self: Game, ref rand: Random) {
         // [Check] Game has not started yet
         self.assert_not_started();
-        // [Effect] Set default slots
-        // [Info] If we consider slot min and max to change, we need to update this
-        self.slots = DEFAULT_SLOTS;
         // [Effect] Draw numbers
         let mut slots = self.slots();
         self.number = self.next(@slots, ref rand);
@@ -73,6 +77,8 @@ pub impl GameImpl of GameTrait {
         // [Effect] Draw traps
         let traps = TrapTrait::generate(TRAP_COUNT, self.slot_count, ref rand);
         self.traps = Packer::pack(traps, TRAP_SIZE);
+        // [Effect] Set expiration
+        self.expiration = starknet::get_block_timestamp() + DEFAULT_EXPIRATION;
     }
 
     #[inline]
@@ -109,6 +115,12 @@ pub impl GameImpl of GameTrait {
         VerifierTrait::is_over(*self.number, (*self.level).into(), (*self.slot_count).into(), slots)
     }
 
+    /// Determines if the game has expired based on the current timestamp.
+    #[inline]
+    fn is_expired(self: @Game) -> bool {
+        starknet::get_block_timestamp() >= *self.expiration
+    }
+
     /// Determines if the game is rescuable based on the available powers
     #[inline]
     fn is_rescuable(self: @Game, slots: @Array<u16>) -> bool {
@@ -141,7 +153,8 @@ pub impl GameImpl of GameTrait {
     fn is_drawable(self: @Game) -> bool {
         *self.selectable_powers == 0
             && !self.is_completed()
-            && ((*self.level + 2) % DEFAULT_DRAW_STAGE) == 0
+            && (*self.level % DEFAULT_DRAW_STAGE) == 0
+            && *self.level < DEFAULT_MAX_DRAW
     }
 
     /// Place number
@@ -325,13 +338,9 @@ pub impl GameImpl of GameTrait {
     /// Claims the game.
     #[inline]
     fn claim(ref self: Game) -> u64 {
-        // [Check] Game state
-        self.assert_does_exist();
-        self.assert_is_over();
-        self.assert_not_claimed();
         // [Effect] Claim game
         self.claimed = true;
-        self.reward
+        self.reward * self.multiplier.into() / BASE_MULTIPLIER.into()
     }
 }
 
@@ -406,10 +415,22 @@ pub impl GameAssert of AssertTrait {
         assert(self.over == @0, errors::GAME_IS_OVER);
     }
 
+    /// Asserts that the game has not expired.
+    #[inline]
+    fn assert_not_expired(self: @Game) {
+        assert(!self.is_expired(), errors::GAME_HAS_EXPIRED);
+    }
+
     /// Asserts that the game is over.
     #[inline]
     fn assert_is_over(self: @Game) {
         assert(self.over != @0, errors::GAME_NOT_OVER);
+    }
+
+    /// Asserts is claimable.
+    #[inline]
+    fn assert_is_claimable(self: @Game) {
+        assert(self.over != @0 || self.is_expired(), errors::GAME_NOT_CLAIMABLE);
     }
 
     /// Asserts that the game has started.
@@ -428,8 +449,8 @@ pub impl GameAssert of AssertTrait {
 #[cfg(test)]
 mod tests {
     use crate::constants::{
-        DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
-        SLOT_SIZE,
+        DEFAULT_DRAW_COUNT, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX,
+        DEFAULT_SLOT_MIN, POWER_SIZE, SLOT_SIZE,
     };
     use crate::helpers::packer::Packer;
     use super::{Game, GameAssert, GameTrait, RandomImpl};
@@ -439,7 +460,7 @@ mod tests {
     /// Helper function to create a test game instance
     fn create() -> Game {
         let mut game = GameTrait::new(
-            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
+            1, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
         );
         let mut rand = RandomImpl::new(1);
         game.start(ref rand);
@@ -449,7 +470,7 @@ mod tests {
     #[test]
     fn test_new_game_creation() {
         let game = GameTrait::new(
-            1, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
+            1, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
         );
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
@@ -560,19 +581,6 @@ mod tests {
         game.slots = slots.try_into().unwrap();
         let slots = game.slots();
         assert(game.is_over(@slots), 'Not over with full slots');
-    }
-
-    #[test]
-    fn test_is_over_empty_slot_at_end_can_fit() {
-        let mut game = create();
-        game.level = 19;
-        game.number = 500;
-        let slots: Array<u16> = array![
-            10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 0,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(@slots), 'Over but can fit at end');
     }
 
     #[test]

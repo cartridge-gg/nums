@@ -41,10 +41,9 @@ pub impl TrapImpl of TrapTrait {
 
     #[inline]
     fn generate(count: u8, total: u8, ref random: Random) -> Array<u8> {
-        let mut traps: Array<u8> = array![0];
+        let mut traps: Array<u8> = array![];
         let mut deck = DeckTrait::new(random.next_seed(), TRAP_COUNT.into());
-        Self::iter(total - 2, count, ref deck, ref random, ref traps);
-        traps.append(0);
+        Self::iter(total, count, ref deck, ref random, ref traps);
         traps
     }
 
@@ -106,6 +105,6 @@ mod tests {
     fn test_trap_generate() {
         let mut random = RandomTrait::new(0);
         let traps = TrapTrait::generate(TRAP_COUNT, DEFAULT_SLOT_COUNT, ref random);
-        assert_eq!(traps, array![0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 3, 2, 5, 0]);
+        assert_eq!(traps, array![0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 3, 2, 5]);
     }
 }

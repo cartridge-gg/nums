@@ -10,6 +10,7 @@ pub trait IPlay<T> {
     fn set(ref self: T, game_id: u64, index: u8) -> u16;
     fn select(ref self: T, game_id: u64, index: u8);
     fn apply(ref self: T, game_id: u64, index: u8) -> u16;
+    fn claim(ref self: T, game_id: u64);
 }
 
 #[starknet::interface]
@@ -163,6 +164,13 @@ pub mod Play {
             let world = self.world(@NAMESPACE());
             // [Effect] Apply power
             self.playable.apply(world, game_id, index)
+        }
+
+        fn claim(ref self: ContractState, game_id: u64) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Effect] Claim game
+            self.playable.claim(world, game_id)
         }
     }
 

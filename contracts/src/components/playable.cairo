@@ -18,6 +18,7 @@ pub mod PlayableComponent {
     use starknet::ContractAddress;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
+    use crate::constants::DEFAULT_MULTIPLIER;
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
@@ -81,6 +82,7 @@ pub mod PlayableComponent {
                 // [Effect] Create game
                 let mut game = GameTrait::new(
                     id: game_id,
+                    multiplier: DEFAULT_MULTIPLIER,
                     slot_count: config.slot_count,
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
@@ -225,13 +227,12 @@ pub mod PlayableComponent {
             let collection = self.get_collection(world);
             collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
-            // [Check] Game exists
+            // [Check] Game state
             let mut game = store.game(game_id);
             game.assert_does_exist();
-
-            // [Check] Game has started and is not over
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Place number
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -335,6 +336,7 @@ pub mod PlayableComponent {
             game.assert_does_exist();
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Select power
             game.select(index);
@@ -379,6 +381,7 @@ pub mod PlayableComponent {
             game.assert_does_exist();
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -418,6 +421,12 @@ pub mod PlayableComponent {
             // [Check] Token ownership
             let collection = self.get_collection(world);
             collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
+
+            // [Check] Game state
+            let mut game = store.game(game_id);
+            game.assert_does_exist();
+            game.assert_is_claimable();
+            game.assert_not_claimed();
 
             // [Effect] Claim game
             let mut game = store.game(game_id);

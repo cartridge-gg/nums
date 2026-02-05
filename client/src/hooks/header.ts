@@ -23,41 +23,37 @@ export const useHeader = () => {
     contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
   });
 
+  const token = useMemo(() => {
+    return tokenContracts.find(
+      (i) => BigInt(i.contract_address) === BigInt(numsAddress),
+    );
+  }, [tokenContracts, numsAddress]);
+
   const prevBalanceRef = useRef<number | undefined>(undefined);
   const balanceDiff = useRef<{ value: number }>({ value: 0 });
 
-  const { balance, supply }: { balance: string; supply: bigint } =
-    useMemo(() => {
-      if (!account) return { balance: "0", supply: 0n };
+  const balance = useMemo(() => {
+    if (!account || !token) return "0";
 
-      const token = tokenContracts.find(
-        (i) => BigInt(i.contract_address) === BigInt(numsAddress),
-      );
-      if (!token) return { balance: "0", supply: 0n };
+    const tokenBalance = tokenBalances.find(
+      (b) =>
+        BigInt(b.contract_address) === BigInt(numsAddress) &&
+        BigInt(b.account_address) ===
+          BigInt(addAddressPadding(account.address)),
+    );
+    if (!tokenBalance) return "0";
 
-      const tokenBalance = tokenBalances.find(
-        (b) =>
-          BigInt(b.contract_address) === BigInt(numsAddress) &&
-          BigInt(b.account_address) ===
-            BigInt(addAddressPadding(account.address)),
-      );
-      const tokenSupply = BigInt(token?.total_supply ?? "0");
-      if (!tokenBalance) return { balance: "0", supply: tokenSupply };
+    const balanceScaled = toDecimal(token, tokenBalance);
 
-      const balanceScaled = toDecimal(token, tokenBalance);
+    const diff = balanceScaled - (prevBalanceRef.current || 0);
 
-      const diff = balanceScaled - (prevBalanceRef.current || 0);
+    if (diff !== 0) {
+      balanceDiff.current = { value: diff };
+      prevBalanceRef.current = balanceScaled;
+    }
 
-      if (diff !== 0) {
-        balanceDiff.current = { value: diff };
-        prevBalanceRef.current = balanceScaled;
-      }
-
-      return {
-        balance: balanceScaled.toFixed(0).toLocaleString(),
-        supply: tokenSupply,
-      };
-    }, [tokenBalances, tokenContracts, account, numsAddress]);
+    return balanceScaled.toFixed(0).toLocaleString();
+  }, [tokenBalances, token, account, numsAddress]);
 
   const [username, setUsername] = useState<string | null>(null);
   const controllerConnector = connector as never as ControllerConnector;
@@ -81,7 +77,7 @@ export const useHeader = () => {
   return {
     isMuted,
     toggleMute,
-    supply,
+    supply: BigInt(token?.total_supply ?? "0"),
     balance,
     username,
     address,

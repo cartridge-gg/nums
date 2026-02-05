@@ -18,6 +18,8 @@ export interface GameSceneProps
     VariantProps<typeof gameSceneVariants> {
   currentNumber: number;
   nextNumber: number;
+  minNumber: number;
+  maxNumber: number;
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
@@ -44,6 +46,8 @@ const gameSceneVariants = cva(
 export const GameScene = ({
   currentNumber,
   nextNumber,
+  minNumber,
+  maxNumber,
   powers,
   slots,
   stages,
@@ -110,7 +114,12 @@ export const GameScene = ({
         className="overflow-y-auto w-full p-3 px-6"
         style={{ scrollbarWidth: "none" }}
       >
-        <Slots number={currentNumber} slots={slots} />
+        <Slots
+          number={currentNumber}
+          min={minNumber}
+          max={maxNumber}
+          slots={slots}
+        />
       </div>
       <Stages states={stages} className="w-full hidden md:grid" />
       <PowerUps

@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x1b8b313ab94599bba58870bf5ed81c0e74724a9a91d4c34105e6a62144148cb",
-    "seed": "nums-v1.0.32",
+    "address": "0x2fc593a1f77da001a693eaebfd87f9b0832849f52d20da84db739ef7023b832",
+    "seed": "nums-v1.0.34",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x6d50061c87f211cc737c96dbef82c08c32bd6ac3eacac2f488a95c3b76d4537",
-      "class_hash": "0x1149b59d8967a381f6cb1f013340924b0743835c04b8de64614f042c78be783",
+      "address": "0x14c8d2e75beb186bbb2f8b8f51b2f5e32c69bdf4d4cbef35ca5c7b91c121cb2",
+      "class_hash": "0x5209abfc0dde0be499b121e873afa2b3e2a5930ac29227ce8e390ee577e50c0",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x6839937e539f56726a1ee084e15e56b0d43f76c487c632747ce1edb73793ad8",
-      "class_hash": "0x455034dcf21862e9e91cbbbcc739933f4e3620d5f80ef2c924d2d6baaedd44f",
+      "address": "0x2501cf2133587322ef9dd03035b5da5c31eead557bf162ee246071363dfffd7",
+      "class_hash": "0x7e0c9742e6913f3e544c29c926ad82dc24bbee3c7f0bd50372f881a8b7f1c61",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -71,6 +71,7 @@
         "set",
         "select",
         "apply",
+        "claim",
         "register_starterpack",
         "update_starterpack",
         "update_metadata",
@@ -78,8 +79,8 @@
       ]
     },
     {
-      "address": "0x1c93aa96b918b02501acbb92a80f03b46d636ff7dc368270b880c98d9a10601",
-      "class_hash": "0x2fb740b6dcd108ff32f1802b74969e844a3677349982ab232f0fd2ef14900a",
+      "address": "0x142e308ee4887717809570fc0550be265a318e1362c15f0694fed25048e457e",
+      "class_hash": "0x24a4c47b93ae3eeb1daa9f96e6ad2c2ce847ea9f8d53bb0dcf0d96bad87bbd8",
       "init_calldata": [
         "0x0",
         "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",
@@ -290,6 +291,11 @@
           "key": false
         },
         {
+          "name": "multiplier",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
           "name": "level",
           "type": "core::integer::u8",
           "key": false
@@ -350,6 +356,11 @@
           "key": false
         },
         {
+          "name": "expiration",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
           "name": "traps",
           "type": "core::integer::u128",
           "key": false
@@ -365,7 +376,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x4ec9fb5ba64af63e864dd37182454851c2e003ffdd465dd2cfb6e66b109caf4",
+      "class_hash": "0x31c937c0cfd16906e0d05e99f712961de15bb50504a54c79bd70f29020e685a",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -3507,6 +3518,10 @@
           "type": "core::bool"
         },
         {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
           "name": "level",
           "type": "core::integer::u8"
         },
@@ -3552,6 +3567,10 @@
         },
         {
           "name": "over",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expiration",
           "type": "core::integer::u64"
         },
         {
@@ -3577,6 +3596,10 @@
           "type": "core::bool"
         },
         {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
           "name": "level",
           "type": "core::integer::u8"
         },
@@ -3622,6 +3645,10 @@
         },
         {
           "name": "over",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expiration",
           "type": "core::integer::u64"
         },
         {
@@ -3945,6 +3972,18 @@
               "type": "core::integer::u16"
             }
           ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "claim",
+          "inputs": [
+            {
+              "name": "game_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
           "state_mutability": "external"
         }
       ]

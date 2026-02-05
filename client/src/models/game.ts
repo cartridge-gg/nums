@@ -5,10 +5,6 @@ import { Trap } from "@/types/trap";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
-export const REWARDS: number[] = [
-  0, 1, 4, 10, 20, 35, 60, 100, 160, 225, 300, 600, 900, 1800, 2500, 4000, 6500,
-  8000, 10000, 20000, 42000,
-];
 
 // Constants matching rewarder.cairo
 const NUMERATOR = 270_000_000_000n;
@@ -83,12 +79,16 @@ export class Game {
       disabled_traps: Packer.sized_unpack(
         BigInt(data.disabled_traps.value),
         1n,
-        20,
+        Number(data.slot_count.value),
       ).map((index) => index === 1),
       reward: Number(data.reward.value),
       over: Number(data.over.value),
       traps: Trap.getTraps(BigInt(data.traps.value)),
-      slots: Packer.sized_unpack(BigInt(data.slots.value), SLOT_SIZE, 20),
+      slots: Packer.sized_unpack(
+        BigInt(data.slots.value),
+        SLOT_SIZE,
+        Number(data.slot_count.value),
+      ),
       supply: BigInt(data.supply.value),
     };
     // Selected powers must be a 4 power array size, add None powers if needed
@@ -146,8 +146,8 @@ export class Game {
 
   /**
    * Calculate reward amount for a given level, matching the Cairo implementation in rewarder.cairo
-   * @param level - The level of the reward (0-20)
-   * @param slotCount - The number of slots in the game (default: 20)
+   * @param level - The level of the reward (0-18)
+   * @param slotCount - The number of slots in the game (default: 18)
    * @param supply - The current supply of the game
    * @param targetSupply - The target supply of the game
    * @returns The reward amount in wei (u64 equivalent)
@@ -199,18 +199,18 @@ export class Game {
   }
 
   /**
-   * Calculate rewards for all 20 levels (1-20) based on supply and target supply
-   * @param slotCount - The number of slots in the game (default: 20)
+   * Calculate rewards for all levels based on supply and target supply
+   * @param slotCount - The number of slots in the game (default: 18)
    * @param supply - The current supply of the game
    * @param targetSupply - The target supply of the game
-   * @returns Array of 20 reward values, one for each level
+   * @returns Array of slot-count reward values, one for each level
    */
   public static rewards(
     slotCount: number,
     supply: bigint,
     targetSupply: bigint,
   ): number[] {
-    return Array.from({ length: 20 }, (_, index) => {
+    return Array.from({ length: slotCount }, (_, index) => {
       const level = index + 1;
       return Game.calculateReward(level, slotCount, supply, targetSupply);
     });

@@ -51,9 +51,12 @@ pub const TRAP_SIZE: u128 = 2_u128.pow(4);
 pub const POWER_SIZE: u8 = 2_u8.pow(4);
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
 
-pub const DEFAULT_SLOT_COUNT: u8 = 20;
+pub const DEFAULT_SLOT_COUNT: u8 = 18;
 pub const DEFAULT_SLOT_MIN: u16 = 1;
 pub const DEFAULT_SLOT_MAX: u16 = 999;
-pub const DEFAULT_SLOTS: felt252 = 0x3E7000000000000000000000000000000000000000000000000000000001;
 pub const DEFAULT_DRAW_COUNT: u8 = 2;
-pub const DEFAULT_DRAW_STAGE: u8 = 6;
+pub const DEFAULT_MAX_DRAW: u8 = 15;
+pub const DEFAULT_DRAW_STAGE: u8 = 4;
+pub const DEFAULT_EXPIRATION: u64 = 1 * 24 * 60 * 60; // One day
+pub const DEFAULT_MULTIPLIER: u8 = 100;
+pub const BASE_MULTIPLIER: u8 = 100;

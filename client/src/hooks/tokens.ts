@@ -56,11 +56,11 @@ export function useTokenContracts(
   }, [fetchTokens]);
 
   useEffect(() => {
-    if (!equal(request, requestRef.current)) {
-      requestRef.current = request;
-      refetch();
-    }
-  }, [request, refetch]);
+    if (!client) return;
+    if (equal(request, requestRef.current)) return;
+    requestRef.current = request;
+    refetch();
+  }, [request, refetch, client]);
 
   return {
     contracts,

@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.32"
+seed = "nums-v1.0.34"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x01b8b313ab94599bba58870bf5ed81c0e74724a9a91d4c34105e6a62144148cb"
+# world_address = "0x02fc593a1f77da001a693eaebfd87f9b0832849f52d20da84db739ef7023b832"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 

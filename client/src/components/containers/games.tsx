@@ -180,8 +180,8 @@ export const Games = ({
       {/* Carousel */}
       <Carousel opts={{ loop: false }} setApi={setApi} className="w-full">
         <CarouselContent className="w-full">
-          {games.map((game) => (
-            <CarouselItem key={game.gameId}>
+          {games.map((game, index) => (
+            <CarouselItem key={`${game.gameId}-${index}`}>
               <Game
                 gameId={!game.gameId ? undefined : game.gameId}
                 score={game.score}

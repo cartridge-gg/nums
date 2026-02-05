@@ -95,7 +95,7 @@ export const PurchaseScene = ({
               Connect
             </p>
           </Button>
-        ) : (
+        ) : onPurchase ? (
           <Button
             variant="default"
             className="w-full min-h-12"
@@ -109,7 +109,7 @@ export const PurchaseScene = ({
               Purchase
             </p>
           </Button>
-        )}
+        ) : null}
       </div>
 
       {/* Desktop */}
@@ -124,10 +124,10 @@ export const PurchaseScene = ({
             <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
           </Button>
         )}
-        <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col justify-center gap-6 md:gap-8">
+        <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col justify-center gap-10">
           <Title />
           <div className="flex items-center justify-between gap-8">
-            <Purchase {...purchaseProps} className="flex-1" />
+            <Purchase {...purchaseProps} className="flex-1 h-full" />
             <div className="flex flex-col gap-6 flex-1">
               <Details className="grow overflow-hidden" {...detailsProps} />
               {onConnect ? (
@@ -143,7 +143,7 @@ export const PurchaseScene = ({
                     Connect
                   </p>
                 </Button>
-              ) : (
+              ) : onPurchase ? (
                 <Button
                   variant="default"
                   className="w-full min-h-12"
@@ -157,7 +157,7 @@ export const PurchaseScene = ({
                     Purchase
                   </p>
                 </Button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@ const Title = () => {
       className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase tracking-wider translate-y-0.5"
       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      Blitz Mode
+      Game Details
     </h2>
   );
 };

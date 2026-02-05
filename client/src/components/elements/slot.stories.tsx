@@ -49,6 +49,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Locked: Story = {
+  args: {
+    variant: "locked",
+  },
+};
+
 export const Loading: Story = {
   args: {
     loading: true,
@@ -122,12 +128,6 @@ export const Windy: Story = {
 export const Lucky: Story = {
   args: {
     trap: new Trap(TrapType.Lucky),
-  },
-};
-
-export const Slots: Story = {
-  args: {
-    trap: new Trap(TrapType.Slots),
   },
 };
 

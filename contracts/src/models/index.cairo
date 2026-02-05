@@ -34,6 +34,7 @@ pub struct Game {
     #[key]
     pub id: u64,
     pub claimed: bool,
+    pub multiplier: u8,
     pub level: u8,
     pub slot_count: u8,
     pub slot_min: u16,
@@ -46,6 +47,7 @@ pub struct Game {
     pub disabled_traps: u32,
     pub reward: u64,
     pub over: u64,
+    pub expiration: u64,
     pub traps: u128,
     pub slots: felt252,
     pub supply: felt252,

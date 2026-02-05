@@ -17,6 +17,7 @@ import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { ChartHelper } from "@/helpers/chart";
+import { DEFAULT_EXPIRATION } from "@/constants";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -61,25 +62,25 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, [starterpack]);
 
   // Calculate chart data using ChartHelper
-  const chartData = useMemo(() => {
-    return ChartHelper.calculate({
-      slotCount: config?.slot_count || 20,
-      currentSupply,
-      targetSupply: config?.target_supply || 0n,
-      numsPrice: numsPrice,
-      playPrice,
-    });
-  }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
-
-  const { chartValues, chartAbscissa } = chartData;
+  const { chartValues, chartAbscissa, maxPayoutNums, maxPayout } =
+    useMemo(() => {
+      return ChartHelper.calculate({
+        slotCount: config?.slot_count || 18,
+        currentSupply,
+        targetSupply: config?.target_supply || 0n,
+        numsPrice: numsPrice,
+        playPrice,
+      });
+    }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
 
   const detailsProps = useMemo(() => {
     return {
       entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
       breakEven: chartAbscissa.toString(),
-      maxPayout: `${chartData.maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${chartData.maxPayout.toFixed(2).toLocaleString()}`,
+      expiration: `${DEFAULT_EXPIRATION / 60 / 60}hrs`,
+      maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,
     };
-  }, [playPrice, chartAbscissa, chartData]);
+  }, [playPrice, chartAbscissa, maxPayoutNums, maxPayout]);
 
   const purchaseProps = useMemo(() => {
     return {

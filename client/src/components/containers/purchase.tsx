@@ -16,7 +16,7 @@ export interface PurchaseProps
 }
 
 const purchaseVariants = cva(
-  "select-none p-3 md:p-4 flex flex-col gap-4 md:gap-6 w-full",
+  "select-none p-3 md:p-4 flex flex-col justify-between gap-4 w-full",
   {
     variants: {
       variant: {
@@ -39,7 +39,7 @@ export const Purchase = ({
 }: PurchaseProps) => {
   return (
     <div className={cn(purchaseVariants({ variant, className }))} {...props}>
-      <div className="w-full h-[240px] min-h-[240px] min-w-0 pr-2">
+      <div className="w-full h-full min-w-0 pr-2">
         <Chart values={chartValues} abscissa={chartAbscissa} />
       </div>
       <PurchaseInfoBox numsPrice={numsPrice} />
@@ -53,14 +53,9 @@ const PurchaseInfoBox = ({ numsPrice }: { numsPrice: number }) => {
       <div className="flex items-center justify-center min-w-5 h-5 bg-white-900 rounded">
         <AsteriskIcon size="2xs" />
       </div>
-      <div className="flex flex-col gap-2 ">
-        <p className="font-sans text-sm leading-normal text-white-100">
-          Rewards are denominated in NUMS tokens
-        </p>
-        <p className="font-sans text-sm leading-normal text-white-100">
-          1 NUMS = ${numsPrice.toFixed(5)} USD
-        </p>
-      </div>
+      <p className="font-sans text-sm leading-normal text-white-100">
+        1 NUMS = {numsPrice.toFixed(5)} USD
+      </p>
     </div>
   );
 };

@@ -9,9 +9,8 @@ export interface ChartCalculationParams {
 }
 
 export interface ChartCalculationResult {
-  chartValues: number[]; // Array of cumulative reward values in USD (length = slotCount)
+  chartValues: number[]; // Array of cumulative reward values in NUMS (length = slotCount)
   chartAbscissa: number; // Break-even level (1-slotCount)
-  rewards: number[]; // Array of cumulative reward values in NUMS (length = slotCount)
   maxPayout: number; // Maximum payout in USD
   maxPayoutNums: number; // Maximum payout in NUMS
 }
@@ -28,44 +27,40 @@ export const ChartHelper = {
 
     if (targetSupply === 0n || currentSupply === 0n) {
       return {
-        chartValues: [],
+        chartValues: Array.from({ length: slotCount }, () => 0),
         chartAbscissa: 0,
-        rewards: [],
         maxPayout: 0,
         maxPayoutNums: 0,
       };
     }
 
     // Calculate rewards in NUMS for each level (1-slotCount)
-    const rewards = Game.rewards(slotCount, currentSupply, targetSupply);
+    const gameRewards = Game.rewards(slotCount, currentSupply, targetSupply);
 
     // Calculate cumulative sum of rewards
-    const cumulativeRewards = rewards.reduce((acc, reward, index) => {
+    const chartValues = gameRewards.reduce((acc, reward, index) => {
       const previousSum = index === 0 ? 0 : acc[index - 1];
       acc.push(previousSum + reward);
       return acc;
     }, [] as number[]);
 
     // Convert cumulative rewards to USD value
-    const chartValues = cumulativeRewards.map((reward) => reward * numsPrice);
+    const rewards = chartValues.map((reward) => reward * numsPrice);
 
     // Calculate break-even point (first level where cumulative reward value exceeds playPrice)
     let chartAbscissa = slotCount; // Default to last level if break-even is never reached
-    if (chartValues.length > 0) {
-      const breakevenIndex = chartValues.findIndex(
-        (value) => value > playPrice,
-      );
+    if (rewards.length > 0) {
+      const breakevenIndex = rewards.findIndex((value) => value > playPrice);
       chartAbscissa = breakevenIndex !== -1 ? breakevenIndex + 1 : slotCount;
     }
 
     // Calculate max payout
-    const maxPayoutNums = cumulativeRewards[cumulativeRewards.length - 1] || 0;
+    const maxPayoutNums = chartValues[chartValues.length - 1] || 0;
     const maxPayout = maxPayoutNums * numsPrice;
 
     return {
       chartValues,
       chartAbscissa,
-      rewards: cumulativeRewards,
       maxPayout,
       maxPayoutNums,
     };

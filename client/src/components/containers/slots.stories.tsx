@@ -21,8 +21,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     number: 107,
+    min: 1,
+    max: 999,
     slots: [
-      { value: 1 },
       { value: 0 },
       { value: 0, trap: new Trap(TrapType.Lucky) },
       { value: 0 },
@@ -41,7 +42,6 @@ export const Default: Story = {
       { value: 0 },
       { value: 0 },
       { value: 0 },
-      { value: 999 },
     ],
   },
 };
@@ -49,8 +49,9 @@ export const Default: Story = {
 export const Valid: Story = {
   args: {
     number: 812,
+    min: 1,
+    max: 999,
     slots: [
-      { value: 1 },
       { value: 0 },
       { value: 31 },
       { value: 189 },
@@ -69,7 +70,6 @@ export const Valid: Story = {
       { value: 722 },
       { value: 743 },
       { value: 0 },
-      { value: 903 },
     ],
   },
 };
@@ -77,8 +77,9 @@ export const Valid: Story = {
 export const Invalid: Story = {
   args: {
     number: 812,
+    min: 1,
+    max: 999,
     slots: [
-      { value: 1 },
       { value: 0 },
       { value: 31 },
       { value: 189 },
@@ -97,7 +98,6 @@ export const Invalid: Story = {
       { value: 722 },
       { value: 743 },
       { value: 903 }, // Fill the empty slot
-      { value: 903 },
     ],
   },
 };

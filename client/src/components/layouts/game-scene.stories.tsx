@@ -43,6 +43,8 @@ export const Default: Story = {
   args: {
     currentNumber: 162,
     nextNumber: 679,
+    minNumber: 1,
+    maxNumber: 999,
     powers: [
       { power: new Power(PowerType.Reroll) },
       { power: new Power(PowerType.High), status: "lock" as const },
@@ -66,7 +68,7 @@ export const Default: Story = {
       { value: 0, trap: new Trap(TrapType.UFO) },
       { value: 0 },
       { value: 0 },
-      { value: 0, trap: new Trap(TrapType.Slots) },
+      { value: 0 },
       { value: 0 },
       { value: 999 },
     ],
@@ -98,6 +100,8 @@ export const Rescuable: Story = {
   args: {
     currentNumber: 313,
     nextNumber: 679,
+    minNumber: 1,
+    maxNumber: 999,
     powers: [{ power: new Power(PowerType.Reroll) }, {}, {}],
     slots: [
       { value: 0 },
@@ -149,6 +153,8 @@ export const GameOver: Story = {
   args: {
     currentNumber: 313,
     nextNumber: 679,
+    minNumber: 1,
+    maxNumber: 999,
     powers: [{}, {}, {}],
     slots: [
       { value: 0 },

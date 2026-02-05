@@ -50,7 +50,7 @@ export const Game = () => {
         currentNumber: 0,
         nextNumber: 0,
         powers: Array.from({ length: 3 }, () => ({})),
-        slots: Array.from({ length: 20 }, () => ({
+        slots: Array.from({ length: 18 }, () => ({
           value: 0,
           onSlotClick: () => {},
         })),
@@ -66,24 +66,27 @@ export const Game = () => {
     }));
 
     // Calculate stages based on level and rewards
-    const stages: StageState[] = Array.from({ length: 18 }, (_, index) => {
-      const stageLevel = index + 3;
-      const isCompleted = stageLevel <= game.level + 2;
-      const isBreakeven = index === 13;
+    const stages: StageState[] = Array.from(
+      { length: game.slot_count },
+      (_, index) => {
+        const stageLevel = index + 1;
+        const isCompleted = stageLevel <= game.level;
+        const isBreakeven = stageLevel >= 13;
 
-      // Determine if stage has gem (simplified logic - can be enhanced)
-      const hasGem = stageLevel % 6 === 0;
+        // Determine if stage has gem (simplified logic - can be enhanced)
+        const hasGem = stageLevel % 4 === 0 && stageLevel <= 15;
 
-      // Determine if stage has crown (last stage)
-      const hasCrown = stageLevel === 20;
+        // Determine if stage has crown (last stage)
+        const hasCrown = stageLevel === game.slot_count;
 
-      return {
-        completed: isCompleted,
-        breakeven: isBreakeven,
-        gem: hasGem,
-        crown: hasCrown,
-      };
-    });
+        return {
+          completed: isCompleted,
+          breakeven: isBreakeven,
+          gem: hasGem,
+          crown: hasCrown,
+        };
+      },
+    );
 
     return {
       currentNumber: game.number,
@@ -253,6 +256,8 @@ export const Game = () => {
         key={game.id}
         currentNumber={gameSceneData.currentNumber}
         nextNumber={gameSceneData.nextNumber}
+        minNumber={game.slot_min}
+        maxNumber={game.slot_max}
         powers={gameSceneData.powers}
         slots={gameSceneData.slots}
         stages={gameSceneData.stages}

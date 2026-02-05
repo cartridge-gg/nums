@@ -9,6 +9,8 @@ export interface SlotsProps
   extends React.HTMLAttributes<HTMLUListElement>,
     VariantProps<typeof slotsVariants> {
   number: number;
+  min: number;
+  max: number;
   slots: Array<SlotProps>;
 }
 
@@ -28,6 +30,8 @@ const slotsVariants = cva(
 
 export const Slots = ({
   number,
+  min,
+  max,
   slots,
   variant,
   className,
@@ -80,10 +84,13 @@ export const Slots = ({
       <DraggerIcon className="absolute top-0 left-1/4 -translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
       <DraggerIcon className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-auto text-black-700 hidden md:block" />
       <DraggerIcon className="absolute top-0 right-1/4 translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
+      <li className="flex justify-center">
+        <Slot variant="locked" label={min} />
+      </li>
       {slots.map((slot, index) => (
         <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
-            label={slot.label || index + 1}
+            label={slot.label || index + 2}
             value={slot.value || 0}
             invalid={slot.invalid || invalidIndexes.has(index)}
             inactive={slot.inactive}
@@ -92,6 +99,9 @@ export const Slots = ({
           />
         </li>
       ))}
+      <li className="flex justify-center">
+        <Slot variant="locked" label={max} />
+      </li>
       <li className="justify-center hidden xs:flex md:hidden">
         <Slot variant="placeholder" />
       </li>

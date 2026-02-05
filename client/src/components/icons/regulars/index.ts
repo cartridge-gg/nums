@@ -21,6 +21,7 @@ export * from "./gift";
 export * from "./glitchbomb";
 export * from "./laurel";
 export * from "./link";
+export * from "./locker";
 export * from "./play";
 export * from "./plus";
 export * from "./quest";

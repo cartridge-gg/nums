@@ -23,13 +23,13 @@ const getStageState = (state: StageState): StageStateConfig => {
   } = state;
   if (completed && crown) {
     return {
-      className: "bg-pink-600 text-pink-100",
+      className: "bg-green-600 text-green-100",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
   if (crown) {
     return {
-      className: "bg-pink-600 text-pink-100",
+      className: "bg-green-600 text-green-100",
       icon: <icons.KingIcon size="sm" />,
     };
   }
@@ -82,7 +82,7 @@ const getOverState = (state: StageState): StageStateConfig => {
   const { completed = false, gem = false, crown = false } = state;
   if (completed && crown) {
     return {
-      className: "bg-black-900 text-pink-100 border-white-900",
+      className: "bg-black-900 text-green-100 border-white-900",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }

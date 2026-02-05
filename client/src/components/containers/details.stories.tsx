@@ -19,8 +19,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    entryFee: "$1.00",
+    entryFee: "$1.99",
+    multiplier: "2.2x",
     breakEven: "14",
+    expiration: "24hrs",
     maxPayout: "29,000 NUMS ~ $25.12",
   },
 };

@@ -74,10 +74,10 @@ export const PurchaseScene = ({
     if (expiration) {
       // Dynamic timer: calculate remaining time
       const remainingMs = Math.max(0, expiration * 1000 - currentTime);
-      return Formatter.time(remainingMs);
+      return Formatter.countdown(remainingMs, true);
     } else {
       // Static timer based on DEFAULT_EXPIRATION
-      return Formatter.time(DEFAULT_EXPIRATION * 1000);
+      return Formatter.countdown(DEFAULT_EXPIRATION * 1000, false);
     }
   }, [expiration, currentTime]);
 

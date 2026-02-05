@@ -99,7 +99,7 @@ export const Slot = ({
         </div>
         <div className="h-6 w-2/3 border-l border-black-800 flex items-center justify-center">
           <p
-            className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center"
+            className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)",
             }}
@@ -137,7 +137,7 @@ export const Slot = ({
       )}
       <div className="w-1/3">
         {!TrapIcon ? (
-          <p className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center">
+          <p className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px">
             {label}
           </p>
         ) : (

@@ -9,16 +9,19 @@ export interface RewardProps
   reward: number;
 }
 
-const rewardVariants = cva("select-none relative rounded-xl p-1", {
-  variants: {
-    variant: {
-      default: "border border-black-900 w-20 md:w-[136px]",
+const rewardVariants = cva(
+  "select-none relative rounded-lg px-4 py-3 md:px-3 flex flex-col md:flex-row justify-center items-center gap-1",
+  {
+    variants: {
+      variant: {
+        default: "w-20 md:w-[136px] bg-black-800",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+);
 
 const formatMobileReward = (num: number): string => {
   if (isNaN(num) || num < 0) {
@@ -115,19 +118,17 @@ export const Reward = ({
   return (
     <div className={cn(rewardVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
-      <div className="bg-black-800 rounded-lg px-4 py-3 md:px-3 flex flex-col md:flex-row justify-center items-center gap-1 relative">
-        <BrandIcon style={{ filter: `url(#${filterId})` }} />
-        <div
-          className="text-[28px]/[19px] tracking-wider"
-          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-        >
-          <span className="block md:hidden px-1 translate-y-1">
-            {formattedMobile}
-          </span>
-          <span className="hidden md:flex px-1 translate-y-0.5">
-            {formattedDesktop}
-          </span>
-        </div>
+      <BrandIcon style={{ filter: `url(#${filterId})` }} />
+      <div
+        className="text-[28px]/[19px] tracking-wider"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        <span className="block md:hidden px-1 translate-y-1">
+          {formattedMobile}
+        </span>
+        <span className="hidden md:flex px-1 translate-y-0.5">
+          {formattedDesktop}
+        </span>
       </div>
       {showDifference && difference !== null && (
         <span

@@ -82,7 +82,7 @@ export const GameScene = ({
       style={{ scrollbarWidth: "none", ...style }}
       {...props}
     >
-      <div className="flex justify-between items-end gap-2 xs:gap-3 md:gap-8 w-full">
+      <div className="flex justify-between items-stretch gap-2 xs:gap-3 md:gap-8 w-full">
         <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
           <Num value={currentNumber} invalid={isOver} />
           <div className="flex flex-col justify-between items-start h-full gap-2">
@@ -127,7 +127,7 @@ export const GameScene = ({
           slots={slots}
         />
       </div>
-      <div className="hidden md:flex items-center justify-center gap-6 w-full">
+      <div className="hidden md:flex items-stretch justify-center gap-6 w-full">
         <Stages states={stages} className="flex-1" />
         <Reward reward={reward} />
       </div>

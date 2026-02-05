@@ -258,6 +258,7 @@ export const Game = () => {
         nextNumber={gameSceneData.nextNumber}
         minNumber={game.slot_min}
         maxNumber={game.slot_max}
+        reward={game.reward}
         powers={gameSceneData.powers}
         slots={gameSceneData.slots}
         stages={gameSceneData.stages}

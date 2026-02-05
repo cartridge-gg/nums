@@ -76,6 +76,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const detailsProps = useMemo(() => {
     return {
       entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
+      multiplier: `1.0x`,
       breakEven: chartAbscissa.toString(),
       expiration: `${DEFAULT_EXPIRATION / 60 / 60}hrs`,
       maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,

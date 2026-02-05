@@ -4,13 +4,13 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { CircleInfoIcon, ShadowEffect } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
-export interface StageInfoProps
+export interface GameInfoProps
   extends React.HTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof stageInfoVariants> {
+    VariantProps<typeof gameInfoVariants> {
   disabled?: boolean;
 }
 
-const stageInfoVariants = cva(
+const gameInfoVariants = cva(
   "select-none relative flex justify-center items-center rounded-lg p-2",
   {
     variants: {
@@ -29,20 +29,20 @@ const stageInfoVariants = cva(
   },
 );
 
-export const StageInfo = ({
+export const GameInfo = ({
   disabled = false,
   variant,
   size,
   className,
   ...props
-}: StageInfoProps) => {
+}: GameInfoProps) => {
   const filterId = useId();
 
   return (
     <Button
       disabled={disabled}
       variant="ghost"
-      className={cn(stageInfoVariants({ variant, size, className }))}
+      className={cn(gameInfoVariants({ variant, size, className }))}
       {...props}
     >
       <ShadowEffect filterId={filterId} />

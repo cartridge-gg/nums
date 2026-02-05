@@ -5,10 +5,11 @@ import {
   type StageState,
   Num,
   Instruction,
-  StageInfo,
+  GameInfo,
   type SlotProps,
   type PowerUpProps,
   Share,
+  Reward,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
 import { Grid } from "@/helpers";
@@ -20,6 +21,7 @@ export interface GameSceneProps
   nextNumber: number;
   minNumber: number;
   maxNumber: number;
+  reward: number;
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
@@ -48,6 +50,7 @@ export const GameScene = ({
   nextNumber,
   minNumber,
   maxNumber,
+  reward,
   powers,
   slots,
   stages,
@@ -92,6 +95,7 @@ export const GameScene = ({
           onInfoClick={() => {}}
           className="hidden md:flex"
         />
+        <Reward reward={reward} className="md:hidden" />
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex justify-between items-center gap-4 w-full">
@@ -106,7 +110,7 @@ export const GameScene = ({
             variant={isOver && !isRescuable ? "destructive" : "default"}
           />
           <Share disabled />
-          <StageInfo disabled />
+          <GameInfo disabled />
         </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>
@@ -121,7 +125,10 @@ export const GameScene = ({
           slots={slots}
         />
       </div>
-      <Stages states={stages} className="w-full hidden md:grid" />
+      <div className="hidden md:flex items-center justify-center gap-6 w-full">
+        <Stages states={stages} className="flex-1" />
+        <Reward reward={reward} />
+      </div>
       <PowerUps
         powers={powers}
         onInfoClick={() => {}}

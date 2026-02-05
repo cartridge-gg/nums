@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { StageInfo } from "./stage-info";
+import { GameInfo } from "./game-info";
 
 const meta = {
-  title: "Elements/StageInfo",
-  component: StageInfo,
+  title: "Elements/GameInfo",
+  component: GameInfo,
   parameters: {
     layout: "centered",
   },
@@ -19,7 +19,7 @@ const meta = {
       description: "The visual variant",
     },
   },
-} satisfies Meta<typeof StageInfo>;
+} satisfies Meta<typeof GameInfo>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

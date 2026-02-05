@@ -23,59 +23,72 @@ const getStageState = (state: StageState): StageStateConfig => {
   } = state;
   if (completed && crown) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
   if (crown) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.KingIcon size="sm" />,
     };
   }
   if (breakeven && completed && gem) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.GemUsedIcon size="sm" />,
     };
   }
   if (breakeven && completed) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.CheckIcon size="sm" />,
     };
   }
   if (breakeven && gem) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.GemIcon size="sm" />,
     };
   }
   if (breakeven) {
     return {
-      className: "bg-green-600 text-green-100",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <div className="h-4 w-4" />,
     };
   }
   if (completed && gem) {
     return {
-      className: "bg-black-900 text-yellow-100",
+      className:
+        "bg-black-900 text-yellow-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
       icon: <icons.GemUsedIcon size="sm" />,
     };
   }
   if (gem) {
     return {
-      className: "bg-black-800 text-yellow-100",
+      className:
+        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
       icon: <icons.GemIcon size="sm" />,
     };
   }
   if (completed) {
     return {
-      className: "bg-black-900 text-mauve-100",
+      className:
+        "bg-black-900 text-mauve-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
       icon: <icons.CheckIcon size="sm" />,
     };
   }
-  return { className: "bg-black-800", icon: <div className="h-4 w-4" /> };
+  return {
+    className:
+      "bg-black-800 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
+    icon: <div className="h-4 w-4" />,
+  };
 };
 
 const getOverState = (state: StageState): StageStateConfig => {

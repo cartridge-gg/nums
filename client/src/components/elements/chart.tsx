@@ -69,7 +69,7 @@ const CustomXAxisTick = ({
           height={rectHeight}
           rx={borderRadius}
           ry={borderRadius}
-          fill="var(--mauve-700)"
+          fill="#332673"
         />
         <Text
           x={x}
@@ -146,7 +146,7 @@ const CustomYAxisTick = ({
           height={rectHeight}
           rx={borderRadius}
           ry={borderRadius}
-          fill="var(--mauve-700)"
+          fill="#332673"
         />
       )}
       <Text
@@ -239,7 +239,7 @@ export const Chart = ({
 
   // Prepare Y-axis ticks and labels
   const yTicks = useMemo(() => {
-    const ticks = [0, maxY];
+    const ticks = abscissa < 13 ? [maxY] : [0, maxY];
     if (abscissaY !== 0 && abscissaY !== maxY) {
       ticks.splice(1, 0, abscissaY);
     }
@@ -318,6 +318,7 @@ export const Chart = ({
               />
             </filter>
           </defs>
+
           {/* X-axis (top) - same as bottom */}
           <XAxis
             xAxisId="top"
@@ -393,7 +394,7 @@ export const Chart = ({
             strokeDasharray="3 3"
             strokeWidth={2}
             segment={[
-              { x: 1, y: abscissaY },
+              { x: 0, y: abscissaY },
               { x: abscissa, y: abscissaY },
             ]}
           />

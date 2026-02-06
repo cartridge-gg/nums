@@ -87,3 +87,7 @@ export const getGameAddress = (chainId: bigint) => {
 export const getSetupAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "Setup");
 };
+
+export const getCollectionAddress = (chainId: bigint) => {
+  return getContractAddress(chainId, NAMESPACE, "Collection");
+};

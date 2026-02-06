@@ -1,7 +1,9 @@
 import { useAccount } from "@starknet-react/core";
 import { useMemo } from "react";
-import { addAddressPadding } from "starknet";
+import { addAddressPadding, num } from "starknet";
 import { useTokens } from "@/hooks/tokens";
+import { getCollectionAddress } from "@/config";
+import useChain from "./chain";
 
 /**
  * Hook to get player's game IDs via subscription to TokenBalances (ERC721)
@@ -11,10 +13,12 @@ import { useTokens } from "@/hooks/tokens";
  */
 export const useAssets = () => {
   const { address } = useAccount();
+  const { chain } = useChain();
+  const collectionAddress = getCollectionAddress(chain.id);
 
-  const { tokenBalances } = useTokens({
+  const { tokenBalances, loading: tokensLoading } = useTokens({
     accountAddresses: address ? [addAddressPadding(address)] : [],
-    contractAddresses: [], // Empty to get all ERC721 tokens
+    contractAddresses: [addAddressPadding(num.toHex64(collectionAddress))],
     tokenIds: [], // Empty to get all token IDs
     contractType: "ERC721",
   });
@@ -34,7 +38,7 @@ export const useAssets = () => {
 
   return {
     gameIds: gameIds,
-    isLoading: false, // Subscription doesn't have explicit loading state
+    isLoading: tokensLoading,
     error: null,
   };
 };

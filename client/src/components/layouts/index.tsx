@@ -11,7 +11,6 @@ import { useActions } from "@/hooks/actions";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
 import { usePrices } from "@/context/prices";
-import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
@@ -36,13 +35,12 @@ export const Layout = ({ children }: LayoutProps) => {
   const { starterpack, config } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
-  const { gameIds } = useAssets();
-  const { games } = useGames(gameIds);
+  const { games, loading: gamesLoading } = useGames();
   const navigate = useNavigate();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
-  const previousGamesLengthRef = useRef<number>(games.length);
+  const previousGamesLengthRef = useRef<number | null>(null);
 
   // Get username from controllers if account is connected
   const username = useMemo(() => {
@@ -69,17 +67,28 @@ export const Layout = ({ children }: LayoutProps) => {
 
   // Detect new game and navigate to it
   useEffect(() => {
+    // Don't compare or navigate while games are still loading
+    if (gamesLoading) {
+      return;
+    }
+
     const currentLength = games.length;
     const previousLength = previousGamesLengthRef.current;
 
-    // Only trigger when length increases (new game added) and we're not initializing (previousLength > 0)
-    if (currentLength > previousLength && previousLength > 0) {
+    // Set initial length when loading completes for the first time
+    if (previousLength === null) {
+      previousGamesLengthRef.current = currentLength;
+      return;
+    }
+
+    // Only trigger when length increases (new game added)
+    if (currentLength > previousLength) {
       // Close all modals
       setShowQuestScene(false);
       setShowLeaderboardScene(false);
       setShowPurchaseScene(false);
 
-      // Find the newest game (last in the array)
+      // Find the newest game (first in the array)
       const newestGame = games[0];
       if (newestGame) {
         navigate(`/game?id=${newestGame.id}`);
@@ -88,7 +97,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
     // Update ref for next comparison
     previousGamesLengthRef.current = currentLength;
-  }, [games.length, games, navigate]);
+  }, [games.length, games, gamesLoading, navigate]);
 
   // Prepare quests props for Quest
   const questsProps = useMemo(() => {

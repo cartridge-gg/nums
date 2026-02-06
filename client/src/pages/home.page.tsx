@@ -1,6 +1,5 @@
 import { HomeScene } from "@/components/scenes/home";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
@@ -12,8 +11,7 @@ export const Home = () => {
   const { config, starterpack } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
-  const { gameIds } = useAssets();
-  const { games } = useGames(gameIds);
+  const { games } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 

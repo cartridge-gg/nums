@@ -10,7 +10,6 @@ import { useActions } from "@/hooks/actions";
 import { useGame } from "@/hooks/game";
 import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
-import { useAssets } from "@/hooks/assets";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type { StageState } from "@/components/elements/stage";
@@ -24,8 +23,7 @@ export const Game = () => {
   const { set, select, apply, claim } = useActions();
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
-  const { gameIds } = useAssets();
-  const { games } = useGames(gameIds);
+  const { games } = useGames();
   const { config, starterpack } = useEntities();
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);

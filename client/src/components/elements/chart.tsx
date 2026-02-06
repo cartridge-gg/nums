@@ -131,7 +131,7 @@ const CustomYAxisTick = ({
   const rectHeight = 24; // Approximate height for fontSize 18
   const offsetLeft = 72; // Offset 72px to the left
   const textX = x - offsetLeft; // Text position shifted 72px to the left (starting point for left alignment)
-  const rectX = textX - 9; // Rectangle position aligned with the start of the text
+  const rectX = textX - 7; // Rectangle position aligned with the start of the text
   const rectY = y - rectHeight / 2;
   const textY = rectY + rectHeight / 2;
   const borderRadius = 4; // rounded = 0.25rem = 4px

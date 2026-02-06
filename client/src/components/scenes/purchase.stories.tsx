@@ -29,10 +29,11 @@ export const Default: Story = {
   args: {
     slotCount: 18,
     playPrice: 1.99,
-    numsPrice: 0.003,
+    numsPrice: 0.00005,
     multiplier: "1.0x",
     targetSupply: 1000000000000000000000n,
-    currentSupply: 500000000000000000000n,
+    currentSupply: 1000000000000000000000n,
+    className: "w-full",
     onClose: fn(),
     onPurchase: fn(),
   },

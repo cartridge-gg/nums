@@ -113,24 +113,27 @@ export const Slot = ({
 
   return (
     <div className={cn(slotVariants({ variant, size, className }))} {...props}>
-      {!disabled && (
+      {(!disabled || (invalid && !!value)) && (
         <>
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none",
               inactive || !trap ? "text-mauve-100" : trap.color(),
+              invalid && "text-red-100",
             )}
           />
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none",
               inactive || !trap ? "text-mauve-100" : trap.color(),
+              invalid && "text-red-100",
             )}
           />
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none",
               inactive || !trap ? "text-mauve-100" : trap.color(),
+              invalid && "text-red-100",
             )}
           />
         </>

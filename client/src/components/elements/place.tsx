@@ -8,6 +8,7 @@ export interface PlaceProps
     VariantProps<typeof placeVariants> {
   trap: Trap;
   onClick: () => void;
+  loading?: boolean;
 }
 
 const placeVariants = cva(
@@ -27,6 +28,7 @@ const placeVariants = cva(
 export const Place = ({
   trap,
   onClick,
+  loading = false,
   variant,
   className,
   ...props
@@ -56,6 +58,8 @@ export const Place = ({
       <Button
         variant="default"
         onClick={onClick}
+        disabled={loading}
+        loading={loading}
         className={cn("w-full", trap.buttonColor())}
       >
         <p

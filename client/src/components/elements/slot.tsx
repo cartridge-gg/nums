@@ -14,6 +14,7 @@ export interface SlotProps
   invalid?: boolean;
   loading?: boolean;
   inactive?: boolean;
+  disabled?: boolean;
   trap?: Trap;
   onSlotClick?: () => void;
 }
@@ -44,6 +45,7 @@ export const Slot = ({
   invalid = false,
   loading = false,
   inactive = false,
+  disabled = false,
   trap,
   variant,
   size,
@@ -51,14 +53,14 @@ export const Slot = ({
   onSlotClick,
   ...props
 }: SlotProps) => {
-  const disabled = useMemo(
-    () => (!value && invalid) || !!value,
-    [value, invalid],
+  const isDisabled = useMemo(
+    () => (!value && invalid) || !!value || disabled,
+    [value, invalid, disabled],
   );
 
   const TrapIcon = useMemo(
     () => trap?.icon(inactive ? "used" : undefined),
-    [inactive],
+    [inactive, trap],
   );
 
   const slotCounterRef = useRef<HTMLDivElement>(null);
@@ -113,7 +115,7 @@ export const Slot = ({
 
   return (
     <div className={cn(slotVariants({ variant, size, className }))} {...props}>
-      {(!disabled || (invalid && !!value)) && (
+      {(!isDisabled || (invalid && !!value)) && (
         <>
           <div
             className={cn(
@@ -154,12 +156,12 @@ export const Slot = ({
         loading={loading}
         className={cn(
           "h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400",
-          (!!value || disabled) && "bg-white-900",
+          (!!value || isDisabled) && "bg-white-900",
           invalid && !!value && "bg-red-800 disabled:opacity-100",
           (!!value || invalid) && "pointer-events-none cursor-default",
           !!trap && !invalid && !inactive && trap.bgColor(),
         )}
-        disabled={disabled}
+        disabled={isDisabled || loading}
         onClick={onSlotClick}
       >
         <div

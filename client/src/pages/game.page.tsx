@@ -12,6 +12,7 @@ import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
+import { useLoading } from "@/context/loading";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
@@ -25,6 +26,7 @@ export const Game = () => {
   const { openPurchaseScene } = usePurchaseModal();
   const { games } = useGames();
   const { config, starterpack } = useEntities();
+  const { isLoading, setLoading } = useLoading();
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
@@ -45,6 +47,24 @@ export const Game = () => {
 
   // Load game data
   const game = useGame(gameId);
+
+  // Reset loading states when game model changes (transaction succeeded and data updated)
+  useEffect(() => {
+    if (!game) return;
+
+    // Game model changed - reset loading states for slots/powers that are currently loading
+    // This handles the latency between transaction success and data push
+
+    // Reset slot loading states that are currently active (slots are 0-17)
+    for (let i = 0; i < game.slot_count; i++) {
+      setLoading("slot", i, false);
+    }
+
+    // Reset power loading states that are currently active (powers are 0-2)
+    for (let i = 0; i < game.selected_powers.length; i++) {
+      setLoading("power", i, false);
+    }
+  }, [game, setLoading]);
 
   const playPrice = useMemo(() => {
     return Number(starterpack?.price || 0n) / 10 ** 6 || 0;
@@ -122,6 +142,11 @@ export const Game = () => {
       },
     );
 
+    // Check if any slot is loading
+    const hasSlotLoading = game.slots.some((_, index) =>
+      isLoading("slot", index),
+    );
+
     return {
       powers: powers.map((power, index) => ({
         ...power,
@@ -130,27 +155,32 @@ export const Game = () => {
           setSelectedPowerIndex(index);
           setShowUsesModal(true);
         },
-        disabled: !!game.over,
+        disabled: !!game.over || isLoading("power", index) || hasSlotLoading,
       })),
       onGameInfoClick: () => {
         setShowPurchaseModal(true);
       },
-      slots: game.slots.map((slot, index) => ({
-        value: slot,
-        trap: game.getTrap(index),
-        inactive: game.isInactive(index),
-        onSlotClick: () => {
-          const trap = game.getTrap(index);
-          if (trap && !trap.isNone()) {
-            // If slot has a trap, open the modal
-            setSelectedSlotIndex(index);
-            setShowPlacesModal(true);
-          } else {
-            // If no trap, call set directly
-            set(game.id, index);
-          }
-        },
-      })),
+      slots: game.slots.map((slot, index) => {
+        const slotLoading = isLoading("slot", index);
+        return {
+          value: slot,
+          trap: game.getTrap(index),
+          inactive: game.isInactive(index),
+          loading: slotLoading,
+          disabled: hasSlotLoading && !slotLoading, // Disable other slots when one is loading
+          onSlotClick: () => {
+            const trap = game.getTrap(index);
+            if (trap && !trap.isNone()) {
+              // If slot has a trap, open the modal
+              setSelectedSlotIndex(index);
+              setShowPlacesModal(true);
+            } else {
+              // If no trap, call set directly
+              set(game.id, index);
+            }
+          },
+        };
+      }),
       stages,
     };
   }, [
@@ -160,6 +190,7 @@ export const Game = () => {
     setSelectedSlotIndex,
     setShowUsesModal,
     setSelectedPowerIndex,
+    isLoading,
   ]);
 
   // Check if selectable powers exist and create selections
@@ -171,9 +202,10 @@ export const Game = () => {
     if (!game || !hasSelectablePowers) return [];
     return game.selectable_powers.map((power, index) => ({
       power,
+      loading: isLoading("power", index),
       onClick: () => select(game.id, index),
     }));
-  }, [game, hasSelectablePowers, select]);
+  }, [game, hasSelectablePowers, select, isLoading]);
 
   // Show GameOver modal after 2 seconds when game is over
   useEffect(() => {
@@ -235,6 +267,7 @@ export const Game = () => {
     // Return single trap
     return {
       trap,
+      loading: isLoading("slot", selectedSlotIndex),
       onClick: () => {
         // Call set with the selected slot index
         set(game.id, selectedSlotIndex);
@@ -243,7 +276,7 @@ export const Game = () => {
         setSelectedSlotIndex(null);
       },
     };
-  }, [game, selectedSlotIndex, set]);
+  }, [game, selectedSlotIndex, set, isLoading]);
 
   const handleClosePlacesModal = useCallback(() => {
     setShowPlacesModal(false);
@@ -261,6 +294,7 @@ export const Game = () => {
     // Return single power
     return {
       power,
+      loading: isLoading("power", selectedPowerIndex),
       onClick: () => {
         // Call apply with the selected power index
         apply(game.id, selectedPowerIndex);
@@ -269,7 +303,7 @@ export const Game = () => {
         setSelectedPowerIndex(null);
       },
     };
-  }, [game, selectedPowerIndex, apply]);
+  }, [game, selectedPowerIndex, apply, isLoading]);
 
   const handleCloseUsesModal = useCallback(() => {
     setShowUsesModal(false);

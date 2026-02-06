@@ -94,7 +94,9 @@ export const Slots = ({
             value={slot.value || 0}
             invalid={slot.invalid || invalidIndexes.has(index)}
             inactive={slot.inactive}
+            disabled={slot.disabled}
             trap={slot.trap}
+            loading={slot.loading}
             onSlotClick={slot.onSlotClick}
           />
         </li>

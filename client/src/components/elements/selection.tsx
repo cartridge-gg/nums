@@ -8,6 +8,7 @@ export interface SelectionProps
     VariantProps<typeof selectionVariants> {
   power: Power;
   onClick: () => void;
+  loading?: boolean;
 }
 
 const selectionVariants = cva(
@@ -28,6 +29,7 @@ export const Selection = ({
   power,
   content = "Take",
   onClick,
+  loading = false,
   variant,
   className,
   ...props
@@ -57,6 +59,8 @@ export const Selection = ({
       <Button
         variant="default"
         onClick={onClick}
+        disabled={loading}
+        loading={loading}
         className={cn("w-full", power.buttonColor())}
       >
         <p

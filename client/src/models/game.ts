@@ -253,4 +253,81 @@ export class Game {
     }
     return [closest_lower, closest_higher];
   }
+
+  equal(other: Game | undefined): boolean {
+    if (!other) return false;
+    if (this.id !== other.id) return false;
+
+    // Compare basic properties
+    if (this.claimed !== other.claimed) return false;
+    if (this.multiplier !== other.multiplier) return false;
+    if (this.level !== other.level) return false;
+    if (this.slot_count !== other.slot_count) return false;
+    if (this.slot_min !== other.slot_min) return false;
+    if (this.slot_max !== other.slot_max) return false;
+    if (this.number !== other.number) return false;
+    if (this.next_number !== other.next_number) return false;
+    if (this.reward !== other.reward) return false;
+    if (this.over !== other.over) return false;
+    if (this.expiration !== other.expiration) return false;
+    if (this.supply !== other.supply) return false;
+
+    // Compare slots
+    if (
+      this.slots.length !== other.slots.length ||
+      !this.slots.every((val, idx) => val === other.slots[idx])
+    ) {
+      return false;
+    }
+
+    // Compare selectable_powers
+    if (
+      this.selectable_powers.length !== other.selectable_powers.length ||
+      !this.selectable_powers.every(
+        (p, idx) => p.toString() === other.selectable_powers[idx].toString(),
+      )
+    ) {
+      return false;
+    }
+
+    // Compare selected_powers
+    if (
+      this.selected_powers.length !== other.selected_powers.length ||
+      !this.selected_powers.every(
+        (p, idx) => p.toString() === other.selected_powers[idx].toString(),
+      )
+    ) {
+      return false;
+    }
+
+    // Compare available_powers
+    if (
+      this.available_powers.length !== other.available_powers.length ||
+      !this.available_powers.every(
+        (p, idx) => p === other.available_powers[idx],
+      )
+    ) {
+      return false;
+    }
+
+    // Compare disabled_traps
+    if (
+      this.disabled_traps.length !== other.disabled_traps.length ||
+      !this.disabled_traps.every((t, idx) => t === other.disabled_traps[idx])
+    ) {
+      return false;
+    }
+
+    // Compare traps
+    if (
+      this.traps.length !== other.traps.length ||
+      !this.traps.every(
+        (t, idx) => t.toString() === other.traps[idx].toString(),
+      )
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 }

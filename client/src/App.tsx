@@ -18,6 +18,7 @@ import { Game, Home } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
+import { LoadingProvider } from "./context/loading";
 import { Layout } from "./components/layouts";
 
 const provider = jsonRpcProvider({
@@ -86,19 +87,21 @@ function App() {
               <ControllersProvider>
                 <QuestsProvider>
                   <PricesProvider>
-                    <Router
-                      future={{
-                        v7_startTransition: true,
-                        v7_relativeSplatPath: true,
-                      }}
-                    >
-                      <Layout>
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/game" element={<Game />} />
-                        </Routes>
-                      </Layout>
-                    </Router>
+                    <LoadingProvider>
+                      <Router
+                        future={{
+                          v7_startTransition: true,
+                          v7_relativeSplatPath: true,
+                        }}
+                      >
+                        <Layout>
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/game" element={<Game />} />
+                          </Routes>
+                        </Layout>
+                      </Router>
+                    </LoadingProvider>
                   </PricesProvider>
                 </QuestsProvider>
               </ControllersProvider>

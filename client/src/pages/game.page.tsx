@@ -18,7 +18,7 @@ import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
-import { ChartHelper } from "@/helpers";
+import { ChartHelper, Verifier } from "@/helpers";
 
 export const Game = () => {
   const { set, select, apply, claim } = useActions();
@@ -93,9 +93,7 @@ export const Game = () => {
   const gameProps = useMemo(() => {
     if (!game || !purchaseProps) {
       return {
-        currentNumber: 0,
-        nextNumber: 0,
-        powers: Array.from({ length: 3 }, () => ({})),
+        powers: Array.from({ length: 3 }, () => ({})) as PowerUpProps[],
         slots: Array.from({ length: 18 }, () => ({
           value: 0,
           onSlotClick: () => {},
@@ -111,13 +109,6 @@ export const Game = () => {
       numsPrice: purchaseProps.numsPrice,
       playPrice: purchaseProps.playPrice,
     });
-
-    // Transform powers: combine available_powers and selected_powers
-    const powers: PowerUpProps[] = game.selected_powers.map((power, index) => ({
-      power,
-      status:
-        !power.isNone() && game.available_powers[index] ? undefined : "used",
-    }));
 
     // Calculate stages based on level and rewards
     const stages: StageState[] = Array.from(
@@ -142,13 +133,29 @@ export const Game = () => {
       },
     );
 
+    // Transform powers: combine available_powers and selected_powers
+    const basePowers: PowerUpProps[] = game.selected_powers.map(
+      (power, index) => ({
+        power,
+        status:
+          !power.isNone() && game.available_powers[index] ? undefined : "used",
+        highlighted:
+          Verifier.isOver(
+            game.number,
+            game.level,
+            game.slot_count,
+            game.slots,
+          ) && power.rescue(game),
+      }),
+    );
+
     // Check if any slot is loading
     const hasSlotLoading = game.slots.some((_, index) =>
       isLoading("slot", index),
     );
 
     return {
-      powers: powers.map((power, index) => ({
+      powers: basePowers.map((power, index) => ({
         ...power,
         onClick: () => {
           // Open Uses modal instead of calling apply directly
@@ -185,6 +192,7 @@ export const Game = () => {
     };
   }, [
     game,
+    purchaseProps,
     set,
     setShowPlacesModal,
     setSelectedSlotIndex,
@@ -327,11 +335,7 @@ export const Game = () => {
     <>
       <GameScene
         key={game.id}
-        currentNumber={game.number}
-        nextNumber={game.next_number}
-        minNumber={game.slot_min}
-        maxNumber={game.slot_max}
-        reward={game.reward}
+        game={game}
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}

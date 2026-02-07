@@ -10,6 +10,7 @@ export interface PowerUpProps
     VariantProps<typeof powerUpVariants> {
   power?: Power;
   status?: PowerIconStatus;
+  highlighted?: boolean;
   disabled?: boolean;
 }
 
@@ -36,6 +37,7 @@ export const PowerUp = ({
   status,
   variant,
   size,
+  highlighted,
   disabled,
   className,
   ...props
@@ -59,6 +61,25 @@ export const PowerUp = ({
       )}
       {...props}
     >
+      {!isDisabled && highlighted && (
+        <>
+          <div
+            className={cn(
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none text-mauve-100",
+            )}
+          />
+          <div
+            className={cn(
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none text-mauve-100",
+            )}
+          />
+          <div
+            className={cn(
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none text-mauve-100",
+            )}
+          />
+        </>
+      )}
       {Icon && power ? (
         <Icon
           className={cn(

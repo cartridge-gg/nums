@@ -90,14 +90,10 @@ export const Slots = ({
       {slots.map((slot, index) => (
         <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
+            {...slot}
             label={slot.label || index + 2}
             value={slot.value || 0}
             invalid={slot.invalid || invalidIndexes.has(index)}
-            inactive={slot.inactive}
-            disabled={slot.disabled}
-            trap={slot.trap}
-            loading={slot.loading}
-            onSlotClick={slot.onSlotClick}
           />
         </li>
       ))}

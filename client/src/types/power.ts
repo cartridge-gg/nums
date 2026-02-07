@@ -1,6 +1,17 @@
 import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers/packer";
+import { Game } from "@/models/game";
+import {
+  Reroll,
+  DoubleUp,
+  Halve,
+  High,
+  Low,
+  Mirror,
+  Foresight,
+  Swap,
+} from "@/elements/powers";
 
 export const POWER_COUNT = 7;
 export const DEFAULT_POWER_POINTS = 60;
@@ -419,6 +430,75 @@ export class Power {
         return "bg-wildcard-100 hover:bg-wildcard-200";
       default:
         return "bg-down-100 hover:bg-down-200";
+    }
+  }
+
+  /**
+   * Apply the power to the game
+   * Equivalent to PowerTrait::apply in types/power.cairo
+   */
+  public apply(game: Game): void {
+    switch (this.value) {
+      case PowerType.None:
+        // No operation
+        break;
+      case PowerType.Reroll:
+        Reroll.apply(game);
+        break;
+      case PowerType.High:
+        High.apply(game);
+        break;
+      case PowerType.Low:
+        Low.apply(game);
+        break;
+      case PowerType.Swap:
+        Swap.apply(game);
+        break;
+      case PowerType.DoubleUp:
+        DoubleUp.apply(game);
+        break;
+      case PowerType.Halve:
+        Halve.apply(game);
+        break;
+      case PowerType.Mirror:
+        Mirror.apply(game);
+        break;
+      case PowerType.Foresight:
+        Foresight.apply(game);
+        break;
+      default:
+        // Other powers not implemented yet
+        break;
+    }
+  }
+
+  /**
+   * Check if the power can rescue the game
+   * Equivalent to PowerTrait::rescue in types/power.cairo
+   */
+  public rescue(game: Game): boolean {
+    switch (this.value) {
+      case PowerType.None:
+        return false;
+      case PowerType.Reroll:
+        return Reroll.rescue(game);
+      case PowerType.High:
+        return High.rescue(game);
+      case PowerType.Low:
+        return Low.rescue(game);
+      case PowerType.Swap:
+        return Swap.rescue(game);
+      case PowerType.DoubleUp:
+        return DoubleUp.rescue(game);
+      case PowerType.Halve:
+        return Halve.rescue(game);
+      case PowerType.Mirror:
+        return Mirror.rescue(game);
+      case PowerType.Foresight:
+        return Foresight.rescue(game);
+      default:
+        // Other powers not implemented yet
+        return false;
     }
   }
 }

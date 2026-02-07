@@ -66,16 +66,19 @@ export const PowerUp = ({
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none text-mauve-100",
+              className,
             )}
           />
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none text-mauve-100",
+              className,
             )}
           />
           <div
             className={cn(
               "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none text-mauve-100",
+              className,
             )}
           />
         </>

@@ -323,11 +323,7 @@ const Claim = ({
         className,
       )}
     >
-      {onClaim === null ? (
-        <p className="text-sm tracking-wide translate-y-0.5 text-mauve-200 font-sans text-center">
-          Play blitz mode to be eligible for real money rewards
-        </p>
-      ) : !onClaim ? (
+      {!onClaim ? (
         <div className="w-full h-10 flex items-center justify-center bg-black-700 rounded-lg">
           <p
             className="text-[22px]/[15px] tracking-wide translate-y-0.5 text-white-100"

@@ -6,6 +6,7 @@ import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
+import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
 
 export const Home = () => {
@@ -15,6 +16,7 @@ export const Home = () => {
   const { supply: currentSupply } = useHeader();
   const { games } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
+  const { clearGame, start: startPractice } = usePractice();
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const numsPrice = useMemo(() => {
@@ -100,9 +102,14 @@ export const Home = () => {
   }, [openPurchaseScene]);
 
   const handlePracticeClick = useCallback(() => {
-    // Navigate to practice mode (game will be created in game.page if needed)
+    // Clear existing game and create a new one immediately to avoid showing old game
+    if (currentSupply !== undefined && currentSupply > 0n) {
+      clearGame();
+      startPractice(currentSupply);
+    }
+    // Navigate to practice mode
     navigate("/practice");
-  }, [navigate]);
+  }, [navigate, clearGame, startPractice, currentSupply]);
 
   return (
     <HomeScene

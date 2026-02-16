@@ -32,7 +32,7 @@ export const Game = () => {
   const blockchainActions = useActions();
 
   // Practice context
-  const { game: practiceGame, start: startPractice, clearGame } = usePractice();
+  const { game: practiceGame, start: startPractice } = usePractice();
   const { supply: currentSupply } = useHeader();
 
   // Practice actions
@@ -75,7 +75,8 @@ export const Game = () => {
   // Track if we've initialized practice game for this practice mode session
   const practiceInitializedRef = useRef(false);
 
-  // Reset and create a new practice game when entering practice mode
+  // Create a new practice game if none exists when entering practice mode
+  // (Game is already cleared and created in home.page when clicking Practice button)
   useEffect(() => {
     if (!isPracticeMode) {
       // Reset flag when leaving practice mode
@@ -86,15 +87,18 @@ export const Game = () => {
     if (
       isPracticeMode &&
       !practiceInitializedRef.current &&
+      !practiceGame &&
       currentSupply !== undefined &&
       currentSupply > 0n
     ) {
-      // Always clear existing game and create a new one when entering practice mode
-      clearGame();
+      // Create a new game if none exists (e.g., on page refresh)
       startPractice(currentSupply);
       practiceInitializedRef.current = true;
+    } else if (isPracticeMode && practiceGame) {
+      // Mark as initialized if game already exists
+      practiceInitializedRef.current = true;
     }
-  }, [isPracticeMode, currentSupply, startPractice, clearGame]);
+  }, [isPracticeMode, practiceGame, currentSupply, startPractice]);
 
   // Reset loading states when game model changes (transaction succeeded and data updated)
   useEffect(() => {

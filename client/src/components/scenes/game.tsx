@@ -65,7 +65,7 @@ export const GameScene = ({
   }, [game]);
 
   const isRescuable = useMemo(() => {
-    return Verifier.isRescuable(game);
+    return game.enabled_powers.some((enabled) => enabled);
   }, [game]);
 
   return (
@@ -84,11 +84,7 @@ export const GameScene = ({
             <Num variant="secondary" value={game.next_number} />
           </div>
         </div>
-        <PowerUps
-          powers={powers}
-          onInfoClick={() => {}}
-          className="hidden md:flex"
-        />
+        <PowerUps powers={powers} className="hidden md:flex" />
         <Reward reward={game.reward} className="md:hidden" />
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
@@ -104,7 +100,7 @@ export const GameScene = ({
             variant={isOver && !isRescuable ? "destructive" : "default"}
           />
           <Share disabled />
-          <GameInfo onClick={onGameInfoClick} />
+          <GameInfo onClick={onGameInfoClick} disabled={!onGameInfoClick} />
         </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>
@@ -123,11 +119,7 @@ export const GameScene = ({
         <Stages states={stages} className="flex-1" />
         <Reward reward={game.reward} />
       </div>
-      <PowerUps
-        powers={powers}
-        onInfoClick={() => {}}
-        className="w-full md:hidden"
-      />
+      <PowerUps powers={powers} className="w-full md:hidden" />
     </div>
   );
 };

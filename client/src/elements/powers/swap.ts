@@ -1,4 +1,5 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 import { Verifier } from "@/helpers";
 
 /**
@@ -6,7 +7,7 @@ import { Verifier } from "@/helpers";
  * Equivalent to elements/powers/swap.cairo
  */
 export class Swap {
-  static apply(game: Game): void {
+  static apply(game: Game, _rand: Random): void {
     const [number, next] = Swap.swap(game.number, game.next_number);
     game.number = number;
     game.next_number = next;

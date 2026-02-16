@@ -45,19 +45,10 @@ export const Default: Story = {
   ),
 };
 
-const overStates: Array<StageState> = [
-  {},
-  { completed: true },
-  { gem: true },
-  { completed: true, gem: true },
-  { crown: true },
-  { crown: true, completed: true },
-];
-
 export const Over: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
-      {overStates.map((state) => (
+      {defaultStates.map((state) => (
         <Stage
           key={JSON.stringify(state)}
           state={state}

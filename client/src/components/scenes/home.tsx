@@ -61,9 +61,8 @@ export const HomeScene = ({
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         <Button
           variant="secondary"
-          onClick={onPractice}
           className="h-12 w-full"
-          disabled
+          onClick={onPractice}
         >
           <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
             Practice

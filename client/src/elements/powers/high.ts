@@ -1,13 +1,17 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 
 /**
  * High power implementation
  * Equivalent to elements/powers/high.cairo
  */
 export class High {
-  static apply(_game: Game): void {
-    // High power modifies slot_min temporarily and generates a new number
-    // For rescue, we check if there's a valid empty slot for a higher number
+  static apply(game: Game, rand: Random): void {
+    // [Effect] Temporarily modify slot_min and generate a new number
+    const slotMin = game.slot_min;
+    game.slot_min = game.number;
+    game.number = game.next(game.slots, rand);
+    game.slot_min = slotMin;
   }
 
   static rescue(game: Game): boolean {

@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -7,21 +7,41 @@ import { Places } from "@/components/containers/places";
 import { Uses } from "@/components/containers/uses";
 import { GameOver } from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
+import { usePractices } from "@/hooks/practices";
+import { usePractice } from "@/context/practice";
 import { useGame } from "@/hooks/game";
 import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import { useLoading } from "@/context/loading";
+import { useHeader } from "@/hooks/header";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
+import { DEFAULT_POWER_COUNT } from "@/constants";
 import { ChartHelper, Verifier } from "@/helpers";
 
 export const Game = () => {
-  const { set, select, apply, claim } = useActions();
+  const location = useLocation();
+  const isPracticeMode = location.pathname === "/practice";
+
+  // Regular actions for blockchain mode
+  const blockchainActions = useActions();
+
+  // Practice context
+  const { game: practiceGame, start: startPractice, clearGame } = usePractice();
+  const { supply: currentSupply } = useHeader();
+
+  // Practice actions
+  const practiceActions = usePractices();
+
+  // Use practice actions if in practice mode, otherwise use blockchain actions
+  const { set, select, apply, claim } = isPracticeMode
+    ? practiceActions
+    : blockchainActions;
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { games } = useGames();
@@ -39,14 +59,42 @@ export const Game = () => {
   );
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
-  // Get game ID from search params
+  // Get game ID from search params (only in blockchain mode)
   const gameId = useMemo(() => {
+    if (isPracticeMode) return null;
     const idParam = searchParams.get("id");
     return idParam ? parseInt(idParam, 10) : null;
-  }, [searchParams]);
+  }, [searchParams, isPracticeMode]);
 
-  // Load game data
-  const game = useGame(gameId);
+  // Load game data (only in blockchain mode)
+  const blockchainGame = useGame(gameId);
+
+  // Use practice game if in practice mode, otherwise use blockchain game
+  const game = isPracticeMode ? practiceGame : blockchainGame;
+
+  // Track if we've initialized practice game for this practice mode session
+  const practiceInitializedRef = useRef(false);
+
+  // Reset and create a new practice game when entering practice mode
+  useEffect(() => {
+    if (!isPracticeMode) {
+      // Reset flag when leaving practice mode
+      practiceInitializedRef.current = false;
+      return;
+    }
+
+    if (
+      isPracticeMode &&
+      !practiceInitializedRef.current &&
+      currentSupply !== undefined &&
+      currentSupply > 0n
+    ) {
+      // Always clear existing game and create a new one when entering practice mode
+      clearGame();
+      startPractice(currentSupply);
+      practiceInitializedRef.current = true;
+    }
+  }, [isPracticeMode, currentSupply, startPractice, clearGame]);
 
   // Reset loading states when game model changes (transaction succeeded and data updated)
   useEffect(() => {
@@ -133,20 +181,40 @@ export const Game = () => {
       },
     );
 
-    // Transform powers: combine available_powers and selected_powers
-    const basePowers: PowerUpProps[] = game.selected_powers.map(
-      (power, index) => ({
-        power,
-        status:
-          !power.isNone() && game.available_powers[index] ? undefined : "used",
-        highlighted:
-          Verifier.isOver(
-            game.number,
-            game.level,
-            game.slot_count,
-            game.slots,
-          ) && power.rescue(game),
-      }),
+    // Transform powers: combine enabled_powers and selected_powers
+    // Create array of DEFAULT_POWER_COUNT power-ups
+    // Map existing selected powers, then add empty ones
+    // Ensure enabled_powers has DEFAULT_POWER_COUNT elements
+    const enabledPowers = [
+      ...game.enabled_powers,
+      ...Array(DEFAULT_POWER_COUNT - game.enabled_powers.length).fill(false),
+    ];
+
+    const powersArray: PowerUpProps[] = Array.from(
+      { length: DEFAULT_POWER_COUNT },
+      (_, index) => {
+        const power = game.selected_powers[index];
+        if (power && !power.isNone()) {
+          // Power exists and is not None
+          return {
+            power,
+            status: enabledPowers[index] ? undefined : "used",
+            highlighted: Verifier.isOver(
+              game.number,
+              game.level,
+              game.slot_count,
+              game.slots,
+            ),
+          };
+        } else {
+          // Empty slot (no power or None power)
+          return {
+            power: undefined, // No power for empty slot
+            status: undefined,
+            highlighted: false,
+          };
+        }
+      },
     );
 
     // Check if any slot is loading
@@ -155,14 +223,22 @@ export const Game = () => {
     );
 
     return {
-      powers: basePowers.map((power, index) => ({
+      powers: powersArray.map((power, index) => ({
         ...power,
         onClick: () => {
-          // Open Uses modal instead of calling apply directly
-          setSelectedPowerIndex(index);
-          setShowUsesModal(true);
+          // Only allow click if power exists and is not None
+          if (power.power && !power.power.isNone()) {
+            // Open Uses modal instead of calling apply directly
+            setSelectedPowerIndex(index);
+            setShowUsesModal(true);
+          }
         },
-        disabled: !!game.over || isLoading("power", index) || hasSlotLoading,
+        disabled:
+          !!game.over ||
+          !power.power ||
+          power.power.isNone() ||
+          isLoading("power", index) ||
+          hasSlotLoading,
       })),
       onGameInfoClick: () => {
         setShowPurchaseModal(true);
@@ -177,7 +253,7 @@ export const Game = () => {
           disabled: hasSlotLoading && !slotLoading, // Disable other slots when one is loading
           onSlotClick: () => {
             const trap = game.getTrap(index);
-            if (trap && !trap.isNone()) {
+            if (trap && !trap.isNone() && !game.isInactive(index)) {
               // If slot has a trap, open the modal
               setSelectedSlotIndex(index);
               setShowPlacesModal(true);
@@ -264,6 +340,15 @@ export const Game = () => {
     openPurchaseScene();
   }, [openPurchaseScene]);
 
+  const handlePlayAgain = useCallback(() => {
+    if (isPracticeMode) {
+      // Start a new practice game
+      startPractice(currentSupply);
+      // Reset game over state
+      setShowGameOver(false);
+    }
+  }, [isPracticeMode, startPractice, currentSupply]);
+
   // Create place props for the modal (only the trap on the selected slot)
   const place = useMemo<PlaceProps | null>(() => {
     if (!game || selectedSlotIndex === null) return null;
@@ -322,11 +407,15 @@ export const Game = () => {
     setShowPurchaseModal(false);
   }, []);
 
-  // Show loading state if game ID is invalid or game is not loaded
-  if (!gameId || !game) {
+  // Show loading state if game is not loaded
+  if (!game) {
     return (
       <div className="text-white-100 text-xl">
-        {!gameId ? "Game ID not found" : "Loading game..."}
+        {isPracticeMode
+          ? "Initializing practice game..."
+          : !gameId
+            ? "Game ID not found"
+            : "Loading game..."}
       </div>
     );
   }
@@ -339,7 +428,7 @@ export const Game = () => {
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}
-        onGameInfoClick={gameProps.onGameInfoClick}
+        onGameInfoClick={blockchainGame ? gameProps.onGameInfoClick : undefined}
         className="md:max-h-[588px] p-3 md:p-0 md:pb-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
@@ -401,7 +490,10 @@ export const Game = () => {
             newGameCount={gameOverData.newGameCount}
             onSpecate={handleSpecate}
             onPurchase={handlePurchase}
-            onClaim={game.claimed ? undefined : handleClaim}
+            onClaim={
+              isPracticeMode ? null : game.claimed ? undefined : handleClaim
+            }
+            onPlayAgain={isPracticeMode ? handlePlayAgain : undefined}
           />
         </div>
       )}

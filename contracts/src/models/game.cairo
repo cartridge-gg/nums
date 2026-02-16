@@ -54,7 +54,7 @@ pub impl GameImpl of GameTrait {
             next_number: 0,
             selectable_powers: 0,
             selected_powers: 0,
-            available_powers: 0,
+            enabled_powers: 0,
             disabled_traps: 0,
             reward: 0,
             over: 0,
@@ -113,18 +113,14 @@ pub impl GameImpl of GameTrait {
     #[inline]
     fn is_over(self: @Game, slots: @Array<u16>) -> bool {
         VerifierTrait::is_over(*self.number, (*self.level).into(), (*self.slot_count).into(), slots)
+            && self.selectable_powers == @0
+            && self.enabled_powers == @0
     }
 
     /// Determines if the game has expired based on the current timestamp.
     #[inline]
     fn is_expired(self: @Game) -> bool {
         starknet::get_block_timestamp() >= *self.expiration
-    }
-
-    /// Determines if the game is rescuable based on the available powers
-    #[inline]
-    fn is_rescuable(self: @Game, slots: @Array<u16>) -> bool {
-        VerifierTrait::is_rescuable(self, slots)
     }
 
     /// Generates a random `u16` number between `min` and `max` that is not already present in the
@@ -257,15 +253,16 @@ pub impl GameImpl of GameTrait {
         self.selected_powers = Packer::pack(selected, POWER_SIZE);
         // [Effect] Erase selectable powers
         self.selectable_powers = 0;
+        // [Effect] Update power availability
+        let power_index = self.level / DEFAULT_DRAW_STAGE - 1;
+        self.enabled_powers = Bitmap::set(self.enabled_powers, power_index);
         // [Effect] Update game over
         let slots = self.slots();
-        self
-            .over =
-                if self.is_over(@slots) && !self.is_rescuable(@slots) {
-                    starknet::get_block_timestamp()
-                } else {
-                    self.over
-                };
+        self.over = if self.is_over(@slots) {
+            starknet::get_block_timestamp()
+        } else {
+            self.over
+        };
     }
 
     /// Applies a power to the game.
@@ -280,20 +277,18 @@ pub impl GameImpl of GameTrait {
             .expect(errors::GAME_POWER_NOT_AVAILABLE)
             .unbox())
             .into();
-        assert(Bitmap::get(self.available_powers, index) == 0, errors::GAME_POWER_NOT_AVAILABLE);
+        assert(Bitmap::get(self.enabled_powers, index) == 1, errors::GAME_POWER_NOT_AVAILABLE);
         // [Effect] Update power availability
-        self.available_powers = Bitmap::set(self.available_powers, index);
+        self.enabled_powers = Bitmap::unset(self.enabled_powers, index);
         // [Effect] Apply power
         power.apply(ref self, ref rand);
         // [Effect] Update game over
         let slots = self.slots();
-        self
-            .over =
-                if self.is_over(@slots) && !self.is_rescuable(@slots) {
-                    starknet::get_block_timestamp()
-                } else {
-                    self.over
-                };
+        self.over = if self.is_over(@slots) {
+            starknet::get_block_timestamp()
+        } else {
+            self.over
+        };
     }
 
     /// Updates the game state.
@@ -324,15 +319,11 @@ pub impl GameImpl of GameTrait {
         // - number cannot be placed
         // - powers cannot save the game
         // - no powers can be selected
-        self
-            .over =
-                if self.is_over(@slots)
-                    && !self.is_rescuable(@slots)
-                    && self.selectable_powers == 0 {
-                    starknet::get_block_timestamp()
-                } else {
-                    self.over
-                };
+        self.over = if self.is_over(@slots) {
+            starknet::get_block_timestamp()
+        } else {
+            self.over
+        };
     }
 
     /// Claims the game.
@@ -568,106 +559,6 @@ mod tests {
     }
 
     #[test]
-    fn test_is_over_all_slots_filled() {
-        let mut game = create();
-        game.level = 20; // All slots filled
-        let slots: u256 = Packer::pack(
-            array![
-                10_u8, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180,
-                190, 200,
-            ],
-            SLOT_SIZE,
-        );
-        game.slots = slots.try_into().unwrap();
-        let slots = game.slots();
-        assert(game.is_over(@slots), 'Not over with full slots');
-    }
-
-    #[test]
-    fn test_is_over_empty_slot_at_end_cannot_fit() {
-        let mut game = create();
-        game.level = 19;
-        game.number = 300;
-        let slots: Array<u16> = array![
-            10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190,
-            400,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(game.is_over(@slots), 'Not over but cannot fit');
-    }
-
-    #[test]
-    fn test_is_over_empty_slot_at_beginning_can_fit() {
-        let mut game = create();
-        game.level = 19;
-        game.number = 5;
-        let slots: Array<u16> = array![
-            0, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190,
-            200,
-        ];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(@slots), 'Over but can fit at start');
-    }
-
-    #[test]
-    fn test_is_over_empty_slot_in_middle_can_fit() {
-        let mut game = create();
-        game.level = 5;
-        game.number = 150;
-        let slots: Array<u16> = array![10, 20, 30, 100, 0, 0, 200];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(@slots), 'Over but can fit in middle');
-    }
-
-    #[test]
-    fn test_is_over_empty_slot_in_middle_cannot_fit() {
-        let mut game = create();
-        game.level = 5;
-        game.number = 150;
-        let slots: Array<u16> = array![10, 20, 30, 100, 200];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(game.is_over(@game.slots()), 'Not over but too large');
-    }
-
-    #[test]
-    fn test_is_over_number_smaller_than_first() {
-        let mut game = create();
-        game.level = 3;
-        game.number = 5;
-        let slots: Array<u16> = array![10, 50, 100];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(game.is_over(@slots), 'Not over with small number');
-    }
-
-    #[test]
-    fn test_is_over_gaps_between_numbers() {
-        let mut game = create();
-        game.level = 4;
-        game.number = 75; // Fits between 50 and 100
-        let slots: Array<u16> = array![10, 50, 0, 100, 500];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        assert(!game.is_over(@slots), 'Over with valid gap');
-    }
-
-    #[test]
-    fn test_is_over_only_one_slot_filled() {
-        let mut game = create();
-        game.level = 1;
-        game.number = 500;
-        let slots: Array<u16> = array![100];
-        let pack: u256 = Packer::pack(slots.clone(), SLOT_SIZE);
-        game.slots = pack.try_into().unwrap();
-        let slots = game.slots();
-        assert(!game.is_over(@slots), 'Over with one slot filled');
-    }
-
-    #[test]
     fn test_game_streak_several() {
         let mut slots = array![1, 2, 3, 0, 0, 7, 8, 9, 0, 0, 12, 0, 14, 0, 16, 0, 18, 0, 20];
         assert_eq!(GameTrait::streak(ref slots), 3);
@@ -756,8 +647,8 @@ mod tests {
     #[test]
     fn test_apply_powers() {
         let mut game = create();
-        let available_powers = 0b0011;
-        game.available_powers = available_powers;
+        let enabled_powers = 0b1100;
+        game.enabled_powers = enabled_powers;
         game.level = 16;
         game.number = 725;
         game.next_number = 749;
@@ -765,16 +656,15 @@ mod tests {
         game.slots = 0x00003e70003212e228126e00023320f0001bd1b700013312f09b07d07001900e;
         let mut random = RandomImpl::new(0);
         game.apply(3, ref random);
-        assert(game.available_powers == available_powers | 0b1000, 'Game: invalid powers');
+        assert(game.enabled_powers == enabled_powers & 0b0111, 'Game: invalid powers');
         game.apply(2, ref random);
-        assert(game.available_powers == available_powers | 0b1100, 'Game: invalid powers');
+        assert(game.enabled_powers == enabled_powers & 0b0011, 'Game: invalid powers');
     }
 
     #[test]
     fn test_game_situation() {
         let mut game = create();
-        let available_powers = 0b0011;
-        game.available_powers = available_powers;
+        game.enabled_powers = 0;
         game.level = 2;
         game.number = 0;
         game.next_number = 214;

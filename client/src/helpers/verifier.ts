@@ -1,5 +1,3 @@
-import { Game } from "@/models/game";
-
 /**
  * Helper module for game state verification functions.
  * Equivalent to helpers/verifier.cairo
@@ -115,32 +113,5 @@ export class Verifier {
       return count;
     }
     return streak;
-  }
-
-  /**
-   * Determines if the game is rescuable based on the available powers.
-   *
-   * This function checks if any of the selected powers can rescue the game
-   * by finding a valid empty slot for the next number.
-   *
-   * @param game - A Game instance.
-   * @returns Returns `true` if the game can be rescued, `false` otherwise.
-   */
-  static isRescuable(game: Game): boolean {
-    // Check each selected power
-    for (let index = 0; index < game.selected_powers.length; index++) {
-      // Check if power is available (not used)
-      // In the Game model, available_powers is a boolean array where true means used
-      if (!game.available_powers[index]) {
-        continue; // Power is already used
-      }
-
-      const power = game.selected_powers[index];
-      if (power.rescue(game)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }

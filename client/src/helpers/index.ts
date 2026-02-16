@@ -6,3 +6,6 @@ export * from "./formatter";
 export * from "./grid";
 export * from "./packer";
 export * from "./verifier";
+export * from "./random";
+export * from "./deck";
+export * from "./rewarder";

@@ -1,13 +1,14 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 
 /**
  * Reroll power implementation
  * Equivalent to elements/powers/reroll.cairo
  */
 export class Reroll {
-  static apply(_game: Game): void {
-    // Reroll doesn't modify the game directly in the rescue context
-    // The actual apply would generate a new number, but for rescue we just return true
+  static apply(game: Game, rand: Random): void {
+    // [Effect] Generate a new number
+    game.number = game.next(game.slots, rand);
   }
 
   static rescue(_game: Game): boolean {

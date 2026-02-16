@@ -38,7 +38,7 @@ const createMockGame = (
   reward: number,
   slots: number[],
   selectedPowers: Power[],
-  availablePowers: boolean[],
+  disabledPowers: boolean[],
 ): GameModel => {
   return new GameModel(
     1, // id
@@ -52,7 +52,7 @@ const createMockGame = (
     nextNumber, // next_number
     [], // selectable_powers
     selectedPowers, // selected_powers
-    availablePowers, // available_powers
+    disabledPowers, // enabled_powers
     Array(18).fill(false), // disabled_traps
     reward, // reward
     0, // over
@@ -75,7 +75,7 @@ export const Default: Story = {
         new Power(PowerType.High),
         new Power(PowerType.Low),
       ], // selected_powers
-      [false, true, false], // available_powers (second is used)
+      [false, true, false], // enabled_powers (second is used)
     ),
     powers: [
       { power: new Power(PowerType.Reroll) },
@@ -138,7 +138,7 @@ export const Rescuable: Story = {
         new Power(PowerType.Swap),
         new Power(PowerType.None),
       ], // selected_powers
-      [false, false, false], // available_powers
+      [false, false, false], // enabled_powers
     ),
     powers: [
       { power: new Power(PowerType.Reroll), highlighted: true },
@@ -201,7 +201,7 @@ export const GameOver: Story = {
         new Power(PowerType.None),
         new Power(PowerType.None),
       ], // selected_powers
-      [false, false, false], // available_powers
+      [false, false, false], // enabled_powers
     ),
     powers: [{}, {}, {}],
     slots: [

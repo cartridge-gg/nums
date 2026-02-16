@@ -92,10 +92,16 @@ const getStageState = (state: StageState): StageStateConfig => {
 };
 
 const getOverState = (state: StageState): StageStateConfig => {
-  const { completed = false, gem = false, crown = false } = state;
+  const {
+    completed = false,
+    breakeven = false,
+    gem = false,
+    crown = false,
+  } = state;
   if (completed && crown) {
     return {
-      className: "bg-black-900 text-green-100 border-white-900",
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--white-900)_50%)]",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
@@ -104,6 +110,20 @@ const getOverState = (state: StageState): StageStateConfig => {
       className:
         "bg-red-800 text-red-100 border border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
       icon: <icons.KingIcon size="sm" />,
+    };
+  }
+  if (breakeven && completed && gem) {
+    return {
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--white-900)_50%)]",
+      icon: <icons.GemUsedIcon size="sm" />,
+    };
+  }
+  if (breakeven && completed) {
+    return {
+      className:
+        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--white-900)_50%)]",
+      icon: <icons.CheckIcon size="sm" />,
     };
   }
   if (completed && gem) {

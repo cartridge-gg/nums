@@ -1,4 +1,5 @@
 export const NAMESPACE = "NUMS";
+export const DEFAULT_POWER_COUNT = 3;
 export const DEFAULT_SLOT_COUNT = 18;
 export const DEFAULT_SLOT_MIN = 1;
 export const DEFAULT_SLOT_MAX = 999;

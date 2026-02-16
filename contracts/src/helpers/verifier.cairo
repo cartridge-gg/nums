@@ -1,7 +1,5 @@
 use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
-use crate::models::game::Game;
-use crate::types::power::{Power, PowerTrait};
 
 /// Helper module for game state verification functions.
 ///
@@ -161,46 +159,13 @@ pub impl Verifier of VerifierTrait {
         }
         streak
     }
-
-    /// Determines if the game is rescuable based on the available powers.
-    ///
-    /// This function checks if any of the selected powers can rescue the game
-    /// by finding a valid empty slot for the next number.
-    ///
-    /// # Arguments
-    ///
-    /// * `game` - A snapshot of the Game struct.
-    /// * `slots` - An array of u16 representing the current state of all slots (0 = empty).
-    ///
-    /// # Returns
-    ///
-    /// * `bool` - Returns `true` if the game can be rescued, `false` otherwise.
-    #[inline]
-    fn is_rescuable(game: @Game, slots: @Array<u16>) -> bool {
-        use crate::constants::POWER_SIZE;
-        let powers: Array<u8> = Packer::unpack(*game.selected_powers, POWER_SIZE, 0);
-        let mut index: u8 = 0;
-        while index.into() < powers.len() {
-            if Bitmap::get(*game.available_powers, index) != 0 {
-                index += 1;
-                continue;
-            }
-            let power: Power = (*powers.at(index.into())).into();
-            if power.rescue(game, slots) {
-                return true;
-            }
-            index += 1;
-        }
-        false
-    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_MULTIPLIER, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE};
+    use crate::constants::{DEFAULT_MULTIPLIER, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::packer::Packer;
     use crate::models::game::{Game, GameTrait};
-    use crate::types::power::Power;
     use super::VerifierTrait;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
@@ -415,48 +380,5 @@ mod tests {
     fn test_streak_empty_array() {
         let slots = array![0, 0, 0, 0, 0];
         assert_eq!(VerifierTrait::streak(@slots), 0, "Empty array should have streak of 0");
-    }
-
-    // Tests for is_rescuable
-    #[test]
-    fn test_is_rescuable_with_reroll() {
-        let mut game = create_test_game();
-        let powers: Array<u8> = array![Power::Reroll.into()];
-        game.selected_powers = Packer::pack(powers, POWER_SIZE);
-        game.available_powers = 0_u16;
-        let slots = array![10, 20, 30, 40, 50];
-        assert_eq!(
-            VerifierTrait::is_rescuable(@game, @slots),
-            true,
-            "Should be rescuable with Reroll power",
-        );
-    }
-
-    #[test]
-    fn test_is_rescuable_no_powers() {
-        let mut game = create_test_game();
-        let powers: Array<u8> = array![];
-        game.selected_powers = Packer::pack(powers, POWER_SIZE);
-        game.available_powers = 0_u16;
-        let slots = array![10, 20, 30, 40, 50];
-        assert_eq!(
-            VerifierTrait::is_rescuable(@game, @slots),
-            false,
-            "Should not be rescuable with no powers",
-        );
-    }
-
-    #[test]
-    fn test_is_rescuable_all_powers_available() {
-        let mut game = create_test_game();
-        let powers: Array<u8> = array![Power::Reroll.into()];
-        game.selected_powers = Packer::pack(powers, POWER_SIZE);
-        game.available_powers = 1_u16; // First power is available
-        let slots = array![10, 20, 30, 40, 50];
-        assert_eq!(
-            VerifierTrait::is_rescuable(@game, @slots),
-            false,
-            "Should not be rescuable when all powers are already used",
-        );
     }
 }

@@ -6,7 +6,6 @@ export interface PowerUpsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof powerUpsVariants> {
   powers: PowerUpProps[];
-  onInfoClick?: () => void;
 }
 
 const powerUpsVariants = cva(
@@ -32,7 +31,6 @@ export const PowerUps = ({
   variant,
   size,
   className,
-  onInfoClick,
   ...props
 }: PowerUpsProps) => {
   return (

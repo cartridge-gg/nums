@@ -2,13 +2,21 @@ import { Packer } from "@/helpers/packer";
 import { Power } from "@/types/power";
 import type { RawGame } from "@/models";
 import { Trap } from "@/types/trap";
+import { Verifier } from "@/helpers/verifier";
+import { Random } from "@/helpers/random";
+import { Rewarder } from "@/helpers/rewarder";
+import {
+  DEFAULT_DRAW_COUNT,
+  DEFAULT_DRAW_STAGE,
+  DEFAULT_MAX_DRAW,
+  DEFAULT_EXPIRATION,
+  BASE_MULTIPLIER,
+  DEFAULT_POWER_COUNT,
+} from "@/constants";
+import { TRAP_COUNT } from "@/types/trap";
 
 const MODEL_NAME = "Game";
 const SLOT_SIZE = 12n;
-
-// Constants matching rewarder.cairo
-const NUMERATOR = 270_000_000_000n;
-const MIN_REWARD = 1n;
 
 export class Game {
   type = MODEL_NAME;
@@ -25,7 +33,7 @@ export class Game {
     public next_number: number,
     public selectable_powers: Power[],
     public selected_powers: Power[],
-    public available_powers: boolean[],
+    public enabled_powers: boolean[],
     public disabled_traps: boolean[],
     public reward: number,
     public over: number,
@@ -44,7 +52,7 @@ export class Game {
     this.next_number = next_number;
     this.selectable_powers = selectable_powers;
     this.selected_powers = selected_powers;
-    this.available_powers = available_powers;
+    this.enabled_powers = enabled_powers;
     this.disabled_traps = disabled_traps;
     this.reward = reward;
     this.over = over;
@@ -74,11 +82,11 @@ export class Game {
       next_number: Number(data.next_number.value),
       selectable_powers: Power.getPowers(BigInt(data.selectable_powers.value)),
       selected_powers: Power.getPowers(BigInt(data.selected_powers.value)),
-      available_powers: Packer.sized_unpack(
-        BigInt(data.available_powers.value),
+      enabled_powers: Packer.sized_unpack(
+        BigInt(data.enabled_powers.value),
         1n,
-        3,
-      ).map((index) => index !== 1),
+        DEFAULT_POWER_COUNT,
+      ).map((index) => index === 1),
       disabled_traps: Packer.sized_unpack(
         BigInt(data.disabled_traps.value),
         1n,
@@ -113,7 +121,7 @@ export class Game {
       props.next_number,
       props.selectable_powers,
       props.selected_powers,
-      props.available_powers,
+      props.enabled_powers,
       props.disabled_traps,
       props.reward,
       props.over,
@@ -151,60 +159,6 @@ export class Game {
   }
 
   /**
-   * Calculate reward amount for a given level, matching the Cairo implementation in rewarder.cairo
-   * @param level - The level of the reward (0-18)
-   * @param slotCount - The number of slots in the game (default: 18)
-   * @param supply - The current supply of the game
-   * @param targetSupply - The target supply of the game
-   * @returns The reward amount in wei (u64 equivalent)
-   */
-  public static calculateReward(
-    level: number,
-    slotCount: number,
-    supply: bigint,
-    targetSupply: bigint,
-  ): number {
-    // [Check] Manage the specific case where the supply is twice the target
-    if (supply > targetSupply * 2n) {
-      return 0;
-    }
-
-    // [Compute] Calculate the numerator based on supply vs target
-    let num: bigint;
-    if (supply < targetSupply) {
-      // Supply is below target: increase reward
-      const diff = targetSupply - supply;
-      num = NUMERATOR + (NUMERATOR * diff) / targetSupply;
-    } else {
-      // Supply is above target: decrease reward
-      const diff = supply - targetSupply;
-      num = NUMERATOR - (NUMERATOR * diff) / targetSupply;
-    }
-
-    // Calculate denominator: (slot_count + 3)^5
-    const slotCountBigInt = BigInt(slotCount);
-    const denBase = slotCountBigInt + 3n;
-    const den = denBase ** 5n;
-
-    // Calculate level power: level^5
-    const levelBigInt = BigInt(level);
-    const levelPow = levelBigInt ** 5n;
-
-    // Calculate reward: num / (den - level_pow) - (num - MIN_REWARD * den) / den
-    const denominator = den - levelPow;
-    if (denominator === 0n) {
-      return 0; // Avoid division by zero
-    }
-
-    const firstTerm = num / denominator;
-    const secondTerm = (num - MIN_REWARD * den) / den;
-    const result = firstTerm - secondTerm;
-
-    // Convert to number (u64 equivalent)
-    return Number(result);
-  }
-
-  /**
    * Calculate rewards for all levels based on supply and target supply
    * @param slotCount - The number of slots in the game (default: 18)
    * @param supply - The current supply of the game
@@ -218,7 +172,7 @@ export class Game {
   ): number[] {
     return Array.from({ length: slotCount }, (_, index) => {
       const level = index + 1;
-      return Game.calculateReward(level, slotCount, supply, targetSupply);
+      return Rewarder.amount(level, slotCount, supply, targetSupply);
     });
   }
 
@@ -300,12 +254,10 @@ export class Game {
       return false;
     }
 
-    // Compare available_powers
+    // Compare enabled_powers
     if (
-      this.available_powers.length !== other.available_powers.length ||
-      !this.available_powers.every(
-        (p, idx) => p === other.available_powers[idx],
-      )
+      this.enabled_powers.length !== other.enabled_powers.length ||
+      !this.enabled_powers.every((p, idx) => p === other.enabled_powers[idx])
     ) {
       return false;
     }
@@ -329,5 +281,363 @@ export class Game {
     }
 
     return true;
+  }
+
+  /**
+   * Clone the game instance
+   * Creates a new Game instance with the same values
+   * This ensures React detects state changes
+   */
+  clone(): Game {
+    return new Game(
+      this.id,
+      this.claimed,
+      this.multiplier,
+      this.level,
+      this.slot_count,
+      this.slot_min,
+      this.slot_max,
+      this.number,
+      this.next_number,
+      [...this.selectable_powers],
+      [...this.selected_powers],
+      [...this.enabled_powers],
+      [...this.disabled_traps],
+      this.reward,
+      this.over,
+      this.expiration,
+      [...this.traps],
+      [...this.slots],
+      this.supply,
+    );
+  }
+
+  /**
+   * Start the game
+   * Equivalent to GameTrait::start in models/game.cairo
+   */
+  start(rand: Random): void {
+    // [Check] Game has not started yet
+    if (this.number !== 0) {
+      throw new Error("Game: already started");
+    }
+    // [Effect] Draw numbers
+    const slots = [...this.slots];
+    this.number = this.next(slots, rand);
+    slots.push(this.number);
+    this.next_number = this.next(slots, rand);
+    // [Effect] Draw traps
+    const traps = Trap.generate(TRAP_COUNT, this.slot_count, rand);
+    this.traps = traps.map((trapIndex) => Trap.from(trapIndex));
+    // [Effect] Set expiration
+    // For practice mode, we use a mock timestamp
+    const mockTimestamp = Math.floor(Date.now() / 1000);
+    this.expiration = mockTimestamp + DEFAULT_EXPIRATION;
+  }
+
+  /**
+   * Validates that the slots array is in valid order
+   * Equivalent to GameTrait::is_valid in models/game.cairo
+   */
+  isValid(): boolean {
+    return Verifier.isValid(this.slots);
+  }
+
+  /**
+   * Returns the largest streak of consecutive numbers
+   * Equivalent to GameTrait::streak in models/game.cairo
+   */
+  static streak(slots: number[]): number {
+    return Verifier.streak(slots);
+  }
+
+  /**
+   * Check if the game is completed
+   * Equivalent to GameTrait::is_completed in models/game.cairo
+   */
+  isCompleted(): boolean {
+    return this.level === this.slot_count;
+  }
+
+  /**
+   * Determines if the game has ended
+   * Equivalent to GameTrait::is_over in models/game.cairo
+   */
+  isOver(): boolean {
+    return (
+      Verifier.isOver(this.number, this.level, this.slot_count, this.slots) &&
+      this.selectable_powers.length === 0 &&
+      this.enabled_powers.every((enabled) => !enabled)
+    );
+  }
+
+  /**
+   * Determines if the game has expired
+   * Equivalent to GameTrait::is_expired in models/game.cairo
+   */
+  isExpired(): boolean {
+    // For practice mode, we use a mock timestamp
+    const mockTimestamp = Math.floor(Date.now() / 1000);
+    return mockTimestamp >= this.expiration;
+  }
+
+  /**
+   * Generates a random number between min and max that is not already present in slots
+   * Equivalent to GameTrait::next in models/game.cairo
+   */
+  next(slots: number[], rand: Random): number {
+    return rand.nextUnique(this.slot_min, this.slot_max, slots);
+  }
+
+  /**
+   * Rewards the game for the current level
+   * Equivalent to GameTrait::reward in models/game.cairo
+   */
+  addReward(supply: bigint, target: bigint): void {
+    const rewardAmount = Rewarder.amount(
+      this.level,
+      this.slot_count,
+      supply,
+      target,
+    );
+    this.reward += rewardAmount;
+  }
+
+  /**
+   * Levels up the game
+   * Equivalent to GameTrait::level_up in models/game.cairo
+   */
+  levelUp(): void {
+    this.level += 1;
+  }
+
+  /**
+   * Check if powers can be drawn
+   * Equivalent to GameTrait::is_drawable in models/game.cairo
+   */
+  isDrawable(): boolean {
+    return (
+      this.selectable_powers.length === 0 &&
+      !this.isCompleted() &&
+      this.level % DEFAULT_DRAW_STAGE === 0 &&
+      this.level < DEFAULT_MAX_DRAW
+    );
+  }
+
+  /**
+   * Place a number in a slot
+   * Equivalent to GameTrait::place in models/game.cairo
+   */
+  place(number: number, index: number, rand: Random): void {
+    // [Check] Index is valid
+    if (index < 0 || index >= this.slot_count) {
+      throw new Error("Game: index not valid");
+    }
+    // [Check] Target slot is empty
+    if (this.slots[index] !== 0) {
+      throw new Error("Game: slot not empty");
+    }
+    // [Effect] Place number
+    this.set(index, number);
+    // [Effect] Trigger trap if available, disable it before to avoid infinite loops
+    const trap = this.traps[index];
+    if (!this.disabled_traps[index] && trap !== undefined && !trap.isNone()) {
+      this.disabled_traps[index] = true;
+      trap.apply(this, index, rand);
+    }
+  }
+
+  /**
+   * Set a slot value
+   * Equivalent to GameTrait::set in models/game.cairo
+   */
+  private set(index: number, number: number): void {
+    this.slots[index] = number;
+  }
+
+  /**
+   * Unset a slot value
+   * Equivalent to GameTrait::unset in models/game.cairo
+   */
+  private unset(index: number): void {
+    this.set(index, 0);
+  }
+
+  /**
+   * Shuffle a slot
+   * Equivalent to GameTrait::shuffle in models/game.cairo
+   */
+  shuffle(index: number, rand: Random): void {
+    // [Effect] Take the nearest number and shuffle them
+    const slots = this.slots;
+    // [Compute] Find the nearest number to the left
+    let previous = this.slot_min;
+    for (let idx = index - 1; idx >= 0; idx--) {
+      const slot = slots[idx];
+      if (slot !== 0) {
+        previous = slot;
+        break;
+      }
+    }
+    // [Compute] Find the nearest number to the right
+    let next = this.slot_max;
+    for (let idx = index + 1; idx < slots.length; idx++) {
+      const slot = slots[idx];
+      if (slot !== 0) {
+        next = slot;
+        break;
+      }
+    }
+    // [Effect] Shuffle the slot at index
+    const slot = rand.between(previous, next);
+    this.set(index, slot);
+  }
+
+  /**
+   * Move a slot from one index to another
+   * Equivalent to GameTrait::move in models/game.cairo
+   */
+  move(from: number, to: number, rand: Random): void {
+    // [Check] Index is valid
+    if (
+      from < 0 ||
+      from >= this.slot_count ||
+      to < 0 ||
+      to >= this.slot_count
+    ) {
+      throw new Error("Game: index not valid");
+    }
+    // [Effect] Move number
+    const slot = this.slots[from];
+    this.unset(from);
+    this.place(slot, to, rand);
+  }
+
+  /**
+   * Force slots array
+   * Equivalent to GameTrait::force in models/game.cairo
+   */
+  force(slots: number[]): void {
+    if (slots.length !== this.slot_count) {
+      throw new Error("Game: slots pack failed");
+    }
+    this.slots = [...slots];
+  }
+
+  /**
+   * Select a selectable power
+   * Equivalent to GameTrait::select in models/game.cairo
+   */
+  select(index: number): void {
+    // [Check] Power is selectable
+    if (this.selectable_powers.length === 0 || index >= DEFAULT_DRAW_COUNT) {
+      throw new Error("Game: invalid power selection");
+    }
+    // [Effect] Select power and add to selected powers
+    const power = this.selectable_powers[index];
+    this.selected_powers.push(power);
+    // Ensure enabled_powers has enough elements (same length as selected_powers)
+    // true = available/enabled, false = used
+    while (this.enabled_powers.length < this.selected_powers.length) {
+      this.enabled_powers.push(true);
+    }
+    // [Effect] Erase selectable powers
+    this.selectable_powers = [];
+    // [Effect] Update power availability
+    const powerIndex = this.level / DEFAULT_DRAW_STAGE - 1;
+    this.enabled_powers = this.enabled_powers.map((enabled, index) =>
+      index === powerIndex ? true : enabled,
+    );
+    // [Effect] Update game over
+    if (this.isOver()) {
+      // For practice mode, we use a mock timestamp
+      const mockTimestamp = Math.floor(Date.now() / 1000);
+      this.over = mockTimestamp;
+    }
+  }
+
+  /**
+   * Apply a power to the game
+   * Equivalent to GameTrait::apply in models/game.cairo
+   */
+  applyPower(index: number, _rand: Random): void {
+    // [Check] Power is not selectable
+    if (this.selectable_powers.length !== 0) {
+      throw new Error("Game: power must be selected");
+    }
+    // [Check] Power is valid
+    if (index >= this.selected_powers.length) {
+      throw new Error("Game: power not available");
+    }
+    const power = this.selected_powers[index];
+    if (!power || power.isNone()) {
+      throw new Error("Game: power not available");
+    }
+    // Ensure enabled_powers has enough elements (same length as selected_powers)
+    while (this.enabled_powers.length < this.selected_powers.length) {
+      this.enabled_powers.push(true); // true = available/enabled, false = used
+    }
+    // Check if power is already used (enabled_powers[index] === false means used)
+    if (!this.enabled_powers[index]) {
+      throw new Error("Game: power not available");
+    }
+    // [Effect] Update power availability (mark as used)
+    this.enabled_powers[index] = false;
+    // [Effect] Apply power
+    power.apply(this, _rand);
+    // [Effect] Update game over
+    if (this.isOver()) {
+      // For practice mode, we use a mock timestamp
+      const mockTimestamp = Math.floor(Date.now() / 1000);
+      this.over = mockTimestamp;
+    }
+  }
+
+  /**
+   * Update the game state
+   * Equivalent to GameTrait::update in models/game.cairo
+   */
+  update(rand: Random, target: bigint): void {
+    // [Check] Power is not selectable
+    if (this.selectable_powers.length !== 0) {
+      throw new Error("Game: power must be selected");
+    }
+    // [Effect] Level up
+    this.levelUp();
+    // [Effect] Update Reward
+    this.addReward(this.supply, target);
+    // [Effect] Update numbers if the game is not completed
+    if (!this.isCompleted()) {
+      // [Info] Artificially add the number to the slots to avoid pulling the same number
+      const cloneSlots = [...this.slots];
+      this.number = this.next_number;
+      cloneSlots.push(this.number);
+      this.next_number = this.next(cloneSlots, rand);
+    }
+    // [Effect] Draw new powers if possible
+    if (this.isDrawable()) {
+      const powerIndexes = Power.draw(rand.nextSeed(), DEFAULT_DRAW_COUNT);
+      this.selectable_powers = powerIndexes.map((index) => Power.from(index));
+    }
+    // [Effect] Assess game over
+    // [Info] Game is over if:
+    // - number cannot be placed
+    // - powers cannot save the game
+    // - no powers can be selected
+    if (this.isOver()) {
+      // For practice mode, we use a mock timestamp
+      const mockTimestamp = Math.floor(Date.now() / 1000);
+      this.over = mockTimestamp;
+    }
+  }
+
+  /**
+   * Claim the game
+   * Equivalent to GameTrait::claim in models/game.cairo
+   */
+  claim(): number {
+    // [Effect] Claim game
+    this.claimed = true;
+    return Math.floor((this.reward * this.multiplier) / BASE_MULTIPLIER);
   }
 }

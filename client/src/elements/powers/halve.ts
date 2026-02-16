@@ -1,4 +1,5 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 import { Verifier } from "@/helpers";
 
 /**
@@ -6,7 +7,7 @@ import { Verifier } from "@/helpers";
  * Equivalent to elements/powers/halve.cairo
  */
 export class Halve {
-  static apply(game: Game): void {
+  static apply(game: Game, _rand: Random): void {
     game.number = Halve.halve(game.number);
   }
 

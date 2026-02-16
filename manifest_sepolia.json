@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x2fc593a1f77da001a693eaebfd87f9b0832849f52d20da84db739ef7023b832",
-    "seed": "nums-v1.0.34",
+    "address": "0x696da94533eb2d45c3ab0a8ddbd536baaba56fc8e0e43c4eedbbe7224d5c78f",
+    "seed": "nums-v1.0.35",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x14c8d2e75beb186bbb2f8b8f51b2f5e32c69bdf4d4cbef35ca5c7b91c121cb2",
+      "address": "0x728cd2eb659d5798b47f12b77eb729cc6fba840957cc1a7363a63266df384ec",
       "class_hash": "0x5209abfc0dde0be499b121e873afa2b3e2a5930ac29227ce8e390ee577e50c0",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0x2501cf2133587322ef9dd03035b5da5c31eead557bf162ee246071363dfffd7",
-      "class_hash": "0x7e0c9742e6913f3e544c29c926ad82dc24bbee3c7f0bd50372f881a8b7f1c61",
+      "address": "0xa25e23b0c6a7567b5517ab94bea14dc6b4d5f4b3ce13cf08ab2f402747a9b6",
+      "class_hash": "0x1926dd33d33be3e02eac7617404af5dddf471d4290e1a52213d253135a40be7",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -79,7 +79,7 @@
       ]
     },
     {
-      "address": "0x142e308ee4887717809570fc0550be265a318e1362c15f0694fed25048e457e",
+      "address": "0xae10831c05b0055662a88efd6dd8fb6a1d6665d2511bfe695a3ad9f31a1995",
       "class_hash": "0x24a4c47b93ae3eeb1daa9f96e6ad2c2ce847ea9f8d53bb0dcf0d96bad87bbd8",
       "init_calldata": [
         "0x0",
@@ -336,7 +336,7 @@
           "key": false
         },
         {
-          "name": "available_powers",
+          "name": "enabled_powers",
           "type": "core::integer::u16",
           "key": false
         },
@@ -376,7 +376,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x31c937c0cfd16906e0d05e99f712961de15bb50504a54c79bd70f29020e685a",
+      "class_hash": "0x1cb8055d043634cb8a43e9fea89f3c0f91921a5bf57a791ecefa711829abc6",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -3554,7 +3554,7 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "available_powers",
+          "name": "enabled_powers",
           "type": "core::integer::u16"
         },
         {
@@ -3632,7 +3632,7 @@
           "type": "core::integer::u16"
         },
         {
-          "name": "available_powers",
+          "name": "enabled_powers",
           "type": "core::integer::u16"
         },
         {

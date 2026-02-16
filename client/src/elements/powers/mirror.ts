@@ -1,4 +1,5 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 import { Verifier } from "@/helpers";
 
 /**
@@ -6,7 +7,7 @@ import { Verifier } from "@/helpers";
  * Equivalent to elements/powers/mirror.cairo
  */
 export class Mirror {
-  static apply(game: Game): void {
+  static apply(game: Game, _rand: Random): void {
     game.number = Mirror.mirror(game.number, game.slot_min, game.slot_max);
   }
 

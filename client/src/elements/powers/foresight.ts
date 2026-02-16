@@ -1,12 +1,14 @@
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 
 /**
  * Foresight power implementation
  * Equivalent to elements/powers/foresight.cairo
  */
 export class Foresight {
-  static apply(_game: Game): void {
-    // Foresight reveals the next number but doesn't change the current game state
+  static apply(game: Game, rand: Random): void {
+    // [Effect] Reveal the next number
+    game.next_number = game.next(game.slots, rand);
   }
 
   static rescue(_game: Game): boolean {

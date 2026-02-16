@@ -191,7 +191,7 @@ export interface RawGame {
     value: string;
     key: boolean;
   };
-  available_powers: {
+  enabled_powers: {
     type: "primitive";
     type_name: "u16";
     value: string;

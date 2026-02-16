@@ -12,7 +12,7 @@ const instructionVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-black-800 text-mauve-100",
+        default: "bg-black-800 text-white-100",
         destructive: "bg-black-800 text-red-100",
       },
       size: {

@@ -1,8 +1,13 @@
 import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers";
+import { Game } from "@/models/game";
+import { Bomb, Lucky, Magnet, Ufo, Windy } from "@/elements/traps";
+import { Random } from "@/helpers/random";
+import { Deck } from "@/helpers/deck";
 
-export const TRAP_COUNT = 6;
+export const TRAP_COUNT = 5;
+const MULTIPLIER = 10000n;
 
 export enum TrapType {
   None = "None",
@@ -211,6 +216,86 @@ export class Trap {
         return "outline-windy-100";
       default:
         return "";
+    }
+  }
+
+  /**
+   * Apply the trap to the game
+   * Equivalent to TrapTrait::apply in types/trap.cairo
+   */
+  public apply(game: Game, slotIndex: number, rand: Random): void {
+    switch (this.value) {
+      case TrapType.None:
+        // No operation
+        break;
+      case TrapType.Bomb:
+        new Bomb().apply(game, slotIndex, rand);
+        break;
+      case TrapType.Lucky:
+        new Lucky().apply(game, slotIndex, rand);
+        break;
+      case TrapType.Magnet:
+        new Magnet().apply(game, slotIndex, rand);
+        break;
+      case TrapType.UFO:
+        new Ufo().apply(game, slotIndex, rand);
+        break;
+      case TrapType.Windy:
+        new Windy().apply(game, slotIndex, rand);
+        break;
+    }
+  }
+
+  /**
+   * Generate traps array
+   * Equivalent to TrapTrait::generate in types/trap.cairo
+   */
+  public static generate(
+    count: number,
+    total: number,
+    random: Random,
+  ): number[] {
+    const traps: number[] = [];
+    const deck = Deck.new(random.nextSeed(), TRAP_COUNT);
+    Trap.iter(total, count, deck, random, traps);
+    return traps;
+  }
+
+  /**
+   * Iterate to generate traps
+   * Equivalent to TrapTrait::iter in types/trap.cairo
+   */
+  private static iter(
+    total: number,
+    count: number,
+    deck: Deck,
+    random: Random,
+    traps: number[],
+  ): void {
+    // [Check] Stop if all objects are placed
+    if (total === 0) {
+      return;
+    }
+    // [Check] Stop if all objects are placed
+    if (count === 0) {
+      // Fill remaining slots with 0
+      for (let i = 0; i < total; i++) {
+        traps.push(0);
+      }
+      return;
+    }
+    // [Compute] Uniform random number between 0 and MULTIPLIER
+    const seed = random.nextSeed();
+    const rng = seed % MULTIPLIER;
+    const probability = (BigInt(count) * MULTIPLIER) / BigInt(total);
+    // [Check] Probability of being an object
+    if (rng < probability) {
+      // [Effect] Draw a trap
+      traps.push(deck.draw());
+      Trap.iter(total - 1, count - 1, deck, random, traps);
+    } else {
+      traps.push(0);
+      Trap.iter(total - 1, count, deck, random, traps);
     }
   }
 }

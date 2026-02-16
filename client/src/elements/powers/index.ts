@@ -1,5 +1,5 @@
 export { Reroll } from "./reroll";
-export { DoubleUp } from "./double_up";
+export { DoubleUp } from "./double-up";
 export { Halve } from "./halve";
 export { High } from "./high";
 export { Low } from "./low";

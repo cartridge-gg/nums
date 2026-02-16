@@ -8,6 +8,8 @@ import {
   getVrfAddress,
 } from "@/config";
 import { useLoading } from "@/context/loading";
+import { GameEngine } from "@/engines";
+import { Random } from "@/helpers/random";
 
 export const useActions = () => {
   const { account } = useAccount();
@@ -225,7 +227,23 @@ export const useActions = () => {
     [account, chain.id],
   );
 
+  const start = useCallback(async (gameId: number, game: any) => {
+    try {
+      // Use GameEngine to start the game locally
+      // Note: This is for practice mode compatibility
+      // In blockchain mode, the game is started when minted
+      if (!game) return false;
+      const rand = new Random(BigInt(gameId));
+      GameEngine.start(game, rand);
+      return true;
+    } catch (e) {
+      console.log({ e });
+      return false;
+    }
+  }, []);
+
   return {
+    start,
     set,
     select,
     apply,

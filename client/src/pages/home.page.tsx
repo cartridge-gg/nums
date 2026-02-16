@@ -1,5 +1,6 @@
 import { HomeScene } from "@/components/scenes/home";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGames } from "@/hooks/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
@@ -8,6 +9,7 @@ import { useHeader } from "@/hooks/header";
 import { ChartHelper } from "@/helpers/chart";
 
 export const Home = () => {
+  const navigate = useNavigate();
   const { config, starterpack } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
@@ -97,13 +99,18 @@ export const Home = () => {
     openPurchaseScene();
   }, [openPurchaseScene]);
 
+  const handlePracticeClick = useCallback(() => {
+    // Navigate to practice mode (game will be created in game.page if needed)
+    navigate("/practice");
+  }, [navigate]);
+
   return (
     <HomeScene
       gameId={gameId}
       gamesProps={gamesProps}
       activitiesProps={{ activities }}
-      onPractice={() => {}}
       onPurchase={handlePurchaseClick}
+      onPractice={handlePracticeClick}
     />
   );
 };

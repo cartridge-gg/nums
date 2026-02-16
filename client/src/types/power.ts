@@ -2,6 +2,7 @@ import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers/packer";
 import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
 import {
   Reroll,
   DoubleUp,
@@ -12,6 +13,7 @@ import {
   Foresight,
   Swap,
 } from "@/elements/powers";
+import { Deck } from "@/helpers/deck";
 
 export const POWER_COUNT = 7;
 export const DEFAULT_POWER_POINTS = 60;
@@ -73,6 +75,19 @@ export class Power {
     // Extract indexes from packed
     const indexes = Packer.unpack(bitmap, 4n);
     return indexes.map((index) => Power.from(index));
+  }
+
+  /**
+   * Draw powers from a deck
+   * Equivalent to PowerTrait::draw in types/power.cairo
+   */
+  public static draw(seed: bigint, count: number): number[] {
+    const deck = Deck.new(seed, POWER_COUNT);
+    const powers: number[] = [];
+    for (let i = 0; i < count; i++) {
+      powers.push(deck.draw());
+    }
+    return powers;
   }
 
   public getCost(board: bigint): number {
@@ -437,34 +452,34 @@ export class Power {
    * Apply the power to the game
    * Equivalent to PowerTrait::apply in types/power.cairo
    */
-  public apply(game: Game): void {
+  public apply(game: Game, rand: Random): void {
     switch (this.value) {
       case PowerType.None:
         // No operation
         break;
       case PowerType.Reroll:
-        Reroll.apply(game);
+        Reroll.apply(game, rand);
         break;
       case PowerType.High:
-        High.apply(game);
+        High.apply(game, rand);
         break;
       case PowerType.Low:
-        Low.apply(game);
+        Low.apply(game, rand);
         break;
       case PowerType.Swap:
-        Swap.apply(game);
+        Swap.apply(game, rand);
         break;
       case PowerType.DoubleUp:
-        DoubleUp.apply(game);
+        DoubleUp.apply(game, rand);
         break;
       case PowerType.Halve:
-        Halve.apply(game);
+        Halve.apply(game, rand);
         break;
       case PowerType.Mirror:
-        Mirror.apply(game);
+        Mirror.apply(game, rand);
         break;
       case PowerType.Foresight:
-        Foresight.apply(game);
+        Foresight.apply(game, rand);
         break;
       default:
         // Other powers not implemented yet

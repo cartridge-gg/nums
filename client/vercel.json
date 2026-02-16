@@ -64,10 +64,6 @@
         {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate, max-age=0"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.stripe.com https://*.cartridge.gg https://cartridge.gg; script-src-elem 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.stripe.com https://*.cartridge.gg https://cartridge.gg; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.stripe.com https://*.cartridge.gg https://cartridge.gg wss://* https://*; frame-src 'self' https://*.stripe.com https://*.cartridge.gg https://cartridge.gg;"
         }
       ]
     }

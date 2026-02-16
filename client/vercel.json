@@ -5,7 +5,7 @@
   },
   "rewrites": [
     {
-      "source": "/:path*",
+      "source": "/:path((?!.*\\.(js|css|wasm|woff|woff2|ttf|eot|png|jpg|jpeg|gif|svg|ico|webp|json)$).*)",
       "destination": "/index.html"
     }
   ],
@@ -39,6 +39,19 @@
     {
       "source": "/assets/:path*",
       "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/:path*.wasm",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/wasm"
+        },
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"

@@ -5,7 +5,7 @@
   },
   "rewrites": [
     {
-      "source": "/((?!.*\\.(js|css|wasm|woff|woff2|ttf|eot|png|jpg|jpeg|gif|svg|ico|webp|json)$).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ],

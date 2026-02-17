@@ -51,6 +51,7 @@ export const Home = () => {
         payout: `+$${(game.reward * price).toFixed(2)}`,
         to: `/game?id=${game.id}`,
         timestamp: game.over,
+        claimed: game.claimed,
       }));
   }, [games]);
 

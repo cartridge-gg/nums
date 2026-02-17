@@ -183,6 +183,7 @@ export const Activities = ({
                     score={activity.score}
                     payout={activity.payout}
                     to={activity.to}
+                    claimed={activity.claimed}
                   />
                 ))}
               </div>

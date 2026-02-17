@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { BrandIcon, EyeIcon } from "@/components/icons";
+import { BrandIcon, EyeIcon, GiftIcon } from "@/components/icons";
 import { useId } from "react";
 import { Link } from "react-router-dom";
 
@@ -12,7 +12,7 @@ export interface ActivityProps
   score: number;
   payout: string;
   to: string;
-  onClaim?: (gameId: number) => void;
+  claimed: boolean;
 }
 
 const activityVariants = cva("select-none flex gap-3 items-center", {
@@ -31,7 +31,7 @@ export const Activity = ({
   score,
   payout,
   to,
-  onClaim,
+  claimed,
   variant,
   className,
   ...props
@@ -68,7 +68,7 @@ export const Activity = ({
         </div>
       </div>
 
-      {!onClaim ? (
+      {claimed ? (
         <Button
           variant="muted"
           asChild
@@ -99,15 +99,30 @@ export const Activity = ({
       ) : (
         <Button
           variant="default"
-          className="bg-green-100 hover:bg-green-200 px-3 py-1"
-          onClick={() => onClaim(gameId)}
+          asChild
+          className="bg-green-100 hover:bg-green-200 px-2 py-1"
         >
-          <p
-            className="text-[28px]/[15px] tracking-wide translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-          >
-            Claim
-          </p>
+          <Link to={to}>
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <filter
+                  id={filterId}
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feDropShadow
+                    dx="2"
+                    dy="2"
+                    stdDeviation="0"
+                    floodColor="rgba(0, 0, 0, 0.24)"
+                  />
+                </filter>
+              </defs>
+            </svg>
+            <GiftIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+          </Link>
         </Button>
       )}
     </div>

@@ -92,12 +92,13 @@ export const Layout = ({ children }: LayoutProps) => {
       const newestGame = games[0];
       if (newestGame) {
         navigate(`/game?id=${newestGame.id}`);
+        (connector as ControllerConnector)?.controller?.close?.();
       }
     }
 
     // Update ref for next comparison
     previousGamesLengthRef.current = currentLength;
-  }, [games.length, games, gamesLoading, navigate]);
+  }, [games.length, games, gamesLoading, navigate, connector]);
 
   // Prepare quests props for Quest
   const questsProps = useMemo(() => {

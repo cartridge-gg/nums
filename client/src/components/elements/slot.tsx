@@ -155,8 +155,8 @@ export const Slot = ({
         variant="muted"
         loading={loading}
         className={cn(
-          "h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400",
-          (!!value || isDisabled) && "bg-white-900",
+          "h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
+          !!value && isDisabled && "disabled:text-white-300",
           invalid && !!value && "bg-red-800 disabled:opacity-100",
           (!!value || invalid) && "pointer-events-none cursor-default",
           !!trap && !invalid && !inactive && trap.bgColor(),

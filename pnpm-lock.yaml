@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@cartridge/connector':
-      specifier: 0.11.3
-      version: 0.11.3
+      specifier: 0.13.9
+      version: 0.13.9
     '@cartridge/controller':
-      specifier: 0.11.3
-      version: 0.11.3
+      specifier: 0.13.9
+      version: 0.13.9
     '@cartridge/presets':
       specifier: 0.5.2
       version: 0.5.2
@@ -43,10 +43,10 @@ importers:
         version: 0.0.74(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)
       '@cartridge/connector':
         specifier: 0.11.3
-        version: 0.11.3(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+        version: 0.11.3(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@cartridge/controller':
         specifier: 0.11.3
-        version: 0.11.3(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+        version: 0.11.3(@types/react@18.3.27)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@cartridge/presets':
         specifier: ^0.5.2
         version: 0.5.2
@@ -209,10 +209,10 @@ importers:
     dependencies:
       '@cartridge/connector':
         specifier: 'catalog:'
-        version: 0.11.3(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+        version: 0.13.9(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@cartridge/controller':
         specifier: 'catalog:'
-        version: 0.11.3(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+        version: 0.13.9(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@cartridge/presets':
         specifier: 'catalog:'
         version: 0.5.2
@@ -1218,11 +1218,22 @@ packages:
     peerDependencies:
       '@starknet-react/core': ^5.0.1
 
+  '@cartridge/connector@0.13.9':
+    resolution: {integrity: sha512-rtUfYwEhp3dmxenLXBwVrQ2VH4sPcvEeJkwV1aJv1ZkVC7SKYYL2MrF8SOwiVdLAk8Qt4c+d+mHNBLYWItWo6A==}
+    peerDependencies:
+      '@starknet-react/core': ^5.0.1
+
   '@cartridge/controller-wasm@0.8.0':
     resolution: {integrity: sha512-wxwrIMceVX/xyfv8z43sF+hCGunQZ6kV/h+VlZn8beDP3rlAEMTaSpjBox1YhKp+xImT4KvxuCSR6+3vVDJFMA==}
 
+  '@cartridge/controller-wasm@0.9.4':
+    resolution: {integrity: sha512-hkvXPhAnjY57MhdJfUWK5htCFeOv06ChwYtrsx3AKJRnNW9HU25dfWHqWPdy875/2KmqIBDVTdoxddhoHgmrBw==}
+
   '@cartridge/controller@0.11.3':
     resolution: {integrity: sha512-oJ7sGO0o6PJCr09Hi5jHQitLDC7AcKa3hSOOYsc6txMe72Y6hoSgI/By/iqUjKA77ntAVhYicx6GX9YQy8Hm3g==}
+
+  '@cartridge/controller@0.13.9':
+    resolution: {integrity: sha512-LVjoBN8/Fa2Hv5bjOUBWcaJSxFthqr5JikUPZo3NERnLloUHOtGQs6HnIFOwP4N5i0A+GyTJVLa+fmk49ZJERg==}
 
   '@cartridge/penpal@6.2.4':
     resolution: {integrity: sha512-tdpOnSJJBFMlgLZ1+z9Ho5e6cG5EgMAb1Cmmh1lGT2tmplogU/XPMjLE6CwvKAPDoe6a38iMnbH+ySTAWWIOKA==}
@@ -9907,10 +9918,42 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cartridge/connector@0.11.3(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
+  '@cartridge/connector@0.11.3(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
     dependencies:
-      '@cartridge/controller': 0.11.3(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+      '@cartridge/controller': 0.11.3(@types/react@18.3.27)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@starknet-io/get-starknet-wallet-standard': 5.0.0-beta.0(typescript@5.9.3)(zod@3.25.76)
+      '@starknet-react/core': 5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - aws4fetch
+      - bufferutil
+      - db0
+      - encoding
+      - ioredis
+      - react
+      - typescript
+      - uploadthing
+      - utf-8-validate
+      - zod
+
+  '@cartridge/connector@0.13.9(@starknet-react/core@5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3))(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
+    dependencies:
+      '@cartridge/controller': 0.13.9(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
       '@starknet-react/core': 5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -9942,10 +9985,56 @@ snapshots:
 
   '@cartridge/controller-wasm@0.8.0': {}
 
-  '@cartridge/controller@0.11.3(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
+  '@cartridge/controller-wasm@0.9.4': {}
+
+  '@cartridge/controller@0.11.3(@types/react@18.3.27)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
     dependencies:
       '@cartridge/controller-wasm': 0.8.0
       '@cartridge/penpal': 6.2.4
+      '@starknet-io/types-js': 0.9.1
+      '@telegram-apps/sdk': 2.11.3
+      '@turnkey/sdk-browser': 4.3.0(typescript@5.9.3)(zod@3.25.76)
+      '@walletconnect/ethereum-provider': 2.23.0(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)
+      bs58: 6.0.0
+      cbor-x: 1.6.0
+      ethers: 6.16.0
+      micro-sol-signer: 0.5.0
+      mipd: 0.0.7(typescript@5.9.3)
+      open: 10.2.0
+      starknet: 8.9.2
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - aws4fetch
+      - bufferutil
+      - db0
+      - encoding
+      - ioredis
+      - react
+      - typescript
+      - uploadthing
+      - utf-8-validate
+      - zod
+
+  '@cartridge/controller@0.13.9(@types/react@18.3.27)(@vercel/functions@1.6.0)(react@19.2.1)(typescript@5.9.3)(zod@3.25.76)':
+    dependencies:
+      '@cartridge/controller-wasm': 0.9.4
+      '@cartridge/penpal': 6.2.4
+      '@starknet-io/get-starknet-wallet-standard': 5.0.0-beta.0(typescript@5.9.3)(zod@3.25.76)
       '@starknet-io/types-js': 0.9.1
       '@telegram-apps/sdk': 2.11.3
       '@turnkey/sdk-browser': 4.3.0(typescript@5.9.3)(zod@3.25.76)

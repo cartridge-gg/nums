@@ -71,7 +71,11 @@ export const Game = ({
       <div className="w-full grid grid-cols-2 md:flex gap-2">
         {/* Game Id column */}
         <div className="flex-1 flex flex-col gap-2">
-          <Content title="Game Id" value={gameId} icon={!!gameId && !!score} />
+          <Content
+            title="Game Id"
+            value={gameId ? `#${gameId}` : undefined}
+            icon={!!gameId && !!score}
+          />
         </div>
 
         {/* Score column */}

@@ -233,7 +233,7 @@ export const PurchaseScene = ({
         <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-10">
           <Title />
           <div className="flex items-stretch justify-between gap-8">
-            <div className="flex flex-col gap-4 md:gap-6 flex-1">
+            <div className="flex flex-col gap-4 md:gap-6 flex-1 pt-0.5">
               <Purchase {...purchaseProps} className="flex-1" />
               {stakesProps && <Stakes {...stakesProps} />}
             </div>

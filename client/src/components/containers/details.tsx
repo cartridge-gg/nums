@@ -41,7 +41,7 @@ export const Details = ({
     <div className={cn(detailsVariants({ variant, className }))} {...props}>
       {/* Details list */}
       <div
-        className="flex flex-col gap-3 grow overflow-y-auto"
+        className="flex flex-col gap-3 grow overflow-y-auto pt-0.5"
         style={{ scrollbarWidth: "none" }}
       >
         <Detail

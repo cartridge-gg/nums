@@ -24,7 +24,7 @@ pub mod models {
 
 pub mod events {
     pub mod index;
-    pub mod reward;
+    pub mod purchase;
 }
 
 pub mod svg {

@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x696da94533eb2d45c3ab0a8ddbd536baaba56fc8e0e43c4eedbbe7224d5c78f",
-    "seed": "nums-v1.0.35",
+    "address": "0x40009ef1417e3814a99dcb202a1dc81f70ac0c3aee5eb2f22ded39ac36fbbce",
+    "seed": "nums-v1.0.37",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x728cd2eb659d5798b47f12b77eb729cc6fba840957cc1a7363a63266df384ec",
+      "address": "0x1f128110248319f3a9b5db06470a939d372ec3c39c1c4dcf277bebe966186b",
       "class_hash": "0x5209abfc0dde0be499b121e873afa2b3e2a5930ac29227ce8e390ee577e50c0",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -57,8 +57,8 @@
       ]
     },
     {
-      "address": "0xa25e23b0c6a7567b5517ab94bea14dc6b4d5f4b3ce13cf08ab2f402747a9b6",
-      "class_hash": "0x1926dd33d33be3e02eac7617404af5dddf471d4290e1a52213d253135a40be7",
+      "address": "0x4bf65b482e1225a866fe99297ecabb49ff44d3d7441584490d0c1e4d5a1f423",
+      "class_hash": "0x3ff9da73de8ba595a6c7750dd14d867673fbbe775364c65576c9636d39711b5",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -72,14 +72,11 @@
         "select",
         "apply",
         "claim",
-        "register_starterpack",
-        "update_starterpack",
-        "update_metadata",
         "upgrade"
       ]
     },
     {
-      "address": "0xae10831c05b0055662a88efd6dd8fb6a1d6665d2511bfe695a3ad9f31a1995",
+      "address": "0x264fcf9ca3117a45a09528520718c3af6e8fb1106ac33808f1866d933f4339f",
       "class_hash": "0x24a4c47b93ae3eeb1daa9f96e6ad2c2ce847ea9f8d53bb0dcf0d96bad87bbd8",
       "init_calldata": [
         "0x0",
@@ -89,7 +86,7 @@
         "0x0",
         "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
-        "0x1E5D70",
+        "0x1E8480",
         "0x6765C793FA10079D0000000"
       ],
       "tag": "NUMS-Setup",
@@ -561,9 +558,14 @@
           "name": "payment_token",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8",
+          "key": false
         }
       ],
-      "class_hash": "0x444887bd991577346d24ea9fd5c1329327fe4858631800b7d77c7712b9ba7bf",
+      "class_hash": "0x4996976848514514e18952e892359919aed81ec01237919ceeb001f4507cc39",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
     }
@@ -644,6 +646,38 @@
       "class_hash": "0x2c067e1c1069a68aca73f8cf4f0000fb9c584455bb60fadde7ee05fbeb62372",
       "tag": "NUMS-LeaderboardScore",
       "selector": "0x3b5d184f66bf1446e882a4eab8662010f7108b42fb2d2aafe6d2721f625154e"
+    },
+    {
+      "members": [
+        {
+          "name": "player_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "starterpack_id",
+          "type": "core::integer::u32",
+          "key": false
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32",
+          "key": false
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x1d5178b8d0f28e6e6c7beeaf34cb9b0079f828e661cad4b43f87a7b8adfd076",
+      "tag": "NUMS-Purchase",
+      "selector": "0x23f680224c403c46076a729a81b2f35278b5d02f6184d37e648f897593e37c7"
     },
     {
       "members": [
@@ -774,23 +808,6 @@
       "class_hash": "0x4323e58925dd9a9d34b95a5051f39876ed0ad489ec9288e326c8920a2b89f2",
       "tag": "NUMS-QuestUnlocked",
       "selector": "0x429873f72ed812577ccc849f659e2ced72baa11056deff6e4d146c5b8381e53"
-    },
-    {
-      "members": [
-        {
-          "name": "game_id",
-          "type": "core::integer::u64",
-          "key": true
-        },
-        {
-          "name": "reward",
-          "type": "core::integer::u64",
-          "key": false
-        }
-      ],
-      "class_hash": "0x5436eaf9d9a13440928e0c465fec528724f69d0c32d7300ccb0d6cd0b5c1e13",
-      "tag": "NUMS-Reward",
-      "selector": "0x25d15cba6a316568b47986ae9b27a718c9d3a64865b65a1e84fdb2c3c186ee8"
     },
     {
       "members": [
@@ -3381,31 +3398,55 @@
     },
     {
       "type": "struct",
-      "name": "nums::events::index::Reward",
+      "name": "nums::events::index::Purchase",
       "members": [
         {
-          "name": "game_id",
-          "type": "core::integer::u64"
+          "name": "player_id",
+          "type": "core::felt252"
         },
         {
-          "name": "reward",
+          "name": "starterpack_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "time",
           "type": "core::integer::u64"
         }
       ]
     },
     {
       "type": "struct",
-      "name": "nums::events::index::RewardValue",
+      "name": "nums::events::index::PurchaseValue",
       "members": [
         {
-          "name": "reward",
+          "name": "starterpack_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "time",
           "type": "core::integer::u64"
         }
       ]
     },
     {
       "type": "event",
-      "name": "nums::events::index::e_Reward::Event",
+      "name": "nums::events::index::e_Purchase::Event",
       "kind": "enum",
       "variants": []
     },
@@ -3688,6 +3729,10 @@
         {
           "name": "payment_token",
           "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
         }
       ]
     },
@@ -3710,6 +3755,10 @@
         {
           "name": "payment_token",
           "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
         }
       ]
     },
@@ -3837,76 +3886,6 @@
             {
               "name": "token_id",
               "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
-    },
-    {
-      "type": "interface",
-      "name": "nums::systems::play::IExternal",
-      "items": [
-        {
-          "type": "function",
-          "name": "register_starterpack",
-          "inputs": [
-            {
-              "name": "payment_token",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "reissuable",
-              "type": "core::bool"
-            },
-            {
-              "name": "referral_percentage",
-              "type": "core::integer::u8"
-            },
-            {
-              "name": "price",
-              "type": "core::integer::u256"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "update_starterpack",
-          "inputs": [
-            {
-              "name": "starterpack_id",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "reissuable",
-              "type": "core::bool"
-            },
-            {
-              "name": "payment_token",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "referral_percentage",
-              "type": "core::integer::u8"
-            },
-            {
-              "name": "price",
-              "type": "core::integer::u128"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "update_metadata",
-          "inputs": [
-            {
-              "name": "starterpack_id",
-              "type": "core::integer::u32"
             }
           ],
           "outputs": [],

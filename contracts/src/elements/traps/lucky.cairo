@@ -9,11 +9,12 @@ pub impl Lucky of TrapTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_MULTIPLIER, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
+    use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::random::RandomImpl;
     use super::*;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
+    const DEFAULT_MULTIPLIER: u8 = 1;
 
     #[test]
     fn test_lucky_single() {

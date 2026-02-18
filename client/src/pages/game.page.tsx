@@ -45,7 +45,7 @@ export const Game = () => {
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { games } = useGames();
-  const { config, starterpack } = useEntities();
+  const { config, starterpacks } = useEntities();
   const { isLoading, setLoading } = useLoading();
   const [searchParams] = useSearchParams();
   const [showGameOver, setShowGameOver] = useState(false);
@@ -118,9 +118,18 @@ export const Game = () => {
     }
   }, [game, setLoading]);
 
+  const basePrice = useMemo(() => {
+    return Number(config?.entry_price || 0n) / 10 ** 6;
+  }, [config]);
+
   const playPrice = useMemo(() => {
-    return Number(starterpack?.price || 0n) / 10 ** 6 || 0;
-  }, [starterpack]);
+    if (!game) return 0;
+    const starterpack = starterpacks.find(
+      (starterpack) => starterpack.multiplier === game.multiplier,
+    );
+    if (!starterpack) return 0;
+    return Number(starterpack.price) / 10 ** 6 || 0;
+  }, [starterpacks, game]);
 
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
@@ -132,14 +141,15 @@ export const Game = () => {
 
     return {
       slotCount: game.slot_count,
+      basePrice: basePrice * game.multiplier,
       playPrice,
       numsPrice,
-      multiplier: "1.0x",
+      multiplier: game.multiplier,
       expiration: game.expiration,
       targetSupply: config.target_supply || 0n,
       currentSupply: game.supply,
     };
-  }, [game, config, playPrice, numsPrice]);
+  }, [game, config, basePrice, playPrice, numsPrice]);
 
   // Transform game data for Game
   const gameProps = useMemo(() => {
@@ -160,6 +170,7 @@ export const Game = () => {
       targetSupply: purchaseProps.targetSupply,
       numsPrice: purchaseProps.numsPrice,
       playPrice: purchaseProps.playPrice,
+      multiplier: game.multiplier,
     });
 
     // Calculate stages based on level and rewards
@@ -471,6 +482,7 @@ export const Game = () => {
         <div className="absolute inset-0 z-50 flex items-center justify-center m-2 md:m-6">
           <PurchaseScene
             slotCount={purchaseProps.slotCount}
+            basePrice={purchaseProps.basePrice}
             playPrice={purchaseProps.playPrice}
             numsPrice={purchaseProps.numsPrice}
             multiplier={purchaseProps.multiplier}

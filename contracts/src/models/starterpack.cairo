@@ -17,6 +17,7 @@ pub impl StarterpackImpl of StarterpackTrait {
         referral_percentage: u8,
         price: u256,
         payment_token: starknet::ContractAddress,
+        multiplier: u8,
     ) -> Starterpack {
         // [Return] New starterpack
         Starterpack {
@@ -25,6 +26,7 @@ pub impl StarterpackImpl of StarterpackTrait {
             referral_percentage: referral_percentage,
             price: price,
             payment_token: payment_token,
+            multiplier: multiplier,
         }
     }
 
@@ -46,10 +48,13 @@ pub impl StarterpackImpl of StarterpackTrait {
     }
 
     #[inline]
-    fn metadata(payment_token: starknet::ContractAddress) -> ByteArray {
-        let item = ItemTrait::new(
-            name: "Game", description: "A standard game playable on nums.gg", image_uri: IMAGE(),
-        );
+    fn metadata(payment_token: starknet::ContractAddress, multiplier: u8) -> ByteArray {
+        let description: ByteArray = if multiplier == 1 {
+            "A standard game playable on nums.gg"
+        } else {
+            format!("A standard game playable on nums.gg with a x{} reward multiplier", multiplier)
+        };
+        let item = ItemTrait::new(name: "Game", description: description, image_uri: IMAGE());
         let metadata = MetadataTrait::new(
             name: "Nums Starterpack",
             description: "This starterpack contains Nums games",

@@ -26,6 +26,7 @@ pub struct Starterpack {
     pub referral_percentage: u8,
     pub price: u256,
     pub payment_token: ContractAddress,
+    pub multiplier: u8,
 }
 
 #[derive(Copy, Drop, Serde, IntrospectPacked)]

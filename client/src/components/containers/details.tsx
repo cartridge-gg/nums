@@ -5,8 +5,9 @@ import { Detail } from "@/components/elements/detail";
 export interface DetailsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof detailsVariants> {
-  entryFee: string;
-  multiplier?: string;
+  basePrice: number;
+  entryPrice: number;
+  multiplier?: number;
   breakEven: string;
   expiration: string;
   maxPayout: string;
@@ -24,7 +25,8 @@ const detailsVariants = cva("flex flex-col gap-6 grow", {
 });
 
 export const Details = ({
-  entryFee,
+  basePrice,
+  entryPrice,
   multiplier,
   breakEven,
   expiration,
@@ -33,6 +35,8 @@ export const Details = ({
   className,
   ...props
 }: DetailsProps) => {
+  const discount = `-${(((basePrice - entryPrice) / basePrice) * 100).toFixed(0)}%`;
+
   return (
     <div className={cn(detailsVariants({ variant, className }))} {...props}>
       {/* Details list */}
@@ -40,9 +44,17 @@ export const Details = ({
         className="flex flex-col gap-3 grow overflow-y-auto"
         style={{ scrollbarWidth: "none" }}
       >
-        <Detail title="Entry Fee" content={entryFee} />
+        <Detail
+          title="Entry Fee"
+          content={`$${entryPrice}`}
+          discount={discount}
+        />
         {multiplier && (
-          <Detail title="Reward multiplier" content={multiplier} />
+          <Detail
+            title="Reward multiplier"
+            content={`${multiplier.toFixed(0)}x`}
+            count={multiplier}
+          />
         )}
         <Detail title="Break Even" content={breakEven} />
         <Detail title="Expire in" content={expiration} />

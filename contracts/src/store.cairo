@@ -5,7 +5,7 @@ use ekubo::components::clear::IClearDispatcher;
 use ekubo::interfaces::erc20::IERC20Dispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
-use crate::events::reward::GameRewardTrait;
+use crate::events::purchase::PurchaseTrait;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
@@ -98,10 +98,12 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(starterpack)
     }
 
-    // Reward
+    // Purchase
 
-    fn reward(mut self: Store, game_id: u64, reward: u64) {
-        let event = GameRewardTrait::new(game_id, reward);
+    fn purchase(
+        mut self: Store, player_id: felt252, starterpack_id: u32, quantity: u32, multiplier: u8,
+    ) {
+        let event = PurchaseTrait::new(player_id, starterpack_id, quantity, multiplier);
         self.world.emit_event(@event);
     }
 }

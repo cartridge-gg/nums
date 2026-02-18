@@ -58,5 +58,4 @@ pub const DEFAULT_DRAW_COUNT: u8 = 2;
 pub const DEFAULT_MAX_DRAW: u8 = 15;
 pub const DEFAULT_DRAW_STAGE: u8 = 4;
 pub const DEFAULT_EXPIRATION: u64 = 1 * 24 * 60 * 60; // One day
-pub const DEFAULT_MULTIPLIER: u8 = 100;
 pub const BASE_MULTIPLIER: u8 = 100;

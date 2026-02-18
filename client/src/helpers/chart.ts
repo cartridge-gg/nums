@@ -6,6 +6,7 @@ export interface ChartCalculationParams {
   targetSupply: bigint;
   numsPrice: number; // Price in USD (e.g., 0.003)
   playPrice: number; // Play price for break-even calculation
+  multiplier: number; // Multiplier for the game
 }
 
 export interface ChartCalculationResult {
@@ -22,8 +23,14 @@ export const ChartHelper = {
    * @returns Chart calculation result with values, abscissa, and payout information
    */
   calculate: (params: ChartCalculationParams): ChartCalculationResult => {
-    const { slotCount, currentSupply, targetSupply, numsPrice, playPrice } =
-      params;
+    const {
+      slotCount,
+      currentSupply,
+      targetSupply,
+      numsPrice,
+      playPrice,
+      multiplier,
+    } = params;
 
     if (targetSupply === 0n || currentSupply === 0n) {
       return {
@@ -35,7 +42,12 @@ export const ChartHelper = {
     }
 
     // Calculate rewards in NUMS for each level (1-slotCount)
-    const gameRewards = Game.rewards(slotCount, currentSupply, targetSupply);
+    const gameRewards = Game.rewards(
+      slotCount,
+      currentSupply,
+      targetSupply,
+      multiplier,
+    );
 
     // Calculate cumulative sum of rewards
     const chartValues = gameRewards.reduce((acc, reward, index) => {

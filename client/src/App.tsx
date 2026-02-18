@@ -9,7 +9,7 @@ import {
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
 import { ControllersProvider } from "./context/controllers";
@@ -113,7 +113,7 @@ function App() {
           </AudioProvider>
         </StarknetConfig>
       </QueryClientProvider>
-      <Toaster position="top-right" richColors />
+      <Toaster richColors />
     </>
   );
 }

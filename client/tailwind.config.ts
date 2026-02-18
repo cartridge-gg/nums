@@ -42,11 +42,20 @@ const config = {
             opacity: "0",
           },
         },
+        "toast-progress": {
+          "0%": {
+            transform: "scaleX(1)",
+          },
+          "100%": {
+            transform: "scaleX(0)",
+          },
+        },
       },
       animation: {
         "pulse-border-0": "pulse-border 3s ease-out infinite 0s backwards",
         "pulse-border-1": "pulse-border 3s ease-out infinite 1s backwards",
         "pulse-border-2": "pulse-border 3s ease-out infinite 2s backwards",
+        "toast-progress": "toast-progress 4000ms linear forwards",
       },
     },
   },

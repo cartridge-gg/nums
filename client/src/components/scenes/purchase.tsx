@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Purchase } from "@/components/containers/purchase";
-import { Details } from "../containers";
+import { Details, Stakes, StakesProps } from "../containers";
 import { useId, useMemo, useState, useEffect } from "react";
 import { ChartHelper } from "@/helpers/chart";
 import { Formatter } from "@/helpers/formatter";
@@ -13,12 +13,14 @@ export interface PurchaseSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof purchaseSceneVariants> {
   slotCount: number;
+  basePrice: number;
   playPrice: number;
   numsPrice: number;
-  multiplier?: string;
+  multiplier: number;
   expiration?: number; // Unix timestamp in seconds
   targetSupply: bigint;
   currentSupply: bigint;
+  stakesProps?: StakesProps;
   onClose?: () => void;
   onConnect?: () => void;
   onPurchase?: () => void;
@@ -41,12 +43,14 @@ const purchaseSceneVariants = cva(
 
 export const PurchaseScene = ({
   slotCount,
+  basePrice,
   playPrice,
   numsPrice,
   multiplier,
   expiration,
   targetSupply,
   currentSupply,
+  stakesProps,
   onClose,
   onConnect,
   onPurchase,
@@ -66,8 +70,16 @@ export const PurchaseScene = ({
         targetSupply,
         numsPrice,
         playPrice,
+        multiplier,
       });
-    }, [slotCount, currentSupply, targetSupply, numsPrice, playPrice]);
+    }, [
+      slotCount,
+      currentSupply,
+      targetSupply,
+      numsPrice,
+      playPrice,
+      multiplier,
+    ]);
 
   // Calculate expiration time display
   const expirationDisplay = useMemo(() => {
@@ -94,13 +106,15 @@ export const PurchaseScene = ({
   // Calculate details props
   const detailsProps = useMemo(() => {
     return {
-      entryFee: `$${playPrice.toFixed(2).toLocaleString()}`,
-      multiplier: multiplier || "1.0x",
+      basePrice: basePrice,
+      entryPrice: playPrice,
+      multiplier: multiplier,
       breakEven: chartAbscissa.toString(),
       expiration: expirationDisplay,
       maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,
     };
   }, [
+    basePrice,
     playPrice,
     multiplier,
     chartAbscissa,
@@ -163,6 +177,7 @@ export const PurchaseScene = ({
           style={{ scrollbarWidth: "none" }}
         >
           <Purchase {...purchaseProps} />
+          {stakesProps && <Stakes {...stakesProps} />}
           <Details {...detailsProps} />
         </div>
         {onConnect ? (
@@ -218,7 +233,10 @@ export const PurchaseScene = ({
         <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-10">
           <Title />
           <div className="flex items-stretch justify-between gap-8">
-            <Purchase {...purchaseProps} className="flex-1" />
+            <div className="flex flex-col gap-4 md:gap-6 flex-1">
+              <Purchase {...purchaseProps} className="flex-1" />
+              {stakesProps && <Stakes {...stakesProps} />}
+            </div>
             <div className="flex flex-col gap-6 flex-1">
               <Details className="grow overflow-hidden" {...detailsProps} />
               {onConnect ? (

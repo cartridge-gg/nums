@@ -31,4 +31,5 @@ export * from "./sign-out";
 export * from "./spinner";
 export * from "./spinner-px";
 export * from "./star";
+export * from "./sub";
 export * from "./timer";

@@ -18,7 +18,6 @@ pub mod PlayableComponent {
     use starknet::ContractAddress;
     use crate::components::starterpack::StarterpackComponent;
     use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
-    use crate::constants::DEFAULT_MULTIPLIER;
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
@@ -74,15 +73,16 @@ pub mod PlayableComponent {
             let config = store.config();
             let nums_supply = store.nums_disp().total_supply();
             let collection = self.get_collection(world);
+            let pack = store.starterpack(starterpack_id);
             let mut count = quantity;
             while count > 0 {
                 // [Interaction] Mint a game
-                let game_id = collection.mint(recipient, true);
+                let game_id = collection.mint(recipient, false);
 
                 // [Effect] Create game
                 let mut game = GameTrait::new(
                     id: game_id,
-                    multiplier: DEFAULT_MULTIPLIER,
+                    multiplier: pack.multiplier,
                     slot_count: config.slot_count,
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
@@ -109,7 +109,6 @@ pub mod PlayableComponent {
             achievable.progress(world, player, task.identifier(), quantity.into(), true);
 
             // [Interaction] Transfer quote token to Ekubo
-            let pack = store.starterpack(starterpack_id);
             let quote = IERC20Dispatcher { contract_address: pack.payment_token };
             let quote_address = quote.contract_address;
             let nums = store.nums_disp();
@@ -147,6 +146,9 @@ pub mod PlayableComponent {
             // [Interaction] Burn the entry price
             let amount = nums.balance_of(this);
             nums.burn(amount);
+
+            // [Event] Emit purchase event
+            store.purchase(recipient.into(), starterpack_id, quantity, pack.multiplier);
         }
     }
 
@@ -178,6 +180,9 @@ pub mod PlayableComponent {
                 || quest_id == QuestType::DailyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
             }
+
+            // [Effect] Autoclaim quest
+            questable.claim(world, player, quest_id, interval_id);
         }
 
         fn on_quest_claim(
@@ -449,9 +454,6 @@ pub mod PlayableComponent {
             // [Interaction] Pay user reward
             let player = self.owner(world, game_id);
             store.nums_disp().reward(player, reward);
-
-            // [Event] Emit reward event
-            store.reward(game_id, reward);
         }
     }
 

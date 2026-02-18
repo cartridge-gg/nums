@@ -1,7 +1,23 @@
 export { Config } from "./config";
 export { Game } from "./game";
 export { Starterpack } from "./starterpack";
-export { Reward } from "./reward";
+export { Purchase } from "./purchase";
+export {
+  AchievementDefinition,
+  AchievementCompletion,
+  AchievementAdvancement,
+  AchievementAssociation,
+  AchievementCreation,
+  AchievementProgression,
+  AchievementCompleted,
+  AchievementClaimed,
+  type RawDefinition as RawAchievementDefinition,
+  type RawCompletion as RawAchievementCompletion,
+  type RawAdvancement as RawAchievementAdvancement,
+  type RawCreation as RawAchievementCreation,
+  type RawCompleted as RawAchievementCompleted,
+  type RawClaimed as RawAchievementClaimed,
+} from "./achievement";
 export {
   QuestDefinition,
   QuestCompletion,
@@ -13,13 +29,13 @@ export {
   QuestUnlocked,
   QuestCompleted,
   QuestClaimed,
-  type RawDefinition,
-  type RawCompletion,
-  type RawAdvancement,
-  type RawCreation,
-  type RawUnlocked,
-  type RawCompleted,
-  type RawClaimed,
+  type RawDefinition as RawQuestDefinition,
+  type RawCompletion as RawQuestCompletion,
+  type RawAdvancement as RawQuestAdvancement,
+  type RawCreation as RawQuestCreation,
+  type RawUnlocked as RawQuestUnlocked,
+  type RawCompleted as RawQuestCompleted,
+  type RawClaimed as RawQuestClaimed,
 } from "./quest";
 
 export interface RawConfig {
@@ -119,6 +135,12 @@ export interface RawStarterpack {
   payment_token: {
     type: "primitive";
     type_name: "contract_address";
+    value: string;
+    key: boolean;
+  };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
     value: string;
     key: boolean;
   };
@@ -241,14 +263,71 @@ export interface RawGame {
   };
 }
 
-export interface RawReward {
-  game_id: {
+export interface RawPurchase {
+  player_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  starterpack_id: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  quantity: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
+  time: {
     type: "primitive";
     type_name: "u64";
     value: string;
     key: boolean;
   };
-  reward: {
+}
+
+export interface RawStarterpackIssued {
+  recipient: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  starterpack_id: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  payment_token: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  amount: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  quantity: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  time: {
     type: "primitive";
     type_name: "u64";
     value: string;

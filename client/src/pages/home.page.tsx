@@ -11,7 +11,7 @@ import { ChartHelper } from "@/helpers/chart";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { config, starterpack } = useEntities();
+  const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games } = useGames();
@@ -24,8 +24,8 @@ export const Home = () => {
   }, [getNumsPrice]);
 
   const playPrice = useMemo(() => {
-    return Number(starterpack?.price || 0n) / 10 ** 6;
-  }, [starterpack]);
+    return Number(config?.entry_price || 0n) / 10 ** 6;
+  }, [config]);
 
   // Chart data - calculate rewards for each level (1-20) based on current supply
   const chartData = useMemo(() => {
@@ -35,6 +35,7 @@ export const Home = () => {
       targetSupply: config?.target_supply || 0n,
       numsPrice: numsPrice,
       playPrice,
+      multiplier: 1,
     });
   }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
 
@@ -61,12 +62,17 @@ export const Home = () => {
     const gameData = games
       .filter((game) => !game.over)
       .map((game) => {
+        const starterpack = starterpacks.find(
+          (starterpack) => starterpack.multiplier === game.multiplier,
+        );
+        const playPrice = Number(starterpack?.price || 0n) / 10 ** 6;
         const { chartAbscissa, maxPayout } = ChartHelper.calculate({
           slotCount: game.slot_count,
           currentSupply: game.supply,
           targetSupply: config?.target_supply || 0n,
           numsPrice: numsPrice,
           playPrice,
+          multiplier: game.multiplier,
         });
         return {
           gameId: game.id,
@@ -86,7 +92,7 @@ export const Home = () => {
       gameId,
       setGameId,
     };
-  }, [games, chartData, chartAbscissa, gameId, setGameId]);
+  }, [starterpacks, games, chartData, chartAbscissa, gameId, setGameId]);
 
   // Set initial gameId to the first active game if available
   useEffect(() => {

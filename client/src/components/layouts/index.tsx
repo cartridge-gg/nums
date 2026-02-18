@@ -32,7 +32,7 @@ export const Layout = ({ children }: LayoutProps) => {
   } = useActions();
   const { quests } = useQuests();
   const { data: leaderboardData } = useLeaderboard();
-  const { starterpack, config } = useEntities();
+  const { starterpacks, config } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games, loading: gamesLoading } = useGames();
@@ -40,6 +40,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
+  const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
   // Get username from controllers if account is connected
@@ -52,6 +53,20 @@ export const Layout = ({ children }: LayoutProps) => {
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
+
+  const starterpack = useMemo(() => {
+    if (
+      starterpacks.length === 0 ||
+      starterpackIndex < 1 ||
+      starterpackIndex > starterpacks.length
+    )
+      return undefined;
+    return starterpacks[starterpackIndex - 1];
+  }, [starterpacks, starterpackIndex]);
+
+  const basePrice = useMemo(() => {
+    return Number(config?.entry_price || 0n) / 10 ** 6;
+  }, [config]);
 
   const playPrice = useMemo(() => {
     return Number(starterpack?.price || 0n) / 10 ** 6;
@@ -161,6 +176,10 @@ export const Layout = ({ children }: LayoutProps) => {
     };
   }, [quests, claim, claims, account?.address]);
 
+  useEffect(() => {
+    setStarterpackIndex(1);
+  }, [showPurchaseScene]);
+
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
       <img
@@ -228,11 +247,17 @@ export const Layout = ({ children }: LayoutProps) => {
           <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
             <PurchaseScene
               slotCount={config?.slot_count || 18}
+              basePrice={basePrice * (starterpack?.multiplier || 1)}
               playPrice={playPrice}
               numsPrice={numsPrice}
-              multiplier="1.0x"
+              multiplier={starterpack?.multiplier || 1}
               targetSupply={config?.target_supply || 0n}
               currentSupply={currentSupply}
+              stakesProps={{
+                total: starterpacks.length,
+                index: starterpackIndex,
+                setIndex: setStarterpackIndex,
+              }}
               onConnect={
                 account?.address ? undefined : headerData.handleConnect
               }

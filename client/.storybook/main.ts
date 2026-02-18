@@ -13,6 +13,7 @@ const config: StorybookConfig = {
     "../src/components/scenes/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../src/components/containers/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../src/components/elements/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../src/components/ui/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../src/components/icons/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../src/components/covers/**/*.stories.@(js|jsx|mjs|ts|tsx)",
     "../src/themes/*.stories.@(js|jsx|mjs|ts|tsx)",

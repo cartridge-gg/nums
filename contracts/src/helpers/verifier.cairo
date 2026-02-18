@@ -163,12 +163,13 @@ pub impl Verifier of VerifierTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_MULTIPLIER, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
+    use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::packer::Packer;
     use crate::models::game::{Game, GameTrait};
     use super::VerifierTrait;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
+    const DEFAULT_MULTIPLIER: u8 = 1;
     const SUPPLY: u256 = 1;
 
     fn create_test_game() -> Game {

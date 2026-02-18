@@ -22,13 +22,13 @@ import {
   QuestUnlocked,
   QuestCompleted,
   QuestClaimed,
-  type RawDefinition,
-  type RawCompletion,
-  type RawAdvancement,
-  type RawCreation,
-  type RawUnlocked,
-  type RawCompleted,
-  type RawClaimed,
+  type RawQuestDefinition,
+  type RawQuestCompletion,
+  type RawQuestAdvancement,
+  type RawQuestCreation,
+  type RawQuestUnlocked,
+  type RawQuestCompleted,
+  type RawQuestClaimed,
 } from "@/models";
 import { getChecksumAddress } from "starknet";
 import { useAccount } from "@starknet-react/core";
@@ -132,7 +132,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestDefinition.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestDefinition.getModelName()}`
-          ] as unknown as RawDefinition;
+          ] as unknown as RawQuestDefinition;
           setDefinitions((prev) =>
             QuestDefinition.deduplicate([
               QuestDefinition.parse(model),
@@ -143,7 +143,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestCompletion.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestCompletion.getModelName()}`
-          ] as unknown as RawCompletion;
+          ] as unknown as RawQuestCompletion;
           setCompletions((prev) =>
             QuestCompletion.deduplicate([
               QuestCompletion.parse(model),
@@ -154,7 +154,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestAdvancement.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestAdvancement.getModelName()}`
-          ] as unknown as RawAdvancement;
+          ] as unknown as RawQuestAdvancement;
           setAdvancements((prev) =>
             QuestAdvancement.deduplicate([
               QuestAdvancement.parse(model),
@@ -165,7 +165,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestCreation.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestCreation.getModelName()}`
-          ] as unknown as RawCreation;
+          ] as unknown as RawQuestCreation;
           setCreations((prev) =>
             QuestCreation.deduplicate([QuestCreation.parse(model), ...prev]),
           );
@@ -183,7 +183,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestUnlocked.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestUnlocked.getModelName()}`
-          ] as unknown as RawUnlocked;
+          ] as unknown as RawQuestUnlocked;
           const event = QuestUnlocked.parse(model);
           const quest = creations.find(
             (creation) => creation.definition.id === event.quest_id,
@@ -200,7 +200,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestCompleted.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestCompleted.getModelName()}`
-          ] as unknown as RawCompleted;
+          ] as unknown as RawQuestCompleted;
           const event = QuestCompleted.parse(model);
           const quest = creations.find(
             (creation) => creation.definition.id === event.quest_id,
@@ -217,7 +217,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         if (entity.models[`${NAMESPACE}-${QuestClaimed.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestClaimed.getModelName()}`
-          ] as unknown as RawClaimed;
+          ] as unknown as RawQuestClaimed;
           const event = QuestClaimed.parse(model);
           const quest = creations.find(
             (creation) => creation.definition.id === event.quest_id,

@@ -42,6 +42,7 @@ const regularIcons = [
   { name: "PlayIcon", component: Icons.PlayIcon },
   { name: "PlusIcon", component: Icons.PlusIcon },
   { name: "QuestIcon", component: Icons.QuestIcon },
+  { name: "SubIcon", component: Icons.SubIcon },
   { name: "RefreshIcon", component: Icons.RefreshIcon },
   { name: "SignOutIcon", component: Icons.SignOutIcon },
   { name: "SpinnerIcon", component: Icons.SpinnerIcon },

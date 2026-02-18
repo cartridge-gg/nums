@@ -1,7 +1,7 @@
 use core::array::ArrayTrait;
 use crate::constants::{
-    BASE_MULTIPLIER, DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW,
-    POWER_SIZE, SLOT_SIZE, TRAP_SIZE,
+    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW, POWER_SIZE,
+    SLOT_SIZE, TRAP_SIZE,
 };
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
@@ -136,7 +136,7 @@ pub impl GameImpl of GameTrait {
     #[inline]
     fn reward(ref self: Game, supply: u256, target: u256) {
         let reward = Rewarder::amount(self.level, self.slot_count, supply, target);
-        self.reward += reward;
+        self.reward += reward * self.multiplier.into();
     }
 
     /// Levels up the game.
@@ -331,7 +331,7 @@ pub impl GameImpl of GameTrait {
     fn claim(ref self: Game) -> u64 {
         // [Effect] Claim game
         self.claimed = true;
-        self.reward * self.multiplier.into() / BASE_MULTIPLIER.into()
+        self.reward
     }
 }
 
@@ -440,13 +440,14 @@ pub impl GameAssert of AssertTrait {
 #[cfg(test)]
 mod tests {
     use crate::constants::{
-        DEFAULT_DRAW_COUNT, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX,
-        DEFAULT_SLOT_MIN, POWER_SIZE, SLOT_SIZE,
+        DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
+        SLOT_SIZE,
     };
     use crate::helpers::packer::Packer;
-    use super::{Game, GameAssert, GameTrait, RandomImpl};
+    use super::{DEFAULT_DRAW_STAGE, Game, GameAssert, GameTrait, RandomImpl};
 
     const SUPPLY: u256 = 1;
+    const DEFAULT_MULTIPLIER: u8 = 1;
 
     /// Helper function to create a test game instance
     fn create() -> Game {
@@ -584,6 +585,7 @@ mod tests {
         // Create selectable powers: [1, 2]
         let selectable_powers: Array<u8> = array![1_u8, 2];
         game.selectable_powers = Packer::pack(selectable_powers, POWER_SIZE);
+        game.level = DEFAULT_DRAW_STAGE;
 
         // Select power at index 0 (power 1)
         game.select(0);
@@ -603,7 +605,7 @@ mod tests {
         // Create selectable powers: [3, 5]
         let selectable_powers: Array<u8> = array![3_u8, 5];
         game.selectable_powers = Packer::pack(selectable_powers, POWER_SIZE);
-
+        game.level = 2 * DEFAULT_DRAW_STAGE;
         // Select power at index 1 (power 5)
         game.select(1);
 

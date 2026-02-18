@@ -23,3 +23,11 @@ export const Default: Story = {
     content: "$1.00",
   },
 };
+
+export const Discount: Story = {
+  args: {
+    title: "Entry Fee",
+    content: "$1.00",
+    discount: "-3%",
+  },
+};

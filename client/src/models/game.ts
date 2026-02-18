@@ -169,10 +169,13 @@ export class Game {
     slotCount: number,
     supply: bigint,
     targetSupply: bigint,
+    multiplier: number,
   ): number[] {
     return Array.from({ length: slotCount }, (_, index) => {
       const level = index + 1;
-      return Rewarder.amount(level, slotCount, supply, targetSupply);
+      return (
+        Rewarder.amount(level, slotCount, supply, targetSupply) * multiplier
+      );
     });
   }
 

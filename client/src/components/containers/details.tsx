@@ -46,7 +46,7 @@ export const Details = ({
       >
         <Detail
           title="Entry Fee"
-          content={`$${entryPrice}`}
+          content={`$${entryPrice.toFixed(2)}`}
           discount={discount}
         />
         {multiplier && (

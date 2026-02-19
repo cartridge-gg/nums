@@ -15,7 +15,6 @@ import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
-import { Toaster } from "@/components/elements";
 import { useSocialToaster } from "@/hooks/social-toaster";
 
 const background = "/assets/tunnel-background.svg";
@@ -187,7 +186,6 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-      <Toaster richColors expand={false} />
       <img
         src={background}
         alt="Background"
@@ -214,7 +212,7 @@ export const Layout = ({ children }: LayoutProps) => {
         }}
       />
       <div
-        className="relative flex-1 min-h-0 flex items-center justify-center p-0 md:px-16 md:py-12"
+        className="relative flex-1 min-h-0 flex items-center justify-center"
         style={{
           background:
             "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",

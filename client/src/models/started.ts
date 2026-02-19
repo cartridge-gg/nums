@@ -1,3 +1,4 @@
+import { EventProps } from "@/components/elements";
 import type { RawStarted } from "@/models";
 
 const MODEL_NAME = "Started";
@@ -53,5 +54,15 @@ export class Started {
 
   static getId(started: Started): string {
     return `${started.player_id}-${started.game_id}`;
+  }
+
+  getEvent(): EventProps {
+    return {
+      username: this.player_id,
+      multiplier: this.multiplier,
+      earning: undefined,
+      timestamp: this.time,
+      key: Started.getId(this),
+    };
   }
 }

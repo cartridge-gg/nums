@@ -14,3 +14,4 @@ export * from "./activities";
 export * from "./details";
 export * from "./header";
 export * from "./stakes";
+export * from "./events";

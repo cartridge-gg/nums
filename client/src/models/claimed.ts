@@ -1,3 +1,4 @@
+import { EventProps } from "@/components/elements";
 import type { RawClaimed } from "@/models";
 
 const MODEL_NAME = "Claimed";
@@ -53,5 +54,15 @@ export class Claimed {
 
   static getId(claimed: Claimed): string {
     return `${claimed.player_id}-${claimed.game_id}-${claimed.time}`;
+  }
+
+  getEvent(): EventProps {
+    return {
+      username: this.player_id,
+      multiplier: undefined,
+      earning: this.reward,
+      timestamp: this.time,
+      key: Claimed.getId(this),
+    };
   }
 }

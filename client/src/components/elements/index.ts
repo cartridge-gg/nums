@@ -30,4 +30,5 @@ export * from "./discount";
 export * from "./toast-title";
 export * from "./toast-description";
 export * from "./toast-action";
+export * from "./event";
 export * from "./toaster";

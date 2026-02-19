@@ -23,14 +23,14 @@ export interface HomeSceneProps
 }
 
 const homeSceneVariants = cva(
-  "select-none flex flex-col gap-4 md:gap-6 h-full w-full max-w-[800px] p-2 py-4 md:p-0 md:py-0 overflow-hidden",
+  "select-none flex flex-col gap-4 md:gap-6 p-2 py-4 md:p-0 md:py-0 overflow-hidden",
   {
     variants: {
       variant: {
         default: "",
       },
       size: {
-        md: "h-full max-w-[720px] mx-auto",
+        md: "h-full w-full max-w-[720px]",
       },
     },
     defaultVariants: {

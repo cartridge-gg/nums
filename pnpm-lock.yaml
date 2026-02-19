@@ -22,8 +22,8 @@ catalogs:
       specifier: 1.8.8
       version: 1.8.8
     '@dojoengine/sdk':
-      specifier: 1.8.13
-      version: 1.8.13
+      specifier: 1.9.0
+      version: 1.9.0
     '@dojoengine/torii-client':
       specifier: 1.8.2
       version: 1.8.2
@@ -224,7 +224,7 @@ importers:
         version: 1.8.8(typescript@5.9.3)
       '@dojoengine/sdk':
         specifier: 'catalog:'
-        version: 1.8.13(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)
+        version: 1.9.0(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)
       '@dojoengine/torii-client':
         specifier: 'catalog:'
         version: 1.8.2
@@ -1355,17 +1355,6 @@ packages:
   '@dojoengine/recs@2.0.13':
     resolution: {integrity: sha512-Cgz4Unlnk2FSDoFTYKrJexX/KiSYPMFMxftxQkC+9LUKS5yNGkgFQM7xu4/L1HvpDAenL7NjUmH6ynRAS7Iifw==}
 
-  '@dojoengine/sdk@1.8.13':
-    resolution: {integrity: sha512-ihq7FpwyOcU5k52OGT2VcLYxWjZfzMcxUwDI3eGcu33uOEJ7nc++livic0dC+WjoHxXWeHf3HjfkvHkE04ZMSw==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@tanstack/react-query': ^5.62.16
-      '@types/react': ^18.0.0 || ^19.0.0
-      '@types/react-dom': ^18.0.0 || ^19.0.0
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-      starknet: ^8.1.2
-
   '@dojoengine/sdk@1.8.7':
     resolution: {integrity: sha512-5gOWVyXYAVVvtY+MuQoZ/9IWGEdeVrn4/16myIyczwgJHr/XSZpb4AjrnHd04N6fx/qYEyo2t/MqE58TmNyn5w==}
     engines: {node: '>=18.0.0'}
@@ -1375,6 +1364,17 @@ packages:
       '@types/react-dom': ^18.3.1
       react: ^18.3.1
       react-dom: ^18.3.1
+      starknet: ^8.1.2
+
+  '@dojoengine/sdk@1.9.0':
+    resolution: {integrity: sha512-5ap9mJQnf6E0Ovs436dgUlsmVVDTJGuC48vgdxzUf491aF8i1mBFQ0yReL/4hqLc/U3WnKOOU8jKZMMIpWjahQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@tanstack/react-query': ^5.62.16
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
       starknet: ^8.1.2
 
   '@dojoengine/state@1.8.3':
@@ -10295,43 +10295,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@dojoengine/sdk@1.8.13(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)':
-    dependencies:
-      '@dojoengine/core': 1.8.8(typescript@5.9.3)
-      '@dojoengine/grpc': 1.8.7(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)
-      '@dojoengine/state': 1.8.5(@types/react@18.3.27)(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)
-      '@dojoengine/torii-client': 1.8.2
-      '@dojoengine/torii-wasm': 1.8.2
-      '@dojoengine/utils': 1.8.4(starknet@8.9.2)(typescript@5.9.3)(zod@3.25.76)
-      '@starknet-react/chains': 5.0.3
-      '@starknet-react/core': 5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)
-      '@tanstack/react-query': 5.90.12(react@19.2.1)
-      '@types/react': 18.3.27
-      '@types/react-dom': 18.3.7(@types/react@18.3.27)
-      effect: 3.19.11
-      immer: 10.2.0
-      neverthrow: 8.2.0
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      starknet: 8.9.2
-      zustand: 4.5.7(@types/react@18.3.27)(immer@10.2.0)(react@19.2.1)
-    transitivePeerDependencies:
-      - '@effect/platform'
-      - '@opentelemetry/resources'
-      - '@opentelemetry/sdk-logs'
-      - '@opentelemetry/sdk-metrics'
-      - '@opentelemetry/sdk-trace-base'
-      - '@opentelemetry/sdk-trace-node'
-      - '@opentelemetry/sdk-trace-web'
-      - '@opentelemetry/semantic-conventions'
-      - bufferutil
-      - get-starknet-core
-      - supports-color
-      - typescript
-      - use-sync-external-store
-      - utf-8-validate
-      - zod
-
   '@dojoengine/sdk@1.8.7(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(starknet@6.24.1)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)':
     dependencies:
       '@dojoengine/core': 1.8.5(typescript@5.9.3)
@@ -10382,6 +10345,43 @@ snapshots:
       starknet: 8.9.2
       zustand: 4.5.7(@types/react@18.3.27)(immer@10.2.0)(react@19.2.1)
     transitivePeerDependencies:
+      - bufferutil
+      - get-starknet-core
+      - supports-color
+      - typescript
+      - use-sync-external-store
+      - utf-8-validate
+      - zod
+
+  '@dojoengine/sdk@1.9.0(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)(@tanstack/react-query@5.90.12(react@19.2.1))(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(get-starknet-core@3.3.5(starknet@8.9.2))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)':
+    dependencies:
+      '@dojoengine/core': 1.8.8(typescript@5.9.3)
+      '@dojoengine/grpc': 1.8.7(@effect/platform@0.93.8(effect@3.19.11))(@opentelemetry/semantic-conventions@1.39.0)
+      '@dojoengine/state': 1.8.5(@types/react@18.3.27)(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.1))(zod@3.25.76)
+      '@dojoengine/torii-client': 1.8.2
+      '@dojoengine/torii-wasm': 1.8.2
+      '@dojoengine/utils': 1.8.4(starknet@8.9.2)(typescript@5.9.3)(zod@3.25.76)
+      '@starknet-react/chains': 5.0.3
+      '@starknet-react/core': 5.0.3(get-starknet-core@3.3.5(starknet@8.9.2))(react@19.2.1)(starknet@8.9.2)(typescript@5.9.3)
+      '@tanstack/react-query': 5.90.12(react@19.2.1)
+      '@types/react': 18.3.27
+      '@types/react-dom': 18.3.7(@types/react@18.3.27)
+      effect: 3.19.11
+      immer: 10.2.0
+      neverthrow: 8.2.0
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+      starknet: 8.9.2
+      zustand: 4.5.7(@types/react@18.3.27)(immer@10.2.0)(react@19.2.1)
+    transitivePeerDependencies:
+      - '@effect/platform'
+      - '@opentelemetry/resources'
+      - '@opentelemetry/sdk-logs'
+      - '@opentelemetry/sdk-metrics'
+      - '@opentelemetry/sdk-trace-base'
+      - '@opentelemetry/sdk-trace-node'
+      - '@opentelemetry/sdk-trace-web'
+      - '@opentelemetry/semantic-conventions'
       - bufferutil
       - get-starknet-core
       - supports-color

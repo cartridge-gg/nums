@@ -177,7 +177,7 @@ export const PurchaseScene = ({
           style={{ scrollbarWidth: "none" }}
         >
           <Purchase {...purchaseProps} />
-          {stakesProps && <Stakes {...stakesProps} />}
+          {stakesProps && onPurchase && <Stakes {...stakesProps} />}
           <Details {...detailsProps} />
         </div>
         {onConnect ? (
@@ -235,7 +235,7 @@ export const PurchaseScene = ({
           <div className="flex items-stretch justify-between gap-8">
             <div className="flex flex-col gap-4 md:gap-6 flex-1 pt-0.5">
               <Purchase {...purchaseProps} className="flex-1" />
-              {stakesProps && <Stakes {...stakesProps} />}
+              {stakesProps && onPurchase && <Stakes {...stakesProps} />}
             </div>
             <div className="flex flex-col gap-6 flex-1">
               <Details className="grow overflow-hidden" {...detailsProps} />

@@ -1,2 +1,2 @@
-export { Game } from "./game.page";
-export { Home } from "./home.page";
+export { Game } from "./game";
+export { Home } from "./home";

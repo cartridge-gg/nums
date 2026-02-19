@@ -8,13 +8,14 @@ import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
+import { LoadingScene } from "@/components/scenes";
 
 export const Home = () => {
   const navigate = useNavigate();
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
-  const { games } = useGames();
+  const { games, loading } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
   const [gameId, setGameId] = useState<number | undefined>(undefined);
@@ -117,6 +118,8 @@ export const Home = () => {
     // Navigate to practice mode
     navigate("/practice");
   }, [navigate, clearGame, startPractice, currentSupply]);
+
+  if (loading) return <LoadingScene />;
 
   return (
     <HomeScene

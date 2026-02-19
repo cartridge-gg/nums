@@ -23,8 +23,10 @@ pub mod models {
 }
 
 pub mod events {
+    pub mod claimed;
     pub mod index;
-    pub mod purchase;
+    pub mod purchased;
+    pub mod started;
 }
 
 pub mod svg {

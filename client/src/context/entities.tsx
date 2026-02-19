@@ -4,7 +4,6 @@ import {
   ToriiQueryBuilder,
 } from "@dojoengine/sdk";
 import * as torii from "@dojoengine/torii-wasm";
-import { useAccount } from "@starknet-react/core";
 import {
   createContext,
   useCallback,
@@ -15,9 +14,15 @@ import {
 } from "react";
 import { NAMESPACE } from "@/constants";
 import {
-  Config,
+  type RawClaimed,
+  type RawPurchased,
+  type RawStarted,
   type RawConfig,
   type RawStarterpack,
+  Claimed,
+  Config,
+  Purchased,
+  Started,
   Starterpack,
 } from "@/models";
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
@@ -30,6 +35,9 @@ type EntitiesProviderState = {
   client?: torii.ToriiClient;
   config?: Config;
   starterpacks: Starterpack[];
+  purchaseds: Purchased[];
+  starteds: Started[];
+  claimeds: Claimed[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 };
@@ -51,15 +59,28 @@ const getEntityQuery = (namespace: string) => {
     .includeHashedKeys();
 };
 
+const getEventQuery = (namespace: string) => {
+  const purchased: `${string}-${string}` = `${namespace}-${Purchased.getModelName()}`;
+  const started: `${string}-${string}` = `${namespace}-${Started.getModelName()}`;
+  const claimed: `${string}-${string}` = `${namespace}-${Claimed.getModelName()}`;
+  const clauses = new ClauseBuilder().keys([purchased, started, claimed], [], "VariableLen");
+  return new ToriiQueryBuilder()
+    .withClause(clauses.build())
+    .includeHashedKeys();
+};
+
 export function EntitiesProvider({
   children,
   ...props
 }: EntitiesProviderProps) {
-  const account = useAccount();
   const [client, setClient] = useState<torii.ToriiClient>();
   const entitiesSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const eventsSubscriptionRef = useRef<torii.Subscription | null>(null);
   const [config, setConfig] = useState<Config>();
   const [starterpacks, setStarterpacks] = useState<Starterpack[]>([]);
+  const [purchaseds, setPurchaseds] = useState<Purchased[]>([]);
+  const [starteds, setStarteds] = useState<Started[]>([]);
+  const [claimeds, setClaimeds] = useState<Claimed[]>([]);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -77,7 +98,7 @@ export function EntitiesProvider({
     getClient();
   }, []);
 
-  // Handler for entity updates (packs)
+  // Handler for entity updates
   const onEntityUpdate = useCallback(
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
@@ -106,36 +127,81 @@ export function EntitiesProvider({
     [],
   );
 
+  // Handler for event updates
+  const onEventUpdate = useCallback(
+    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
+      if (!data || data.error) return;
+      (data.data || [data] || []).forEach((entity) => {
+        if (entity.models[`${NAMESPACE}-${Purchased.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Purchased.getModelName()}`
+          ] as unknown as RawPurchased;
+          const parsed = Purchased.parse(model);
+          setPurchaseds((prev) => Purchased.dedupe([...(prev || []), parsed]));
+        }
+        if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Started.getModelName()}`
+          ] as unknown as RawStarted;
+          const parsed = Started.parse(model);
+          setStarteds((prev) => Started.dedupe([...(prev || []), parsed]));
+        }
+        if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Claimed.getModelName()}`
+          ] as unknown as RawClaimed;
+          const parsed = Claimed.parse(model);
+          setClaimeds((prev) => Claimed.dedupe([...(prev || []), parsed]));
+        }
+      });
+    },
+    [],
+  );
+
   // Refresh function to fetch and subscribe to data
   const refresh = useCallback(async () => {
-    if (!client || !account) return;
+    if (!client) return;
 
     // Cancel existing subscriptions
-    entitiesSubscriptionRef.current = null;
+    if (entitiesSubscriptionRef.current) {
+      entitiesSubscriptionRef.current = null;
+    }
+    if (eventsSubscriptionRef.current) {
+      eventsSubscriptionRef.current = null;
+    }
 
     // Create queries
-    const query = getEntityQuery(NAMESPACE);
+    const entityQuery = getEntityQuery(NAMESPACE);
+    const eventQuery = getEventQuery(NAMESPACE);
 
     // Fetch initial data
     await Promise.all([
       client
-        .getEntities(query.build())
+        .getEntities(entityQuery.build())
         .then((result) =>
           onEntityUpdate({ data: result.items, error: undefined }),
         ),
     ]);
 
     // Subscribe to entity and event updates
+    if (!config) return;
     client
-      .onEntityUpdated(query.build().clause, [], onEntityUpdate)
+      .onEntityUpdated(entityQuery.build().clause, [], onEntityUpdate)
       .then((response) => {
         entitiesSubscriptionRef.current = response;
       });
-  }, [client, account, onEntityUpdate]);
+    client
+      .onEventMessageUpdated(eventQuery.build().clause, [], onEventUpdate)
+      .then((response) => {
+        console.log("Event subscription", response);
+        eventsSubscriptionRef.current = response;
+      });
+  }, [client, config, onEntityUpdate, onEventUpdate]);
 
   // Initial fetch and subscription setup
   useEffect(() => {
-    if (entitiesSubscriptionRef.current) return;
+    if (entitiesSubscriptionRef.current || eventsSubscriptionRef.current)
+      return;
     setStatus("loading");
     refresh()
       .then(() => {
@@ -150,13 +216,19 @@ export function EntitiesProvider({
       if (entitiesSubscriptionRef.current) {
         entitiesSubscriptionRef.current.cancel();
       }
+      if (eventsSubscriptionRef.current) {
+        eventsSubscriptionRef.current.cancel();
+      }
     };
-  }, [refresh]);
+  }, [refresh, client]);
 
   const value: EntitiesProviderState = {
     client,
     config,
     starterpacks,
+    purchaseds,
+    starteds,
+    claimeds,
     status,
     refresh,
   };

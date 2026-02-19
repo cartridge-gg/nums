@@ -105,7 +105,7 @@ export function useTokens(
   const { account } = useAccount();
   const { client } = useEntities();
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
     null,
   );
@@ -115,6 +115,7 @@ export function useTokens(
 
   const fetchBalances = useCallback(async () => {
     if (!requestRef.current || !client || !account) return;
+    setLoading(true);
     const contractAddresses =
       request.contractAddresses?.map((i: string) =>
         addAddressPadding(num.toHex64(i)),
@@ -157,6 +158,7 @@ export function useTokens(
     request.contractAddresses,
     request.accountAddresses,
     requestRef,
+    setLoading,
   ]);
 
   useEffect(() => {
@@ -167,6 +169,7 @@ export function useTokens(
       (request?.accountAddresses || []).length === 0 ||
       (contracts || []).length === 0
     ) {
+      setLoading(false);
       return;
     }
     if (equal(request, requestRef.current)) return;

@@ -15,6 +15,8 @@ import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
+import { Toaster } from "@/components/elements";
+import { useSocialToaster } from "@/hooks/social-toaster";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -26,6 +28,9 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find } = useControllers();
   const headerData = useHeader();
+  
+  // Social toaster hook to display toast notifications for social events
+  useSocialToaster();
   const {
     mint,
     quest: { claims, claim },
@@ -182,6 +187,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
+      <Toaster richColors expand={false} />
       <img
         src={background}
         alt="Background"

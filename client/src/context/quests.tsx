@@ -19,15 +19,11 @@ import {
   QuestCompletion,
   QuestDefinition,
   QuestCreation,
-  QuestUnlocked,
-  QuestCompleted,
   QuestClaimed,
   type RawQuestDefinition,
   type RawQuestCompletion,
   type RawQuestAdvancement,
   type RawQuestCreation,
-  type RawQuestUnlocked,
-  type RawQuestCompleted,
   type RawQuestClaimed,
 } from "@/models";
 import { getChecksumAddress } from "starknet";
@@ -97,15 +93,11 @@ const getPlayerEntityQuery = (NAMESPACE: string, playerId: string) => {
 };
 
 const getPlayerEventQuery = (NAMESPACE: string, playerId: string) => {
-  const unlocked: `${string}-${string}` = `${NAMESPACE}-${QuestUnlocked.getModelName()}`;
-  const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
+  // const unlocked: `${string}-${string}` = `${NAMESPACE}-${QuestUnlocked.getModelName()}`;
+  // const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
   const claimed: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
   const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys(
-    [unlocked, completed, claimed],
-    [key],
-    "VariableLen",
-  );
+  const clauses = new ClauseBuilder().keys([claimed], [key], "VariableLen");
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys();
@@ -180,40 +172,6 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
       (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${QuestUnlocked.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestUnlocked.getModelName()}`
-          ] as unknown as RawQuestUnlocked;
-          const event = QuestUnlocked.parse(model);
-          const quest = creations.find(
-            (creation) => creation.definition.id === event.quest_id,
-          );
-          if (quest) {
-            // TODO: Setup toast here
-            console.log({
-              variant: "quest",
-              title: quest.metadata.name,
-              subtitle: "New quest unlocked!",
-            });
-          }
-        }
-        if (entity.models[`${NAMESPACE}-${QuestCompleted.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestCompleted.getModelName()}`
-          ] as unknown as RawQuestCompleted;
-          const event = QuestCompleted.parse(model);
-          const quest = creations.find(
-            (creation) => creation.definition.id === event.quest_id,
-          );
-          if (quest) {
-            // TODO: Setup toast here
-            console.log({
-              variant: "quest",
-              title: quest.metadata.name,
-              subtitle: "Quest completed!",
-            });
-          }
-        }
         if (entity.models[`${NAMESPACE}-${QuestClaimed.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestClaimed.getModelName()}`

@@ -148,7 +148,7 @@ pub mod PlayableComponent {
             nums.burn(amount);
 
             // [Event] Emit purchase event
-            store.purchase(recipient.into(), starterpack_id, quantity, pack.multiplier);
+            store.purchased(recipient.into(), starterpack_id, quantity, pack.multiplier);
         }
     }
 
@@ -321,6 +321,12 @@ pub mod PlayableComponent {
             // [Interaction] Update token metadata
             collection.update(game_id.into());
 
+            // [Event] Emit started event
+            if game.level == 1 {
+                // [Info] Only for the first action
+                store.started(player.into(), game_id, game.multiplier);
+            }
+
             // [Return] Next number
             game.number
         }
@@ -454,6 +460,9 @@ pub mod PlayableComponent {
             // [Interaction] Pay user reward
             let player = self.owner(world, game_id);
             store.nums_disp().reward(player, reward);
+
+            // [Event] Emit claimed event
+            store.claimed(player.into(), game_id, reward);
         }
     }
 

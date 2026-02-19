@@ -8,10 +8,11 @@ export interface SelectionProps
     VariantProps<typeof selectionVariants> {
   power: Power;
   onClick: () => void;
+  loading?: boolean;
 }
 
 const selectionVariants = cva(
-  "select-none flex flex-col items-center gap-6 rounded-lg p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none flex flex-col justify-between items-center gap-6 rounded-lg p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
   {
     variants: {
       variant: {
@@ -26,7 +27,9 @@ const selectionVariants = cva(
 
 export const Selection = ({
   power,
+  content = "Take",
   onClick,
+  loading = false,
   variant,
   className,
   ...props
@@ -35,29 +38,36 @@ export const Selection = ({
 
   return (
     <div className={cn(selectionVariants({ variant, className }))} {...props}>
-      {/* Icon */}
-      {Icon && <Icon size="3xl" className={power.color()} />}
+      <div className="w-full flex flex-col items-center gap-6">
+        {/* Icon */}
+        {Icon && <Icon size="3xl" className={power.color()} />}
 
-      <div className="flex flex-col gap-4">
-        <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
-          {power.name()}
-        </h3>
+        <div className="w-full flex flex-col gap-4">
+          {/* Title */}
+          <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
+            {power.name()}
+          </h3>
 
-        {/* Description */}
-        <p className="text-2xl/[14.5px] font-secondary">
-          {power.description()}
-        </p>
+          {/* Description */}
+          <p className="text-2xl/[18px] font-secondary tracking-wider">
+            {power.description()}
+          </p>
+        </div>
       </div>
 
-      {/* Title */}
-
       {/* Take Button */}
-      <Button variant="default" onClick={onClick} className="w-full">
+      <Button
+        variant="default"
+        onClick={onClick}
+        disabled={loading}
+        loading={loading}
+        className={cn("w-full", power.buttonColor())}
+      >
         <p
           className="text-[28px]/[15px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
         >
-          Take
+          {content}
         </p>
       </Button>
     </div>

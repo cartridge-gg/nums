@@ -18,10 +18,13 @@ type Story = StoryObj<typeof meta>;
 
 // Icônes sans variant
 const regularIcons = [
+  { name: "AddIcon", component: Icons.AddIcon },
   { name: "ArrowLeftIcon", component: Icons.ArrowLeftIcon },
   { name: "ArrowRightIcon", component: Icons.ArrowRightIcon },
   { name: "AsteriskIcon", component: Icons.AsteriskIcon },
   { name: "BrandIcon", component: Icons.BrandIcon },
+  { name: "CalendarDayIcon", component: Icons.CalendarDayIcon },
+  { name: "CalendarWeekIcon", component: Icons.CalendarWeekIcon },
   { name: "CartridgeIcon", component: Icons.CartridgeIcon },
   { name: "CheckIcon", component: Icons.CheckIcon },
   { name: "CheckboxCheckedIcon", component: Icons.CheckboxCheckedIcon },
@@ -35,8 +38,11 @@ const regularIcons = [
   { name: "EyeIcon", component: Icons.EyeIcon },
   { name: "LaurelIcon", component: Icons.LaurelIcon },
   { name: "LinkIcon", component: Icons.LinkIcon },
+  { name: "LockerIcon", component: Icons.LockerIcon },
   { name: "PlayIcon", component: Icons.PlayIcon },
+  { name: "PlusIcon", component: Icons.PlusIcon },
   { name: "QuestIcon", component: Icons.QuestIcon },
+  { name: "SubIcon", component: Icons.SubIcon },
   { name: "RefreshIcon", component: Icons.RefreshIcon },
   { name: "SignOutIcon", component: Icons.SignOutIcon },
   { name: "SpinnerIcon", component: Icons.SpinnerIcon },

@@ -14,7 +14,12 @@ import {
   useState,
 } from "react";
 import { NAMESPACE } from "@/constants";
-import { Config, type RawConfig, type RawStarterpack, Starterpack } from "@/models";
+import {
+  Config,
+  type RawConfig,
+  type RawStarterpack,
+  Starterpack,
+} from "@/models";
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 type EntitiesProviderProps = {
@@ -24,7 +29,7 @@ type EntitiesProviderProps = {
 type EntitiesProviderState = {
   client?: torii.ToriiClient;
   config?: Config;
-  starterpack?: Starterpack;
+  starterpacks: Starterpack[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 };
@@ -54,7 +59,7 @@ export function EntitiesProvider({
   const [client, setClient] = useState<torii.ToriiClient>();
   const entitiesSubscriptionRef = useRef<torii.Subscription | null>(null);
   const [config, setConfig] = useState<Config>();
-  const [starterpack, setStarterpack] = useState<Starterpack>();
+  const [starterpacks, setStarterpacks] = useState<Starterpack[]>([]);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -89,7 +94,12 @@ export function EntitiesProvider({
             `${NAMESPACE}-${Starterpack.getModelName()}`
           ] as unknown as RawStarterpack;
           const parsed = Starterpack.parse(model);
-          if (parsed) setStarterpack(parsed);
+          if (parsed)
+            setStarterpacks((prev) =>
+              Starterpack.dedupe([...(prev || []), parsed]).sort((a, b) =>
+                Number(a.price - b.price),
+              ),
+            );
         }
       });
     },
@@ -146,7 +156,7 @@ export function EntitiesProvider({
   const value: EntitiesProviderState = {
     client,
     config,
-    starterpack,
+    starterpacks,
     status,
     refresh,
   };

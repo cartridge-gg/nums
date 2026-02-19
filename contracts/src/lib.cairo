@@ -24,7 +24,7 @@ pub mod models {
 
 pub mod events {
     pub mod index;
-    pub mod reward;
+    pub mod purchase;
 }
 
 pub mod svg {
@@ -45,6 +45,7 @@ pub mod helpers {
     pub mod power;
     pub mod random;
     pub mod rewarder;
+    pub mod verifier;
 }
 
 pub mod assets {
@@ -56,6 +57,7 @@ pub mod types {
     pub mod metadata;
     pub mod power;
     pub mod svg;
+    pub mod trap;
 }
 
 pub mod interfaces {
@@ -88,6 +90,15 @@ pub mod elements {
         pub mod master;
         pub mod reference;
         pub mod streaker;
+    }
+    pub mod traps {
+        pub mod bomb;
+        pub mod interface;
+        pub mod lucky;
+        pub mod magnet;
+        pub mod slots;
+        pub mod ufo;
+        pub mod windy;
     }
     pub mod powers {
         pub mod double_up;

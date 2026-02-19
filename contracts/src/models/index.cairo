@@ -26,6 +26,7 @@ pub struct Starterpack {
     pub referral_percentage: u8,
     pub price: u256,
     pub payment_token: ContractAddress,
+    pub multiplier: u8,
 }
 
 #[derive(Copy, Drop, Serde, IntrospectPacked)]
@@ -33,8 +34,8 @@ pub struct Starterpack {
 pub struct Game {
     #[key]
     pub id: u64,
-    pub over: bool,
     pub claimed: bool,
+    pub multiplier: u8,
     pub level: u8,
     pub slot_count: u8,
     pub slot_min: u16,
@@ -43,8 +44,12 @@ pub struct Game {
     pub next_number: u16,
     pub selectable_powers: u8,
     pub selected_powers: u16,
-    pub available_powers: u16,
+    pub enabled_powers: u16,
+    pub disabled_traps: u32,
     pub reward: u64,
+    pub over: u64,
+    pub expiration: u64,
+    pub traps: u128,
     pub slots: felt252,
     pub supply: felt252,
 }

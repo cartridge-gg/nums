@@ -1,5 +1,3 @@
-use starknet::ContractAddress;
-
 #[inline]
 pub fn NAME() -> ByteArray {
     "Play"
@@ -10,26 +8,7 @@ pub trait IPlay<T> {
     fn set(ref self: T, game_id: u64, index: u8) -> u16;
     fn select(ref self: T, game_id: u64, index: u8);
     fn apply(ref self: T, game_id: u64, index: u8) -> u16;
-}
-
-#[starknet::interface]
-pub trait IExternal<T> {
-    fn register_starterpack(
-        ref self: T,
-        payment_token: ContractAddress,
-        reissuable: bool,
-        referral_percentage: u8,
-        price: u256,
-    );
-    fn update_starterpack(
-        ref self: T,
-        starterpack_id: u32,
-        reissuable: bool,
-        payment_token: ContractAddress,
-        referral_percentage: u8,
-        price: u128,
-    );
-    fn update_metadata(ref self: T, starterpack_id: u32);
+    fn claim(ref self: T, game_id: u64);
 }
 
 #[dojo::contract]
@@ -164,51 +143,12 @@ pub mod Play {
             // [Effect] Apply power
             self.playable.apply(world, game_id, index)
         }
-    }
 
-    #[abi(embed_v0)]
-    impl ExternalImpl of IExternal<ContractState> {
-        fn register_starterpack(
-            ref self: ContractState,
-            payment_token: ContractAddress,
-            reissuable: bool,
-            referral_percentage: u8,
-            price: u256,
-        ) {
+        fn claim(ref self: ContractState, game_id: u64) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
-            // [Effect] Register starterpack
-            self.starterpack.register(world, payment_token, reissuable, referral_percentage, price)
-        }
-
-        fn update_starterpack(
-            ref self: ContractState,
-            starterpack_id: u32,
-            reissuable: bool,
-            payment_token: ContractAddress,
-            referral_percentage: u8,
-            price: u128,
-        ) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Update starterpack
-            self
-                .starterpack
-                .update(
-                    world,
-                    starterpack_id,
-                    reissuable,
-                    payment_token,
-                    referral_percentage,
-                    price.into(),
-                )
-        }
-
-        fn update_metadata(ref self: ContractState, starterpack_id: u32) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Update metadata
-            self.starterpack.update_metadata(world, starterpack_id)
+            // [Effect] Claim game
+            self.playable.claim(world, game_id)
         }
     }
 }

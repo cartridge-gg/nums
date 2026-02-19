@@ -9,6 +9,7 @@ import {
 import { Formatter } from "@/helpers";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { QuestReward } from "@/models/quest";
 
 export interface QuestProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -19,13 +20,15 @@ export interface QuestProps
   total: number;
   expiration?: number;
   claimed: boolean;
+  rewards?: QuestReward[];
   onClaim?: () => void;
 }
 
 const questVariants = cva("select-none flex flex-col gap-3 rounded-lg p-4", {
   variants: {
     variant: {
-      default: "bg-black-900",
+      default:
+        "bg-white-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
     },
   },
   defaultVariants: {
@@ -48,6 +51,7 @@ export const Quest = ({
   total,
   expiration = 0,
   claimed,
+  rewards = [],
   onClaim,
   variant,
   className,
@@ -126,6 +130,33 @@ export const Quest = ({
           </span>
         </p>
       </div>
+
+      {/* Reward section */}
+      {rewards.map((reward) => (
+        <div
+          key={reward.name}
+          className="flex items-center rounded-full w-full bg-white-900 p-1"
+        >
+          {reward.icon.includes("fa-") ? (
+            <div className="w-6 h-6 flex items-center justify-center p-0.5">
+              <div className={cn("w-4/5 h-4/5 fa-solid", reward.icon)} />
+            </div>
+          ) : (
+            <img
+              src={
+                reward.description.includes("NUMS")
+                  ? "/assets/token.png"
+                  : reward.icon
+              }
+              alt={reward.name}
+              className="w-6 h-6 rounded-full"
+            />
+          )}
+          <p className="text-base font-sans px-2">{reward.description}</p>
+        </div>
+      ))}
+
+      {/* Mobile: claim button */}
       <Claim
         claimed={claimed}
         isCompleted={isCompleted}
@@ -137,17 +168,19 @@ export const Quest = ({
   );
 };
 
-const Claim = ({
+export const Claim = ({
   claimed,
   isCompleted,
   onClaim,
   expiration,
   className = "",
+  variant = "default",
 }: {
   claimed: boolean;
   isCompleted: boolean;
   onClaim?: () => void;
   expiration: number;
+  variant?: "default" | "secondary";
   className?: string;
 }) => {
   const [countdown, setCountdown] = useState<string>(() =>
@@ -190,16 +223,39 @@ const Claim = ({
         variant="default"
         onClick={onClaim}
         className={cn("bg-green-100 hover:bg-green-300", className)}
+        style={{
+          textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)",
+        }}
       >
         <p className="text-[28px] translate-y-0.5">Claim</p>
       </Button>
     );
 
+  if (variant === "secondary") {
+    return (
+      <div className={className}>
+        <div
+          className={cn(
+            "select-none h-10 flex items-center justify-center",
+            className,
+          )}
+        >
+          <p
+            className="text-[22px]/[15px] tracking-wider text-white-100 translate-y-0.5"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            New Quests in: {countdown}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <div
         className={cn(
-          "px-5 py-1 bg-black-800 rounded-lg h-10 flex items-center justify-center",
+          "select-none px-5 py-1 bg-black-800 rounded-lg h-10 flex items-center justify-center",
           className,
         )}
       >

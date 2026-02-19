@@ -10,10 +10,11 @@ import { NAMESPACE } from "@/constants";
 import { Game } from "@/models/game";
 import { useEntities } from "@/context/entities";
 import type { RawGame } from "@/models";
+import { useAssets } from "@/hooks/assets";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGameQuery = (gameIds: number[]) => {
+const getGamesQuery = (gameIds: number[]) => {
   const clauses = OrComposeClause(
     gameIds.map((id) =>
       MemberClause(
@@ -30,10 +31,12 @@ const getGameQuery = (gameIds: number[]) => {
     .withLimit(ENTITIES_LIMIT);
 };
 
-export const useGames = (gameIds: number[]) => {
+export const useGames = () => {
   const { client } = useEntities();
+  const { gameIds, isLoading: assetsLoading } = useAssets();
 
   const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const subscriptionRef = useRef<any>(null);
 
@@ -53,7 +56,6 @@ export const useGames = (gameIds: number[]) => {
 
   const onUpdate = useCallback(
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      console.log({ data });
       if (!data || data.error) return;
       const games: Game[] = [];
       (data.data || [data] || []).forEach((entity) => {
@@ -72,13 +74,14 @@ export const useGames = (gameIds: number[]) => {
 
   // Refresh function to fetch and subscribe to data
   const refresh = useCallback(async () => {
+    // Wait for assets to load before fetching games
+    if (assetsLoading) return;
     if (gameIds.length === 0 || !client) return;
-
     // Cancel existing subscriptions
     subscriptionRef.current = null;
 
     // Create queries
-    const query = getGameQuery(gameIds);
+    const query = getGamesQuery(gameIds);
 
     // Fetch initial data
     await Promise.all([
@@ -93,7 +96,8 @@ export const useGames = (gameIds: number[]) => {
       .then((response) => {
         subscriptionRef.current = response;
       });
-  }, [client, gameIdsKey, onUpdate]);
+    setLoading(false);
+  }, [client, gameIdsKey, onUpdate, assetsLoading, gameIds]);
 
   useEffect(() => {
     refresh();
@@ -106,6 +110,7 @@ export const useGames = (gameIds: number[]) => {
 
   return {
     games,
+    loading: loading || assetsLoading,
     refresh,
   };
 };

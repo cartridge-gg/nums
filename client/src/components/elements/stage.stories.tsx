@@ -17,7 +17,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const states: Array<StageState> = [
+const defaultStates: Array<StageState> = [
   {},
   { completed: true },
   { gem: true },
@@ -33,8 +33,28 @@ const states: Array<StageState> = [
 export const Default: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
-      {states.map((state) => (
-        <Stage key={JSON.stringify(state)} state={state} className="w-16" />
+      {defaultStates.map((state) => (
+        <Stage
+          key={JSON.stringify(state)}
+          state={state}
+          className="w-16"
+          variant="default"
+        />
+      ))}
+    </div>
+  ),
+};
+
+export const Over: Story = {
+  render: () => (
+    <div className="flex flex-col gap-2">
+      {defaultStates.map((state) => (
+        <Stage
+          key={JSON.stringify(state)}
+          state={state}
+          className="w-7"
+          variant="over"
+        />
       ))}
     </div>
   ),

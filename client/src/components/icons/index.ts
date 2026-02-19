@@ -24,9 +24,10 @@ export const iconVariants = cva(base, {
   },
 });
 
+export * from "./effects";
 export * from "./exotics";
 export * from "./powers";
 export * from "./regulars";
 export * from "./states";
-export * from "./transparents";
+export * from "./traps";
 export * from "./types";

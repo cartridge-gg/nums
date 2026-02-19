@@ -18,7 +18,7 @@ const soundVariants = cva(
         default: "bg-mauve-700 hover:bg-mauve-500",
       },
       size: {
-        md: "h-10 md:h-12 w-10 md:w-auto px-2 md:px-4 py-2",
+        md: "h-10 w-10 md:h-12 md:w-14 px-2 md:px-4 py-2",
       },
     },
     defaultVariants: {

@@ -11,12 +11,14 @@ export class Starterpack {
     public referral_percentage: number,
     public price: bigint,
     public payment_token: string,
+    public multiplier: number,
   ) {
     this.id = id;
     this.reissuable = reissuable;
     this.referral_percentage = referral_percentage;
     this.price = price;
     this.payment_token = payment_token;
+    this.multiplier = multiplier;
   }
 
   static getModelName(): string {
@@ -34,6 +36,7 @@ export class Starterpack {
       referral_percentage: Number(data.referral_percentage.value),
       price: BigInt(data.price.value),
       payment_token: data.payment_token.value,
+      multiplier: Number(data.multiplier.value),
     };
     return new Starterpack(
       props.id,
@@ -41,6 +44,7 @@ export class Starterpack {
       props.referral_percentage,
       props.price,
       props.payment_token,
+      props.multiplier,
     );
   }
 
@@ -50,5 +54,12 @@ export class Starterpack {
 
   exists() {
     return BigInt(this.payment_token) !== 0n;
+  }
+
+  static dedupe(starterpacks: Starterpack[]): Starterpack[] {
+    return starterpacks.filter(
+      (starterpack, index, self) =>
+        index === self.findIndex((t) => t.id === starterpack.id),
+    );
   }
 }

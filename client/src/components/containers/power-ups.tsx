@@ -1,13 +1,11 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PowerUp, type PowerUpProps } from "@/components/elements";
-import { CircleInfoIcon } from "@/components/icons";
 
 export interface PowerUpsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof powerUpsVariants> {
   powers: PowerUpProps[];
-  onInfoClick?: () => void;
 }
 
 const powerUpsVariants = cva(
@@ -33,7 +31,6 @@ export const PowerUps = ({
   variant,
   size,
   className,
-  onInfoClick,
   ...props
 }: PowerUpsProps) => {
   return (
@@ -41,21 +38,21 @@ export const PowerUps = ({
       className={cn(powerUpsVariants({ variant, size, className }))}
       {...props}
     >
-      <div
-        className="flex justify-between items-center w-full cursor-pointer group"
-        onClick={onInfoClick}
-      >
-        <p className="text-mauve-100 group-hover:text-mauve-200 text-lg/6 uppercase tracking-wider transition-colors duration-150">
-          Power Ups
-        </p>
-        <CircleInfoIcon className="text-mauve-100 group-hover:text-mauve-200 transition-colors duration-150" />
-      </div>
+      <p className="w-full text-mauve-100 text-lg/6 uppercase tracking-wider">
+        Power Ups
+      </p>
       <ul className="flex justify-center gap-3 w-full">
         {powers.map((powerProps, index) => (
           <li key={`${index}`} className="w-full md:w-auto">
             <PowerUp
               {...powerProps}
-              className={cn("w-full md:w-auto", powerProps.className)}
+              className={cn(
+                "w-full md:w-auto",
+                index === 0 && "rounded-bl-4xl md:rounded-bl-lg",
+                index === powers.length - 1 &&
+                  "rounded-br-4xl md:rounded-br-lg",
+                powerProps.className,
+              )}
             />
           </li>
         ))}

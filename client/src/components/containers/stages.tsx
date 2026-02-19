@@ -9,11 +9,12 @@ export interface StagesProps
 }
 
 const stagesVariants = cva(
-  "select-none relative rounded grid grid-cols-10 gap-1 xs:gap-2",
+  "select-none relative rounded grid grid-cols-9 gap-1 xs:gap-2",
   {
     variants: {
       variant: {
         default: "",
+        over: "",
       },
       size: {
         md: "",
@@ -37,7 +38,7 @@ export const Stages = ({
     <ul className={cn(stagesVariants({ variant, size, className }))} {...props}>
       {states.map((state, index) => (
         <li key={`${index}-${JSON.stringify(state)}`}>
-          <Stage state={state} className="" />
+          <Stage state={state} className="" variant={variant} />
         </li>
       ))}
     </ul>

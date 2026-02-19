@@ -1,3 +1,4 @@
+import { DEFAULT_SLOT_COUNT } from "@/constants";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useMemo } from "react";
@@ -26,7 +27,7 @@ const chartVariants = cva(
         default: "",
       },
       size: {
-        md: "w-full h-full",
+        md: "w-full h-full min-h-[240px] min-w-0",
       },
     },
     defaultVariants: {
@@ -60,15 +61,15 @@ const CustomXAxisTick = ({
     const borderRadius = 4; // rounded = 0.25rem = 4px
 
     return (
-      <g transform={"translate(0, -4)"}>
+      <g transform={"translate(0, 0)"}>
         <rect
           x={rectX}
-          y={rectY}
+          y={rectY - 0.5}
           width={rectWidth}
           height={rectHeight}
           rx={borderRadius}
           ry={borderRadius}
-          fill="var(--mauve-700)"
+          fill="#332673"
         />
         <Text
           x={x}
@@ -118,33 +119,40 @@ const CustomYAxisTick = ({
   const formattedValue = tickFormatter
     ? tickFormatter(payload.value)
     : payload.value;
+
+  // Don't render if formatted value is empty
+  if (!formattedValue || formattedValue === "") return null;
+
   const isAbscissaValue = Math.abs(payload.value - abscissaY) < 0.001; // Compare with small epsilon for float comparison
 
   // Estimate text width (approximate: fontSize * characterCount * 0.55)
   const textWidth = formattedValue.length * 18 * 0.55;
   const rectWidth = textWidth;
   const rectHeight = 24; // Approximate height for fontSize 18
-  const rectX = x - rectWidth - 5; // Position to the left of the text
+  const offsetLeft = 72; // Offset 72px to the left
+  const textX = x - offsetLeft; // Text position shifted 72px to the left (starting point for left alignment)
+  const rectX = textX - 7; // Rectangle position aligned with the start of the text
   const rectY = y - rectHeight / 2;
+  const textY = rectY + rectHeight / 2;
   const borderRadius = 4; // rounded = 0.25rem = 4px
 
   return (
-    <g transform={"translate(0, 4)"}>
+    <g transform={"translate(0, 0)"}>
       {isAbscissaValue && (
         <rect
           x={rectX}
-          y={rectY}
+          y={rectY - 0.5}
           width={rectWidth}
           height={rectHeight}
           rx={borderRadius}
           ry={borderRadius}
-          fill="var(--mauve-700)"
+          fill="#332673"
         />
       )}
       <Text
-        x={rectX + rectWidth / 2}
-        y={rectY + rectHeight / 2}
-        textAnchor="middle"
+        x={textX}
+        y={textY}
+        textAnchor="start"
         fill="var(--white-100)"
         fontSize={18}
         letterSpacing="0.05em"
@@ -165,27 +173,27 @@ export const Chart = ({
   className,
   ...props
 }: ChartProps) => {
-  // Ensure we have exactly 20 values
-  if (values.length !== 20) {
-    throw new Error("Chart requires exactly 20 values");
+  // Ensure we have exactly 18 values
+  if (values.length !== DEFAULT_SLOT_COUNT) {
+    throw new Error(`Chart requires exactly ${DEFAULT_SLOT_COUNT} values`);
   }
 
-  // Ensure abscissa is between 0 and 20
-  if (abscissa < 0 || abscissa > 20) {
-    throw new Error("Abscissa must be between 0 and 20");
+  // Ensure abscissa is between 0 and 18
+  if (abscissa < 0 || abscissa > DEFAULT_SLOT_COUNT) {
+    throw new Error(`Abscissa must be between 0 and ${DEFAULT_SLOT_COUNT}`);
   }
 
   // Get the y value for the given abscissa
   const abscissaY = useMemo(() => {
     if (abscissa === 0) return 0;
-    if (abscissa === 20) return values[19];
+    if (abscissa === DEFAULT_SLOT_COUNT) return values[DEFAULT_SLOT_COUNT - 1];
     const index = Math.floor(abscissa);
     if (index < 1) return values[0];
-    if (index >= 20) return values[19];
+    if (index >= DEFAULT_SLOT_COUNT) return values[DEFAULT_SLOT_COUNT - 1];
     return values[index - 1];
   }, [abscissa, values]);
 
-  // Create data points: (0,0), (1, values[0]), ..., (20, values[19])
+  // Create data points: (0,0), (1, values[0]), ..., (18, values[17])
   // Also add the abscissa point if it's not already in the data
   const data = useMemo(() => {
     const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
@@ -200,7 +208,7 @@ export const Chart = ({
     const abscissaIndex = points.findIndex(
       (p) => Math.abs(p.x - abscissa) < 0.001,
     );
-    if (abscissaIndex === -1 && abscissa > 0 && abscissa < 20) {
+    if (abscissaIndex === -1 && abscissa > 0 && abscissa < DEFAULT_SLOT_COUNT) {
       // Insert abscissa point in the correct position (sorted by x)
       const insertIndex = points.findIndex((p) => p.x > abscissa);
       if (insertIndex === -1) {
@@ -217,8 +225,13 @@ export const Chart = ({
 
   // Prepare X-axis ticks and labels
   const xTicks = useMemo(() => {
-    const ticks = [1, 20];
-    if (abscissa !== 1 && abscissa !== 20 && abscissa > 0 && abscissa < 20) {
+    const ticks = [1, DEFAULT_SLOT_COUNT];
+    if (
+      abscissa !== 1 &&
+      abscissa !== DEFAULT_SLOT_COUNT &&
+      abscissa > 0 &&
+      abscissa < DEFAULT_SLOT_COUNT
+    ) {
       ticks.splice(1, 0, abscissa);
     }
     return ticks;
@@ -226,11 +239,12 @@ export const Chart = ({
 
   // Prepare Y-axis ticks and labels
   const yTicks = useMemo(() => {
-    const ticks = [0, maxY];
+    const ticks = abscissa < 13 ? [maxY] : [0, maxY];
     if (abscissaY !== 0 && abscissaY !== maxY) {
       ticks.splice(1, 0, abscissaY);
     }
-    return ticks;
+    // Remove duplicates to avoid React key warnings
+    return Array.from(new Set(ticks));
   }, [abscissaY, maxY]);
 
   // Custom tick formatter for X-axis
@@ -241,7 +255,11 @@ export const Chart = ({
 
   // Custom tick formatter for Y-axis
   const yTickFormatter = (value: number) => {
-    if (yTicks.includes(value)) return `$${value.toFixed(2)}`;
+    // Use epsilon comparison for floating point numbers to handle Y=0 correctly
+    const isInTicks = yTicks.some((tick) => Math.abs(tick - value) < 0.001);
+    if (isInTicks) {
+      return `${value.toFixed(0)} NUMS`;
+    }
     return "";
   };
 
@@ -269,17 +287,19 @@ export const Chart = ({
       className={cn(chartVariants({ variant, size, className }))}
       {...props}
       tabIndex={-1}
-      style={{ outline: "none", ...props.style }}
+      style={{ outline: "none", minHeight: 0, minWidth: 0, ...props.style }}
       onFocus={(e) => e.currentTarget.blur()}
     >
       <ResponsiveContainer
+        initialDimension={{ width: 240, height: 240 }}
         width="100%"
         height="100%"
         className="chart-container"
+        minHeight={240}
       >
         <LineChart
           data={data}
-          margin={{ top: 20, right: 12, bottom: 5, left: 16 }}
+          margin={{ top: 20, right: 12, bottom: 5, left: 32 }}
           style={{ outline: "none" }}
         >
           <defs>
@@ -298,12 +318,13 @@ export const Chart = ({
               />
             </filter>
           </defs>
+
           {/* X-axis (top) - same as bottom */}
           <XAxis
             xAxisId="top"
             type="number"
             dataKey="x"
-            domain={[0, 20]}
+            domain={[0, 18]}
             orientation="top"
             axisLine={false}
             tickLine={false}
@@ -323,7 +344,7 @@ export const Chart = ({
             xAxisId="bottom"
             type="number"
             dataKey="x"
-            domain={[0, 20]}
+            domain={[0, 18]}
             axisLine={false}
             tickLine={false}
             ticks={xTicks}
@@ -345,6 +366,8 @@ export const Chart = ({
             tickLine={false}
             ticks={yTicks}
             tickFormatter={yTickFormatter}
+            interval={0}
+            allowDecimals={false}
             tick={
               <CustomYAxisTick
                 showLabel={true}
@@ -376,7 +399,7 @@ export const Chart = ({
             ]}
           />
 
-          {/* Step line chart (partie entière) */}
+          {/* Step line chart (integer part) */}
           <Line
             type="stepAfter"
             dataKey="y"

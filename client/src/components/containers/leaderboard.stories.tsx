@@ -92,12 +92,29 @@ const sampleRows = [
     total: 321,
     score: 8.9,
   },
+  {
+    rank: 12,
+    username: "donald",
+    total: 123,
+    score: 8.8,
+  },
+  {
+    rank: 13,
+    username: "goofy",
+    total: 123,
+    score: 8.7,
+  },
+  {
+    rank: 14,
+    username: "minnie",
+    total: 123,
+    score: 8.6,
+  },
 ];
 
 export const Default: Story = {
   args: {
     rows: sampleRows,
-    className: "grow",
   },
 };
 

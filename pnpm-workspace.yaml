@@ -1,13 +1,13 @@
 packages:
-  - 'client'
-  - 'contracts/tokens'
+  - "client"
+  - "contracts/tokens"
 catalog:
-  "@cartridge/connector": "0.11.3"
-  "@cartridge/controller": "0.11.3"
+  "@cartridge/connector": "0.13.9"
+  "@cartridge/controller": "0.13.9"
   "@cartridge/presets": "0.5.2"
   "@cartridge/ui": "github:cartridge-gg/ui#a823aea"
-  "@dojoengine/core": "1.8.5"
-  "@dojoengine/sdk": "1.8.7"
-  "@dojoengine/torii-client": "1.8.1"
-  "@dojoengine/torii-wasm": "1.8.1"
-  "@dojoengine/utils": "1.8.1"
+  "@dojoengine/core": "1.8.8"
+  "@dojoengine/sdk": "1.8.13"
+  "@dojoengine/torii-client": "1.8.2"
+  "@dojoengine/torii-wasm": "1.8.2"
+  "@dojoengine/utils": "1.8.4"

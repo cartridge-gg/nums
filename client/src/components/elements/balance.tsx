@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { LogoMiniIcon } from "@/components/icons/exotics";
-import { useId } from "react";
-import SlotCounter from "react-slot-counter";
+import { useMemo } from "react";
 
 export interface BalanceProps
   extends React.HTMLAttributes<HTMLButtonElement>,
@@ -29,6 +27,53 @@ const balanceVariants = cva(
   },
 );
 
+const formatMobileBalance = (balance: string): string => {
+  const num = parseFloat(balance);
+
+  if (isNaN(num) || num < 0) {
+    return "0";
+  }
+
+  if (num >= 1000000000) {
+    // Billions - try to keep 3 characters
+    const billions = num / 1000000000;
+    if (billions >= 100) {
+      return `${Math.floor(billions)}B`;
+    }
+    if (billions >= 10) {
+      return `${billions.toFixed(1).replace(/\.0$/, "")}B`;
+    }
+    return `${billions.toFixed(1)}B`;
+  }
+
+  if (num >= 1000000) {
+    // Millions - try to keep 3 characters
+    const millions = num / 1000000;
+    if (millions >= 100) {
+      return `${Math.floor(millions)}M`;
+    }
+    if (millions >= 10) {
+      return `${millions.toFixed(1).replace(/\.0$/, "")}M`;
+    }
+    return `${millions.toFixed(1)}M`;
+  }
+
+  if (num >= 1000) {
+    // Thousands - try to keep 3 characters
+    const thousands = num / 1000;
+    if (thousands >= 100) {
+      return `${Math.floor(thousands)}K`;
+    }
+    if (thousands >= 10) {
+      return `${thousands.toFixed(1).replace(/\.0$/, "")}K`;
+    }
+    return `${thousands.toFixed(1)}K`;
+  }
+
+  // For numbers < 1000, return as integer (max 3 digits)
+  return Math.floor(num).toString();
+};
+
 export const Balance = ({
   balance,
   variant,
@@ -36,44 +81,28 @@ export const Balance = ({
   className,
   ...props
 }: BalanceProps) => {
-  const filterId = useId();
+  const formattedDesktop = useMemo(() => {
+    const num = parseFloat(balance);
+    if (isNaN(num)) return "0";
+    return num.toLocaleString();
+  }, [balance]);
+
+  const formattedMobile = useMemo(() => {
+    return formatMobileBalance(balance);
+  }, [balance]);
+
   return (
     <Button
       variant="muted"
       className={cn(balanceVariants({ variant, size, className }))}
       {...props}
     >
-      <svg width="0" height="0" style={{ position: "absolute" }}>
-        <defs>
-          <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow
-              dx="2"
-              dy="2"
-              stdDeviation="0"
-              floodColor="rgba(0, 0, 0, 0.95)"
-            />
-          </filter>
-        </defs>
-      </svg>
-      <div className="block md:hidden">
-        <LogoMiniIcon
-          className="min-w-6 min-h-6"
-          style={{ filter: `url(#${filterId})` }}
-        />
-      </div>
       <div
-        className="translate-y-0.5 tracking-wider pr-1 md:pr-0 overflow-clip"
+        className="translate-y-0.5 tracking-wider overflow-clip"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
       >
-        <SlotCounter
-          value={balance}
-          startValueOnce
-          duration={1.5}
-          dummyCharacters={"0123456789".split("")}
-          animateOnVisible={false}
-          useMonospaceWidth
-        />
-        <span className="hidden md:inline"> NUMS</span>
+        <span className="block md:hidden px-1">{formattedMobile}</span>
+        <span className="hidden md:inline">{formattedDesktop} NUMS</span>
       </div>
     </Button>
   );

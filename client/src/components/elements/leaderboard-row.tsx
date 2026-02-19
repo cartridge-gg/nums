@@ -15,8 +15,9 @@ const leaderboardRowVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-black-900",
-        primary: "bg-black-900 border-transparent",
+        default: "border-white-900",
+        primary:
+          "bg-white-900 border-transparent shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       },
     },
     defaultVariants: {

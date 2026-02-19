@@ -9,12 +9,12 @@ export interface SelectionsProps
 }
 
 const selectionsVariants = cva(
-  "select-none flex flex-col gap-6 p-6 md:gap-12 md:p-12",
+  "h-full md:h-auto select-none flex flex-col gap-6 p-6 md:gap-12 md:p-12",
   {
     variants: {
       variant: {
         default:
-          "rounded-lg bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[16px]",
+          "rounded-t-lg rounded-b-2xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[16px]",
       },
     },
     defaultVariants: {

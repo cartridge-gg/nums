@@ -24,3 +24,27 @@ body {
   touch-action: manipulation;
   height: 100%;
 }
+
+@layer utilities {
+  @media (min-width: 768px) {
+    .places-title {
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+  }
+
+  @keyframes reward-diff {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, 0) translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, 0) translateY(-40px);
+    }
+  }
+
+  .animate-reward-diff {
+    animation: reward-diff 2s ease-out forwards;
+  }
+}

@@ -9,14 +9,15 @@ export interface LeaderboardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof leaderboardVariants> {
   rows: LeaderboardRowProps[];
+  currentUserAddress?: string;
 }
 
 const leaderboardVariants = cva(
-  "select-none overflow-hidden w-full flex flex-col gap-6 px-4 py-6 md:px-6 pb-0 rounded-lg shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none overflow-hidden h-full w-full flex flex-col gap-6",
   {
     variants: {
       variant: {
-        default: "bg-black-900",
+        default: "",
       },
     },
     defaultVariants: {
@@ -27,6 +28,7 @@ const leaderboardVariants = cva(
 
 export const Leaderboard = ({
   rows,
+  currentUserAddress,
   variant,
   className,
   ...props
@@ -82,7 +84,7 @@ export const Leaderboard = ({
 
       {/* Rows or Empty state */}
       {rows.length === 0 ? (
-        <div className="bg-black-900 border border-white-800 rounded-lg py-12 mb-6 flex items-center justify-center grow">
+        <div className="bg-black-900 border border-white-800 rounded-lg py-12 flex items-center justify-center h-full">
           <p
             className="text-white-300 text-lg/6 tracking-wider translate-y-0.5 w-1/2 text-center"
             style={{
@@ -94,7 +96,7 @@ export const Leaderboard = ({
         </div>
       ) : (
         <div
-          className="flex flex-col gap-2 overflow-y-auto pb-6"
+          className="flex flex-col gap-2 overflow-y-auto"
           style={{ scrollbarWidth: "none" }}
         >
           {rows.map((row, index) => (

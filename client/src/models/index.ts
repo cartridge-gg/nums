@@ -1,7 +1,23 @@
 export { Config } from "./config";
 export { Game } from "./game";
 export { Starterpack } from "./starterpack";
-export { Reward } from "./reward";
+export { Purchase } from "./purchase";
+export {
+  AchievementDefinition,
+  AchievementCompletion,
+  AchievementAdvancement,
+  AchievementAssociation,
+  AchievementCreation,
+  AchievementProgression,
+  AchievementCompleted,
+  AchievementClaimed,
+  type RawDefinition as RawAchievementDefinition,
+  type RawCompletion as RawAchievementCompletion,
+  type RawAdvancement as RawAchievementAdvancement,
+  type RawCreation as RawAchievementCreation,
+  type RawCompleted as RawAchievementCompleted,
+  type RawClaimed as RawAchievementClaimed,
+} from "./achievement";
 export {
   QuestDefinition,
   QuestCompletion,
@@ -13,13 +29,13 @@ export {
   QuestUnlocked,
   QuestCompleted,
   QuestClaimed,
-  type RawDefinition,
-  type RawCompletion,
-  type RawAdvancement,
-  type RawCreation,
-  type RawUnlocked,
-  type RawCompleted,
-  type RawClaimed,
+  type RawDefinition as RawQuestDefinition,
+  type RawCompletion as RawQuestCompletion,
+  type RawAdvancement as RawQuestAdvancement,
+  type RawCreation as RawQuestCreation,
+  type RawUnlocked as RawQuestUnlocked,
+  type RawCompleted as RawQuestCompleted,
+  type RawClaimed as RawQuestClaimed,
 } from "./quest";
 
 export interface RawConfig {
@@ -122,6 +138,12 @@ export interface RawStarterpack {
     value: string;
     key: boolean;
   };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
 }
 
 export interface RawGame {
@@ -131,16 +153,16 @@ export interface RawGame {
     value: string;
     key: boolean;
   };
-  over: {
+  claimed: {
     type: "primitive";
     type_name: "bool";
     value: boolean;
     key: boolean;
   };
-  claimed: {
+  multiplier: {
     type: "primitive";
-    type_name: "bool";
-    value: boolean;
+    type_name: "u8";
+    value: string;
     key: boolean;
   };
   level: {
@@ -191,15 +213,39 @@ export interface RawGame {
     value: string;
     key: boolean;
   };
-  available_powers: {
+  enabled_powers: {
     type: "primitive";
     type_name: "u16";
+    value: string;
+    key: boolean;
+  };
+  disabled_traps: {
+    type: "primitive";
+    type_name: "u32";
     value: string;
     key: boolean;
   };
   reward: {
     type: "primitive";
     type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  over: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  expiration: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  traps: {
+    type: "primitive";
+    type_name: "u128";
     value: string;
     key: boolean;
   };
@@ -217,14 +263,71 @@ export interface RawGame {
   };
 }
 
-export interface RawReward {
-  game_id: {
+export interface RawPurchase {
+  player_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  starterpack_id: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  quantity: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
+  time: {
     type: "primitive";
     type_name: "u64";
     value: string;
     key: boolean;
   };
-  reward: {
+}
+
+export interface RawStarterpackIssued {
+  recipient: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  starterpack_id: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  payment_token: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  amount: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  quantity: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  time: {
     type: "primitive";
     type_name: "u64";
     value: string;

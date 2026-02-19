@@ -73,26 +73,24 @@ pub mod PlayableComponent {
             let config = store.config();
             let nums_supply = store.nums_disp().total_supply();
             let collection = self.get_collection(world);
+            let pack = store.starterpack(starterpack_id);
             let mut count = quantity;
             while count > 0 {
                 // [Interaction] Mint a game
-                let game_id = collection.mint(recipient, true);
+                let game_id = collection.mint(recipient, false);
 
                 // [Effect] Create game
                 let mut game = GameTrait::new(
                     id: game_id,
+                    multiplier: pack.multiplier,
                     slot_count: config.slot_count,
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
                     supply: nums_supply,
                 );
-                // [Effect] Create and setup game
-                // let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-                let mut rand = RandomImpl::new_with_salt(game_id);
-                let number = rand.between::<u16>(game.slot_min, game.slot_max);
-                let next = rand.between::<u16>(game.slot_min, game.slot_max);
                 // [Effect] Start game
-                game.start(number, next);
+                let mut rand = RandomImpl::new(game_id.into());
+                game.start(ref rand);
                 store.set_game(@game);
                 // [Interaction] Update token metadata
                 collection.update(game_id.into());
@@ -111,7 +109,6 @@ pub mod PlayableComponent {
             achievable.progress(world, player, task.identifier(), quantity.into(), true);
 
             // [Interaction] Transfer quote token to Ekubo
-            let pack = store.starterpack(starterpack_id);
             let quote = IERC20Dispatcher { contract_address: pack.payment_token };
             let quote_address = quote.contract_address;
             let nums = store.nums_disp();
@@ -149,6 +146,9 @@ pub mod PlayableComponent {
             // [Interaction] Burn the entry price
             let amount = nums.balance_of(this);
             nums.burn(amount);
+
+            // [Event] Emit purchase event
+            store.purchase(recipient.into(), starterpack_id, quantity, pack.multiplier);
         }
     }
 
@@ -180,6 +180,9 @@ pub mod PlayableComponent {
                 || quest_id == QuestType::DailyPlacerThree.identifier() {
                 questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
             }
+
+            // [Effect] Autoclaim quest
+            questable.claim(world, player, quest_id, interval_id);
         }
 
         fn on_quest_claim(
@@ -229,34 +232,27 @@ pub mod PlayableComponent {
             let collection = self.get_collection(world);
             collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
 
-            // [Check] Game exists
+            // [Check] Game state
             let mut game = store.game(game_id);
             game.assert_does_exist();
-
-            // [Check] Game has started and is not over
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Place number
+            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
             let target_number = game.number;
-            game.place(index);
+            game.place(game.number, index, ref rand);
             game.assert_is_valid();
 
             // [Effect] Update game
-            let mut rand = RandomImpl::new_vrf(store.vrf_disp());
-            let reward = game.update(ref rand, store.config().target_supply);
+            game.update(ref rand, store.config().target_supply);
             store.set_game(@game);
 
-            // [Interaction] Pay user reward
-            let player = self.owner(world, game_id);
-            store.nums_disp().reward(player, reward);
-
-            // [Event] Emit reward event
-            store.reward(game_id, reward);
-
             // [Event] Emit leaderboard score if game is over
+            let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -270,17 +266,9 @@ pub mod PlayableComponent {
                     );
             }
 
-            // [Effect] Update quest progression for the player - Contender tasks
-            let questable = get_dep_component!(@self, Quest);
-            let task = Task::Claimer;
-            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
-            // [Effect] Update achievement progression for the player - Claimer tasks
-            let achievable = get_dep_component!(@self, Achievable);
-            let task = Task::Claimer;
-            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
-
             // [Effect] Update achievement progression for the player - Filler tasks
+            let questable = get_dep_component!(@self, Quest);
+            let achievable = get_dep_component!(@self, Achievable);
             let filled_slots = game.level;
             if filled_slots == 10 {
                 achievable.progress(world, player.into(), Task::FillerOne.identifier(), 1, true);
@@ -353,6 +341,7 @@ pub mod PlayableComponent {
             game.assert_does_exist();
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Select power
             game.select(index);
@@ -363,7 +352,7 @@ pub mod PlayableComponent {
             // [Event] Emit leaderboard score if game is over
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -397,6 +386,7 @@ pub mod PlayableComponent {
             game.assert_does_exist();
             game.assert_has_started();
             game.assert_not_over();
+            game.assert_not_expired();
 
             // [Effect] Apply power
             let mut rand = RandomImpl::new_vrf(store.vrf_disp());
@@ -408,7 +398,7 @@ pub mod PlayableComponent {
             // [Event] Emit leaderboard score if game is over
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
-            if game.over {
+            if game.over != 0 {
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -427,6 +417,43 @@ pub mod PlayableComponent {
 
             // [Return] Next number
             game.number
+        }
+
+        fn claim(ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+
+            // [Check] Token ownership
+            let collection = self.get_collection(world);
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
+
+            // [Check] Game state
+            let mut game = store.game(game_id);
+            game.assert_does_exist();
+            game.assert_is_claimable();
+            game.assert_not_claimed();
+
+            // [Effect] Claim game
+            let mut game = store.game(game_id);
+            let reward = game.claim();
+
+            // [Effect] Update game
+            store.set_game(@game);
+
+            // [Effect] Update quest progression for the player - Contender tasks
+            let player = self.owner(world, game_id);
+            let questable = get_dep_component!(@self, Quest);
+            let task = Task::Claimer;
+            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Effect] Update achievement progression for the player - Claimer tasks
+            let achievable = get_dep_component!(@self, Achievable);
+            let task = Task::Claimer;
+            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
+
+            // [Interaction] Pay user reward
+            let player = self.owner(world, game_id);
+            store.nums_disp().reward(player, reward);
         }
     }
 

@@ -23,16 +23,17 @@ export const useHeader = () => {
     contractAddresses: [addAddressPadding(num.toHex64(numsAddress))],
   });
 
+  const token = useMemo(() => {
+    return tokenContracts.find(
+      (i) => BigInt(i.contract_address) === BigInt(numsAddress),
+    );
+  }, [tokenContracts, numsAddress]);
+
   const prevBalanceRef = useRef<number | undefined>(undefined);
   const balanceDiff = useRef<{ value: number }>({ value: 0 });
 
-  const balance: string = useMemo(() => {
-    if (!account) return "0";
-
-    const token = tokenContracts.find(
-      (i) => BigInt(i.contract_address) === BigInt(numsAddress),
-    );
-    if (!token) return "0";
+  const balance = useMemo(() => {
+    if (!account || !token) return "0";
 
     const tokenBalance = tokenBalances.find(
       (b) =>
@@ -52,7 +53,7 @@ export const useHeader = () => {
     }
 
     return balanceScaled.toFixed(0).toLocaleString();
-  }, [tokenBalances, tokenContracts, account, numsAddress]);
+  }, [tokenBalances, token, account, numsAddress]);
 
   const [username, setUsername] = useState<string | null>(null);
   const controllerConnector = connector as never as ControllerConnector;
@@ -76,6 +77,7 @@ export const useHeader = () => {
   return {
     isMuted,
     toggleMute,
+    supply: BigInt(token?.total_supply ?? "0"),
     balance,
     username,
     address,

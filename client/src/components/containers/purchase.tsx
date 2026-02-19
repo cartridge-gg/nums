@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
 import type * as TabsPrimitive from "@radix-ui/react-tabs";
-import { Button } from "@/components/ui/button";
-import { Tab } from "@/components/elements";
 import { Chart, type ChartProps } from "@/components/elements/chart";
+import { AsteriskIcon } from "../icons";
 
 export interface PurchaseProps
   extends Omit<
@@ -15,13 +12,11 @@ export interface PurchaseProps
     VariantProps<typeof purchaseVariants> {
   chartValues: ChartProps["values"];
   chartAbscissa: ChartProps["abscissa"];
-  numsPrice: number; // Price in USD (e.g., 0.003)
-  playPrice: number; // Price in USD (e.g., 1.00)
-  onPurchase: () => void;
+  numsPrice: number;
 }
 
 const purchaseVariants = cva(
-  "select-none p-4 md:p-6 flex flex-col gap-4 md:gap-6 w-full",
+  "select-none p-3 md:p-4 flex flex-col justify-between gap-4 w-full",
   {
     variants: {
       variant: {
@@ -38,76 +33,28 @@ export const Purchase = ({
   chartValues,
   chartAbscissa,
   numsPrice,
-  playPrice,
-  onPurchase,
   variant,
   className,
   ...props
 }: PurchaseProps) => {
-  const [activeTab, setActiveTab] = useState<string>("blitz");
-
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={setActiveTab}
-      className={cn(purchaseVariants({ variant, className }))}
-      {...props}
-    >
-      {/* Tabs */}
-      <TabsList className="w-full gap-4 bg-transparent p-0 h-auto">
-        <Tab
-          value="free"
-          label="Free"
-          variant="mauve"
-          className="flex-1 cursor-not-allowed"
-          disabled
-        />
-        <Tab value="blitz" label="Blitz" variant="mauve" className="flex-1" />
-      </TabsList>
-
-      {/* Free tab content (empty for now) */}
-      <TabsContent value="free" className="mt-0">
-        {/* Empty content */}
-      </TabsContent>
-
-      {/* Blitz tab content */}
-      <TabsContent value="blitz" className="mt-0 flex flex-col gap-4 md:gap-6">
-        {/* Chart and Info box */}
-        <div className="flex flex-col gap-4">
-          <div className="w-full h-[240px] min-h-[240px]">
-            <Chart values={chartValues} abscissa={chartAbscissa} />
-          </div>
-          <PurchaseInfoBox numsPrice={numsPrice} />
-        </div>
-
-        {/* Play button */}
-        <Button variant="default" className="w-full" onClick={onPurchase}>
-          <p
-            className="text-[28px]/[15px] tracking-wide translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-          >
-            Play - ${playPrice.toFixed(2)}
-          </p>
-        </Button>
-      </TabsContent>
-    </Tabs>
+    <div className={cn(purchaseVariants({ variant, className }))} {...props}>
+      <div className="w-full h-full min-w-0 pr-2">
+        <Chart values={chartValues} abscissa={chartAbscissa} />
+      </div>
+      <PurchaseInfoBox numsPrice={numsPrice} />
+    </div>
   );
 };
 
 const PurchaseInfoBox = ({ numsPrice }: { numsPrice: number }) => {
   return (
-    <div
-      className="flex flex-col gap-2 rounded-lg p-3"
-      style={{
-        background: "rgba(0, 0, 0, 0.04)",
-        border: "1px solid rgba(255, 255, 255, 0.04)",
-      }}
-    >
+    <div className="flex bg-white-900 rounded-lg p-3 gap-2">
+      <div className="flex items-center justify-center min-w-5 h-5 bg-white-900 rounded">
+        <AsteriskIcon size="2xs" />
+      </div>
       <p className="font-sans text-sm leading-normal text-white-100">
-        Rewards are denominated in NUMS tokens
-      </p>
-      <p className="font-sans text-sm leading-normal text-white-100">
-        1 NUMS = ${numsPrice.toFixed(5)} USD
+        1 NUMS = {numsPrice.toFixed(5)} USD
       </p>
     </div>
   );

@@ -1,6 +1,19 @@
 import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers/packer";
+import { Game } from "@/models/game";
+import { Random } from "@/helpers/random";
+import {
+  Reroll,
+  DoubleUp,
+  Halve,
+  High,
+  Low,
+  Mirror,
+  Foresight,
+  Swap,
+} from "@/elements/powers";
+import { Deck } from "@/helpers/deck";
 
 export const POWER_COUNT = 7;
 export const DEFAULT_POWER_POINTS = 60;
@@ -62,6 +75,19 @@ export class Power {
     // Extract indexes from packed
     const indexes = Packer.unpack(bitmap, 4n);
     return indexes.map((index) => Power.from(index));
+  }
+
+  /**
+   * Draw powers from a deck
+   * Equivalent to PowerTrait::draw in types/power.cairo
+   */
+  public static draw(seed: bigint, count: number): number[] {
+    const deck = Deck.new(seed, POWER_COUNT);
+    const powers: number[] = [];
+    for (let i = 0; i < count; i++) {
+      powers.push(deck.draw());
+    }
+    return powers;
   }
 
   public getCost(board: bigint): number {
@@ -347,17 +373,17 @@ export class Power {
   public color(): string {
     switch (this.value) {
       case PowerType.Reroll:
-        return "text-power-150";
+        return "text-reroll-100";
       case PowerType.High:
-        return "text-power-650";
+        return "text-high-100";
       case PowerType.Low:
-        return "text-power-550";
+        return "text-low-100";
       case PowerType.Swap:
-        return "text-power-300";
+        return "text-swap-100";
       case PowerType.DoubleUp:
-        return "text-power-450";
+        return "text-double-100";
       case PowerType.Halve:
-        return "text-power-350";
+        return "text-halve-100";
       case PowerType.Mirror:
         return "text-blue-100";
       case PowerType.King:
@@ -365,21 +391,129 @@ export class Power {
       case PowerType.Erase:
         return "text-pink-100";
       case PowerType.Foresight:
-        return "text-power-600";
+        return "text-foresight-100";
       case PowerType.Override:
         return "text-red-300";
       case PowerType.Gem:
-        return "text-power-700";
+        return "text-gem-100";
       case PowerType.Ribbon:
-        return "text-power-450";
+        return "text-ribbon-100";
       case PowerType.SquareDown:
-        return "text-power-100";
+        return "text-down-100";
       case PowerType.SquareUp:
-        return "text-power-400";
+        return "text-up-100";
       case PowerType.Wildcard:
-        return "text-power-200";
+        return "text-wildcard-100";
       default:
-        return "text-power-100";
+        return "text-down-100";
+    }
+  }
+
+  public buttonColor(): string {
+    switch (this.value) {
+      case PowerType.Reroll:
+        return "bg-reroll-100 hover:bg-reroll-200";
+      case PowerType.High:
+        return "bg-high-100 hover:bg-high-200";
+      case PowerType.Low:
+        return "bg-low-100 hover:bg-low-200";
+      case PowerType.Swap:
+        return "bg-swap-100 hover:bg-swap-200";
+      case PowerType.DoubleUp:
+        return "bg-double-100 hover:bg-double-200";
+      case PowerType.Halve:
+        return "bg-halve-100 hover:bg-halve-200";
+      case PowerType.Mirror:
+        return "bg-blue-100 hover:bg-blue-200";
+      case PowerType.King:
+        return "bg-pink-100 hover:bg-pink-200";
+      case PowerType.Erase:
+        return "bg-pink-100 hover:bg-pink-200";
+      case PowerType.Foresight:
+        return "bg-foresight-100 hover:bg-foresight-200";
+      case PowerType.Override:
+        return "bg-red-100 hover:bg-red-200";
+      case PowerType.Gem:
+        return "bg-gem-100 hover:bg-gem-200";
+      case PowerType.Ribbon:
+        return "bg-ribbon-100 hover:bg-ribbon-200";
+      case PowerType.SquareDown:
+        return "bg-down-100 hover:bg-down-200";
+      case PowerType.SquareUp:
+        return "bg-up-100 hover:bg-up-200";
+      case PowerType.Wildcard:
+        return "bg-wildcard-100 hover:bg-wildcard-200";
+      default:
+        return "bg-down-100 hover:bg-down-200";
+    }
+  }
+
+  /**
+   * Apply the power to the game
+   * Equivalent to PowerTrait::apply in types/power.cairo
+   */
+  public apply(game: Game, rand: Random): void {
+    switch (this.value) {
+      case PowerType.None:
+        // No operation
+        break;
+      case PowerType.Reroll:
+        Reroll.apply(game, rand);
+        break;
+      case PowerType.High:
+        High.apply(game, rand);
+        break;
+      case PowerType.Low:
+        Low.apply(game, rand);
+        break;
+      case PowerType.Swap:
+        Swap.apply(game, rand);
+        break;
+      case PowerType.DoubleUp:
+        DoubleUp.apply(game, rand);
+        break;
+      case PowerType.Halve:
+        Halve.apply(game, rand);
+        break;
+      case PowerType.Mirror:
+        Mirror.apply(game, rand);
+        break;
+      case PowerType.Foresight:
+        Foresight.apply(game, rand);
+        break;
+      default:
+        // Other powers not implemented yet
+        break;
+    }
+  }
+
+  /**
+   * Check if the power can rescue the game
+   * Equivalent to PowerTrait::rescue in types/power.cairo
+   */
+  public rescue(game: Game): boolean {
+    switch (this.value) {
+      case PowerType.None:
+        return false;
+      case PowerType.Reroll:
+        return Reroll.rescue(game);
+      case PowerType.High:
+        return High.rescue(game);
+      case PowerType.Low:
+        return Low.rescue(game);
+      case PowerType.Swap:
+        return Swap.rescue(game);
+      case PowerType.DoubleUp:
+        return DoubleUp.rescue(game);
+      case PowerType.Halve:
+        return Halve.rescue(game);
+      case PowerType.Mirror:
+        return Mirror.rescue(game);
+      case PowerType.Foresight:
+        return Foresight.rescue(game);
+      default:
+        // Other powers not implemented yet
+        return false;
     }
   }
 }

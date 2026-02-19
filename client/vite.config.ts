@@ -12,6 +12,15 @@ export default defineConfig({
   build: {
     minify: "esbuild",
     chunkSizeWarningLimit: 1000,
+    // Ensure assets are hashed for cache busting
+    rollupOptions: {
+      output: {
+        // Ensure consistent hashing for cache busting
+        entryFileNames: "assets/[name].[hash].js",
+        chunkFileNames: "assets/[name].[hash].js",
+        assetFileNames: "assets/[name].[hash].[ext]",
+      },
+    },
   },
   plugins: [
     react(),
@@ -21,9 +30,14 @@ export default defineConfig({
     mkcert(),
     VitePWA({
       registerType: "autoUpdate",
-      workbox: {
-        maximumFileSizeToCacheInBytes: 4000000, // 4 MB
+      // Specify service worker filename explicitly
+      filename: "service-worker.js",
+      // Force immediate update check
+      devOptions: {
+        enabled: false,
       },
+      // Check for updates more frequently
+      includeAssets: ["favicon.ico", "apple-touch-icon.png", "favicon.svg"],
       manifest: {
         name: "Nums",
         short_name: "Nums",
@@ -50,6 +64,31 @@ export default defineConfig({
         theme_color: "#591FFF",
         background_color: "#591FFF",
         display: "standalone",
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 4000000, // 4 MB
+        // Skip waiting and claim clients immediately for faster updates
+        skipWaiting: true,
+        clientsClaim: true,
+        // Don't cache index.html - always fetch from network
+        navigateFallback: null,
+        // Use network-first strategy for HTML to always get latest version
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.html$/,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-cache",
+              expiration: {
+                maxEntries: 1,
+                maxAgeSeconds: 0, // Always check network first
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],

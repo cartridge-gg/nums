@@ -9,15 +9,18 @@ import {
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
 import { ControllersProvider } from "./context/controllers";
 import { EntitiesProvider } from "./context/entities";
+import { PracticeProvider } from "./context/practice";
 import { Game, Home } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
+import { LoadingProvider } from "./context/loading";
+import { Layout } from "./components/layouts";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -82,23 +85,35 @@ function App() {
         >
           <AudioProvider>
             <EntitiesProvider>
-              <ControllersProvider>
-                <QuestsProvider>
-                  <PricesProvider>
-                    <Router>
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/:gameId" element={<Game />} />
-                      </Routes>
-                    </Router>
-                  </PricesProvider>
-                </QuestsProvider>
-              </ControllersProvider>
+              <PracticeProvider>
+                <ControllersProvider>
+                  <QuestsProvider>
+                    <PricesProvider>
+                      <LoadingProvider>
+                        <Router
+                          future={{
+                            v7_startTransition: true,
+                            v7_relativeSplatPath: true,
+                          }}
+                        >
+                          <Layout>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/game" element={<Game />} />
+                              <Route path="/practice" element={<Game />} />
+                            </Routes>
+                          </Layout>
+                        </Router>
+                      </LoadingProvider>
+                    </PricesProvider>
+                  </QuestsProvider>
+                </ControllersProvider>
+              </PracticeProvider>
             </EntitiesProvider>
           </AudioProvider>
         </StarknetConfig>
       </QueryClientProvider>
-      <Toaster position="top-right" richColors />
+      <Toaster richColors />
     </>
   );
 }

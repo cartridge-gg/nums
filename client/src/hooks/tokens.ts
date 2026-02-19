@@ -4,6 +4,7 @@ import type {
   Subscription,
   TokenBalance,
   TokenContract,
+  TokenTransfer,
 } from "@dojoengine/torii-wasm";
 import { useAccount } from "@starknet-react/core";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,15 +30,19 @@ export function useTokenContracts(
 ) {
   const { client } = useEntities();
   const [contracts, setContracts] = useState<TokenContract[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const requestRef = useRef<
     (GetTokenRequest & { contractType?: ContractType }) | null
   >(null);
 
+  const subscriptionRef = useRef<Subscription | null>(null);
+
   const fetchTokens = useCallback(async () => {
-    if (!client) return;
+    if (!client || !request.contractAddresses) return;
     const contractType = request.contractType || "ERC20";
     const contractAddresses =
       request.contractAddresses?.map((i: string) => addAddressPadding(i)) || [];
+    if (contractAddresses.length === 0) return;
     const tokens = await client.getTokenContracts({
       contract_addresses: contractAddresses,
       contract_types: [contractType],
@@ -48,7 +53,31 @@ export function useTokenContracts(
         order_by: [],
       },
     });
+    // Subscribe to token transfer to update the token supply
+    const subscription = await client.onTokenTransferUpdated(
+      contractAddresses,
+      [],
+      [],
+      async (_data: TokenTransfer) => {
+        const tokens = await client.getTokenContracts({
+          contract_addresses: contractAddresses,
+          contract_types: [contractType],
+          pagination: {
+            cursor: undefined,
+            direction: "Backward",
+            limit: CONTRACT_LIMIT,
+            order_by: [],
+          },
+        });
+        setContracts(tokens.items);
+      },
+    );
+    if (subscriptionRef.current) {
+      subscriptionRef.current.cancel();
+    }
+    subscriptionRef.current = subscription;
     setContracts(tokens.items);
+    setLoading(false);
   }, [client, request]);
 
   const refetch = useCallback(async () => {
@@ -56,14 +85,15 @@ export function useTokenContracts(
   }, [fetchTokens]);
 
   useEffect(() => {
-    if (!equal(request, requestRef.current)) {
-      requestRef.current = request;
-      refetch();
-    }
-  }, [request, refetch]);
+    if (!client) return;
+    if (equal(request, requestRef.current)) return;
+    requestRef.current = request;
+    refetch();
+  }, [request, refetch, client]);
 
   return {
     contracts,
+    loading,
     refetch,
   };
 }
@@ -75,12 +105,13 @@ export function useTokens(
   const { account } = useAccount();
   const { client } = useEntities();
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
     null,
   );
   const subscriptionRef = useRef<Subscription | null>(null);
 
-  const { contracts } = useTokenContracts(request);
+  const { contracts, loading: contractsLoading } = useTokenContracts(request);
 
   const fetchBalances = useCallback(async () => {
     if (!requestRef.current || !client || !account) return;
@@ -119,19 +150,29 @@ export function useTokens(
     }
     subscriptionRef.current = subscription;
     setTokenBalances(balances.items);
-  }, [client, account, request.contractAddresses, request.accountAddresses]);
+    setLoading(false);
+  }, [
+    client,
+    account,
+    request.contractAddresses,
+    request.accountAddresses,
+    requestRef,
+  ]);
 
   useEffect(() => {
+    // Wait for contracts to load before fetching balances
     if (
+      contractsLoading ||
+      !account ||
       (request?.accountAddresses || []).length === 0 ||
       (contracts || []).length === 0
-    )
+    ) {
       return;
-    if (!equal(request, requestRef.current)) {
-      requestRef.current = request;
-      fetchBalances();
     }
-  }, [contracts, fetchBalances, request]);
+    if (equal(request, requestRef.current)) return;
+    requestRef.current = request;
+    fetchBalances();
+  }, [contracts, contractsLoading, fetchBalances, request, account]);
 
   const refetch = useCallback(async () => {
     fetchBalances();
@@ -140,6 +181,7 @@ export function useTokens(
   return {
     tokenContracts: contracts,
     tokenBalances,
+    loading: loading || contractsLoading,
     refetch,
   };
 }

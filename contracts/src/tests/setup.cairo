@@ -69,7 +69,7 @@ pub mod setup {
                 TestResource::Model(quest_models::m_QuestAssociation::TEST_CLASS_HASH),
                 TestResource::Model(quest_models::m_QuestCondition::TEST_CLASS_HASH),
                 TestResource::Model(quest_models::m_QuestAdvancement::TEST_CLASS_HASH),
-                TestResource::Event(events::e_Reward::TEST_CLASS_HASH),
+                TestResource::Event(events::e_Purchase::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_TrophyCreation::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_TrophyProgression::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_AchievementCompleted::TEST_CLASS_HASH),

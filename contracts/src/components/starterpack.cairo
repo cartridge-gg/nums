@@ -9,6 +9,11 @@ pub mod StarterpackComponent {
     use crate::models::starterpack::{StarterpackAssert, StarterpackTrait};
     use crate::{StoreImpl, StoreTrait};
 
+    // Constants
+
+    pub const MULTIPLIER: u256 = 100000;
+    pub const STARTERPACK_COUNT: u8 = 10;
+
     // Storage
 
     #[storage]
@@ -28,65 +33,42 @@ pub mod StarterpackComponent {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
             let config = store.config();
-            // [Interaction] Register starterpack
+            // [Effect] Register and store all starterpacks
             let starterpack_disp = store.starterpack_disp();
             let nums_address = store.nums_disp().contract_address;
             let payment_token = store.quote_disp().contract_address;
             let reissuable = true;
             let referral_percentage = 0;
-            let price = config.entry_price.into();
-            let default_id = starterpack_disp
-                .register(
-                    implementation: starknet::get_contract_address(),
-                    referral_percentage: 0,
+            let base_price = config.entry_price.into();
+            for index in 0..STARTERPACK_COUNT {
+                // [Interaction] Register starterpack
+                let multiplier: u8 = index + 1;
+                let stake: u256 = multiplier.into();
+                let price = stake
+                    * base_price
+                    * (MULTIPLIER - stake * MULTIPLIER / 100)
+                    / MULTIPLIER;
+                let starterpack_id = starterpack_disp
+                    .register(
+                        implementation: starknet::get_contract_address(),
+                        referral_percentage: 0,
+                        reissuable: reissuable,
+                        price: price,
+                        payment_token: payment_token,
+                        payment_receiver: None,
+                        metadata: StarterpackTrait::metadata(nums_address, multiplier),
+                    );
+                // [Effect] Create starterpack
+                let pack = StarterpackTrait::new(
+                    id: starterpack_id,
                     reissuable: reissuable,
-                    price: price,
-                    payment_token: payment_token,
-                    payment_receiver: None,
-                    metadata: StarterpackTrait::metadata(nums_address),
-                );
-            // [Effect] Create default starterpack
-            let default = StarterpackTrait::new(
-                default_id, reissuable, referral_percentage, price, payment_token,
-            );
-            store.set_starterpack(@default);
-        }
-
-        fn register(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            payment_token: starknet::ContractAddress,
-            reissuable: bool,
-            referral_percentage: u8,
-            price: u256,
-        ) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
-            // [Check] Caller is allowed
-            let config = store.config();
-            let caller = starknet::get_caller_address();
-            config.assert_is_owner(caller);
-
-            // [Interaction] Register starterpack
-            let nums_address = store.nums_disp().contract_address;
-            let starterpack_id = store
-                .starterpack_disp()
-                .register(
-                    implementation: starknet::get_contract_address(),
                     referral_percentage: referral_percentage,
-                    reissuable: reissuable,
                     price: price,
                     payment_token: payment_token,
-                    payment_receiver: None,
-                    metadata: StarterpackTrait::metadata(nums_address),
+                    multiplier: multiplier,
                 );
-
-            // [Effect] Create starterpack
-            let starterpack = StarterpackTrait::new(
-                starterpack_id, reissuable, referral_percentage, price, payment_token,
-            );
-            store.set_starterpack(@starterpack);
+                store.set_starterpack(@pack);
+            };
         }
 
         fn update(
@@ -138,13 +120,16 @@ pub mod StarterpackComponent {
             store.config().assert_is_owner(starknet::get_caller_address());
 
             // [Check] Starterpack does exist
-            store.starterpack(starterpack_id).assert_does_exist();
+            let pack = store.starterpack(starterpack_id);
+            pack.assert_does_exist();
 
             // [Interaction] Update metadata
             let nums_address = store.nums_disp().contract_address;
             let starterpack_disp = store.starterpack_disp();
             starterpack_disp
-                .update_metadata(starterpack_id, StarterpackTrait::metadata(nums_address));
+                .update_metadata(
+                    starterpack_id, StarterpackTrait::metadata(nums_address, pack.multiplier),
+                );
         }
 
         fn remove(

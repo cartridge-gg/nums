@@ -20,8 +20,6 @@ type Story = StoryObj<typeof meta>;
 
 const states: Array<StageState> = [
   {},
-  {},
-  {},
   { gem: true },
   {},
   {},
@@ -47,8 +45,22 @@ export const Default: Story = {
   },
 };
 
+export const Over: Story = {
+  args: {
+    states,
+    variant: "over",
+  },
+};
+
 export const Completed: Story = {
   args: {
     states: states.map((state) => ({ ...state, completed: true })),
+  },
+};
+
+export const OverCompleted: Story = {
+  args: {
+    states: states.map((state) => ({ ...state, completed: true })),
+    variant: "over",
   },
 };

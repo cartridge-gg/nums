@@ -1,13 +1,18 @@
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 import { useQuery } from "@tanstack/react-query";
-import type { LeaderboardRowProps } from "@/components/elements/leaderboard-row";
 
 export interface LeaderboardRowData {
   username: string;
   player: string;
   games_played: number;
+  games_played_day: number | null;
+  games_played_week: number | null;
   average_score: number;
+  average_score_day: number | null;
+  average_score_week: number | null;
 }
+
+export type RangeType = "1D" | "1W" | "All";
 
 const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
   const url = `${dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl}/sql`;
@@ -20,13 +25,24 @@ const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
     c.username,
     g.player,
     COUNT(*) AS games_played,
+    SUM(CASE WHEN date(g.internal_executed_at) = date('now') THEN 1 ELSE 0 END) AS games_played_day,
+    AVG(CASE WHEN date(g.internal_executed_at) = date('now') THEN 
+        (CASE substr(lower(g.score), -2, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -2, 1) AS INT) END * 16) +
+        (CASE substr(lower(g.score), -1, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -1, 1) AS INT) END)
+    END) AS average_score_day,
+    SUM(CASE WHEN strftime('%Y-%W', g.internal_executed_at) = strftime('%Y-%W', 'now') THEN 1 ELSE 0 END) AS games_played_week,
+    AVG(CASE WHEN strftime('%Y-%W', g.internal_executed_at) = strftime('%Y-%W', 'now') THEN 
+        (CASE substr(lower(g.score), -2, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -2, 1) AS INT) END * 16) +
+        (CASE substr(lower(g.score), -1, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -1, 1) AS INT) END)
+    END) AS average_score_week,
     AVG(
         (CASE substr(lower(g.score), -2, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -2, 1) AS INT) END * 16) +
         (CASE substr(lower(g.score), -1, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(substr(g.score, -1, 1) AS INT) END)
     ) AS average_score
+
 FROM "NUMS-LeaderboardScore" as g
 JOIN controllers as c ON c.address = g.player
-GROUP BY player
+GROUP BY g.player
 ORDER BY average_score DESC;`;
 
   let data: any;
@@ -74,7 +90,15 @@ ORDER BY average_score DESC;`;
       username: row.username || "",
       player: row.player || "",
       games_played: Number(row.games_played) || 0,
+      games_played_day:
+        row.games_played_day != null ? Number(row.games_played_day) : null,
+      games_played_week:
+        row.games_played_week != null ? Number(row.games_played_week) : null,
       average_score: Number(row.average_score) || 0,
+      average_score_day:
+        row.average_score_day != null ? Number(row.average_score_day) : null,
+      average_score_week:
+        row.average_score_week != null ? Number(row.average_score_week) : null,
     }));
   }
   // Format 2: Object with rows array
@@ -83,7 +107,15 @@ ORDER BY average_score DESC;`;
       username: row.username || "",
       player: row.player || "",
       games_played: Number(row.games_played) || 0,
+      games_played_day:
+        row.games_played_day != null ? Number(row.games_played_day) : null,
+      games_played_week:
+        row.games_played_week != null ? Number(row.games_played_week) : null,
       average_score: Number(row.average_score) || 0,
+      average_score_day:
+        row.average_score_day != null ? Number(row.average_score_day) : null,
+      average_score_week:
+        row.average_score_week != null ? Number(row.average_score_week) : null,
     }));
   }
   // Format 3: Object with data property
@@ -92,44 +124,23 @@ ORDER BY average_score DESC;`;
       username: row.username || "",
       player: row.player || "",
       games_played: Number(row.games_played) || 0,
+      games_played_day:
+        row.games_played_day != null ? Number(row.games_played_day) : null,
+      games_played_week:
+        row.games_played_week != null ? Number(row.games_played_week) : null,
       average_score: Number(row.average_score) || 0,
+      average_score_day:
+        row.average_score_day != null ? Number(row.average_score_day) : null,
+      average_score_week:
+        row.average_score_week != null ? Number(row.average_score_week) : null,
     }));
   }
 
   return rows;
 };
 
-const compareAddresses = (address1: string, address2: string): boolean => {
-  if (!address1 || !address2) return false;
-
-  try {
-    // Normalize addresses: ensure they start with 0x and convert to lowercase
-    const normalizeAddress = (addr: string): string => {
-      const cleaned = addr.trim().toLowerCase();
-      return cleaned.startsWith("0x") ? cleaned : `0x${cleaned}`;
-    };
-
-    const normalized1 = normalizeAddress(address1);
-    const normalized2 = normalizeAddress(address2);
-
-    // Compare as BigInt for exact match
-    const addr1 = BigInt(normalized1);
-    const addr2 = BigInt(normalized2);
-    return addr1 === addr2;
-  } catch {
-    // If conversion fails, compare as normalized strings
-    const normalizeAddress = (addr: string): string => {
-      const cleaned = addr.trim().toLowerCase();
-      return cleaned.startsWith("0x") ? cleaned : `0x${cleaned}`;
-    };
-    return normalizeAddress(address1) === normalizeAddress(address2);
-  }
-};
-
-export const useLeaderboard = (
-  currentUserAddress: string | undefined,
-): {
-  data: LeaderboardRowProps[] | undefined;
+export const useLeaderboard = (): {
+  data: LeaderboardRowData[] | undefined;
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
@@ -142,22 +153,8 @@ export const useLeaderboard = (
     refetchOnWindowFocus: false,
   });
 
-  // Transform data to LeaderboardRowProps with variant based on current user
-  const transformedData = query.data?.map((row, index) => {
-    const isCurrentUser =
-      currentUserAddress && compareAddresses(row.player, currentUserAddress);
-
-    return {
-      rank: index + 1,
-      username: row.username,
-      total: row.games_played,
-      score: row.average_score,
-      variant: (isCurrentUser ? "primary" : "default") as "primary" | "default",
-    } satisfies LeaderboardRowProps;
-  });
-
   return {
-    data: transformedData,
+    data: query.data,
     isLoading: query.isLoading,
     error: query.error as Error | null,
     refetch: query.refetch,

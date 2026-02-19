@@ -4,7 +4,13 @@ import { useMediaQuery } from "usehooks-ts";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = ({ position, toastOptions, offset, mobileOffset, ...props }: ToasterProps) => {
+const Toaster = ({
+  position,
+  toastOptions,
+  offset,
+  mobileOffset,
+  ...props
+}: ToasterProps) => {
   const { theme } = useTheme();
   const isMobile = useMediaQuery("(max-width: 768px)");
 

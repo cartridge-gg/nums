@@ -28,7 +28,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find } = useControllers();
   const headerData = useHeader();
-  
+
   // Social toaster hook to display toast notifications for social events
   useSocialToaster();
   const {

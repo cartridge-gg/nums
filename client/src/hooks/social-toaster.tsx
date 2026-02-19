@@ -1,11 +1,17 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useEntities } from "@/context/entities";
-import { ToastAction, ToastDescription, ToastTitle } from "@/components/elements";
+import {
+  ToastAction,
+  ToastDescription,
+  ToastTitle,
+} from "@/components/elements";
 import { Started, Claimed } from "@/models";
 import { useControllers } from "@/context/controllers";
 import { getChecksumAddress } from "starknet";
 import { Controller } from "@dojoengine/torii-wasm";
+import { useMediaQuery } from "usehooks-ts";
+import { useAccount } from "@starknet-react/core";
 
 const getUsername = (result: Controller | undefined, player: string) => {
   const address = getChecksumAddress(player);
@@ -17,22 +23,25 @@ const getUsername = (result: Controller | undefined, player: string) => {
  * Tracks already-toasted events to avoid duplicates
  */
 export const useSocialToaster = () => {
+  const { address } = useAccount();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const { find } = useControllers();
   const { starteds, purchaseds: _purchaseds, claimeds } = useEntities();
   const toastedRef = useRef<Set<string>>(new Set());
 
   // Handle Started events
   useEffect(() => {
-    if (!starteds || starteds.length === 0) return;
+    if (!starteds || starteds.length === 0 || isMobile) return;
 
     starteds.forEach((event) => {
       const id = Started.getId(event);
-      
+
       // Skip if already toasted
       if (toastedRef.current.has(id)) return;
-
       // Mark as toasted
       toastedRef.current.add(id);
+      // Skip if the player is the same as the current account
+      if (BigInt(event.player_id) === BigInt(address || "0x0")) return;
 
       // Emit toast
       toast(
@@ -45,7 +54,7 @@ export const useSocialToaster = () => {
         },
       );
     });
-  }, [starteds, find]);
+  }, [address, isMobile, starteds, find]);
 
   // TODO: Handle Purchased events
   // useEffect(() => {
@@ -54,16 +63,16 @@ export const useSocialToaster = () => {
   // }, [purchaseds]);
 
   useEffect(() => {
-    if (!claimeds || claimeds.length === 0) return;
+    if (!claimeds || claimeds.length === 0 || isMobile) return;
 
     claimeds.forEach((event) => {
       const id = Claimed.getId(event);
-      
       // Skip if already toasted
       if (toastedRef.current.has(id)) return;
-
       // Mark as toasted
       toastedRef.current.add(id);
+      // Skip if the player is the same as the current account
+      if (BigInt(event.player_id) === BigInt(address || "0x0")) return;
 
       // Emit toast
       toast(
@@ -76,5 +85,5 @@ export const useSocialToaster = () => {
         },
       );
     });
-  }, [claimeds]);
+  }, [address, isMobile, claimeds, find]);
 };

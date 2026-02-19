@@ -43,7 +43,11 @@ export class Claimed {
   static dedupe(claimeds: Claimed[]): Claimed[] {
     return claimeds.filter(
       (claimed, index, self) =>
-        index === self.findIndex((t) => t.player_id === claimed.player_id && t.game_id === claimed.game_id),
+        index ===
+        self.findIndex(
+          (t) =>
+            t.player_id === claimed.player_id && t.game_id === claimed.game_id,
+        ),
     );
   }
 

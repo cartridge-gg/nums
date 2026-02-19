@@ -47,7 +47,11 @@ export class Purchased {
   static dedupe(purchaseds: Purchased[]): Purchased[] {
     return purchaseds.filter(
       (purchased, index, self) =>
-        index === self.findIndex((t) => t.player_id === purchased.player_id && t.time === purchased.time),
+        index ===
+        self.findIndex(
+          (t) =>
+            t.player_id === purchased.player_id && t.time === purchased.time,
+        ),
     );
   }
 

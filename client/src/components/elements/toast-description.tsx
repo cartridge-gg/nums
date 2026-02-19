@@ -33,9 +33,8 @@ export const ToastDescription = ({
   className,
   ...props
 }: ToastDescriptionProps) => {
-
   if (!!multiplier) {
-  const color = getColor(multiplier);
+    const color = getColor(multiplier);
     return (
       <div
         className={cn(toastDescriptionVariants({ variant, className }))}
@@ -62,9 +61,9 @@ export const ToastDescription = ({
       >
         <p>earned</p>
         <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded -translate-y-0.5">
-          <strong
-            className="text-[22px]/[15px] font-primary translate-y-0.5 text-green-100"
-          >{earnings.toLocaleString()}</strong>
+          <strong className="text-[22px]/[15px] font-primary translate-y-0.5 text-green-100">
+            {earnings.toLocaleString()}
+          </strong>
         </div>
         <p>NUMS</p>
       </div>

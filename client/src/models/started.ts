@@ -43,7 +43,11 @@ export class Started {
   static dedupe(starteds: Started[]): Started[] {
     return starteds.filter(
       (started, index, self) =>
-        index === self.findIndex((t) => t.player_id === started.player_id && t.game_id === started.game_id),
+        index ===
+        self.findIndex(
+          (t) =>
+            t.player_id === started.player_id && t.game_id === started.game_id,
+        ),
     );
   }
 

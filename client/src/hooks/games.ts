@@ -106,7 +106,7 @@ export const useGames = () => {
     if (!isConnected) {
       setLoading(false);
       return;
-    };
+    }
     refresh();
     return () => {
       if (subscriptionRef.current) {

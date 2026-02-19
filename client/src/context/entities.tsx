@@ -63,7 +63,11 @@ const getEventQuery = (namespace: string) => {
   const purchased: `${string}-${string}` = `${namespace}-${Purchased.getModelName()}`;
   const started: `${string}-${string}` = `${namespace}-${Started.getModelName()}`;
   const claimed: `${string}-${string}` = `${namespace}-${Claimed.getModelName()}`;
-  const clauses = new ClauseBuilder().keys([purchased, started, claimed], [], "VariableLen");
+  const clauses = new ClauseBuilder().keys(
+    [purchased, started, claimed],
+    [],
+    "VariableLen",
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys();

@@ -23,6 +23,7 @@ import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { ChartHelper, Verifier } from "@/helpers";
+import { LoadingScene } from "@/components/scenes";
 
 export const Game = () => {
   const location = useLocation();
@@ -58,6 +59,7 @@ export const Game = () => {
     null,
   );
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [defaultLoading, setDefaultLoading] = useState(true);
 
   // Get game ID from search params (only in blockchain mode)
   const gameId = useMemo(() => {
@@ -76,7 +78,7 @@ export const Game = () => {
   const practiceInitializedRef = useRef(false);
 
   // Create a new practice game if none exists when entering practice mode
-  // (Game is already cleared and created in home.page when clicking Practice button)
+  // (Game is already cleared and created in home when clicking Practice button)
   useEffect(() => {
     if (!isPracticeMode) {
       // Reset flag when leaving practice mode
@@ -422,18 +424,14 @@ export const Game = () => {
     setShowPurchaseModal(false);
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setDefaultLoading(false);
+    }, 3000);
+  }, []);
+
   // Show loading state if game is not loaded
-  if (!game) {
-    return (
-      <div className="text-white-100 text-xl">
-        {isPracticeMode
-          ? "Initializing practice game..."
-          : !gameId
-            ? "Game ID not found"
-            : "Loading game..."}
-      </div>
-    );
-  }
+  if (!game || defaultLoading) return <LoadingScene />;
 
   return (
     <>

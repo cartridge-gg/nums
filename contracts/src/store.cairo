@@ -5,7 +5,9 @@ use ekubo::components::clear::IClearDispatcher;
 use ekubo::interfaces::erc20::IERC20Dispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
-use crate::events::purchase::PurchaseTrait;
+use crate::events::claimed::ClaimedTrait;
+use crate::events::purchased::PurchasedTrait;
+use crate::events::started::StartedTrait;
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
@@ -98,12 +100,22 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(starterpack)
     }
 
-    // Purchase
+    // Events
 
-    fn purchase(
+    fn claimed(mut self: Store, player_id: felt252, game_id: u64, reward: u64) {
+        let event = ClaimedTrait::new(player_id, game_id, reward);
+        self.world.emit_event(@event);
+    }
+
+    fn purchased(
         mut self: Store, player_id: felt252, starterpack_id: u32, quantity: u32, multiplier: u8,
     ) {
-        let event = PurchaseTrait::new(player_id, starterpack_id, quantity, multiplier);
+        let event = PurchasedTrait::new(player_id, starterpack_id, quantity, multiplier);
+        self.world.emit_event(@event);
+    }
+
+    fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u8) {
+        let event = StartedTrait::new(player_id, game_id, multiplier);
         self.world.emit_event(@event);
     }
 }

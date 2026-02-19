@@ -58,7 +58,7 @@
     },
     {
       "address": "0x4bf65b482e1225a866fe99297ecabb49ff44d3d7441584490d0c1e4d5a1f423",
-      "class_hash": "0x3ff9da73de8ba595a6c7750dd14d867673fbbe775364c65576c9636d39711b5",
+      "class_hash": "0x1c55cd6484adc0bb80e2327e962a8d327472cf91da3aaeee735f6ae4de75591",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -618,6 +618,33 @@
     {
       "members": [
         {
+          "name": "player_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "reward",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0xab9290056d936572b75c7678662dc49e98595e5dbf8efd75dea165368a5070",
+      "tag": "NUMS-Claimed",
+      "selector": "0x435f3e547dd2e4e812b2862f076fb70a43e80f47ed541a3b38572b8e4e41266"
+    },
+    {
+      "members": [
+        {
           "name": "leaderboard_id",
           "type": "core::felt252",
           "key": true
@@ -675,9 +702,9 @@
           "key": false
         }
       ],
-      "class_hash": "0x1d5178b8d0f28e6e6c7beeaf34cb9b0079f828e661cad4b43f87a7b8adfd076",
-      "tag": "NUMS-Purchase",
-      "selector": "0x23f680224c403c46076a729a81b2f35278b5d02f6184d37e648f897593e37c7"
+      "class_hash": "0x659c2b50b8ea6af6d400fb817f0bfa362c9365d8e1d89fdb99f93b4169264c2",
+      "tag": "NUMS-Purchased",
+      "selector": "0x4548a97c0c84652297219dfcdf73a0a75f8c9e4f1d9e284a9db101ec63f1c96"
     },
     {
       "members": [
@@ -808,6 +835,33 @@
       "class_hash": "0x4323e58925dd9a9d34b95a5051f39876ed0ad489ec9288e326c8920a2b89f2",
       "tag": "NUMS-QuestUnlocked",
       "selector": "0x429873f72ed812577ccc849f659e2ced72baa11056deff6e4d146c5b8381e53"
+    },
+    {
+      "members": [
+        {
+          "name": "player_id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x54714c3111266f623f209d3ca61f13a4c62cd7b41b88b2fde69ea5535f4287b",
+      "tag": "NUMS-Started",
+      "selector": "0x60e0b96ac0ce6e63a3bfa2b2352e24833bc26d7691e61429d060c037ecfe889"
     },
     {
       "members": [
@@ -3398,7 +3452,43 @@
     },
     {
       "type": "struct",
-      "name": "nums::events::index::Purchase",
+      "name": "nums::events::index::Claimed",
+      "members": [
+        {
+          "name": "player_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "reward",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "nums::events::index::ClaimedValue",
+      "members": [
+        {
+          "name": "reward",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "nums::events::index::Purchased",
       "members": [
         {
           "name": "player_id",
@@ -3424,7 +3514,7 @@
     },
     {
       "type": "struct",
-      "name": "nums::events::index::PurchaseValue",
+      "name": "nums::events::index::PurchasedValue",
       "members": [
         {
           "name": "starterpack_id",
@@ -3445,8 +3535,56 @@
       ]
     },
     {
+      "type": "struct",
+      "name": "nums::events::index::Started",
+      "members": [
+        {
+          "name": "player_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "nums::events::index::StartedValue",
+      "members": [
+        {
+          "name": "multiplier",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
       "type": "event",
-      "name": "nums::events::index::e_Purchase::Event",
+      "name": "nums::events::index::e_Claimed::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "nums::events::index::e_Purchased::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "nums::events::index::e_Started::Event",
       "kind": "enum",
       "variants": []
     },

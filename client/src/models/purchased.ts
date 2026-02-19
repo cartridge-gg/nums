@@ -1,8 +1,8 @@
-import type { RawPurchase } from "@/models";
+import type { RawPurchased } from "@/models";
 
-const MODEL_NAME = "Purchase";
+const MODEL_NAME = "Purchased";
 
-export class Purchase {
+export class Purchased {
   type = MODEL_NAME;
 
   constructor(
@@ -23,11 +23,11 @@ export class Purchase {
     return MODEL_NAME;
   }
 
-  static from(data: RawPurchase): Purchase {
-    return Purchase.parse(data);
+  static from(data: RawPurchased): Purchased {
+    return Purchased.parse(data);
   }
 
-  static parse(data: RawPurchase) {
+  static parse(data: RawPurchased) {
     const props = {
       player_id: data.player_id.value,
       starterpack_id: Number(data.starterpack_id.value),
@@ -35,12 +35,27 @@ export class Purchase {
       multiplier: Number(data.multiplier.value),
       time: Number(data.time.value),
     };
-    return new Purchase(
+    return new Purchased(
       props.player_id,
       props.starterpack_id,
       props.quantity,
       props.multiplier,
       props.time,
     );
+  }
+
+  static dedupe(purchaseds: Purchased[]): Purchased[] {
+    return purchaseds.filter(
+      (purchased, index, self) =>
+        index ===
+        self.findIndex(
+          (t) =>
+            t.player_id === purchased.player_id && t.time === purchased.time,
+        ),
+    );
+  }
+
+  static getId(purchased: Purchased): string {
+    return `${purchased.player_id}-${purchased.starterpack_id}-${purchased.time}`;
   }
 }

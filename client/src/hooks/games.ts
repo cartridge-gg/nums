@@ -11,6 +11,7 @@ import { Game } from "@/models/game";
 import { useEntities } from "@/context/entities";
 import type { RawGame } from "@/models";
 import { useAssets } from "@/hooks/assets";
+import { useAccount } from "@starknet-react/core";
 
 const ENTITIES_LIMIT = 10_000;
 
@@ -32,6 +33,7 @@ const getGamesQuery = (gameIds: number[]) => {
 };
 
 export const useGames = () => {
+  const { isConnected } = useAccount();
   const { client } = useEntities();
   const { gameIds, isLoading: assetsLoading } = useAssets();
 
@@ -78,6 +80,7 @@ export const useGames = () => {
     if (assetsLoading) return;
     if (gameIds.length === 0 || !client) return;
     // Cancel existing subscriptions
+    setLoading(true);
     subscriptionRef.current = null;
 
     // Create queries
@@ -95,18 +98,22 @@ export const useGames = () => {
       .onEntityUpdated(query.build().clause, [], onUpdate)
       .then((response) => {
         subscriptionRef.current = response;
+        setLoading(false);
       });
-    setLoading(false);
-  }, [client, gameIdsKey, onUpdate, assetsLoading, gameIds]);
+  }, [client, gameIdsKey, onUpdate, assetsLoading, gameIds, setLoading]);
 
   useEffect(() => {
+    if (!isConnected) {
+      setLoading(false);
+      return;
+    }
     refresh();
     return () => {
       if (subscriptionRef.current) {
         subscriptionRef.current.cancel();
       }
     };
-  }, [gameIdsKey, refresh]);
+  }, [gameIdsKey, refresh, isConnected, setLoading]);
 
   return {
     games,

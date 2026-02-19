@@ -1,7 +1,9 @@
 export { Config } from "./config";
 export { Game } from "./game";
 export { Starterpack } from "./starterpack";
-export { Purchase } from "./purchase";
+export { Purchased } from "./purchased";
+export { Claimed } from "./claimed";
+export { Started } from "./started";
 export {
   AchievementDefinition,
   AchievementCompletion,
@@ -263,7 +265,7 @@ export interface RawGame {
   };
 }
 
-export interface RawPurchase {
+export interface RawPurchased {
   player_id: {
     type: "primitive";
     type_name: "felt252";
@@ -285,6 +287,60 @@ export interface RawPurchase {
   multiplier: {
     type: "primitive";
     type_name: "u8";
+    value: string;
+    key: boolean;
+  };
+  time: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+}
+
+export interface RawStarted {
+  player_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  game_id: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  multiplier: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
+  time: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+}
+
+export interface RawClaimed {
+  player_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  game_id: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  reward: {
+    type: "primitive";
+    type_name: "u64";
     value: string;
     key: boolean;
   };

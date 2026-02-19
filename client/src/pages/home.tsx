@@ -9,10 +9,13 @@ import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
 import { LoadingScene } from "@/components/scenes";
+import { useControllers } from "@/context/controllers";
+import { Events } from "@/components/containers";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { config, starterpacks } = useEntities();
+  const { find } = useControllers();
+  const { config, starterpacks, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games, loading } = useGames();
@@ -119,15 +122,32 @@ export const Home = () => {
     navigate("/practice");
   }, [navigate, clearGame, startPractice, currentSupply]);
 
+  const events = useMemo(() => {
+    return [
+      ...claimeds.map((claimed) => claimed.getEvent()),
+      ...starteds.map((started) => started.getEvent()),
+    ]
+      .map((event) => ({
+        ...event,
+        username: find(event.username)?.username || event.username,
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 10);
+  }, [claimeds, starteds, find]);
+
   if (loading) return <LoadingScene />;
 
   return (
-    <HomeScene
-      gameId={gameId}
-      gamesProps={gamesProps}
-      activitiesProps={{ activities }}
-      onPurchase={handlePurchaseClick}
-      onPractice={handlePracticeClick}
-    />
+    <div className="relative h-full w-full flex flex-col">
+      <Events events={events} />
+      <HomeScene
+        className="md:px-16 md:py-12 self-center"
+        gameId={gameId}
+        gamesProps={gamesProps}
+        activitiesProps={{ activities }}
+        onPurchase={handlePurchaseClick}
+        onPractice={handlePracticeClick}
+      />
+    </div>
   );
 };

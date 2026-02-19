@@ -1,6 +1,5 @@
 import { Toaster as Sonner } from "sonner";
 import { useTheme } from "next-themes";
-import { useMediaQuery } from "usehooks-ts";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
@@ -12,7 +11,6 @@ const Toaster = ({
   ...props
 }: ToasterProps) => {
   const { theme } = useTheme();
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Header height: mobile = 64px (min-h-16), desktop = 96px (md:min-h-24)
   // Add 24px offset on top of header height
@@ -22,7 +20,7 @@ const Toaster = ({
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      position={position || (isMobile ? "top-center" : "top-left")}
+      position="top-left"
       offset={offset || defaultOffset}
       mobileOffset={mobileOffset || defaultMobileOffset}
       toastOptions={{

@@ -141,21 +141,33 @@ export function EntitiesProvider({
             `${NAMESPACE}-${Purchased.getModelName()}`
           ] as unknown as RawPurchased;
           const parsed = Purchased.parse(model);
-          setPurchaseds((prev) => Purchased.dedupe([...(prev || []), parsed]));
+          setPurchaseds((prev) =>
+            Purchased.dedupe(
+              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+            ).slice(0, 10),
+          );
         }
         if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${Started.getModelName()}`
           ] as unknown as RawStarted;
           const parsed = Started.parse(model);
-          setStarteds((prev) => Started.dedupe([...(prev || []), parsed]));
+          setStarteds((prev) =>
+            Started.dedupe(
+              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+            ).slice(0, 10),
+          );
         }
         if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${Claimed.getModelName()}`
           ] as unknown as RawClaimed;
           const parsed = Claimed.parse(model);
-          setClaimeds((prev) => Claimed.dedupe([...(prev || []), parsed]));
+          setClaimeds((prev) =>
+            Claimed.dedupe(
+              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+            ).slice(0, 10),
+          );
         }
       });
     },
@@ -184,6 +196,13 @@ export function EntitiesProvider({
         .getEntities(entityQuery.build())
         .then((result) =>
           onEntityUpdate({ data: result.items, error: undefined }),
+        ),
+    ]);
+    await Promise.all([
+      client
+        .getEventMessages(eventQuery.build())
+        .then((result) =>
+          onEventUpdate({ data: result.items, error: undefined }),
         ),
     ]);
 

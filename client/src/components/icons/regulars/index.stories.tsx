@@ -50,6 +50,7 @@ const regularIcons = [
   { name: "SpinnerPxIcon", component: Icons.SpinnerPxIcon },
   { name: "StarIcon", component: Icons.StarIcon },
   { name: "TimerIcon", component: Icons.TimerIcon },
+  { name: "TrophyUsedIcon", component: Icons.TrophyUsedIcon },
 ] as const;
 
 export const Default: Story = {

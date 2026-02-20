@@ -14,8 +14,8 @@ const Toaster = ({
 
   // Header height: mobile = 64px (min-h-16), desktop = 96px (md:min-h-24)
   // Add 24px offset on top of header height
-  const defaultOffset = { top: 152 }; // 96px (header) + 32px (events) + 24px
-  const defaultMobileOffset = { top: 120 }; // 64px (header) + 32px (events) + 24px
+  const defaultOffset = { top: 144, left: 16, right: 16 }; // 96px (header) + 32px (events) + 12px
+  const defaultMobileOffset = { top: 104 }; // 64px (header) + 32px (events) + 8px
 
   return (
     <Sonner
@@ -23,6 +23,7 @@ const Toaster = ({
       position={position}
       offset={offset || defaultOffset}
       mobileOffset={mobileOffset || defaultMobileOffset}
+      swipeDirections={["top", "right", "left"]}
       toastOptions={{
         classNames: {
           toast:

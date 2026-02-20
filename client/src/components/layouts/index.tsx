@@ -296,7 +296,7 @@ export const Layout = ({ children }: LayoutProps) => {
           </div>
         )}
       </div>
-      <Toaster />
+      <Toaster expand />
     </div>
   );
 };

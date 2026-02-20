@@ -177,7 +177,7 @@ export const useToasters = () => {
             title: achievement.title,
           }}
           descriptionProps={{
-            reward: `Achievement Completed [${achievement.points}]`,
+            points: achievement.points,
           }}
           thumbnailProps={{
             type: "achievement",

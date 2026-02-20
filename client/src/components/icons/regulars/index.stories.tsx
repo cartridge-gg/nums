@@ -48,6 +48,7 @@ const regularIcons = [
   { name: "SignOutIcon", component: Icons.SignOutIcon },
   { name: "SpinnerIcon", component: Icons.SpinnerIcon },
   { name: "SpinnerPxIcon", component: Icons.SpinnerPxIcon },
+  { name: "SparklesIcon", component: Icons.SparklesIcon },
   { name: "StarIcon", component: Icons.StarIcon },
   { name: "TimerIcon", component: Icons.TimerIcon },
   { name: "TrophyUsedIcon", component: Icons.TrophyUsedIcon },

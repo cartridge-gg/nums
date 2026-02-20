@@ -56,13 +56,18 @@ export class Started {
     return `${started.player_id}-${started.game_id}`;
   }
 
+  hasExpired(): boolean {
+    // Event expires in 30 seconds
+    return this.time + 30 < Math.floor(Date.now() / 1000);
+  }
+
   getEvent(): EventProps {
     return {
       username: this.player_id,
       multiplier: this.multiplier,
       earning: undefined,
       timestamp: this.time,
-      key: Started.getId(this),
+      id: Started.getId(this),
     };
   }
 }

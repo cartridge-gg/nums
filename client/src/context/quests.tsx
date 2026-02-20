@@ -52,6 +52,7 @@ export type Quests = {
 
 interface QuestsContextType {
   quests: Quests[];
+  claimeds: { event: QuestClaimed; quest: QuestCreation }[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 }
@@ -95,9 +96,9 @@ const getPlayerEntityQuery = (NAMESPACE: string, playerId: string) => {
 const getPlayerEventQuery = (NAMESPACE: string, playerId: string) => {
   // const unlocked: `${string}-${string}` = `${NAMESPACE}-${QuestUnlocked.getModelName()}`;
   // const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
-  const claimed: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
+  const claimeds: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
   const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys([claimed], [key], "VariableLen");
+  const clauses = new ClauseBuilder().keys([claimeds], [key], "VariableLen");
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys();
@@ -112,6 +113,9 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
   const [completions, setCompletions] = useState<QuestCompletion[]>([]);
   const [advancements, setAdvancements] = useState<QuestAdvancement[]>([]);
   const [creations, setCreations] = useState<QuestCreation[]>([]);
+  const [claimeds, setClaimeds] = useState<
+    { event: QuestClaimed; quest: QuestCreation }[]
+  >([]);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -181,12 +185,11 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
             (creation) => creation.definition.id === event.quest_id,
           );
           if (quest) {
-            // TODO: Setup toast here
-            console.log({
-              variant: "quest",
-              title: quest.metadata.name,
-              subtitle: "Quest claimed!",
-            });
+            setClaimeds((prev) =>
+              [{ event, quest }, ...prev].filter(
+                (item) => !item.event.hasExpired(),
+              ),
+            );
           }
         }
       });
@@ -328,6 +331,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
 
   const value: QuestsContextType = {
     quests,
+    claimeds,
     status,
     refresh,
   };

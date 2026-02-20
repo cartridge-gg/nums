@@ -56,13 +56,18 @@ export class Claimed {
     return `${claimed.player_id}-${claimed.game_id}-${claimed.time}`;
   }
 
+  hasExpired(): boolean {
+    // Event expires in 30 seconds
+    return this.time + 30 < Math.floor(Date.now() / 1000);
+  }
+
   getEvent(): EventProps {
     return {
       username: this.player_id,
       multiplier: undefined,
       earning: this.reward,
       timestamp: this.time,
-      key: Claimed.getId(this),
+      id: Claimed.getId(this),
     };
   }
 }

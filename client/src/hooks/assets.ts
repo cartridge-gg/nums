@@ -1,9 +1,8 @@
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
 import { useMemo } from "react";
 import { addAddressPadding, num } from "starknet";
 import { useTokens } from "@/hooks/tokens";
 import { getCollectionAddress } from "@/config";
-import useChain from "./chain";
 
 /**
  * Hook to get player's game IDs via subscription to TokenBalances (ERC721)
@@ -13,7 +12,7 @@ import useChain from "./chain";
  */
 export const useAssets = () => {
   const { address } = useAccount();
-  const { chain } = useChain();
+  const { chain } = useNetwork();
   const collectionAddress = getCollectionAddress(chain.id);
 
   const { tokenBalances, loading: tokensLoading } = useTokens({

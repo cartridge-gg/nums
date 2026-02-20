@@ -1104,4 +1104,14 @@ export class QuestClaimed {
         ),
     );
   }
+
+  static getId(item: QuestClaimed): string {
+    return `${item.player_id}-${item.quest_id}-${item.interval_id}-${item.time}`;
+  }
+
+  hasExpired(): boolean {
+    // Event expires in 30 seconds
+    // return this.time + 30 < Math.floor(Date.now() / 1000);
+    return false;
+  }
 }

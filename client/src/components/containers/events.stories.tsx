@@ -32,91 +32,104 @@ const sampleEvents: EventProps[] = [
     username: "Bal7hazar",
     multiplier: 2,
     timestamp: 0,
-    key: "1",
+    id: "1",
   },
   {
     username: "Kitten",
     multiplier: 5,
     timestamp: 0,
-    key: "2",
+    id: "2",
   },
   {
     username: "Jazz",
     earning: 1000,
     timestamp: 0,
-    key: "3",
+    id: "3",
   },
   {
     username: "Guitar",
     multiplier: 10,
     timestamp: 0,
-    key: "4",
+    id: "4",
   },
   {
     username: "Makino",
     earning: 2500,
     timestamp: 0,
-    key: "5",
+    id: "5",
   },
   {
     username: "Jacky",
     earning: 5000,
     timestamp: 0,
-    key: "6",
+    id: "6",
   },
   {
     username: "Liam",
     earning: 1,
     timestamp: 0,
-    key: "7",
+    id: "7",
   },
   {
     username: "Max",
     earning: 10,
     timestamp: 0,
-    key: "8",
+    id: "8",
   },
   {
     username: "Jill",
     earning: 25000,
     timestamp: 0,
-    key: "9",
+    id: "9",
   },
   {
     username: "Jack",
     earning: 30000,
     timestamp: 0,
-    key: "10",
+    id: "10",
   },
   {
     username: "Jill",
     earning: 25000,
     timestamp: 0,
-    key: "11",
+    id: "11",
   },
   {
     username: "Jack",
     earning: 30000,
     timestamp: 0,
-    key: "12",
+    id: "12",
   },
   {
     username: "Jill",
     earning: 25000,
     timestamp: 0,
-    key: "13",
+    id: "13",
   },
   {
     username: "Jack",
     earning: 30000,
     timestamp: 0,
-    key: "12",
+    id: "12",
   },
 ];
 
 export const Default: Story = {
   args: {
     events: sampleEvents,
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const Empty: Story = {
+  args: {
+    events: [],
   },
   decorators: [
     (Story) => (
@@ -137,7 +150,7 @@ const InteractiveEvents = () => {
       username: `User${eventCounterRef.current + 1}`,
       multiplier: Math.floor(Math.random() * 10) + 1,
       timestamp: Date.now(),
-      key: `new-${eventCounterRef.current + 1}`,
+      id: `new-${eventCounterRef.current + 1}`,
     };
     eventCounterRef.current += 1;
     setEvents((prev) => [newEvent, ...prev].slice(0, 10));

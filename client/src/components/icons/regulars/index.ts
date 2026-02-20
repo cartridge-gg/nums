@@ -25,6 +25,7 @@ export * from "./locker";
 export * from "./play";
 export * from "./plus";
 export * from "./quest";
+export * from "./quest.used";
 export * from "./refresh";
 export * from "./share";
 export * from "./sign-out";

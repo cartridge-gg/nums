@@ -1,3 +1,4 @@
+import { EventProps } from "@/components/elements";
 import type { RawPurchased } from "@/models";
 
 const MODEL_NAME = "Purchased";
@@ -57,5 +58,20 @@ export class Purchased {
 
   static getId(purchased: Purchased): string {
     return `${purchased.player_id}-${purchased.starterpack_id}-${purchased.time}`;
+  }
+
+  hasExpired(): boolean {
+    // Event expires in 30 seconds
+    return this.time + 30 < Math.floor(Date.now() / 1000);
+  }
+
+  getEvent(): EventProps {
+    return {
+      username: this.player_id,
+      multiplier: this.multiplier,
+      earning: undefined,
+      timestamp: this.time,
+      id: Purchased.getId(this),
+    };
   }
 }

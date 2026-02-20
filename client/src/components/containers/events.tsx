@@ -13,7 +13,7 @@ import Autoplay from "embla-carousel-autoplay";
 const eventsVariants = cva("relative overflow-hidden bg-black-300 py-1.5", {
   variants: {
     variant: {
-      default: "",
+      default: "h-8",
     },
   },
   defaultVariants: {
@@ -48,10 +48,6 @@ export const Events = ({
     api.scrollTo(0, false);
   }, [api, events]);
 
-  if (events.length === 0) {
-    return null;
-  }
-
   return (
     <div className={cn(eventsVariants({ variant, className }))} {...props}>
       <Carousel
@@ -68,7 +64,7 @@ export const Events = ({
         <CarouselContent className="-ml-0 items-center gap-4">
           {events.map((event, index) => (
             <CarouselItem
-              key={event.key}
+              key={event.id}
               className={cn(
                 "basis-auto px-2",
                 "before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-white-100 before:absolute before:left-[-10px] before:top-1/2 before:-translate-y-1/2 relative",

@@ -41,7 +41,7 @@ export const Multiplier: Story = {
     username: "Bal7hazar",
     multiplier: 2,
     timestamp: 0,
-    key: "multiplier",
+    id: "multiplier",
   },
 };
 
@@ -50,6 +50,6 @@ export const Earning: Story = {
     username: "Bal7hazar",
     earning: 286810,
     timestamp: 0,
-    key: "earning",
+    id: "earning",
   },
 };

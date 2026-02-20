@@ -9,18 +9,16 @@ import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
 import { LoadingScene } from "@/components/scenes";
-import { useControllers } from "@/context/controllers";
-import { Events } from "@/components/containers";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { find } = useControllers();
-  const { config, starterpacks, claimeds, starteds } = useEntities();
+  const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games, loading } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
+  const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const numsPrice = useMemo(() => {
@@ -122,32 +120,23 @@ export const Home = () => {
     navigate("/practice");
   }, [navigate, clearGame, startPractice, currentSupply]);
 
-  const events = useMemo(() => {
-    return [
-      ...claimeds.map((claimed) => claimed.getEvent()),
-      ...starteds.map((started) => started.getEvent()),
-    ]
-      .map((event) => ({
-        ...event,
-        username: find(event.username)?.username || event.username,
-      }))
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 10);
-  }, [claimeds, starteds, find]);
+  useEffect(() => {
+    setTimeout(() => {
+      setDefaultLoading(false);
+    }, 3000);
+  }, []);
 
-  if (loading) return <LoadingScene />;
+  // Show loading state if the page is still loading
+  if (loading || defaultLoading) return <LoadingScene />;
 
   return (
-    <div className="relative h-full w-full flex flex-col">
-      <Events events={events} />
-      <HomeScene
-        className="md:px-16 md:py-12 self-center"
-        gameId={gameId}
-        gamesProps={gamesProps}
-        activitiesProps={{ activities }}
-        onPurchase={handlePurchaseClick}
-        onPractice={handlePracticeClick}
-      />
-    </div>
+    <HomeScene
+      className="md:p-16"
+      gameId={gameId}
+      gamesProps={gamesProps}
+      activitiesProps={{ activities }}
+      onPurchase={handlePurchaseClick}
+      onPractice={handlePracticeClick}
+    />
   );
 };

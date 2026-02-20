@@ -17,6 +17,7 @@ type ControllersProviderState = {
   controllers?: Controller[];
   refresh: () => Promise<void>;
   find: (address: string) => Controller | undefined;
+  loading: boolean;
 };
 
 const ControllersProviderContext = createContext<
@@ -29,6 +30,7 @@ export function ControllersProvider({
 }: ControllersProviderProps) {
   const { client } = useEntities();
   const [controllers, setControllers] = useState<Controller[]>();
+  const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     if (!client) return;
@@ -44,6 +46,7 @@ export function ControllersProvider({
       },
     });
     setControllers(res.items as Controller[]);
+    setLoading(false);
   };
 
   const find = useCallback(
@@ -68,6 +71,7 @@ export function ControllersProvider({
         controllers: controllers ?? [],
         refresh,
         find,
+        loading,
       }}
     >
       {children}

@@ -33,7 +33,7 @@ const gameSceneVariants = cva(
         default: "",
       },
       size: {
-        md: "h-full md:w-[720px] mx-auto",
+        md: "h-full md:w-[720px] md:mx-auto",
       },
     },
     defaultVariants: {

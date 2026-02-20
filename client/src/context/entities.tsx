@@ -36,8 +36,11 @@ type EntitiesProviderState = {
   config?: Config;
   starterpacks: Starterpack[];
   purchaseds: Purchased[];
+  purchased: Purchased | undefined;
   starteds: Started[];
+  started: Started | undefined;
   claimeds: Claimed[];
+  claimed: Claimed | undefined;
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 };
@@ -85,6 +88,9 @@ export function EntitiesProvider({
   const [purchaseds, setPurchaseds] = useState<Purchased[]>([]);
   const [starteds, setStarteds] = useState<Started[]>([]);
   const [claimeds, setClaimeds] = useState<Claimed[]>([]);
+  const [purchased, setPurchased] = useState<Purchased>();
+  const [started, setStarted] = useState<Started>();
+  const [claimed, setClaimed] = useState<Claimed>();
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -146,6 +152,8 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
+          if (parsed.hasExpired()) return;
+          setPurchased(parsed);
         }
         if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
           const model = entity.models[
@@ -157,6 +165,8 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
+          if (parsed.hasExpired()) return;
+          setStarted(parsed);
         }
         if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
           const model = entity.models[
@@ -168,6 +178,8 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
+          if (parsed.hasExpired()) return;
+          setClaimed(parsed);
         }
       });
     },
@@ -216,7 +228,6 @@ export function EntitiesProvider({
     client
       .onEventMessageUpdated(eventQuery.build().clause, [], onEventUpdate)
       .then((response) => {
-        console.log("Event subscription", response);
         eventsSubscriptionRef.current = response;
       });
   }, [client, config, onEntityUpdate, onEventUpdate]);
@@ -250,8 +261,11 @@ export function EntitiesProvider({
     config,
     starterpacks,
     purchaseds,
+    purchased,
     starteds,
+    started,
     claimeds,
+    claimed,
     status,
     refresh,
   };

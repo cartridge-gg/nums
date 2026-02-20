@@ -7,8 +7,15 @@ import { getChecksumAddress } from "starknet";
 import { Controller } from "@dojoengine/torii-wasm";
 import { useMediaQuery } from "usehooks-ts";
 import { useAccount } from "@starknet-react/core";
-import { Claimed, Purchased, QuestClaimed, Started } from "@/models";
+import {
+  AchievementCompleted,
+  Claimed,
+  Purchased,
+  QuestClaimed,
+  Started,
+} from "@/models";
 import { useQuests } from "@/context/quests";
+import { useAchievements } from "@/context/achievements";
 
 const getUsername = (result: Controller | undefined, player: string) => {
   const address = getChecksumAddress(player);
@@ -25,6 +32,7 @@ export const useToasters = () => {
   const { find, loading } = useControllers();
   const { started, claimed, purchased } = useEntities();
   const { claimeds } = useQuests();
+  const { completeds } = useAchievements();
   const toastedRef = useRef<Set<string>>(new Set());
 
   // Handle Started events
@@ -140,6 +148,39 @@ export const useToasters = () => {
           }}
           thumbnailProps={{
             type: "quest",
+          }}
+        />,
+        {
+          position: isMobile ? "top-center" : "top-right",
+        },
+      );
+    });
+  }, [address, claimeds, loading, find, toastedRef]);
+
+  // Handle Achievement Completed events
+  useEffect(() => {
+    if (!completeds || loading) return;
+
+    completeds.forEach(({ event, achievement }) => {
+      if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
+
+      // Skip if already toasted
+      let id = AchievementCompleted.getId(event);
+      if (toastedRef.current.has(id)) return;
+      // Mark as toasted
+      toastedRef.current.add(id);
+
+      // Emit toast to player toaster
+      toast(
+        <Toast
+          titleProps={{
+            title: achievement.title,
+          }}
+          descriptionProps={{
+            reward: `Achievement Completed [${achievement.points}]`,
+          }}
+          thumbnailProps={{
+            type: "achievement",
           }}
         />,
         {

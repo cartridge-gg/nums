@@ -23,9 +23,12 @@ import { getChecksumAddress } from "starknet";
 import { useAccount } from "@starknet-react/core";
 import { useEntities } from "./entities";
 import { NAMESPACE } from "@/constants";
-import { toast } from "sonner";
 
 interface AchievementsContextType {
+  completeds: {
+    event: AchievementCompleted;
+    achievement: AchievementCreation;
+  }[];
   status: "loading" | "error" | "success";
 }
 
@@ -57,11 +60,13 @@ export function AchievementsProvider({
 }) {
   const { address } = useAccount();
   const { client } = useEntities();
-  const creationSubscriptionRef = useRef<torii.Subscription | null>(null);
   const completedSubscriptionRef = useRef<torii.Subscription | null>(null);
   const [creations, setCreations] = useState<Map<string, AchievementCreation>>(
     new Map(),
   );
+  const [completeds, setCompleteds] = useState<
+    { event: AchievementCompleted; achievement: AchievementCreation }[]
+  >([]);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -103,10 +108,11 @@ export function AchievementsProvider({
           const event = AchievementCompleted.parse(model);
           const achievement = creations.get(event.achievement_id);
           if (achievement) {
-            toast(achievement.title, {
-              description: achievement.description,
-              duration: 4000,
-            });
+            setCompleteds((prev) =>
+              [{ event, achievement }, ...prev].filter(
+                (item) => !item.event.hasExpired(),
+              ),
+            );
           }
         }
       });
@@ -118,11 +124,6 @@ export function AchievementsProvider({
   const refresh = useCallback(async () => {
     if (!NAMESPACE || !client || !address) return;
 
-    // Cancel existing subscriptions
-    if (creationSubscriptionRef.current) {
-      creationSubscriptionRef.current.cancel();
-      creationSubscriptionRef.current = null;
-    }
     if (completedSubscriptionRef.current) {
       completedSubscriptionRef.current.cancel();
       completedSubscriptionRef.current = null;
@@ -145,18 +146,6 @@ export function AchievementsProvider({
       console.error("Error fetching achievement creations:", error);
     }
 
-    // Subscribe to creation events
-    client
-      .onEventMessageUpdated(
-        creationEventQuery.build().clause,
-        [],
-        onCreationEvent,
-      )
-      .then((response) => (creationSubscriptionRef.current = response))
-      .catch((error) => {
-        console.error("Error subscribing to creation events:", error);
-      });
-
     // Subscribe to completed events
     client
       .onEventMessageUpdated(
@@ -172,7 +161,7 @@ export function AchievementsProvider({
 
   // Initial fetch and subscription setup
   useEffect(() => {
-    if (creationSubscriptionRef.current || completedSubscriptionRef.current) {
+    if (completedSubscriptionRef.current) {
       return;
     }
     setStatus("loading");
@@ -186,9 +175,6 @@ export function AchievementsProvider({
       });
 
     return () => {
-      if (creationSubscriptionRef.current) {
-        creationSubscriptionRef.current.cancel();
-      }
       if (completedSubscriptionRef.current) {
         completedSubscriptionRef.current.cancel();
       }
@@ -196,6 +182,7 @@ export function AchievementsProvider({
   }, [refresh]);
 
   const value: AchievementsContextType = {
+    completeds,
     status,
   };
 

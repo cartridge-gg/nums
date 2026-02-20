@@ -766,6 +766,14 @@ export class AchievementCompleted {
         ),
     );
   }
+
+  static getId(item: AchievementCompleted): string {
+    return `${item.player_id}-${item.achievement_id}`;
+  }
+
+  hasExpired(): boolean {
+    return this.time + 30 < Math.floor(Date.now() / 1000);
+  }
 }
 
 export class AchievementClaimed {

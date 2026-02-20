@@ -477,7 +477,7 @@ export const Game = () => {
       )}
       {/* Overlay and PurchaseScene modal when GameInfo is clicked */}
       {showPurchaseModal && purchaseProps && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center m-2 md:m-6">
+        <div className="absolute inset-0 z-50 flex items-center justify-center m-3 md:m-6">
           <PurchaseScene
             slotCount={purchaseProps.slotCount}
             basePrice={purchaseProps.basePrice}
@@ -494,7 +494,7 @@ export const Game = () => {
       )}
       {/* Overlay and GameOver modal when game is over */}
       {showGameOver && gameOverData && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center m-2 md:m-6">
+        <div className="absolute inset-0 z-50 flex items-center justify-center m-3 md:m-6">
           <GameOver
             stages={{ states: gameProps.stages }}
             payout={gameOverData.payout}

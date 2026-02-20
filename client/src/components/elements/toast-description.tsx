@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { SparklesIcon } from "../icons";
 
 const toastDescriptionVariants = cva("flex gap-1 items-center", {
   variants: {
@@ -19,6 +20,7 @@ export interface ToastDescriptionProps
   multiplier?: number;
   earning?: number;
   reward?: string;
+  points?: number;
 }
 
 export const getColor = (multiplier: number) => {
@@ -31,6 +33,7 @@ export const ToastDescription = ({
   multiplier,
   earning,
   reward,
+  points,
   variant,
   className,
   ...props
@@ -68,6 +71,17 @@ export const ToastDescription = ({
           </strong>
         </div>
         <p>NUMS</p>
+      </div>
+    );
+  }
+  if (!!points) {
+    return (
+      <div
+        className={cn(toastDescriptionVariants({ variant, className }))}
+        {...props}
+      >
+        <SparklesIcon size="xs" />
+        <p className="text-xl/4 translate-y-0.5">{points}</p>
       </div>
     );
   }

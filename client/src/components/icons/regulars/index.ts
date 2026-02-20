@@ -30,6 +30,7 @@ export * from "./refresh";
 export * from "./share";
 export * from "./sign-out";
 export * from "./spinner";
+export * from "./sparkles";
 export * from "./spinner-px";
 export * from "./star";
 export * from "./sub";

@@ -31,7 +31,7 @@ export const Achievement: Story = {
       title: "Money Machine",
     },
     descriptionProps: {
-      reward: "Achievement Completed [10]",
+      points: 20,
     },
     thumbnailProps: {
       type: "achievement",

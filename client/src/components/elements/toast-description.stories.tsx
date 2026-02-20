@@ -36,8 +36,16 @@ export const Playing: Story = {
 export const Earning: Story = {
   render: () => (
     <div className="flex flex-col gap-4 text-white">
-      <ToastDescription earnings={286810} />
-      <ToastDescription earnings={12400} />
+      <ToastDescription earning={286810} />
+      <ToastDescription earning={12400} />
+    </div>
+  ),
+};
+
+export const Reward: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4 text-white">
+      <ToastDescription reward="10,000 NUMS" />
     </div>
   ),
 };

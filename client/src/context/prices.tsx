@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
 import { getSwapQuote } from "@/api/ekubo";
 import { getTokenAddress } from "@/config";
-import useChain from "@/hooks/chain";
+import { useNetwork } from "@starknet-react/core";
 
 const USDC_ADDRESS =
   "0x53C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8";
@@ -59,7 +59,7 @@ const fetchAllPrices = async (
 };
 
 export function PricesProvider({ children, ...props }: PricesProviderProps) {
-  const { chain } = useChain();
+  const { chain } = useNetwork();
   const numsAddress = useMemo(() => getTokenAddress(chain.id), [chain.id]);
 
   // Track all token addresses that need prices

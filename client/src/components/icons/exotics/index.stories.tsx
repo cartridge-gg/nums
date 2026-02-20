@@ -18,6 +18,7 @@ type Story = StoryObj<typeof meta>;
 
 // Icônes exotiques
 const exoticIcons = [
+  { name: "AssetIcon", component: Icons.AssetIcon },
   { name: "DraggerIcon", component: Icons.DraggerIcon },
   { name: "LiveIcon", component: Icons.LiveIcon },
   { name: "LogoIcon", component: Icons.LogoIcon },

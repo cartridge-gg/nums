@@ -15,7 +15,9 @@ import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
-import { useSocialToaster } from "@/hooks/social-toaster";
+import { useToasters } from "@/hooks/toasters";
+import { Toaster } from "@/components/elements";
+import { Events } from "../containers/events";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -25,18 +27,15 @@ export interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
-  const { find } = useControllers();
+  const { find, loading } = useControllers();
   const headerData = useHeader();
-
-  // Social toaster hook to display toast notifications for social events
-  useSocialToaster();
   const {
     mint,
     quest: { claims, claim },
   } = useActions();
   const { quests } = useQuests();
   const { data: leaderboardData } = useLeaderboard();
-  const { starterpacks, config } = useEntities();
+  const { starterpacks, config, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games, loading: gamesLoading } = useGames();
@@ -46,6 +45,9 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
+
+  // Toaster hook to display toast notifications for social and player events
+  useToasters();
 
   // Get username from controllers if account is connected
   const username = useMemo(() => {
@@ -109,7 +111,14 @@ export const Layout = ({ children }: LayoutProps) => {
 
       // Find the newest game (first in the array)
       const newestGame = games[0];
-      if (newestGame) {
+      // Check if the controller iframe is open from the DOM at iframe id "controller"
+      const controllerIframe = document.getElementById("controller");
+      // Check if opacity is 1
+      if (
+        newestGame &&
+        controllerIframe &&
+        getComputedStyle(controllerIframe).opacity === "1"
+      ) {
         navigate(`/game?id=${newestGame.id}`);
         (connector as ControllerConnector)?.controller?.close?.();
       }
@@ -184,6 +193,20 @@ export const Layout = ({ children }: LayoutProps) => {
     setStarterpackIndex(1);
   }, [showPurchaseScene]);
 
+  const events = useMemo(() => {
+    if (loading) return [];
+    return [
+      ...claimeds.map((claimed) => claimed.getEvent()),
+      ...starteds.map((started) => started.getEvent()),
+    ]
+      .map((event) => ({
+        ...event,
+        username: find(event.username)?.username || event.username,
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 10);
+  }, [claimeds, starteds, find, loading]);
+
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
       <img
@@ -211,6 +234,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
         }}
       />
+      <Events events={events} />
       <div
         className="relative flex-1 min-h-0 flex items-center justify-center"
         style={{
@@ -272,6 +296,7 @@ export const Layout = ({ children }: LayoutProps) => {
           </div>
         )}
       </div>
+      <Toaster />
     </div>
   );
 };

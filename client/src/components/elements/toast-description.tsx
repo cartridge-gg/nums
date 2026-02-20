@@ -5,7 +5,7 @@ const toastDescriptionVariants = cva("flex gap-1 items-center", {
   variants: {
     variant: {
       default:
-        "text-[24px]/3 text-white-100 font-secondary font-bold tracking-wide",
+        "text-[24px]/5 text-white-100 font-secondary font-bold tracking-wide",
     },
   },
   defaultVariants: {
@@ -17,10 +17,11 @@ export interface ToastDescriptionProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof toastDescriptionVariants> {
   multiplier?: number;
-  earnings?: number;
+  earning?: number;
+  reward?: string;
 }
 
-const getColor = (multiplier: number) => {
+export const getColor = (multiplier: number) => {
   if (multiplier > 6) return "text-red-100";
   if (multiplier > 1) return "text-yellow-100";
   return "text-mauve-100";
@@ -28,7 +29,8 @@ const getColor = (multiplier: number) => {
 
 export const ToastDescription = ({
   multiplier,
-  earnings,
+  earning,
+  reward,
   variant,
   className,
   ...props
@@ -53,7 +55,7 @@ export const ToastDescription = ({
       </div>
     );
   }
-  if (!!earnings) {
+  if (!!earning) {
     return (
       <div
         className={cn(toastDescriptionVariants({ variant, className }))}
@@ -62,10 +64,20 @@ export const ToastDescription = ({
         <p>earned</p>
         <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded -translate-y-0.5">
           <strong className="text-[22px]/[15px] font-primary translate-y-0.5 text-green-100">
-            {earnings.toLocaleString()}
+            {earning.toLocaleString()}
           </strong>
         </div>
         <p>NUMS</p>
+      </div>
+    );
+  }
+  if (!!reward) {
+    return (
+      <div
+        className={cn(toastDescriptionVariants({ variant, className }))}
+        {...props}
+      >
+        <p>{reward}</p>
       </div>
     );
   }

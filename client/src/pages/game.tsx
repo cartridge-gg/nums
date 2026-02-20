@@ -442,7 +442,7 @@ export const Game = () => {
         slots={gameProps.slots}
         stages={gameProps.stages}
         onGameInfoClick={blockchainGame ? gameProps.onGameInfoClick : undefined}
-        className="md:max-h-[588px] p-3 md:p-0 md:pb-0"
+        className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
       {hasSelectablePowers && selections.length > 0 && (

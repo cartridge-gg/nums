@@ -1,3 +1,4 @@
+export * from "./asset";
 export * from "./dragger";
 export * from "./live";
 export * from "./logo";

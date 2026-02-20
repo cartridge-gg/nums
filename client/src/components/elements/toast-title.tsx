@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const toastTitleVariants = cva(
-  "text-mauve-100 text-[22px]/[15px] font-primary translate-y-0.5",
+  "text-mauve-100 text-[22px]/[15px] font-primary translate-y-0.5 tracking-wide",
   {
     variants: {
       variant: {

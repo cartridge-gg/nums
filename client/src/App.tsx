@@ -20,6 +20,7 @@ import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
 import { LoadingProvider } from "./context/loading";
 import { Layout } from "./components/layouts";
+import { AchievementsProvider } from "./context/achievements";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -87,24 +88,26 @@ function App() {
               <PracticeProvider>
                 <ControllersProvider>
                   <QuestsProvider>
-                    <PricesProvider>
-                      <LoadingProvider>
-                        <Router
-                          future={{
-                            v7_startTransition: true,
-                            v7_relativeSplatPath: true,
-                          }}
-                        >
-                          <Layout>
-                            <Routes>
-                              <Route path="/" element={<Home />} />
-                              <Route path="/game" element={<Game />} />
-                              <Route path="/practice" element={<Game />} />
-                            </Routes>
-                          </Layout>
-                        </Router>
-                      </LoadingProvider>
-                    </PricesProvider>
+                    <AchievementsProvider>
+                      <PricesProvider>
+                        <LoadingProvider>
+                          <Router
+                            future={{
+                              v7_startTransition: true,
+                              v7_relativeSplatPath: true,
+                            }}
+                          >
+                            <Layout>
+                              <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/game" element={<Game />} />
+                                <Route path="/practice" element={<Game />} />
+                              </Routes>
+                            </Layout>
+                          </Router>
+                        </LoadingProvider>
+                      </PricesProvider>
+                    </AchievementsProvider>
                   </QuestsProvider>
                 </ControllersProvider>
               </PracticeProvider>

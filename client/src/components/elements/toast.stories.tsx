@@ -25,6 +25,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Achievement: Story = {
+  args: {
+    titleProps: {
+      title: "Money Machine",
+    },
+    descriptionProps: {
+      reward: "Achievement Completed [10]",
+    },
+    thumbnailProps: {
+      type: "achievement",
+    },
+  },
+};
+
 export const Quest: Story = {
   args: {
     titleProps: {

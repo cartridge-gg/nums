@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { AssetIcon, QuestUsedIcon } from "../icons";
+import { AssetIcon, QuestUsedIcon, TrophyIcon } from "../icons";
 
 const toastThumbnailVariants = cva("flex justify-center items-center rounded", {
   variants: {
@@ -11,6 +11,7 @@ const toastThumbnailVariants = cva("flex justify-center items-center rounded", {
       md: "min-h-10 min-w-10 max-h-10 max-w-10",
     },
     type: {
+      achievement: "",
       quest: "",
       purchase: "",
     },
@@ -49,6 +50,8 @@ export const ToastThumbnail = ({
           className="h-full w-full object-cover"
           {...props}
         />
+      ) : type === "achievement" ? (
+        <TrophyIcon size="lg" variant="solid" className="text-yellow-100" />
       ) : type === "quest" ? (
         <QuestUsedIcon size="lg" className="text-green-100" />
       ) : type === "purchase" ? (

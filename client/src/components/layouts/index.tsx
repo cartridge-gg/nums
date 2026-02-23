@@ -34,7 +34,8 @@ export const Layout = ({ children }: LayoutProps) => {
     quest: { claims, claim },
   } = useActions();
   const { quests } = useQuests();
-  const { data: leaderboardData } = useLeaderboard();
+  const { data: leaderboardData, refetch: refetchLeaderboard } =
+    useLeaderboard();
   const { starterpacks, config, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
@@ -192,6 +193,13 @@ export const Layout = ({ children }: LayoutProps) => {
   useEffect(() => {
     setStarterpackIndex(1);
   }, [showPurchaseScene]);
+
+  // Refetch leaderboard data when modal opens
+  useEffect(() => {
+    if (showLeaderboardScene) {
+      refetchLeaderboard();
+    }
+  }, [showLeaderboardScene, refetchLeaderboard]);
 
   const events = useMemo(() => {
     if (loading) return [];

@@ -43,8 +43,8 @@ export const Toast = ({
     if (thumbnailProps?.type === "achievement") return "text-yellow-100";
     if (thumbnailProps?.type === "quest") return "text-green-100";
     if (thumbnailProps?.type === "purchase") return "text-mauve-100";
-    if (!!descriptionProps?.earning) return "text-green-100";
-    if (!!descriptionProps?.multiplier)
+    if (descriptionProps?.earning) return "text-green-100";
+    if (descriptionProps?.multiplier)
       return getColor(descriptionProps.multiplier);
     return undefined;
   }, [

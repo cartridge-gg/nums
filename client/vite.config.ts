@@ -7,6 +7,8 @@ import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const COMMIT_SHA = process.env.VERCEL_GIT_COMMIT_SHA || "dev";
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -92,9 +94,32 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    __COMMIT_SHA__: JSON.stringify(COMMIT_SHA),
+  },
+  server: {
+    port: process.env.NODE_ENV === "development" ? 3003 : undefined,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  root: "./",
+  publicDir: "public",
+  // SSR Configuration
+  ssr: {
+    noExternal: [
+      "@cartridge/arcade",
+      "@cartridge/connector",
+      "@cartridge/controller",
+      "@cartridge/penpal",
+      "@cartridge/presets",
+      "@dojoengine/sdk",
+      "@dojoengine/torii-wasm",
+      "@starknet-react/chains",
+      "@starknet-react/core",
+    ],
+    external: ["@cartridge/ui", "posthog-js"],
   },
 });

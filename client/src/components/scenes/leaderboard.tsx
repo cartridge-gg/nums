@@ -5,7 +5,7 @@ import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Leaderboard } from "@/components/containers/leaderboard";
 import type { LeaderboardRowData } from "@/hooks/leaderboard";
 import { Ranges, type RangeType } from "@/components/elements/ranges";
-import { LeaderboardRowProps } from "../elements";
+import type { LeaderboardRowProps } from "../elements";
 import { useId, useMemo, useState } from "react";
 
 export interface LeaderboardSceneProps

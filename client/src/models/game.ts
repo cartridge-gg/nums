@@ -3,7 +3,7 @@ import { Power } from "@/types/power";
 import type { RawGame } from "@/models";
 import { Trap } from "@/types/trap";
 import { Verifier } from "@/helpers/verifier";
-import { Random } from "@/helpers/random";
+import type { Random } from "@/helpers/random";
 import { Rewarder } from "@/helpers/rewarder";
 import {
   DEFAULT_DRAW_COUNT,

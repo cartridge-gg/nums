@@ -1,9 +1,9 @@
 import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers";
-import { Game } from "@/models/game";
+import type { Game } from "@/models/game";
 import { Bomb, Lucky, Magnet, Ufo, Windy } from "@/elements/traps";
-import { Random } from "@/helpers/random";
+import type { Random } from "@/helpers/random";
 import { Deck } from "@/helpers/deck";
 
 export const TRAP_COUNT = 5;

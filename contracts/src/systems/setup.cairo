@@ -12,12 +12,14 @@ pub trait ISetup<T> {
     fn set_nums_address(ref self: T, nums_address: ContractAddress);
     fn set_target_supply(ref self: T, supply: u256);
     fn set_owner_address(ref self: T, owner_address: ContractAddress);
+    fn set_quote_address(ref self: T, quote_address: ContractAddress);
+    fn set_ekubo_address(ref self: T, ekubo_address: ContractAddress);
 }
 
 #[dojo::contract]
 pub mod Setup {
     use achievement::components::achievable::AchievableComponent;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
+    use dojo::world::{IWorldDispatcherTrait, WorldStorage, WorldStorageTrait};
     use quest::components::questable::QuestableComponent;
     use quest::interfaces::IQuestRegistry;
     use starknet::ContractAddress;
@@ -70,6 +72,8 @@ pub mod Setup {
         vrf_address: Option<ContractAddress>,
         starterpack_address: Option<ContractAddress>,
         owner_address: ContractAddress,
+        quote_address: ContractAddress,
+        ekubo_address: ContractAddress,
         entry_price: u128,
         target_supply: felt252,
     ) {
@@ -98,6 +102,8 @@ pub mod Setup {
             vrf: vrf_address,
             starterpack: starterpack_address,
             owner: owner_address,
+            quote: quote_address,
+            ekubo: ekubo_address,
             entry_price: entry_price,
             target_supply: target_supply.into(),
         );
@@ -135,8 +141,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
             config.entry_price = entry_price;
@@ -148,8 +153,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
             config.starterpack = starterpack_address;
@@ -161,8 +165,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
             config.nums = nums_address;
@@ -174,8 +177,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
             config.target_supply = supply;
@@ -187,12 +189,43 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
+            self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
             config.owner = owner_address;
             store.set_config(config);
+        }
+
+        fn set_quote_address(ref self: ContractState, quote_address: ContractAddress) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.quote = quote_address;
+            store.set_config(config);
+        }
+
+        fn set_ekubo_address(ref self: ContractState, ekubo_address: ContractAddress) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.ekubo = ekubo_address;
+            store.set_config(config);
+        }
+    }
+
+    #[generate_trait]
+    pub impl PrivateImpl of PrivateTrait {
+        fn assert_only_owner(ref self: ContractState, world: WorldStorage) {
+            let caller = starknet::get_caller_address();
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
         }
     }
 }

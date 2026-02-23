@@ -23,8 +23,11 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 mod Token {
     use dojo::world::WorldStorageTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin::governance::votes::VotesComponent;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{DefaultConfig, ERC20Component};
+    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
     use starknet::{ContractAddress, get_caller_address};
     use crate::constants::{NAMESPACE, TEN_POW_18};
     use crate::systems::play::NAME as PLAY_NAME;
@@ -33,11 +36,22 @@ mod Token {
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // External
     #[abi(embed_v0)]
     impl AccessControlImpl =
         AccessControlComponent::AccessControlImpl<ContractState>;
+
+    // Nonces
+    #[abi(embed_v0)]
+    impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
+
+    // Votes
+    #[abi(embed_v0)]
+    impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // Internal
     #[abi(embed_v0)]
@@ -47,10 +61,6 @@ mod Token {
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
-    impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {
-        const DECIMALS: u8 = 18;
-    }
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -59,6 +69,10 @@ mod Token {
         accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        erc20_votes: VotesComponent::Storage,
+        #[substorage(v0)]
+        nonces: NoncesComponent::Storage,
     }
 
     #[event]
@@ -70,11 +84,15 @@ mod Token {
         AccessControlEvent: AccessControlComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC20VotesEvent: VotesComponent::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event,
     }
 
 
     fn dojo_init(ref self: ContractState) {
-        self.erc20.initializer("Mock NUMS", "mNUMS");
+        self.erc20.initializer("Nums", "NUMS");
         let mut world = self.world(@NAMESPACE());
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
@@ -83,19 +101,42 @@ mod Token {
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
     }
 
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            'Nums'
+        }
+        fn version() -> felt252 {
+            '1.0.0'
+        }
+    }
+
     #[abi(embed_v0)]
     impl ERC20Metadata<ContractState> of super::IERC20Metadata<ContractState> {
         // IERC20Metadata
         fn name(self: @ContractState) -> felt252 {
-            'Mock NUMS'
+            'Nums'
         }
 
         fn symbol(self: @ContractState) -> felt252 {
-            'mNUMS'
+            'NUMS'
         }
 
         fn decimals(self: @ContractState) -> u8 {
             18
+        }
+    }
+    // We need to call the `transfer_voting_units` function after
+    // every mint, burn and transfer.
+    // For this, we use the `after_update` hook of the `ERC20Component::ERC20HooksTrait`.
+    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+        fn after_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
         }
     }
 

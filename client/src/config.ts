@@ -77,7 +77,7 @@ export const getTokenAddress = (chainId: bigint) => {
   );
   const fromEnv = import.meta.env[`VITE_${decodedChainId}_NUMS_ERC20`];
   if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
-  return getContractAddress(chainId, NAMESPACE, "MockNumsToken");
+  return getContractAddress(chainId, NAMESPACE, "Token");
 };
 
 export const getGameAddress = (chainId: bigint) => {

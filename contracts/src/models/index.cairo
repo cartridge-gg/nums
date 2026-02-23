@@ -9,6 +9,8 @@ pub struct Config {
     pub vrf: ContractAddress,
     pub starterpack: ContractAddress,
     pub owner: ContractAddress,
+    pub quote: ContractAddress,
+    pub ekubo: ContractAddress,
     pub entry_price: u128,
     pub target_supply: u256,
     pub count: u32,

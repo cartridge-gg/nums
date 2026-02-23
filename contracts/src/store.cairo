@@ -33,29 +33,23 @@ pub impl StoreImpl of StoreTrait {
 
     fn quote_disp(self: @Store) -> IERC20Dispatcher {
         // Mainnet: 0x033068F6539f8e6e6b131e6B2B814e6c34A5224bC66947c47DaB9dFeE93b35fb
-        let contract_address: starknet::ContractAddress =
-            0x053b40A647CEDfca6cA84f542A0fe36736031905A9639a7f19A3C1e66bFd5080
-            .try_into()
-            .unwrap();
-        IERC20Dispatcher { contract_address: contract_address }
+        // Sepolia: 0x053b40A647CEDfca6cA84f542A0fe36736031905A9639a7f19A3C1e66bFd5080
+        let config = self.config();
+        IERC20Dispatcher { contract_address: config.quote }
     }
 
     fn ekubo_router(self: @Store) -> IRouterDispatcher {
         // Mainnet: 0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066
-        let contract_address: starknet::ContractAddress =
-            0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
-            .try_into()
-            .unwrap();
-        IRouterDispatcher { contract_address: contract_address }
+        // Sepolia: 0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
+        let config = self.config();
+        IRouterDispatcher { contract_address: config.ekubo }
     }
 
     fn ekubo_clearer(self: @Store) -> IClearDispatcher {
         // Mainnet: 0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066
-        let contract_address: starknet::ContractAddress =
-            0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
-            .try_into()
-            .unwrap();
-        IClearDispatcher { contract_address: contract_address }
+        // Sepolia: 0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
+        let config = self.config();
+        IClearDispatcher { contract_address: config.ekubo }
     }
 
     fn vrf_disp(ref self: Store) -> IVrfProviderDispatcher {

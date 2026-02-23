@@ -166,7 +166,7 @@ async function generateMetaTags(
 ): Promise<string> {
   let title = "Nums";
   let description = "The numbers must be sorted";
-  let imageUrl = `${baseUrl}/preview.png`;
+  let imageUrl = `${baseUrl}/api/image`;
 
   if (gameId !== undefined) {
     const game = await getGame(gameId);

@@ -18,6 +18,10 @@
       "destination": "/api/ssr"
     },
     {
+      "source": "/",
+      "destination": "/api/ssr"
+    },
+    {
       "source": "/:path*",
       "destination": "/index.html"
     },

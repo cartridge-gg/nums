@@ -50,30 +50,26 @@ async function loadPlaceholderSvg(): Promise<Buffer | null> {
   return null;
 }
 
-async function sendPlaceholderFallback(
-  res: VercelResponse,
-): Promise<boolean> {
+async function sendPlaceholderFallback(res: VercelResponse): Promise<boolean> {
   const placeholderUrl = await loadSvgDataUrl("assets/placeholder.svg");
   if (!placeholderUrl) return false;
 
   try {
     const imageResponse = new ImageResponse(
-      (
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            height: "100%",
-            margin: 0,
-            padding: 0,
-            backgroundImage: `url(${placeholderUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundColor: "#4218B7",
-          }}
-        />
-      ),
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          margin: 0,
+          padding: 0,
+          backgroundImage: `url(${placeholderUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundColor: "#4218B7",
+        }}
+      />,
       { width: 1200, height: 630 },
     );
 

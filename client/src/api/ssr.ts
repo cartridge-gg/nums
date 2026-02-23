@@ -147,7 +147,7 @@ function buildMetaTags(
     <meta property="og:title" content="${safeTitle}" />
     <meta property="og:description" content="${safeDescription}" />
     <meta property="og:image" content="${safeImageUrl}" />
-    <meta property="og:site_name" content="Cartridge Arcade" />
+    <meta property="og:site_name" content="Nums" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />

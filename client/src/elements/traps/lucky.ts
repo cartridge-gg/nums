@@ -1,5 +1,5 @@
-import { Game } from "@/models/game";
-import { TrapTrait, Random } from "./interface";
+import type { Game } from "@/models/game";
+import type { TrapTrait, Random } from "./interface";
 
 /**
  * Lucky trap implementation

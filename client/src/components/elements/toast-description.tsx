@@ -38,7 +38,7 @@ export const ToastDescription = ({
   className,
   ...props
 }: ToastDescriptionProps) => {
-  if (!!multiplier) {
+  if (multiplier) {
     const color = getColor(multiplier);
     return (
       <div
@@ -58,7 +58,7 @@ export const ToastDescription = ({
       </div>
     );
   }
-  if (!!earning) {
+  if (earning) {
     return (
       <div
         className={cn(toastDescriptionVariants({ variant, className }))}
@@ -74,7 +74,7 @@ export const ToastDescription = ({
       </div>
     );
   }
-  if (!!points) {
+  if (points) {
     return (
       <div
         className={cn(toastDescriptionVariants({ variant, className }))}
@@ -85,7 +85,7 @@ export const ToastDescription = ({
       </div>
     );
   }
-  if (!!reward) {
+  if (reward) {
     return (
       <div
         className={cn(toastDescriptionVariants({ variant, className }))}

@@ -9,7 +9,7 @@ import {
 import { Formatter } from "@/helpers";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { QuestReward } from "@/models/quest";
+import type { QuestReward } from "@/models/quest";
 
 export interface QuestProps
   extends React.HTMLAttributes<HTMLDivElement>,

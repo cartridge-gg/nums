@@ -11,7 +11,7 @@ import {
 import { useId, useState, useEffect, useMemo } from "react";
 import Confetti from "react-confetti";
 import { Link } from "react-router-dom";
-import { Stages, StagesProps } from "@/components/containers";
+import { Stages, type StagesProps } from "@/components/containers";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { BrandIcon, LockerIcon } from "@/components/icons";
-import { Trap } from "@/types/trap";
+import type { Trap } from "@/types/trap";
 import { useMemo, useEffect, useRef } from "react";
 import SlotCounter from "react-slot-counter";
 

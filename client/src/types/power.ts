@@ -1,8 +1,8 @@
 import type * as React from "react";
 import * as icons from "@/components/icons";
 import { Packer } from "@/helpers/packer";
-import { Game } from "@/models/game";
-import { Random } from "@/helpers/random";
+import type { Game } from "@/models/game";
+import type { Random } from "@/helpers/random";
 import {
   Reroll,
   DoubleUp,

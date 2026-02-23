@@ -120,9 +120,9 @@ pub mod PlayableComponent {
 
             // [Interaction] Swap Quote token for Nums
             let pool_key = PoolKey {
-                token0: quote.contract_address,
-                token1: nums_address,
-                fee: 0x0, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
+                token0: nums_address,
+                token1: quote.contract_address,
+                fee: 0x28f5c28f5c28f5c28f5c28f5c28f5c2, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
                 tick_spacing: 0x56a4c,
                 // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
                 // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
@@ -130,8 +130,11 @@ pub mod PlayableComponent {
                     .try_into()
                     .unwrap(),
             };
+            let sqrt_ratio_limit = u256 {
+                low: 0x6f3528fe26840249f4b191ef6dff7928, high: 0xfffffc080ed7b455,
+            };
             let route_node = RouteNode {
-                pool_key: pool_key, sqrt_ratio_limit: 0x1000003f7f1380b75, skip_ahead: 0,
+                pool_key: pool_key, sqrt_ratio_limit: sqrt_ratio_limit, skip_ahead: 0,
             };
             let token_amount = TokenAmount {
                 token: quote_address, amount: i129 { mag: amount.low, sign: false },

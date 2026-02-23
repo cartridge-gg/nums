@@ -4,7 +4,7 @@ import { useEntities } from "@/context/entities";
 import { Toast } from "@/components/elements";
 import { useControllers } from "@/context/controllers";
 import { getChecksumAddress } from "starknet";
-import { Controller } from "@dojoengine/torii-wasm";
+import type { Controller } from "@dojoengine/torii-wasm";
 import { useMediaQuery } from "usehooks-ts";
 import { useAccount } from "@starknet-react/core";
 import {
@@ -41,7 +41,7 @@ export const useToasters = () => {
     if (BigInt(started.player_id) === BigInt(address || "0x0")) return;
 
     // Skip if already toasted
-    let id = Started.getId(started);
+    const id = Started.getId(started);
     if (toastedRef.current.has(id)) return;
     // Mark as toasted
     toastedRef.current.add(id);
@@ -70,7 +70,7 @@ export const useToasters = () => {
     if (BigInt(claimed.player_id) === BigInt(address || "0x0")) return;
 
     // Skip if already toasted
-    let id = Claimed.getId(claimed);
+    const id = Claimed.getId(claimed);
     if (toastedRef.current.has(id)) return;
     // Mark as toasted
     toastedRef.current.add(id);
@@ -100,7 +100,7 @@ export const useToasters = () => {
     if (BigInt(purchased.player_id) !== BigInt(address || "0x0")) return;
 
     // Skip if already toasted
-    let id = Purchased.getId(purchased);
+    const id = Purchased.getId(purchased);
     if (toastedRef.current.has(id)) return;
     // Mark as toasted
     toastedRef.current.add(id);
@@ -132,7 +132,7 @@ export const useToasters = () => {
       if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
 
       // Skip if already toasted
-      let id = QuestClaimed.getId(event);
+      const id = QuestClaimed.getId(event);
       if (toastedRef.current.has(id)) return;
       // Mark as toasted
       toastedRef.current.add(id);
@@ -165,7 +165,7 @@ export const useToasters = () => {
       if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
 
       // Skip if already toasted
-      let id = AchievementCompleted.getId(event);
+      const id = AchievementCompleted.getId(event);
       if (toastedRef.current.has(id)) return;
       // Mark as toasted
       toastedRef.current.add(id);

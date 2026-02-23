@@ -12,7 +12,7 @@ import {
   Reward,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
-import { Game as GameModel } from "@/models/game";
+import type { Game as GameModel } from "@/models/game";
 import { Verifier } from "@/helpers/verifier";
 
 export interface GameSceneProps

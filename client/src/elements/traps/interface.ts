@@ -1,4 +1,4 @@
-import { Game } from "@/models/game";
+import type { Game } from "@/models/game";
 
 /**
  * Trap trait interface

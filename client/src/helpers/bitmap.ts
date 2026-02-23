@@ -14,7 +14,7 @@ export class Bitmap {
     while (value > 0n) {
       // Count bits in the lower 32 bits
       const lower32 = Number(value & 0xffffffffn);
-      count += this._popcount(lower32);
+      count += Bitmap._popcount(lower32);
       value >>= 32n;
     }
     return count;

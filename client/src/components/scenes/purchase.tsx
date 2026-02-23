@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Purchase } from "@/components/containers/purchase";
-import { Details, Stakes, StakesProps } from "../containers";
+import { Details, Stakes, type StakesProps } from "../containers";
 import { useId, useMemo, useState, useEffect } from "react";
 import { ChartHelper } from "@/helpers/chart";
 import { Formatter } from "@/helpers/formatter";

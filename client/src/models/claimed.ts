@@ -1,4 +1,4 @@
-import { EventProps } from "@/components/elements";
+import type { EventProps } from "@/components/elements";
 import type { RawClaimed } from "@/models";
 
 const MODEL_NAME = "Claimed";

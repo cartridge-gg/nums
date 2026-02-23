@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
 type PurchaseModalContextType = {
   openPurchaseScene: () => void;

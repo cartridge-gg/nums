@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Activity, ActivityProps } from "@/components/elements/activity";
+import { Activity, type ActivityProps } from "@/components/elements/activity";
 import { useMemo } from "react";
 
 export interface ActivitiesProps

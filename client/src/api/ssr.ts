@@ -191,6 +191,19 @@ async function generateMetaTags(
 
 let cachedBaseHtml: string | null = null;
 
+const FALLBACK_HTML = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nums</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>`;
+
 async function loadBaseHtml(host: string): Promise<string> {
   if (cachedBaseHtml) {
     return cachedBaseHtml;
@@ -208,22 +221,28 @@ async function loadBaseHtml(host: string): Promise<string> {
   } catch (fetchError) {
     const localPaths = [
       path.join(process.cwd(), "dist/index.html"),
+      path.join(process.cwd(), "client/dist/index.html"),
       path.join(process.cwd(), ".vercel/output/static/index.html"),
     ];
 
     for (const filePath of localPaths) {
       try {
         cachedBaseHtml = fs.readFileSync(filePath, "utf-8");
-        return cachedBaseHtml;
+        break;
       } catch {
         // Try next path
       }
     }
 
-    throw new Error(
-      `Could not load index.html from ${indexUrl} or local filesystem`,
-    );
+    if (!cachedBaseHtml) {
+      console.warn(
+        `Could not load index.html from ${indexUrl} or local filesystem, using fallback`,
+      );
+      cachedBaseHtml = FALLBACK_HTML;
+    }
   }
+
+  return cachedBaseHtml!;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

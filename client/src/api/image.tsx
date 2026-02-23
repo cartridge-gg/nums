@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ImageResponse } from "@vercel/og";
 import { getGame } from "./ssr";
-import { Card } from "@/components/og/card";
+import { Card } from "../components/og/card";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "..", "..", "public");

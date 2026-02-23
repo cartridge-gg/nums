@@ -4,6 +4,11 @@
   "git": {
     "deploymentEnabled": true
   },
+  "functions": {
+    "api/image.tsx": {
+      "includeFiles": "public/assets/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/ingest/static/:path(.*)",

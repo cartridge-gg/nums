@@ -17,8 +17,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "url";
 import { fileURLToPath } from "node:url";
-import ssrHandler from "../api/ssr";
-import imageHandler from "../api/image";
+import ssrHandler from "../_api/ssr";
+import imageHandler from "../_api/image";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -3,7 +3,7 @@
   "installCommand": "pnpm install",
   "outputDirectory": "dist",
   "functions": {
-    "api/**/*": {
+    "_api/**/*": {
       "includeFiles": "public/**/*"
     }
   },

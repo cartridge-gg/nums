@@ -176,8 +176,8 @@ const server = createServer(async (req, res) => {
     }
   };
 
-  // SSR routes: /, /game (same as Vercel rewrites)
-  if (parsedUrl.pathname === "/" || parsedUrl.pathname === "/game") {
+  // SSR route: /game only (Vercel rewrites /game -> /api/ssr; / serves index.html)
+  if (parsedUrl.pathname === "/game") {
     await callVercelHandler(ssrHandler);
     return;
   }

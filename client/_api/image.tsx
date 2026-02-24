@@ -8,8 +8,8 @@ import { ImageResponse } from "@vercel/og";
 import { getGame } from "./ssr";
 import { Card } from "../src/components/og/card";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PUBLIC_DIR = path.join(__dirname, "..", "public");
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC_DIR = path.join(currentDir, "..", "public");
 const FONT_PATHS = [
   path.join(PUBLIC_DIR, "assets", "fonts", "pixel-game.regular.otf"),
 ];

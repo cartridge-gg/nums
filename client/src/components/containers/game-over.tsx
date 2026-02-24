@@ -319,13 +319,21 @@ const Claim = ({
 }) => {
   const { playPositive } = useAudio();
   const prevOnClaimRef = useRef(onClaim);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof prevOnClaimRef.current === "function" && onClaim === null) {
+    if (!!prevOnClaimRef.current && !onClaim) {
       playPositive();
+      setLoading(false);
     }
     prevOnClaimRef.current = onClaim;
   }, [onClaim, playPositive]);
+
+  const handleClaim = () => {
+    if (loading || !onClaim) return;
+    setLoading(true);
+    onClaim();
+  };
 
   return (
     <div
@@ -344,7 +352,13 @@ const Claim = ({
           </p>
         </div>
       ) : (
-        <Button variant="default" className="w-full" onClick={onClaim}>
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={handleClaim}
+          loading={loading}
+          disabled={loading}
+        >
           <p
             className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

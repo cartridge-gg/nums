@@ -14,10 +14,6 @@
       "destination": "https://us.i.posthog.com/:path*"
     },
     {
-      "source": "/",
-      "destination": "/api/ssr"
-    },
-    {
       "source": "/game",
       "destination": "/api/ssr"
     },

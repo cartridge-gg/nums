@@ -1,8 +1,7 @@
 import React from "react";
-import { getPlaceholder } from "./asset";
+import { PLACEHOLDER } from "./asset";
 
 export const Placeholder: React.FC = () => {
-  const placeholderUrl = getPlaceholder();
   return (
     <div
       style={{
@@ -12,12 +11,10 @@ export const Placeholder: React.FC = () => {
         alignItems: "center",
         width: "100%",
         height: "100%",
-        ...(placeholderUrl && { backgroundImage: `url(${placeholderUrl})` }),
-        ...(placeholderUrl && {
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }),
+        backgroundImage: `url(${PLACEHOLDER})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         backgroundColor: "#4218B7",
         userSelect: "none",
         paddingLeft: "47px",

@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ImageResponse } from "@vercel/og";
 import { getGame } from "./ssr";
-import { Card } from "../src/components/og/card";
+import { Card, Placeholder } from "@/components/og";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(currentDir, "..", "public");
@@ -15,79 +15,16 @@ const FONT_PATHS = [
 ];
 const FONT_NAME = "PixelGame";
 
-async function loadSvgDataUrl(relativePath: string): Promise<string | null> {
-  const candidates = [
-    path.join(PUBLIC_DIR, relativePath),
-    path.join(process.cwd(), "public", relativePath),
-    path.join(process.cwd(), "client", "public", relativePath),
-  ];
-  for (const svgPath of candidates) {
-    try {
-      const svg = await readFile(svgPath, "utf-8");
-      const base64 = Buffer.from(svg).toString("base64");
-      return `data:image/svg+xml;base64,${base64}`;
-    } catch {
-      // Try next path
-    }
-  }
-  console.warn(`Failed to load SVG: ${relativePath}`);
-  return null;
-}
+async function fallback(res: VercelResponse) {
+  const imageResponse = new ImageResponse(
+    <Placeholder />,
+    { width: 1200, height: 630 },
+  );
 
-async function loadPlaceholderSvg(): Promise<Buffer | null> {
-  const candidates = [
-    path.join(PUBLIC_DIR, "assets", "placeholder.svg"),
-    path.join(process.cwd(), "public", "assets", "placeholder.svg"),
-    path.join(process.cwd(), "client", "public", "assets", "placeholder.svg"),
-  ];
-  for (const p of candidates) {
-    try {
-      return await readFile(p);
-    } catch {
-      /* try next */
-    }
-  }
-  return null;
-}
-
-async function sendPlaceholderFallback(res: VercelResponse): Promise<boolean> {
-  const placeholderUrl = await loadSvgDataUrl("assets/placeholder.svg");
-  if (!placeholderUrl) return false;
-
-  try {
-    const imageResponse = new ImageResponse(
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          padding: 0,
-          backgroundImage: `url(${placeholderUrl})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundColor: "#4218B7",
-        }}
-      />,
-      { width: 1200, height: 630 },
-    );
-
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300");
-    res.status(200).send(Buffer.from(arrayBuffer));
-    return true;
-  } catch {
-    const rawSvg = await loadPlaceholderSvg();
-    if (rawSvg) {
-      res.setHeader("Content-Type", "image/svg+xml");
-      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300");
-      res.status(200).send(rawSvg);
-      return true;
-    }
-    return false;
-  }
+  const arrayBuffer = await imageResponse.arrayBuffer();
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=300, s-maxage=300");
+  res.status(200).send(Buffer.from(arrayBuffer));
 }
 
 async function loadFont(): Promise<ArrayBuffer | null> {
@@ -114,26 +51,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : undefined;
 
     if (!gameId) {
-      const sent = await sendPlaceholderFallback(res);
-      if (!sent) res.status(400).send("Missing or invalid game ID");
-      return;
+      return fallback(res);
     }
 
     const game = await getGame(gameId);
 
     if (!game) {
-      const sent = await sendPlaceholderFallback(res);
-      if (!sent) res.status(404).send("Game not found");
-      return;
+      return fallback(res);
     }
 
     const fontData = await loadFont();
-
-    const backgroundDataUrl = await loadSvgDataUrl("assets/numbers.svg");
     const imageResponse = new ImageResponse(
       <Card
-        useInlineLogo
-        backgroundUrl={backgroundDataUrl ?? undefined}
         scoreProps={{ score: game.score }}
         rewardProps={{ reward: game.reward }}
         infoProps={{ over: game.over, values: game.slots }}
@@ -160,10 +89,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(200).send(Buffer.from(arrayBuffer));
   } catch (error) {
     console.error("Game image generation error:", error);
-    const sent = await sendPlaceholderFallback(res);
-    if (!sent) {
-      const msg = error instanceof Error ? error.message : String(error);
-      res.status(500).send(`Internal Server Error: ${msg}`);
-    }
+    return fallback(res);
   }
 }

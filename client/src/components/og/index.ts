@@ -1,4 +1,5 @@
 export { Card } from "./card";
+export { Placeholder } from "./placeholder";
 export { Grid } from "./grid";
 export { Info } from "./info";
 export { Reward } from "./reward";

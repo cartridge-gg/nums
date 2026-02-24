@@ -3,33 +3,20 @@ import { Score, ScoreProps } from "./score";
 import { Reward, RewardProps } from "./reward";
 import { Info, InfoProps } from "./info";
 import { BrandLogo } from "./brand-logo";
+import { getBackground } from "./asset";
 
 interface CardProps {
   scoreProps: ScoreProps;
   rewardProps: RewardProps;
   infoProps: InfoProps;
-  baseUrl?: string;
-  useInlineLogo?: boolean;
-  logoUrl?: string;
-  backgroundUrl?: string;
 }
-
-const BACKGROUND = "/assets/numbers.svg";
-const LOGO = "/assets/brand.svg";
 
 export const Card: React.FC<CardProps> = ({
   scoreProps,
   rewardProps,
   infoProps,
-  baseUrl = "",
-  useInlineLogo = false,
-  logoUrl: logoUrlOverride,
-  backgroundUrl: backgroundUrlOverride,
 }) => {
-  const bgUrl =
-    backgroundUrlOverride ?? (baseUrl ? `${baseUrl}${BACKGROUND}` : BACKGROUND);
-  const logoUrl = logoUrlOverride ?? (baseUrl ? `${baseUrl}${LOGO}` : LOGO);
-
+  const bgUrl = getBackground();
   return (
     <div
       style={{
@@ -63,19 +50,7 @@ export const Card: React.FC<CardProps> = ({
           justifyContent: "center",
         }}
       >
-        {useInlineLogo ? (
-          <BrandLogo style={{ width: "63px" }} />
-        ) : (
-          logoUrl && (
-            <img
-              src={logoUrl}
-              alt="Logo"
-              width={63}
-              height={96}
-              style={{ width: "63px", objectFit: "contain" }}
-            />
-          )
-        )}
+        <BrandLogo style={{ width: "63px" }} />
       </div>
       <div
         style={{

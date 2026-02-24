@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { BrowserRouter } from "react-router-dom";
 import { GameOver } from "./game-over";
 import { fn } from "storybook/test";
+import { AudioProvider } from "@/context/audio";
 
 const meta = {
   title: "Containers/Game Over",
@@ -17,7 +18,9 @@ const meta = {
   decorators: [
     (Story) => (
       <BrowserRouter>
-        <Story />
+        <AudioProvider>
+          <Story />
+        </AudioProvider>
       </BrowserRouter>
     ),
   ],

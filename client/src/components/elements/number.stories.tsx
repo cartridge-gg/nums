@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Num } from "./number";
 import { Button } from "@/components/ui/button";
+import { AudioProvider } from "@/context/audio";
 
 const meta = {
   title: "Elements/Num",
@@ -9,6 +10,13 @@ const meta = {
   parameters: {
     layout: "centered",
   },
+  decorators: [
+    (Story) => (
+      <AudioProvider>
+        <Story />
+      </AudioProvider>
+    ),
+  ],
   globals: {
     backgrounds: {
       value: "dark",
@@ -27,6 +35,10 @@ const meta = {
       control: "select",
       options: ["default", "secondary"],
       description: "The visual variant of the number",
+    },
+    sound: {
+      control: "boolean",
+      description: "Play slots sound when the counter rolls",
     },
   },
 } satisfies Meta<typeof Num>;
@@ -65,7 +77,7 @@ export const Interactive: Story = {
 
     return (
       <div className="flex flex-col gap-4 items-center">
-        <Num value={value} />
+        <Num value={value} sound />
         <Button onClick={generateRandomValue} variant="default">
           Generate Random (1-999)
         </Button>

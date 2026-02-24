@@ -11,6 +11,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
+import { SoundProvider } from "./context/sound";
 import { ControllersProvider } from "./context/controllers";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
@@ -97,13 +98,15 @@ function App() {
                               v7_relativeSplatPath: true,
                             }}
                           >
-                            <Layout>
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/game" element={<Game />} />
-                                <Route path="/practice" element={<Game />} />
-                              </Routes>
-                            </Layout>
+                            <SoundProvider>
+                              <Layout>
+                                <Routes>
+                                  <Route path="/" element={<Home />} />
+                                  <Route path="/game" element={<Game />} />
+                                  <Route path="/practice" element={<Game />} />
+                                </Routes>
+                              </Layout>
+                            </SoundProvider>
                           </Router>
                         </LoadingProvider>
                       </PricesProvider>

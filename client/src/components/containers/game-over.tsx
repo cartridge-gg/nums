@@ -8,7 +8,8 @@ import {
   RefreshIcon,
   ShadowEffect,
 } from "@/components/icons";
-import { useId, useState, useEffect, useMemo } from "react";
+import { useId, useState, useEffect, useMemo, useRef } from "react";
+import { useAudio } from "@/context/audio";
 import Confetti from "react-confetti";
 import { Link } from "react-router-dom";
 import { Stages, type StagesProps } from "@/components/containers";
@@ -316,6 +317,16 @@ const Claim = ({
   onClaim?: null | (() => void);
   className?: string;
 }) => {
+  const { playPositive } = useAudio();
+  const prevOnClaimRef = useRef(onClaim);
+
+  useEffect(() => {
+    if (typeof prevOnClaimRef.current === "function" && onClaim === null) {
+      playPositive();
+    }
+    prevOnClaimRef.current = onClaim;
+  }, [onClaim, playPositive]);
+
   return (
     <div
       className={cn(

@@ -16,6 +16,7 @@ import {
 } from "@/models";
 import { useQuests } from "@/context/quests";
 import { useAchievements } from "@/context/achievements";
+import { useAudio } from "@/context/audio";
 
 const getUsername = (result: Controller | undefined, player: string) => {
   const address = getChecksumAddress(player);
@@ -33,6 +34,7 @@ export const useToasters = () => {
   const { started, claimed, purchased } = useEntities();
   const { claimeds } = useQuests();
   const { completeds } = useAchievements();
+  const { playReplay } = useAudio();
   const toastedRef = useRef<Set<string>>(new Set());
 
   // Handle Started events
@@ -137,6 +139,8 @@ export const useToasters = () => {
       // Mark as toasted
       toastedRef.current.add(id);
 
+      playReplay();
+
       // Emit toast to player toaster
       toast(
         <Toast
@@ -155,7 +159,7 @@ export const useToasters = () => {
         },
       );
     });
-  }, [address, claimeds, loading, find, toastedRef]);
+  }, [address, claimeds, loading, find, playReplay, toastedRef]);
 
   // Handle Achievement Completed events
   useEffect(() => {
@@ -169,6 +173,8 @@ export const useToasters = () => {
       if (toastedRef.current.has(id)) return;
       // Mark as toasted
       toastedRef.current.add(id);
+
+      playReplay();
 
       // Emit toast to player toaster
       toast(
@@ -188,5 +194,5 @@ export const useToasters = () => {
         },
       );
     });
-  }, [address, claimeds, loading, find, toastedRef]);
+  }, [address, completeds, loading, find, playReplay, toastedRef]);
 };

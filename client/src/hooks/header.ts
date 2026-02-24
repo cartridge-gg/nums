@@ -3,7 +3,6 @@ import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addAddressPadding, num } from "starknet";
 import { getTokenAddress, MAINNET_CHAIN_ID } from "@/config";
-import { useAudio } from "@/context/audio";
 import { useTokens } from "@/hooks/tokens";
 import { toDecimal } from "@/hooks/tokens";
 
@@ -11,7 +10,6 @@ export const useHeader = () => {
   const { chain } = useNetwork();
   const { address, account, connector } = useAccount();
   const { connectAsync, connectors } = useConnect();
-  const { isMuted, toggleMute } = useAudio();
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
   const numsAddress = getTokenAddress(chain.id);
 
@@ -74,8 +72,6 @@ export const useHeader = () => {
   };
 
   return {
-    isMuted,
-    toggleMute,
     supply: BigInt(token?.total_supply ?? "0"),
     balance,
     username,

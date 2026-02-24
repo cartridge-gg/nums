@@ -3,7 +3,7 @@ import { Score, ScoreProps } from "./score";
 import { Reward, RewardProps } from "./reward";
 import { Info, InfoProps } from "./info";
 import { BrandLogo } from "./brand-logo";
-import { getBackground } from "./asset";
+import { BACKGROUND, FONT_NAME } from "./asset";
 
 interface CardProps {
   scoreProps: ScoreProps;
@@ -16,7 +16,6 @@ export const Card: React.FC<CardProps> = ({
   rewardProps,
   infoProps,
 }) => {
-  const bgUrl = getBackground();
   return (
     <div
       style={{
@@ -26,16 +25,15 @@ export const Card: React.FC<CardProps> = ({
         alignItems: "center",
         width: "100%",
         height: "100%",
-        ...(bgUrl && { backgroundImage: `url(${bgUrl})` }),
-        ...(bgUrl && {
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }),
+        backgroundImage: `url(${BACKGROUND})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         backgroundColor: "#4218B7",
         userSelect: "none",
         paddingLeft: "47px",
         paddingRight: "106px",
+        fontFamily: FONT_NAME,
       }}
     >
       <div

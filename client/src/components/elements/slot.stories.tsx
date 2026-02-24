@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { Slot } from "./slot";
 import { Trap, TrapType } from "@/types/trap";
+import { AudioProvider } from "@/context/audio";
 
 const meta = {
   title: "Elements/Slot",
@@ -9,6 +10,13 @@ const meta = {
   parameters: {
     layout: "centered",
   },
+  decorators: [
+    (Story) => (
+      <AudioProvider>
+        <Story />
+      </AudioProvider>
+    ),
+  ],
   globals: {
     backgrounds: {
       value: "dark",

@@ -3,8 +3,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { BrandIcon, LockerIcon } from "@/components/icons";
 import type { Trap } from "@/types/trap";
+import { TrapType } from "@/types/trap";
 import { useMemo, useEffect, useRef } from "react";
 import SlotCounter from "react-slot-counter";
+import { useAudio } from "@/context/audio";
 
 export interface SlotProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -53,6 +55,9 @@ export const Slot = ({
   onSlotClick,
   ...props
 }: SlotProps) => {
+  const { playBomb, playReroll, playMagnet, playUfo, playWindy } = useAudio();
+  const prevInactiveRef = useRef(inactive);
+
   const isDisabled = useMemo(
     () => (!value && invalid) || !!value || disabled,
     [value, invalid, disabled],
@@ -64,6 +69,29 @@ export const Slot = ({
   );
 
   const slotCounterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (trap && !prevInactiveRef.current && inactive) {
+      switch (trap.value) {
+        case TrapType.Bomb:
+          playBomb();
+          break;
+        case TrapType.Lucky:
+          playReroll();
+          break;
+        case TrapType.Magnet:
+          playMagnet();
+          break;
+        case TrapType.UFO:
+          playUfo();
+          break;
+        case TrapType.Windy:
+          playWindy();
+          break;
+      }
+    }
+    prevInactiveRef.current = inactive;
+  }, [inactive, trap, playBomb, playReroll, playMagnet, playUfo, playWindy]);
 
   useEffect(() => {
     // [Info] Hack on the e char which is not centered in the font

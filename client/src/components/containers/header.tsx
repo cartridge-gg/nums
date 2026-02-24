@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { LogoIcon } from "@/components/icons/exotics";
 import { QuestIcon, TrophyIcon } from "@/components/icons";
-import { Sound, Balance, Profile, Connect } from "@/components/elements";
+import {
+  SoundControls,
+  Balance,
+  Profile,
+  Connect,
+} from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -11,8 +16,6 @@ export interface HeaderProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof headerVariants> {
   isMainnet: boolean;
-  isMuted: boolean;
-  onToggleMute: () => void;
   balance?: string;
   onBalance?: () => void;
   username?: string;
@@ -38,8 +41,6 @@ const headerVariants = cva(
 
 export const Header = ({
   isMainnet,
-  isMuted,
-  onToggleMute,
   balance,
   onBalance,
   username,
@@ -72,7 +73,7 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
-        <Sound isMuted={isMuted} onClick={onToggleMute} />
+        <SoundControls />
         {onQuests && (
           <Button
             variant="muted"

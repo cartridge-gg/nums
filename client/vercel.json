@@ -16,11 +16,11 @@
     },
     {
       "source": "/game/:id",
-      "destination": "/api/ssr/:id"
+      "destination": "/api/ssr?id=:id"
     },
     {
       "source": "/api/image/:id",
-      "destination": "/api/image/:id"
+      "destination": "/api/image?id=:id"
     },
     {
       "source": "/:path*",

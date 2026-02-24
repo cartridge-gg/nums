@@ -54,7 +54,7 @@ export const Reward: React.FC<RewardProps> = ({ reward, style }) => {
           transform: "translateY(12px)",
         }}
       >
-        {reward.toLocaleString()}
+        {reward.toLocaleString("en-US")}
       </div>
     </div>
   );

@@ -2,6 +2,11 @@
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install",
   "outputDirectory": "dist",
+  "functions": {
+    "_api/**/*.ts": {
+      "includeFiles": "public/**/*"
+    }
+  },
   "git": {
     "deploymentEnabled": true
   },

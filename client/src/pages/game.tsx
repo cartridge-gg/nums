@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -48,7 +48,7 @@ export const Game = () => {
   const { games } = useGames();
   const { config, starterpacks } = useEntities();
   const { isLoading, setLoading } = useLoading();
-  const [searchParams] = useSearchParams();
+  const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
@@ -61,12 +61,13 @@ export const Game = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(true);
 
-  // Get game ID from search params (only in blockchain mode)
+  // Get game ID from path params (only in blockchain mode)
   const gameId = useMemo(() => {
     if (isPracticeMode) return null;
-    const idParam = searchParams.get("id");
-    return idParam ? parseInt(idParam, 10) : null;
-  }, [searchParams, isPracticeMode]);
+    return idParam && !Number.isNaN(Number.parseInt(idParam, 10))
+      ? Number.parseInt(idParam, 10)
+      : null;
+  }, [idParam, isPracticeMode]);
 
   // Load game data (only in blockchain mode)
   const blockchainGame = useGame(gameId);

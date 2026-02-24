@@ -397,7 +397,7 @@ export const Replay = ({
       disabled={count === 0}
     >
       <Link
-        to={`/game?id=${gameId}`}
+        to={`/game/${gameId}`}
         className="w-full h-full flex items-center justify-center"
       >
         <RefreshIcon size="lg" style={{ filter: `url(#${filterId})` }} />

@@ -13,7 +13,7 @@ pnpm dev
 pnpm dev:ssr
 ```
 
-Puis visite **http://localhost:3000/** ou **http://localhost:3000/game?id=5**.
+Puis visite **http://localhost:3000/** ou **http://localhost:3000/game/5**.
 
 Le serveur SSR injecte les meta tags et proxifie les scripts/assets vers Vite.
 
@@ -31,8 +31,8 @@ Le serveur sera sur `http://localhost:3000` avec les rewrites Vercel.
 ## Endpoints
 
 - `http://localhost:3000/` — Page d'accueil avec meta OG
-- `http://localhost:3000/game?id=5` — Page jeu avec meta OG dynamiques
-- `http://localhost:3000/api/image?id=5` — Image OG
+- `http://localhost:3000/game/5` — Page jeu avec meta OG dynamiques
+- `http://localhost:3000/api/image/5` — Image OG
 - `http://localhost:3000/test` — Infos sur les endpoints
 
 ## Structure des fichiers

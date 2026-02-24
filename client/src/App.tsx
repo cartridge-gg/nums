@@ -8,7 +8,12 @@ import {
   voyager,
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
@@ -102,7 +107,11 @@ function App() {
                               <Layout>
                                 <Routes>
                                   <Route path="/" element={<Home />} />
-                                  <Route path="/game" element={<Game />} />
+                                  <Route path="/game/:id" element={<Game />} />
+                                  <Route
+                                    path="/game"
+                                    element={<Navigate to="/" replace />}
+                                  />
                                   <Route path="/practice" element={<Game />} />
                                 </Routes>
                               </Layout>

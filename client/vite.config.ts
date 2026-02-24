@@ -101,21 +101,6 @@ export default defineConfig({
   },
   server: {
     port: process.env.NODE_ENV === "development" ? 3003 : undefined,
-    proxy: {
-      // Proxy to SSR server for meta OG: /, /game, and built assets (run pnpm dev:ssr)
-      // Bypass: Vite dev paths + images in /assets/ (Vite serves from public/)
-      "/": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-        bypass(req) {
-          const p = (req.url || "").split("?")[0];
-          if (p.startsWith("/src/") || p.startsWith("/@") || p.startsWith("/node_modules/")) return req.url ?? false;
-          // Let Vite serve images/fonts from public/ (svg, png, jpg, ico, otf, ttf, woff, etc.)
-          if (p.startsWith("/assets/") && /\.(svg|png|jpg|jpeg|gif|ico|webp|otf|ttf|woff|woff2)$/i.test(p)) return req.url ?? false;
-          return null;
-        },
-      },
-    },
   },
   resolve: {
     alias: {

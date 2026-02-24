@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Header } from "./header";
 import { BrowserRouter } from "react-router-dom";
+import { AudioProvider } from "@/context/audio";
+import { SoundProvider } from "@/context/sound";
 
 const meta = {
   title: "Containers/Header",
@@ -21,10 +23,6 @@ const meta = {
       control: "boolean",
       description: "Whether the current chain is mainnet",
     },
-    isMuted: {
-      control: "boolean",
-      description: "Whether the sound is muted",
-    },
     balance: {
       control: "text",
       description: "The balance value to display",
@@ -37,11 +35,6 @@ const meta = {
       control: "select",
       options: ["default"],
       description: "The visual variant",
-    },
-    onToggleMute: {
-      table: {
-        disable: true,
-      },
     },
     onBalance: {
       table: {
@@ -60,11 +53,9 @@ const meta = {
     },
   },
   args: {
-    isMuted: false,
     balance: "100,200",
     username: undefined,
     isMainnet: false,
-    onToggleMute: () => {},
     onConnect: () => {},
     onProfile: () => {},
     onBalance: () => {},
@@ -72,7 +63,11 @@ const meta = {
   decorators: [
     (Story) => (
       <BrowserRouter>
-        <Story />
+        <AudioProvider>
+          <SoundProvider>
+            <Story />
+          </SoundProvider>
+        </AudioProvider>
       </BrowserRouter>
     ),
   ],

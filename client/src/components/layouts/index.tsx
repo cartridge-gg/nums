@@ -224,8 +224,6 @@ export const Layout = ({ children }: LayoutProps) => {
       />
       <Header
         isMainnet={headerData.isMainnet}
-        isMuted={headerData.isMuted}
-        onToggleMute={headerData.toggleMute}
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}

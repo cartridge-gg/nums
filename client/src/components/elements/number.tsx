@@ -1,12 +1,14 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import SlotCounter from "react-slot-counter";
+import { useAudio } from "@/context/audio";
 
 export interface NumberProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof numberVariants> {
   value?: number;
   invalid?: boolean;
+  sound?: boolean;
 }
 
 const numberVariants = cva(
@@ -29,11 +31,14 @@ const numberVariants = cva(
 export const Num = ({
   value = 0,
   invalid = false,
+  sound = false,
   variant,
   className,
   style,
   ...props
 }: NumberProps) => {
+  const { playSlots } = useAudio();
+
   return (
     <div
       data-invalid={invalid}
@@ -52,6 +57,7 @@ export const Num = ({
           dummyCharacters={"0123456789".split("")}
           animateOnVisible={false}
           useMonospaceWidth
+          onAnimationStart={sound ? playSlots : undefined}
         />
       </div>
     </div>

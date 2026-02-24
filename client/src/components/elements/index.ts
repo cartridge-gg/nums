@@ -5,6 +5,7 @@ export * from "./number";
 export * from "./instruction";
 export * from "./game-info";
 export * from "./sound";
+export * from "./sound-controls";
 export * from "./balance";
 export * from "./reward";
 export * from "./profile";

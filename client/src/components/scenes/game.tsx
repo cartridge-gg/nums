@@ -76,7 +76,7 @@ export const GameScene = ({
     >
       <div className="flex justify-between items-stretch gap-2 xs:gap-3 md:gap-8 w-full">
         <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
-          <Num value={game.number} invalid={isOver} />
+          <Num value={game.number} invalid={isOver} sound />
           <div className="flex flex-col justify-between items-start h-full gap-2">
             <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
               Up next

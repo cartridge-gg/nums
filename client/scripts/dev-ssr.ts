@@ -1,33 +1,106 @@
 #!/usr/bin/env node
 /**
  * Local development server for testing SSR API
- * 
- * Usage:
- *   1. Build the app first (one time): pnpm build
- *   2. Run this script: pnpm dev:ssr
- *   3. Visit: http://localhost:3000/api/ssr?id=5
- * 
- * The server will automatically reload when you modify files in src/api/
- * 
- * Alternative: Use Vercel CLI (recommended)
- *   pnpm dev:vercel
+ *
+ * Mode 1 - Vite running (hot reload):
+ *   Terminal 1: pnpm dev (Vite on 1337)
+ *   Terminal 2: pnpm dev:ssr
+ *   Visit: http://localhost:3000/ or http://localhost:1337/ (via Vite proxy)
+ *
+ * Mode 2 - Build only (no Vite):
+ *   pnpm build && pnpm dev:ssr
+ *   Visit: http://localhost:3000/
  */
 
 import { createServer } from "http";
+import fs from "node:fs";
+import path from "node:path";
 import { parse } from "url";
+import { fileURLToPath } from "node:url";
 import ssrHandler from "../src/api/ssr";
 import imageHandler from "../src/api/image";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
+const VITE_PORT = process.env.VITE_PORT || 1337;
+
+function serveFromDist(_req: import("http").IncomingMessage, res: import("http").ServerResponse, filePath: string): boolean {
+  const distPaths = [
+    path.join(__dirname, "..", "dist", filePath),
+    path.join(process.cwd(), "dist", filePath),
+    path.join(process.cwd(), "client", "dist", filePath),
+  ];
+  if (filePath === "index.html") {
+    distPaths.push(path.join(__dirname, "..", "index.html"));
+  }
+  if (filePath === "manifest.webmanifest") {
+    distPaths.push(path.join(__dirname, "..", "public", "site.webmanifest"));
+  }
+  // Public assets (favicon, etc.)
+  distPaths.push(path.join(__dirname, "..", "public", filePath));
+
+  for (const p of distPaths) {
+    try {
+      const stat = fs.statSync(p);
+      if (stat.isFile()) {
+        const content = fs.readFileSync(p);
+        const ext = path.extname(p);
+        const types: Record<string, string> = {
+          ".html": "text/html",
+          ".js": "application/javascript",
+          ".css": "text/css",
+          ".json": "application/json",
+          ".webmanifest": "application/manifest+json",
+        };
+        res.setHeader("Content-Type", types[ext] || "application/octet-stream");
+        res.writeHead(200);
+        res.end(content);
+        return true;
+      }
+    } catch {
+      /* try next */
+    }
+  }
+  return false;
+}
+
+async function proxyToVite(req: import("http").IncomingMessage, res: import("http").ServerResponse) {
+  const parsedUrl = parse(req.url || "/", true);
+  const urlPath = parsedUrl.pathname || "/";
+
+  // If Vite not running, try serving from dist/ (index.html + built assets)
+  const distPath = urlPath === "/" ? "index.html" : urlPath.slice(1);
+  if (serveFromDist(req, res, distPath)) return;
+
+  const target = `http://127.0.0.1:${VITE_PORT}${req.url}`;
+  try {
+    const response = await fetch(target, {
+      method: req.method,
+      headers: req.headers as Record<string, string>,
+    });
+    const headers = Object.fromEntries(response.headers.entries());
+    for (const [k, v] of Object.entries(headers)) {
+      if (v) res.setHeader(k, v);
+    }
+    res.writeHead(response.status);
+    const body = await response.arrayBuffer();
+    res.end(Buffer.from(body));
+  } catch (err) {
+    console.error("Proxy error:", err);
+    res.writeHead(502, { "Content-Type": "text/plain" });
+    res.end(
+      `Vite not running on port ${VITE_PORT}. Run: pnpm dev (or pnpm build first for dist-only mode)`,
+    );
+  }
+}
 
 const server = createServer(async (req, res) => {
   const parsedUrl = parse(req.url || "/", true);
-  
+
   // Debug log
   console.log(`[${new Date().toISOString()}] ${req.method} ${parsedUrl.pathname}`, parsedUrl.query);
-  
-  // CORS headers
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -44,18 +117,15 @@ const server = createServer(async (req, res) => {
     res.end(
       JSON.stringify({
         message: "SSR dev server is running",
-        endpoints: {
-          ssr: "/api/ssr?id=5",
-          image: "/api/image?id=5",
-          test: "/test",
-        },
-      })
+        endpoints: { ssr: "/", game: "/game?id=5", image: "/api/image?id=5" },
+      }),
     );
     return;
   }
 
-  // Helper function to convert request/response and call handler
-  const callVercelHandler = async (handler: (req: VercelRequest, res: VercelResponse) => Promise<void>) => {
+  const callVercelHandler = async (
+    handler: (req: VercelRequest, res: VercelResponse) => Promise<void>,
+  ) => {
     try {
       const headers: Record<string, string | string[] | undefined> = {};
       if (req.headers) {
@@ -63,6 +133,7 @@ const server = createServer(async (req, res) => {
           headers[key] = value;
         }
       }
+      headers.host = `localhost:${PORT}`;
 
       const vercelReq = {
         query: parsedUrl.query,
@@ -85,12 +156,11 @@ const server = createServer(async (req, res) => {
           return vercelRes;
         },
         send: (body: string | Buffer) => {
-          const contentType = responseHeaders["Content-Type"] || "text/html";
-          res.writeHead(statusCode, { ...responseHeaders, "Content-Type": contentType });
+          res.writeHead(statusCode, { ...responseHeaders, "Content-Type": responseHeaders["Content-Type"] || "text/html" });
           res.end(body);
           return vercelRes;
         },
-        json: (body: any) => {
+        json: (body: unknown) => {
           res.writeHead(statusCode, { ...responseHeaders, "Content-Type": "application/json" });
           res.end(JSON.stringify(body));
           return vercelRes;
@@ -106,32 +176,31 @@ const server = createServer(async (req, res) => {
     }
   };
 
-  // SSR endpoint
-  if (parsedUrl.pathname === "/api/ssr") {
+  // SSR routes: /, /game (same as Vercel rewrites)
+  if (parsedUrl.pathname === "/" || parsedUrl.pathname === "/game") {
     await callVercelHandler(ssrHandler);
     return;
   }
 
   // Image endpoint
   if (parsedUrl.pathname === "/api/image") {
-    console.log("Image endpoint called:", parsedUrl.pathname, parsedUrl.query);
     await callVercelHandler(imageHandler);
     return;
   }
 
-  // 404 for other routes
-  res.writeHead(404, { "Content-Type": "text/plain" });
-  res.end("Not Found");
+  // API SSR direct (for testing)
+  if (parsedUrl.pathname === "/api/ssr") {
+    await callVercelHandler(ssrHandler);
+    return;
+  }
+
+  // Proxy everything else to Vite (scripts, assets, HMR, etc.)
+  await proxyToVite(req, res);
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 SSR dev server running on http://localhost:${PORT}`);
-  console.log(`📝 Test endpoint: http://localhost:${PORT}/test`);
-  console.log(`🎮 SSR endpoint: http://localhost:${PORT}/api/ssr?id=5`);
-  console.log(`🖼️  Image endpoint: http://localhost:${PORT}/api/image?id=5`);
-  console.log("\n💡 Make sure to build the app first (one time): pnpm build");
-  console.log("💡 The SSR function will look for index.html in dist/ or .vercel/output/static/");
-  console.log("💡 Server will auto-reload when you modify files in src/api/");
-  console.log("\n💡 Alternative: Use Vercel CLI for better compatibility:");
-  console.log("   pnpm dev:vercel\n");
+  console.log(`🚀 SSR dev server: http://localhost:${PORT}`);
+  console.log(`\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game?id=5`);
+  console.log(`   With Vite: pnpm dev (proxies assets from port ${VITE_PORT})`);
+  console.log(`   Without Vite: pnpm build first, then dist/ is served\n`);
 });

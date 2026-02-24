@@ -164,27 +164,11 @@ async function generateMetaTags(
   gameId: number | undefined,
   baseUrl: string = BASE_URL,
 ): Promise<string> {
-  let title = "Nums";
-  let description = "The numbers must be sorted";
-  let imageUrl = `${baseUrl}/api/image`;
-
-  if (gameId !== undefined) {
-    const game = await getGame(gameId);
-
-    if (game) {
-      // Generate dynamic title and description based on game state
-      if (game.over) {
-        title = `Game #${game.id} - Completed`;
-        description = `Score: ${game.reward.toLocaleString()} NUMS | Slots: ${game.slots.join(", ")}`;
-      } else {
-        title = `Game #${game.id} - In Progress`;
-        description = `Current slots: ${game.slots.join(", ")}`;
-      }
-
-      imageUrl = `${baseUrl}/api/image?id=${game.id}`;
-    }
-  }
-
+  const title = "Nums,gg";
+  const description = "The numbers must be sorted";
+  const imageUrl = gameId
+    ? `${baseUrl}/api/image?id=${gameId}`
+    : `${baseUrl}/api/image`;
   const pageUrl = `${baseUrl}${url}`;
   return buildMetaTags(title, description, imageUrl, pageUrl);
 }
@@ -209,7 +193,9 @@ async function loadBaseHtml(host: string): Promise<string> {
     return cachedBaseHtml;
   }
 
-  const indexUrl = `https://${host}/index.html`;
+  const protocol =
+    host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+  const indexUrl = `${protocol}://${host}/index.html`;
 
   try {
     const response = await fetch(indexUrl);

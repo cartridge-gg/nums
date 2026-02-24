@@ -17,8 +17,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parse } from "url";
 import { fileURLToPath } from "node:url";
-import ssrHandler from "../src/api/ssr";
-import imageHandler from "../src/api/image";
+import ssrHandler from "../api/ssr";
+import imageHandler from "../api/image";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,19 +26,19 @@ const PORT = process.env.PORT || 3000;
 const VITE_PORT = process.env.VITE_PORT || 1337;
 
 function serveFromDist(_req: import("http").IncomingMessage, res: import("http").ServerResponse, filePath: string): boolean {
+  const base = path.join(__dirname, "..");
   const distPaths = [
-    path.join(__dirname, "..", "dist", filePath),
+    path.join(base, "dist", filePath),
     path.join(process.cwd(), "dist", filePath),
     path.join(process.cwd(), "client", "dist", filePath),
+    path.join(base, "public", filePath),
   ];
   if (filePath === "index.html") {
-    distPaths.push(path.join(__dirname, "..", "index.html"));
+    distPaths.push(path.join(base, "index.html"));
   }
   if (filePath === "manifest.webmanifest") {
-    distPaths.push(path.join(__dirname, "..", "public", "site.webmanifest"));
+    distPaths.push(path.join(base, "public", "site.webmanifest"));
   }
-  // Public assets (favicon, etc.)
-  distPaths.push(path.join(__dirname, "..", "public", filePath));
 
   for (const p of distPaths) {
     try {
@@ -88,9 +88,9 @@ async function proxyToVite(req: import("http").IncomingMessage, res: import("htt
     res.end(Buffer.from(body));
   } catch (err) {
     console.error("Proxy error:", err);
-    res.writeHead(502, { "Content-Type": "text/plain" });
+    res.writeHead(502, { "Content-Type": "text/html; charset=utf-8" });
     res.end(
-      `Vite not running on port ${VITE_PORT}. Run: pnpm dev (or pnpm build first for dist-only mode)`,
+      `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vite required</title></head><body style="font-family:sans-serif;padding:2rem;max-width:40rem"><h1>Vite not running</h1><p>Start Vite in another terminal:</p><pre style="background:#f0f0f0;padding:1rem;border-radius:4px">pnpm dev</pre><p>Then visit <a href="http://localhost:${VITE_PORT}">http://localhost:${VITE_PORT}</a> or <a href="http://localhost:${PORT}">http://localhost:${PORT}</a></p><p>Or run <code>pnpm build</code> first for dist-only mode.</p></body></html>`,
     );
   }
 }
@@ -194,13 +194,26 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Browser/DevTools requests - return 404 without proxying (avoids proxy error when Vite not running)
+  if (parsedUrl.pathname?.startsWith("/.well-known/")) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+
   // Proxy everything else to Vite (scripts, assets, HMR, etc.)
   await proxyToVite(req, res);
 });
 
+const distExists = fs.existsSync(path.join(__dirname, "..", "dist", "index.html"));
+
 server.listen(PORT, () => {
   console.log(`🚀 SSR dev server: http://localhost:${PORT}`);
   console.log(`\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game?id=5`);
-  console.log(`   With Vite: pnpm dev (proxies assets from port ${VITE_PORT})`);
-  console.log(`   Without Vite: pnpm build first, then dist/ is served\n`);
+  if (!distExists) {
+    console.log(`\n   ⚠️  Run "pnpm dev" in another terminal (Vite required for assets)`);
+  } else {
+    console.log(`   ✓ dist/ found - can run without Vite`);
+  }
+  console.log("");
 });

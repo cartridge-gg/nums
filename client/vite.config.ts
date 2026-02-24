@@ -5,6 +5,7 @@ import mkcert from "vite-plugin-mkcert";
 import { VitePWA } from "vite-plugin-pwa";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
+import vercel from "vite-plugin-vercel";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const COMMIT_SHA = process.env.VERCEL_GIT_COMMIT_SHA || "dev";
@@ -30,6 +31,7 @@ export default defineConfig({
     topLevelAwait(),
     tsconfigPaths(),
     mkcert(),
+    vercel(),
     VitePWA({
       registerType: "autoUpdate",
       // Specify service worker filename explicitly

@@ -76,7 +76,7 @@ export const HomeScene = ({
             className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
           >
             <Link
-              to={`/game?id=${gameId}`}
+              to={`/game/${gameId}`}
               className="w-full h-full flex items-center justify-center"
             >
               <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">

@@ -117,7 +117,7 @@ const server = createServer(async (req, res) => {
     res.end(
       JSON.stringify({
         message: "SSR dev server is running",
-        endpoints: { ssr: "/", game: "/game?id=5", image: "/api/image?id=5" },
+        endpoints: { ssr: "/", game: "/game/5", image: "/api/image/5" },
       }),
     );
     return;
@@ -176,20 +176,26 @@ const server = createServer(async (req, res) => {
     }
   };
 
-  // SSR route: /game only (Vercel rewrites /game -> /api/ssr; / serves index.html)
-  if (parsedUrl.pathname === "/game") {
+  // SSR route: /game/:id (Vercel rewrites /game/:id -> /api/ssr/:id)
+  const gamePathMatch = parsedUrl.pathname?.match(/^\/game\/(\d+)$/);
+  if (gamePathMatch) {
+    const gameId = gamePathMatch[1];
+    parsedUrl.pathname = `/api/ssr/${gameId}`;
+    parsedUrl.path = `/api/ssr/${gameId}`;
+    req.url = `/api/ssr/${gameId}`;
     await callVercelHandler(ssrHandler);
     return;
   }
 
-  // Image endpoint
-  if (parsedUrl.pathname === "/api/image") {
+  // Image endpoint: /api/image and /api/image/:id (Vercel rewrites -> /api/image/:id)
+  const imagePathMatch = parsedUrl.pathname?.match(/^\/api\/image(?:\/(\d+))?$/);
+  if (imagePathMatch) {
     await callVercelHandler(imageHandler);
     return;
   }
 
-  // API SSR direct (for testing)
-  if (parsedUrl.pathname === "/api/ssr") {
+  // API SSR: /api/ssr and /api/ssr/:id
+  if (parsedUrl.pathname === "/api/ssr" || parsedUrl.pathname?.match(/^\/api\/ssr\/\d+$/)) {
     await callVercelHandler(ssrHandler);
     return;
   }
@@ -209,7 +215,7 @@ const distExists = fs.existsSync(path.join(__dirname, "..", "dist", "index.html"
 
 server.listen(PORT, () => {
   console.log(`🚀 SSR dev server: http://localhost:${PORT}`);
-  console.log(`\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game?id=5`);
+  console.log(`\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game/5`);
   if (!distExists) {
     console.log(`\n   ⚠️  Run "pnpm dev" in another terminal (Vite required for assets)`);
   } else {

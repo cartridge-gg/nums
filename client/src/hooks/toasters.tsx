@@ -58,7 +58,7 @@ export const useToasters = () => {
           multiplier: started.multiplier,
         }}
         actionProps={{
-          to: `/game?id=${started.game_id}`,
+          to: `/game/${started.game_id}`,
         }}
       />,
       {
@@ -87,7 +87,7 @@ export const useToasters = () => {
           earning: claimed.reward,
         }}
         actionProps={{
-          to: `/game?id=${claimed.game_id}`,
+          to: `/game/${claimed.game_id}`,
         }}
       />,
       {

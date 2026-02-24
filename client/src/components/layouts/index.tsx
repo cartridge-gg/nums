@@ -120,7 +120,7 @@ export const Layout = ({ children }: LayoutProps) => {
         controllerIframe &&
         getComputedStyle(controllerIframe).opacity === "1"
       ) {
-        navigate(`/game?id=${newestGame.id}`);
+        navigate(`/game/${newestGame.id}`);
         (connector as ControllerConnector)?.controller?.close?.();
       }
     }

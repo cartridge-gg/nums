@@ -20,7 +20,10 @@ async function fallback(res: VercelResponse) {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const gameIdParam = req.query.id as string | undefined;
+    // Extract gameId from query (?id=) or path (/api/image/:id)
+    const gameIdParam =
+      (req.query.id as string | undefined) ??
+      (req.url?.match(/\/api\/image\/(\d+)/)?.[1]);
     const gameId =
       gameIdParam && !Number.isNaN(Number.parseInt(gameIdParam, 10))
         ? Number.parseInt(gameIdParam, 10)

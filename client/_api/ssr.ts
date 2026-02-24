@@ -167,7 +167,7 @@ async function generateMetaTags(
   const title = "Nums.gg";
   const description = "The numbers must be sorted";
   const imageUrl = gameId
-    ? `${baseUrl}/api/image?id=${gameId}`
+    ? `${baseUrl}/api/image/${gameId}`
     : `${baseUrl}/api/image`;
   const pageUrl = `${baseUrl}${url}`;
   return buildMetaTags(title, description, imageUrl, pageUrl);
@@ -240,13 +240,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : `https://${host}`;
 
   try {
-    const gameIdParam = req.query.id as string | undefined;
+    // Extract gameId from query (?id=) or path (/api/ssr/:id)
+    const gameIdParam =
+      (req.query.id as string | undefined) ??
+      (req.url?.match(/\/api\/ssr\/(\d+)/)?.[1]);
     const gameId =
       gameIdParam && !isNaN(parseInt(gameIdParam, 10))
         ? parseInt(gameIdParam, 10)
         : undefined;
 
-    const metaTags = await generateMetaTags(requestPath, gameId, baseUrl);
+    // When gameId present, use canonical path for og:url
+    const pagePath = gameId ? `/game/${gameId}` : requestPath;
+    const metaTags = await generateMetaTags(pagePath, gameId, baseUrl);
     let baseHtml = await loadBaseHtml(host);
 
     baseHtml = baseHtml.replace(

@@ -14,11 +14,11 @@
       "destination": "https://us.i.posthog.com/:path*"
     },
     {
-      "source": "/game",
+      "source": "/",
       "destination": "/api/ssr"
     },
     {
-      "source": "/",
+      "source": "/game",
       "destination": "/api/ssr"
     },
     {

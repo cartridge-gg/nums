@@ -76,8 +76,8 @@ export const Leaderboard = ({
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}
           >
-            <span className="hidden md:inline">Avg. Score</span>
-            <span className="inline md:hidden">Score</span>
+            <span className="hidden md:inline">Total Earned</span>
+            <span className="inline md:hidden">Earned</span>
           </span>
         </div>
       </div>

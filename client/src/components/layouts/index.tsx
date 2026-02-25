@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
@@ -45,7 +46,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
   const { games, loading: gamesLoading } = useGames();
-  const navigate = useNavigate();
+  const navigate = usePreserveSearchNavigate();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);

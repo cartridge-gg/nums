@@ -8,7 +8,7 @@ import {
   type ActivitiesProps,
 } from "../containers";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { AddIcon, ShadowEffect } from "../icons";
 import { useId } from "react";
 

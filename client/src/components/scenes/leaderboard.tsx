@@ -51,45 +51,47 @@ export const LeaderboardScene = ({
 
       // Select the appropriate fields based on range
       let total: number;
-      let score: number;
+      let totalReward: number;
 
       switch (range) {
         case "1D":
           total = row.games_played_day ?? 0;
-          score = row.average_score_day ?? 0;
+          totalReward = row.total_reward_day ?? 0;
           break;
         case "1W":
           total = row.games_played_week ?? 0;
-          score = row.average_score_week ?? 0;
+          totalReward = row.total_reward_week ?? 0;
           break;
         case "All":
         default:
           total = row.games_played;
-          score = row.average_score;
+          totalReward = row.total_reward;
           break;
       }
 
       return {
         username: row.username,
         total,
-        score,
+        totalReward,
         variant: (isCurrentUser ? "primary" : "default") as
           | "primary"
           | "default",
       };
     });
 
-    // Filter out rows with 0 games for day/week ranges and sort by score
+    // Filter out rows with 0 games for day/week ranges and sort by total reward
     const filtered =
       range === "All"
         ? transformed
         : transformed
             .filter((row) => row.total > 0)
-            .sort((a, b) => b.score - a.score);
+            .sort((a, b) => b.totalReward - a.totalReward);
 
-    // Add rank and sort by score for All range
+    // Add rank and sort by total reward for All range (default)
     const sorted =
-      range === "All" ? filtered.sort((a, b) => b.score - a.score) : filtered;
+      range === "All"
+        ? filtered.sort((a, b) => b.totalReward - a.totalReward)
+        : filtered;
 
     return sorted.map((row, index) => ({
       ...row,

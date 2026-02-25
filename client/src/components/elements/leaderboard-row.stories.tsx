@@ -22,7 +22,7 @@ export const Default: Story = {
     rank: 1,
     username: "Player123",
     total: 42,
-    score: 1250.5,
+    totalReward: 12500,
   },
 };
 
@@ -31,7 +31,7 @@ export const Primary: Story = {
     rank: 5,
     username: "MyUsername",
     total: 28,
-    score: 980.3,
+    totalReward: 8200,
     variant: "primary",
   },
 };
@@ -41,6 +41,6 @@ export const LongUsername: Story = {
     rank: 10,
     username: "VeryLongUsernameThatShouldBeTruncated",
     total: 15,
-    score: 750.8,
+    totalReward: 5400,
   },
 };

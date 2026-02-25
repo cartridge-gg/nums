@@ -3,13 +3,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import SlotCounter from "react-slot-counter";
 import background from "/assets/numbers.svg";
 import { Countup } from "@/components/animations";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CartridgeIcon, DojoIcon, StarknetIcon } from "@/components/icons";
 
 export interface WelcomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof welcomeSceneVariants> {
   isDismissing?: boolean;
+  close: () => void;
 }
 
 const welcomeSceneVariants = cva(
@@ -33,8 +34,8 @@ const welcomeSceneVariants = cva(
 export const WelcomeScene = ({
   variant,
   className,
-  onClick,
   isDismissing = false,
+  close,
   ...props
 }: WelcomeSceneProps) => {
   const [phase, setPhase] = useState(0);
@@ -42,19 +43,13 @@ export const WelcomeScene = ({
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 3000);
     const t2 = setTimeout(() => setPhase(2), 4000);
+    const t3 = setTimeout(() => close(), 5000);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
-  }, []);
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (phase !== 2 || !onClick) return;
-      onClick(event);
-    },
-    [phase, onClick],
-  );
+  }, [close]);
 
   return (
     <div
@@ -64,7 +59,7 @@ export const WelcomeScene = ({
         "transition-opacity duration-1000",
         isDismissing && "opacity-0 pointer-events-none",
       )}
-      onClick={handleClick}
+      onClick={phase === 2 ? close : undefined}
       {...props}
     >
       <div className="absolute inset-0 bg-[#4F1CDE]" />

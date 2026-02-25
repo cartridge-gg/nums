@@ -229,7 +229,7 @@ export const Layout = ({ children }: LayoutProps) => {
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
       {showWelcomeOverlay && (
         <WelcomeScene
-          onClick={dismiss}
+          close={dismiss}
           isDismissing={isDismissing}
           className="absolute inset-0 z-[100] w-full h-full"
         />

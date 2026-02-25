@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { WelcomeScene } from "./welcome";
+import { fn } from "storybook/test";
 
 const meta = {
   title: "Scenes/Welcome",
@@ -33,5 +34,6 @@ export const Default: Story = {
   args: {
     variant: "default",
     size: "md",
+    close: fn(),
   },
 };

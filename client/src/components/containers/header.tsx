@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { LogoIcon } from "@/components/icons/exotics";
 import { QuestIcon, TrophyIcon } from "@/components/icons";
 import {

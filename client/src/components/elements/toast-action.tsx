@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import type { ButtonProps } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { EyeIcon } from "../icons";
 
 const toastActionVariants = cva("bg-white-900 hover:bg-white-800 px-3", {

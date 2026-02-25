@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { BrandIcon, EyeIcon, GiftIcon } from "@/components/icons";
 import { useId } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 
 export interface ActivityProps
   extends React.HTMLAttributes<HTMLDivElement>,

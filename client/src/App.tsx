@@ -8,12 +8,8 @@ import {
   voyager,
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate } from "@/lib/router";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";

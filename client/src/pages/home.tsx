@@ -1,6 +1,6 @@
 import { HomeScene, LoadingScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { usePreserveSearchNavigate } from "@/lib/router";
 import { useGames } from "@/hooks/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
@@ -10,7 +10,7 @@ import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
 
 export const Home = () => {
-  const navigate = useNavigate();
+  const navigate = usePreserveSearchNavigate();
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();

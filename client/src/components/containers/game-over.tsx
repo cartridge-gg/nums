@@ -11,7 +11,7 @@ import {
 import { useId, useState, useEffect, useMemo, useRef } from "react";
 import { useAudio } from "@/context/audio";
 import Confetti from "react-confetti";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { Stages, type StagesProps } from "@/components/containers";
 
 export interface GameOverProps

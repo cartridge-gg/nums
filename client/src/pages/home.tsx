@@ -1,4 +1,4 @@
-import { HomeScene } from "@/components/scenes/home";
+import { HomeScene, LoadingScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGames } from "@/hooks/games";
@@ -8,7 +8,6 @@ import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
-import { LoadingScene } from "@/components/scenes";
 
 export const Home = () => {
   const navigate = useNavigate();

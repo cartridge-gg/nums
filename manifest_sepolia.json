@@ -58,7 +58,7 @@
     },
     {
       "address": "0x4d23aab51de016ced48fbbe9256b2e7439424da0cf3485442923ee35f5cd84b",
-      "class_hash": "0x2edf223c2d649c774c6c38570be12e6876b765d6a6423bfdb5a5481ef8c0c41",
+      "class_hash": "0x316ff88a15ac3a1377bf0981d6d8f80124f516d20b9e4342c9383b9dae91d0",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -107,7 +107,7 @@
     },
     {
       "address": "0x510199d62b59394712edc4738d57e5f2220a13afa31d8f9ca6eb84aecd32172",
-      "class_hash": "0x638175cf043925851726fa85b149234ef1f1e2f047f6d1393225d43027345c2",
+      "class_hash": "0x1cc2fe4aad87c3c4f19a698811d0887b2b15d700bcd199e1976d65f83c6bc82",
       "init_calldata": [],
       "tag": "NUMS-Token",
       "selector": "0x500199e486811b06dd992b129c72f48d8859c1ee14b4e18c6564d32cf38e6c1",
@@ -116,6 +116,7 @@
         "reward",
         "mint",
         "burn",
+        "withdraw",
         "upgrade",
         "grant_role",
         "revoke_role",
@@ -6041,6 +6042,18 @@
           "state_mutability": "view"
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "withdraw",
+      "inputs": [
+        {
+          "name": "token_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "external"
     }
   ]
 }

@@ -32,4 +32,5 @@ export const animationVariants = cva(base, {
 });
 
 export * from "./countdown";
+export * from "./countup";
 export * from "./types";

@@ -21,7 +21,7 @@ function mergeSearch(to: To, currentSearch: string): To {
     return existingSearch ? to : `${pathname}${currentSearch}`;
   }
 
-  const pathname = typeof to === "object" ? to.pathname ?? "" : "";
+  const pathname = typeof to === "object" ? (to.pathname ?? "") : "";
   if (
     typeof pathname === "string" &&
     (pathname.startsWith("http://") || pathname.startsWith("https://"))

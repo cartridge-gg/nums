@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { formatCompactNumber } from "@/helpers/number";
 import { cva, type VariantProps } from "class-variance-authority";
 
 export interface LeaderboardRowProps
@@ -7,7 +8,7 @@ export interface LeaderboardRowProps
   rank: number;
   username: string;
   total: number;
-  score: number;
+  totalReward: number;
 }
 
 const leaderboardRowVariants = cva(
@@ -30,7 +31,7 @@ export const LeaderboardRow = ({
   rank,
   username,
   total,
-  score,
+  totalReward,
   variant,
   className,
   ...props
@@ -77,7 +78,7 @@ export const LeaderboardRow = ({
         </span>
       </div>
 
-      {/* Avg. score */}
+      {/* Total Earned */}
       <div className="flex-[2] text-left">
         <span
           className={cn(
@@ -85,7 +86,12 @@ export const LeaderboardRow = ({
             variant === "primary" ? "text-yellow-100" : "text-white-100",
           )}
         >
-          {score.toFixed(1)}
+          <span className="hidden md:inline">
+            {totalReward.toLocaleString()}
+          </span>
+          <span className="inline md:hidden">
+            {formatCompactNumber(totalReward)}
+          </span>
         </span>
       </div>
     </div>

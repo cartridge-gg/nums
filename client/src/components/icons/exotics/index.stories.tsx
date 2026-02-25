@@ -24,7 +24,6 @@ const exoticIcons = [
   { name: "LogoIcon", component: Icons.LogoIcon },
   { name: "LogoMiniIcon", component: Icons.LogoMiniIcon },
   { name: "NumsIcon", component: Icons.NumsIcon },
-  { name: "StarknetIcon", component: Icons.StarknetIcon },
 ] as const;
 
 export const Default: Story = {

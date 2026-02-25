@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MITuse use crate::interfaces::erc20::IERC20Dispatcher;
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
 #[starknet::interface]
@@ -17,6 +17,8 @@ pub fn NAME() -> ByteArray {
     "Token"
 }
 
+const TREASURY_FEE: u64 = 25; // 25%
+const WITHDRAWER_ROLE: felt252 = selector!("WITHDRAWER_ROLE");
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[dojo::contract]
@@ -30,8 +32,9 @@ mod Token {
     use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
     use starknet::{ContractAddress, get_caller_address};
     use crate::constants::{NAMESPACE, TEN_POW_18};
+    use crate::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use crate::systems::play::NAME as PLAY_NAME;
-    use super::MINTER_ROLE;
+    use super::{MINTER_ROLE, TREASURY_FEE, WITHDRAWER_ROLE};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
@@ -146,8 +149,13 @@ mod Token {
         #[external(v0)]
         fn reward(ref self: ContractState, recipient: ContractAddress, amount: u64) -> bool {
             self.accesscontrol.assert_only_role(MINTER_ROLE);
-
+            // [Effect] Reward minted to the recipient
             self.erc20.mint(recipient, amount.into() * TEN_POW_18.into());
+            // [Effect] Treasury fee minted to the treasury
+            let fee = amount * TREASURY_FEE / 100;
+            let this: ContractAddress = starknet::get_contract_address();
+            self.erc20.mint(this, fee.into() * TEN_POW_18.into());
+            // [Return] Success
             true
         }
 
@@ -158,7 +166,26 @@ mod Token {
 
         #[external(v0)]
         fn burn(ref self: ContractState, amount: u256) {
-            self.erc20.burn(get_caller_address(), amount)
+            // [Effect] Burn tokens from the caller
+            self.erc20.burn(get_caller_address(), amount);
+            // [Effect] Burn treasury fee
+            let fee = amount * TREASURY_FEE.into() / 100;
+            let this = starknet::get_contract_address();
+            let balance = self.erc20.balance_of(this);
+            let burn = if balance >= fee {
+                fee
+            } else {
+                balance
+            };
+            self.erc20.burn(this, burn);
+        }
+
+        #[external(v0)]
+        fn withdraw(ref self: ContractState, token_address: ContractAddress) {
+            self.accesscontrol.assert_only_role(WITHDRAWER_ROLE);
+            let token = IERC20Dispatcher { contract_address: token_address };
+            let balance = token.balance_of(starknet::get_contract_address());
+            token.transfer(get_caller_address(), balance);
         }
     }
 }

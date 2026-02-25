@@ -13,6 +13,7 @@ pub mod StarterpackComponent {
 
     pub const MULTIPLIER: u256 = 100000;
     pub const STARTERPACK_COUNT: u8 = 10;
+    pub const REFERRAL_PERCENTAGE: u8 = 5;
 
     // Storage
 
@@ -51,7 +52,7 @@ pub mod StarterpackComponent {
                 let starterpack_id = starterpack_disp
                     .register(
                         implementation: starknet::get_contract_address(),
-                        referral_percentage: 0,
+                        referral_percentage: REFERRAL_PERCENTAGE,
                         reissuable: reissuable,
                         price: price,
                         payment_token: payment_token,
@@ -69,6 +70,32 @@ pub mod StarterpackComponent {
                 );
                 store.set_starterpack(@pack);
             };
+        }
+
+        fn fix(ref self: ComponentState<TContractState>, world: WorldStorage) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+            let total: u32 = STARTERPACK_COUNT.into();
+            for index in 0..total {
+                let starterpack_id = index + 74;
+                let mut pack = store.starterpack(starterpack_id);
+                pack.assert_does_exist();
+                pack.referral_percentage = REFERRAL_PERCENTAGE;
+                store.set_starterpack(@pack);
+
+                // [Interaction] Update starterpack
+                store
+                    .starterpack_disp()
+                    .update(
+                        starterpack_id: starterpack_id,
+                        implementation: starknet::get_contract_address(),
+                        referral_percentage: REFERRAL_PERCENTAGE,
+                        reissuable: pack.reissuable,
+                        price: pack.price,
+                        payment_token: pack.payment_token,
+                        payment_receiver: None,
+                    );
+            }
         }
 
         fn update(

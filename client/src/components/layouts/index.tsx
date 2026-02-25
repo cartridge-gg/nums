@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
@@ -16,8 +16,10 @@ import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
+import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { Events } from "../containers/events";
+import { WelcomeScene } from "@/components/scenes";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -26,6 +28,9 @@ export interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const { pathname } = useLocation();
+  const [initialPathname] = useState(() => pathname);
+  const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
@@ -215,8 +220,20 @@ export const Layout = ({ children }: LayoutProps) => {
       .slice(0, 10);
   }, [claimeds, starteds, find, loading]);
 
+  const showWelcomeOverlay =
+    pathname === "/" &&
+    initialPathname === "/" &&
+    (!isDismissed || isDismissing);
+
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
+      {showWelcomeOverlay && (
+        <WelcomeScene
+          onClick={dismiss}
+          isDismissing={isDismissing}
+          className="absolute inset-0 z-[100] w-full h-full"
+        />
+      )}
       <img
         src={background}
         alt="Background"

@@ -25,6 +25,7 @@ import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
 import { LoadingProvider } from "./context/loading";
+import { WelcomeProvider } from "./context/welcome";
 import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
 
@@ -96,28 +97,36 @@ function App() {
                   <QuestsProvider>
                     <AchievementsProvider>
                       <PricesProvider>
-                        <LoadingProvider>
-                          <Router
-                            future={{
-                              v7_startTransition: true,
-                              v7_relativeSplatPath: true,
-                            }}
-                          >
-                            <SoundProvider>
-                              <Layout>
-                                <Routes>
-                                  <Route path="/" element={<Home />} />
-                                  <Route path="/game/:id" element={<Game />} />
-                                  <Route
-                                    path="/game"
-                                    element={<Navigate to="/" replace />}
-                                  />
-                                  <Route path="/practice" element={<Game />} />
-                                </Routes>
-                              </Layout>
-                            </SoundProvider>
-                          </Router>
-                        </LoadingProvider>
+                        <WelcomeProvider>
+                          <LoadingProvider>
+                            <Router
+                              future={{
+                                v7_startTransition: true,
+                                v7_relativeSplatPath: true,
+                              }}
+                            >
+                              <SoundProvider>
+                                <Layout>
+                                  <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route
+                                      path="/game/:id"
+                                      element={<Game />}
+                                    />
+                                    <Route
+                                      path="/game"
+                                      element={<Navigate to="/" replace />}
+                                    />
+                                    <Route
+                                      path="/practice"
+                                      element={<Game />}
+                                    />
+                                  </Routes>
+                                </Layout>
+                              </SoundProvider>
+                            </Router>
+                          </LoadingProvider>
+                        </WelcomeProvider>
                       </PricesProvider>
                     </AchievementsProvider>
                   </QuestsProvider>

@@ -511,13 +511,13 @@ export const Game = () => {
     }, 3000);
   }, []);
 
-  // Redirect to home if not connected in practice mode
-  if (isPracticeMode && !account?.address) {
+  // Redirect to home if not connected in blockchain mode
+  if (!isPracticeMode && gameId && !account?.address) {
     return <Navigate to="/" replace />;
   }
 
   // Show loading state if game is not loaded
-  if (!game || defaultLoading) return <LoadingScene />;
+  if (!game || (!isPracticeMode && defaultLoading)) return <LoadingScene />;
 
   return (
     <>

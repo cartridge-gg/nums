@@ -8,6 +8,7 @@ export * from "./sound";
 export * from "./sound-controls";
 export * from "./balance";
 export * from "./reward";
+export * from "./multiplier";
 export * from "./profile";
 export * from "./connect";
 export * from "./chart";

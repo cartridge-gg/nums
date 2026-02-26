@@ -8,7 +8,7 @@ export interface InstructionProps
 }
 
 const instructionVariants = cva(
-  "select-none relative rounded-lg flex items-center justify-center",
+  "select-none relative rounded-lg flex items-center justify-center transition-all duration-150",
   {
     variants: {
       variant: {
@@ -31,14 +31,51 @@ export const Instruction = ({
   variant,
   size,
   className,
+  onClick,
   ...props
 }: InstructionProps) => {
   return (
     <div
-      className={cn(instructionVariants({ variant, size, className }))}
+      className={cn(
+        instructionVariants({ variant, size, className }),
+        !!onClick && "cursor-pointer hover:bg-black-700",
+      )}
+      onClick={onClick}
       {...props}
     >
-      <span className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px]">
+      <>
+        <div
+          className={cn(
+            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none",
+            !onClick
+              ? "hidden"
+              : variant != "destructive"
+                ? "text-mauve-100"
+                : "text-red-100",
+          )}
+        />
+        <div
+          className={cn(
+            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none",
+            !onClick
+              ? "hidden"
+              : variant != "destructive"
+                ? "text-mauve-100"
+                : "text-red-100",
+          )}
+        />
+        <div
+          className={cn(
+            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none",
+            !onClick
+              ? "hidden"
+              : variant != "destructive"
+                ? "text-mauve-100"
+                : "text-red-100",
+          )}
+        />
+      </>
+      <span className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px] tracking-wider">
         {content}
       </span>
     </div>

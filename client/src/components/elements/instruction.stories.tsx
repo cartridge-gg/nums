@@ -39,6 +39,12 @@ export const Default: Story = {
   },
 };
 
+export const Highlighted: Story = {
+  args: {
+    content: "Set Tile",
+  },
+};
+
 export const Destructive: Story = {
   args: {
     content: "Game Over",

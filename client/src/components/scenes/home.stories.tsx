@@ -57,6 +57,7 @@ export const Connected: Story = {
     isConnected: true,
     onConnect: fn(),
     onPractice: fn(),
+    onContinue: fn(),
     activitiesProps: { activities: sampleActivities },
   },
 };
@@ -67,6 +68,7 @@ export const Disconnected: Story = {
     isConnected: false,
     onConnect: fn(),
     onPractice: fn(),
+    onContinue: fn(),
     activitiesProps: { activities: [] },
   },
 };
@@ -77,6 +79,7 @@ export const NoActivities: Story = {
     isConnected: true,
     onConnect: fn(),
     onPractice: fn(),
+    onContinue: fn(),
     activitiesProps: { activities: [] },
   },
 };

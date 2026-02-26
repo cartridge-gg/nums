@@ -8,7 +8,6 @@ import {
   type ActivitiesProps,
 } from "../containers";
 import { Button } from "../ui/button";
-import { Link } from "@/lib/router";
 import { ShadowEffect } from "../icons";
 import { useId } from "react";
 
@@ -21,6 +20,7 @@ export interface HomeSceneProps
   isConnected: boolean;
   onConnect: () => void;
   onPractice?: () => void;
+  onContinue?: () => void;
 }
 
 const homeSceneVariants = cva(
@@ -48,6 +48,7 @@ export const HomeScene = ({
   isConnected,
   onConnect,
   onPractice,
+  onContinue,
   variant,
   className,
   ...props
@@ -76,15 +77,11 @@ export const HomeScene = ({
               <Button
                 variant="default"
                 className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
+                onClick={onContinue}
               >
-                <Link
-                  to={`/game/${gameId}`}
-                  className="w-full h-full flex items-center justify-center"
-                >
-                  <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-                    Continue
-                  </span>
-                </Link>
+                <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+                  Continue
+                </span>
               </Button>
             )}
           </>

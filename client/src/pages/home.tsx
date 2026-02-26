@@ -17,13 +17,13 @@ export const Home = () => {
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply, handleConnect } = useHeader();
-  const { games, loading } = useGames();
+  const { games: blockchainGames } = useGames();
   const {
     clearGame,
     start: startPractice,
-    history: practiceHistory,
+    games: practiceGames,
+    continueGame,
   } = usePractice();
-  const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const isConnected = !!account?.address;
@@ -58,7 +58,7 @@ export const Home = () => {
     const price = parseFloat(getNumsPrice() || "0.0");
 
     // Blockchain game activities
-    const blockchainActivities = games
+    const blockchainActivities = blockchainGames
       .filter((game) => !!game.over)
       .map((game) => ({
         gameId: game.id,
@@ -70,26 +70,30 @@ export const Home = () => {
         claimed: game.claimed,
       }));
 
-    // Practice game activities
-    const practiceActivities = practiceHistory.map((activity) => ({
-      gameId: activity.gameId,
-      score: activity.score,
-      breakEven: "0",
-      payout: "Practice",
-      to: "#",
-      timestamp: activity.timestamp,
-      claimed: true,
-    }));
+    // Practice game activities (completed games only)
+    const practiceActivities = practiceGames
+      .filter((game) => game.over > 0)
+      .map((game) => ({
+        gameId: game.id,
+        score: game.level,
+        breakEven: "0",
+        payout: "Practice",
+        to: "#",
+        timestamp: game.over,
+        claimed: true,
+      }));
 
     return [...blockchainActivities, ...practiceActivities].sort(
       (a, b) => b.timestamp - a.timestamp,
     );
-  }, [games, practiceHistory, getNumsPrice, chartAbscissa]);
+  }, [blockchainGames, practiceGames, getNumsPrice, chartAbscissa]);
 
-  // Transform games for Games component (only non-over games, no new game card)
+  // Build games carousel from blockchain + active practice games
   const gamesProps = useMemo(() => {
     const now = Date.now();
-    const gameData = games
+
+    // Active blockchain games
+    const blockchainGameData = blockchainGames
       .filter((game) => !game.over && game.expiration * 1000 > now)
       .map((game) => {
         const starterpack = starterpacks.find(
@@ -112,27 +116,52 @@ export const Home = () => {
         };
       });
 
-    if (gameData.length === 0) return undefined;
+    // Active practice games
+    const practiceGameData = practiceGames
+      .filter((game) => game.over === 0)
+      .map((game) => ({
+        gameId: game.id,
+        score: game.level === 0 ? undefined : game.level,
+        expiration: game.expiration,
+        payout: "Practice",
+      }));
+
+    const allGames = [...blockchainGameData, ...practiceGameData];
+    if (allGames.length === 0) return undefined;
 
     return {
-      games: gameData,
+      games: allGames,
       gameId,
       setGameId,
     };
-  }, [starterpacks, games, config, numsPrice, gameId, setGameId]);
+  }, [
+    starterpacks,
+    blockchainGames,
+    practiceGames,
+    config,
+    numsPrice,
+    gameId,
+    setGameId,
+  ]);
 
-  // Set initial gameId to the first active game if available
+  // Set initial gameId to the first active game
   useEffect(() => {
     const now = Date.now();
-    if (games.length > 0 && gameId === undefined) {
-      const firstActiveGame = games.find(
-        (g) => !g.over && g.expiration * 1000 > now,
-      );
-      if (firstActiveGame) {
-        setGameId(firstActiveGame.id);
-      }
+    if (gameId !== undefined) return;
+
+    const firstBlockchainGame = blockchainGames.find(
+      (g) => !g.over && g.expiration * 1000 > now,
+    );
+    if (firstBlockchainGame) {
+      setGameId(firstBlockchainGame.id);
+      return;
     }
-  }, [games, gameId]);
+
+    const firstPracticeGame = practiceGames.find((g) => g.over === 0);
+    if (firstPracticeGame) {
+      setGameId(firstPracticeGame.id);
+    }
+  }, [blockchainGames, practiceGames, gameId]);
 
   const handlePracticeClick = useCallback(() => {
     clearGame();
@@ -140,13 +169,22 @@ export const Home = () => {
     navigate("/practice");
   }, [navigate, clearGame, startPractice, effectiveSupply]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setDefaultLoading(false);
-    }, 3000);
-  }, []);
+  const handleContinueClick = useCallback(() => {
+    if (!gameId) return;
 
-  if (loading || defaultLoading) return <LoadingScene />;
+    // Check if it's a practice game
+    const practiceGame = practiceGames.find(
+      (g) => g.id === gameId && g.over === 0,
+    );
+    if (practiceGame) {
+      continueGame(gameId);
+      navigate("/practice");
+      return;
+    }
+
+    // Otherwise it's a blockchain game
+    navigate(`/game/${gameId}`);
+  }, [gameId, practiceGames, continueGame, navigate]);
 
   return (
     <HomeScene
@@ -157,6 +195,7 @@ export const Home = () => {
       isConnected={isConnected}
       onConnect={handleConnect}
       onPractice={handlePracticeClick}
+      onContinue={handleContinueClick}
     />
   );
 };

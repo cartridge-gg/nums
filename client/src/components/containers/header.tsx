@@ -73,7 +73,7 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
-        <SoundControls />
+        <SoundControls className="z-[60]" />
         {onQuests && (
           <Button
             variant="muted"

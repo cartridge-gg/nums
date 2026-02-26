@@ -17,6 +17,7 @@ const toastDescriptionVariants = cva("flex gap-1 items-center", {
 export interface ToastDescriptionProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof toastDescriptionVariants> {
+  content?: string;
   multiplier?: number;
   earning?: number;
   reward?: string;
@@ -30,6 +31,7 @@ export const getColor = (multiplier: number) => {
 };
 
 export const ToastDescription = ({
+  content,
   multiplier,
   earning,
   reward,
@@ -92,6 +94,16 @@ export const ToastDescription = ({
         {...props}
       >
         <p>{reward}</p>
+      </div>
+    );
+  }
+  if (content) {
+    return (
+      <div
+        className={cn(toastDescriptionVariants({ variant, className }))}
+        {...props}
+      >
+        <p>{content}</p>
       </div>
     );
   }

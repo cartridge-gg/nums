@@ -44,10 +44,10 @@ const sampleActivities = [
   {
     gameId: 2,
     score: 8,
-    payout: "+$1.20",
-    to: "/game/2",
+    payout: "Practice",
+    to: "#",
     timestamp: Math.floor(Date.now() / 1000) - 86400,
-    claimed: false,
+    claimed: true,
   },
 ];
 

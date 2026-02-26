@@ -1,5 +1,12 @@
 import type React from "react";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Game } from "@/models/game";
 import { Random } from "@/helpers/random";
 import { Trap } from "@/types/trap";
@@ -12,8 +19,19 @@ import {
   DEFAULT_POWER_COUNT,
 } from "@/constants";
 
+const DEFAULT_SUPPLY = 1000n;
+const PRACTICE_HISTORY_KEY = "nums-practice-history";
+const MAX_HISTORY = 50;
+
+export interface PracticeActivity {
+  gameId: number;
+  score: number;
+  timestamp: number;
+}
+
 interface PracticeContextType {
   game: Game | null;
+  history: PracticeActivity[];
   start: (supply?: bigint) => void;
   setGame: (game: Game | null) => void;
   clearGame: () => void;
@@ -21,12 +39,28 @@ interface PracticeContextType {
 
 const PracticeContext = createContext<PracticeContextType>({
   game: null,
+  history: [],
   start: (_supply?: bigint) => {},
   setGame: () => {},
   clearGame: () => {},
 });
 
 export const usePractice = () => useContext(PracticeContext);
+
+const loadHistory = (): PracticeActivity[] => {
+  try {
+    const stored = localStorage.getItem(PRACTICE_HISTORY_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveHistory = (history: PracticeActivity[]) => {
+  try {
+    localStorage.setItem(PRACTICE_HISTORY_KEY, JSON.stringify(history));
+  } catch {}
+};
 
 /**
  * Create a new practice game
@@ -65,12 +99,39 @@ const createPracticeGame = (supply: bigint): Game => {
 export function PracticeProvider({ children }: { children: React.ReactNode }) {
   const { supply: currentSupply } = useHeader();
   const [game, setGameState] = useState<Game | null>(null);
+  const [history, setHistory] = useState<PracticeActivity[]>(loadHistory);
+  const gameRef = useRef<Game | null>(null);
+  gameRef.current = game;
+
+  // Persist history to localStorage
+  useEffect(() => {
+    saveHistory(history);
+  }, [history]);
 
   const start = useCallback(
     (supply?: bigint) => {
-      // Use provided supply or fallback to currentSupply from header
+      // Save current game to history if it's over
+      const currentGame = gameRef.current;
+      if (currentGame && currentGame.over > 0) {
+        setHistory((prev) =>
+          [
+            {
+              gameId: currentGame.id,
+              score: currentGame.level,
+              timestamp: currentGame.over,
+            },
+            ...prev,
+          ].slice(0, MAX_HISTORY),
+        );
+      }
+
+      // Use provided supply or fallback to currentSupply, then to default
       const supplyToUse = supply !== undefined ? supply : currentSupply;
-      const newGame = createPracticeGame(supplyToUse);
+      const effectiveSupply =
+        supplyToUse !== undefined && supplyToUse > 0n
+          ? supplyToUse
+          : DEFAULT_SUPPLY;
+      const newGame = createPracticeGame(effectiveSupply);
       const rand = new Random(BigInt(newGame.id));
       newGame.start(rand);
       setGameState(newGame);
@@ -90,6 +151,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
     <PracticeContext.Provider
       value={{
         game,
+        history,
         start,
         setGame,
         clearGame,

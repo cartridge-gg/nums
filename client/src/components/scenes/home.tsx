@@ -2,16 +2,21 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
   Banners,
+  Games,
   Activities,
+  type GamesProps,
   type ActivitiesProps,
 } from "../containers";
 import { Button } from "../ui/button";
+import { Link } from "@/lib/router";
 import { ShadowEffect } from "../icons";
 import { useId } from "react";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
+  gameId?: number;
+  gamesProps?: GamesProps;
   activitiesProps: ActivitiesProps;
   isConnected: boolean;
   onConnect: () => void;
@@ -37,6 +42,8 @@ const homeSceneVariants = cva(
 );
 
 export const HomeScene = ({
+  gameId,
+  gamesProps,
   activitiesProps,
   isConnected,
   onConnect,
@@ -51,18 +58,36 @@ export const HomeScene = ({
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
       <Banners />
+      {gamesProps && <Games {...gamesProps} />}
       <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
-      <div className="flex flex-col gap-3 px-2">
+      <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         {isConnected ? (
-          <Button
-            variant="secondary"
-            className="h-12 w-full"
-            onClick={onPractice}
-          >
-            <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-              Practice
-            </span>
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              className="h-12 w-full"
+              onClick={onPractice}
+            >
+              <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+                Practice
+              </span>
+            </Button>
+            {gameId && (
+              <Button
+                variant="default"
+                className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
+              >
+                <Link
+                  to={`/game/${gameId}`}
+                  className="w-full h-full flex items-center justify-center"
+                >
+                  <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+                    Continue
+                  </span>
+                </Link>
+              </Button>
+            )}
+          </>
         ) : (
           <Button
             variant="default"

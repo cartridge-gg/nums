@@ -102,9 +102,7 @@ export const Game = () => {
     if (
       isPracticeMode &&
       !practiceInitializedRef.current &&
-      !practiceGame &&
-      currentSupply !== undefined &&
-      currentSupply > 0n
+      !practiceGame
     ) {
       // Create a new game if none exists (e.g., on page refresh)
       startPractice(currentSupply);

@@ -5,7 +5,6 @@ import {
   AddIcon,
   CloseIcon,
   CrownIcon,
-  EyeIcon,
   RefreshIcon,
   ShadowEffect,
 } from "@/components/icons";
@@ -14,6 +13,7 @@ import { useAudio } from "@/context/audio";
 import Confetti from "react-confetti";
 import { Link } from "@/lib/router";
 import { Stages, type StagesProps } from "@/components/containers";
+import { Share, ShareProps } from "@/components/elements";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -24,6 +24,7 @@ export interface GameOverProps
   score: number;
   newGameId: number;
   newGameCount: number;
+  shareProps?: ShareProps;
   onClaim?: null | (() => void);
   onClose: () => void;
   onPurchase: () => void;
@@ -52,6 +53,7 @@ export const GameOver = ({
   score,
   newGameId,
   newGameCount,
+  shareProps,
   onClaim,
   onClose,
   onPurchase,
@@ -148,7 +150,12 @@ export const GameOver = ({
 
         {/* Buttons */}
         <div className="w-full flex gap-4">
-          <Specate filterId={filterId} onClick={onClose} className="flex-0" />
+          {shareProps && (
+            <Share
+              {...shareProps}
+              className="h-12 px-2.5 bg-purple-100 rounded-lg hover:bg-purple-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
+            />
+          )}
           {onPlayAgain ? (
             <PlayAgain
               filterId={filterId}
@@ -386,26 +393,6 @@ const Claim = ({
         </Button>
       )}
     </div>
-  );
-};
-
-export const Specate = ({
-  filterId,
-  onClick,
-  className,
-}: {
-  filterId: string;
-  onClick: () => void;
-  className?: string;
-}) => {
-  return (
-    <Button
-      variant="secondary"
-      className={cn("h-12 px-2.5", className)}
-      onClick={onClick}
-    >
-      <EyeIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-    </Button>
   );
 };
 

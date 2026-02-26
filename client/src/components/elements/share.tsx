@@ -24,7 +24,7 @@ const shareVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-black-800 hover:bg-black-700 hover:cursor-pointer transition-colors duration-150",
+          "bg-black-800 hover:bg-black-700 hover:cursor-pointer transition-colors duration-150 text-mauve-100",
       },
       size: {
         md: "h-10 w-10 md:h-12 md:w-12",
@@ -59,7 +59,7 @@ export const Share = ({
         >
           <ShadowEffect filterId={filterId} />
           <ShareIcon
-            className="text-mauve-100 h-6 w-6 md:h-8 md:w-8"
+            className="h-6 w-6 md:h-8 md:w-8"
             style={{ filter: `url(#${filterId})` }}
           />
         </Button>

@@ -246,12 +246,10 @@ export const Game = () => {
     const onInstruction =
       isOver && !showGameOver
         ? () => {
-            console.log("onInstruction: showGameOver");
             setShowGameOver(true);
           }
         : isSelectable && !showSelectionModal
           ? () => {
-              console.log("onInstruction: showSelectionModal");
               setShowSelectionModal(true);
             }
           : undefined;

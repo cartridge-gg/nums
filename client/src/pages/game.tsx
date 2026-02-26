@@ -586,6 +586,7 @@ export const Game = () => {
             score={gameOverData.score}
             newGameId={gameOverData.newGameId}
             newGameCount={gameOverData.newGameCount}
+            shareProps={blockchainGame ? shareProps : undefined}
             onClose={() => setShowGameOver(false)}
             onPurchase={() => openPurchaseScene()}
             onClaim={

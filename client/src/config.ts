@@ -5,10 +5,8 @@ import manifestMainnet from "../../manifest_mainnet.json"; // todo: update when 
 import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
 
-export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN;
-export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
-  import.meta.env.VITE_DEFAULT_CHAIN,
-);
+export const DEFAULT_CHAIN = "SN_SEPOLIA";
+export const DEFAULT_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");

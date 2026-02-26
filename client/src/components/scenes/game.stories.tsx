@@ -43,7 +43,7 @@ const createMockGame = (
   return new GameModel(
     1, // id
     false, // claimed
-    100, // multiplier
+    10, // multiplier
     0, // level
     18, // slot_count
     1, // slot_min

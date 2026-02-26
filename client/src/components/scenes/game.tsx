@@ -9,6 +9,7 @@ import {
   type SlotProps,
   type PowerUpProps,
   Share,
+  type ShareProps,
   Reward,
   Multiplier,
 } from "@/components/elements";
@@ -23,6 +24,7 @@ export interface GameSceneProps
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
+  share?: ShareProps;
   onGameInfo?: () => void;
   onInstruction?: () => void;
 }
@@ -50,6 +52,7 @@ export const GameScene = ({
   powers,
   slots,
   stages,
+  share,
   onGameInfo,
   onInstruction,
   variant,
@@ -110,8 +113,10 @@ export const GameScene = ({
             variant={isOver && !isRescuable ? "destructive" : "default"}
             onClick={onInstruction}
           />
-          <Share disabled />
-          <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
+          {share && <Share {...share} />}
+          {onGameInfo && (
+            <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
+          )}
         </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>

@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import {
   AddIcon,
+  CloseIcon,
   CrownIcon,
   EyeIcon,
   RefreshIcon,
@@ -24,7 +25,7 @@ export interface GameOverProps
   newGameId: number;
   newGameCount: number;
   onClaim?: null | (() => void);
-  onSpecate: () => void;
+  onClose: () => void;
   onPurchase: () => void;
   onPlayAgain?: () => void; // For practice mode
 }
@@ -52,7 +53,7 @@ export const GameOver = ({
   newGameId,
   newGameCount,
   onClaim,
-  onSpecate,
+  onClose,
   onPurchase,
   onPlayAgain,
   variant,
@@ -96,7 +97,24 @@ export const GameOver = ({
 
       {/* Filters */}
       <ShadowEffect filterId={filterId} />
-
+      {onClose && (
+        <Button
+          variant="ghost"
+          className="absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+          onClick={onClose}
+        >
+          <CloseIcon
+            size="lg"
+            className="md:hidden"
+            style={{ filter: `url(#${filterId})` }}
+          />
+          <CloseIcon
+            size="lg"
+            className="hidden md:block"
+            style={{ filter: `url(#${filterId})` }}
+          />
+        </Button>
+      )}
       {/* Title */}
       <Header filterId={filterId} />
 
@@ -130,7 +148,7 @@ export const GameOver = ({
 
         {/* Buttons */}
         <div className="w-full flex gap-4">
-          <Specate filterId={filterId} onClick={onSpecate} className="flex-0" />
+          <Specate filterId={filterId} onClick={onClose} className="flex-0" />
           {onPlayAgain ? (
             <PlayAgain
               filterId={filterId}

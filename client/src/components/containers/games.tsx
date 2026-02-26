@@ -6,7 +6,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Game } from "@/components/elements/game";
+import { Game, GameProps } from "@/components/elements/game";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
 import { useEffect, useId, useState } from "react";
@@ -14,12 +14,7 @@ import { useEffect, useId, useState } from "react";
 export interface GamesProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gamesVariants> {
-  games: Array<{
-    gameId?: number;
-    score?: number;
-    breakEven?: string | number;
-    payout?: string | number;
-  }>;
+  games: Array<GameProps>;
   gameId?: number;
   setGameId: (id: number) => void;
 }
@@ -182,13 +177,7 @@ export const Games = ({
         <CarouselContent className="w-full">
           {games.map((game, index) => (
             <CarouselItem key={`${game.gameId}-${index}`}>
-              <Game
-                gameId={!game.gameId ? undefined : game.gameId}
-                score={game.score}
-                breakEven={game.breakEven}
-                payout={game.payout}
-                variant={!game.gameId ? "new" : "default"}
-              />
+              <Game {...game} variant={!game.gameId ? "new" : "default"} />
             </CarouselItem>
           ))}
         </CarouselContent>

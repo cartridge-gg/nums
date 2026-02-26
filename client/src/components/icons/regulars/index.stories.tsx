@@ -54,6 +54,7 @@ const regularIcons = [
   { name: "StarIcon", component: Icons.StarIcon },
   { name: "TimerIcon", component: Icons.TimerIcon },
   { name: "TrophyUsedIcon", component: Icons.TrophyUsedIcon },
+  { name: "XIcon", component: Icons.XIcon },
 ] as const;
 
 export const Default: Story = {

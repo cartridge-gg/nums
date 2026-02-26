@@ -53,3 +53,9 @@ export const Purchase: Story = {
     type: "purchase",
   },
 };
+
+export const Copy: Story = {
+  args: {
+    type: "copy",
+  },
+};

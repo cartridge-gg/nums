@@ -60,7 +60,7 @@ export const Default: Story = {
     newGameId: 1,
     newGameCount: 5,
     onClaim: fn(),
-    onSpecate: fn(),
+    onClose: fn(),
     onPurchase: fn(),
   },
 };
@@ -94,7 +94,7 @@ export const Claimed: Story = {
     score: 15,
     newGameId: 1,
     newGameCount: 5,
-    onSpecate: fn(),
+    onClose: fn(),
     onPurchase: fn(),
   },
 };
@@ -128,7 +128,7 @@ export const Empty: Story = {
     score: 0,
     newGameId: 0,
     newGameCount: 0,
-    onSpecate: fn(),
+    onClose: fn(),
     onPurchase: fn(),
   },
 };

@@ -11,7 +11,7 @@ const meta = {
   },
   globals: {
     backgrounds: {
-      value: "purple",
+      value: "dark",
     },
   },
   argTypes: {
@@ -37,6 +37,7 @@ export const Default: Story = {
         onClick: fn(),
       },
     ] as const,
+    onClose: fn(),
   },
 };
 
@@ -52,5 +53,6 @@ export const MirrorAndDoubleUp: Story = {
         onClick: fn(),
       },
     ] as const,
+    onClose: fn(),
   },
 };

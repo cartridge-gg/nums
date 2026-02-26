@@ -94,3 +94,14 @@ export const Earning: Story = {
     },
   },
 };
+
+export const Copy: Story = {
+  args: {
+    descriptionProps: {
+      content: "Copied to clipboard",
+    },
+    thumbnailProps: {
+      type: "copy",
+    },
+  },
+};

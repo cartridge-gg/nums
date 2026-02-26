@@ -24,10 +24,12 @@ const toastVariants = cva("flex flex-col rounded-lg overflow-hidden", {
 export interface ToastProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof toastVariants> {
-  titleProps: ToastTitleProps;
-  descriptionProps: ToastDescriptionProps;
+  titleProps?: ToastTitleProps;
+  descriptionProps?: ToastDescriptionProps;
   thumbnailProps?: ToastThumbnailProps;
   actionProps?: ToastActionProps;
+  /** Duration in ms for the progress bar animation. Default: 4000 */
+  duration?: number;
 }
 
 export const Toast = ({
@@ -35,6 +37,7 @@ export const Toast = ({
   descriptionProps,
   thumbnailProps,
   actionProps,
+  duration,
   variant,
   className,
   ...props
@@ -73,7 +76,10 @@ export const Toast = ({
         {actionProps && <ToastAction {...actionProps} />}
       </div>
       <div className="bg-[#201248] h-1 relative">
-        <div className="absolute bottom-0 left-0 h-1 w-full bg-mauve-100 origin-left animate-toast-progress z-10" />
+        <div
+          className="absolute bottom-0 left-0 h-1 w-full bg-mauve-100 origin-left animate-toast-progress z-10"
+          style={{ animationDuration: `${duration ?? 4000}ms` }}
+        />
       </div>
     </div>
   );

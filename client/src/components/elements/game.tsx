@@ -2,15 +2,19 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { BrandIcon } from "@/components/icons/regulars";
 import { LiveIcon } from "@/components/icons/exotics";
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { PlusIcon } from "@/components/icons";
+import { Formatter } from "@/helpers";
+
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
 export interface GameProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gameVariants> {
-  gameId?: string | number;
+  gameId?: number;
   score?: number;
   breakEven?: string | number;
+  expiration?: number;
   payout?: string | number;
   onPlay?: () => void;
 }
@@ -34,7 +38,7 @@ const gameVariants = cva(
 export const Game = ({
   gameId,
   score,
-  breakEven,
+  expiration,
   payout,
   onPlay,
   variant,
@@ -44,6 +48,22 @@ export const Game = ({
   const filterId = useId();
 
   const Icon = variant === "new" ? PlusIcon : BrandIcon;
+  const [expiresIn, setExpiresIn] = useState<string | undefined>(
+    Formatter.countdown(expiration ?? ONE_DAY),
+  );
+
+  useEffect(() => {
+    if (!expiration) return;
+    const timer = setInterval(() => {
+      const timedelta = expiration * 1000 - Date.now();
+      if (timedelta < 0) {
+        setExpiresIn(undefined);
+        return;
+      }
+      setExpiresIn(Formatter.countdown(timedelta));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [expiration]);
 
   return (
     <div className={cn(gameVariants({ variant, className }))} {...props}>
@@ -83,9 +103,9 @@ export const Game = ({
           <Content title="Score" value={score} />
         </div>
 
-        {/* Break Even column */}
+        {/* Expires in column */}
         <div className="flex-1 flex flex-col gap-2">
-          <Content title="Breakeven" value={breakEven} />
+          <Content title="Expires in" value={expiresIn} />
         </div>
 
         {/* Payout column */}

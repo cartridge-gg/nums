@@ -22,7 +22,7 @@ export const Default: Story = {
   args: {
     gameId: "1144",
     score: 10,
-    breakEven: "14",
+    expiration: 1740614400,
     payout: "$100",
     onPlay: fn(),
   },
@@ -33,7 +33,7 @@ export const New: Story = {
     variant: "new",
     gameId: "1144",
     score: 10,
-    breakEven: "14",
+    expiration: 1740614400,
     payout: "$100",
     onPlay: fn(),
   },

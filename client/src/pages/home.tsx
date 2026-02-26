@@ -60,14 +60,15 @@ export const Home = () => {
   // Transform games for Games component (only non-over games)
   const gamesProps = useMemo(() => {
     // Existing game details
+    const now = Date.now();
     const gameData = games
-      .filter((game) => !game.over)
+      .filter((game) => !game.over && game.expiration * 1000 > now)
       .map((game) => {
         const starterpack = starterpacks.find(
           (starterpack) => starterpack.multiplier === game.multiplier,
         );
         const playPrice = Number(starterpack?.price || 0n) / 10 ** 6;
-        const { chartAbscissa, maxPayout } = ChartHelper.calculate({
+        const { maxPayout } = ChartHelper.calculate({
           slotCount: game.slot_count,
           currentSupply: game.supply,
           targetSupply: config?.target_supply || 0n,
@@ -78,7 +79,7 @@ export const Home = () => {
         return {
           gameId: game.id,
           score: game.level === 0 ? undefined : game.level,
-          breakEven: chartAbscissa,
+          expiration: game.expiration,
           payout: `$${maxPayout.toFixed(2)}`,
         };
       });
@@ -97,8 +98,11 @@ export const Home = () => {
 
   // Set initial gameId to the first active game if available
   useEffect(() => {
+    const now = Date.now();
     if (games.length > 0 && gameId === undefined) {
-      const firstActiveGame = games.find((g) => !g.over);
+      const firstActiveGame = games.find(
+        (g) => !g.over && g.expiration * 1000 > now,
+      );
       if (firstActiveGame) {
         setGameId(firstActiveGame.id);
       }

@@ -23,7 +23,10 @@ import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { ChartHelper, Verifier } from "@/helpers";
+import { toast } from "sonner";
 import { LoadingScene } from "@/components/scenes";
+import { ShareProps, Toast } from "@/components/elements";
+import { useOwner } from "@/hooks/owner";
 
 export const Game = () => {
   const location = useLocation();
@@ -34,7 +37,7 @@ export const Game = () => {
 
   // Practice context
   const { game: practiceGame, start: startPractice } = usePractice();
-  const { supply: currentSupply } = useHeader();
+  const { supply: currentSupply, username, address } = useHeader();
 
   // Practice actions
   const practiceActions = usePractices();
@@ -69,6 +72,11 @@ export const Game = () => {
       ? Number.parseInt(idParam, 10)
       : null;
   }, [idParam, isPracticeMode]);
+
+  const owner = useOwner(gameId);
+  const isOwner = useMemo(() => {
+    return BigInt(owner?.owner ?? "1") === BigInt(address ?? "0");
+  }, [owner, address]);
 
   // Load game data (only in blockchain mode)
   const blockchainGame = useGame(gameId);
@@ -320,6 +328,47 @@ export const Game = () => {
     return game && game.selectable_powers.length > 0;
   }, [game]);
 
+  const shareProps = useMemo<ShareProps>(() => {
+    return {
+      onCopyLink: async () => {
+        const url = new URL(window.location.href);
+        const baseUrl = url.origin + url.pathname;
+        const linkToCopy = username
+          ? `${baseUrl}?ref=${encodeURIComponent(username)}`
+          : baseUrl;
+        await navigator.clipboard.writeText(linkToCopy);
+        toast(
+          <Toast
+            descriptionProps={{
+              content: "Copied to clipboard",
+            }}
+            thumbnailProps={{
+              type: "copy",
+            }}
+            duration={1500}
+          />,
+          {
+            position: "bottom-center",
+            duration: 1500,
+          },
+        );
+      },
+      onShareOnX: () => {
+        const url = new URL(window.location.href);
+        const baseUrl = url.origin + url.pathname;
+        const linkToShare = username
+          ? `${baseUrl}?ref=${encodeURIComponent(username)}`
+          : baseUrl;
+        const text = `Numbers have been sorted.\nCheck and play now on Nums\n${linkToShare}`;
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
+      },
+    };
+  }, [username]);
+
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];
     return game.selectable_powers.map((power, index) => ({
@@ -331,7 +380,11 @@ export const Game = () => {
 
   // Show GameOver modal after 2 seconds when game is over
   useEffect(() => {
-    if (game?.over) {
+    if (
+      !!game &&
+      game.over > 0 &&
+      ((!game.claimed && isOwner) || isPracticeMode)
+    ) {
       const timer = setTimeout(() => {
         setShowGameOver(true);
       }, 2000);
@@ -339,7 +392,7 @@ export const Game = () => {
     } else {
       setShowGameOver(false);
     }
-  }, [game?.over]);
+  }, [game, isOwner, isPracticeMode]);
 
   // Show Selection modal after 2 seconds when selectable
   useEffect(() => {
@@ -381,14 +434,6 @@ export const Game = () => {
     if (!game || game.claimed) return;
     claim(game.id);
   }, [game, claim]);
-
-  const handleSpecate = useCallback(() => {
-    setShowGameOver(false);
-  }, [setShowGameOver]);
-
-  const handlePurchase = useCallback(() => {
-    openPurchaseScene();
-  }, [openPurchaseScene]);
 
   const handlePlayAgain = useCallback(() => {
     if (isPracticeMode) {
@@ -474,6 +519,7 @@ export const Game = () => {
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}
+        share={blockchainGame ? shareProps : undefined}
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
         onInstruction={gameProps.onInstruction}
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
@@ -540,8 +586,8 @@ export const Game = () => {
             score={gameOverData.score}
             newGameId={gameOverData.newGameId}
             newGameCount={gameOverData.newGameCount}
-            onSpecate={handleSpecate}
-            onPurchase={handlePurchase}
+            onClose={() => setShowGameOver(false)}
+            onPurchase={() => openPurchaseScene()}
             onClaim={
               isPracticeMode ? null : game.claimed ? undefined : handleClaim
             }

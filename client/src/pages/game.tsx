@@ -55,6 +55,7 @@ export const Game = () => {
     null,
   );
   const [showUsesModal, setShowUsesModal] = useState(false);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [selectedPowerIndex, setSelectedPowerIndex] = useState<number | null>(
     null,
   );
@@ -240,6 +241,21 @@ export const Game = () => {
       isLoading("slot", index),
     );
 
+    const isOver = game.over > 0;
+    const isSelectable = game.selectable_powers.length > 0;
+    const onInstruction =
+      isOver && !showGameOver
+        ? () => {
+            console.log("onInstruction: showGameOver");
+            setShowGameOver(true);
+          }
+        : isSelectable && !showSelectionModal
+          ? () => {
+              console.log("onInstruction: showSelectionModal");
+              setShowSelectionModal(true);
+            }
+          : undefined;
+
     return {
       powers: powersArray.map((power, index) => ({
         ...power,
@@ -252,15 +268,17 @@ export const Game = () => {
           }
         },
         disabled:
-          !!game.over ||
+          isOver ||
           !power.power ||
           power.power.isNone() ||
           isLoading("power", index) ||
-          hasSlotLoading,
+          hasSlotLoading ||
+          isSelectable,
       })),
-      onGameInfoClick: () => {
+      onGameInfo: () => {
         setShowPurchaseModal(true);
       },
+      onInstruction: onInstruction,
       slots: game.slots.map((slot, index) => {
         const slotLoading = isLoading("slot", index);
         return {
@@ -268,7 +286,7 @@ export const Game = () => {
           trap: game.getTrap(index),
           inactive: game.isInactive(index),
           loading: slotLoading,
-          disabled: hasSlotLoading && !slotLoading, // Disable other slots when one is loading
+          disabled: (hasSlotLoading && !slotLoading) || isOver || isSelectable, // Disable other slots when one is loading
           onSlotClick: () => {
             const trap = game.getTrap(index);
             if (trap && !trap.isNone() && !game.isInactive(index)) {
@@ -287,12 +305,16 @@ export const Game = () => {
   }, [
     game,
     purchaseProps,
+    showGameOver,
+    showSelectionModal,
     set,
     setShowPlacesModal,
     setSelectedSlotIndex,
     setShowUsesModal,
     setSelectedPowerIndex,
     isLoading,
+    setShowGameOver,
+    setShowSelectionModal,
   ]);
 
   // Check if selectable powers exist and create selections
@@ -307,7 +329,7 @@ export const Game = () => {
       loading: isLoading("power", index),
       onClick: () => select(game.id, index),
     }));
-  }, [game, hasSelectablePowers, select, isLoading]);
+  }, [game, hasSelectablePowers, select, isLoading, setShowSelectionModal]);
 
   // Show GameOver modal after 2 seconds when game is over
   useEffect(() => {
@@ -320,6 +342,18 @@ export const Game = () => {
       setShowGameOver(false);
     }
   }, [game?.over]);
+
+  // Show Selection modal after 2 seconds when selectable
+  useEffect(() => {
+    if (hasSelectablePowers && selections.length > 0) {
+      const timer = setTimeout(() => {
+        setShowSelectionModal(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSelectionModal(false);
+    }
+  }, [hasSelectablePowers, selections]);
 
   // Calculate GameOver props
   const gameOverData = useMemo(() => {
@@ -442,17 +476,22 @@ export const Game = () => {
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}
-        onGameInfoClick={blockchainGame ? gameProps.onGameInfoClick : undefined}
+        onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
+        onInstruction={gameProps.onInstruction}
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
-      {hasSelectablePowers && selections.length > 0 && (
+      {showSelectionModal && (
         <>
           {/* Overlay to block interactions with Game */}
           <div className="absolute inset-0 bg-black-900/80 z-40" />
           {/* Selections modal */}
           <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
-            <Selections selections={selections} className="max-w-2xl w-full" />
+            <Selections
+              selections={selections}
+              onClose={() => setShowSelectionModal(false)}
+              className="max-w-2xl w-full"
+            />
           </div>
         </>
       )}

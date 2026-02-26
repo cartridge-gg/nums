@@ -23,7 +23,8 @@ export interface GameSceneProps
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
-  onGameInfoClick?: () => void;
+  onGameInfo?: () => void;
+  onInstruction?: () => void;
 }
 
 const gameSceneVariants = cva(
@@ -49,7 +50,8 @@ export const GameScene = ({
   powers,
   slots,
   stages,
-  onGameInfoClick,
+  onGameInfo,
+  onInstruction,
   variant,
   size,
   className,
@@ -67,6 +69,10 @@ export const GameScene = ({
 
   const isRescuable = useMemo(() => {
     return game.enabled_powers.some((enabled) => enabled);
+  }, [game]);
+
+  const isSelectable = useMemo(() => {
+    return game.selectable_powers.length > 0;
   }, [game]);
 
   return (
@@ -97,12 +103,15 @@ export const GameScene = ({
                 ? "Use Power up"
                 : isOver
                   ? "Game Over"
-                  : "Set Tile"
+                  : isSelectable
+                    ? "Take Power Up"
+                    : "Set Tile"
             }
             variant={isOver && !isRescuable ? "destructive" : "default"}
+            onClick={onInstruction}
           />
           <Share disabled />
-          <GameInfo onClick={onGameInfoClick} disabled={!onGameInfoClick} />
+          <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
         </div>
         <Stages states={stages} className="w-full md:hidden" />
       </div>

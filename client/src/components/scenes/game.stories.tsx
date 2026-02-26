@@ -3,6 +3,7 @@ import { GameScene } from "./game";
 import { Power, PowerType } from "@/types/power";
 import { Trap, TrapType } from "@/types/trap";
 import { Game as GameModel } from "@/models/game";
+import { fn } from "storybook/test";
 
 const meta = {
   title: "Scenes/Game",
@@ -186,6 +187,7 @@ export const Rescuable: Story = {
       { breakeven: true, crown: true },
     ],
     className: "h-[calc(100vh-32px)] md:h-full",
+    onInstruction: fn(),
   },
 };
 
@@ -245,5 +247,6 @@ export const GameOver: Story = {
       { breakeven: true, crown: true },
     ],
     className: "h-[calc(100vh-32px)] md:h-full",
+    onInstruction: fn(),
   },
 };

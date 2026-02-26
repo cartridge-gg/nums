@@ -102,12 +102,12 @@ export const GameScene = ({
           <Multiplier multiplier={game.multiplier} className="md:hidden" />
           <Instruction
             content={
-              isOver && isRescuable
-                ? "Use Power up"
-                : isOver
-                  ? "Game Over"
-                  : isSelectable
-                    ? "Take Power Up"
+              isSelectable
+                ? "Take Power Up"
+                : isOver && isRescuable
+                  ? "Use Power up"
+                  : isOver
+                    ? "Game Over"
                     : "Set Tile"
             }
             variant={isOver && !isRescuable ? "destructive" : "default"}

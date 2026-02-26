@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { LoadingScene } from "@/components/scenes";
 import { ShareProps, Toast } from "@/components/elements";
 import { useOwner } from "@/hooks/owner";
+import { useMediaQuery } from "usehooks-ts";
 
 export const Game = () => {
   const location = useLocation();
@@ -328,6 +329,8 @@ export const Game = () => {
     return game && game.selectable_powers.length > 0;
   }, [game]);
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const shareProps = useMemo<ShareProps>(() => {
     return {
       onCopyLink: async () => {
@@ -348,7 +351,7 @@ export const Game = () => {
             duration={1500}
           />,
           {
-            position: "bottom-center",
+            position: isMobile ? "bottom-center" : "bottom-right",
             duration: 1500,
           },
         );
@@ -367,7 +370,7 @@ export const Game = () => {
         );
       },
     };
-  }, [username]);
+  }, [username, isMobile]);
 
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];

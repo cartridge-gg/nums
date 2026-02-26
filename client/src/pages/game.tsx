@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, Navigate } from "react-router-dom";
+import { useAccount } from "@starknet-react/core";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -32,6 +33,7 @@ import { useMediaQuery } from "usehooks-ts";
 export const Game = () => {
   const location = useLocation();
   const isPracticeMode = location.pathname === "/practice";
+  const { account } = useAccount();
 
   // Regular actions for blockchain mode
   const blockchainActions = useActions();
@@ -510,6 +512,11 @@ export const Game = () => {
       setDefaultLoading(false);
     }, 3000);
   }, []);
+
+  // Redirect to home if not connected in practice mode
+  if (isPracticeMode && !account?.address) {
+    return <Navigate to="/" replace />;
+  }
 
   // Show loading state if game is not loaded
   if (!game || defaultLoading) return <LoadingScene />;

@@ -106,16 +106,16 @@ function App() {
                                   <Routes>
                                     <Route path="/" element={<Home />} />
                                     <Route
-                                      path="/game/:id"
+                                      path="/practice"
                                       element={<Game />}
+                                    />
+                                    <Route
+                                      path="/game/:id"
+                                      element={<Navigate to="/" replace />}
                                     />
                                     <Route
                                       path="/game"
                                       element={<Navigate to="/" replace />}
-                                    />
-                                    <Route
-                                      path="/practice"
-                                      element={<Game />}
                                     />
                                   </Routes>
                                 </Layout>

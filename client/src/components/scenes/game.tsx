@@ -10,6 +10,7 @@ import {
   type PowerUpProps,
   Share,
   Reward,
+  Multiplier,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
 import type { Game as GameModel } from "@/models/game";
@@ -89,6 +90,7 @@ export const GameScene = ({
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex justify-between items-center gap-4 w-full">
+          <Multiplier multiplier={game.multiplier} className="md:hidden" />
           <Instruction
             content={
               isOver && isRescuable
@@ -116,6 +118,7 @@ export const GameScene = ({
         />
       </div>
       <div className="hidden md:flex items-stretch justify-center gap-6 w-full">
+        <Multiplier multiplier={game.multiplier} />
         <Stages states={stages} className="flex-1" />
         <Reward reward={game.reward} />
       </div>

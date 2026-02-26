@@ -76,6 +76,52 @@ body {
     color: transparent;
     animation: shimmer-reflect 6s linear infinite;
   }
+
+  @keyframes multiplier-fire {
+    0% {
+      background-position: center 0px, center 0px, 50% 100%, center center;
+    }
+    100% {
+      background-position: center -500px, center -650px, 50% 100%, center center;
+    }
+  }
+
+  @keyframes multiplier-fire-out {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .multiplier-fire::before {
+    content: "";
+    position: absolute;
+    top: var(--fire-top, -50px);
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background-image: url("/assets/silver-glitter-background.png"),
+      url("/assets/silver-glitter-background.png"),
+      linear-gradient(
+        0deg,
+        #ff8951 0px,
+        #dcbc169c 30%,
+        transparent 70%
+      ),
+      radial-gradient(ellipse at bottom, transparent 30%, black 60%);
+    background-size: 350px 500px, 400px 650px, var(--fire-bg-size) 100%,
+      var(--fire-bg-size) 100%;
+    background-blend-mode: hard-light, color-dodge, multiply;
+    background-position: 0px 0px, 0px 0px, 50% 100%, center center;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    mix-blend-mode: color-dodge;
+    filter: brightness(3.7) blur(4px) contrast(var(--fire-contrast, 6));
+    animation: multiplier-fire 1.75s linear infinite,
+      multiplier-fire-out 0.5s ease-out 1.75s forwards;
+    pointer-events: none;
+  }
 }
 
 @theme inline {

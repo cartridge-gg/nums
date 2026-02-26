@@ -1,10 +1,18 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import {
+  Banners,
+  Activities,
+  type ActivitiesProps,
+} from "../containers";
 import { Button } from "../ui/button";
+import { ShadowEffect } from "../icons";
+import { useId } from "react";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
+  activitiesProps: ActivitiesProps;
   isConnected: boolean;
   onConnect: () => void;
   onPractice?: () => void;
@@ -29,6 +37,7 @@ const homeSceneVariants = cva(
 );
 
 export const HomeScene = ({
+  activitiesProps,
   isConnected,
   onConnect,
   onPractice,
@@ -36,9 +45,13 @@ export const HomeScene = ({
   className,
   ...props
 }: HomeSceneProps) => {
+  const filterId = useId();
+
   return (
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
-      <div className="flex-1" />
+      <ShadowEffect filterId={filterId} />
+      <Banners />
+      <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
       <div className="flex flex-col gap-3 px-2">
         {isConnected ? (
           <Button

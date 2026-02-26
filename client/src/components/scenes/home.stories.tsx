@@ -32,12 +32,32 @@ const Wrapper = (args: Parameters<typeof HomeScene>[0]) => {
   return <HomeScene {...args} />;
 };
 
+const sampleActivities = [
+  {
+    gameId: 1,
+    score: 15,
+    payout: "+$2.50",
+    to: "/game/1",
+    timestamp: Math.floor(Date.now() / 1000),
+    claimed: true,
+  },
+  {
+    gameId: 2,
+    score: 8,
+    payout: "+$1.20",
+    to: "/game/2",
+    timestamp: Math.floor(Date.now() / 1000) - 86400,
+    claimed: false,
+  },
+];
+
 export const Connected: Story = {
   render: (args) => <Wrapper {...args} />,
   args: {
     isConnected: true,
     onConnect: fn(),
     onPractice: fn(),
+    activitiesProps: { activities: sampleActivities },
   },
 };
 
@@ -47,5 +67,16 @@ export const Disconnected: Story = {
     isConnected: false,
     onConnect: fn(),
     onPractice: fn(),
+    activitiesProps: { activities: [] },
+  },
+};
+
+export const NoActivities: Story = {
+  render: (args) => <Wrapper {...args} />,
+  args: {
+    isConnected: true,
+    onConnect: fn(),
+    onPractice: fn(),
+    activitiesProps: { activities: [] },
   },
 };

@@ -58,18 +58,9 @@ const buildTokens = () => {
   };
 };
 
-const slot = import.meta.env[
-  `VITE_${import.meta.env.VITE_DEFAULT_CHAIN}_TORII_URL`
-]
-  .split("/")
-  .slice(-2, -1)[0];
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
-  // policies: buildPolicies(),
-  preset: "nums",
-  namespace: "NUMS",
-  slot: slot,
   tokens: buildTokens(),
 };
 

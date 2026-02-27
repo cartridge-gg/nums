@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { ShareIcon, ShadowEffect, LinkIcon, XIcon } from "@/components/icons";
@@ -9,13 +9,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Toast } from "./toast";
+import { toast } from "sonner";
+import { useMediaQuery } from "usehooks-ts";
 
 export interface ShareProps
   extends React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof shareVariants> {
+  username?: string | null;
   disabled?: boolean;
-  onCopyLink?: () => void;
-  onShareOnX?: () => void;
 }
 
 const shareVariants = cva(
@@ -41,12 +43,53 @@ export const Share = ({
   variant,
   size,
   className,
-  onCopyLink,
-  onShareOnX,
+  username,
   disabled,
   ...props
 }: ShareProps) => {
   const filterId = useId();
+
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const handleShareOnX = useCallback(() => {
+    if (!username) return;
+    const url = new URL(window.location.href);
+    const baseUrl = url.origin + url.pathname;
+    const linkToShare = username
+      ? `${baseUrl}?ref=${encodeURIComponent(username)}`
+      : baseUrl;
+    const text = `Numbers have been sorted.\nCheck and play now on Nums\n${linkToShare}`;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }, [username]);
+
+  const handleCopyLink = useCallback(async () => {
+    if (!username) return;
+    const url = new URL(window.location.href);
+    const baseUrl = url.origin + url.pathname;
+    const linkToCopy = username
+      ? `${baseUrl}?ref=${encodeURIComponent(username)}`
+      : baseUrl;
+    await navigator.clipboard.writeText(linkToCopy);
+    toast(
+      <Toast
+        descriptionProps={{
+          content: "Copied to clipboard",
+        }}
+        thumbnailProps={{
+          type: "copy",
+        }}
+        duration={1500}
+      />,
+      {
+        position: isMobile ? "bottom-center" : "bottom-right",
+        duration: 1500,
+      },
+    );
+  }, [username]);
 
   return (
     <DropdownMenu>
@@ -69,11 +112,11 @@ export const Share = ({
           <Button
             variant="ghost"
             className="w-full justify-start p-2 hover:bg-black-700 gap-0.5"
-            onClick={onCopyLink}
+            onClick={handleShareOnX}
           >
-            <LinkIcon size="sm" />
+            <XIcon size="xs" />
             <p className="text-[16px]/[11px] px-1 translate-y-[1px] tracking-wider">
-              Copy Link
+              Share on X
             </p>
           </Button>
         </DropdownMenuItem>
@@ -81,11 +124,11 @@ export const Share = ({
           <Button
             variant="ghost"
             className="w-full justify-start p-2 hover:bg-black-700 gap-0.5"
-            onClick={onShareOnX}
+            onClick={handleCopyLink}
           >
-            <XIcon size="xs" />
+            <LinkIcon size="sm" />
             <p className="text-[16px]/[11px] px-1 translate-y-[1px] tracking-wider">
-              Share on X
+              Copy Link
             </p>
           </Button>
         </DropdownMenuItem>

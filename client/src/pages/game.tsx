@@ -23,11 +23,8 @@ import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { ChartHelper, Verifier } from "@/helpers";
-import { toast } from "sonner";
 import { LoadingScene } from "@/components/scenes";
-import { ShareProps, Toast } from "@/components/elements";
 import { useOwner } from "@/hooks/owner";
-import { useMediaQuery } from "usehooks-ts";
 
 export const Game = () => {
   const location = useLocation();
@@ -329,49 +326,6 @@ export const Game = () => {
     return game && game.selectable_powers.length > 0;
   }, [game]);
 
-  const isMobile = useMediaQuery("(max-width: 768px)");
-
-  const shareProps = useMemo<ShareProps>(() => {
-    return {
-      onCopyLink: async () => {
-        const url = new URL(window.location.href);
-        const baseUrl = url.origin + url.pathname;
-        const linkToCopy = username
-          ? `${baseUrl}?ref=${encodeURIComponent(username)}`
-          : baseUrl;
-        await navigator.clipboard.writeText(linkToCopy);
-        toast(
-          <Toast
-            descriptionProps={{
-              content: "Copied to clipboard",
-            }}
-            thumbnailProps={{
-              type: "copy",
-            }}
-            duration={1500}
-          />,
-          {
-            position: isMobile ? "bottom-center" : "bottom-right",
-            duration: 1500,
-          },
-        );
-      },
-      onShareOnX: () => {
-        const url = new URL(window.location.href);
-        const baseUrl = url.origin + url.pathname;
-        const linkToShare = username
-          ? `${baseUrl}?ref=${encodeURIComponent(username)}`
-          : baseUrl;
-        const text = `Numbers have been sorted.\nCheck and play now on Nums\n${linkToShare}`;
-        window.open(
-          `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
-          "_blank",
-          "noopener,noreferrer",
-        );
-      },
-    };
-  }, [username, isMobile]);
-
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];
     return game.selectable_powers.map((power, index) => ({
@@ -522,7 +476,7 @@ export const Game = () => {
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}
-        share={blockchainGame ? shareProps : undefined}
+        share={blockchainGame ? { username } : undefined}
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
         onInstruction={gameProps.onInstruction}
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
@@ -589,7 +543,7 @@ export const Game = () => {
             score={gameOverData.score}
             newGameId={gameOverData.newGameId}
             newGameCount={gameOverData.newGameCount}
-            shareProps={blockchainGame ? shareProps : undefined}
+            shareProps={blockchainGame ? { username } : undefined}
             onClose={() => setShowGameOver(false)}
             onPurchase={() => openPurchaseScene()}
             onClaim={

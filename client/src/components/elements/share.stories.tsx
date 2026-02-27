@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Share } from "./share";
-import { fn } from "storybook/test";
 
 const meta = {
   title: "Elements/Share",
@@ -27,8 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    onCopyLink: fn(),
-    onShareOnX: fn(),
+    username: "bal7hazar",
   },
 };
 

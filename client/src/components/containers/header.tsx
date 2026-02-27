@@ -139,22 +139,6 @@ export const Header = ({
         )}
         {username ? (
           <>
-            {isMainnet ? (
-              <Link
-                to="https://app.ekubo.org/starknet/?outputCurrency=NUMS&amount=-2000&inputCurrency=USDC"
-                target="_blank"
-                draggable={false}
-              >
-                <Balance balance={balance ?? "0"} />
-              </Link>
-            ) : (
-              balance !== undefined && (
-                <Balance
-                  balance={balance}
-                  onClick={isMainnet ? undefined : onBalance}
-                />
-              )
-            )}
             <Profile username={username} onClick={onProfile} />
           </>
         ) : (

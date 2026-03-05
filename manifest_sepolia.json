@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x5f450639a65fb43c7d1241b616cd4e92a2030dde8bed7bf6d102111970da940",
-    "seed": "nums-v1.0.45",
+    "address": "0x3c297312dbf1acc992fbda556ecd6ef0c040817e6b1360829745e81f94b7ea3",
+    "seed": "nums-v1.0.46",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x535af3f15553014162d178112693a874a03230be6e9bc0f4d5b97e4003371e1",
+      "address": "0x5a8c23e6b1cc1090b79039a5e155d45632975e44581b9645075649c8ec973b6",
       "class_hash": "0x2c197799e02a1ad602b144cac046ce1e16475bf6d3bfcb24d1969d7eeb9f4a0",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "address": "0x7195e42fae041002672e7ce8f5b732e979d2c460a3bce90ec7bab16e9f47f19",
+      "address": "0x714c693a713cfebe03a1d3d2ea6c9a6bd262f93ba6b3ad867bdea11bd50ba5b",
       "class_hash": "0x6fc0a0e449058fb185c5152f7216734fa8a58baace268b228fc5c5b5e9f990f",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -78,8 +78,8 @@
       ]
     },
     {
-      "address": "0x1c391a31d491fcdf8bb4de021ef4da8f1f9c6dcc6c02fcfa220501941c2e5fd",
-      "class_hash": "0x23d0b5b4dd480759703ea5d559a5a6609c121ee6f518c9874ca14b45c8729bf",
+      "address": "0x2f7fe5729e301dcfac88ec2144f28b9c904f6842b13a51a2d95c08fbee55905",
+      "class_hash": "0x4065d2be2cf38fcee1354fad59c889b0212704f8bde62b240ef3cf4f5aefb81",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -96,8 +96,8 @@
       ]
     },
     {
-      "address": "0x7d6a6a77b04187a23f204d1e6317b1d22163d177af21ca375ea2a8a69ac2f44",
-      "class_hash": "0x7297041bb4052475a4f083e0ff6f801103ec29eec3b2ebc1a5e087f8345a661",
+      "address": "0xce11a8d7d5edd1aad2edd03d53c82d4664aaaa79d0012486378672ca5946fe",
+      "class_hash": "0x57a1b2885963a8b765114f96778dcc44ea277146287119f7fd47db58c69fe71",
       "init_calldata": [
         "0x1",
         "0x0",
@@ -109,12 +109,14 @@
         "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343",
         "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2",
         "0x1E8480",
-        "0x6765C793FA10079D0000000",
+        "0x84595161401484A000000",
         "0x46",
         "0xC",
         "0xccccccccccccccccccccccccccccccc",
         "0x56a4c",
-        "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971"
+        "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",
+        "0x1000003f7f1380b75",
+        "0x0"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
@@ -131,16 +133,17 @@
         "set_pool_fee",
         "set_pool_tick_spacing",
         "set_pool_extension",
+        "set_pool_sqrt",
         "set_base_price",
         "set_starterpack_referral",
         "upgrade"
       ]
     },
     {
-      "address": "0x44f8e662c649f6dc8fdf014309c7f84e7d884f4a52c4de3d49109986eec74b4",
+      "address": "0x54c9e4dc8d42950774b6a8f0e5186bd88719463807156e444417d981efb60ef",
       "class_hash": "0x6ad80220e2f699f04687b2dddd449dcddd917c8d88b8f87768d0cb008cf8244",
       "init_calldata": [
-        "0x6342FD08F00F6378000000"
+        "0x9ED194DB19B238C000000"
       ],
       "tag": "NUMS-Token",
       "selector": "0x500199e486811b06dd992b129c72f48d8859c1ee14b4e18c6564d32cf38e6c1",
@@ -163,8 +166,8 @@
       ]
     },
     {
-      "address": "0xe224507de0b10cb6f64da5adcc4aeacc6e1f3c0965f79cb29f5cfe92248ed",
-      "class_hash": "0x56688c3e490f0afc77ba98a53f30537c31d6c7ff3dc8de74752505a835c91b5",
+      "address": "0x37a007f6db06f3a5e455ae9b389079b2770689ee26b25b08449876ecd9634e9",
+      "class_hash": "0x602b70ad1ac75bb9fd9f6624777832504a0ff69626d15c0c6a1cda7bab21982",
       "init_calldata": [
         "0x1"
       ],
@@ -410,9 +413,14 @@
           "name": "base_price",
           "type": "core::integer::u256",
           "key": false
+        },
+        {
+          "name": "pool_sqrt",
+          "type": "core::integer::u256",
+          "key": false
         }
       ],
-      "class_hash": "0x1cee7ada7e8b4c536853509bc169b287326d8bf39c9be0683a6fbeea5f2ea7f",
+      "class_hash": "0x469d7a83bae1d43d72c00dddce0e91854c7cd9b973e7c7fe9797d290051a7f1",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -4038,6 +4046,10 @@
         {
           "name": "base_price",
           "type": "core::integer::u256"
+        },
+        {
+          "name": "pool_sqrt",
+          "type": "core::integer::u256"
         }
       ]
     },
@@ -4123,6 +4135,10 @@
         },
         {
           "name": "base_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "pool_sqrt",
           "type": "core::integer::u256"
         }
       ]
@@ -4830,6 +4846,18 @@
             {
               "name": "pool_extension",
               "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_pool_sqrt",
+          "inputs": [
+            {
+              "name": "pool_sqrt",
+              "type": "core::integer::u256"
             }
           ],
           "outputs": [],

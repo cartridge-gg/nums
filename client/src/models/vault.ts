@@ -154,14 +154,14 @@ export class VaultPosition {
    * @param vaultTotalReward - VaultInfo.total_reward (accumulated reward-per-share × 10^18)
    */
   claimable(shares: bigint, vaultTotalReward: bigint): bigint {
-    const TEN_POW_18 = 10n ** 18n;
+    const TEN_POW_36 = 10n ** 36n;
     // Guard against underflow if state is stale
     const delta =
       vaultTotalReward >= this.current_reward
         ? vaultTotalReward - this.current_reward
         : 0n;
     const raw = this.pending_reward + shares * delta;
-    return raw / TEN_POW_18;
+    return raw / TEN_POW_36;
   }
 
   /** Whether the position is still time-locked */

@@ -50,8 +50,9 @@ pub const SLOT_SIZE: u128 = 2_u128.pow(12);
 pub const TRAP_SIZE: u128 = 2_u128.pow(4);
 pub const POWER_SIZE: u8 = 2_u8.pow(4);
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
+pub const TEN_POW_36: u128 = 10_u128.pow(36);
 
-pub const EMA_MIN_TIME: u64 = 3600; // 1 hour
+pub const EMA_MIN_TIME: u64 = 1; // 1 second
 pub const EMA_MIN_SCORE: u8 = 8;
 pub const EMA_SCORE_PRECISION: u32 = 1000;
 pub const EMA_INITIAL_WEIGTH: u16 = 100;

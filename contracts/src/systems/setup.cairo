@@ -17,6 +17,7 @@ pub trait ISetup<T> {
     fn set_pool_fee(ref self: T, pool_fee: u128);
     fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
+    fn set_pool_sqrt(ref self: T, pool_sqrt: u256);
     fn set_base_price(ref self: T, base_price: u256);
     fn set_starterpack_referral(ref self: T, referral_percentage: u8);
 }
@@ -95,6 +96,7 @@ pub mod Setup {
         pool_fee: u128,
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
+        pool_sqrt: u256,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -135,6 +137,7 @@ pub mod Setup {
             pool_fee: pool_fee,
             pool_tick_spacing: pool_tick_spacing,
             pool_extension: pool_extension,
+            pool_sqrt: pool_sqrt,
             base_price: entry_price.into(),
         );
         store.set_config(config);
@@ -296,6 +299,18 @@ pub mod Setup {
             // [Effect] Update config
             let mut config = store.config();
             config.pool_extension = pool_extension;
+            store.set_config(config);
+        }
+
+        fn set_pool_sqrt(ref self: ContractState, pool_sqrt: u256) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.pool_sqrt = pool_sqrt;
             store.set_config(config);
         }
 

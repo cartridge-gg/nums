@@ -25,6 +25,7 @@ pub mod setup {
     use crate::systems::play::{IPlayDispatcher, NAME as PLAY_NAME, Play};
     use crate::systems::setup::{ISetupDispatcher, NAME as SETUP_NAME, Setup};
     use crate::systems::token::{NAME as TOKEN, Token};
+    use crate::systems::vault::{IVaultDispatcher, NAME as VAULT, Vault};
 
     // Constant
 
@@ -42,6 +43,7 @@ pub mod setup {
         pub collection: ICollectionDispatcher,
         pub setup: ISetupDispatcher,
         pub token: IERC20Dispatcher,
+        pub vault: IVaultDispatcher,
         pub vrf: IVrfProviderDispatcher,
         pub registry: IStarterpackRegistryDispatcher,
         pub starterpack: IStarterpackImplementationDispatcher,
@@ -85,6 +87,7 @@ pub mod setup {
                 TestResource::Contract(Play::TEST_CLASS_HASH),
                 TestResource::Contract(Setup::TEST_CLASS_HASH),
                 TestResource::Contract(Token::TEST_CLASS_HASH),
+                TestResource::Contract(Vault::TEST_CLASS_HASH),
                 TestResource::Contract(Vrf::TEST_CLASS_HASH),
                 TestResource::Contract(Registry::TEST_CLASS_HASH),
             ]
@@ -97,7 +100,13 @@ pub mod setup {
         [
             ContractDefTrait::new(@NAMESPACE(), @SETUP_NAME())
                 .with_owner_of([dojo::utils::bytearray_hash(@NAMESPACE())].span())
-                .with_init_calldata(array![1, 1, 1, OWNER().into(), 999_999, 1_000_000].span()),
+                .with_init_calldata(
+                    array![
+                        0x1, 0x1, 0x1, 0x1, OWNER().into(), 0x0, 0x0, 1_990_000, 10_000_000, 70, 12,
+                        0x0, 0x0, 0x0,
+                    ]
+                        .span(),
+                ),
             ContractDefTrait::new(@NAMESPACE(), @PLAY_NAME())
                 .with_writer_of([dojo::utils::bytearray_hash(@NAMESPACE())].span())
                 .with_init_calldata(array![].span()),
@@ -121,6 +130,7 @@ pub mod setup {
         let (collection_address, _) = world.dns(@COLLECTION_NAME()).expect('Collection not found');
         let (setup_address, _) = world.dns(@SETUP_NAME()).expect('Setup not found');
         let (token_address, _) = world.dns(@TOKEN()).expect('Token not found');
+        let (vault_address, _) = world.dns(@VAULT()).expect('Vault not found');
         let (vrf_address, _) = world.dns(@VRF()).expect('Vrf not found');
         let (registry_address, _) = world.dns(@REGISTRY()).expect('Registry not found');
         let systems = Systems {
@@ -128,6 +138,7 @@ pub mod setup {
             collection: ICollectionDispatcher { contract_address: collection_address },
             setup: ISetupDispatcher { contract_address: setup_address },
             token: IERC20Dispatcher { contract_address: token_address },
+            vault: IVaultDispatcher { contract_address: vault_address },
             vrf: IVrfProviderDispatcher { contract_address: vrf_address },
             registry: IStarterpackRegistryDispatcher { contract_address: registry_address },
             starterpack: IStarterpackImplementationDispatcher { contract_address: play_address },

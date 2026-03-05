@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.45"
+seed = "nums-v1.0.46"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x00b74e7ee80e506fcec7893cdc0aadacc616ddc4dbdeece10b79acff90ff0862"
+# world_address = "0x03c297312dbf1acc992fbda556ecd6ef0c040817e6b1360829745e81f94b7ea3"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
@@ -35,7 +35,7 @@ disable_multicall = true
   "0x1", # open: true
 ]
 "NUMS-Token" = [
-  "0x6342FD08F00F6378000000", # initial_supply: 120K NUMS
+  "0x9ED194DB19B238C000000", # initial_supply: 12M NUMS
 ]
 "NUMS-Setup" = [
   "0x1",                                                                # nums_address: Option::None
@@ -48,10 +48,12 @@ disable_multicall = true
   "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343", # quote_address
   "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2", # ekubo address
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
-  "0x6765C793FA10079D0000000",                                          # target_supply
+  "0x84595161401484A000000",                                            # target_supply: 10M NUMS
   "0x46",                                                               # burn_percentage: 70%,
   "0xC",                                                                # average_score: 12,
   "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,
+  "0x1000003f7f1380b75",                                                # pool_sqrt low,
+  "0x0",                                                                # pool_sqrt high,
 ]

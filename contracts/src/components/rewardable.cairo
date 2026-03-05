@@ -3,7 +3,7 @@ pub mod RewardableComponent {
     // Imports
 
     use dojo::world::WorldStorage;
-    use crate::constants::{TEN_POW_18, WORLD_RESOURCE};
+    use crate::constants::{TEN_POW_36, WORLD_RESOURCE};
     use crate::models::config::ConfigAssert;
     use crate::models::position::{PositionAssert, PositionTrait};
     use crate::models::vault::VaultTrait;
@@ -62,7 +62,7 @@ pub mod RewardableComponent {
             let store = StoreImpl::new(world);
             // [Return] Claimable rewards
             let position = store.position(user);
-            position.claimable(shares, store.vault().total_reward) / TEN_POW_18.into()
+            position.claimable(shares, store.vault().total_reward) / TEN_POW_36.into()
         }
 
         fn time_lock(
@@ -127,7 +127,7 @@ pub mod RewardableComponent {
             assert(total_shares != 0, 'Rewardable: vault is empty');
             // [Effect] Update total rewards
             let mut vault = store.vault();
-            let reward = amount * TEN_POW_18.into() / total_shares;
+            let reward = amount * TEN_POW_36.into() / total_shares;
             vault.add(reward);
             store.set_vault(@vault);
         }
@@ -142,7 +142,7 @@ pub mod RewardableComponent {
             let store = StoreImpl::new(world);
             // [Effect] Compute claimable amount
             let mut position = store.position(user);
-            let amount = position.claimable(shares, store.vault().total_reward) / TEN_POW_18.into();
+            let amount = position.claimable(shares, store.vault().total_reward) / TEN_POW_36.into();
             // [Effect] Claim rewards
             position.claim(store.vault().total_reward);
             store.set_position(@position);

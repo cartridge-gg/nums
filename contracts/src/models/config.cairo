@@ -24,6 +24,7 @@ pub impl ConfigImpl of ConfigTrait {
         pool_fee: u128,
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
+        pool_sqrt: u256,
         base_price: u256,
     ) -> Config {
         Config {
@@ -49,6 +50,7 @@ pub impl ConfigImpl of ConfigTrait {
             pool_fee: pool_fee,
             pool_tick_spacing: pool_tick_spacing,
             pool_extension: pool_extension,
+            pool_sqrt: pool_sqrt,
             base_price: base_price,
         }
     }
@@ -116,6 +118,7 @@ mod tests {
             pool_fee: 0,
             pool_tick_spacing: 0,
             pool_extension: 0.try_into().unwrap(),
+            pool_sqrt: 0,
             base_price: 0,
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
@@ -124,7 +127,7 @@ mod tests {
         }
         let (avg_num, avg_den) = config.average_score();
         assert_eq!(config.average_weigth, constants::EMA_MAX_WEIGTH);
-        assert_eq!(avg_num, 19801796);
+        assert_eq!(avg_num, 18188656);
         assert_eq!(avg_den, 1000000);
     }
 
@@ -147,6 +150,7 @@ mod tests {
             pool_fee: 0,
             pool_tick_spacing: 0,
             pool_extension: 0.try_into().unwrap(),
+            pool_sqrt: 0,
             base_price: 0,
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
@@ -155,7 +159,7 @@ mod tests {
         }
         let (avg_num, avg_den) = config.average_score();
         assert_eq!(config.average_weigth, constants::EMA_MAX_WEIGTH);
-        assert_eq!(avg_num, 198211);
+        assert_eq!(avg_num, 1811437);
         assert_eq!(avg_den, 1000000);
     }
 }

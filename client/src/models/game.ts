@@ -174,7 +174,13 @@ export class Game {
     return Array.from({ length: slotCount }, (_, index) => {
       const level = index + 1;
       return (
-        Rewarder.amount(level, slotCount, supply, targetSupply) * multiplier
+        Rewarder.amount(
+          BigInt(level),
+          1n,
+          BigInt(slotCount),
+          supply,
+          targetSupply,
+        ) * multiplier
       );
     });
   }
@@ -398,8 +404,9 @@ export class Game {
    */
   addReward(supply: bigint, target: bigint): void {
     const rewardAmount = Rewarder.amount(
-      this.level,
-      this.slot_count,
+      BigInt(this.level),
+      1n,
+      BigInt(this.slot_count),
       supply,
       target,
     );

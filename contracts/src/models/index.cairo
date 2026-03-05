@@ -25,6 +25,7 @@ pub struct Config {
     pub pool_tick_spacing: u128,
     pub pool_extension: ContractAddress,
     pub base_price: u256,
+    pub pool_sqrt: u256,
 }
 
 #[derive(Drop, Serde, IntrospectPacked)]

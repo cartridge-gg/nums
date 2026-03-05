@@ -19,12 +19,12 @@ pub mod setup {
     use crate::interfaces::registry::IStarterpackRegistryDispatcher;
     use crate::interfaces::vrf::IVrfProviderDispatcher;
     use crate::mocks::registry::{NAME as REGISTRY, Registry};
-    use crate::mocks::token::{NAME as TOKEN, Token};
     use crate::mocks::vrf::{NAME as VRF, Vrf};
     use crate::models::index as models;
     use crate::systems::collection::{Collection, ICollectionDispatcher, NAME as COLLECTION_NAME};
     use crate::systems::play::{IPlayDispatcher, NAME as PLAY_NAME, Play};
     use crate::systems::setup::{ISetupDispatcher, NAME as SETUP_NAME, Setup};
+    use crate::systems::token::{NAME as TOKEN, Token};
 
     // Constant
 

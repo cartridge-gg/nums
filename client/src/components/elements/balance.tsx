@@ -82,9 +82,8 @@ export const Balance = ({
   ...props
 }: BalanceProps) => {
   const formattedDesktop = useMemo(() => {
-    const num = parseFloat(balance);
-    if (isNaN(num)) return "0";
-    return num.toLocaleString();
+    if (isNaN(parseFloat(balance))) return "0";
+    return balance;
   }, [balance]);
 
   const formattedMobile = useMemo(() => {

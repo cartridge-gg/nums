@@ -1,9 +1,9 @@
 #[starknet::component]
 pub mod PlayableComponent {
     // Imports
-
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
+    use constants::TEN_POW_18;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use ekubo::components::clear::IClearDispatcherTrait;
     use ekubo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -12,22 +12,24 @@ pub mod PlayableComponent {
     use ekubo::types::keys::PoolKey;
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
-    use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+    use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
-    use crate::components::starterpack::StarterpackComponent;
-    use crate::components::starterpack::StarterpackComponent::InternalImpl as StarterpackInternalImpl;
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::helpers::random::RandomImpl;
+    use crate::helpers::rewarder::Rewarder;
     use crate::interfaces::nums::INumsTokenDispatcherTrait;
+    use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
+    use crate::models::starterpack::StarterpackAssert;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
-    use crate::{StoreImpl, StoreTrait};
+    use crate::systems::vault::IVaultDispatcherTrait;
+    use crate::{StoreImpl, StoreTrait, constants};
 
     // Constants
 
@@ -48,7 +50,6 @@ pub mod PlayableComponent {
     pub impl StarterpackImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl Starterpack: StarterpackComponent::HasComponent<TContractState>,
         impl Achievable: AchievableComponent::HasComponent<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
     > of StarterpackTrait<TContractState> {
@@ -63,15 +64,85 @@ pub mod PlayableComponent {
             let store = StoreImpl::new(world);
 
             // [Check] Caller is allowed
-            let starterpack = get_dep_component!(@self, Starterpack);
-            starterpack.assert_is_allowed(world);
+            let config = store.config();
+            let caller = starknet::get_caller_address();
+            config.assert_is_starterpack(caller);
 
             // [Check] Starterpack is valid
-            starterpack.assert_is_valid(world, starterpack_id);
+            let pack = store.starterpack(starterpack_id);
+            pack.assert_does_exist();
+
+            // [Interaction] Transfer the burn share to Ekubo
+            let amount = quantity.into() * pack.price * config.burn_percentage.into() / 100_u256;
+            let quote = IERC20Dispatcher { contract_address: pack.payment_token };
+            let router = store.ekubo_router();
+            quote.transfer(router.contract_address, amount);
+
+            // [Interaction] Swap Quote token for Nums
+            let nums = store.nums_disp();
+            let nums_address = nums.contract_address;
+            let pool_key = PoolKey {
+                token0: nums_address,
+                token1: quote.contract_address,
+                fee: config.pool_fee, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
+                tick_spacing: config.pool_tick_spacing, // 0x56a4c,
+                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
+                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
+                extension: config.pool_extension,
+            };
+            let sqrt_ratio_limit = u256 {
+                low: 0x6f3528fe26840249f4b191ef6dff7928, high: 0xfffffc080ed7b455,
+            };
+            let route_node = RouteNode {
+                pool_key: pool_key, sqrt_ratio_limit: sqrt_ratio_limit, skip_ahead: 0,
+            };
+            let quote_address = quote.contract_address;
+            let token_amount = TokenAmount {
+                token: quote_address, amount: i129 { mag: amount.low, sign: false },
+            };
+            router.swap(route_node, token_amount);
+
+            // [Interaction] Clear minimum
+            let clearer = store.ekubo_clearer();
+            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
+            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
+
+            // [Interaction] Burn the corresponding amount of Nums
+            let this = starknet::get_contract_address();
+            let nums_supply = store.nums_disp().total_supply();
+            let burn_amount = nums.balance_of(this);
+            nums.burn(burn_amount);
+
+            // [Interaction] Pay dividends to the vault
+            let vault = store.vault_disp();
+            let amount = quote.balanceOf(this);
+            quote.approve(spender: vault.contract_address, amount: amount);
+            vault.pay(recipient.into(), amount);
+
+            // [Compute] Multiplier per game
+            let burn_per_game = config.base_price
+                * pack.multiplier.into()
+                * burn_amount
+                / pack.price
+                / quantity.into();
+            let supply_per_game = nums_supply - burn_per_game;
+            let (avg_num, avg_den) = config.average_score();
+            let avg_reward: u256 = Rewarder::amount(
+                score_num: avg_num.into(),
+                score_den: avg_den.into(),
+                slot_count: config.slot_count.into(),
+                supply: supply_per_game,
+                target: config.target_supply,
+            )
+                .into()
+                * TEN_POW_18.into();
+            let equilibrium_reward = 100 * avg_reward / config.burn_percentage.into();
+            let multiplier: u16 = (100 * burn_per_game / equilibrium_reward)
+                .try_into()
+                .expect('Multiplier overflow');
 
             // [Interaction] Mint games
             let config = store.config();
-            let nums_supply = store.nums_disp().total_supply();
             let collection = self.get_collection(world);
             let pack = store.starterpack(starterpack_id);
             let mut count = quantity;
@@ -82,11 +153,11 @@ pub mod PlayableComponent {
                 // [Effect] Create game
                 let mut game = GameTrait::new(
                     id: game_id,
-                    multiplier: pack.multiplier,
+                    multiplier: multiplier,
                     slot_count: config.slot_count,
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
-                    supply: nums_supply,
+                    supply: supply_per_game,
                 );
                 // [Effect] Start game
                 let mut rand = RandomImpl::new(game_id.into());
@@ -107,48 +178,6 @@ pub mod PlayableComponent {
             // [Effect] Update achievement progression for the player - Grinder task
             let achievable = get_dep_component!(@self, Achievable);
             achievable.progress(world, player, task.identifier(), quantity.into(), true);
-
-            // [Interaction] Transfer quote token to Ekubo
-            let quote = IERC20Dispatcher { contract_address: pack.payment_token };
-            let quote_address = quote.contract_address;
-            let nums = store.nums_disp();
-            let nums_address = nums.contract_address;
-            let this = starknet::get_contract_address();
-            let amount = quote.balanceOf(this);
-            let router = store.ekubo_router();
-            quote.transfer(router.contract_address, amount);
-
-            // [Interaction] Swap Quote token for Nums
-            let pool_key = PoolKey {
-                token0: nums_address,
-                token1: quote.contract_address,
-                fee: 0x28f5c28f5c28f5c28f5c28f5c28f5c2, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
-                tick_spacing: 0x56a4c,
-                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
-                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
-                extension: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
-                    .try_into()
-                    .unwrap(),
-            };
-            let sqrt_ratio_limit = u256 {
-                low: 0x6f3528fe26840249f4b191ef6dff7928, high: 0xfffffc080ed7b455,
-            };
-            let route_node = RouteNode {
-                pool_key: pool_key, sqrt_ratio_limit: sqrt_ratio_limit, skip_ahead: 0,
-            };
-            let token_amount = TokenAmount {
-                token: quote_address, amount: i129 { mag: amount.low, sign: false },
-            };
-            router.swap(route_node, token_amount);
-
-            // [Interaction] Clear minimum
-            let clearer = store.ekubo_clearer();
-            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
-            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
-
-            // [Interaction] Burn the entry price
-            let amount = nums.balance_of(this);
-            nums.burn(amount);
 
             // [Event] Emit purchase event
             store.purchased(recipient.into(), starterpack_id, quantity, pack.multiplier);
@@ -256,6 +285,12 @@ pub mod PlayableComponent {
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
             if game.over != 0 {
+                // [Effect] Update average score
+                let mut config = store.config();
+                config.push(game.level.into(), constants::EMA_MIN_SCORE.into());
+                store.set_config(config);
+
+                // [Effect] Update leaderboard score
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -362,6 +397,12 @@ pub mod PlayableComponent {
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
             if game.over != 0 {
+                // [Effect] Update average score
+                let mut config = store.config();
+                config.push(game.level.into(), constants::EMA_MIN_SCORE.into());
+                store.set_config(config);
+
+                // [Effect] Update leaderboard score
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -408,6 +449,12 @@ pub mod PlayableComponent {
             let player = self.owner(world, game_id);
             let time = starknet::get_block_timestamp();
             if game.over != 0 {
+                // [Effect] Update average score
+                let mut config = store.config();
+                config.push(game.level.into(), constants::EMA_MIN_SCORE.into());
+                store.set_config(config);
+
+                // [Effect] Update leaderboard score
                 let mut rankable = get_dep_component_mut!(ref self, Rankable);
                 rankable
                     .submit(
@@ -474,14 +521,14 @@ pub mod PlayableComponent {
         TContractState, +HasComponent<TContractState>,
     > of PrivateTrait<TContractState> {
         fn get_collection(
-            ref self: ComponentState<TContractState>, world: WorldStorage,
+            self: @ComponentState<TContractState>, world: WorldStorage,
         ) -> ICollectionDispatcher {
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             ICollectionDispatcher { contract_address: collection_address }
         }
 
         fn owner(
-            ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64,
+            self: @ComponentState<TContractState>, world: WorldStorage, game_id: u64,
         ) -> ContractAddress {
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = IERC721Dispatcher { contract_address: collection_address };

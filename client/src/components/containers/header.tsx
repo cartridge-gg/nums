@@ -1,6 +1,11 @@
 import { Link } from "@/lib/router";
 import { LogoIcon } from "@/components/icons/exotics";
-import { QuestIcon, TrophyIcon } from "@/components/icons";
+import {
+  QuestIcon,
+  ShadowEffect,
+  SparklesIcon,
+  TrophyIcon,
+} from "@/components/icons";
 import {
   SoundControls,
   Balance,
@@ -23,6 +28,7 @@ export interface HeaderProps
   onProfile: () => void;
   onQuests?: () => void;
   onLeaderboard?: () => void;
+  onMint?: () => void;
 }
 
 const headerVariants = cva(
@@ -48,14 +54,15 @@ export const Header = ({
   onProfile,
   onQuests,
   onLeaderboard,
+  onMint,
   variant,
   className,
   ...props
 }: HeaderProps) => {
-  const questId = useId();
-  const trophyId = useId();
+  const filterId = useId();
   return (
     <div className={cn(headerVariants({ variant, className }))} {...props}>
+      <ShadowEffect filterId={filterId} opacity={0.95} />
       <Link
         to="/"
         className="flex items-center justify-start gap-2 cursor-pointer select-none [&_svg]:size-10 md:[&_svg]:size-12"
@@ -80,28 +87,10 @@ export const Header = ({
             className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
             onClick={onQuests}
           >
-            <svg width="0" height="0" style={{ position: "absolute" }}>
-              <defs>
-                <filter
-                  id={questId}
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feDropShadow
-                    dx="2"
-                    dy="2"
-                    stdDeviation="0"
-                    floodColor="rgba(0, 0, 0, 0.95)"
-                  />
-                </filter>
-              </defs>
-            </svg>
             <QuestIcon
               size="md"
               className="md:size-lg"
-              style={{ filter: `url(#${questId})` }}
+              style={{ filter: `url(#${filterId})` }}
             />
           </Button>
         )}
@@ -111,29 +100,24 @@ export const Header = ({
             className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
             onClick={onLeaderboard}
           >
-            <svg width="0" height="0" style={{ position: "absolute" }}>
-              <defs>
-                <filter
-                  id={trophyId}
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feDropShadow
-                    dx="2"
-                    dy="2"
-                    stdDeviation="0"
-                    floodColor="rgba(0, 0, 0, 0.95)"
-                  />
-                </filter>
-              </defs>
-            </svg>
             <TrophyIcon
               variant="solid"
               size="md"
               className="md:size-lg"
-              style={{ filter: `url(#${trophyId})` }}
+              style={{ filter: `url(#${filterId})` }}
+            />
+          </Button>
+        )}
+        {onMint && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onMint}
+          >
+            <SparklesIcon
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${filterId})` }}
             />
           </Button>
         )}

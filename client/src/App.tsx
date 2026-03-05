@@ -24,6 +24,7 @@ import { LoadingProvider } from "./context/loading";
 import { WelcomeProvider } from "./context/welcome";
 import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
+import { VaultProvider } from "./context/vault";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -91,40 +92,42 @@ function App() {
               <PracticeProvider>
                 <ControllersProvider>
                   <QuestsProvider>
-                    <AchievementsProvider>
-                      <PricesProvider>
-                        <WelcomeProvider>
-                          <LoadingProvider>
-                            <Router
-                              future={{
-                                v7_startTransition: true,
-                                v7_relativeSplatPath: true,
-                              }}
-                            >
-                              <SoundProvider>
-                                <Layout>
-                                  <Routes>
-                                    <Route path="/" element={<Home />} />
-                                    <Route
-                                      path="/game/:id"
-                                      element={<Game />}
-                                    />
-                                    <Route
-                                      path="/game"
-                                      element={<Navigate to="/" replace />}
-                                    />
-                                    <Route
-                                      path="/practice"
-                                      element={<Game />}
-                                    />
-                                  </Routes>
-                                </Layout>
-                              </SoundProvider>
-                            </Router>
-                          </LoadingProvider>
-                        </WelcomeProvider>
-                      </PricesProvider>
-                    </AchievementsProvider>
+                    <VaultProvider>
+                      <AchievementsProvider>
+                        <PricesProvider>
+                          <WelcomeProvider>
+                            <LoadingProvider>
+                              <Router
+                                future={{
+                                  v7_startTransition: true,
+                                  v7_relativeSplatPath: true,
+                                }}
+                              >
+                                <SoundProvider>
+                                  <Layout>
+                                    <Routes>
+                                      <Route path="/" element={<Home />} />
+                                      <Route
+                                        path="/game/:id"
+                                        element={<Game />}
+                                      />
+                                      <Route
+                                        path="/game"
+                                        element={<Navigate to="/" replace />}
+                                      />
+                                      <Route
+                                        path="/practice"
+                                        element={<Game />}
+                                      />
+                                    </Routes>
+                                  </Layout>
+                                </SoundProvider>
+                              </Router>
+                            </LoadingProvider>
+                          </WelcomeProvider>
+                        </PricesProvider>
+                      </AchievementsProvider>
+                    </VaultProvider>
                   </QuestsProvider>
                 </ControllersProvider>
               </PracticeProvider>

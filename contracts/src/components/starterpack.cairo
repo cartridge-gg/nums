@@ -2,11 +2,12 @@
 pub mod StarterpackComponent {
     // Imports
 
-    use dojo::world::WorldStorage;
+    use dojo::world::{WorldStorage, WorldStorageTrait};
     use crate::interfaces::registry::IStarterpackRegistryDispatcherTrait;
     use crate::models::config;
     use crate::models::config::ConfigAssert;
     use crate::models::starterpack::{StarterpackAssert, StarterpackTrait};
+    use crate::systems::play::NAME as PLAY;
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -30,17 +31,17 @@ pub mod StarterpackComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage) {
+        fn initialize(
+            ref self: ComponentState<TContractState>, world: WorldStorage, base_price: u256,
+        ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
-            let config = store.config();
-            // [Effect] Register and store all starterpacks
             let starterpack_disp = store.starterpack_disp();
             let nums_address = store.nums_disp().contract_address;
             let payment_token = store.quote_disp().contract_address;
+            let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
+            // [Effect] Register and store all starterpacks
             let reissuable = true;
-            let referral_percentage = 0;
-            let base_price = config.entry_price.into();
             for index in 0..STARTERPACK_COUNT {
                 // [Interaction] Register starterpack
                 let multiplier: u8 = index + 1;
@@ -51,19 +52,19 @@ pub mod StarterpackComponent {
                     / MULTIPLIER;
                 let starterpack_id = starterpack_disp
                     .register(
-                        implementation: starknet::get_contract_address(),
+                        implementation: play_address,
                         referral_percentage: REFERRAL_PERCENTAGE,
                         reissuable: reissuable,
                         price: price,
                         payment_token: payment_token,
-                        payment_receiver: None,
+                        payment_receiver: Option::Some(play_address),
                         metadata: StarterpackTrait::metadata(nums_address, multiplier),
                     );
                 // [Effect] Create starterpack
                 let pack = StarterpackTrait::new(
                     id: starterpack_id,
                     reissuable: reissuable,
-                    referral_percentage: referral_percentage,
+                    referral_percentage: REFERRAL_PERCENTAGE,
                     price: price,
                     payment_token: payment_token,
                     multiplier: multiplier,
@@ -72,30 +73,33 @@ pub mod StarterpackComponent {
             };
         }
 
-        fn fix(ref self: ComponentState<TContractState>, world: WorldStorage) {
+        fn set_referral(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            from: u32,
+            referral_percentage: u8,
+        ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
-            let total: u32 = STARTERPACK_COUNT.into();
-            for index in 0..total {
-                let starterpack_id = index + 74;
-                let mut pack = store.starterpack(starterpack_id);
-                pack.assert_does_exist();
-                pack.referral_percentage = REFERRAL_PERCENTAGE;
-                store.set_starterpack(@pack);
-
-                // [Interaction] Update starterpack
-                store
-                    .starterpack_disp()
+            let starterpack_disp = store.starterpack_disp();
+            let payment_token = store.quote_disp().contract_address;
+            let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
+            // [Effect] Register and store all starterpacks
+            for index in 0_u32..STARTERPACK_COUNT.into() {
+                let mut pack = store.starterpack(index + from);
+                starterpack_disp
                     .update(
-                        starterpack_id: starterpack_id,
-                        implementation: starknet::get_contract_address(),
-                        referral_percentage: REFERRAL_PERCENTAGE,
+                        starterpack_id: pack.id,
+                        implementation: play_address,
+                        referral_percentage: referral_percentage,
                         reissuable: pack.reissuable,
                         price: pack.price,
-                        payment_token: pack.payment_token,
-                        payment_receiver: None,
+                        payment_token: payment_token,
+                        payment_receiver: Option::Some(play_address),
                     );
-            }
+                pack.referral_percentage = referral_percentage;
+                store.set_starterpack(@pack);
+            };
         }
 
         fn update(
@@ -157,45 +161,6 @@ pub mod StarterpackComponent {
                 .update_metadata(
                     starterpack_id, StarterpackTrait::metadata(nums_address, pack.multiplier),
                 );
-        }
-
-        fn remove(
-            ref self: ComponentState<TContractState>, world: WorldStorage, starterpack_id: u32,
-        ) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
-            // [Check] Caller is allowed
-            self.assert_is_allowed(world);
-
-            // [Check] Starterpack does exist
-            let mut starterpack = store.starterpack(starterpack_id);
-            starterpack.assert_does_exist();
-
-            // [Effect] Remove starterpack
-            starterpack.remove();
-            store.set_starterpack(@starterpack);
-        }
-
-        fn assert_is_allowed(self: @ComponentState<TContractState>, world: WorldStorage) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
-            // [Check] Caller is starkerpack
-            let config = store.config();
-            let caller = starknet::get_caller_address();
-            config.assert_is_starterpack(caller);
-        }
-
-        fn assert_is_valid(
-            self: @ComponentState<TContractState>, world: WorldStorage, starterpack_id: u32,
-        ) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
-            // [Check] Starterpack does exist
-            let starterpack = store.starterpack(starterpack_id);
-            starterpack.assert_does_exist();
         }
     }
 }

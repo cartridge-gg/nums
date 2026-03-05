@@ -73,7 +73,7 @@ export class Game {
     const props = {
       id: Number(data.id.value),
       claimed: !!data.claimed.value,
-      multiplier: Number(data.multiplier.value),
+      multiplier: Number(data.multiplier.value) / 100,
       level: Number(data.level.value),
       slot_count: Number(data.slot_count.value),
       slot_min: Number(data.slot_min.value),

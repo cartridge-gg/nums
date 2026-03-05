@@ -7,13 +7,18 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait ISetup<T> {
-    fn set_entry_price(ref self: T, entry_price: u128);
     fn set_starterpack(ref self: T, starterpack_address: ContractAddress);
     fn set_nums_address(ref self: T, nums_address: ContractAddress);
     fn set_target_supply(ref self: T, supply: u256);
     fn set_owner_address(ref self: T, owner_address: ContractAddress);
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
     fn set_ekubo_address(ref self: T, ekubo_address: ContractAddress);
+    fn set_burn_percentage(ref self: T, burn_percentage: u8);
+    fn set_pool_fee(ref self: T, pool_fee: u128);
+    fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
+    fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
+    fn set_base_price(ref self: T, base_price: u256);
+    fn set_starterpack_referral(ref self: T, referral_percentage: u8);
 }
 
 #[dojo::contract]
@@ -25,11 +30,13 @@ pub mod Setup {
     use starknet::ContractAddress;
     use crate::StoreImpl;
     use crate::components::initializable::InitializableComponent;
+    use crate::components::starterpack::StarterpackComponent;
     use crate::constants::{NAMESPACE, WORLD_RESOURCE};
     use crate::mocks::registry::NAME as REGISTRY;
-    use crate::mocks::token::NAME as TOKEN;
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
+    use crate::systems::token::NAME as TOKEN;
+    use crate::systems::vault::NAME as VAULT;
     use super::ISetup;
 
     // Components
@@ -40,6 +47,8 @@ pub mod Setup {
     impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
     impl InitializableInternalImpl = InitializableComponent::InternalImpl<ContractState>;
+    component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
+    impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
 
     // Storage
 
@@ -51,6 +60,8 @@ pub mod Setup {
         achievable: AchievableComponent::Storage,
         #[substorage(v0)]
         questable: QuestableComponent::Storage,
+        #[substorage(v0)]
+        starterpack: StarterpackComponent::Storage,
     }
 
     // Events
@@ -64,6 +75,8 @@ pub mod Setup {
         AchievableEvent: AchievableComponent::Event,
         #[flat]
         QuestableEvent: QuestableComponent::Event,
+        #[flat]
+        StarterpackEvent: StarterpackComponent::Event,
     }
 
     fn dojo_init(
@@ -71,11 +84,17 @@ pub mod Setup {
         nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
         starterpack_address: Option<ContractAddress>,
+        vault_address: Option<ContractAddress>,
         owner_address: ContractAddress,
         quote_address: ContractAddress,
         ekubo_address: ContractAddress,
         entry_price: u128,
         target_supply: felt252,
+        burn_percentage: u8,
+        average_score: u8,
+        pool_fee: u128,
+        pool_tick_spacing: u128,
+        pool_extension: ContractAddress,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -96,22 +115,36 @@ pub mod Setup {
         } else {
             world.dns_address(@REGISTRY()).expect('Registry not found!')
         };
+        let vault_address = if let Option::Some(vault_address) = vault_address {
+            vault_address
+        } else {
+            world.dns_address(@VAULT()).expect('Vault not found!')
+        };
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
             nums: nums_address,
             vrf: vrf_address,
             starterpack: starterpack_address,
+            vault: vault_address,
             owner: owner_address,
             quote: quote_address,
             ekubo: ekubo_address,
-            entry_price: entry_price,
+            burn_percentage: burn_percentage,
             target_supply: target_supply.into(),
+            average_score: average_score,
+            pool_fee: pool_fee,
+            pool_tick_spacing: pool_tick_spacing,
+            pool_extension: pool_extension,
+            base_price: entry_price.into(),
         );
         store.set_config(config);
         // [Effect] Initialize components
         self.initializable.initialize(world);
 
-        // [Event] Emit a new registered contract for torii to index
+        // [Effect] Initialize starterpack
+        self.starterpack.initialize(world, entry_price.into());
+
+        // [Event] Order torii to index the tokens
         let instance_name: felt252 = nums_address.into();
         world
             .dispatcher
@@ -121,7 +154,17 @@ pub mod Setup {
                 instance_name: format!("{}", instance_name),
                 contract_address: nums_address,
                 block_number: 1,
-            )
+            );
+        let instance_name: felt252 = vault_address.into();
+        world
+            .dispatcher
+            .register_external_contract(
+                namespace: NAMESPACE(),
+                contract_name: "ERC20",
+                instance_name: format!("{}", instance_name),
+                contract_address: vault_address,
+                block_number: 1,
+            );
     }
 
     #[abi(embed_v0)]
@@ -136,18 +179,6 @@ pub mod Setup {
 
     #[abi(embed_v0)]
     impl SetupImpl of ISetup<ContractState> {
-        fn set_entry_price(ref self: ContractState, entry_price: u128) {
-            // [Setup] World and Store
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
-            self.assert_only_owner(world);
-            // [Effect] Update config
-            let mut config = store.config();
-            config.entry_price = entry_price;
-            store.set_config(config);
-        }
-
         fn set_starterpack(ref self: ContractState, starterpack_address: ContractAddress) {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
@@ -218,6 +249,77 @@ pub mod Setup {
             let mut config = store.config();
             config.ekubo = ekubo_address;
             store.set_config(config);
+        }
+
+        fn set_burn_percentage(ref self: ContractState, burn_percentage: u8) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.burn_percentage = burn_percentage;
+            store.set_config(config);
+        }
+
+        fn set_pool_fee(ref self: ContractState, pool_fee: u128) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.pool_fee = pool_fee;
+            store.set_config(config);
+        }
+
+        fn set_pool_tick_spacing(ref self: ContractState, pool_tick_spacing: u128) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.pool_tick_spacing = pool_tick_spacing;
+            store.set_config(config);
+        }
+
+        fn set_pool_extension(ref self: ContractState, pool_extension: ContractAddress) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.pool_extension = pool_extension;
+            store.set_config(config);
+        }
+
+        fn set_base_price(ref self: ContractState, base_price: u256) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.base_price = base_price;
+            store.set_config(config);
+        }
+
+        fn set_starterpack_referral(ref self: ContractState, referral_percentage: u8) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Fix starterpack
+            self
+                .starterpack
+                .set_referral(world: world, from: 134, referral_percentage: referral_percentage);
         }
     }
 

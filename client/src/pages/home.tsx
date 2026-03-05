@@ -25,7 +25,7 @@ export const Home = () => {
   }, [getNumsPrice]);
 
   const playPrice = useMemo(() => {
-    return Number(config?.entry_price || 0n) / 10 ** 6;
+    return Number(2000000n) / 10 ** 6;
   }, [config]);
 
   // Chart data - calculate rewards for each level (1-20) based on current supply

@@ -5,13 +5,17 @@ pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
     pub mod collection;
+    pub mod governor;
     pub mod play;
     pub mod setup;
+    pub mod token;
+    pub mod vault;
 }
 
 pub mod components {
     pub mod initializable;
     pub mod playable;
+    pub mod rewardable;
     pub mod starterpack;
 }
 
@@ -19,7 +23,9 @@ pub mod models {
     pub mod config;
     pub mod game;
     pub mod index;
+    pub mod position;
     pub mod starterpack;
+    pub mod vault;
 }
 
 pub mod events {
@@ -27,6 +33,7 @@ pub mod events {
     pub mod index;
     pub mod purchased;
     pub mod started;
+    pub mod vault;
 }
 
 pub mod svg {
@@ -125,7 +132,6 @@ pub mod elements {
 
 pub mod mocks {
     pub mod registry;
-    pub mod token;
     pub mod vrf;
 }
 

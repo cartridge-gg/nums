@@ -58,8 +58,8 @@ export const StakingReward = ({
           <div className="flex items-center gap-2">
             <span>
               {rewardAmount.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 4,
+                maximumFractionDigits: 4,
               })}
             </span>
             <span className="text-white-400">

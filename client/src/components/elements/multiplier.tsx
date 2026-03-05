@@ -24,7 +24,7 @@ const multiplierVariants = cva(
 
 export const getColor = (multiplier: number) => {
   if (multiplier > 6) return "text-red-100";
-  if (multiplier > 1) return "text-yellow-100";
+  if (multiplier > 2) return "text-yellow-100";
   return "text-mauve-100";
 };
 
@@ -34,7 +34,7 @@ export const Multiplier = ({
   className,
   ...props
 }: MultiplierProps) => {
-  const displayValue = `${Math.round(multiplier)}x`;
+  const displayValue = `${multiplier.toFixed(2)}x`;
 
   // multiplier 1→10: top -50px→-100px, bg-size 100%→150%
   const clamped = Math.min(10, Math.max(1, multiplier));

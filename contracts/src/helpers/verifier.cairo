@@ -169,7 +169,7 @@ mod tests {
     use super::VerifierTrait;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
-    const DEFAULT_MULTIPLIER: u8 = 1;
+    const DEFAULT_MULTIPLIER: u16 = 1;
     const SUPPLY: u256 = 1;
 
     fn create_test_game() -> Game {

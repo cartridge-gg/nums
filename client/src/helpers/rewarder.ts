@@ -3,13 +3,16 @@
  * Equivalent to helpers/rewarder.cairo
  */
 
-const NUMERATOR = 270_000_000_000n;
+const A = 3_062_112_703_903_038_000n;
+const B = 3n;
+const K = 10n;
 const MIN_REWARD = 1n;
 
 /**
- * Calculate the reward amount for a given level
+ * Calculate the reward amount for a given score
  *
- * @param level - The level of the reward
+ * @param scoreNum - Numerator of the score fraction
+ * @param scoreDen - Denominator of the score fraction
  * @param slotCount - The number of slots in the game
  * @param supply - The current supply of the game
  * @param target - The target supply of the game
@@ -17,8 +20,9 @@ const MIN_REWARD = 1n;
  */
 export class Rewarder {
   static amount(
-    level: number,
-    slotCount: number,
+    scoreNum: bigint,
+    scoreDen: bigint,
+    slotCount: bigint,
     supply: bigint,
     target: bigint,
   ): number {
@@ -27,15 +31,10 @@ export class Rewarder {
       return 0;
     }
     // [Compute] Otherwise, calculate the reward amount
-    let num: bigint;
-    if (supply < target) {
-      num = NUMERATOR + (NUMERATOR * (target - supply)) / target;
-    } else {
-      num = NUMERATOR - (NUMERATOR * (supply - target)) / target;
-    }
-    const den: bigint = (BigInt(slotCount) + 3n) ** 5n;
-    const levelPow: bigint = BigInt(level) ** 5n;
-    const result = num / (den - levelPow) - (num - MIN_REWARD * den) / den;
-    return Number(result);
+    const num = A * (2n * target - supply);
+    const denLhs = target * (slotCount + B) ** K;
+    const denRhs = (target * scoreNum ** K) / scoreDen ** K;
+    const den = denLhs - denRhs;
+    return Number(num / den - num / denLhs + MIN_REWARD);
   }
 }

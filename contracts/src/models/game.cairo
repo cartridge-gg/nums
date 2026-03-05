@@ -39,7 +39,7 @@ pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
     fn new(
-        id: u64, multiplier: u8, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256,
+        id: u64, multiplier: u16, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256,
     ) -> Game {
         // [Return] Game
         Game {
@@ -135,8 +135,8 @@ pub impl GameImpl of GameTrait {
     /// Rewards the game for the current level.
     #[inline]
     fn reward(ref self: Game, supply: u256, target: u256) {
-        let reward = Rewarder::amount(self.level, self.slot_count, supply, target);
-        self.reward += reward * self.multiplier.into();
+        let reward = Rewarder::amount(self.level.into(), 1, self.slot_count.into(), supply, target);
+        self.reward = reward * self.multiplier.into() / 100;
     }
 
     /// Levels up the game.
@@ -447,7 +447,7 @@ mod tests {
     use super::{DEFAULT_DRAW_STAGE, Game, GameAssert, GameTrait, RandomImpl};
 
     const SUPPLY: u256 = 1;
-    const DEFAULT_MULTIPLIER: u8 = 1;
+    const DEFAULT_MULTIPLIER: u16 = 1;
 
     /// Helper function to create a test game instance
     fn create() -> Game {

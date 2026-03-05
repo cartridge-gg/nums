@@ -6,6 +6,7 @@ import {
   getGameAddress,
   getTokenAddress,
   getVrfAddress,
+  getVaultAddress,
 } from "@/config";
 import { useLoading } from "@/context/loading";
 import { GameEngine } from "@/engines";
@@ -214,7 +215,7 @@ export const useActions = () => {
             entrypoint: "mint",
             calldata: CallData.compile({
               recipient: account?.address,
-              amount: uint256.bnToUint256(1_000n * 10n ** 18n), // 1000 tokens with 18 decimals
+              amount: uint256.bnToUint256(10_000n * 10n ** 18n), // 1000 tokens with 18 decimals
             }),
           },
         ]);
@@ -226,6 +227,140 @@ export const useActions = () => {
     },
     [account, chain.id],
   );
+
+  const vaultDeposit = useCallback(
+    async (amount: bigint) => {
+      try {
+        if (!account?.address) return false;
+        const numsAddress = getTokenAddress(chain.id);
+        const vaultAddress = getVaultAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: numsAddress,
+            entrypoint: "approve",
+            calldata: CallData.compile({
+              spender: vaultAddress,
+              amount: uint256.bnToUint256(amount),
+            }),
+          },
+          {
+            contractAddress: vaultAddress,
+            entrypoint: "deposit",
+            calldata: CallData.compile({
+              assets: uint256.bnToUint256(amount),
+              receiver: account.address,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
+  const vaultMint = useCallback(
+    async (amount: bigint) => {
+      try {
+        if (!account?.address) return false;
+        const numsAddress = getTokenAddress(chain.id);
+        const vaultAddress = getVaultAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: numsAddress,
+            entrypoint: "approve",
+            calldata: CallData.compile({
+              spender: vaultAddress,
+              amount: uint256.bnToUint256(amount),
+            }),
+          },
+          {
+            contractAddress: vaultAddress,
+            entrypoint: "mint",
+            calldata: CallData.compile({
+              shares: uint256.bnToUint256(amount),
+              receiver: account.address,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
+  const vaultWithdraw = useCallback(
+    async (amount: bigint) => {
+      try {
+        if (!account?.address) return false;
+        const vaultAddress = getVaultAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: vaultAddress,
+            entrypoint: "withdraw",
+            calldata: CallData.compile({
+              assets: uint256.bnToUint256(amount),
+              receiver: account.address,
+              owner: account.address,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
+  const vaultRedeem = useCallback(
+    async (amount: bigint) => {
+      try {
+        if (!account?.address) return false;
+        const vaultAddress = getVaultAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: vaultAddress,
+            entrypoint: "redeem",
+            calldata: CallData.compile({
+              shares: uint256.bnToUint256(amount),
+              receiver: account.address,
+              owner: account.address,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
+  const vaultClaim = useCallback(async () => {
+    try {
+      if (!account?.address) return false;
+      const vaultAddress = getVaultAddress(chain.id);
+      await account.execute([
+        {
+          contractAddress: vaultAddress,
+          entrypoint: "claim",
+          calldata: [],
+        },
+      ]);
+      return true;
+    } catch (e) {
+      console.log({ e });
+      return false;
+    }
+  }, [account, chain.id]);
 
   const start = useCallback(async (gameId: number, game: any) => {
     try {
@@ -252,6 +387,13 @@ export const useActions = () => {
     quest: {
       claims: questClaims,
       claim: questClaim,
+    },
+    vault: {
+      deposit: vaultDeposit,
+      mint: vaultMint,
+      withdraw: vaultWithdraw,
+      redeem: vaultRedeem,
+      claim: vaultClaim,
     },
   };
 };

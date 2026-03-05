@@ -15,3 +15,4 @@ export * from "./details";
 export * from "./header";
 export * from "./stakes";
 export * from "./events";
+export * from "./staking";

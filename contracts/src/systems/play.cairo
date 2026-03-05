@@ -20,7 +20,6 @@ pub mod Play {
     use starknet::ContractAddress;
     use starterpack::interface::IStarterpackImplementation as IStarterpack;
     use crate::components::playable::PlayableComponent;
-    use crate::components::starterpack::StarterpackComponent;
     use crate::constants::NAMESPACE;
     use crate::models::starterpack::StarterpackAssert;
     use super::*;
@@ -35,10 +34,8 @@ pub mod Play {
     impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
-    impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
     impl PlayableQuestRewarderImpl = PlayableComponent::QuestRewarderImpl<ContractState>;
-    component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
-    impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
+    impl PlayableStarterpackImpl = PlayableComponent::StarterpackImpl<ContractState>;
 
     // Storage
 
@@ -52,8 +49,6 @@ pub mod Play {
         rankable: RankableComponent::Storage,
         #[substorage(v0)]
         playable: PlayableComponent::Storage,
-        #[substorage(v0)]
-        starterpack: StarterpackComponent::Storage,
     }
 
     // Events
@@ -69,15 +64,6 @@ pub mod Play {
         RankableEvent: RankableComponent::Event,
         #[flat]
         PlayableEvent: PlayableComponent::Event,
-        #[flat]
-        StarterpackEvent: StarterpackComponent::Event,
-    }
-
-    fn dojo_init(ref self: ContractState) {
-        // [Setup] World
-        let world = self.world(@NAMESPACE());
-        // [Effect] Initialize components
-        self.starterpack.initialize(world);
     }
 
     #[abi(embed_v0)]

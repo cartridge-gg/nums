@@ -129,7 +129,7 @@ export const Game = () => {
   }, [game, setLoading]);
 
   const basePrice = useMemo(() => {
-    return Number(config?.entry_price || 0n) / 10 ** 6;
+    return Number(2000000n) / 10 ** 6;
   }, [config]);
 
   const playPrice = useMemo(() => {

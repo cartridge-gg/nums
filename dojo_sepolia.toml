@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.39"
+seed = "nums-v1.0.46"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,32 +9,51 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-world_address = "0x00e53f7816c35c41bcc01e686dfba5e7d3693e48deba7db24838d5d37a3b9740"
+# world_address = "0x03c297312dbf1acc992fbda556ecd6ef0c040817e6b1360829745e81f94b7ea3"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
 [migration]
-order_inits = ["NUMS-Setup", "NUMS-Play", "NUMS-Collection", "NUMS-Token"]
+order_inits = [
+  "NUMS-Token",
+  "NUMS-Setup",
+  "NUMS-Play",
+  "NUMS-Collection",
+  "NUMS-Vault",
+]
 skip_contracts = ["NUMS-Vrf", "NUMS-Registry"]
 disable_multicall = true
 
 [writers]
-"NUMS" = ["NUMS-Play"]
+"NUMS" = ["NUMS-Play", "NUMS-Vault"]
 
 [owners]
 "NUMS" = ["NUMS-Setup", "NUMS-Collection"]
 
 [init_call_args]
+"NUMS-Vault" = [
+  "0x1", # open: true
+]
+"NUMS-Token" = [
+  "0x9ED194DB19B238C000000", # initial_supply: 12M NUMS
+]
 "NUMS-Setup" = [
-  "0x1", # Option::Some
-  # "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d",  # nums_address
+  "0x1",                                                                # nums_address: Option::None
   "0x0",                                                                # Option::Some
   "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
   "0x0",                                                                # Option::Some
   "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
+  "0x1",                                                                # vault_address: Option::None
   "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # owner_address
-  "0x053b40A647CEDfca6cA84f542A0fe36736031905A9639a7f19A3C1e66bFd5080", # quote_address
+  "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343", # quote_address
   "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2", # ekubo address
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
-  "0x6765C793FA10079D0000000",                                          # target_supply
+  "0x84595161401484A000000",                                            # target_supply: 10M NUMS
+  "0x46",                                                               # burn_percentage: 70%,
+  "0xC",                                                                # average_score: 12,
+  "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
+  "0x56a4c",                                                            # pool_tick_spacing,
+  "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,
+  "0x1000003f7f1380b75",                                                # pool_sqrt low,
+  "0x0",                                                                # pool_sqrt high,
 ]

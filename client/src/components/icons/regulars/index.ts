@@ -1,4 +1,5 @@
 export * from "./add";
+export * from "./angle";
 export * from "./arrow-left";
 export * from "./arrow-right";
 export * from "./asterisk";
@@ -18,7 +19,9 @@ export * from "./crown";
 export * from "./diamond";
 export * from "./dojo";
 export * from "./eye";
+export * from "./flow";
 export * from "./gift";
+export * from "./yield";
 export * from "./glitchbomb";
 export * from "./laurel";
 export * from "./link";

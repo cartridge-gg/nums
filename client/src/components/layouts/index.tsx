@@ -5,10 +5,13 @@ import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
+import { StakingScene } from "@/components/scenes/staking";
 import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
+import { useStaking } from "@/hooks/staking";
+import { useVault } from "@/context/vault";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
 import { usePrices } from "@/context/prices";
@@ -44,12 +47,12 @@ export const Layout = ({ children }: LayoutProps) => {
     useLeaderboard();
   const { starterpacks, config, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
-  const { supply: currentSupply } = useHeader();
   const { games, loading: gamesLoading } = useGames();
   const navigate = usePreserveSearchNavigate();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
+  const [showStakingScene, setShowStakingScene] = useState(false);
   const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
@@ -67,6 +70,17 @@ export const Layout = ({ children }: LayoutProps) => {
     return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
 
+  const { vaultInfo, vaultClaimed } = useVault();
+  const stakingLocked = vaultInfo ? !vaultInfo.open : false;
+
+  const stakingSceneProps = useStaking({
+    balance: headerData.balance,
+    shares: headerData.shares,
+    totalShares: headerData.total,
+    totalAssets: headerData.assets,
+    numsPrice,
+  });
+
   const starterpack = useMemo(() => {
     if (
       starterpacks.length === 0 ||
@@ -78,7 +92,7 @@ export const Layout = ({ children }: LayoutProps) => {
   }, [starterpacks, starterpackIndex]);
 
   const basePrice = useMemo(() => {
-    return Number(config?.entry_price || 0n) / 10 ** 6;
+    return Number(2000000n) / 10 ** 6;
   }, [config]);
 
   const playPrice = useMemo(() => {
@@ -115,6 +129,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowQuestScene(false);
       setShowLeaderboardScene(false);
       setShowPurchaseScene(false);
+      setShowStakingScene(false);
 
       // Find the newest game (first in the array)
       const newestGame = games[0];
@@ -246,17 +261,25 @@ export const Layout = ({ children }: LayoutProps) => {
         username={username}
         onConnect={headerData.handleConnect}
         onProfile={headerData.handleOpenProfile}
-        onBalance={() => mint()}
+        onBalance={() => {
+          setShowStakingScene(!showStakingScene);
+          setShowQuestScene(false);
+          setShowLeaderboardScene(false);
+          setShowPurchaseScene(false);
+        }}
         onQuests={() => {
           setShowQuestScene(!showQuestScene);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
+          setShowStakingScene(false);
         }}
         onLeaderboard={() => {
           setShowLeaderboardScene(!showLeaderboardScene);
           setShowQuestScene(false);
           setShowPurchaseScene(false);
+          setShowStakingScene(false);
         }}
+        onMint={() => mint()}
       />
       <Events events={events} />
       <div
@@ -271,6 +294,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowPurchaseScene(true);
             setShowQuestScene(false);
             setShowLeaderboardScene(false);
+            setShowStakingScene(false);
           }}
         >
           {children}
@@ -304,7 +328,7 @@ export const Layout = ({ children }: LayoutProps) => {
               numsPrice={numsPrice}
               multiplier={starterpack?.multiplier || 1}
               targetSupply={config?.target_supply || 0n}
-              currentSupply={currentSupply}
+              currentSupply={headerData.supply}
               stakesProps={{
                 total: starterpacks.length,
                 index: starterpackIndex,
@@ -315,6 +339,24 @@ export const Layout = ({ children }: LayoutProps) => {
               }
               onPurchase={handlePurchase}
               onClose={() => setShowPurchaseScene(false)}
+              className="h-full"
+            />
+          </div>
+        )}
+        {showStakingScene && (
+          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+            <StakingScene
+              {...stakingSceneProps}
+              locked={stakingLocked}
+              claimedProps={
+                vaultClaimed
+                  ? {
+                      amount: vaultClaimed.claimedAmount(),
+                      timestamp: vaultClaimed.claimedAt(),
+                    }
+                  : undefined
+              }
+              onClose={() => setShowStakingScene(false)}
               className="h-full"
             />
           </div>

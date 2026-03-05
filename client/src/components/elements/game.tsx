@@ -38,6 +38,7 @@ const gameVariants = cva(
 export const Game = ({
   gameId,
   score,
+  breakEven,
   expiration,
   payout,
   onPlay,

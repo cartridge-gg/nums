@@ -8,10 +8,12 @@ use crate::constants::WORLD_RESOURCE;
 use crate::events::claimed::ClaimedTrait;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
+use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
 use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Config, Game, Starterpack};
+use crate::models::index::{Config, Game, Starterpack, VaultInfo, VaultPosition};
+use crate::systems::vault::IVaultDispatcher;
 
 #[derive(Copy, Drop)]
 pub struct Store {
@@ -29,6 +31,21 @@ pub impl StoreImpl of StoreTrait {
     fn nums_disp(self: @Store) -> INumsTokenDispatcher {
         let config = self.config();
         INumsTokenDispatcher { contract_address: config.nums }
+    }
+
+    fn vrf_disp(self: @Store) -> IVrfProviderDispatcher {
+        let config = self.config();
+        IVrfProviderDispatcher { contract_address: config.vrf }
+    }
+
+    fn starterpack_disp(self: @Store) -> IStarterpackRegistryDispatcher {
+        let config = self.config();
+        IStarterpackRegistryDispatcher { contract_address: config.starterpack }
+    }
+
+    fn vault_disp(self: @Store) -> IVaultDispatcher {
+        let config = self.config();
+        IVaultDispatcher { contract_address: config.vault }
     }
 
     fn quote_disp(self: @Store) -> IERC20Dispatcher {
@@ -50,16 +67,6 @@ pub impl StoreImpl of StoreTrait {
         // Sepolia: 0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
         let config = self.config();
         IClearDispatcher { contract_address: config.ekubo }
-    }
-
-    fn vrf_disp(ref self: Store) -> IVrfProviderDispatcher {
-        let config = self.config();
-        IVrfProviderDispatcher { contract_address: config.vrf }
-    }
-
-    fn starterpack_disp(ref self: Store) -> IStarterpackRegistryDispatcher {
-        let config = self.config();
-        IStarterpackRegistryDispatcher { contract_address: config.starterpack }
     }
 
     // Config
@@ -94,6 +101,26 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(starterpack)
     }
 
+    // Vault
+
+    fn vault(self: @Store) -> VaultInfo {
+        self.world.read_model(WORLD_RESOURCE)
+    }
+
+    fn set_vault(mut self: Store, vault: @VaultInfo) {
+        self.world.write_model(vault)
+    }
+
+    // Position
+
+    fn position(self: @Store, user: felt252) -> VaultPosition {
+        self.world.read_model(user)
+    }
+
+    fn set_position(mut self: Store, position: @VaultPosition) {
+        self.world.write_model(position)
+    }
+
     // Events
 
     fn claimed(mut self: Store, player_id: felt252, game_id: u64, reward: u64) {
@@ -108,8 +135,18 @@ pub impl StoreImpl of StoreTrait {
         self.world.emit_event(@event);
     }
 
-    fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u8) {
+    fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u16) {
         let event = StartedTrait::new(player_id, game_id, multiplier);
+        self.world.emit_event(@event);
+    }
+
+    fn vault_paid(mut self: Store, player_id: felt252, amount: u256) {
+        let event = VaultPaidTrait::new(player_id, amount);
+        self.world.emit_event(@event);
+    }
+
+    fn vault_claimed(mut self: Store, user: felt252, amount: u256) {
+        let event = VaultClaimedTrait::new(user, amount);
         self.world.emit_event(@event);
     }
 }

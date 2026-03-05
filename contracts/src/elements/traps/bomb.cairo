@@ -60,7 +60,7 @@ mod tests {
     use super::*;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
-    const DEFAULT_MULTIPLIER: u8 = 1;
+    const DEFAULT_MULTIPLIER: u16 = 1;
 
     #[test]
     fn test_bomb_large_range() {

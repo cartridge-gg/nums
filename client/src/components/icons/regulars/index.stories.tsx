@@ -19,6 +19,7 @@ type Story = StoryObj<typeof meta>;
 // Icônes sans variant
 const regularIcons = [
   { name: "AddIcon", component: Icons.AddIcon },
+  { name: "AngleIcon", component: Icons.AngleIcon },
   { name: "ArrowLeftIcon", component: Icons.ArrowLeftIcon },
   { name: "ArrowRightIcon", component: Icons.ArrowRightIcon },
   { name: "AsteriskIcon", component: Icons.AsteriskIcon },
@@ -37,6 +38,8 @@ const regularIcons = [
   { name: "DiamondIcon", component: Icons.DiamondIcon },
   { name: "DojoIcon", component: Icons.DojoIcon },
   { name: "EyeIcon", component: Icons.EyeIcon },
+  { name: "FlowIcon", component: Icons.FlowIcon },
+  { name: "YieldIcon", component: Icons.YieldIcon },
   { name: "LaurelIcon", component: Icons.LaurelIcon },
   { name: "LinkIcon", component: Icons.LinkIcon },
   { name: "LockerIcon", component: Icons.LockerIcon },

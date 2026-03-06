@@ -20,8 +20,7 @@ import { useId } from "react";
 export interface HeaderProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof headerVariants> {
-  isMainnet: boolean;
-  balance?: string;
+  balance?: number;
   onBalance?: () => void;
   username?: string;
   onConnect: () => void;
@@ -46,7 +45,6 @@ const headerVariants = cva(
 );
 
 export const Header = ({
-  isMainnet,
   balance,
   onBalance,
   username,
@@ -123,21 +121,8 @@ export const Header = ({
         )}
         {username ? (
           <>
-            {isMainnet ? (
-              <Link
-                to="https://app.ekubo.org/starknet/?outputCurrency=NUMS&amount=-2000&inputCurrency=USDC"
-                target="_blank"
-                draggable={false}
-              >
-                <Balance balance={balance ?? "0"} />
-              </Link>
-            ) : (
-              balance !== undefined && (
-                <Balance
-                  balance={balance}
-                  onClick={isMainnet ? undefined : onBalance}
-                />
-              )
+            {balance !== undefined && (
+              <Balance balance={balance} onClick={onBalance} />
             )}
             <Profile username={username} onClick={onProfile} />
           </>

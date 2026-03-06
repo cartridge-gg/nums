@@ -256,7 +256,6 @@ export const Layout = ({ children }: LayoutProps) => {
         className="absolute inset-0 w-full h-full object-cover z-[-1]"
       />
       <Header
-        isMainnet={headerData.isMainnet}
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}

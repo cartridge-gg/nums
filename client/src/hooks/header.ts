@@ -39,7 +39,7 @@ export const useHeader = () => {
   const balanceDiff = useRef<{ value: number }>({ value: 0 });
 
   const balance = useMemo(() => {
-    if (!account || !token) return "0";
+    if (!account || !token) return 0;
 
     const tokenBalance = tokenBalances.find(
       (b) =>
@@ -47,7 +47,7 @@ export const useHeader = () => {
         BigInt(b.account_address) ===
           BigInt(addAddressPadding(account.address)),
     );
-    if (!tokenBalance) return "0";
+    if (!tokenBalance) return 0;
 
     const balanceScaled = toDecimal(token, tokenBalance);
 
@@ -58,20 +58,20 @@ export const useHeader = () => {
       prevBalanceRef.current = balanceScaled;
     }
 
-    return balanceScaled.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    return balanceScaled;
   }, [tokenBalances, token, account, numsAddress]);
 
   const shares = useMemo(() => {
-    if (!account || !vault) return "0";
+    if (!account || !vault) return 0;
     const tokenBalance = tokenBalances.find(
       (b) =>
         BigInt(b.contract_address) === BigInt(vaultAddress) &&
         BigInt(b.account_address) ===
           BigInt(addAddressPadding(account.address)),
     );
-    if (!tokenBalance) return "0";
+    if (!tokenBalance) return 0;
     const balanceScaled = toDecimal(vault, tokenBalance);
-    return balanceScaled.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    return balanceScaled;
   }, [tokenBalances, vault, account, vaultAddress]);
 
   const assets = useMemo(() => {

@@ -5,7 +5,7 @@ import { getTokenAddress } from "@/config";
 import { useNetwork } from "@starknet-react/core";
 
 const USDC_ADDRESS =
-  "0x53C91253BC9682c04929cA02ED00b3E423f6710D2ee7e0D5EBB06F3eCF368A8";
+  "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343";
 
 type PricesProviderProps = {
   children: React.ReactNode;
@@ -22,10 +22,12 @@ const PricesProviderContext = createContext<PricesProviderState | undefined>(
 );
 
 const fetchTokenUsdPrice = async (
+  chainId: bigint,
   tokenAddress: string,
 ): Promise<string | null> => {
   try {
     const swap = await getSwapQuote(
+      chainId,
       100n * 10n ** 18n,
       tokenAddress,
       USDC_ADDRESS,
@@ -39,10 +41,11 @@ const fetchTokenUsdPrice = async (
 };
 
 const fetchAllPrices = async (
+  chainId: bigint,
   tokenAddresses: string[],
 ): Promise<Map<string, string>> => {
   const pricePromises = tokenAddresses.map((address) =>
-    fetchTokenUsdPrice(address),
+    fetchTokenUsdPrice(chainId, address),
   );
 
   const prices = await Promise.allSettled(pricePromises);
@@ -68,7 +71,7 @@ export function PricesProvider({ children, ...props }: PricesProviderProps) {
 
   const query = useQuery({
     queryKey: ["tokenUsdPrices", tokenAddresses.join(",")],
-    queryFn: () => fetchAllPrices(tokenAddresses),
+    queryFn: () => fetchAllPrices(chain.id, tokenAddresses),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,

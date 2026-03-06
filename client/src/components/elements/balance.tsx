@@ -6,7 +6,7 @@ import { useMemo } from "react";
 export interface BalanceProps
   extends React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
-  balance: string;
+  balance: number;
 }
 
 const balanceVariants = cva(
@@ -27,9 +27,7 @@ const balanceVariants = cva(
   },
 );
 
-const formatMobileBalance = (balance: string): string => {
-  const num = parseFloat(balance);
-
+const formatMobileBalance = (num: number): string => {
   if (isNaN(num) || num < 0) {
     return "0";
   }
@@ -82,8 +80,11 @@ export const Balance = ({
   ...props
 }: BalanceProps) => {
   const formattedDesktop = useMemo(() => {
-    if (isNaN(parseFloat(balance))) return "0";
-    return balance;
+    if (isNaN(balance)) return "0";
+    return balance.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    });
   }, [balance]);
 
   const formattedMobile = useMemo(() => {

@@ -45,6 +45,10 @@ export const dojoConfigs = {
   [MAINNET_CHAIN_ID]: dojoConfigMainnet,
 };
 
+export const getEkuboUrl = (chainId: bigint) => {
+  return `https://prod-api-quoter.ekubo.org/${chainId.toString(10)}`;
+};
+
 export const getContractAddress = (
   chainId: bigint,
   namespace: string,

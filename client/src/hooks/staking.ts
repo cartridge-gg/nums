@@ -9,9 +9,9 @@ const DEBOUNCE_DELAY = 500;
 
 export interface UseStakingParams {
   /** NUMS balance string from useHeader */
-  balance: string;
+  balance: number;
   /** vNUMS (shares) balance string from useHeader */
-  shares: string;
+  shares: number;
   /** Total vNUMS supply (vault total_supply) from useHeader */
   totalShares: bigint;
   /** Total NUMS assets in the vault — used for ERC4626 preview ratio */
@@ -74,14 +74,8 @@ export const useStaking = ({
   const redeemTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const withdrawTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const numsBalance = useMemo(
-    () => parseFloat(balance.replace(/,/g, "")) || 0,
-    [balance],
-  );
-  const vNumsBalance = useMemo(
-    () => parseFloat(shares.replace(/,/g, "")) || 0,
-    [shares],
-  );
+  const numsBalance = useMemo(() => balance || 0, [balance]);
+  const vNumsBalance = useMemo(() => shares || 0, [shares]);
 
   // Ratio: 1 NUMS = ? vNUMS (local estimate from vault totals for the badge display)
   const ratio = useMemo(

@@ -152,8 +152,7 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
-          if (parsed.hasExpired()) return;
-          setPurchased(parsed);
+          if (!parsed.hasExpired()) setPurchased(parsed);
         }
         if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
           const model = entity.models[
@@ -165,8 +164,7 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
-          if (parsed.hasExpired()) return;
-          setStarted(parsed);
+          if (!parsed.hasExpired()) setStarted(parsed);
         }
         if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
           const model = entity.models[
@@ -178,8 +176,7 @@ export function EntitiesProvider({
               [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
             ).slice(0, 10),
           );
-          if (parsed.hasExpired()) return;
-          setClaimed(parsed);
+          if (!parsed.hasExpired()) setClaimed(parsed);
         }
       });
     },

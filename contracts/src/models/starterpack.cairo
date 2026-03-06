@@ -1,3 +1,4 @@
+use starknet::ContractAddress;
 use starterpack::types::item::ItemTrait;
 use starterpack::types::metadata::MetadataTrait;
 pub use crate::constants::IMAGE;
@@ -48,7 +49,7 @@ pub impl StarterpackImpl of StarterpackTrait {
     }
 
     #[inline]
-    fn metadata(payment_token: starknet::ContractAddress, multiplier: u8) -> ByteArray {
+    fn metadata(payment_tokens: Span<ContractAddress>, multiplier: u8) -> ByteArray {
         let description: ByteArray = if multiplier == 1 {
             "A standard game playable on nums.gg"
         } else {
@@ -60,7 +61,7 @@ pub impl StarterpackImpl of StarterpackTrait {
             description: "This starterpack contains Nums games",
             image_uri: IMAGE(),
             items: array![item].span(),
-            tokens: array![payment_token].span(),
+            tokens: payment_tokens,
         );
         metadata.jsonify()
     }

@@ -39,7 +39,13 @@ pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
     fn new(
-        id: u64, multiplier: u16, slot_count: u8, slot_min: u16, slot_max: u16, supply: u256,
+        id: u64,
+        multiplier: u16,
+        slot_count: u8,
+        slot_min: u16,
+        slot_max: u16,
+        supply: u256,
+        price: u256,
     ) -> Game {
         // [Return] Game
         Game {
@@ -62,6 +68,7 @@ pub impl GameImpl of GameTrait {
             traps: 0,
             slots: 0,
             supply: supply.try_into().unwrap(),
+            price: price.try_into().unwrap(),
         }
     }
 
@@ -439,6 +446,7 @@ pub impl GameAssert of AssertTrait {
 
 #[cfg(test)]
 mod tests {
+    use core::num::traits::Pow;
     use crate::constants::{
         DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
         SLOT_SIZE,
@@ -448,11 +456,18 @@ mod tests {
 
     const SUPPLY: u256 = 1;
     const DEFAULT_MULTIPLIER: u16 = 1;
+    const DEFAULT_PRICE: u256 = 2 * 10_u256.pow(6);
 
     /// Helper function to create a test game instance
     fn create() -> Game {
         let mut game = GameTrait::new(
-            1, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
+            1,
+            DEFAULT_MULTIPLIER,
+            DEFAULT_SLOT_COUNT,
+            DEFAULT_SLOT_MIN,
+            DEFAULT_SLOT_MAX,
+            SUPPLY,
+            DEFAULT_PRICE,
         );
         let mut rand = RandomImpl::new(1);
         game.start(ref rand);
@@ -462,7 +477,13 @@ mod tests {
     #[test]
     fn test_new_game_creation() {
         let game = GameTrait::new(
-            1, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
+            1,
+            DEFAULT_MULTIPLIER,
+            DEFAULT_SLOT_COUNT,
+            DEFAULT_SLOT_MIN,
+            DEFAULT_SLOT_MAX,
+            SUPPLY,
+            DEFAULT_PRICE,
         );
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');

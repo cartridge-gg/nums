@@ -5,6 +5,7 @@ pub use store::{Store, StoreImpl, StoreTrait};
 
 pub mod systems {
     pub mod collection;
+    pub mod faucet;
     pub mod governor;
     pub mod play;
     pub mod setup;

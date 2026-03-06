@@ -163,18 +163,26 @@ pub impl Verifier of VerifierTrait {
 
 #[cfg(test)]
 mod tests {
+    use core::num::traits::Pow;
     use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::packer::Packer;
     use crate::models::game::{Game, GameTrait};
     use super::VerifierTrait;
 
+    const DEFAULT_PRICE: u256 = 2 * 10_u256.pow(6);
     const DEFAULT_SLOT_COUNT: u8 = 20;
     const DEFAULT_MULTIPLIER: u16 = 1;
     const SUPPLY: u256 = 1;
 
     fn create_test_game() -> Game {
         GameTrait::new(
-            1, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, SUPPLY,
+            1,
+            DEFAULT_MULTIPLIER,
+            DEFAULT_SLOT_COUNT,
+            DEFAULT_SLOT_MIN,
+            DEFAULT_SLOT_MAX,
+            SUPPLY,
+            DEFAULT_PRICE,
         )
     }
 

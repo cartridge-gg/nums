@@ -28,7 +28,7 @@ pub struct Config {
     pub pool_sqrt: u256,
 }
 
-#[derive(Drop, Serde, IntrospectPacked)]
+#[derive(Drop, Serde)]
 #[dojo::model]
 pub struct Starterpack {
     #[key]
@@ -40,7 +40,7 @@ pub struct Starterpack {
     pub multiplier: u8,
 }
 
-#[derive(Copy, Drop, Serde, IntrospectPacked)]
+#[derive(Copy, Drop, Serde)]
 #[dojo::model]
 pub struct Game {
     #[key]
@@ -63,6 +63,7 @@ pub struct Game {
     pub traps: u128,
     pub slots: felt252,
     pub supply: felt252,
+    pub price: felt252,
 }
 
 #[derive(Copy, Drop, Serde)]

@@ -84,6 +84,10 @@ export const getTokenAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "Token");
 };
 
+export const getFaucetAddress = (chainId: bigint) => {
+  return getContractAddress(chainId, NAMESPACE, "Faucet");
+};
+
 export const getVaultAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "Vault");
 };

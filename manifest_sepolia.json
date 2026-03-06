@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x3c297312dbf1acc992fbda556ecd6ef0c040817e6b1360829745e81f94b7ea3",
-    "seed": "nums-v1.0.46",
+    "address": "0x58fbc43670deb4c3166edc0bd4466591ae2274f9d6a58ee0e4bd11a4edaaa54",
+    "seed": "nums-v1.0.48",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x5a8c23e6b1cc1090b79039a5e155d45632975e44581b9645075649c8ec973b6",
-      "class_hash": "0x2c197799e02a1ad602b144cac046ce1e16475bf6d3bfcb24d1969d7eeb9f4a0",
+      "address": "0x67d4927fc31c65b2a27eb94d1a70d0a575e1b8727221e91893db4219240a47c",
+      "class_hash": "0xec7eba7e613dba22616d2b9e0a5586d38ae0208b698e9576324641927f47a7",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -57,7 +57,21 @@
       ]
     },
     {
-      "address": "0x714c693a713cfebe03a1d3d2ea6c9a6bd262f93ba6b3ad867bdea11bd50ba5b",
+      "address": "0x29679bc70dbf88acc6108554379f01d09fd00811cb101c0c429254b1e5c8547",
+      "class_hash": "0x7e3cf1f4bd3c2444a9a9fae09f54caa0d91e8139fda28aaaec81165d79e8ec1",
+      "init_calldata": [
+        "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343"
+      ],
+      "tag": "NUMS-Faucet",
+      "selector": "0x7f375e045e15d0abdd0ac04a5c315f8af42af9bf60d46897bda5307b14a149",
+      "systems": [
+        "dojo_init",
+        "request",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x1506359ed28416a8cad7b39d737b6f7cf21663f442d74c3c42d2fe275797cc3",
       "class_hash": "0x6fc0a0e449058fb185c5152f7216734fa8a58baace268b228fc5c5b5e9f990f",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -78,8 +92,8 @@
       ]
     },
     {
-      "address": "0x2f7fe5729e301dcfac88ec2144f28b9c904f6842b13a51a2d95c08fbee55905",
-      "class_hash": "0x4065d2be2cf38fcee1354fad59c889b0212704f8bde62b240ef3cf4f5aefb81",
+      "address": "0x3e8aee573ce3e99a4679789902efffd01a53385512a6d8b4f2f0fb5b54aecf5",
+      "class_hash": "0x643154f492cf02ff6e1a32526a630d56fce5152c5e51e83a9c4cdde56a5e6ba",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -96,8 +110,8 @@
       ]
     },
     {
-      "address": "0xce11a8d7d5edd1aad2edd03d53c82d4664aaaa79d0012486378672ca5946fe",
-      "class_hash": "0x57a1b2885963a8b765114f96778dcc44ea277146287119f7fd47db58c69fe71",
+      "address": "0x20a514e35988563becf59d54abb94601aee6da5b10818e89a918e7c4d2a3b85",
+      "class_hash": "0x20b17d57bafca49b1dd9e0b714cc94b5df2d239aaaf443fafb5c1fcb06ba83c",
       "init_calldata": [
         "0x1",
         "0x0",
@@ -140,7 +154,7 @@
       ]
     },
     {
-      "address": "0x54c9e4dc8d42950774b6a8f0e5186bd88719463807156e444417d981efb60ef",
+      "address": "0x6b4b4312a5b4adcdb38553af9908f86ab995a52d2d485c458a38de03135726b",
       "class_hash": "0x6ad80220e2f699f04687b2dddd449dcddd917c8d88b8f87768d0cb008cf8244",
       "init_calldata": [
         "0x9ED194DB19B238C000000"
@@ -166,7 +180,7 @@
       ]
     },
     {
-      "address": "0x37a007f6db06f3a5e455ae9b389079b2770689ee26b25b08449876ecd9634e9",
+      "address": "0x608f08dbe71f53afb9ddad7995e912ba5e93fb5a81cb9cb277e7b0a54c08577",
       "class_hash": "0x602b70ad1ac75bb9fd9f6624777832504a0ff69626d15c0c6a1cda7bab21982",
       "init_calldata": [
         "0x1"
@@ -520,9 +534,14 @@
           "name": "supply",
           "type": "core::felt252",
           "key": false
+        },
+        {
+          "name": "price",
+          "type": "core::felt252",
+          "key": false
         }
       ],
-      "class_hash": "0x18327ecb4838b907750dfb5c1284e1cacbd9a9c0e36c9095aa8812f3500c5fd",
+      "class_hash": "0x378748cb3c97d4950e34d5fed9748b0e92e31ee746ce122b64f8f87451911c7",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -714,7 +733,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x4996976848514514e18952e892359919aed81ec01237919ceeb001f4507cc39",
+      "class_hash": "0x538f71dd672c1f0a269d2f1023b0b927e3b2ed4c4b37ab87493a95be139496a",
       "tag": "NUMS-Starterpack",
       "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
     },
@@ -4222,6 +4241,10 @@
         {
           "name": "supply",
           "type": "core::felt252"
+        },
+        {
+          "name": "price",
+          "type": "core::felt252"
         }
       ]
     },
@@ -4299,6 +4322,10 @@
         },
         {
           "name": "supply",
+          "type": "core::felt252"
+        },
+        {
+          "name": "price",
           "type": "core::felt252"
         }
       ]
@@ -4571,6 +4598,48 @@
           ],
           "outputs": [],
           "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "nums::systems::faucet::Faucet::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "nums::systems::faucet::IFaucet",
+      "items": [
+        {
+          "type": "function",
+          "name": "request",
+          "inputs": [
+            {
+              "name": "amount",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "withdraw",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
         }
       ]
     },

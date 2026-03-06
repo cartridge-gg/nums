@@ -1,5 +1,5 @@
 import { Link } from "@/lib/router";
-import { LogoIcon } from "@/components/icons/exotics";
+import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
 import {
   QuestIcon,
   ShadowEffect,
@@ -112,7 +112,7 @@ export const Header = ({
             className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
             onClick={onMint}
           >
-            <SparklesIcon
+            <QuoteIcon
               size="md"
               className="md:size-lg"
               style={{ filter: `url(#${filterId})` }}

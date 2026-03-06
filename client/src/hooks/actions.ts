@@ -7,6 +7,7 @@ import {
   getTokenAddress,
   getVrfAddress,
   getVaultAddress,
+  getFaucetAddress,
 } from "@/config";
 import { useLoading } from "@/context/loading";
 import { GameEngine } from "@/engines";
@@ -207,15 +208,14 @@ export const useActions = () => {
   const mint = useCallback(
     async (tokenAddress?: string) => {
       try {
-        if (!account?.address) return false;
-        const address = tokenAddress || getTokenAddress(chain.id);
+        if (!account) return false;
+        const address = tokenAddress || getFaucetAddress(chain.id);
         await account.execute([
           {
             contractAddress: address,
-            entrypoint: "mint",
+            entrypoint: "request",
             calldata: CallData.compile({
-              recipient: account?.address,
-              amount: uint256.bnToUint256(10_000n * 10n ** 18n), // 1000 tokens with 18 decimals
+              amount: uint256.bnToUint256(10n * 10n ** 6n), // 10 USDC
             }),
           },
         ]);

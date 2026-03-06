@@ -42,6 +42,7 @@ pub mod StarterpackComponent {
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             // [Effect] Register and store all starterpacks
             let reissuable = true;
+            let payment_tokens = array![payment_token, nums_address].span();
             for index in 0..STARTERPACK_COUNT {
                 // [Interaction] Register starterpack
                 let multiplier: u8 = index + 1;
@@ -58,7 +59,7 @@ pub mod StarterpackComponent {
                         price: price,
                         payment_token: payment_token,
                         payment_receiver: Option::Some(play_address),
-                        metadata: StarterpackTrait::metadata(nums_address, multiplier),
+                        metadata: StarterpackTrait::metadata(payment_tokens, multiplier),
                     );
                 // [Effect] Create starterpack
                 let pack = StarterpackTrait::new(
@@ -155,11 +156,13 @@ pub mod StarterpackComponent {
             pack.assert_does_exist();
 
             // [Interaction] Update metadata
+            let payment_token = store.quote_disp().contract_address;
             let nums_address = store.nums_disp().contract_address;
             let starterpack_disp = store.starterpack_disp();
+            let payment_tokens = array![payment_token, nums_address].span();
             starterpack_disp
                 .update_metadata(
-                    starterpack_id, StarterpackTrait::metadata(nums_address, pack.multiplier),
+                    starterpack_id, StarterpackTrait::metadata(payment_tokens, pack.multiplier),
                 );
         }
     }

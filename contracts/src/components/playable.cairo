@@ -160,6 +160,7 @@ pub mod PlayableComponent {
                     slot_min: config.slot_min,
                     slot_max: config.slot_max,
                     supply: supply_per_game,
+                    price: pack.price,
                 );
                 // [Effect] Start game
                 let mut rand = RandomImpl::new(game_id.into());

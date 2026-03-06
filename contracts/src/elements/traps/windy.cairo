@@ -50,7 +50,7 @@ mod tests {
     fn test_windy_basic_left() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -64,7 +64,7 @@ mod tests {
     fn test_windy_basic_right() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Windy::apply(ref game, 9, ref random);
@@ -79,7 +79,7 @@ mod tests {
     fn test_windy_both_sides() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Windy::apply(ref game, 9, ref random);
@@ -93,7 +93,7 @@ mod tests {
     fn test_windy_move_left_away() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -107,7 +107,7 @@ mod tests {
     fn test_windy_move_right_away() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -121,7 +121,7 @@ mod tests {
     fn test_windy_target_occupied() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![200, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -135,7 +135,7 @@ mod tests {
     fn test_windy_no_slots() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -148,7 +148,7 @@ mod tests {
     fn test_windy_slot_index_occupied() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
         Windy::apply(ref game, 9, ref random);
@@ -162,7 +162,7 @@ mod tests {
     fn test_windy_slot_index_first_with_right_slot() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Windy::apply(ref game, 0, ref random);
@@ -177,7 +177,7 @@ mod tests {
     fn test_windy_slot_index_first_with_right_slot_close() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 0, ref random);
@@ -192,7 +192,7 @@ mod tests {
     fn test_windy_slot_index_first_with_right_slot_target_occupied() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 500, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 0, ref random);
@@ -207,7 +207,7 @@ mod tests {
     fn test_windy_slot_index_last_with_left_slot() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Windy::apply(ref game, 19, ref random);
@@ -222,7 +222,7 @@ mod tests {
     fn test_windy_slot_index_last_with_left_slot_close() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0]);
         Windy::apply(ref game, 19, ref random);
@@ -237,7 +237,7 @@ mod tests {
     fn test_windy_slot_index_last_with_left_slot_target_occupied() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 200, 100, 0]);
         Windy::apply(ref game, 19, ref random);
@@ -252,7 +252,7 @@ mod tests {
     fn test_windy_slot_index_first_with_both_sides() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Windy::apply(ref game, 0, ref random);
@@ -267,7 +267,7 @@ mod tests {
     fn test_windy_slot_index_last_with_both_sides() {
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0,
+            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
         Windy::apply(ref game, 19, ref random);

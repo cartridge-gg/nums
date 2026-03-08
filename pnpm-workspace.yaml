@@ -1,5 +1,6 @@
 packages:
   - "client"
+  - "video"
   - "contracts/tokens"
 catalog:
   "@cartridge/connector": "0.13.9"

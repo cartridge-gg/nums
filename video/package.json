@@ -1,0 +1,43 @@
+{
+  "name": "@cartridge/nums-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion render",
+    "type:check": "tsc --noEmit",
+    "format": "biome format --fix src",
+    "format:check": "biome format src",
+    "lint": "biome lint --fix .",
+    "lint:check": "biome lint .",
+    "render": "tsx scripts/render-all.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/paths": "^4.0.0",
+    "@remotion/tailwind": "^4.0.0",
+    "@remotion/transitions": "^4.0.0",
+    "@remotion/zod-types": "^4.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.547.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-slot-counter": "^3.3.1",
+    "remotion": "^4.0.0",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}

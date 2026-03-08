@@ -1,4 +1,4 @@
-@import "../../client/src/themes/default.css";
+@import "./theme.css";
 
 /* biome-ignore lint/suspicious/noUnknownAtRules: tailwind directive */
 @tailwind base;
@@ -64,8 +64,8 @@
 		right: 2px;
 		bottom: 2px;
 		background-image:
-			url("/assets/silver-glitter-background.png"),
-			url("/assets/silver-glitter-background.png"),
+			url("../../public/assets/silver-glitter-background.png"),
+			url("../../public/assets/silver-glitter-background.png"),
 			linear-gradient(0deg, #ff8951 0px, #dcbc169c 30%, transparent 70%),
 			radial-gradient(ellipse at bottom, transparent 30%, black 60%);
 		background-size:

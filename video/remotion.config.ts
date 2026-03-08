@@ -6,17 +6,19 @@ import path from "node:path";
 const ROOT = process.cwd();
 
 Config.overrideWebpackConfig((currentConfiguration) => {
-  const withTailwind = enableTailwind(currentConfiguration);
+	const withTailwind = enableTailwind(currentConfiguration);
 
-  return {
-    ...withTailwind,
-    resolve: {
-      ...withTailwind.resolve,
-      alias: {
-        ...withTailwind.resolve?.alias,
-        "@video": path.resolve(ROOT, "src"),
-        "@": path.resolve(ROOT, "../client/src"),
-      },
-    },
-  };
+	return {
+		...withTailwind,
+		resolve: {
+			...withTailwind.resolve,
+			alias: {
+				...withTailwind.resolve?.alias,
+				// Stub out audio context so client components render silently
+				"@/context/audio": path.resolve(ROOT, "src/providers/audio.tsx"),
+				"@video": path.resolve(ROOT, "src"),
+				"@": path.resolve(ROOT, "../client/src"),
+			},
+		},
+	};
 });

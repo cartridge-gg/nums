@@ -12,6 +12,7 @@ import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
+import { Rewarder } from "@/helpers/rewarder";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
 import { usePrices } from "@/context/prices";
@@ -92,12 +93,31 @@ export const Layout = ({ children }: LayoutProps) => {
   }, [starterpacks, starterpackIndex]);
 
   const basePrice = useMemo(() => {
-    return Number(2000000n) / 10 ** 6;
-  }, [config]);
+    return (
+      (Number(config?.base_price || 2_000_000n) *
+        (starterpack?.multiplier || 1)) /
+      10 ** 6
+    );
+  }, [config, starterpack]);
 
   const playPrice = useMemo(() => {
     return Number(starterpack?.price || 0n) / 10 ** 6;
   }, [starterpack]);
+
+  const multiplier = useMemo(() => {
+    if (!config || !starterpack || numsPrice <= 0) return 1;
+    return Rewarder.multiplier(
+      config.base_price,
+      BigInt(starterpack.multiplier),
+      BigInt(config.burn_percentage),
+      BigInt(config.slot_count),
+      BigInt(config.average_score),
+      BigInt(config.average_weigth),
+      headerData.supply,
+      config.target_supply,
+      BigInt(Math.round(numsPrice * 1_000_000)),
+    );
+  }, [config, starterpack, headerData.supply, numsPrice]);
 
   const handlePurchase = useCallback(() => {
     if (starterpack) {
@@ -322,10 +342,10 @@ export const Layout = ({ children }: LayoutProps) => {
           <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
             <PurchaseScene
               slotCount={config?.slot_count || 18}
-              basePrice={basePrice * (starterpack?.multiplier || 1)}
+              basePrice={basePrice}
               playPrice={playPrice}
               numsPrice={numsPrice}
-              multiplier={starterpack?.multiplier || 1}
+              multiplier={multiplier}
               targetSupply={config?.target_supply || 0n}
               currentSupply={headerData.supply}
               stakesProps={{

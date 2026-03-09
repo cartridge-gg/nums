@@ -22,7 +22,7 @@ import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
 import { DEFAULT_POWER_COUNT } from "@/constants";
-import { ChartHelper, Verifier } from "@/helpers";
+import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useOwner } from "@/hooks/owner";
 
@@ -47,7 +47,7 @@ export const Game = () => {
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { games } = useGames();
-  const { config, starterpacks } = useEntities();
+  const { config } = useEntities();
   const { isLoading, setLoading } = useLoading();
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
@@ -132,15 +132,6 @@ export const Game = () => {
     return Number(2000000n) / 10 ** 6;
   }, [config]);
 
-  const playPrice = useMemo(() => {
-    if (!game) return 0;
-    const starterpack = starterpacks.find(
-      (starterpack) => starterpack.multiplier === game.multiplier,
-    );
-    if (!starterpack) return 0;
-    return Number(starterpack.price) / 10 ** 6 || 0;
-  }, [starterpacks, game]);
-
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
@@ -151,15 +142,15 @@ export const Game = () => {
 
     return {
       slotCount: game.slot_count,
-      basePrice: basePrice * game.multiplier,
-      playPrice,
+      basePrice: Number(game.price) / 10 ** 6,
+      playPrice: Number(game.price) / 10 ** 6,
       numsPrice,
       multiplier: game.multiplier,
       expiration: game.expiration,
       targetSupply: config.target_supply || 0n,
       currentSupply: game.supply,
     };
-  }, [game, config, basePrice, playPrice, numsPrice]);
+  }, [game, config, basePrice, numsPrice]);
 
   // Transform game data for Game
   const gameProps = useMemo(() => {
@@ -174,14 +165,11 @@ export const Game = () => {
       };
     }
 
-    const { chartAbscissa: breakEven } = ChartHelper.calculate({
-      slotCount: purchaseProps.slotCount,
-      currentSupply: purchaseProps.currentSupply,
-      targetSupply: purchaseProps.targetSupply,
-      numsPrice: purchaseProps.numsPrice,
-      playPrice: purchaseProps.playPrice,
-      multiplier: game.multiplier,
-    });
+    const breakEven = game.getBreakEven(
+      purchaseProps.currentSupply,
+      purchaseProps.targetSupply,
+      purchaseProps.numsPrice,
+    );
 
     // Calculate stages based on level and rewards
     const stages: StageState[] = Array.from(

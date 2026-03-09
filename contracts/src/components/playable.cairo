@@ -73,7 +73,11 @@ pub mod PlayableComponent {
             pack.assert_does_exist();
 
             // [Interaction] Transfer the burn share to Ekubo
-            let amount = quantity.into() * pack.price * config.burn_percentage.into() / 100_u256;
+            let amount = quantity.into()
+                * pack.multiplier.into()
+                * config.base_price
+                * config.burn_percentage.into()
+                / 100_u256;
             let quote = IERC20Dispatcher { contract_address: pack.payment_token };
             let router = store.ekubo_router();
             quote.transfer(router.contract_address, amount);
@@ -122,11 +126,7 @@ pub mod PlayableComponent {
             vault.pay(recipient.into(), amount);
 
             // [Compute] Multiplier per game
-            let burn_per_game = config.base_price
-                * pack.multiplier.into()
-                * burn_amount
-                / pack.price
-                / quantity.into();
+            let burn_per_game = burn_amount / quantity.into();
             let supply_per_game = nums_supply - burn_per_game;
             let (avg_num, avg_den) = config.average_score();
             let avg_reward: u256 = Rewarder::amount(

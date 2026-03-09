@@ -8,6 +8,7 @@ import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
+import { Rewarder } from "@/helpers/rewarder";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
@@ -24,21 +25,40 @@ export const Home = () => {
     return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
 
-  const playPrice = useMemo(() => {
-    return Number(2000000n) / 10 ** 6;
-  }, [config]);
+  // Active starterpack (first available)
+  const activeStarterpack = useMemo(() => starterpacks[0], [starterpacks]);
 
-  // Chart data - calculate rewards for each level (1-20) based on current supply
+  const playPrice = useMemo(() => {
+    return Number(activeStarterpack?.price || 2_000_000n) / 10 ** 6;
+  }, [activeStarterpack]);
+
+  // Estimate multiplier from on-chain formula
+  const multiplier = useMemo(() => {
+    if (!config || !activeStarterpack || numsPrice <= 0) return 1;
+    return Rewarder.multiplier(
+      config.base_price,
+      BigInt(activeStarterpack.multiplier),
+      BigInt(config.burn_percentage),
+      BigInt(config.slot_count),
+      BigInt(config.average_score),
+      BigInt(config.average_weigth),
+      currentSupply,
+      config.target_supply,
+      BigInt(Math.round(numsPrice * 1_000_000)),
+    );
+  }, [config, activeStarterpack, currentSupply, numsPrice]);
+
+  // Chart data - calculate rewards for each level based on current supply
   const chartData = useMemo(() => {
     return ChartHelper.calculate({
-      slotCount: config?.slot_count || 20,
+      slotCount: config?.slot_count || 18,
       currentSupply,
       targetSupply: config?.target_supply || 0n,
-      numsPrice: numsPrice,
+      numsPrice,
       playPrice,
-      multiplier: 1,
+      multiplier,
     });
-  }, [config, currentSupply, getNumsPrice, numsPrice, playPrice]);
+  }, [config, currentSupply, numsPrice, playPrice, multiplier]);
 
   const { chartAbscissa } = chartData;
 
@@ -64,16 +84,13 @@ export const Home = () => {
     const gameData = games
       .filter((game) => !game.over && game.expiration * 1000 > now)
       .map((game) => {
-        const starterpack = starterpacks.find(
-          (starterpack) => starterpack.multiplier === game.multiplier,
-        );
-        const playPrice = Number(starterpack?.price || 0n) / 10 ** 6;
+        const gamePlayPrice = Number(game.price) / 10 ** 6;
         const { maxPayout } = ChartHelper.calculate({
           slotCount: game.slot_count,
           currentSupply: game.supply,
           targetSupply: config?.target_supply || 0n,
-          numsPrice: numsPrice,
-          playPrice,
+          numsPrice,
+          playPrice: gamePlayPrice,
           multiplier: game.multiplier,
         });
         return {
@@ -94,7 +111,7 @@ export const Home = () => {
       gameId,
       setGameId,
     };
-  }, [starterpacks, games, chartData, chartAbscissa, gameId, setGameId]);
+  }, [games, config, numsPrice, chartData, chartAbscissa, gameId, setGameId]);
 
   // Set initial gameId to the first active game if available
   useEffect(() => {

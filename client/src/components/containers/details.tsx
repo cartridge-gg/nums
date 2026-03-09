@@ -35,7 +35,10 @@ export const Details = ({
   className,
   ...props
 }: DetailsProps) => {
-  const discount = `-${(((basePrice - entryPrice) / basePrice) * 100).toFixed(0)}%`;
+  const discount =
+    basePrice !== entryPrice
+      ? `-${(((basePrice - entryPrice) / basePrice) * 100).toFixed(0)}%`
+      : undefined;
 
   return (
     <div className={cn(detailsVariants({ variant, className }))} {...props}>
@@ -53,7 +56,7 @@ export const Details = ({
           <Detail
             title="Reward multiplier"
             content={`${multiplier.toFixed(2)}x`}
-            count={multiplier}
+            count={Math.min(multiplier, 10)}
           />
         )}
         <Detail title="Break Even" content={breakEven} />

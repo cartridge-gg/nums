@@ -41,6 +41,7 @@ export class Game {
     public traps: Trap[],
     public slots: number[],
     public supply: bigint,
+    public price: bigint,
   ) {
     this.id = id;
     this.claimed = claimed;
@@ -59,6 +60,7 @@ export class Game {
     this.traps = traps;
     this.slots = slots;
     this.supply = supply;
+    this.price = price;
   }
 
   static getModelName(): string {
@@ -102,6 +104,7 @@ export class Game {
         Number(data.slot_count.value),
       ),
       supply: BigInt(data.supply.value),
+      price: BigInt(data.price.value),
     };
     // Selected powers must be a 4 power array size, add None powers if needed
     props.selected_powers = props.selected_powers.concat(
@@ -129,6 +132,7 @@ export class Game {
       props.traps,
       props.slots,
       props.supply,
+      props.price,
     );
   }
 
@@ -173,14 +177,13 @@ export class Game {
   ): number[] {
     return Array.from({ length: slotCount }, (_, index) => {
       const level = index + 1;
-      return (
-        Rewarder.amount(
-          BigInt(level),
-          1n,
-          BigInt(slotCount),
-          supply,
-          targetSupply,
-        ) * multiplier
+      return Rewarder.amount(
+        BigInt(level),
+        1n,
+        BigInt(slotCount),
+        supply,
+        targetSupply,
+        multiplier,
       );
     });
   }
@@ -318,6 +321,7 @@ export class Game {
       [...this.traps],
       [...this.slots],
       this.supply,
+      this.price,
     );
   }
 
@@ -409,8 +413,43 @@ export class Game {
       BigInt(this.slot_count),
       supply,
       target,
+      this.multiplier,
     );
-    this.reward += rewardAmount;
+    this.reward = rewardAmount;
+  }
+
+  /**
+   * Returns the level at which the reward for that single level (in USD) exceeds the price paid.
+   * Uses this.price (USDC, 6 decimals) and numsPrice (USD per NUMS).
+   *
+   * @param supply       - Current NUMS supply
+   * @param targetSupply - Target NUMS supply
+   * @param numsPrice    - USD price of one NUMS token
+   * @returns Break-even level (1-indexed), or slot_count if never reached
+   */
+  getBreakEven(
+    supply: bigint,
+    targetSupply: bigint,
+    numsPrice: number,
+  ): number {
+    if (targetSupply === 0n || supply === 0n || numsPrice === 0) {
+      return this.slot_count;
+    }
+
+    const priceUsd = Number(this.price) / 1e6;
+
+    const gameRewards = Game.rewards(
+      this.slot_count,
+      supply,
+      targetSupply,
+      this.multiplier,
+    );
+
+    for (let i = 0; i < gameRewards.length; i++) {
+      if (gameRewards[i] * numsPrice > priceUsd) return i + 1;
+    }
+
+    return this.slot_count;
   }
 
   /**

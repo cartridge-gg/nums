@@ -169,6 +169,12 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
+  base_price: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
 }
 
 export interface RawStarterpack {
@@ -320,6 +326,12 @@ export interface RawGame {
     key: boolean;
   };
   supply: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  price: {
     type: "primitive";
     type_name: "felt252";
     value: string;

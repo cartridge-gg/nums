@@ -1,7 +1,11 @@
+use starknet::ContractAddress;
+
 #[starknet::interface]
 pub trait IFaucet<TContractState> {
+    fn balance(self: @TContractState) -> u256;
+    fn availablility(self: @TContractState, account: ContractAddress) -> u64;
     fn request(ref self: TContractState, amount: u256);
-    fn withdraw(self: @TContractState);
+    fn withdraw(ref self: TContractState);
 }
 
 pub fn NAME() -> ByteArray {
@@ -39,23 +43,34 @@ pub mod Faucet {
 
     #[abi(embed_v0)]
     impl IFaucetImpl of IFaucet<ContractState> {
+        fn balance(self: @ContractState) -> u256 {
+            let this = get_contract_address();
+            let asset = self.asset.read();
+            asset.balance_of(this)
+        }
+
+        fn availablility(self: @ContractState, account: ContractAddress) -> u64 {
+            self.available.read(account)
+        }
+
         fn request(ref self: ContractState, amount: u256) {
             // [Check] Check if the account has minted in the last MINT_INTERVAL
             let account = get_caller_address();
-            let time = get_block_timestamp();
+            let now = get_block_timestamp();
             let available = self.available.read(account);
-            assert(time > available, 'Faucet: not available');
+            assert(now > available, 'Faucet: not available');
             // [Check] Balance
             let asset = self.asset.read();
-            let balance = asset.balance_of(account);
+            let this = get_contract_address();
+            let balance = asset.balance_of(this);
             assert(balance >= amount, 'Faucet: insufficient balance');
             // [Effect] Update last minted time
-            self.available.write(account, time + MINT_INTERVAL);
+            self.available.write(account, now + MINT_INTERVAL);
             // [Interaction] Mint the tokens
             asset.transfer(account, amount);
         }
 
-        fn withdraw(self: @ContractState) {
+        fn withdraw(ref self: ContractState) {
             // [Effect] Withdraw the tokens
             let asset = self.asset.read();
             let caller = get_caller_address();

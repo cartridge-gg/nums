@@ -26,6 +26,7 @@ export class Config {
     public pool_fee: bigint,
     public pool_tick_spacing: bigint,
     public pool_extension: string,
+    public base_price: bigint,
   ) {
     this.world_resource = world_resource;
     this.nums = nums;
@@ -47,6 +48,7 @@ export class Config {
     this.pool_fee = pool_fee;
     this.pool_tick_spacing = pool_tick_spacing;
     this.pool_extension = pool_extension;
+    this.base_price = base_price;
   }
 
   static getModelName(): string {
@@ -79,6 +81,7 @@ export class Config {
       pool_fee: BigInt(data.pool_fee.value),
       pool_tick_spacing: BigInt(data.pool_tick_spacing.value),
       pool_extension: data.pool_extension.value,
+      base_price: BigInt(data.base_price.value),
     };
     return new Config(
       props.world_resource,
@@ -101,6 +104,7 @@ export class Config {
       props.pool_fee,
       props.pool_tick_spacing,
       props.pool_extension,
+      props.base_price,
     );
   }
 

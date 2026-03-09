@@ -1,7 +1,7 @@
 // Imports
 
-use core::integer::u512_safe_div_rem_by_u256;
-use core::num::traits::{Pow, WideMul};
+use core::num::traits::Pow;
+use crate::constants::TEN_POW_18;
 
 pub const A: u256 = 3_062_112_703_903_038_000;
 pub const B: u256 = 3;
@@ -27,15 +27,14 @@ pub impl Rewarder of RewarderTrait {
             return 0;
         }
         // [Compute] Otherwise, calculate the reward amount
+        let target = target / TEN_POW_18.into();
+        let supply = supply / TEN_POW_18.into();
         let num: u256 = A * (2 * target - supply);
         let den_lhs: u256 = target * (slot_count + B).pow(K);
         let score_num_pow_k = score_num.pow(K);
-        let score_den_pow_k = score_den.pow(K).try_into().expect('mul_div division by zero');
-        let (den_rhs, _r) = u512_safe_div_rem_by_u256(
-            target.wide_mul(score_num_pow_k), score_den_pow_k,
-        );
-        let den = den_lhs - den_rhs.try_into().expect('mul_div quotient > u256');
-        (num / den - num / den_lhs).try_into().unwrap() + MIN_REWARD
+        let score_den_pow_k = score_den.pow(K);
+        let den_rhs = target * score_num_pow_k / score_den_pow_k;
+        (num / (den_lhs - den_rhs) - num / den_lhs).try_into().unwrap() + MIN_REWARD
     }
 }
 
@@ -64,5 +63,15 @@ mod tests {
             18000000, 1000000, SLOT_COUNT, TARGET_SUPPLY * 3 / 2, TARGET_SUPPLY,
         );
         assert_eq!(reward, 25001);
+    }
+
+    #[test]
+    fn test_reward_case_001() {
+        let supply = 12010456314712373336261301;
+        let target = 10000000000000000000000000;
+        let reward = Rewarder::amount(13, 1, 18, supply, target);
+        assert_eq!(reward, 1223);
+        let reward = Rewarder::amount(18, 1, 18, supply, target);
+        assert_eq!(reward, 39948);
     }
 }

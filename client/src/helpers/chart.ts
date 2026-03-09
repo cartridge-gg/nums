@@ -10,7 +10,7 @@ export interface ChartCalculationParams {
 }
 
 export interface ChartCalculationResult {
-  chartValues: number[]; // Array of cumulative reward values in NUMS (length = slotCount)
+  chartValues: number[]; // Array of per-level reward values in NUMS (length = slotCount)
   chartAbscissa: number; // Break-even level (1-slotCount)
   maxPayout: number; // Maximum payout in USD
   maxPayoutNums: number; // Maximum payout in NUMS
@@ -49,25 +49,19 @@ export const ChartHelper = {
       multiplier,
     );
 
-    // Calculate cumulative sum of rewards
-    const chartValues = gameRewards.reduce((acc, reward, index) => {
-      const previousSum = index === 0 ? 0 : acc[index - 1];
-      acc.push(previousSum + reward);
-      return acc;
-    }, [] as number[]);
+    const chartValues = gameRewards;
 
-    // Convert cumulative rewards to USD value
-    const rewards = chartValues.map((reward) => reward * numsPrice);
-
-    // Calculate break-even point (first level where cumulative reward value exceeds playPrice)
+    // Calculate break-even point (first level where reward value exceeds playPrice)
     let chartAbscissa = slotCount; // Default to last level if break-even is never reached
-    if (rewards.length > 0) {
-      const breakevenIndex = rewards.findIndex((value) => value > playPrice);
+    if (chartValues.length > 0) {
+      const breakevenIndex = chartValues.findIndex(
+        (reward) => reward * numsPrice > playPrice,
+      );
       chartAbscissa = breakevenIndex !== -1 ? breakevenIndex + 1 : slotCount;
     }
 
     // Calculate max payout
-    const maxPayoutNums = chartValues[chartValues.length - 1] || 0;
+    const maxPayoutNums = Math.max(...chartValues);
     const maxPayout = maxPayoutNums * numsPrice;
 
     return {

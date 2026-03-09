@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { BrandIcon } from "@/components/icons/regulars";
 import { LiveIcon } from "@/components/icons/exotics";
 import { useEffect, useId, useState } from "react";
-import { PlusIcon } from "@/components/icons";
+import { PlusIcon, ShadowEffect } from "@/components/icons";
 import { Formatter } from "@/helpers";
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -69,18 +69,7 @@ export const Game = ({
   return (
     <div className={cn(gameVariants({ variant, className }))} {...props}>
       <div className="min-w-10 min-h-10 grow flex items-center justify-center bg-white-900 rounded">
-        <svg width="0" height="0" style={{ position: "absolute" }}>
-          <defs>
-            <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow
-                dx="2"
-                dy="2"
-                stdDeviation="0"
-                floodColor="rgba(0, 0, 0, 0.25)"
-              />
-            </filter>
-          </defs>
-        </svg>
+        <ShadowEffect filterId={filterId} />
         <Icon
           className={cn(
             variant === "new" ? "text-white-100" : "text-green-100",
@@ -140,18 +129,7 @@ const Content = ({
         {title}
       </span>
       <div className="flex items-center gap-1">
-        <svg width="0" height="0" style={{ position: "absolute" }}>
-          <defs>
-            <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow
-                dx="2"
-                dy="2"
-                stdDeviation="0"
-                floodColor="rgba(0, 0, 0, 0.25)"
-              />
-            </filter>
-          </defs>
-        </svg>
+        <ShadowEffect filterId={filterId} />
         <div
           className={cn(
             "w-5 flex items-center justify-center",

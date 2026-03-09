@@ -37,7 +37,9 @@ export class Rewarder {
     const denRhs = (target * scoreNum ** K) / scoreDen ** K;
     const den = denLhs - denRhs;
     const reward = num / den - num / denLhs + MIN_REWARD;
-    return Number((reward * BigInt(multiplier * 100)) / BigInt(100));
+    return Number(
+      (reward * BigInt(Math.floor(multiplier * 100))) / BigInt(100),
+    );
   }
 
   /**

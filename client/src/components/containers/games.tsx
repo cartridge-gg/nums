@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/carousel";
 import { Game, GameProps } from "@/components/elements/game";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ShadowEffect,
+} from "@/components/icons";
 import { useEffect, useId, useState } from "react";
 
 export interface GamesProps
@@ -133,24 +137,7 @@ export const Games = ({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <svg width="0" height="0" style={{ position: "absolute" }}>
-            <defs>
-              <filter
-                id={filterId}
-                x="-50%"
-                y="-50%"
-                width="200%"
-                height="200%"
-              >
-                <feDropShadow
-                  dx="2"
-                  dy="2"
-                  stdDeviation="0"
-                  floodColor="rgba(0, 0, 0, 0.25)"
-                />
-              </filter>
-            </defs>
-          </svg>
+          <ShadowEffect filterId={filterId} />
           <Button
             variant="muted"
             size="icon"

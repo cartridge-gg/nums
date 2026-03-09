@@ -10,26 +10,8 @@ import {
 } from "react";
 
 const PLAYLIST = [
-  "/musics/xtremefreddy-game-music-loop-1.mp3",
-  "/musics/xtremefreddy-game-music-loop-2.mp3",
-  "/musics/xtremefreddy-game-music-loop-3.mp3",
-  "/musics/xtremefreddy-game-music-loop-4.mp3",
-  "/musics/xtremefreddy-game-music-loop-5.mp3",
-  "/musics/xtremefreddy-game-music-loop-6.mp3",
-  "/musics/xtremefreddy-game-music-loop-7.mp3",
-  "/musics/xtremefreddy-game-music-loop-8.mp3",
-  "/musics/xtremefreddy-game-music-loop-9.mp3",
-  "/musics/xtremefreddy-game-music-loop-10.mp3",
-  "/musics/xtremefreddy-game-music-loop-11.mp3",
-  "/musics/xtremefreddy-game-music-loop-12.mp3",
-  "/musics/xtremefreddy-game-music-loop-13.mp3",
-  "/musics/xtremefreddy-game-music-loop-14.mp3",
-  "/musics/xtremefreddy-game-music-loop-15.mp3",
-  "/musics/xtremefreddy-game-music-loop-16.mp3",
-  "/musics/xtremefreddy-game-music-loop-17.mp3",
-  "/musics/xtremefreddy-game-music-loop-18.mp3",
-  "/musics/xtremefreddy-game-music-loop-19.mp3",
-  "/musics/xtremefreddy-game-music-loop-20.mp3",
+  "/musics/nums_level_theme.mp3",
+  "/musics/nums_game_theme.mp3",
 ];
 
 interface SoundContextType {

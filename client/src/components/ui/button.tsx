@@ -45,6 +45,7 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  placeSound?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -55,6 +56,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size,
       asChild = false,
       loading = false,
+      placeSound = false,
       onClick,
       onMouseEnter,
       disabled,
@@ -64,16 +66,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
-    const { playClick } = useAudio();
+    const { playClick, playPlace } = useAudio();
 
     const handleClick = React.useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (!disabled) {
+        if (!disabled && !placeSound) {
           playClick();
+        } else if (!disabled && placeSound) {
+          playPlace();
         }
         onClick?.(event);
       },
-      [disabled, onClick, playClick],
+      [placeSound, disabled, onClick, playClick],
     );
 
     return (

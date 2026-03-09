@@ -13,6 +13,8 @@ permissions:
 jobs:
   claude-code-review:
     runs-on: ubuntu-latest
+    env:
+      HAS_ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
 
     steps:
       - name: Checkout
@@ -49,7 +51,7 @@ jobs:
           echo "reason=workflow_missing_on_default_branch" >> "$GITHUB_OUTPUT"
 
       - name: Claude Review
-        if: steps.preflight.outputs.should_run == 'true' && secrets.ANTHROPIC_API_KEY != ''
+        if: steps.preflight.outputs.should_run == 'true' && env.HAS_ANTHROPIC_KEY == 'true'
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -64,7 +66,7 @@ jobs:
           echo "Skipping Claude review: ${{ steps.preflight.outputs.reason }}"
           echo "This is expected when this workflow is first introduced or updated in a PR."
 
-      - name: Claude Review (skipped: missing secret)
-        if: steps.preflight.outputs.should_run == 'true' && secrets.ANTHROPIC_API_KEY == ''
+      - name: Claude Review (skipped missing secret)
+        if: steps.preflight.outputs.should_run == 'true' && env.HAS_ANTHROPIC_KEY != 'true'
         run: |
           echo "Skipping Claude review: missing ANTHROPIC_API_KEY secret."

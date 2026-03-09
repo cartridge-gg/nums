@@ -58,7 +58,7 @@
     },
     {
       "address": "0x29679bc70dbf88acc6108554379f01d09fd00811cb101c0c429254b1e5c8547",
-      "class_hash": "0x7e3cf1f4bd3c2444a9a9fae09f54caa0d91e8139fda28aaaec81165d79e8ec1",
+      "class_hash": "0x38827839862488d8feed139503408ee4f0cc9ad00cb07b3b7f411b5af089313",
       "init_calldata": [
         "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343"
       ],
@@ -67,6 +67,7 @@
       "systems": [
         "dojo_init",
         "request",
+        "withdraw",
         "upgrade"
       ]
     },
@@ -93,7 +94,7 @@
     },
     {
       "address": "0x3e8aee573ce3e99a4679789902efffd01a53385512a6d8b4f2f0fb5b54aecf5",
-      "class_hash": "0x643154f492cf02ff6e1a32526a630d56fce5152c5e51e83a9c4cdde56a5e6ba",
+      "class_hash": "0x44ecb78b27a36b176e1759be90d1471554b93a113a107aed151713cab675a91",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -4624,6 +4625,33 @@
       "items": [
         {
           "type": "function",
+          "name": "balance",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u256"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "availablility",
+          "inputs": [
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
           "name": "request",
           "inputs": [
             {
@@ -4639,7 +4667,7 @@
           "name": "withdraw",
           "inputs": [],
           "outputs": [],
-          "state_mutability": "view"
+          "state_mutability": "external"
         }
       ]
     },

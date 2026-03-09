@@ -80,7 +80,7 @@ export class Rewarder {
   ): number {
     const TEN_POW_18 = 10n ** 18n;
     const EMA_SCORE_PRECISION = 1000n;
-    const CONVERSION_FEE = 5n; // 5% swap fee applied on the NUMS amount received
+    const CONVERSION_FEE = 50n + 48n; // Swap fee + slippage estimation
 
     if (
       numsPrice === 0n ||
@@ -98,7 +98,8 @@ export class Rewarder {
     // burn_usdc (6-dec) / 10^6 / numsPrice * 10^18 = burn_usdc * 10^18 / numsPrice
     // numsPrice is already scaled by 10^6, so division is exact
     const burnAmountNums =
-      (((burnUsdc * TEN_POW_18) / numsPrice) * (100n - CONVERSION_FEE)) / 100n;
+      (((burnUsdc * TEN_POW_18) / numsPrice) * (1000n - CONVERSION_FEE)) /
+      1000n;
 
     // burn_per_game = base_price * pack_multiplier * burn_amount / pack_price
     const burnPerGame = burnAmountNums / 1n;

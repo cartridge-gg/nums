@@ -55,7 +55,7 @@ export const Details = ({
         {multiplier && (
           <Detail
             title="Reward multiplier"
-            content={`${multiplier.toFixed(2)}x`}
+            content={`${basePrice !== entryPrice ? "~" : ""}${multiplier.toFixed(2)}x`}
             count={Math.min(multiplier, 10)}
           />
         )}

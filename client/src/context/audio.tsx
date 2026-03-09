@@ -17,6 +17,7 @@ interface AudioContextType {
   playNegative: () => void;
   playReplay: () => void;
   playClick: () => void;
+  playPlace: () => void;
   playSlots: () => void;
   playReroll: () => void;
   playUfo: () => void;
@@ -34,6 +35,7 @@ const AudioContext = createContext<AudioContextType>({
   playNegative: () => {},
   playReplay: () => {},
   playClick: () => {},
+  playPlace: () => {},
   playSlots: () => {},
   playReroll: () => {},
   playUfo: () => {},
@@ -76,6 +78,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const click = useMemo(() => {
     const audio = new Audio("/sounds/click.wav");
+    audio.preload = "auto";
+    return audio;
+  }, []);
+
+  const place = useMemo(() => {
+    const audio = new Audio("/sounds/place.wav");
     audio.preload = "auto";
     return audio;
   }, []);
@@ -166,6 +174,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [click, isMuted, volumeFactor]);
 
+  const playPlace = useCallback(() => {
+    if (!isMuted) {
+      place.volume = volumeFactor;
+      place.currentTime = 0;
+      void place.play().catch(() => {});
+    }
+  }, [isMuted, place, volumeFactor]);
+
   const playSlots = useCallback(() => {
     if (!isMuted) {
       slots.volume = volumeFactor;
@@ -225,6 +241,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         playNegative,
         playReplay,
         playClick,
+        playPlace,
         playSlots,
         playReroll,
         playUfo,

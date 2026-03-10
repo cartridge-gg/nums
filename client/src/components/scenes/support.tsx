@@ -40,13 +40,13 @@ export const SupportScene = ({
       <div className="flex flex-col gap-6">
         <Section title="How to Play">
           <p>
-            You receive 20 random numbers (1–1000) one at a time. Place each
+            You receive 20 numbers (1–1000) one at a time. Place each
             into one of 20 slots in strict ascending order. Once placed, a
             number cannot be moved. Fill all 20 slots for a perfect game.
           </p>
           <p>
             Use power-ups like Reroll, Mirror, Swap, High, Low, Double Up, and
-            Halve to shift the odds in your favor. Watch out for hidden traps.
+            Halve to gain a strategic edge. Watch out for hidden traps.
           </p>
         </Section>
 

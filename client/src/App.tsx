@@ -16,7 +16,7 @@ import { SoundProvider } from "./context/sound";
 import { ControllersProvider } from "./context/controllers";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
-import { Game, Home } from "./pages";
+import { Game, Home, Support } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
@@ -118,6 +118,10 @@ function App() {
                                       <Route
                                         path="/practice"
                                         element={<Game />}
+                                      />
+                                      <Route
+                                        path="/support"
+                                        element={<Support />}
                                       />
                                     </Routes>
                                   </Layout>

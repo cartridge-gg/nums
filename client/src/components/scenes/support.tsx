@@ -2,10 +2,10 @@ export const SupportScene = () => {
   return (
     <div className="select-none flex flex-col gap-8 w-full max-w-[720px]">
       <div className="flex flex-col gap-2">
-        <h1 className="font-ppneuebit text-4xl md:text-5xl text-white">
+        <h1 className="font-ppneuebit text-5xl md:text-6xl text-white">
           Support
         </h1>
-        <p className="font-dm-mono text-base text-white/60">
+        <p className="font-sans text-base text-white/60">
           Need help with Nums? We're here for you.
         </p>
       </div>
@@ -56,7 +56,7 @@ export const SupportScene = () => {
               Email:{" "}
               <a
                 href="mailto:support@cartridge.gg"
-                className="text-[#8581FF] underline"
+                className="text-mauve-100 hover:text-mauve-300 underline"
               >
                 support@cartridge.gg
               </a>
@@ -67,7 +67,7 @@ export const SupportScene = () => {
                 href="https://discord.gg/cartridge"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#8581FF] underline"
+                className="text-mauve-100 hover:text-mauve-300 underline"
               >
                 discord.gg/cartridge
               </a>
@@ -78,7 +78,7 @@ export const SupportScene = () => {
                 href="https://x.com/numsgg"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#8581FF] underline"
+                className="text-mauve-100 hover:text-mauve-300 underline"
               >
                 @numsgg
               </a>
@@ -91,7 +91,7 @@ export const SupportScene = () => {
             To request deletion of your account and associated data, email{" "}
             <a
               href="mailto:support@cartridge.gg"
-              className="text-[#8581FF] underline"
+              className="text-mauve-100 hover:text-mauve-300 underline"
             >
               support@cartridge.gg
             </a>{" "}
@@ -107,7 +107,7 @@ export const SupportScene = () => {
               href="https://cartridge.gg/legal/privacy-policy/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#8581FF] underline"
+              className="text-mauve-100 hover:text-mauve-300 underline"
             >
               cartridge.gg/legal/privacy-policy
             </a>
@@ -128,10 +128,8 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="font-ppneuebit text-2xl md:text-3xl text-white">
-        {title}
-      </h2>
-      <div className="font-dm-mono text-base text-white/80 flex flex-col gap-3 leading-relaxed">
+      <h2 className="font-sans text-lg font-semibold text-white">{title}</h2>
+      <div className="font-sans text-[15px] text-white/80 flex flex-col gap-3 leading-relaxed">
         {children}
       </div>
     </div>

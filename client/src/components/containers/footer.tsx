@@ -2,7 +2,7 @@ export const Footer = () => {
   return (
     <footer className="w-full border-t border-[rgba(0,0,0,0.24)] bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,rgba(0,0,0,0.24)_100%)]">
       <div className="max-w-[720px] mx-auto px-4 py-8 md:px-8 flex flex-col gap-6">
-        <div className="flex flex-wrap gap-x-6 gap-y-2 font-dm-mono text-sm">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-sm">
           <a href="/support" className="text-white/60 hover:text-white">
             Support
           </a>
@@ -32,7 +32,7 @@ export const Footer = () => {
           </a>
         </div>
 
-        <div className="font-dm-mono text-xs text-white/40 flex flex-col gap-4 leading-relaxed">
+        <div className="font-sans text-xs text-white/40 flex flex-col gap-4 leading-relaxed">
           <p>
             Skill-based real money gaming is for users aged 18+. Internet
             gambling may be illegal in the jurisdiction in which you are located;

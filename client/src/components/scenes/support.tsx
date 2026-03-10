@@ -23,23 +23,7 @@ export const SupportScene = () => {
           </p>
         </Section>
 
-        <Section title="Account & Wallet">
-          <p>
-            Nums uses Cartridge Controller — a passkey-based wallet with no seed
-            phrases. Your account is created automatically when you first
-            connect. Session keys eliminate transaction popups during gameplay.
-          </p>
-        </Section>
-
-        <Section title="Rewards & Tokens">
-          <p>
-            Rewards scale with how many slots you fill. Entry fees are burned
-            from the NUMS supply, and rewards are minted directly to players.
-            There is no platform take — 0% house edge.
-          </p>
-        </Section>
-
-        <Section title="Practice Mode">
+<Section title="Practice Mode">
           <p>
             Jump into practice mode from the home screen to test strategies with
             zero cost. Practice uses live on-chain data for realistic simulation.

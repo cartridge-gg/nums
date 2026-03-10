@@ -6,3 +6,4 @@ export * from "./purchase";
 export * from "./staking";
 export * from "./loading";
 export * from "./welcome";
+export * from "./support";

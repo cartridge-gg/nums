@@ -16,7 +16,7 @@ import { SoundProvider } from "./context/sound";
 import { ControllersProvider } from "./context/controllers";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
-import { Game, Home } from "./pages";
+import { Game, Home, Support } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { PricesProvider } from "./context/prices";
@@ -87,55 +87,64 @@ function App() {
           explorer={voyager}
           provider={provider}
         >
-          <AudioProvider>
-            <EntitiesProvider>
-              <PracticeProvider>
-                <ControllersProvider>
-                  <QuestsProvider>
-                    <VaultProvider>
-                      <AchievementsProvider>
-                        <PricesProvider>
-                          <WelcomeProvider>
-                            <LoadingProvider>
-                              <Router
-                                future={{
-                                  v7_startTransition: true,
-                                  v7_relativeSplatPath: true,
-                                }}
-                              >
-                                <SoundProvider>
-                                  <Layout>
-                                    <Routes>
-                                      <Route path="/" element={<Home />} />
-                                      <Route
-                                        path="/game/:id"
-                                        element={<Game />}
-                                      />
-                                      <Route
-                                        path="/game"
-                                        element={<Navigate to="/" replace />}
-                                      />
-                                      <Route
-                                        path="/practice"
-                                        element={<Game />}
-                                      />
-                                    </Routes>
-                                  </Layout>
-                                </SoundProvider>
-                              </Router>
-                            </LoadingProvider>
-                          </WelcomeProvider>
-                        </PricesProvider>
-                      </AchievementsProvider>
-                    </VaultProvider>
-                  </QuestsProvider>
-                </ControllersProvider>
-              </PracticeProvider>
-            </EntitiesProvider>
-          </AudioProvider>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <Routes>
+              <Route path="/support" element={<Support />} />
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+          </Router>
         </StarknetConfig>
       </QueryClientProvider>
     </>
+  );
+}
+
+function AuthenticatedApp() {
+  return (
+    <AudioProvider>
+      <EntitiesProvider>
+        <PracticeProvider>
+          <ControllersProvider>
+            <QuestsProvider>
+              <VaultProvider>
+                <AchievementsProvider>
+                  <PricesProvider>
+                    <WelcomeProvider>
+                      <LoadingProvider>
+                        <SoundProvider>
+                          <Layout>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route
+                                path="/game/:id"
+                                element={<Game />}
+                              />
+                              <Route
+                                path="/game"
+                                element={<Navigate to="/" replace />}
+                              />
+                              <Route
+                                path="/practice"
+                                element={<Game />}
+                              />
+                            </Routes>
+                          </Layout>
+                        </SoundProvider>
+                      </LoadingProvider>
+                    </WelcomeProvider>
+                  </PricesProvider>
+                </AchievementsProvider>
+              </VaultProvider>
+            </QuestsProvider>
+          </ControllersProvider>
+        </PracticeProvider>
+      </EntitiesProvider>
+    </AudioProvider>
   );
 }
 

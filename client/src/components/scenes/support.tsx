@@ -1,6 +1,6 @@
 export const SupportScene = () => {
   return (
-    <div className="select-none flex flex-col gap-8 w-full max-w-[720px]">
+    <div className="select-text flex flex-col gap-8 w-full max-w-[720px]">
       <div className="flex flex-col gap-2">
         <h1 className="font-ppneuebit text-5xl md:text-6xl text-white">
           Support
@@ -79,8 +79,7 @@ export const SupportScene = () => {
             >
               support@cartridge.gg
             </a>{" "}
-            with the subject line "Account Deletion Request" and your wallet
-            address.
+            with the subject line "Account Deletion Request" your account username.
           </p>
         </Section>
 

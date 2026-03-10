@@ -1,48 +1,21 @@
-import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
-
-export interface SupportSceneProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof supportSceneVariants> {}
-
-const supportSceneVariants = cva(
-  "select-none flex flex-col gap-6 p-4 py-6 md:p-0 md:py-0 overflow-y-auto",
-  {
-    variants: {
-      variant: {
-        default: "",
-      },
-      size: {
-        md: "h-full w-full max-w-[720px]",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "md",
-    },
-  },
-);
-
-export const SupportScene = ({
-  variant,
-  className,
-  ...props
-}: SupportSceneProps) => {
+export const SupportScene = () => {
   return (
-    <div className={cn(supportSceneVariants({ variant, className }))} {...props}>
+    <div className="select-none flex flex-col gap-8 w-full max-w-[720px]">
       <div className="flex flex-col gap-2">
-        <h1 className="font-ppneuebit text-3xl text-white">Support</h1>
-        <p className="font-dm-mono text-sm text-white/60">
+        <h1 className="font-ppneuebit text-4xl md:text-5xl text-white">
+          Support
+        </h1>
+        <p className="font-dm-mono text-base text-white/60">
           Need help with Nums? We're here for you.
         </p>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <Section title="How to Play">
           <p>
-            You receive 20 numbers (1–1000) one at a time. Place each
-            into one of 20 slots in strict ascending order. Once placed, a
-            number cannot be moved. Fill all 20 slots for a perfect game.
+            You receive 20 numbers (1–1000) one at a time. Place each into one
+            of 20 slots in strict ascending order. Once placed, a number cannot
+            be moved. Fill all 20 slots for a perfect game.
           </p>
           <p>
             Use power-ups like Reroll, Mirror, Swap, High, Low, Double Up, and
@@ -154,9 +127,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="font-ppneuebit text-xl text-white">{title}</h2>
-      <div className="font-dm-mono text-sm text-white/80 flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
+      <h2 className="font-ppneuebit text-2xl md:text-3xl text-white">
+        {title}
+      </h2>
+      <div className="font-dm-mono text-base text-white/80 flex flex-col gap-3 leading-relaxed">
         {children}
       </div>
     </div>

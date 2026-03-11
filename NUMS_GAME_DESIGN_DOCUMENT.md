@@ -2,24 +2,21 @@
 
 ## Top Line
 - 30-120 second decision loops per run, with instant next-run replay.
-- Fully asynchronous play on Starknet; players can run as many games as they hold.
-- Claim-based payouts in NUMS immediately after a run ends.
+- Fully asynchronous play; players can run as many games as they want.
+- Skill-based real-money game with immediate post-run payout.
 - Push-your-luck number-placement strategy game: place a live random draw into ascending slots while traps and power-ups reshape risk.
-- Built for players who like strategy under pressure, visible edge-seeking, and transparent onchain reward logic.
+- Built for players who like strategy under pressure, visible edge-seeking, and transparent reward logic.
 
 ## Target Market
-- Web3-native and adjacent strategy players who enjoy high-agency, high-variance outcomes.
+- Strategy players who enjoy high-agency, high-variance outcomes.
 - Puzzle/logic players who like fast sessions with meaningful choices.
 - Competitive players motivated by leaderboard rank, quests, and achievement progression.
-- Crypto users who value auditable mechanics, token-denominated rewards, and asynchronous play.
+- Real-money skill-game players who want outcomes driven by decision quality, not pure chance.
 
 ## Current Product Truth (Repo-Accurate)
 - Core game currently runs on **18 slots** (not 20).
 - Number range is **1-999**, unique draws per run.
-- Each run starts with:
-- 1 current number
-- 1 next number preview
-- 5 hidden traps distributed across the board
+- Each run starts with 1 current number, 1 next-number preview, and 5 hidden traps distributed across the board.
 - Power-up offers every 4 filled slots up to slot 15 (max 3 selected powers total).
 - Runs expire after **24 hours** if not completed.
 
@@ -34,14 +31,14 @@
 - Low-slot outcomes can return less than expected value versus entry cost.
 
 ## Core Loop - To Play
-1. Acquire a game via starterpack purchase.
+1. Buy into a run at a known entry price and payout profile.
 2. Enter run with current number + next number preview.
 3. Place current number into one empty slot that keeps strict ascending order.
 4. Trigger trap if that slot has an unused trap.
 5. Advance one level, update reward, and draw next number.
 6. At level 4, 8, and 12, choose one of two offered powers.
 7. Use selected powers tactically when needed.
-8. On game over, claim NUMS payout and replay or purchase more runs.
+8. On game over, claim payout and replay or buy another run.
 
 ## Traps (Board Hazards)
 - `Bomb`: rerolls nearest placed neighbors around the triggered slot.
@@ -60,21 +57,18 @@
 - `Mirror`: reflect current number within min/max amplitude.
 
 ## Reward & Economy Model
-- Entry is sold through starterpacks with different reward multipliers.
-- Price is quote-token based (USDC-style in current setup), with referral support.
-- Purchase flow:
-- Portion of entry is used to buy NUMS and burn it.
-- Quote token value is also routed to vault rewards for stakers.
-- Per-run reward is minted NUMS via a supply/target-aware formula.
-- Reward multiplier scales by purchased starterpack tier and current token conditions.
-- Claim is explicit: run must be over, then player claims to mint payout.
+- Entry is sold in multiple price tiers with different reward multipliers.
+- Players see expected break-even point and max reward before they start.
+- Purchase flow uses a split model: one portion funds player reward pools and one portion supports long-term game economy and operations.
+- Per-run reward scales with score and selected entry tier.
+- Claim is explicit: run must be over, then player claims payout.
 
 ## Meta, Social, and Retention
 - Leaderboard scoring based on final slot count and completion time.
-- Daily quests with NUMS rewards and auto-claim hooks.
+- Daily quests with reward payouts.
 - Achievement tracks (grinder, filler thresholds, streak, references, claimer, daily master).
 - Event feed and toasts surface recent starts/claims for social proof.
-- Staking vault (`vNUMS`) adds long-loop retention and shared fee/reward participation.
+- Seasonal goals and progression systems support long-loop retention.
 
 ## Why It’s Fun
 - Every placement is meaningful and irreversible.
@@ -85,12 +79,11 @@
 - High rolls feel earned because players still navigate strict ordering constraints.
 
 ## To Begin
-1. Connect wallet.
-2. Acquire quote token if needed (faucet on supported test environments).
-3. Open purchase flow and select starterpack multiplier tier.
-4. Purchase game(s), then enter a run.
-5. Place numbers, select/use powers, survive as long as possible.
-6. Claim payout when run ends.
+1. Open the game and choose a run entry tier.
+2. Review entry fee, break-even level, and max reward.
+3. Buy into the run and start playing immediately.
+4. Place numbers, select/use powers, survive as long as possible.
+5. Claim payout when run ends.
 
 ## Theme Direction
 - Current visual language: neon/glitch arcade puzzle aesthetic.

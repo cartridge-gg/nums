@@ -1,7 +1,7 @@
 // Imports
 
 use core::num::traits::Pow;
-use crate::constants::TEN_POW_18;
+use crate::constants::TEN_POW_10;
 
 pub const A: u256 = 306_211_270_390_303_800;
 pub const B: u256 = 3;
@@ -26,13 +26,11 @@ pub impl Rewarder of RewarderTrait {
             return 0;
         }
         // [Compute] Otherwise, calculate the reward amount
-        let target = target / TEN_POW_18.into();
-        let supply = supply / TEN_POW_18.into();
+        let target = target / TEN_POW_10.into();
+        let supply = supply / TEN_POW_10.into();
         let num: u256 = A * (2 * target - supply);
         let den_lhs: u256 = target * (slot_count + B).pow(K);
-        let score_num_pow_k = score_num.pow(K);
-        let score_den_pow_k = score_den.pow(K);
-        let den_rhs = target * score_num_pow_k / score_den_pow_k;
+        let den_rhs = target * score_num.pow(K) / score_den.pow(K);
         (num / (den_lhs - den_rhs) - num / den_lhs + score_num / score_den).try_into().unwrap()
     }
 }
@@ -66,11 +64,9 @@ mod tests {
 
     #[test]
     fn test_reward_case_001() {
-        let supply = 12010456314712373336261301;
-        let target = 10000000000000000000000000;
-        let reward = Rewarder::amount(13, 1, 18, supply, target);
-        assert_eq!(reward, 1223);
-        let reward = Rewarder::amount(18, 1, 18, supply, target);
-        assert_eq!(reward, 39948);
+        let supply = 1199801199778322845177093;
+        let target = 1000000000000000000000000;
+        let reward = Rewarder::amount(1200000, 100000, 18, supply, target);
+        assert_eq!(reward, 66);
     }
 }

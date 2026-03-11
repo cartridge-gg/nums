@@ -52,7 +52,3 @@ cairo_test.workspace = true
 
 [features]
 default = []
-
-[profile.slot]
-[profile.mainnet]
-[profile.sepolia]

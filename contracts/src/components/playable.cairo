@@ -129,7 +129,7 @@ pub mod PlayableComponent {
             let burn_per_game = burn_amount / quantity.into();
             let supply_per_game = nums_supply - burn_per_game;
             let (avg_num, avg_den) = config.average_score();
-            let avg_reward: u256 = Rewarder::amount(
+            let equilibrium_reward: u256 = Rewarder::amount(
                 score_num: avg_num.into(),
                 score_den: avg_den.into(),
                 slot_count: config.slot_count.into(),
@@ -138,7 +138,6 @@ pub mod PlayableComponent {
             )
                 .into()
                 * TEN_POW_18.into();
-            let equilibrium_reward = 100 * avg_reward / config.burn_percentage.into();
             let multiplier: u16 = (100 * burn_per_game / equilibrium_reward)
                 .try_into()
                 .expect('Multiplier overflow');

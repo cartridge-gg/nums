@@ -168,6 +168,7 @@ pub mod Vault {
         self.accesscontrol._grant_role(DEPOSITOR_ROLE, treasury_address);
         self.accesscontrol._grant_role(PAUSER_ROLE, treasury_address);
         self.accesscontrol._grant_role(COLLECTOR_ROLE, treasury_address);
+        self.accesscontrol._grant_role(KEEPER_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
         self.accesscontrol._grant_role(PROVIDER_ROLE, play_address);
         // [Effect] Extra rights for test purpose

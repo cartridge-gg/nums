@@ -15,11 +15,10 @@ pub trait IKeeper<TContractState> {
 #[starknet::interface]
 pub trait IVault<TContractState> {
     fn time_lock_of(self: @TContractState, account: ContractAddress) -> u64;
-    fn staked_of(self: @TContractState, account: ContractAddress) -> u256;
     fn claimable_of(self: @TContractState, account: ContractAddress) -> u256;
     fn pay(ref self: TContractState, player_id: felt252, amount: u256);
     fn claim(ref self: TContractState);
-    fn reset(ref self: TContractState);
+    fn collect(ref self: TContractState, address: ContractAddress);
 }
 
 pub fn NAME() -> ByteArray {
@@ -29,11 +28,17 @@ pub fn NAME() -> ByteArray {
 const DEPOSITOR_ROLE: felt252 = selector!("DEPOSITOR_ROLE");
 const PROVIDER_ROLE: felt252 = selector!("PROVIDER_ROLE");
 const PAUSER_ROLE: felt252 = selector!("PAUSER_ROLE");
+const KEEPER_ROLE: felt252 = selector!("KEEPER_ROLE");
+const COLLECTOR_ROLE: felt252 = selector!("COLLECTOR_ROLE");
 
 #[dojo::contract]
 pub mod Vault {
+    use core::num::traits::Zero;
     use dojo::world::WorldStorageTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin::governance::votes::VotesComponent;
+    use openzeppelin::interfaces::accounts::ISRC6_ID;
+    use openzeppelin::interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::interfaces::token::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::security::pausable::PausableComponent;
@@ -42,16 +47,22 @@ pub mod Vault {
         DefaultConfig, ERC4626Component, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,
     };
     use openzeppelin::token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20Component};
+    use openzeppelin::utils::contract_clock::timestamp::ERC6372TimestampClock;
+    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
     use openzeppelin::utils::math;
     use openzeppelin::utils::math::Rounding;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use crate::components::rewardable::RewardableComponent;
     use crate::constants::NAMESPACE;
     use crate::store::StoreTrait;
     use crate::systems::play::NAME as PLAY;
-    use crate::systems::token::{ITokenDispatcher, ITokenDispatcherTrait, NAME as TOKEN};
-    use super::{DEPOSITOR_ROLE, IKeeper, IPauser, IVault, PAUSER_ROLE, PROVIDER_ROLE};
+    use crate::systems::token::NAME as TOKEN;
+    use crate::systems::treasury::NAME as TREASURY;
+    use super::{
+        COLLECTOR_ROLE, DEPOSITOR_ROLE, IKeeper, IPauser, IVault, KEEPER_ROLE, PAUSER_ROLE,
+        PROVIDER_ROLE,
+    };
 
     const BASIS_POINT_SCALE: u256 = 10_000;
     const EXIT_FEE: u256 = 500; // 5%
@@ -59,6 +70,8 @@ pub mod Vault {
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
     component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: RewardableComponent, storage: rewardable, event: RewardableEvent);
@@ -68,6 +81,13 @@ pub mod Vault {
     impl AccessControlImpl =
         AccessControlComponent::AccessControlImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+    // Nonces
+    #[abi(embed_v0)]
+    impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
+    // Votes
+    #[abi(embed_v0)]
+    impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
     // Pausable
     #[abi(embed_v0)]
     impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
@@ -104,9 +124,11 @@ pub mod Vault {
         #[substorage(v0)]
         erc20: ERC20Component::Storage,
         #[substorage(v0)]
+        erc20_votes: VotesComponent::Storage,
+        #[substorage(v0)]
+        nonces: NoncesComponent::Storage,
+        #[substorage(v0)]
         rewardable: RewardableComponent::Storage,
-        // Custom storage
-        staked: Map<ContractAddress, u256>,
     }
 
     #[event]
@@ -123,6 +145,10 @@ pub mod Vault {
         #[flat]
         ERC20Event: ERC20Component::Event,
         #[flat]
+        ERC20VotesEvent: VotesComponent::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event,
+        #[flat]
         RewardableEvent: RewardableComponent::Event,
     }
 
@@ -130,18 +156,35 @@ pub mod Vault {
         // [Effect] Initialize ERC20
         self.erc20.initializer("vNums", "vNUMS");
         // [Effect] Initialize ERC4626
-        self.erc4626.initializer(asset_address: self.asset_address());
-        // [Effect] Initialize Rewardable
         let world = self.world(@NAMESPACE());
+        let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
+        self.erc4626.initializer(asset_address: token_address);
+        // [Effect] Initialize Rewardable
         self.rewardable.initialize(world, open);
         // [Effect] Initialize Access Control
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol.initializer();
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
-        self.accesscontrol._grant_role(DEPOSITOR_ROLE, deployer_account);
-        self.accesscontrol._grant_role(PAUSER_ROLE, deployer_account);
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
+        self.accesscontrol._grant_role(DEPOSITOR_ROLE, treasury_address);
+        self.accesscontrol._grant_role(PAUSER_ROLE, treasury_address);
+        self.accesscontrol._grant_role(COLLECTOR_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
         self.accesscontrol._grant_role(PROVIDER_ROLE, play_address);
+        // [Effect] Extra rights for test purpose
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
+        self.accesscontrol._grant_role(COLLECTOR_ROLE, deployer_account);
+        self.accesscontrol._grant_role(DEPOSITOR_ROLE, deployer_account);
+        self.accesscontrol._grant_role(PAUSER_ROLE, deployer_account);
+    }
+
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            'Nums'
+        }
+        fn version() -> felt252 {
+            '1.0.0'
+        }
     }
 
     /// Hooks
@@ -165,20 +208,6 @@ pub mod Vault {
             // [Effect] Update user position
             let balance = contract_state.erc20.balance_of(receiver);
             contract_state.rewardable.stake(world, receiver.into(), balance);
-        }
-
-        fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>,
-            caller: ContractAddress,
-            receiver: ContractAddress,
-            assets: u256,
-            shares: u256,
-            fee: Option<Fee>,
-        ) {
-            // [Effect] Update user staked amount
-            let mut contract_state = self.get_contract_mut();
-            let staked = contract_state.staked.read(receiver);
-            contract_state.staked.write(receiver, staked + assets);
         }
 
         fn before_withdraw(
@@ -212,25 +241,6 @@ pub mod Vault {
                 };
             }
         }
-
-        fn after_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>,
-            caller: ContractAddress,
-            receiver: ContractAddress,
-            owner: ContractAddress,
-            assets: u256,
-            shares: u256,
-            fee: Option<Fee>,
-        ) {
-            // [Effect] Update user staked amount
-            let mut contract_state = self.get_contract_mut();
-            let staked = contract_state.staked.read(owner);
-            if staked < assets {
-                contract_state.staked.write(owner, 0);
-            } else {
-                contract_state.staked.write(owner, staked - assets);
-            }
-        }
     }
 
     impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
@@ -240,8 +250,23 @@ pub mod Vault {
             recipient: ContractAddress,
             amount: u256,
         ) {
-            // [Check] Only Mint and Burn are accepted, from or recipient must be the zero address
-            assert(from.into() * recipient.into() == 0, 'Vault: vNUMS are soulbound');
+            // [Effect] Update user positions
+            let mut contract_state = self.get_contract_mut();
+            let world = contract_state.world(@NAMESPACE());
+            let balance = contract_state.erc20.balance_of(from);
+            contract_state.rewardable.unstake(world, from.into(), balance);
+            let balance = contract_state.erc20.balance_of(recipient);
+            contract_state.rewardable.stake(world, recipient.into(), balance);
+        }
+
+        fn after_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
         }
     }
 
@@ -250,10 +275,6 @@ pub mod Vault {
         fn time_lock_of(self: @ContractState, account: ContractAddress) -> u64 {
             let world = self.world(@NAMESPACE());
             self.rewardable.time_lock(world, account.into())
-        }
-
-        fn staked_of(self: @ContractState, account: ContractAddress) -> u256 {
-            self.staked.read(account)
         }
 
         fn claimable_of(self: @ContractState, account: ContractAddress) -> u256 {
@@ -294,16 +315,34 @@ pub mod Vault {
             store.vault_claimed(caller.into(), amount);
         }
 
-        fn reset(ref self: ContractState) {
-            // [Check] Only admin can reset
-            self.accesscontrol.assert_only_role(DEFAULT_ADMIN_ROLE);
-            // [Effect] Reset the shares
-            let this = get_contract_address();
-            self.erc20.burn(this, self.erc20.balance_of(this));
-            // [Effect] Reset the assets
-            let asset = IERC20Dispatcher { contract_address: self.asset_address() };
-            let token = ITokenDispatcher { contract_address: self.asset_address() };
-            token.burn(asset.balance_of(this));
+        /// Collect rewards from another address
+        /// # Arguments
+        /// * `address`: The address to collect rewards from
+        /// # Errors
+        /// - The caller is not a collector
+        /// - The address is not a valid address
+        /// - The address is an account
+        /// # Notes
+        /// - This has been designed mainly for contracts that cannot claim (e.g: Ekubo Core)
+        fn collect(ref self: ContractState, address: ContractAddress) {
+            // [Check] Only collector can collect fees from another address
+            self.accesscontrol.assert_only_role(COLLECTOR_ROLE);
+            // [Check] Address is valid
+            assert(address.is_non_zero(), 'Vault: invalid address');
+            // [Check] Address is not an account
+            let src5_dispatcher = ISRC5Dispatcher { contract_address: address };
+            assert(!src5_dispatcher.supports_interface(ISRC6_ID), 'Vault: address is an account');
+            // [Effet] Claim rewards
+            let world = self.world(@NAMESPACE());
+            let balance = self.erc20.balance_of(address);
+            let amount = self.rewardable.claim(world, address.into(), balance);
+            // [Interaction] Transfer rewards
+            let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
+            let reward_token = IERC20Dispatcher { contract_address: self.reward_address() };
+            reward_token.transfer(treasury_address, amount);
+            // [Effect] Emit events
+            let store = StoreTrait::new(world);
+            store.vault_claimed(treasury_address.into(), amount);
         }
     }
 
@@ -328,7 +367,7 @@ pub mod Vault {
     impl Keepermpl of IKeeper<ContractState> {
         fn open(ref self: ContractState) {
             // [Check] Only admin can open
-            self.accesscontrol.assert_only_role(DEFAULT_ADMIN_ROLE);
+            self.accesscontrol.assert_only_role(KEEPER_ROLE);
             // [Effect] Open the contract
             let world = self.world(@NAMESPACE());
             self.rewardable.open(world);
@@ -336,7 +375,7 @@ pub mod Vault {
 
         fn close(ref self: ContractState) {
             // [Check] Only admin can close
-            self.accesscontrol.assert_only_role(DEFAULT_ADMIN_ROLE);
+            self.accesscontrol.assert_only_role(KEEPER_ROLE);
             // [Effect] Close the contract
             let world = self.world(@NAMESPACE());
             self.rewardable.close(world);
@@ -361,12 +400,6 @@ pub mod Vault {
 
     #[generate_trait]
     pub impl PrivateImpl of PrivateTrait {
-        fn asset_address(self: @ContractState) -> ContractAddress {
-            let world = self.world(@NAMESPACE());
-            let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
-            token_address
-        }
-
         fn reward_address(self: @ContractState) -> ContractAddress {
             let world = self.world(@NAMESPACE());
             let store = StoreTrait::new(world);

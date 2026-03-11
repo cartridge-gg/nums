@@ -21,7 +21,6 @@ pub mod Collection {
     use dojo::world::{IWorldDispatcherTrait, WorldStorage, WorldStorageTrait};
     use graffiti::json::JsonImpl;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
-    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::token::erc721::{IERC721, IERC721Metadata};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
@@ -33,6 +32,7 @@ pub mod Collection {
     use crate::models::game::GameTrait;
     use crate::store::StoreTrait;
     use crate::systems::play::NAME as PLAY_NAME;
+    use crate::systems::treasury::NAME as TREASURY;
     use crate::types::metadata::Metadata;
     use super::{ICollection, MINTER_ROLE};
 
@@ -47,7 +47,6 @@ pub mod Collection {
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: ERC4906Component, storage: erc4906, event: ERC4906Event);
     component!(path: ERC7572Component, storage: erc7572, event: ERC7572Event);
@@ -57,11 +56,6 @@ pub mod Collection {
     impl AccessControlImpl =
         AccessControlComponent::AccessControlImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
-
-    // Ownable
-    #[abi(embed_v0)]
-    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // ERC721
     impl ERC721StandardImpl = ERC721Component::ERC721Impl<ContractState>;
@@ -80,8 +74,6 @@ pub mod Collection {
         #[substorage(v0)]
         pub accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        pub ownable: OwnableComponent::Storage,
-        #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
         pub erc721: ERC721Component::Storage,
@@ -99,8 +91,6 @@ pub mod Collection {
         #[flat]
         AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        OwnableEvent: OwnableComponent::Event,
-        #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
         ERC721Event: ERC721Component::Event,
@@ -114,15 +104,14 @@ pub mod Collection {
         // [Setup] World
         let world: WorldStorage = self.world(@NAMESPACE());
         // [Effect] Initialize components
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol.initializer();
-        self.ownable.initializer(deployer_account);
         self.erc721.initializer(NAME(), SYMBOL(), "");
         self.erc4906.initializer();
         self.erc7572.initializer();
         // [Effect] Grant roles
+        let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY_NAME()).expect('Play contract not found!');
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
         // [Effect] Set contract metadata
         let metadata = ContractMetadata {

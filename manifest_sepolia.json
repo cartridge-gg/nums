@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x58fbc43670deb4c3166edc0bd4466591ae2274f9d6a58ee0e4bd11a4edaaa54",
-    "seed": "nums-v1.0.48",
+    "address": "0x4e296089b1cf7ff5cbce514851ca7fd9c32e9ec57a4b5cdeb57c0a1f1ff2573",
+    "seed": "nums-v1.0.49",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x67d4927fc31c65b2a27eb94d1a70d0a575e1b8727221e91893db4219240a47c",
-      "class_hash": "0xec7eba7e613dba22616d2b9e0a5586d38ae0208b698e9576324641927f47a7",
+      "address": "0x3ea307eee2ca8e62d4ac77fe0247c9770a661b57982789b2ffbb3e0f6fe90ed",
+      "class_hash": "0x1e2864f4b44c385b44136d6d2527a4521fde2196311b80900e9ecf894961b35",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -51,13 +51,11 @@
         "upgrade",
         "grant_role",
         "revoke_role",
-        "renounce_role",
-        "transfer_ownership",
-        "renounce_ownership"
+        "renounce_role"
       ]
     },
     {
-      "address": "0x29679bc70dbf88acc6108554379f01d09fd00811cb101c0c429254b1e5c8547",
+      "address": "0x3a58fc1e844271d654502b3570cb63e1a51a3052723e48e53c2e04af9b5ba3b",
       "class_hash": "0x38827839862488d8feed139503408ee4f0cc9ad00cb07b3b7f411b5af089313",
       "init_calldata": [
         "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343"
@@ -72,8 +70,8 @@
       ]
     },
     {
-      "address": "0x1506359ed28416a8cad7b39d737b6f7cf21663f442d74c3c42d2fe275797cc3",
-      "class_hash": "0x6fc0a0e449058fb185c5152f7216734fa8a58baace268b228fc5c5b5e9f990f",
+      "address": "0x243cc8dd3a73d19b42b5d359a11fb6d22b5ab1d240a81f8de292565f10f7655",
+      "class_hash": "0x7260fd1d2e1422758f2ae2741ae449935b5d8b8c176216f89ae3f3d760f148b",
       "init_calldata": [],
       "tag": "NUMS-Governor",
       "selector": "0x397194f3d41e280f3d5b2467cb3fdc0e46a0eca901bc5246b608da913bb655e",
@@ -89,12 +87,16 @@
         "cast_vote_with_reason_and_params",
         "cast_vote_by_sig",
         "cast_vote_with_reason_and_params_by_sig",
-        "relay"
+        "relay",
+        "set_voting_delay",
+        "set_voting_period",
+        "set_proposal_threshold",
+        "update_timelock"
       ]
     },
     {
-      "address": "0x3e8aee573ce3e99a4679789902efffd01a53385512a6d8b4f2f0fb5b54aecf5",
-      "class_hash": "0x1201dff123a09c5993bf8fab81b70e777ef05ae1650d99cae4e97d7ef967331",
+      "address": "0x2c2dd9e0b34d4d55c7e673b39f02801005f33aad393d8d2ba995cb7e00114d8",
+      "class_hash": "0x72dc6a0b54cdb701a4adb13c0fae64166d599a4d8757d389337063ee2a24fc8",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -111,8 +113,8 @@
       ]
     },
     {
-      "address": "0x20a514e35988563becf59d54abb94601aee6da5b10818e89a918e7c4d2a3b85",
-      "class_hash": "0x20b17d57bafca49b1dd9e0b714cc94b5df2d239aaaf443fafb5c1fcb06ba83c",
+      "address": "0x1fba01ceb86b4e37fe8c0fb91948b85b0439ff32d536aa70bfff6f676a1b88f",
+      "class_hash": "0x32269f61f87770504c9c1e2d4da137a0cc2d3194f2d38dcdcb526177e34656d",
       "init_calldata": [
         "0x1",
         "0x0",
@@ -123,6 +125,7 @@
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343",
         "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2",
+        "0x06a2aee84bb0ed5dded4384ddd0e40e9c1372b818668375ab8e3ec08807417e5",
         "0x1E8480",
         "0x84595161401484A000000",
         "0x46",
@@ -143,7 +146,8 @@
         "set_target_supply",
         "set_owner_address",
         "set_quote_address",
-        "set_ekubo_address",
+        "set_ekubo_router_address",
+        "set_ekubo_positions_address",
         "set_burn_percentage",
         "set_pool_fee",
         "set_pool_tick_spacing",
@@ -155,10 +159,11 @@
       ]
     },
     {
-      "address": "0x6b4b4312a5b4adcdb38553af9908f86ab995a52d2d485c458a38de03135726b",
-      "class_hash": "0x6ad80220e2f699f04687b2dddd449dcddd917c8d88b8f87768d0cb008cf8244",
+      "address": "0x4f485dfe2cb8cf353caee1d93acc81cffb8ba4946b25d95a8636c371518d4f5",
+      "class_hash": "0x3660f2b48a7d36e2fe585021b70ab72eeeabff894927db2a720810a71d93ccc",
       "init_calldata": [
-        "0x9ED194DB19B238C000000"
+        "0x9ED194DB19B238C000000",
+        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
       ],
       "tag": "NUMS-Token",
       "selector": "0x500199e486811b06dd992b129c72f48d8859c1ee14b4e18c6564d32cf38e6c1",
@@ -167,13 +172,10 @@
         "reward",
         "mint",
         "burn",
-        "withdraw",
         "upgrade",
         "grant_role",
         "revoke_role",
         "renounce_role",
-        "delegate",
-        "delegate_by_sig",
         "transfer",
         "transfer_from",
         "approve",
@@ -181,8 +183,34 @@
       ]
     },
     {
-      "address": "0x608f08dbe71f53afb9ddad7995e912ba5e93fb5a81cb9cb277e7b0a54c08577",
-      "class_hash": "0x602b70ad1ac75bb9fd9f6624777832504a0ff69626d15c0c6a1cda7bab21982",
+      "address": "0x3f0bff1617cb189e3a0c1adb077c6be5d37dd5fb2f891047acc359544833150",
+      "class_hash": "0x3a6409a56762aaea0e12ca25295808490cae4654830f4e40b0dcc910a5f58b7",
+      "init_calldata": [
+        "0xe10",
+        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
+      ],
+      "tag": "NUMS-Treasury",
+      "selector": "0x4830c7127b47657b7b187f2acba1b9cddd78525c01aa5c89d9bf2696e07c1af",
+      "systems": [
+        "dojo_init",
+        "upgrade",
+        "schedule",
+        "schedule_batch",
+        "cancel",
+        "execute",
+        "execute_batch",
+        "update_delay",
+        "grant_role",
+        "revoke_role",
+        "renounce_role",
+        "grantRole",
+        "revokeRole",
+        "renounceRole"
+      ]
+    },
+    {
+      "address": "0x2094aebd7235f213b0159f080a60b387402130071bda6e870f4af9e2f8674b6",
+      "class_hash": "0x7a31b4633e10382b87e427924debeb2ba483186e53e4e741be31b8f2418fbaa",
       "init_calldata": [
         "0x1"
       ],
@@ -192,7 +220,7 @@
         "dojo_init",
         "pay",
         "claim",
-        "reset",
+        "collect",
         "pause",
         "unpause",
         "open",
@@ -201,6 +229,8 @@
         "grant_role",
         "revoke_role",
         "renounce_role",
+        "delegate",
+        "delegate_by_sig",
         "deposit",
         "mint",
         "withdraw",
@@ -360,7 +390,12 @@
           "key": false
         },
         {
-          "name": "ekubo",
+          "name": "ekubo_router",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "ekubo_positions",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
         },
@@ -435,7 +470,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x469d7a83bae1d43d72c00dddce0e91854c7cd9b973e7c7fe9797d290051a7f1",
+      "class_hash": "0x65a9c91fa6b7322820682d8b3eedc6bdc2a67b335e55893536c893a2c3b2525",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -3616,6 +3651,60 @@
       "state_mutability": "external"
     },
     {
+      "type": "struct",
+      "name": "ekubo::types::bounds::Bounds",
+      "members": [
+        {
+          "name": "lower",
+          "type": "ekubo::types::i129::i129"
+        },
+        {
+          "name": "upper",
+          "type": "ekubo::types::i129::i129"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "ekubo::types::i129::i129",
+      "members": [
+        {
+          "name": "mag",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "sign",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "ekubo::types::keys::PoolKey",
+      "members": [
+        {
+          "name": "token0",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "token1",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "fee",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "tick_spacing",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "extension",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
       "type": "function",
       "name": "ensure_abi",
       "inputs": [
@@ -4012,7 +4101,11 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "ekubo",
+          "name": "ekubo_router",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "ekubo_positions",
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
@@ -4102,7 +4195,11 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "ekubo",
+          "name": "ekubo_router",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "ekubo_positions",
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
@@ -4510,11 +4607,6 @@
           "kind": "flat"
         },
         {
-          "name": "OwnableEvent",
-          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-          "kind": "flat"
-        },
-        {
           "name": "SRC5Event",
           "type": "openzeppelin_introspection::src5::SRC5Component::Event",
           "kind": "flat"
@@ -4697,13 +4789,18 @@
           "kind": "flat"
         },
         {
+          "name": "GovernorSettingsEvent",
+          "type": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::Event",
+          "kind": "flat"
+        },
+        {
           "name": "GovernorCountingSimpleEvent",
           "type": "openzeppelin_governance::governor::extensions::governor_counting_simple::GovernorCountingSimpleComponent::Event",
           "kind": "flat"
         },
         {
-          "name": "GovernorCoreExecutionEvent",
-          "type": "openzeppelin_governance::governor::extensions::governor_core_execution::GovernorCoreExecutionComponent::Event",
+          "name": "GovernorTimelockExecutionEvent",
+          "type": "openzeppelin_governance::governor::extensions::governor_timelock_execution::GovernorTimelockExecutionComponent::Event",
           "kind": "flat"
         },
         {
@@ -4890,10 +4987,22 @@
         },
         {
           "type": "function",
-          "name": "set_ekubo_address",
+          "name": "set_ekubo_router_address",
           "inputs": [
             {
-              "name": "ekubo_address",
+              "name": "ekubo_router_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_ekubo_positions_address",
+          "inputs": [
+            {
+              "name": "ekubo_positions_address",
               "type": "core::starknet::contract_address::ContractAddress"
             }
           ],
@@ -5074,18 +5183,6 @@
           ],
           "outputs": [],
           "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "withdraw",
-          "inputs": [
-            {
-              "name": "token_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
         }
       ]
     },
@@ -5118,15 +5215,63 @@
           "name": "SRC5Event",
           "type": "openzeppelin_introspection::src5::SRC5Component::Event",
           "kind": "flat"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "nums::systems::treasury::ICollector",
+      "items": [
+        {
+          "type": "function",
+          "name": "collect_fees",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "pool_key",
+              "type": "ekubo::types::keys::PoolKey"
+            },
+            {
+              "name": "bounds",
+              "type": "ekubo::types::bounds::Bounds"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "nums::systems::treasury::Treasury::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
         },
         {
-          "name": "ERC20VotesEvent",
-          "type": "openzeppelin_governance::votes::votes::VotesComponent::Event",
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "AccessControlEvent",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
           "kind": "flat"
         },
         {
-          "name": "NoncesEvent",
-          "type": "openzeppelin_utils::cryptography::nonces::NoncesComponent::Event",
+          "name": "TimelockEvent",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "SRC5Event",
+          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
           "kind": "flat"
         }
       ]
@@ -5193,22 +5338,6 @@
         },
         {
           "type": "function",
-          "name": "staked_of",
-          "inputs": [
-            {
-              "name": "account",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::integer::u256"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
           "name": "claimable_of",
           "inputs": [
             {
@@ -5248,8 +5377,13 @@
         },
         {
           "type": "function",
-          "name": "reset",
-          "inputs": [],
+          "name": "collect",
+          "inputs": [
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
           "outputs": [],
           "state_mutability": "external"
         }
@@ -5293,6 +5427,16 @@
         {
           "name": "ERC20Event",
           "type": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "ERC20VotesEvent",
+          "type": "openzeppelin_governance::votes::votes::VotesComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "NoncesEvent",
+          "type": "openzeppelin_utils::cryptography::nonces::NoncesComponent::Event",
           "kind": "flat"
         },
         {
@@ -5424,66 +5568,111 @@
     },
     {
       "type": "event",
-      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-      "kind": "enum",
-      "variants": [
-        {
-          "name": "OwnershipTransferred",
-          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
-          "kind": "nested"
-        },
-        {
-          "name": "OwnershipTransferStarted",
-          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-          "kind": "nested"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-      "kind": "struct",
-      "members": [
-        {
-          "name": "previous_owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
-        },
-        {
-          "name": "new_owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
-      "kind": "struct",
-      "members": [
-        {
-          "name": "previous_owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
-        },
-        {
-          "name": "new_owner",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "kind": "key"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "openzeppelin_governance::governor::extensions::governor_core_execution::GovernorCoreExecutionComponent::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
       "name": "openzeppelin_governance::governor::extensions::governor_counting_simple::GovernorCountingSimpleComponent::Event",
       "kind": "enum",
       "variants": []
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "VotingDelayUpdated",
+          "type": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::VotingDelayUpdated",
+          "kind": "nested"
+        },
+        {
+          "name": "VotingPeriodUpdated",
+          "type": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::VotingPeriodUpdated",
+          "kind": "nested"
+        },
+        {
+          "name": "ProposalThresholdUpdated",
+          "type": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::ProposalThresholdUpdated",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::ProposalThresholdUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_proposal_threshold",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "new_proposal_threshold",
+          "type": "core::integer::u256",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::VotingDelayUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_voting_delay",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "new_voting_delay",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_settings::GovernorSettingsComponent::VotingPeriodUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_voting_period",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "new_voting_period",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_timelock_execution::GovernorTimelockExecutionComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "TimelockUpdated",
+          "type": "openzeppelin_governance::governor::extensions::governor_timelock_execution::GovernorTimelockExecutionComponent::TimelockUpdated",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::governor::extensions::governor_timelock_execution::GovernorTimelockExecutionComponent::TimelockUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_timelock",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "new_timelock",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
     },
     {
       "type": "event",
@@ -5705,6 +5894,138 @@
     },
     {
       "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallCancelled",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallExecuted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "index",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "call",
+          "type": "core::starknet::account::Call",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallSalt",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "salt",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallScheduled",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "index",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "call",
+          "type": "core::starknet::account::Call",
+          "kind": "data"
+        },
+        {
+          "name": "predecessor",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "delay",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "CallScheduled",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallScheduled",
+          "kind": "nested"
+        },
+        {
+          "name": "CallExecuted",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallExecuted",
+          "kind": "nested"
+        },
+        {
+          "name": "CallSalt",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallSalt",
+          "kind": "nested"
+        },
+        {
+          "name": "CallCancelled",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::CallCancelled",
+          "kind": "nested"
+        },
+        {
+          "name": "MinDelayChanged",
+          "type": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::MinDelayChanged",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_governance::timelock::timelock_controller::TimelockControllerComponent::MinDelayChanged",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_duration",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "new_duration",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
       "name": "openzeppelin_governance::votes::votes::VotesComponent::DelegateChanged",
       "kind": "struct",
       "members": [
@@ -5856,26 +6177,15 @@
     },
     {
       "type": "interface",
-      "name": "openzeppelin_interfaces::access::ownable::IOwnable",
+      "name": "openzeppelin_interfaces::governance::extensions::IGovernorSettingsAdmin",
       "items": [
         {
           "type": "function",
-          "name": "owner",
-          "inputs": [],
-          "outputs": [
-            {
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "state_mutability": "view"
-        },
-        {
-          "type": "function",
-          "name": "transfer_ownership",
+          "name": "set_voting_delay",
           "inputs": [
             {
-              "name": "new_owner",
-              "type": "core::starknet::contract_address::ContractAddress"
+              "name": "new_voting_delay",
+              "type": "core::integer::u64"
             }
           ],
           "outputs": [],
@@ -5883,8 +6193,25 @@
         },
         {
           "type": "function",
-          "name": "renounce_ownership",
-          "inputs": [],
+          "name": "set_voting_period",
+          "inputs": [
+            {
+              "name": "new_voting_period",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_proposal_threshold",
+          "inputs": [
+            {
+              "name": "new_proposal_threshold",
+              "type": "core::integer::u256"
+            }
+          ],
           "outputs": [],
           "state_mutability": "external"
         }
@@ -5942,6 +6269,51 @@
             }
           ],
           "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_interfaces::governance::extensions::ITimelocked",
+      "items": [
+        {
+          "type": "function",
+          "name": "timelock",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_timelock_id",
+          "inputs": [
+            {
+              "name": "proposal_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "update_timelock",
+          "inputs": [
+            {
+              "name": "new_timelock",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
         }
       ]
     },
@@ -6488,6 +6860,485 @@
         {
           "name": "Executed",
           "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "openzeppelin_interfaces::governance::timelock::OperationState",
+      "variants": [
+        {
+          "name": "Unset",
+          "type": "()"
+        },
+        {
+          "name": "Waiting",
+          "type": "()"
+        },
+        {
+          "name": "Ready",
+          "type": "()"
+        },
+        {
+          "name": "Done",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_interfaces::governance::timelock::TimelockABI",
+      "items": [
+        {
+          "type": "function",
+          "name": "is_operation",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "is_operation_pending",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "is_operation_ready",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "is_operation_done",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_timestamp",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_operation_state",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "openzeppelin_interfaces::governance::timelock::OperationState"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_min_delay",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "hash_operation",
+          "inputs": [
+            {
+              "name": "call",
+              "type": "core::starknet::account::Call"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "hash_operation_batch",
+          "inputs": [
+            {
+              "name": "calls",
+              "type": "core::array::Span::<core::starknet::account::Call>"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "schedule",
+          "inputs": [
+            {
+              "name": "call",
+              "type": "core::starknet::account::Call"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            },
+            {
+              "name": "delay",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "schedule_batch",
+          "inputs": [
+            {
+              "name": "calls",
+              "type": "core::array::Span::<core::starknet::account::Call>"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            },
+            {
+              "name": "delay",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cancel",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "execute",
+          "inputs": [
+            {
+              "name": "call",
+              "type": "core::starknet::account::Call"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "execute_batch",
+          "inputs": [
+            {
+              "name": "calls",
+              "type": "core::array::Span::<core::starknet::account::Call>"
+            },
+            {
+              "name": "predecessor",
+              "type": "core::felt252"
+            },
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "update_delay",
+          "inputs": [
+            {
+              "name": "new_delay",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "supports_interface",
+          "inputs": [
+            {
+              "name": "interface_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "has_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_role_admin",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grant_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revoke_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounce_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "hasRole",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "getRoleAdmin",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grantRole",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revokeRole",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounceRole",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
         }
       ]
     },

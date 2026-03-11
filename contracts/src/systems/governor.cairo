@@ -4,23 +4,32 @@ pub fn NAME() -> ByteArray {
 
 #[dojo::contract]
 mod Governor {
+    use core::num::traits::Pow;
     use dojo::world::WorldStorageTrait;
     use openzeppelin::governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
+    use openzeppelin::governance::governor::extensions::GovernorSettingsComponent::InternalTrait as GovernorSettingsInternalTrait;
+    use openzeppelin::governance::governor::extensions::GovernorTimelockExecutionComponent::InternalTrait as GovernorTimelockExecutionInternalTrait;
     use openzeppelin::governance::governor::extensions::GovernorVotesQuorumFractionComponent::InternalTrait;
     use openzeppelin::governance::governor::extensions::{
-        GovernorCoreExecutionComponent, GovernorCountingSimpleComponent,
-        GovernorVotesQuorumFractionComponent,
+        GovernorCountingSimpleComponent, GovernorSettingsComponent,
+        GovernorTimelockExecutionComponent, GovernorVotesQuorumFractionComponent,
     };
     use openzeppelin::governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
     use crate::constants::NAMESPACE;
-    use crate::systems::token::NAME as TOKEN;
+    use crate::systems::treasury::NAME as TREASURY;
+    use crate::systems::vault::NAME as VAULT;
 
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
-    pub const PROPOSAL_THRESHOLD: u256 = 10;
-    pub const QUORUM_NUMERATOR: u256 = 40; // 4%
+    // pub const VOTING_DELAY: u64 = 3600; // 1 hour
+    // pub const VOTING_PERIOD: u64 = 432000; // 5 days
+    // pub const PROPOSAL_THRESHOLD: u256 = 50_000 * 10_u256.pow(18); // 50k tokens 18 decimals
+    // pub const QUORUM_NUMERATOR: u256 = 300; // 30%
+
+    pub const VOTING_DELAY: u64 = 5 * 60; // 5 minutes
+    pub const VOTING_PERIOD: u64 = 10 * 60; // 10 minutes
+    pub const PROPOSAL_THRESHOLD: u256 = 1 * 10_u256.pow(18); // 1 token with 18 decimals
+    pub const QUORUM_NUMERATOR: u256 = 300; // 30%
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(
@@ -29,14 +38,17 @@ mod Governor {
         event: GovernorVotesEvent,
     );
     component!(
+        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent,
+    );
+    component!(
         path: GovernorCountingSimpleComponent,
         storage: governor_counting_simple,
         event: GovernorCountingSimpleEvent,
     );
     component!(
-        path: GovernorCoreExecutionComponent,
-        storage: governor_core_execution,
-        event: GovernorCoreExecutionEvent,
+        path: GovernorTimelockExecutionComponent,
+        storage: governor_timelock_execution,
+        event: GovernorTimelockExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -48,14 +60,21 @@ mod Governor {
     #[abi(embed_v0)]
     impl QuorumFractionImpl =
         GovernorVotesQuorumFractionComponent::QuorumFractionImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl GovernorSettingsAdminImpl =
+        GovernorSettingsComponent::GovernorSettingsAdminImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl TimelockedImpl =
+        GovernorTimelockExecutionComponent::TimelockedImpl<ContractState>;
 
     // Extensions internal
     impl GovernorQuorumImpl = GovernorVotesQuorumFractionComponent::GovernorQuorum<ContractState>;
     impl GovernorVotesImpl = GovernorVotesQuorumFractionComponent::GovernorVotes<ContractState>;
+    impl GovernorSettingsImpl = GovernorSettingsComponent::GovernorSettings<ContractState>;
     impl GovernorCountingSimpleImpl =
         GovernorCountingSimpleComponent::GovernorCounting<ContractState>;
-    impl GovernorCoreExecutionImpl =
-        GovernorCoreExecutionComponent::GovernorExecution<ContractState>;
+    impl GovernorTimelockExecutionImpl =
+        GovernorTimelockExecutionComponent::GovernorExecution<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -68,9 +87,11 @@ mod Governor {
         #[substorage(v0)]
         pub governor_votes: GovernorVotesQuorumFractionComponent::Storage,
         #[substorage(v0)]
+        pub governor_settings: GovernorSettingsComponent::Storage,
+        #[substorage(v0)]
         pub governor_counting_simple: GovernorCountingSimpleComponent::Storage,
         #[substorage(v0)]
-        pub governor_core_execution: GovernorCoreExecutionComponent::Storage,
+        pub governor_timelock_execution: GovernorTimelockExecutionComponent::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
     }
@@ -83,18 +104,23 @@ mod Governor {
         #[flat]
         GovernorVotesEvent: GovernorVotesQuorumFractionComponent::Event,
         #[flat]
+        GovernorSettingsEvent: GovernorSettingsComponent::Event,
+        #[flat]
         GovernorCountingSimpleEvent: GovernorCountingSimpleComponent::Event,
         #[flat]
-        GovernorCoreExecutionEvent: GovernorCoreExecutionComponent::Event,
+        GovernorTimelockExecutionEvent: GovernorTimelockExecutionComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
     }
 
     fn dojo_init(ref self: ContractState) {
         let world = self.world(@NAMESPACE());
-        let token_address = world.dns_address(@TOKEN()).expect('Token not found!');
+        let votes_token = world.dns_address(@VAULT()).expect('Vault not found!');
+        let timelock_controller = world.dns_address(@TREASURY()).expect('Controller not found!');
         self.governor.initializer();
-        self.governor_votes.initializer(token_address, QUORUM_NUMERATOR);
+        self.governor_votes.initializer(votes_token, QUORUM_NUMERATOR);
+        self.governor_settings.initializer(VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD);
+        self.governor_timelock_execution.initializer(timelock_controller);
     }
 
     //
@@ -103,32 +129,11 @@ mod Governor {
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
-            'DAPP_NAME'
+            'Governor'
         }
 
         fn version() -> felt252 {
-            'DAPP_VERSION'
-        }
-    }
-
-    //
-    // Locally implemented extensions
-    //
-
-    pub impl GovernorSettings of GovernorComponent::GovernorSettingsTrait<ContractState> {
-        /// See `GovernorComponent::GovernorSettingsTrait::voting_delay`.
-        fn voting_delay(self: @GovernorComponent::ComponentState<ContractState>) -> u64 {
-            VOTING_DELAY
-        }
-
-        /// See `GovernorComponent::GovernorSettingsTrait::voting_period`.
-        fn voting_period(self: @GovernorComponent::ComponentState<ContractState>) -> u64 {
-            VOTING_PERIOD
-        }
-
-        /// See `GovernorComponent::GovernorSettingsTrait::proposal_threshold`.
-        fn proposal_threshold(self: @GovernorComponent::ComponentState<ContractState>) -> u256 {
-            PROPOSAL_THRESHOLD
+            '1.0.0'
         }
     }
 }

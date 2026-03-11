@@ -3,6 +3,7 @@ use dojo::model::ModelStorage;
 use dojo::world::WorldStorage;
 use ekubo::components::clear::IClearDispatcher;
 use ekubo::interfaces::erc20::IERC20Dispatcher;
+use ekubo::interfaces::positions::IPositionsDispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
 use crate::events::claimed::ClaimedTrait;
@@ -59,14 +60,21 @@ pub impl StoreImpl of StoreTrait {
         // Mainnet: 0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066
         // Sepolia: 0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
         let config = self.config();
-        IRouterDispatcher { contract_address: config.ekubo }
+        IRouterDispatcher { contract_address: config.ekubo_router }
     }
 
     fn ekubo_clearer(self: @Store) -> IClearDispatcher {
         // Mainnet: 0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066
         // Sepolia: 0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2
         let config = self.config();
-        IClearDispatcher { contract_address: config.ekubo }
+        IClearDispatcher { contract_address: config.ekubo_router }
+    }
+
+    fn ekubo_positions(self: @Store) -> IPositionsDispatcher {
+        // Mainnet: 0x07b696af58c967c1b14c9dde0ace001720635a660a8e90c565ea459345318b30
+        // Sepolia: 0x04afc78d6fec3b122fc1f60276f074e557749df1a77a93416451be72c435120f
+        let config = self.config();
+        IPositionsDispatcher { contract_address: config.ekubo_positions }
     }
 
     // Config

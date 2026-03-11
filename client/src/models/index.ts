@@ -85,7 +85,13 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
-  ekubo: {
+  ekubo_router: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  ekubo_positions: {
     type: "primitive";
     type_name: "ContractAddress";
     value: string;
@@ -170,6 +176,12 @@ export interface RawConfig {
     key: boolean;
   };
   base_price: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  pool_sqrt: {
     type: "primitive";
     type_name: "u256";
     value: string;

@@ -67,4 +67,4 @@ pub const DEFAULT_DRAW_STAGE: u8 = 4;
 pub const DEFAULT_EXPIRATION: u64 = 1 * 24 * 60 * 60; // One day
 pub const BASE_MULTIPLIER: u8 = 100;
 
-pub const VAULT_LOCKUP_DURATION: u64 = 0; // 7 * 24 * 60 * 60; // 7 days
+pub const VAULT_LOCKUP_DURATION: u64 = 0;

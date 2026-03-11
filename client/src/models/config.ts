@@ -13,7 +13,8 @@ export class Config {
     public vault: string,
     public owner: string,
     public quote: string,
-    public ekubo: string,
+    public ekubo_router: string,
+    public ekubo_positions: string,
     public target_supply: bigint,
     public count: number,
     public burn_percentage: number,
@@ -27,6 +28,7 @@ export class Config {
     public pool_tick_spacing: bigint,
     public pool_extension: string,
     public base_price: bigint,
+    public pool_sqrt: bigint,
   ) {
     this.world_resource = world_resource;
     this.nums = nums;
@@ -35,7 +37,8 @@ export class Config {
     this.vault = vault;
     this.owner = owner;
     this.quote = quote;
-    this.ekubo = ekubo;
+    this.ekubo_router = ekubo_router;
+    this.ekubo_positions = ekubo_positions;
     this.target_supply = target_supply;
     this.count = count;
     this.burn_percentage = burn_percentage;
@@ -68,7 +71,8 @@ export class Config {
       vault: data.vault.value,
       owner: data.owner.value,
       quote: data.quote.value,
-      ekubo: data.ekubo.value,
+      ekubo_router: data.ekubo_router.value,
+      ekubo_positions: data.ekubo_positions.value,
       target_supply: BigInt(data.target_supply.value),
       count: Number(data.count.value),
       burn_percentage: Number(data.burn_percentage.value),
@@ -82,6 +86,7 @@ export class Config {
       pool_tick_spacing: BigInt(data.pool_tick_spacing.value),
       pool_extension: data.pool_extension.value,
       base_price: BigInt(data.base_price.value),
+      pool_sqrt: BigInt(data.pool_sqrt.value),
     };
     return new Config(
       props.world_resource,
@@ -91,7 +96,8 @@ export class Config {
       props.vault,
       props.owner,
       props.quote,
-      props.ekubo,
+      props.ekubo_router,
+      props.ekubo_positions,
       props.target_supply,
       props.count,
       props.burn_percentage,
@@ -104,7 +110,8 @@ export class Config {
       props.pool_fee,
       props.pool_tick_spacing,
       props.pool_extension,
-      props.base_price,
+      props.base_price, 
+      props.pool_sqrt,
     );
   }
 

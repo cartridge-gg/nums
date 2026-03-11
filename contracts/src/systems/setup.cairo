@@ -12,7 +12,8 @@ pub trait ISetup<T> {
     fn set_target_supply(ref self: T, supply: u256);
     fn set_owner_address(ref self: T, owner_address: ContractAddress);
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
-    fn set_ekubo_address(ref self: T, ekubo_address: ContractAddress);
+    fn set_ekubo_router_address(ref self: T, ekubo_router_address: ContractAddress);
+    fn set_ekubo_positions_address(ref self: T, ekubo_positions_address: ContractAddress);
     fn set_burn_percentage(ref self: T, burn_percentage: u8);
     fn set_pool_fee(ref self: T, pool_fee: u128);
     fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
@@ -88,7 +89,8 @@ pub mod Setup {
         vault_address: Option<ContractAddress>,
         owner_address: ContractAddress,
         quote_address: ContractAddress,
-        ekubo_address: ContractAddress,
+        ekubo_router_address: ContractAddress,
+        ekubo_positions_address: ContractAddress,
         entry_price: u128,
         target_supply: felt252,
         burn_percentage: u8,
@@ -130,7 +132,8 @@ pub mod Setup {
             vault: vault_address,
             owner: owner_address,
             quote: quote_address,
-            ekubo: ekubo_address,
+            ekubo_router: ekubo_router_address,
+            ekubo_positions: ekubo_positions_address,
             burn_percentage: burn_percentage,
             target_supply: target_supply.into(),
             average_score: average_score,
@@ -242,7 +245,9 @@ pub mod Setup {
             store.set_config(config);
         }
 
-        fn set_ekubo_address(ref self: ContractState, ekubo_address: ContractAddress) {
+        fn set_ekubo_router_address(
+            ref self: ContractState, ekubo_router_address: ContractAddress,
+        ) {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
@@ -250,7 +255,21 @@ pub mod Setup {
             self.assert_only_owner(world);
             // [Effect] Update config
             let mut config = store.config();
-            config.ekubo = ekubo_address;
+            config.ekubo_router = ekubo_router_address;
+            store.set_config(config);
+        }
+
+        fn set_ekubo_positions_address(
+            ref self: ContractState, ekubo_positions_address: ContractAddress,
+        ) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.assert_only_owner(world);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.ekubo_positions = ekubo_positions_address;
             store.set_config(config);
         }
 

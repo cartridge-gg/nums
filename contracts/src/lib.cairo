@@ -10,6 +10,7 @@ pub mod systems {
     pub mod play;
     pub mod setup;
     pub mod token;
+    pub mod treasury;
     pub mod vault;
 }
 

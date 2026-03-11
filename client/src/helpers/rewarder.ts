@@ -3,10 +3,9 @@
  * Equivalent to helpers/rewarder.cairo
  */
 
-const A = 3_062_112_703_903_038_000n;
+const A = 306_211_270_390_303_800n;
 const B = 3n;
 const K = 10n;
-const MIN_REWARD = 1n;
 
 /**
  * Calculate the reward amount for a given score
@@ -36,7 +35,7 @@ export class Rewarder {
     const denLhs = target * (slotCount + B) ** K;
     const denRhs = (target * scoreNum ** K) / scoreDen ** K;
     const den = denLhs - denRhs;
-    const reward = num / den - num / denLhs + MIN_REWARD;
+    const reward = num / den - num / denLhs;
     return Number(
       (reward * BigInt(Math.floor(multiplier * 100))) / BigInt(100),
     );
@@ -102,6 +101,7 @@ export class Rewarder {
     const burnAmountNums =
       (((burnUsdc * TEN_POW_18) / numsPrice) * (1000n - CONVERSION_FEE)) /
       1000n;
+    console.log("burnAmountNums", burnAmountNums);
 
     // burn_per_game = base_price * pack_multiplier * burn_amount / pack_price
     const burnPerGame = burnAmountNums / 1n;
@@ -122,6 +122,7 @@ export class Rewarder {
       targetSupply,
       1,
     );
+    console.log("avgRewardPlain", avgRewardPlain);
     const avgReward = BigInt(avgRewardPlain) * TEN_POW_18;
 
     if (avgReward === 0n) return 1;

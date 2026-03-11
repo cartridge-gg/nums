@@ -316,11 +316,6 @@ pub impl GameImpl of GameTrait {
             clone_slots.append(self.number);
             self.next_number = self.next(@clone_slots, ref rand);
         }
-        // [Effect] Draw new powers if possible
-        if self.is_drawable() {
-            let powers = PowerTrait::draw(rand.next_seed(), DEFAULT_DRAW_COUNT);
-            self.selectable_powers = Packer::pack(powers, POWER_SIZE)
-        }
         // [Effect] Assess game over
         // [Info] Game is over if:
         // - number cannot be placed
@@ -331,6 +326,11 @@ pub impl GameImpl of GameTrait {
         } else {
             self.over
         };
+        // [Effect] Draw new powers if possible
+        if self.over == 0 && self.is_drawable() {
+            let powers = PowerTrait::draw(rand.next_seed(), DEFAULT_DRAW_COUNT);
+            self.selectable_powers = Packer::pack(powers, POWER_SIZE)
+        }
     }
 
     /// Claims the game.

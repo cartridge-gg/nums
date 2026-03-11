@@ -3,10 +3,9 @@
 use core::num::traits::Pow;
 use crate::constants::TEN_POW_18;
 
-pub const A: u256 = 3_062_112_703_903_038_000;
+pub const A: u256 = 306_211_270_390_303_800;
 pub const B: u256 = 3;
 pub const K: u32 = 10;
-pub const MIN_REWARD: u64 = 1;
 
 /// Helper function to calculate the reward amount.
 ///
@@ -34,7 +33,7 @@ pub impl Rewarder of RewarderTrait {
         let score_num_pow_k = score_num.pow(K);
         let score_den_pow_k = score_den.pow(K);
         let den_rhs = target * score_num_pow_k / score_den_pow_k;
-        (num / (den_lhs - den_rhs) - num / den_lhs).try_into().unwrap() + MIN_REWARD
+        (num / (den_lhs - den_rhs) - num / den_lhs + score_num / score_den).try_into().unwrap()
     }
 }
 

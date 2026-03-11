@@ -49,6 +49,7 @@ pub const WORLD_RESOURCE: felt252 = 0;
 pub const SLOT_SIZE: u128 = 2_u128.pow(12);
 pub const TRAP_SIZE: u128 = 2_u128.pow(4);
 pub const POWER_SIZE: u8 = 2_u8.pow(4);
+pub const TEN_POW_10: u128 = 10_u128.pow(10);
 pub const TEN_POW_18: u128 = 10_u128.pow(18);
 pub const TEN_POW_36: u128 = 10_u128.pow(36);
 

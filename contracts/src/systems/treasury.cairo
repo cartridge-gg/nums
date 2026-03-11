@@ -12,6 +12,7 @@ pub trait ICollector<TContractState> {
 
 #[dojo::contract]
 mod Treasury {
+    use core::num::traits::Zero;
     use dojo::world::WorldStorageTrait;
     use ekubo::interfaces::positions::IPositionsDispatcherTrait;
     use ekubo::types::bounds::Bounds;
@@ -19,7 +20,9 @@ mod Treasury {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::governance::timelock::TimelockControllerComponent;
     use openzeppelin::introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
+    use starknet::account::Call;
+    use starknet::syscalls::call_contract_syscall;
+    use starknet::{AccountContract, ContractAddress, get_caller_address, get_tx_info};
     use crate::constants::NAMESPACE;
     use crate::store::StoreTrait;
     use crate::systems::governor::NAME as GOVERNOR;
@@ -71,6 +74,45 @@ mod Treasury {
             let store = StoreTrait::new(world);
             let positions = store.ekubo_positions();
             positions.collect_fees(id, pool_key, bounds);
+        }
+    }
+
+    // This implementation exists solely for the purpose of allowing simulation of calls from the
+    // governor with the flag to skip validation
+    #[abi(embed_v0)]
+    impl GovernorAccountContractForSimulation of AccountContract<ContractState> {
+        fn __validate_declare__(self: @ContractState, class_hash: felt252) -> felt252 {
+            panic!("Not allowed");
+        }
+        fn __validate__(ref self: ContractState, calls: Array<Call>) -> felt252 {
+            panic!("Not allowed");
+        }
+        fn __execute__(ref self: ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
+            assert(get_caller_address().is_zero(), 'Invalid caller');
+            let tx_version = get_tx_info().unbox().version.into();
+            assert(
+                tx_version == 0x100000000000000000000000000000001
+                    || tx_version == 0x100000000000000000000000000000003,
+                'Invalid TX version',
+            );
+            let mut results: Array<Span<felt252>> = array![];
+            while let Option::Some(call) = calls.pop_front() {
+                results.append(call.execute());
+            }
+            results
+        }
+    }
+
+    #[generate_trait]
+    pub impl CallTraitImpl of CallTrait {
+        fn execute(self: @Call) -> Span<felt252> {
+            let result = call_contract_syscall(*self.to, *self.selector, *self.calldata);
+
+            if (result.is_err()) {
+                panic(result.unwrap_err());
+            }
+
+            result.unwrap()
         }
     }
 }

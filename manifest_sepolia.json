@@ -96,7 +96,7 @@
     },
     {
       "address": "0x2c2dd9e0b34d4d55c7e673b39f02801005f33aad393d8d2ba995cb7e00114d8",
-      "class_hash": "0x72dc6a0b54cdb701a4adb13c0fae64166d599a4d8757d389337063ee2a24fc8",
+      "class_hash": "0x4a7210d3f15b82b3c3fc0596eed42ea4e9ccb91ffd9584d7a188ee892a0755",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -184,7 +184,7 @@
     },
     {
       "address": "0x3f0bff1617cb189e3a0c1adb077c6be5d37dd5fb2f891047acc359544833150",
-      "class_hash": "0x3a6409a56762aaea0e12ca25295808490cae4654830f4e40b0dcc910a5f58b7",
+      "class_hash": "0x7544b805d191f6d5307582d6cd3e564673805caedc36d840cdddde671fd0c38",
       "init_calldata": [
         "0xe10",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -193,6 +193,8 @@
       "selector": "0x4830c7127b47657b7b187f2acba1b9cddd78525c01aa5c89d9bf2696e07c1af",
       "systems": [
         "dojo_init",
+        "__validate__",
+        "__execute__",
         "upgrade",
         "schedule",
         "schedule_batch",
@@ -210,7 +212,7 @@
     },
     {
       "address": "0x2094aebd7235f213b0159f080a60b387402130071bda6e870f4af9e2f8674b6",
-      "class_hash": "0x7a31b4633e10382b87e427924debeb2ba483186e53e4e741be31b8f2418fbaa",
+      "class_hash": "0x626886340832c621692f447782840b76846103acfdbb71b0e746c102924ff35",
       "init_calldata": [
         "0x1"
       ],
@@ -1950,6 +1952,60 @@
         {
           "name": "None",
           "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "core::starknet::account::AccountContract",
+      "items": [
+        {
+          "type": "function",
+          "name": "__validate_declare__",
+          "inputs": [
+            {
+              "name": "class_hash",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "__validate__",
+          "inputs": [
+            {
+              "name": "calls",
+              "type": "core::array::Array::<core::starknet::account::Call>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "__execute__",
+          "inputs": [
+            {
+              "name": "calls",
+              "type": "core::array::Array::<core::starknet::account::Call>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Array::<core::array::Span::<core::felt252>>"
+            }
+          ],
+          "state_mutability": "external"
         }
       ]
     },

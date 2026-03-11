@@ -33,9 +33,9 @@ export class Rewarder {
     // [Compute] Otherwise, calculate the reward amount
     const num = A * (2n * target - supply);
     const denLhs = target * (slotCount + B) ** K;
-    const denRhs = (target * scoreNum ** K) / scoreDen ** K;
+    const denRhs = target * scoreNum ** K / scoreDen ** K;
     const den = denLhs - denRhs;
-    const reward = num / den - num / denLhs;
+    const reward = num / den - num / denLhs + scoreNum / scoreDen;
     return Number(
       (reward * BigInt(Math.floor(multiplier * 100))) / BigInt(100),
     );
@@ -122,13 +122,8 @@ export class Rewarder {
       targetSupply,
       1,
     );
-    console.log("avgRewardPlain", avgRewardPlain);
-    const avgReward = BigInt(avgRewardPlain) * TEN_POW_18;
-
-    if (avgReward === 0n) return 1;
-
-    // equilibrium_reward = 100 * avg_reward / burn_percentage
-    const equilibriumReward = (100n * avgReward) / burnPercentage;
+    console.log({ averageScore, avgDen, slotCount, supplyPerGame, targetSupply, avgRewardPlain, burnPerGame });
+    const equilibriumReward = BigInt(avgRewardPlain) * TEN_POW_18;
 
     if (equilibriumReward === 0n) return 1;
 

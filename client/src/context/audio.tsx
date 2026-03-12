@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -25,7 +26,7 @@ interface AudioContextType {
   playBomb: () => void;
 }
 
-const AudioContext = createContext<AudioContextType>({
+const AudioCtx = createContext<AudioContextType>({
   isMuted: false,
   toggleMute: () => {},
   volume: 100,
@@ -42,10 +43,24 @@ const AudioContext = createContext<AudioContextType>({
   playBomb: () => {},
 });
 
-export const useAudio = () => useContext(AudioContext);
+export const useAudio = () => useContext(AudioCtx);
+
+const SFX_PATHS = {
+  positive: "/sounds/esm_positive.wav",
+  negative: "/sounds/esm_negative.wav",
+  replay: "/sounds/esm_replay.wav",
+  click: "/sounds/click.wav",
+  slots: "/sounds/slots.wav",
+  reroll: "/sounds/reroll.wav",
+  ufo: "/sounds/ufo.wav",
+  windy: "/sounds/windy.wav",
+  magnet: "/sounds/magnet.wav",
+  bomb: "/sounds/bomb.wav",
+} as const;
+
+type SfxName = keyof typeof SFX_PATHS;
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
-  // Initialize state from localStorage, defaulting to false if not set
   const [isMuted, setIsMuted] = useState(() => {
     const saved = localStorage.getItem("audioMuted");
     return saved ? JSON.parse(saved) : false;
@@ -56,65 +71,55 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     return saved ? Number(JSON.parse(saved)) : 100;
   });
 
-  const positive = useMemo(() => {
-    const audio = new Audio("/sounds/esm_positive.wav");
-    audio.preload = "auto";
-    return audio;
+  const ctxRef = useRef<globalThis.AudioContext | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const buffersRef = useRef<Map<SfxName, AudioBuffer>>(new Map());
+
+  // Lazily create or resume the AudioContext
+  const getCtx = useCallback(() => {
+    if (!ctxRef.current) {
+      ctxRef.current = new globalThis.AudioContext();
+      gainRef.current = ctxRef.current.createGain();
+      gainRef.current.connect(ctxRef.current.destination);
+    }
+    if (ctxRef.current.state === "suspended") {
+      void ctxRef.current.resume();
+    }
+    return { ctx: ctxRef.current, gain: gainRef.current! };
   }, []);
 
-  const negative = useMemo(() => {
-    const audio = new Audio("/sounds/esm_negative.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
+  // Pre-fetch and decode all SFX buffers
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const { ctx } = getCtx();
+      await Promise.all(
+        (Object.entries(SFX_PATHS) as [SfxName, string][]).map(
+          async ([name, path]) => {
+            try {
+              const res = await fetch(path);
+              const arrayBuf = await res.arrayBuffer();
+              const audioBuf = await ctx.decodeAudioData(arrayBuf);
+              if (!cancelled) buffersRef.current.set(name, audioBuf);
+            } catch {
+              // Silently ignore load failures for SFX
+            }
+          },
+        ),
+      );
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [getCtx]);
 
-  const replay = useMemo(() => {
-    const audio = new Audio("/sounds/esm_replay.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const click = useMemo(() => {
-    const audio = new Audio("/sounds/click.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const slots = useMemo(() => {
-    const audio = new Audio("/sounds/slots.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const reroll = useMemo(() => {
-    const audio = new Audio("/sounds/reroll.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const ufo = useMemo(() => {
-    const audio = new Audio("/sounds/ufo.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const windy = useMemo(() => {
-    const audio = new Audio("/sounds/windy.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const magnet = useMemo(() => {
-    const audio = new Audio("/sounds/magnet.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
-
-  const bomb = useMemo(() => {
-    const audio = new Audio("/sounds/bomb.wav");
-    audio.preload = "auto";
-    return audio;
-  }, []);
+  // Update gain when volume changes
+  useEffect(() => {
+    if (gainRef.current) {
+      gainRef.current.gain.value = volume / 100;
+    }
+  }, [volume]);
 
   useEffect(() => {
     localStorage.setItem("audioMuted", JSON.stringify(isMuted));
@@ -124,6 +129,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("audioVolume", JSON.stringify(volume));
   }, [volume]);
 
+  const playSfx = useCallback(
+    (name: SfxName) => {
+      if (isMuted) return;
+      const buffer = buffersRef.current.get(name);
+      if (!buffer) return;
+      const { ctx, gain } = getCtx();
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(gain);
+      source.start(0);
+    },
+    [isMuted, getCtx],
+  );
+
   const toggleMute = useCallback(() => {
     setIsMuted((prev: boolean) => !prev);
   }, []);
@@ -132,90 +151,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setVolumeState(Math.max(0, Math.min(100, v)));
   }, []);
 
-  const volumeFactor = volume / 100;
-
-  const playPositive = useCallback(() => {
-    if (!isMuted) {
-      positive.volume = volumeFactor;
-      positive.currentTime = 0;
-      void positive.play().catch(() => {});
-    }
-  }, [isMuted, positive, volumeFactor]);
-
-  const playNegative = useCallback(() => {
-    if (!isMuted) {
-      negative.volume = volumeFactor;
-      negative.currentTime = 0;
-      void negative.play().catch(() => {});
-    }
-  }, [isMuted, negative, volumeFactor]);
-
-  const playReplay = useCallback(() => {
-    if (!isMuted) {
-      replay.volume = volumeFactor;
-      replay.currentTime = 0;
-      void replay.play().catch(() => {});
-    }
-  }, [isMuted, replay, volumeFactor]);
-
-  const playClick = useCallback(() => {
-    if (!isMuted) {
-      click.volume = volumeFactor;
-      click.currentTime = 0;
-      void click.play().catch(() => {});
-    }
-  }, [click, isMuted, volumeFactor]);
-
-  const playSlots = useCallback(() => {
-    if (!isMuted) {
-      slots.volume = volumeFactor;
-      slots.currentTime = 0;
-      void slots.play().catch(() => {});
-    }
-  }, [isMuted, slots, volumeFactor]);
-
-  const playReroll = useCallback(() => {
-    if (!isMuted) {
-      reroll.volume = volumeFactor;
-      reroll.currentTime = 0;
-      void reroll.play().catch(() => {});
-    }
-  }, [isMuted, reroll, volumeFactor]);
-
-  const playUfo = useCallback(() => {
-    if (!isMuted) {
-      ufo.volume = volumeFactor;
-      ufo.currentTime = 0;
-      void ufo.play().catch(() => {});
-    }
-  }, [isMuted, ufo, volumeFactor]);
-
-  const playWindy = useCallback(() => {
-    if (!isMuted) {
-      windy.volume = volumeFactor;
-      windy.currentTime = 0;
-      void windy.play().catch(() => {});
-    }
-  }, [isMuted, windy, volumeFactor]);
-
-  const playMagnet = useCallback(() => {
-    if (!isMuted) {
-      magnet.volume = volumeFactor;
-      magnet.currentTime = 0;
-      void magnet.play().catch(() => {});
-    }
-  }, [isMuted, magnet, volumeFactor]);
-
-  const playBomb = useCallback(() => {
-    if (!isMuted) {
-      bomb.volume = volumeFactor;
-      bomb.currentTime = 0;
-      void bomb.play().catch(() => {});
-    }
-  }, [isMuted, bomb, volumeFactor]);
+  const playPositive = useCallback(() => playSfx("positive"), [playSfx]);
+  const playNegative = useCallback(() => playSfx("negative"), [playSfx]);
+  const playReplay = useCallback(() => playSfx("replay"), [playSfx]);
+  const playClick = useCallback(() => playSfx("click"), [playSfx]);
+  const playSlots = useCallback(() => playSfx("slots"), [playSfx]);
+  const playReroll = useCallback(() => playSfx("reroll"), [playSfx]);
+  const playUfo = useCallback(() => playSfx("ufo"), [playSfx]);
+  const playWindy = useCallback(() => playSfx("windy"), [playSfx]);
+  const playMagnet = useCallback(() => playSfx("magnet"), [playSfx]);
+  const playBomb = useCallback(() => playSfx("bomb"), [playSfx]);
 
   return (
-    <AudioContext.Provider
+    <AudioCtx.Provider
       value={{
         isMuted,
         toggleMute,
@@ -234,6 +182,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
-    </AudioContext.Provider>
+    </AudioCtx.Provider>
   );
 }

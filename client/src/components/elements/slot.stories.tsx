@@ -144,3 +144,24 @@ export const UFO: Story = {
     trap: new Trap(TrapType.UFO),
   },
 };
+
+export const Highlight: Story = {
+  args: {
+    value: 500,
+    highlight: true,
+  },
+};
+
+export const HighlightInvalid: Story = {
+  args: {
+    value: 500,
+    highlight: true,
+    invalid: true,
+  },
+};
+
+export const HighlightEmpty: Story = {
+  args: {
+    highlight: true,
+  },
+};

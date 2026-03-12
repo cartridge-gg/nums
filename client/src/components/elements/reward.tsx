@@ -4,8 +4,7 @@ import { useId, useMemo, useState, useEffect } from "react";
 import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface RewardProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof rewardVariants> {
   reward: number;
 }

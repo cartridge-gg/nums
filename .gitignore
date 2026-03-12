@@ -35,3 +35,6 @@ keystore*.json
 
 # Turbo
 .turbo
+
+# OpenCode config (contains API keys)
+opencode.json

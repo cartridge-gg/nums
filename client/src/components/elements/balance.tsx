@@ -1,16 +1,18 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
+import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface BalanceProps
-  extends React.HTMLAttributes<HTMLButtonElement>,
+  extends
+    React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
   balance: number;
 }
 
 const balanceVariants = cva(
-  "select-none relative rounded-lg flex items-center justify-center gap-1",
+  "select-none relative rounded-lg flex items-center justify-center gap-2",
   {
     variants: {
       variant: {
@@ -91,18 +93,31 @@ export const Balance = ({
     return formatMobileBalance(balance);
   }, [balance]);
 
+  const filterId = useId();
+
   return (
     <Button
       variant="muted"
       className={cn(balanceVariants({ variant, size, className }))}
       {...props}
     >
+      <ShadowEffect filterId={filterId} opacity={1} />
+      <TokenIcon
+        size="sm"
+        className="block md:hidden"
+        style={{ filter: `url(#${filterId})` }}
+      />
+      <TokenIcon
+        size="md"
+        className="hidden md:block"
+        style={{ filter: `url(#${filterId})` }}
+      />
       <div
-        className="translate-y-0.5 tracking-wider overflow-clip"
+        className="translate-y-0.5 tracking-wider overflow-clip px-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
       >
         <span className="block md:hidden px-1">{formattedMobile}</span>
-        <span className="hidden md:inline">{formattedDesktop} NUMS</span>
+        <span className="hidden md:inline">{formattedDesktop}</span>
       </div>
     </Button>
   );

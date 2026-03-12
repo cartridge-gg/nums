@@ -101,7 +101,6 @@ export class Rewarder {
     const burnAmountNums =
       (((burnUsdc * TEN_POW_18) / numsPrice) * (1000n - CONVERSION_FEE)) /
       1000n;
-    console.log("burnAmountNums", burnAmountNums);
 
     // burn_per_game = base_price * pack_multiplier * burn_amount / pack_price
     const burnPerGame = burnAmountNums / 1n;
@@ -122,15 +121,6 @@ export class Rewarder {
       targetSupply,
       1,
     );
-    console.log({
-      averageScore,
-      avgDen,
-      slotCount,
-      supplyPerGame,
-      targetSupply,
-      avgRewardPlain,
-      burnPerGame,
-    });
     const equilibriumReward = BigInt(avgRewardPlain) * TEN_POW_18;
 
     if (equilibriumReward === 0n) return 1;

@@ -1,6 +1,5 @@
 import {
-  MemberClause,
-  OrComposeClause,
+  ClauseBuilder,
   type SubscriptionCallbackArgs,
   ToriiQueryBuilder,
 } from "@dojoengine/sdk";
@@ -12,19 +11,15 @@ import { useEntities } from "@/context/entities";
 import type { RawGame } from "@/models";
 import { useAssets } from "@/hooks/assets";
 import { useAccount } from "@starknet-react/core";
+import { useControllers } from "@/context/controllers";
 
 const ENTITIES_LIMIT = 10_000;
 
-const getGamesQuery = (gameIds: number[]) => {
-  const clauses = OrComposeClause(
-    gameIds.map((id) =>
-      MemberClause(
-        `${NAMESPACE}-${Game.getModelName()}`,
-        "id",
-        "Eq",
-        `0x${id.toString(16).padStart(16, "0")}`,
-      ),
-    ),
+const getGamesQuery = () => {
+  const clauses = new ClauseBuilder().keys(
+    [`${NAMESPACE}-${Game.getModelName()}`],
+    [undefined],
+    "FixedLen",
   );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
@@ -34,7 +29,8 @@ const getGamesQuery = (gameIds: number[]) => {
 
 export const useGames = () => {
   const { isConnected } = useAccount();
-  const { client } = useEntities();
+  const { controllers } = useControllers();
+  const { client, scores } = useEntities();
   const { gameIds, isLoading: assetsLoading } = useAssets();
 
   const [games, setGames] = useState<Game[]>([]);
@@ -77,14 +73,13 @@ export const useGames = () => {
   // Refresh function to fetch and subscribe to data
   const refresh = useCallback(async () => {
     // Wait for assets to load before fetching games
-    if (assetsLoading) return;
-    if (gameIds.length === 0 || !client) return;
+    if (!client) return;
     // Cancel existing subscriptions
     setLoading(true);
     subscriptionRef.current = null;
 
     // Create queries
-    const query = getGamesQuery(gameIds);
+    const query = getGamesQuery();
 
     // Fetch initial data
     await Promise.all([
@@ -100,13 +95,9 @@ export const useGames = () => {
         subscriptionRef.current = response;
         setLoading(false);
       });
-  }, [client, gameIdsKey, onUpdate, assetsLoading, gameIds, setLoading]);
+  }, [client, onUpdate, setLoading]);
 
   useEffect(() => {
-    if (!isConnected) {
-      setLoading(false);
-      return;
-    }
     refresh();
     return () => {
       if (subscriptionRef.current) {
@@ -115,8 +106,32 @@ export const useGames = () => {
     };
   }, [gameIdsKey, refresh, isConnected, setLoading]);
 
+  const playerGames = useMemo(() => {
+    return games.filter((game) => gameIds.includes(game.id));
+  }, [games, gameIds]);
+
+  const allGames = useMemo(() => {
+    if (!controllers) return [];
+    return games
+      .map((game) => {
+        const score = scores.find((score) => score.game_id === game.id);
+        if (!score) return undefined;
+        const username = controllers.find(
+          (controller) => BigInt(controller.address) === BigInt(score.player),
+        )?.username;
+        if (!username) return undefined;
+        return {
+          ...game,
+          username: username,
+          score: score.score,
+        };
+      })
+      .filter((game) => game !== undefined);
+  }, [games, scores, controllers]);
+
   return {
-    games,
+    playerGames,
+    allGames,
     loading: loading || assetsLoading,
     refresh,
   };

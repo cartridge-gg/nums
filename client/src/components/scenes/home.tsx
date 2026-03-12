@@ -10,14 +10,16 @@ import {
 import { Button } from "../ui/button";
 import { Link } from "@/lib/router";
 import { AddIcon, ShadowEffect } from "../icons";
-import { useId } from "react";
+import { useId, useState } from "react";
+import type { ActivityFilter } from "../containers";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
-  gamesProps: GamesProps;
-  activitiesProps: ActivitiesProps;
+  games: GamesProps;
+  allActivities: ActivitiesProps;
+  playerActivities: ActivitiesProps;
   onPractice?: () => void;
   onPurchase?: () => void;
 }
@@ -42,8 +44,9 @@ const homeSceneVariants = cva(
 
 export const HomeScene = ({
   gameId,
-  gamesProps,
-  activitiesProps,
+  games,
+  allActivities,
+  playerActivities,
   onPractice,
   onPurchase,
   variant,
@@ -51,13 +54,24 @@ export const HomeScene = ({
   ...props
 }: HomeSceneProps) => {
   const filterId = useId();
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>(
+    playerActivities.activities.length > 0 ? "mine" : "all",
+  );
+
+  const activities =
+    activityFilter === "all" ? allActivities : playerActivities;
 
   return (
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
       <Banners />
-      <Games {...gamesProps} />
-      <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
+      <Games {...games} />
+      <Activities
+        {...activities}
+        filter={activityFilter}
+        onFilterChange={setActivityFilter}
+        className="grow overflow-hidden px-2"
+      />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         <Button
           variant="secondary"

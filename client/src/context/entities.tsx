@@ -19,11 +19,13 @@ import {
   type RawStarted,
   type RawConfig,
   type RawStarterpack,
+  type RawScore,
   Claimed,
   Config,
   Purchased,
   Started,
   Starterpack,
+  Score,
 } from "@/models";
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
@@ -39,6 +41,7 @@ type EntitiesProviderState = {
   purchased: Purchased | undefined;
   starteds: Started[];
   started: Started | undefined;
+  scores: Score[];
   claimeds: Claimed[];
   claimed: Claimed | undefined;
   status: "loading" | "error" | "success";
@@ -66,8 +69,9 @@ const getEventQuery = (namespace: string) => {
   const purchased: `${string}-${string}` = `${namespace}-${Purchased.getModelName()}`;
   const started: `${string}-${string}` = `${namespace}-${Started.getModelName()}`;
   const claimed: `${string}-${string}` = `${namespace}-${Claimed.getModelName()}`;
+  const score: `${string}-${string}` = `${namespace}-${Score.getModelName()}`;
   const clauses = new ClauseBuilder().keys(
-    [purchased, started, claimed],
+    [purchased, started, claimed, score],
     [],
     "VariableLen",
   );
@@ -88,6 +92,7 @@ export function EntitiesProvider({
   const [purchaseds, setPurchaseds] = useState<Purchased[]>([]);
   const [starteds, setStarteds] = useState<Started[]>([]);
   const [claimeds, setClaimeds] = useState<Claimed[]>([]);
+  const [scores, setScores] = useState<Score[]>([]);
   const [purchased, setPurchased] = useState<Purchased>();
   const [started, setStarted] = useState<Started>();
   const [claimed, setClaimed] = useState<Claimed>();
@@ -178,6 +183,13 @@ export function EntitiesProvider({
           );
           if (!parsed.hasExpired()) setClaimed(parsed);
         }
+        if (entity.models[`${NAMESPACE}-${Score.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${Score.getModelName()}`
+          ] as unknown as RawScore;
+          const parsed = Score.parse(model);
+          setScores((prev) => Score.dedupe([parsed, ...(prev || [])]));
+        }
       });
     },
     [],
@@ -257,6 +269,7 @@ export function EntitiesProvider({
     client,
     config,
     starterpacks,
+    scores,
     purchaseds,
     purchased,
     starteds,

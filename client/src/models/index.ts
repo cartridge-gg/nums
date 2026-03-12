@@ -12,6 +12,7 @@ export { Starterpack } from "./starterpack";
 export { Purchased } from "./purchased";
 export { Claimed } from "./claimed";
 export { Started } from "./started";
+export { Score } from "./score";
 export {
   AchievementDefinition,
   AchievementCompletion,
@@ -470,6 +471,39 @@ export interface RawStarterpackIssued {
     key: boolean;
   };
   time: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+}
+
+export interface RawScore {
+  leaderboard_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  game_id: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  player: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  score: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  timestamp: {
     type: "primitive";
     type_name: "u64";
     value: string;

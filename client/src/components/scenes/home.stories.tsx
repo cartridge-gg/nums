@@ -80,7 +80,7 @@ const sampleCells: (boolean | null)[] = [
 const sampleActivities = [
   // Today (5 activities)
   {
-    gameId: 1144,
+    gameId: "#1144",
     score: 14,
     payout: "+$0.72",
     to: "/game/1144",
@@ -89,7 +89,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1145,
+    gameId: "#1145",
     score: 25,
     payout: "+$1.25",
     to: "/game/1145",
@@ -98,7 +98,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1146,
+    gameId: "#1146",
     score: 8,
     payout: "+$0.40",
     to: "/game/1146",
@@ -107,7 +107,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1147,
+    gameId: "#1147",
     score: 30,
     payout: "+$1.50",
     to: "/game/1147",
@@ -116,7 +116,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1148,
+    gameId: "#1148",
     score: 12,
     payout: "+$0.60",
     to: "/game/1148",
@@ -126,7 +126,7 @@ const sampleActivities = [
   },
   // Yesterday (4 activities)
   {
-    gameId: 1149,
+    gameId: "#1149",
     score: 18,
     payout: "+$0.90",
     to: "/game/1149",
@@ -135,7 +135,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1150,
+    gameId: "#1150",
     score: 22,
     payout: "+$1.10",
     to: "/game/1150",
@@ -144,7 +144,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1151,
+    gameId: "#1151",
     score: 16,
     payout: "+$0.80",
     to: "/game/1151",
@@ -153,7 +153,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1152,
+    gameId: "#1152",
     score: 18,
     payout: "+$1.00",
     to: "/game/1152",
@@ -163,7 +163,7 @@ const sampleActivities = [
   },
   // 2 days ago (3 activities)
   {
-    gameId: 1153,
+    gameId: "#1153",
     score: 15,
     payout: "+$0.75",
     to: "/game/1153",
@@ -172,7 +172,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1154,
+    gameId: "#1154",
     score: 28,
     payout: "+$1.40",
     to: "/game/1154",
@@ -181,7 +181,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1155,
+    gameId: "#1155",
     score: 10,
     payout: "+$0.50",
     to: "/game/1155",
@@ -191,7 +191,7 @@ const sampleActivities = [
   },
   // 3 days ago (2 activities)
   {
-    gameId: 1156,
+    gameId: "#1156",
     score: 24,
     payout: "+$1.20",
     to: "/game/1156",
@@ -200,7 +200,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1157,
+    gameId: "#1157",
     score: 19,
     payout: "+$0.95",
     to: "/game/1157",
@@ -210,7 +210,7 @@ const sampleActivities = [
   },
   // Week ago (4 activities)
   {
-    gameId: 1158,
+    gameId: "#1158",
     score: 27,
     payout: "+$1.35",
     to: "/game/1158",
@@ -219,7 +219,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1159,
+    gameId: "#1159",
     score: 13,
     payout: "+$0.65",
     to: "/game/1159",
@@ -228,7 +228,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1160,
+    gameId: "#1160",
     score: 21,
     payout: "+$1.05",
     to: "/game/1160",
@@ -237,7 +237,7 @@ const sampleActivities = [
     cells: sampleCells,
   },
   {
-    gameId: 1161,
+    gameId: "#1161",
     score: 17,
     payout: "+$0.85",
     to: "/game/1161",
@@ -255,8 +255,9 @@ export const Default: Story = {
   render: (args) => <Wrapper {...args} />,
   args: {
     gameId: 1144,
-    gamesProps: { games: sampleGames, gameId: 1144, setGameId: fn() },
-    activitiesProps: { activities: sampleActivities },
+    games: { games: sampleGames, gameId: 1144, setGameId: fn() },
+    allActivities: { activities: sampleActivities },
+    playerActivities: { activities: sampleActivities },
     onPractice: fn(),
     onPurchase: fn(),
   },
@@ -265,12 +266,15 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     gameId: undefined,
-    gamesProps: {
+    games: {
       games: [],
       gameId: undefined,
       setGameId: fn(),
     },
-    activitiesProps: {
+    allActivities: {
+      activities: [],
+    },
+    playerActivities: {
       activities: [],
     },
   },

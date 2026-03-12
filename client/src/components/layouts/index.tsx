@@ -48,7 +48,7 @@ export const Layout = ({ children }: LayoutProps) => {
     useLeaderboard();
   const { starterpacks, config, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
-  const { games, loading: gamesLoading } = useGames();
+  const { playerGames: games, loading: gamesLoading } = useGames();
   const navigate = usePreserveSearchNavigate();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);

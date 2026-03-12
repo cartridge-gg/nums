@@ -57,7 +57,6 @@
     "@tanstack/react-db": "^0.1.44",
     "@tanstack/react-query": "^5.90.9",
     "@vercel/analytics": "^1.5.0",
-    "@vercel/functions": "^1.4.0",
     "@vercel/node": "^5.6.6",
     "@vercel/og": "^0.8.6",
     "@vitejs/plugin-react": "^5.1.1",

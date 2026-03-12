@@ -19,6 +19,7 @@ export interface SlotProps
   label?: number;
   value?: number;
   invalid?: boolean;
+  highlight?: boolean;
   loading?: boolean;
   inactive?: boolean;
   disabled?: boolean;
@@ -50,6 +51,7 @@ export const Slot = ({
   label,
   value = 0,
   invalid = false,
+  highlight = false,
   loading = false,
   inactive = false,
   disabled = false,
@@ -148,28 +150,28 @@ export const Slot = ({
 
   return (
     <div className={cn(slotVariants({ variant, size, className }))} {...props}>
-      {(!isDisabled || (invalid && !!value)) && (
+      {(!isDisabled || (invalid && !!value) || (highlight && !!value)) && (
         <>
-          <div
-            className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none",
-              inactive || !trap ? "text-mauve-100" : trap.color(),
-              invalid && "text-red-100",
-            )}
+          <Wave
+            inactive={inactive}
+            trap={trap}
+            invalid={invalid}
+            highlight={highlight}
+            className="animate-pulse-border-0"
           />
-          <div
-            className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none",
-              inactive || !trap ? "text-mauve-100" : trap.color(),
-              invalid && "text-red-100",
-            )}
+          <Wave
+            inactive={inactive}
+            trap={trap}
+            invalid={invalid}
+            highlight={highlight}
+            className="animate-pulse-border-1"
           />
-          <div
-            className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none",
-              inactive || !trap ? "text-mauve-100" : trap.color(),
-              invalid && "text-red-100",
-            )}
+          <Wave
+            inactive={inactive}
+            trap={trap}
+            invalid={invalid}
+            highlight={highlight}
+            className="animate-pulse-border-2"
           />
         </>
       )}
@@ -190,10 +192,13 @@ export const Slot = ({
               sideOffset={8}
               className="hidden md:flex flex-col items-center gap-6 rounded-lg p-6 bg-black-300 backdrop-blur-[16px] border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] max-w-[250px]"
             >
-              {trap && (() => {
-                const ShadowIcon = trap.icon("shadow");
-                return ShadowIcon ? <ShadowIcon size="3xl" className={trap.color()} /> : null;
-              })()}
+              {trap &&
+                (() => {
+                  const ShadowIcon = trap.icon("shadow");
+                  return ShadowIcon ? (
+                    <ShadowIcon size="3xl" className={trap.color()} />
+                  ) : null;
+                })()}
               <div className="w-full flex flex-col gap-4">
                 <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
                   {trap?.name()}
@@ -213,7 +218,8 @@ export const Slot = ({
         className={cn(
           "h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
           !!value && isDisabled && "disabled:text-white-300",
-          invalid && !!value && "bg-red-800 disabled:opacity-100",
+          highlight && !!value && "disabled:bg-green-600",
+          invalid && !!value && "disabled:bg-red-800 disabled:opacity-100",
           (!!value || invalid) && "pointer-events-none cursor-default",
           !!trap && !invalid && !inactive && trap.bgColor(),
         )}
@@ -224,6 +230,7 @@ export const Slot = ({
           ref={slotCounterRef}
           className={cn(
             "text-2xl font-secondary tracking-wide font-bold",
+            highlight && !invalid && !!value && "text-green-100",
             invalid && !!value && "text-red-100",
           )}
           style={{
@@ -242,5 +249,31 @@ export const Slot = ({
         </div>
       </Button>
     </div>
+  );
+};
+
+const Wave = ({
+  inactive,
+  trap,
+  invalid,
+  highlight,
+  className,
+}: {
+  inactive: boolean;
+  trap?: Trap;
+  invalid: boolean;
+  highlight: boolean;
+  className: string;
+}) => {
+  return (
+    <div
+      className={cn(
+        "absolute inset-0 rounded-lg outline outline-1 pointer-events-none",
+        inactive || !trap ? "text-mauve-100" : trap.color(),
+        highlight && "text-green-100",
+        invalid && "text-red-100",
+        className,
+      )}
+    />
   );
 };

@@ -1,7 +1,7 @@
-import React from "react";
-import { Score, ScoreProps } from "./score";
-import { Reward, RewardProps } from "./reward";
-import { Info, InfoProps } from "./info";
+import type React from "react";
+import { Score, type ScoreProps } from "./score";
+import { Reward, type RewardProps } from "./reward";
+import { Info, type InfoProps } from "./info";
 import { BrandLogo } from "./brand-logo";
 import { BACKGROUND, FONT_NAME } from "./asset";
 

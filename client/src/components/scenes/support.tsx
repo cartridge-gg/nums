@@ -23,10 +23,11 @@ export const SupportScene = () => {
           </p>
         </Section>
 
-<Section title="Practice Mode">
+        <Section title="Practice Mode">
           <p>
             Jump into practice mode from the home screen to test strategies with
-            zero cost. Practice uses live on-chain data for realistic simulation.
+            zero cost. Practice uses live on-chain data for realistic
+            simulation.
           </p>
         </Section>
 
@@ -79,7 +80,8 @@ export const SupportScene = () => {
             >
               support@cartridge.gg
             </a>{" "}
-            with the subject line "Account Deletion Request" your account username.
+            with the subject line "Account Deletion Request" your account
+            username.
           </p>
         </Section>
 

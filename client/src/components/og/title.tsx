@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Status, type StatusProps } from "./status";
 
 interface TitleProps extends StatusProps {

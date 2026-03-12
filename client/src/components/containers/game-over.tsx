@@ -13,7 +13,7 @@ import { useAudio } from "@/context/audio";
 import Confetti from "react-confetti";
 import { Link } from "@/lib/router";
 import { Stages, type StagesProps } from "@/components/containers";
-import { Share, ShareProps } from "@/components/elements";
+import { Share, type ShareProps } from "@/components/elements";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,

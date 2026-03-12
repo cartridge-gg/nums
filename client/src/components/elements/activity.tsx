@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { BrandIcon, EyeIcon, GiftIcon } from "@/components/icons";
+import { EyeIcon, GiftIcon } from "@/components/icons";
+import { GameIcon } from "@/components/elements/game-icon";
 import { useId } from "react";
 import { Link } from "@/lib/router";
 
@@ -13,6 +14,7 @@ export interface ActivityProps
   payout: string;
   to: string;
   claimed: boolean;
+  cells: (boolean | null)[];
 }
 
 const activityVariants = cva("select-none flex gap-3 items-center", {
@@ -32,6 +34,7 @@ export const Activity = ({
   payout,
   to,
   claimed,
+  cells,
   variant,
   className,
   ...props
@@ -44,8 +47,8 @@ export const Activity = ({
         {/* Game Id column */}
         <div className="flex-[5] flex items-center gap-2 text-left">
           <div className="h-10 flex items-center gap-2 rounded-lg px-3 py-2">
-            <div className="w-5 flex items-center justify-center">
-              <BrandIcon size="sm" />
+            <div className="flex items-center justify-center">
+              <GameIcon cells={cells} />
             </div>
             <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 whitespace-nowrap font-thin">
               #{gameId}

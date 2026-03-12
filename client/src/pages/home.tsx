@@ -74,6 +74,7 @@ export const Home = () => {
         to: `/game/${game.id}`,
         timestamp: game.over,
         claimed: game.claimed,
+        cells: [null, ...game.slots.map((slot) => slot !== 0), null],
       }));
   }, [games]);
 

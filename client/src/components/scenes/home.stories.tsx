@@ -54,6 +54,29 @@ const sampleGames = [
   },
 ];
 
+const sampleCells: (boolean | null)[] = [
+  null,
+  false,
+  true,
+  true,
+  false,
+  false,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false,
+  true,
+  false,
+  true,
+  true,
+  false,
+  null,
+];
+
 const sampleActivities = [
   // Today (5 activities)
   {
@@ -62,34 +85,44 @@ const sampleActivities = [
     payout: "+$0.72",
     to: "/game/1144",
     timestamp: today,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1145,
     score: 25,
     payout: "+$1.25",
     to: "/game/1145",
-    timestamp: today - 1800, // 30 minutes ago
+    timestamp: today - 1800,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1146,
     score: 8,
     payout: "+$0.40",
     to: "/game/1146",
-    timestamp: today - 3600, // 1 hour ago
+    timestamp: today - 3600,
+    claimed: false,
+    cells: sampleCells,
   },
   {
     gameId: 1147,
     score: 30,
     payout: "+$1.50",
     to: "/game/1147",
-    timestamp: today - 7200, // 2 hours ago
+    timestamp: today - 7200,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1148,
     score: 12,
     payout: "+$0.60",
     to: "/game/1148",
-    timestamp: today - 10800, // 3 hours ago
+    timestamp: today - 10800,
+    claimed: false,
+    cells: sampleCells,
   },
   // Yesterday (4 activities)
   {
@@ -98,27 +131,35 @@ const sampleActivities = [
     payout: "+$0.90",
     to: "/game/1149",
     timestamp: yesterday,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1150,
     score: 22,
     payout: "+$1.10",
     to: "/game/1150",
-    timestamp: yesterday - 3600, // Yesterday, 1 hour earlier
+    timestamp: yesterday - 3600,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1151,
     score: 16,
     payout: "+$0.80",
     to: "/game/1151",
-    timestamp: yesterday - 7200, // Yesterday, 2 hours earlier
+    timestamp: yesterday - 7200,
+    claimed: false,
+    cells: sampleCells,
   },
   {
     gameId: 1152,
     score: 18,
     payout: "+$1.00",
     to: "/game/1152",
-    timestamp: yesterday - 10800, // Yesterday, 3 hours earlier
+    timestamp: yesterday - 10800,
+    claimed: true,
+    cells: sampleCells,
   },
   // 2 days ago (3 activities)
   {
@@ -127,6 +168,8 @@ const sampleActivities = [
     payout: "+$0.75",
     to: "/game/1153",
     timestamp: twoDaysAgo,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1154,
@@ -134,6 +177,8 @@ const sampleActivities = [
     payout: "+$1.40",
     to: "/game/1154",
     timestamp: twoDaysAgo - 3600,
+    claimed: false,
+    cells: sampleCells,
   },
   {
     gameId: 1155,
@@ -141,6 +186,8 @@ const sampleActivities = [
     payout: "+$0.50",
     to: "/game/1155",
     timestamp: twoDaysAgo - 7200,
+    claimed: true,
+    cells: sampleCells,
   },
   // 3 days ago (2 activities)
   {
@@ -149,6 +196,8 @@ const sampleActivities = [
     payout: "+$1.20",
     to: "/game/1156",
     timestamp: twoDaysAgo - 24 * 60 * 60,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1157,
@@ -156,6 +205,8 @@ const sampleActivities = [
     payout: "+$0.95",
     to: "/game/1157",
     timestamp: twoDaysAgo - 24 * 60 * 60 - 3600,
+    claimed: false,
+    cells: sampleCells,
   },
   // Week ago (4 activities)
   {
@@ -164,6 +215,8 @@ const sampleActivities = [
     payout: "+$1.35",
     to: "/game/1158",
     timestamp: weekAgo,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1159,
@@ -171,6 +224,8 @@ const sampleActivities = [
     payout: "+$0.65",
     to: "/game/1159",
     timestamp: weekAgo - 3600,
+    claimed: true,
+    cells: sampleCells,
   },
   {
     gameId: 1160,
@@ -178,6 +233,8 @@ const sampleActivities = [
     payout: "+$1.05",
     to: "/game/1160",
     timestamp: weekAgo - 7200,
+    claimed: false,
+    cells: sampleCells,
   },
   {
     gameId: 1161,
@@ -185,6 +242,8 @@ const sampleActivities = [
     payout: "+$0.85",
     to: "/game/1161",
     timestamp: weekAgo - 10800,
+    claimed: true,
+    cells: sampleCells,
   },
 ];
 

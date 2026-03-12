@@ -28,6 +28,72 @@ client/src/components/
 
 ---
 
+# Git Hygiene (MANDATORY)
+
+## Always pull before branching
+
+Before creating a new feature branch, **always pull and rebase the base branch** to ensure you start from the latest state. Stale branches cause merge conflicts and wasted effort.
+
+```bash
+# CORRECT: Always do this before creating a feature branch
+git checkout main && git pull --rebase origin main && git checkout -b feat/my-feature
+
+# WRONG: Creating a branch from a stale main
+git checkout -b feat/my-feature  # main might be behind origin
+```
+
+---
+
+# Barrel Export Rule (MANDATORY)
+
+## Every new component MUST be exported from its directory's `index.ts`
+
+Every component directory has a barrel `index.ts` file that re-exports all components. When creating a new component, **always add an export line** to the directory's `index.ts`. A component that isn't exported is invisible to the rest of the app.
+
+### Export pattern
+
+```ts
+// client/src/components/elements/index.ts
+export * from "./my-new-component";
+```
+
+### Where to export
+
+| Component tier | Barrel file                                       |
+| -------------- | ------------------------------------------------- |
+| elements       | `client/src/components/elements/index.ts`         |
+| containers     | `client/src/components/containers/index.ts`       |
+| icons          | `client/src/components/icons/<category>/index.ts` |
+| animations     | `client/src/components/animations/index.ts`       |
+| ui             | `client/src/components/ui/` (individual imports)  |
+
+### Checklist (BLOCKING — component is NOT done without these)
+
+- [ ] Component file created (`my-component.tsx`)
+- [ ] Export added to directory `index.ts` (`export * from "./my-component"`)
+- [ ] Storybook file created (`my-component.stories.tsx`)
+- [ ] `pnpm format` and `pnpm lint:check` pass (see Validation section)
+
+---
+
+# Validation Rules (MANDATORY)
+
+## Always format and lint after every change
+
+After **every modification** to `client/` files, run:
+
+```bash
+pnpm format
+pnpm lint:check
+```
+
+- **`pnpm format`** — auto-fixes formatting (Prettier). Run first.
+- **`pnpm lint:check`** — reports lint errors (ESLint). Fix any errors before moving on.
+
+This applies to ALL client changes: new components, prop updates, import changes, storybook files — everything. No exceptions. Do NOT batch these to the end; run them after each logical change.
+
+---
+
 # Storybook Rules (MANDATORY)
 
 ## Every component MUST have a storybook
@@ -47,7 +113,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MyComponent } from "./my-component";
 
 const meta = {
-  title: "Elements/MyComponent",
+  title: "Elements/My Component",
   component: MyComponent,
   parameters: {
     layout: "centered",
@@ -73,17 +139,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// One story per meaningful state/variant
+// Keep it minimal — one Default story with representative data is enough
 export const Default: Story = {
   args: {
     myProp: "value",
-  },
-};
-
-export const Secondary: Story = {
-  args: {
-    myProp: "value",
-    variant: "secondary",
   },
 };
 ```
@@ -98,28 +157,69 @@ Containers often need mock data or providers. Follow existing container stories 
 - **`globals.backgrounds.value: "dark"`** — always dark background
 - **`parameters.layout: "centered"`** — always centered layout
 - **`argTypes`** — document every controllable prop with `control` and `description`
-- **One exported story per variant/state** — name stories descriptively (`Default`, `Empty`, `Locked`, `WithError`, etc.)
+- **Keep stories minimal** — one `Default` story with representative mixed data is usually sufficient. Storybook controls (`argTypes`) let users explore other states interactively. Only add extra stories for **distinct CVA variants** (e.g. `variant: "secondary"`), not for different data permutations.
 - **Use `fn()` from `storybook/test`** for callback props (`onClick`, `onChange`, etc.)
-- **Title format**: `"Tier/ComponentName"` (e.g., `"Elements/Stat"`, `"Containers/Header"`, `"Icons/Powers"`)
+- **Title format**: `"Tier/Component Name"` — use spaces for compound names (e.g., `"Elements/Game Icon"`, `"Containers/Game Over"`, `"Elements/Staking Reward"`)
 
 ## When to update storybooks
 
-| Change                   | Storybook Action                                                 |
-| ------------------------ | ---------------------------------------------------------------- |
-| New component            | Create `.stories.tsx` with all variants                          |
-| New prop added           | Add `argTypes` entry + story exercising it                       |
-| New variant added        | Add story for the new variant                                    |
-| Prop renamed/removed     | Update `argTypes` and affected stories                           |
-| Behavior change          | Verify existing stories still make sense, add new ones if needed |
-| Visual change only (CSS) | No storybook change needed (visual regression is automatic)      |
+| Change                   | Storybook Action                                               |
+| ------------------------ | -------------------------------------------------------------- |
+| New component            | Create `.stories.tsx` with one `Default` story                 |
+| New CVA variant added    | Add one story for the new variant                              |
+| New prop added           | Add `argTypes` entry (no new story needed — controls cover it) |
+| Prop renamed/removed     | Update `argTypes` and affected stories                         |
+| Behavior change          | Verify existing stories still make sense                       |
+| Visual change only (CSS) | No storybook change needed (visual regression is automatic)    |
 
 ---
 
 # Component Patterns
 
-## ForwardRef + CVA Pattern (UI primitives)
+## Universal CVA Pattern (MANDATORY for all tiers)
 
-All `ui/` components follow this pattern:
+**Every component** across elements, containers, animations, and covers MUST use `cva` + `VariantProps` + `cn()`. This is the universal pattern — no exceptions, even with a single `default` variant. Consistency and extensibility are non-negotiable.
+
+### Standard pattern (elements, containers)
+
+```tsx
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+
+export interface MyComponentProps
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof myComponentVariants> {
+  // custom props
+}
+
+const myComponentVariants = cva("base-classes", {
+  variants: {
+    variant: {
+      default: "default-classes",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
+
+export const MyComponent = ({
+  variant,
+  className,
+  ...props
+}: MyComponentProps) => {
+  return (
+    <div className={cn(myComponentVariants({ variant, className }))} {...props}>
+      {/* content */}
+    </div>
+  );
+};
+```
+
+### ForwardRef pattern (ui primitives only)
+
+`ui/` components additionally use `forwardRef` and named exports:
 
 ```tsx
 import * as React from "react";
@@ -162,26 +262,16 @@ MyComponent.displayName = "MyComponent";
 export { MyComponent, myComponentVariants };
 ```
 
-## Element Pattern (game-specific)
+### Exceptions (do NOT use as precedent)
 
-Elements are simpler — they receive typed props and render game UI:
+These components intentionally skip CVA because they are not styled components:
 
-```tsx
-interface MyElementProps {
-  value: number;
-  label: string;
-  className?: string;
-}
-
-export const MyElement = ({ value, label, className }: MyElementProps) => {
-  return (
-    <div className={cn("base-classes", className)}>
-      <span>{label}</span>
-      <span>{value}</span>
-    </div>
-  );
-};
-```
+| Component                                           | Reason                                                                |
+| --------------------------------------------------- | --------------------------------------------------------------------- |
+| `ui/` Radix wrappers (select, tabs, dropdown, etc.) | Thin forwardRef wrappers around Radix primitives, no custom variants  |
+| `og/*`                                              | OG image generation — uses inline `React.CSSProperties`, not Tailwind |
+| `elements/toaster.tsx`                              | Sonner config wrapper, not a styled component                         |
+| `elements/sound-controls.tsx`                       | Logic-only utility, no styled output                                  |
 
 ## Audio Integration
 

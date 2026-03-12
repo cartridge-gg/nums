@@ -21,6 +21,7 @@ import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
+import { useMediaQuery } from "usehooks-ts";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
@@ -49,6 +50,7 @@ export const Game = () => {
   const { games } = useGames();
   const { config } = useEntities();
   const { isLoading, setLoading } = useLoading();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
@@ -281,12 +283,12 @@ export const Game = () => {
           disabled: (hasSlotLoading && !slotLoading) || isOver || isSelectable, // Disable other slots when one is loading
           onSlotClick: () => {
             const trap = game.getTrap(index);
-            if (trap && !trap.isNone() && !game.isInactive(index)) {
-              // If slot has a trap, open the modal
+            if (trap && !trap.isNone() && !game.isInactive(index) && !isDesktop) {
+              // If slot has a trap on mobile, open the modal
               setSelectedSlotIndex(index);
               setShowPlacesModal(true);
             } else {
-              // If no trap, call set directly
+              // On desktop or no trap, call set directly
               set(game.id, index);
             }
           },
@@ -305,6 +307,7 @@ export const Game = () => {
     setShowUsesModal,
     setSelectedPowerIndex,
     isLoading,
+    isDesktop,
     setShowGameOver,
     setShowSelectionModal,
   ]);

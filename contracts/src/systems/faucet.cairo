@@ -58,7 +58,7 @@ pub mod Faucet {
             let account = get_caller_address();
             let now = get_block_timestamp();
             let available = self.available.read(account);
-            assert(now > available, 'Faucet: not available');
+            assert(now > available, 'Faucet: user under cooldown');
             // [Check] Balance
             let asset = self.asset.read();
             let this = get_contract_address();

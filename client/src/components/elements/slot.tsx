@@ -5,6 +5,11 @@ import { BrandIcon, LockerIcon } from "@/components/icons";
 import type { Trap } from "@/types/trap";
 import { TrapType } from "@/types/trap";
 import { useMemo, useEffect, useRef } from "react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import SlotCounter from "react-slot-counter";
 import { useAudio } from "@/context/audio";
 
@@ -174,9 +179,31 @@ export const Slot = ({
             {label}
           </p>
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {TrapIcon && <TrapIcon className="text-mauve-100" />}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full h-full flex items-center justify-center">
+                {TrapIcon && <TrapIcon className="text-mauve-100" />}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent
+              side="left"
+              sideOffset={8}
+              className="hidden md:flex flex-col items-center gap-6 rounded-lg p-6 bg-black-300 backdrop-blur-[16px] border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] max-w-[250px]"
+            >
+              {trap && (() => {
+                const ShadowIcon = trap.icon("shadow");
+                return ShadowIcon ? <ShadowIcon size="3xl" className={trap.color()} /> : null;
+              })()}
+              <div className="w-full flex flex-col gap-4">
+                <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
+                  {trap?.name()}
+                </h3>
+                <p className="text-2xl/[18px] font-secondary tracking-wider">
+                  {trap?.description()}
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
       <Button

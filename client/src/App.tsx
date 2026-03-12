@@ -11,6 +11,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Navigate } from "@/lib/router";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
 import { ControllersProvider } from "./context/controllers";
@@ -78,7 +79,7 @@ const connectors = [new ControllerConnector(options) as never as Connector];
 
 function App() {
   return (
-    <>
+    <TooltipProvider delayDuration={300}>
       <QueryClientProvider client={queryClient}>
         <StarknetConfig
           autoConnect
@@ -100,7 +101,7 @@ function App() {
           </Router>
         </StarknetConfig>
       </QueryClientProvider>
-    </>
+    </TooltipProvider>
   );
 }
 

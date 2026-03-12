@@ -30,7 +30,7 @@ export class Started {
     const props = {
       player_id: data.player_id.value,
       game_id: Number(data.game_id.value),
-      multiplier: Number(data.multiplier.value),
+      multiplier: Number(data.multiplier.value) / 100,
       time: Number(data.time.value),
     };
     return new Started(

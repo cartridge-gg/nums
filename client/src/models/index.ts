@@ -65,15 +65,33 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
-  owner: {
+  vault: {
     type: "primitive";
     type_name: "ContractAddress";
     value: string;
     key: boolean;
   };
-  entry_price: {
+  quote: {
     type: "primitive";
-    type_name: "u128";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  ekubo_router: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  ekubo_positions: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  owner: {
+    type: "primitive";
+    type_name: "ContractAddress";
     value: string;
     key: boolean;
   };
@@ -86,6 +104,12 @@ export interface RawConfig {
   count: {
     type: "primitive";
     type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  burn_percentage: {
+    type: "primitive";
+    type_name: "u8";
     value: string;
     key: boolean;
   };
@@ -104,6 +128,54 @@ export interface RawConfig {
   slot_max: {
     type: "primitive";
     type_name: "u16";
+    value: string;
+    key: boolean;
+  };
+  average_weigth: {
+    type: "primitive";
+    type_name: "u16";
+    value: string;
+    key: boolean;
+  };
+  average_score: {
+    type: "primitive";
+    type_name: "u32";
+    value: string;
+    key: boolean;
+  };
+  last_updated: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  pool_fee: {
+    type: "primitive";
+    type_name: "u128";
+    value: string;
+    key: boolean;
+  };
+  pool_tick_spacing: {
+    type: "primitive";
+    type_name: "u128";
+    value: string;
+    key: boolean;
+  };
+  pool_extension: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  base_price: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  pool_sqrt: {
+    type: "primitive";
+    type_name: "u256";
     value: string;
     key: boolean;
   };
@@ -258,6 +330,12 @@ export interface RawGame {
     key: boolean;
   };
   supply: {
+    type: "primitive";
+    type_name: "felt252";
+    value: string;
+    key: boolean;
+  };
+  price: {
     type: "primitive";
     type_name: "felt252";
     value: string;

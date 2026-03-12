@@ -47,7 +47,7 @@ export const Game = () => {
     : blockchainActions;
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
-  const { games } = useGames();
+  const { playerGames: games } = useGames();
   const { config } = useEntities();
   const { isLoading, setLoading } = useLoading();
   const isDesktop = useMediaQuery("(min-width: 768px)");

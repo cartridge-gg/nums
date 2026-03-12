@@ -110,7 +110,7 @@ export class Config {
       props.pool_fee,
       props.pool_tick_spacing,
       props.pool_extension,
-      props.base_price, 
+      props.base_price,
       props.pool_sqrt,
     );
   }

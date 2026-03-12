@@ -253,6 +253,7 @@ export const Game = () => {
     return {
       powers: powersArray.map((power, index) => ({
         ...power,
+        loading: isLoading("power", index),
         onClick: () => {
           // Only allow click if power exists and is not None
           if (power.power && !power.power.isNone()) {
@@ -277,13 +278,19 @@ export const Game = () => {
         const slotLoading = isLoading("slot", index);
         return {
           value: slot,
+          highlight: isOver,
           trap: game.getTrap(index),
           inactive: game.isInactive(index),
           loading: slotLoading,
           disabled: (hasSlotLoading && !slotLoading) || isOver || isSelectable, // Disable other slots when one is loading
           onSlotClick: () => {
             const trap = game.getTrap(index);
-            if (trap && !trap.isNone() && !game.isInactive(index) && !isDesktop) {
+            if (
+              trap &&
+              !trap.isNone() &&
+              !game.isInactive(index) &&
+              !isDesktop
+            ) {
               // If slot has a trap on mobile, open the modal
               setSelectedSlotIndex(index);
               setShowPlacesModal(true);

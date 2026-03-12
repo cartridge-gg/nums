@@ -121,18 +121,12 @@ function AuthenticatedApp() {
                           <Layout>
                             <Routes>
                               <Route path="/" element={<Home />} />
-                              <Route
-                                path="/game/:id"
-                                element={<Game />}
-                              />
+                              <Route path="/game/:id" element={<Game />} />
                               <Route
                                 path="/game"
                                 element={<Navigate to="/" replace />}
                               />
-                              <Route
-                                path="/practice"
-                                element={<Game />}
-                              />
+                              <Route path="/practice" element={<Game />} />
                             </Routes>
                           </Layout>
                         </SoundProvider>

@@ -6,7 +6,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Game, GameProps } from "@/components/elements/game";
+import { Game, type GameProps } from "@/components/elements/game";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeftIcon,

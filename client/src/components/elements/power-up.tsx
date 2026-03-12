@@ -6,11 +6,13 @@ import { DiamondIcon } from "@/components/icons";
 import { useMemo } from "react";
 
 export interface PowerUpProps
-  extends React.HTMLAttributes<HTMLButtonElement>,
+  extends
+    React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof powerUpVariants> {
   power?: Power;
   status?: PowerIconStatus;
   highlighted?: boolean;
+  loading?: boolean;
   disabled?: boolean;
 }
 
@@ -38,6 +40,7 @@ export const PowerUp = ({
   variant,
   size,
   highlighted,
+  loading = false,
   disabled,
   className,
   ...props
@@ -50,7 +53,8 @@ export const PowerUp = ({
 
   return (
     <Button
-      disabled={isDisabled}
+      disabled={isDisabled || loading}
+      loading={loading}
       variant="muted"
       className={cn(
         powerUpVariants({ variant, size, className }),

@@ -219,7 +219,7 @@ server.listen(PORT, () => {
   if (!distExists) {
     console.log(`\n   ⚠️  Run "pnpm dev" in another terminal (Vite required for assets)`);
   } else {
-    console.log(`   ✓ dist/ found - can run without Vite`);
+    console.log("   ✓ dist/ found - can run without Vite");
   }
   console.log("");
 });

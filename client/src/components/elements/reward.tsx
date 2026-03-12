@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useId, useMemo, useState, useEffect } from "react";
-import { BrandIcon, ShadowEffect } from "@/components/icons";
+import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface RewardProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -10,7 +10,7 @@ export interface RewardProps
 }
 
 const rewardVariants = cva(
-  "select-none relative rounded-lg px-4 py-3 md:px-3 flex flex-col md:flex-row justify-center items-center gap-1",
+  "select-none relative rounded-lg px-4 py-3 md:px-3 flex flex-col md:flex-row justify-center items-center gap-2",
   {
     variants: {
       variant: {
@@ -118,7 +118,16 @@ export const Reward = ({
   return (
     <div className={cn(rewardVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
-      <BrandIcon style={{ filter: `url(#${filterId})` }} />
+      <TokenIcon
+        size="sm"
+        className="block md:hidden"
+        style={{ filter: `url(#${filterId})` }}
+      />
+      <TokenIcon
+        size="md"
+        className="hidden md:block"
+        style={{ filter: `url(#${filterId})` }}
+      />
       <div
         className="text-[28px]/[19px] tracking-wider"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

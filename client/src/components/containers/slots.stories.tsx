@@ -74,6 +74,34 @@ export const Valid: Story = {
   },
 };
 
+export const Highlight: Story = {
+  args: {
+    number: 812,
+    min: 1,
+    max: 999,
+    slots: [
+      { value: 0, highlight: true },
+      { value: 31, highlight: true },
+      { value: 189, highlight: true },
+      { value: 198, highlight: true },
+      { value: 262, highlight: true },
+      { value: 300, highlight: true },
+      { value: 312, highlight: true },
+      { value: 0, highlight: true },
+      { value: 425, highlight: true },
+      { value: 551, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 629, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 722, highlight: true },
+      { value: 743, highlight: true },
+      { value: 0, highlight: true },
+    ],
+  },
+};
+
 export const Invalid: Story = {
   args: {
     number: 812,

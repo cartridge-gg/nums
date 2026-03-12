@@ -61,6 +61,7 @@ const createMockGame = (
     Array(18).fill(new Trap(TrapType.None)), // traps
     slots, // slots
     1n, // supply
+    2000000n, // price
   );
 };
 
@@ -207,24 +208,24 @@ export const GameOver: Story = {
     ),
     powers: [{}, {}, {}],
     slots: [
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 300 },
-      { value: 312 },
-      { value: 315 },
-      { value: 330 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
-      { value: 0 },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 300, highlight: true },
+      { value: 312, highlight: true },
+      { value: 315, highlight: true },
+      { value: 330, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
+      { value: 0, highlight: true },
     ],
     stages: [
       {},

@@ -35,14 +35,14 @@ export const Footer = () => {
         <div className="font-sans text-xs text-white/40 flex flex-col gap-4 leading-relaxed">
           <p>
             Skill-based real money gaming is for users aged 18+. Internet
-            gambling may be illegal in the jurisdiction in which you are located;
-            if so you are not authorized to use your payment card to complete
-            this transaction. It is your responsibility to know and follow
-            applicable laws. Triumph believes in responsible gaming. You should
-            only play with what you can afford and always set reasonable limits
-            for yourself. If, for any reason, you feel like you need help, we
-            strongly encourage you to contact your local responsible gaming
-            organization, a list of which can be found in our{" "}
+            gambling may be illegal in the jurisdiction in which you are
+            located; if so you are not authorized to use your payment card to
+            complete this transaction. It is your responsibility to know and
+            follow applicable laws. Triumph believes in responsible gaming. You
+            should only play with what you can afford and always set reasonable
+            limits for yourself. If, for any reason, you feel like you need
+            help, we strongly encourage you to contact your local responsible
+            gaming organization, a list of which can be found in our{" "}
             <a
               href="https://cartridge.gg/legal/responsible-gaming-policy/"
               target="_blank"
@@ -54,9 +54,7 @@ export const Footer = () => {
             .
           </p>
 
-          <p>
-            Copyright 2026 Cartridge Gaming Company. All rights reserved.
-          </p>
+          <p>Copyright 2026 Cartridge Gaming Company. All rights reserved.</p>
         </div>
       </div>
     </footer>

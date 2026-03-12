@@ -30,8 +30,8 @@ export const getSwapQuote = async (
   quote: string,
 ): Promise<SwapQuote> => {
   const base = getEkuboUrl(chainId);
-  let token0 = BigInt(token).toString(16);
-  let token1 = BigInt(quote).toString(16);
+  const token0 = BigInt(token).toString(16);
+  const token1 = BigInt(quote).toString(16);
   // if (token0 > token1) {
   //   [token0, token1] = [token1, token0];
   // }

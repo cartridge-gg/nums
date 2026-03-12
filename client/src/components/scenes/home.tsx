@@ -8,18 +8,19 @@ import {
   type ActivitiesProps,
 } from "../containers";
 import { Button } from "../ui/button";
-import { Link } from "@/lib/router";
-import { AddIcon, ShadowEffect } from "../icons";
+import { ShadowEffect } from "../icons";
 import { useId } from "react";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
-  gamesProps: GamesProps;
+  gamesProps?: GamesProps;
   activitiesProps: ActivitiesProps;
+  isConnected: boolean;
+  onConnect: () => void;
   onPractice?: () => void;
-  onPurchase?: () => void;
+  onContinue?: () => void;
 }
 
 const homeSceneVariants = cva(
@@ -44,8 +45,10 @@ export const HomeScene = ({
   gameId,
   gamesProps,
   activitiesProps,
+  isConnected,
+  onConnect,
   onPractice,
-  onPurchase,
+  onContinue,
   variant,
   className,
   ...props
@@ -56,65 +59,44 @@ export const HomeScene = ({
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
       <Banners />
-      <Games {...gamesProps} />
+      {gamesProps && <Games {...gamesProps} />}
       <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
-        <Button
-          variant="secondary"
-          className="h-12 w-full"
-          onClick={onPractice}
-        >
-          <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-            Practice
-          </span>
-        </Button>
-        {!gameId ? (
-          <NewGame filterId={filterId} onClick={onPurchase || (() => {})} />
+        {isConnected ? (
+          <>
+            <Button
+              variant="secondary"
+              className="h-12 w-full"
+              onClick={onPractice}
+            >
+              <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+                Practice
+              </span>
+            </Button>
+            {gameId && (
+              <Button
+                variant="default"
+                className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
+                onClick={onContinue}
+              >
+                <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+                  Continue
+                </span>
+              </Button>
+            )}
+          </>
         ) : (
           <Button
             variant="default"
-            className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
+            className="h-12 w-full rounded-b-[32px] md:rounded-b-lg"
+            onClick={onConnect}
           >
-            <Link
-              to={`/game/${gameId}`}
-              className="w-full h-full flex items-center justify-center"
-            >
-              <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-                Continue
-              </span>
-            </Link>
+            <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+              Connect
+            </span>
           </Button>
         )}
       </div>
     </div>
-  );
-};
-
-export const NewGame = ({
-  filterId,
-  onClick,
-  className,
-}: {
-  filterId: string;
-  onClick: () => void;
-  className?: string;
-}) => {
-  return (
-    <Button
-      variant="default"
-      className={cn(
-        "h-12 w-full rounded-b-[32px] md:rounded-b-lg gap-1",
-        className,
-      )}
-      onClick={onClick}
-    >
-      <AddIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-      <p
-        className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        New Game
-      </p>
-    </Button>
   );
 };

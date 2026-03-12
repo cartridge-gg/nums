@@ -5,10 +5,8 @@ import manifestMainnet from "../../manifest_mainnet.json"; // todo: update when 
 import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
 
-export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN;
-export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
-  import.meta.env.VITE_DEFAULT_CHAIN,
-);
+export const DEFAULT_CHAIN = "SN_SEPOLIA";
+export const DEFAULT_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
@@ -59,7 +57,7 @@ export const getContractAddress = (
   if (!contract && contractName === "MockNumsToken") {
     return "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d";
   }
-  return contract!.address;
+  return contract?.address ?? "0x0";
 };
 
 export const getVrfAddress = (chainId: bigint) => {

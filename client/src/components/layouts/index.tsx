@@ -1,20 +1,15 @@
-import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
-import { PurchaseScene } from "@/components/scenes/purchase";
 import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
-import { usePrices } from "@/context/prices";
-import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
-import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
@@ -32,7 +27,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
   const { isDismissed, isDismissing, dismiss } = useWelcome();
-  const { account, connector } = useAccount();
+  const { account } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
   const {
@@ -42,16 +37,9 @@ export const Layout = ({ children }: LayoutProps) => {
   const { quests } = useQuests();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
-  const { starterpacks, config, claimeds, starteds } = useEntities();
-  const { getNumsPrice } = usePrices();
-  const { supply: currentSupply } = useHeader();
-  const { games, loading: gamesLoading } = useGames();
-  const navigate = usePreserveSearchNavigate();
+  const { claimeds, starteds } = useEntities();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
-  const [showPurchaseScene, setShowPurchaseScene] = useState(false);
-  const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
-  const previousGamesLengthRef = useRef<number | null>(null);
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
@@ -62,78 +50,6 @@ export const Layout = ({ children }: LayoutProps) => {
     const controller = find(account.address);
     return controller?.username;
   }, [account?.address, find]);
-
-  const numsPrice = useMemo(() => {
-    return parseFloat(getNumsPrice() || "0.0");
-  }, [getNumsPrice]);
-
-  const starterpack = useMemo(() => {
-    if (
-      starterpacks.length === 0 ||
-      starterpackIndex < 1 ||
-      starterpackIndex > starterpacks.length
-    )
-      return undefined;
-    return starterpacks[starterpackIndex - 1];
-  }, [starterpacks, starterpackIndex]);
-
-  const basePrice = useMemo(() => {
-    return Number(config?.entry_price || 0n) / 10 ** 6;
-  }, [config]);
-
-  const playPrice = useMemo(() => {
-    return Number(starterpack?.price || 0n) / 10 ** 6;
-  }, [starterpack]);
-
-  const handlePurchase = useCallback(() => {
-    if (starterpack) {
-      (connector as ControllerConnector)?.controller.openStarterPack(
-        starterpack.id.toString(),
-      );
-    }
-  }, [connector, starterpack]);
-
-  // Detect new game and navigate to it
-  useEffect(() => {
-    // Don't compare or navigate while games are still loading
-    if (gamesLoading) {
-      return;
-    }
-
-    const currentLength = games.length;
-    const previousLength = previousGamesLengthRef.current;
-
-    // Set initial length when loading completes for the first time
-    if (previousLength === null) {
-      previousGamesLengthRef.current = currentLength;
-      return;
-    }
-
-    // Only trigger when length increases (new game added)
-    if (currentLength > previousLength) {
-      // Close all modals
-      setShowQuestScene(false);
-      setShowLeaderboardScene(false);
-      setShowPurchaseScene(false);
-
-      // Find the newest game (first in the array)
-      const newestGame = games[0];
-      // Check if the controller iframe is open from the DOM at iframe id "controller"
-      const controllerIframe = document.getElementById("controller");
-      // Check if opacity is 1
-      if (
-        newestGame &&
-        controllerIframe &&
-        getComputedStyle(controllerIframe).opacity === "1"
-      ) {
-        navigate(`/game/${newestGame.id}`);
-        (connector as ControllerConnector)?.controller?.close?.();
-      }
-    }
-
-    // Update ref for next comparison
-    previousGamesLengthRef.current = currentLength;
-  }, [games.length, games, gamesLoading, navigate, connector]);
 
   // Prepare quests props for Quest
   const questsProps = useMemo(() => {
@@ -196,10 +112,6 @@ export const Layout = ({ children }: LayoutProps) => {
     };
   }, [quests, claim, claims, account?.address]);
 
-  useEffect(() => {
-    setStarterpackIndex(1);
-  }, [showPurchaseScene]);
-
   // Refetch leaderboard data when modal opens
   useEffect(() => {
     if (showLeaderboardScene) {
@@ -250,12 +162,10 @@ export const Layout = ({ children }: LayoutProps) => {
         onQuests={() => {
           setShowQuestScene(!showQuestScene);
           setShowLeaderboardScene(false);
-          setShowPurchaseScene(false);
         }}
         onLeaderboard={() => {
           setShowLeaderboardScene(!showLeaderboardScene);
           setShowQuestScene(false);
-          setShowPurchaseScene(false);
         }}
       />
       <Events events={events} />
@@ -266,13 +176,7 @@ export const Layout = ({ children }: LayoutProps) => {
             "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
         }}
       >
-        <PurchaseModalProvider
-          openPurchaseScene={() => {
-            setShowPurchaseScene(true);
-            setShowQuestScene(false);
-            setShowLeaderboardScene(false);
-          }}
-        >
+        <PurchaseModalProvider openPurchaseScene={() => {}}>
           {children}
         </PurchaseModalProvider>
         {showQuestScene && (
@@ -291,30 +195,6 @@ export const Layout = ({ children }: LayoutProps) => {
               rows={leaderboardData ?? []}
               currentUserAddress={account?.address}
               onClose={() => setShowLeaderboardScene(false)}
-              className="h-full"
-            />
-          </div>
-        )}
-        {showPurchaseScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <PurchaseScene
-              slotCount={config?.slot_count || 18}
-              basePrice={basePrice * (starterpack?.multiplier || 1)}
-              playPrice={playPrice}
-              numsPrice={numsPrice}
-              multiplier={starterpack?.multiplier || 1}
-              targetSupply={config?.target_supply || 0n}
-              currentSupply={currentSupply}
-              stakesProps={{
-                total: starterpacks.length,
-                index: starterpackIndex,
-                setIndex: setStarterpackIndex,
-              }}
-              onConnect={
-                account?.address ? undefined : headerData.handleConnect
-              }
-              onPurchase={handlePurchase}
-              onClose={() => setShowPurchaseScene(false)}
               className="h-full"
             />
           </div>

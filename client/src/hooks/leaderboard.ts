@@ -26,7 +26,6 @@ const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
         c.username,
         s.player,
         s.internal_executed_at,
-        -- CONVERSION REWARD (6 derniers digits hexa)
         (CASE substr(lower(g.reward), -6, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -6, 1), '') AS INT) END * 1048576) +
         (CASE substr(lower(g.reward), -5, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -5, 1), '') AS INT) END * 65536) +
         (CASE substr(lower(g.reward), -4, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -4, 1), '') AS INT) END * 4096) +
@@ -34,13 +33,10 @@ const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
         (CASE substr(lower(g.reward), -2, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -2, 1), '') AS INT) END * 16) +
         (CASE substr(lower(g.reward), -1, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -1, 1), '') AS INT) END)
         AS reward_decimal,
-
-        -- Flags temporels
         CASE WHEN date(s.internal_executed_at) = date('now') THEN 1 ELSE 0 END AS is_today,
         CASE WHEN strftime('%Y-%W', s.internal_executed_at) = strftime('%Y-%W', 'now') THEN 1 ELSE 0 END AS is_this_week
     FROM "NUMS-LeaderboardScore" AS s
     JOIN "NUMS-Game" AS g ON 
-        -- Nettoyage des 0x et des 0 à gauche pour la jointure
         LTRIM(lower(s.game_id), '0x') = LTRIM(lower(g.id), '0x')
     JOIN controllers AS c ON c.address = s.player
 )
@@ -50,12 +46,8 @@ SELECT
     player,
     COUNT(*) AS games_played,
     SUM(reward_decimal) AS total_reward,
-
-    -- Statistiques Jour
     SUM(is_today) AS games_played_day,
     SUM(CASE WHEN is_today = 1 THEN reward_decimal ELSE 0 END) AS total_reward_day,
-
-    -- Statistiques Semaine
     SUM(is_this_week) AS games_played_week,
     SUM(CASE WHEN is_this_week = 1 THEN reward_decimal ELSE 0 END) AS total_reward_week
 

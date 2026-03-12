@@ -6,8 +6,7 @@ import { DiamondIcon } from "@/components/icons";
 import { useMemo } from "react";
 
 export interface PowerUpProps
-  extends
-    React.HTMLAttributes<HTMLButtonElement>,
+  extends React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof powerUpVariants> {
   power?: Power;
   status?: PowerIconStatus;
@@ -17,7 +16,7 @@ export interface PowerUpProps
 }
 
 const powerUpVariants = cva(
-  "select-none relative rounded-lg flex items-center justify-between",
+  "select-none relative rounded-lg flex items-center justify-center",
   {
     variants: {
       variant: {

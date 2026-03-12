@@ -1,12 +1,17 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Activity, type ActivityProps } from "@/components/elements/activity";
+import { ActivityTab } from "@/components/elements/activity-tab";
 import { useMemo } from "react";
+
+export type ActivityFilter = "all" | "mine";
 
 export interface ActivitiesProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof activitiesVariants> {
   activities: Array<ActivityProps & { timestamp: number }>;
+  filter?: ActivityFilter;
+  onFilterChange?: (filter: ActivityFilter) => void;
 }
 
 const activitiesVariants = cva(
@@ -75,6 +80,8 @@ type Section = {
 
 export const Activities = ({
   activities,
+  filter = "all",
+  onFilterChange,
   variant,
   className,
   ...props
@@ -133,7 +140,7 @@ export const Activities = ({
       {...props}
     >
       {/* Title */}
-      <div className="min-h-8 flex items-center">
+      <div className="min-h-8 flex justify-between items-center gap-6">
         <h2
           className="text-[28px]/[19px] md:text-[36px]/[24px] tracking-wider text-white-100 translate-y-0.5"
           style={{
@@ -142,6 +149,24 @@ export const Activities = ({
         >
           Activity
         </h2>
+        <div className="flex gap-3">
+          <ActivityTab
+            active={filter === "all"}
+            onClick={() => onFilterChange?.("all")}
+            className="flex-1"
+          >
+            <span className="hidden md:block px-1">All Games</span>
+            <span className="block md:hidden px-1">All</span>
+          </ActivityTab>
+          <ActivityTab
+            active={filter === "mine"}
+            onClick={() => onFilterChange?.("mine")}
+            className="flex-1"
+          >
+            <span className="hidden md:block px-1">My Games</span>
+            <span className="block md:hidden px-1">My</span>
+          </ActivityTab>
+        </div>
       </div>
 
       {/* Activities list */}
@@ -178,7 +203,7 @@ export const Activities = ({
               <div className="flex flex-col gap-3">
                 {section.activities.map((activity) => (
                   <Activity
-                    key={activity.gameId}
+                    key={activity.to}
                     gameId={activity.gameId}
                     score={activity.score}
                     payout={activity.payout}

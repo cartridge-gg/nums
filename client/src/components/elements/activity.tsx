@@ -9,7 +9,7 @@ import { Link } from "@/lib/router";
 export interface ActivityProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof activityVariants> {
-  gameId: number;
+  gameId: string;
   score: number;
   payout: string;
   to: string;
@@ -51,7 +51,7 @@ export const Activity = ({
               <GameIcon cells={cells} />
             </div>
             <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 whitespace-nowrap font-thin">
-              #{gameId}
+              {gameId}
             </span>
           </div>
         </div>

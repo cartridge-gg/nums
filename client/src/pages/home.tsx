@@ -15,7 +15,7 @@ export const Home = () => {
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
-  const { games, loading } = useGames();
+  const { allGames, playerGames: games, loading } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
   const [defaultLoading, setDefaultLoading] = useState(true);
@@ -62,12 +62,12 @@ export const Home = () => {
 
   const { chartAbscissa } = chartData;
 
-  const activities = useMemo(() => {
+  const playerActivities = useMemo(() => {
     const price = parseFloat(getNumsPrice() || "0.0");
     return games
       .filter((game) => !!game.over)
       .map((game) => ({
-        gameId: game.id,
+        gameId: `#${game.id}`,
         score: game.level,
         breakEven: chartAbscissa.toString(),
         payout: `+$${(game.reward * price).toFixed(2)}`,
@@ -77,6 +77,22 @@ export const Home = () => {
         cells: [null, ...game.slots.map((slot) => slot !== 0), null],
       }));
   }, [games]);
+
+  const allActivities = useMemo(() => {
+    const price = parseFloat(getNumsPrice() || "0.0");
+    return allGames
+      .filter((game) => !!game.over)
+      .map((game) => ({
+        gameId: game.username,
+        score: game.level,
+        breakEven: chartAbscissa.toString(),
+        payout: `+$${(game.reward * price).toFixed(2)}`,
+        to: `/game/${game.id}`,
+        timestamp: game.over,
+        claimed: game.claimed,
+        cells: [null, ...game.slots.map((slot) => slot !== 0), null],
+      }));
+  }, [allGames]);
 
   // Transform games for Games component (only non-over games)
   const gamesProps = useMemo(() => {
@@ -152,10 +168,11 @@ export const Home = () => {
 
   return (
     <HomeScene
-      className="md:p-16"
+      className="md:py-16"
       gameId={gameId}
-      gamesProps={gamesProps}
-      activitiesProps={{ activities }}
+      games={gamesProps}
+      allActivities={{ activities: allActivities }}
+      playerActivities={{ activities: playerActivities }}
       onPurchase={handlePurchaseClick}
       onPractice={handlePracticeClick}
     />

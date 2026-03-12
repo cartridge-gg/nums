@@ -44,3 +44,4 @@ export * from "./staking-info";
 export * from "./staking-status";
 export * from "./staking-yield";
 export * from "./staking-ratio";
+export * from "./game-icon";

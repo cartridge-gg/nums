@@ -184,6 +184,7 @@ export const Activities = ({
                     payout={activity.payout}
                     to={activity.to}
                     claimed={activity.claimed}
+                    cells={activity.cells}
                   />
                 ))}
               </div>

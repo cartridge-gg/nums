@@ -253,6 +253,7 @@ export const Game = () => {
     return {
       powers: powersArray.map((power, index) => ({
         ...power,
+        loading: isLoading("power", index),
         onClick: () => {
           // Only allow click if power exists and is not None
           if (power.power && !power.power.isNone()) {

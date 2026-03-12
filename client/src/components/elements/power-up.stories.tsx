@@ -24,6 +24,10 @@ const meta = {
       options: ["lock", "used", undefined],
       description: "The status of the power icon",
     },
+    loading: {
+      control: "boolean",
+      description: "Whether the power up is in a loading state",
+    },
     variant: {
       control: "select",
       options: ["default"],
@@ -62,5 +66,12 @@ export const RerollUsed: Story = {
   args: {
     power: new Power(PowerType.Reroll),
     status: "used",
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    power: new Power(PowerType.Reroll),
+    loading: true,
   },
 };

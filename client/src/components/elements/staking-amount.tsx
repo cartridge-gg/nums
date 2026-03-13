@@ -5,7 +5,8 @@ import { TokenIcon, VTokenIcon } from "@/components/icons/exotics";
 import { SpinnerIcon } from "@/components/icons";
 
 export interface StakingAmountProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingAmountVariants> {
   /** Available balance */
   balance?: number;
@@ -133,11 +134,10 @@ export const StakingAmount = ({
         >
           <span className="text-white-400 text-base/5">Available:</span>
           <span className="group-enabled:group-hover:text-white-200 transition-colors">
-            {balance &&
-              balance.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+            {balance?.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </span>
         </button>
       </div>

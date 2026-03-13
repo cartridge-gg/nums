@@ -41,7 +41,8 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
@@ -86,9 +87,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         onClick={handleClick}
-        children={loading ? <SpinnerIcon className="animate-spin" /> : children}
         {...props}
-      />
+      >
+        {loading ? <SpinnerIcon className="animate-spin" /> : children}
+      </Comp>
     );
   },
 );

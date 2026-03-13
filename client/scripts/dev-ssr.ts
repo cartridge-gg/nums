@@ -12,10 +12,10 @@
  *   Visit: http://localhost:3000/
  */
 
-import { createServer } from "http";
+import { createServer } from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { parse } from "url";
+import { parse } from "node:url";
 import { fileURLToPath } from "node:url";
 import ssrHandler from "../_api/ssr";
 import imageHandler from "../_api/image";
@@ -25,7 +25,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 const VITE_PORT = process.env.VITE_PORT || 1337;
 
-function serveFromDist(_req: import("http").IncomingMessage, res: import("http").ServerResponse, filePath: string): boolean {
+function serveFromDist(
+  _req: import("http").IncomingMessage,
+  res: import("http").ServerResponse,
+  filePath: string,
+): boolean {
   const base = path.join(__dirname, "..");
   const distPaths = [
     path.join(base, "dist", filePath),
@@ -65,7 +69,10 @@ function serveFromDist(_req: import("http").IncomingMessage, res: import("http")
   return false;
 }
 
-async function proxyToVite(req: import("http").IncomingMessage, res: import("http").ServerResponse) {
+async function proxyToVite(
+  req: import("http").IncomingMessage,
+  res: import("http").ServerResponse,
+) {
   const parsedUrl = parse(req.url || "/", true);
   const urlPath = parsedUrl.pathname || "/";
 
@@ -99,7 +106,10 @@ const server = createServer(async (req, res) => {
   const parsedUrl = parse(req.url || "/", true);
 
   // Debug log
-  console.log(`[${new Date().toISOString()}] ${req.method} ${parsedUrl.pathname}`, parsedUrl.query);
+  console.log(
+    `[${new Date().toISOString()}] ${req.method} ${parsedUrl.pathname}`,
+    parsedUrl.query,
+  );
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -156,12 +166,18 @@ const server = createServer(async (req, res) => {
           return vercelRes;
         },
         send: (body: string | Buffer) => {
-          res.writeHead(statusCode, { ...responseHeaders, "Content-Type": responseHeaders["Content-Type"] || "text/html" });
+          res.writeHead(statusCode, {
+            ...responseHeaders,
+            "Content-Type": responseHeaders["Content-Type"] || "text/html",
+          });
           res.end(body);
           return vercelRes;
         },
         json: (body: unknown) => {
-          res.writeHead(statusCode, { ...responseHeaders, "Content-Type": "application/json" });
+          res.writeHead(statusCode, {
+            ...responseHeaders,
+            "Content-Type": "application/json",
+          });
           res.end(JSON.stringify(body));
           return vercelRes;
         },
@@ -170,7 +186,8 @@ const server = createServer(async (req, res) => {
       await handler(vercelReq, vercelRes);
     } catch (error) {
       console.error("Error in handler:", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end(`Internal Server Error: ${errorMessage}`);
     }
@@ -188,14 +205,19 @@ const server = createServer(async (req, res) => {
   }
 
   // Image endpoint: /api/image and /api/image/:id (Vercel rewrites -> /api/image/:id)
-  const imagePathMatch = parsedUrl.pathname?.match(/^\/api\/image(?:\/(\d+))?$/);
+  const imagePathMatch = parsedUrl.pathname?.match(
+    /^\/api\/image(?:\/(\d+))?$/,
+  );
   if (imagePathMatch) {
     await callVercelHandler(imageHandler);
     return;
   }
 
   // API SSR: /api/ssr and /api/ssr/:id
-  if (parsedUrl.pathname === "/api/ssr" || parsedUrl.pathname?.match(/^\/api\/ssr\/\d+$/)) {
+  if (
+    parsedUrl.pathname === "/api/ssr" ||
+    parsedUrl.pathname?.match(/^\/api\/ssr\/\d+$/)
+  ) {
     await callVercelHandler(ssrHandler);
     return;
   }
@@ -211,13 +233,19 @@ const server = createServer(async (req, res) => {
   await proxyToVite(req, res);
 });
 
-const distExists = fs.existsSync(path.join(__dirname, "..", "dist", "index.html"));
+const distExists = fs.existsSync(
+  path.join(__dirname, "..", "dist", "index.html"),
+);
 
 server.listen(PORT, () => {
   console.log(`🚀 SSR dev server: http://localhost:${PORT}`);
-  console.log(`\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game/5`);
+  console.log(
+    `\n   Visit: http://localhost:${PORT}/ or http://localhost:${PORT}/game/5`,
+  );
   if (!distExists) {
-    console.log(`\n   ⚠️  Run "pnpm dev" in another terminal (Vite required for assets)`);
+    console.log(
+      `\n   ⚠️  Run "pnpm dev" in another terminal (Vite required for assets)`,
+    );
   } else {
     console.log("   ✓ dist/ found - can run without Vite");
   }

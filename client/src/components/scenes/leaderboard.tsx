@@ -9,7 +9,8 @@ import type { LeaderboardRowProps } from "../elements";
 import { useId, useMemo, useState } from "react";
 
 export interface LeaderboardSceneProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof leaderboardSceneVariants> {
   rows: LeaderboardRowData[];
   currentUserAddress?: string;
@@ -62,7 +63,6 @@ export const LeaderboardScene = ({
           total = row.games_played_week ?? 0;
           totalReward = row.total_reward_week ?? 0;
           break;
-        case "All":
         default:
           total = row.games_played;
           totalReward = row.total_reward;

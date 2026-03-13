@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, useState } from "react";
+import { useId, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,6 @@ export const ReferralScene = ({
   ...props
 }: ReferralSceneProps) => {
   const filterId = useId();
-  const [copied, setCopied] = useState(false);
 
   const { players, games, total } = useMemo(() => {
     const total = payments.reduce((acc, payment) => acc + payment.amount, 0);
@@ -55,12 +54,6 @@ export const ReferralScene = ({
       total: total,
     };
   }, [payments]);
-
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }, [link]);
 
   return (
     <div
@@ -102,7 +95,6 @@ export const ReferralScene = ({
               className="max-h-[220px]"
             />
             <Disclaimer />
-            <CopyButton copied={copied} onClick={handleCopy} />
           </div>
         </div>
       </div>
@@ -139,8 +131,6 @@ export const ReferralScene = ({
                 payments={payments.map(toPaymentProps)}
                 className="flex-1"
               />
-
-              <CopyButton copied={copied} onClick={handleCopy} />
             </div>
           </div>
         </div>
@@ -232,20 +222,3 @@ const Disclaimer = () => {
     </div>
   );
 };
-
-const CopyButton = ({
-  copied,
-  onClick,
-}: {
-  copied: boolean;
-  onClick: () => void;
-}) => (
-  <Button className="w-full" onClick={onClick}>
-    <p
-      className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
-      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-    >
-      {copied ? "Copied!" : "Copy Referral Link"}
-    </p>
-  </Button>
-);

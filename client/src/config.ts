@@ -41,8 +41,14 @@ const dojoConfigMainnet = createDojoConfig({
 });
 
 export const dojoConfigs = {
-  [SEPOLIA_CHAIN_ID]: { ...dojoConfigSepolia, arcadeUrl: import.meta.env.VITE_SN_SEPOLIA_ARCADE_URL },
-  [MAINNET_CHAIN_ID]: { ...dojoConfigMainnet, arcadeUrl: import.meta.env.VITE_SN_MAIN_ARCADE_URL },
+  [SEPOLIA_CHAIN_ID]: {
+    ...dojoConfigSepolia,
+    arcadeUrl: import.meta.env.VITE_SN_SEPOLIA_ARCADE_URL,
+  },
+  [MAINNET_CHAIN_ID]: {
+    ...dojoConfigMainnet,
+    arcadeUrl: import.meta.env.VITE_SN_MAIN_ARCADE_URL,
+  },
 };
 
 export const getEkuboUrl = (chainId: bigint) => {

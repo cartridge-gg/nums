@@ -48,8 +48,8 @@ export const ReferralLink = ({
           {link}
         </span>
       </div>
-      <div className="relative h-full min-w-11 bg-white-700 group-hover:bg-white-600 rounded-r-lg flex justify-center items-center transition-colors duration-150">
-        <CopyIcon size="sm" className="text-white-100" />
+      <div className="relative h-full min-w-11 bg-yellow-100 group-hover:bg-yellow-200 rounded-r-lg flex justify-center items-center transition-colors duration-150">
+        <CopyIcon size="sm" className="text-brown-100" />
         {copied && (
           <div className="absolute -top-4 left-0 -translate-x-1/2 px-2 py-1 rounded bg-black-100 text-white-200 text-xs font-sans whitespace-nowrap">
             Copied!

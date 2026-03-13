@@ -59,7 +59,7 @@ export const Default: Story = {
         executed_at: daysAgo(2),
       },
       {
-        username: "mataleone",
+        username: "loremipsumdolorsitametconsecteturadipisicingelit",
         recipient: "0x123",
         payment_token: "0x456",
         amount: 0.1,

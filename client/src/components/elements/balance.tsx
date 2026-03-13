@@ -5,7 +5,8 @@ import { useId, useMemo } from "react";
 import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface BalanceProps
-  extends React.HTMLAttributes<HTMLButtonElement>,
+  extends
+    React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
   balance: number;
 }
@@ -29,7 +30,7 @@ const balanceVariants = cva(
 );
 
 const formatMobileBalance = (num: number): string => {
-  if (isNaN(num) || num < 0) {
+  if (Number.isNaN(num) || num < 0) {
     return "0";
   }
 
@@ -81,7 +82,7 @@ export const Balance = ({
   ...props
 }: BalanceProps) => {
   const formattedDesktop = useMemo(() => {
-    if (isNaN(balance)) return "0";
+    if (Number.isNaN(balance)) return "0";
     return balance.toLocaleString("en-US", {
       maximumFractionDigits: 0,
       minimumFractionDigits: 0,

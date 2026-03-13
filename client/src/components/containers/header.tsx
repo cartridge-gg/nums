@@ -4,7 +4,6 @@ import {
   QuestIcon,
   ShadowEffect,
   ShareIcon,
-  SparklesIcon,
   TrophyIcon,
 } from "@/components/icons";
 import {
@@ -19,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { useId } from "react";
 
 export interface HeaderProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof headerVariants> {
   balance?: number;
   onBalance?: () => void;

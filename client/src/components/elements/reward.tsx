@@ -4,7 +4,8 @@ import { useId, useMemo, useState, useEffect } from "react";
 import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface RewardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof rewardVariants> {
   reward: number;
 }
@@ -24,7 +25,7 @@ const rewardVariants = cva(
 );
 
 const formatMobileReward = (num: number): string => {
-  if (isNaN(num) || num < 0) {
+  if (Number.isNaN(num) || num < 0) {
     return "0";
   }
 
@@ -102,7 +103,7 @@ export const Reward = ({
   }, [reward, previousReward]);
 
   const formattedDesktop = useMemo(() => {
-    if (isNaN(reward)) return "0";
+    if (Number.isNaN(reward)) return "0";
     return reward.toLocaleString();
   }, [reward]);
 

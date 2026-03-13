@@ -1,5 +1,4 @@
 // @ts-nocheck
-import React from "react";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ImageResponse } from "@vercel/og";
 import { getGame } from "./ssr";
@@ -7,10 +6,10 @@ import { Card, Placeholder } from "@/components/og";
 import { FONT_NAME, FONT_BASE64 } from "@/components/og/asset";
 
 async function fallback(res: VercelResponse) {
-  const imageResponse = new ImageResponse(
-    <Placeholder />,
-    { width: 1200, height: 630 },
-  );
+  const imageResponse = new ImageResponse(<Placeholder />, {
+    width: 1200,
+    height: 630,
+  });
 
   const arrayBuffer = await imageResponse.arrayBuffer();
   res.setHeader("Content-Type", "image/png");
@@ -23,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Extract gameId from query (?id=) or path (/api/image/:id)
     const gameIdParam =
       (req.query.id as string | undefined) ??
-      (req.url?.match(/\/api\/image\/(\d+)/)?.[1]);
+      req.url?.match(/\/api\/image\/(\d+)/)?.[1];
     const gameId =
       gameIdParam && !Number.isNaN(Number.parseInt(gameIdParam, 10))
         ? Number.parseInt(gameIdParam, 10)
@@ -51,11 +50,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         fonts: [
           {
             name: FONT_NAME,
-            data: await fetch(FONT_BASE64).then(res => res.arrayBuffer()),
+            data: await fetch(FONT_BASE64).then((res) => res.arrayBuffer()),
             weight: 400,
             style: "normal",
           },
-        ]
+        ],
       },
     );
 

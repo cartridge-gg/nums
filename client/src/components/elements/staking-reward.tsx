@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { QuoteIcon } from "@/components/icons/exotics";
@@ -37,6 +38,21 @@ export const StakingReward = ({
   ...props
 }: StakingRewardProps) => {
   const usdValue = rewardAmount * usdcPrice;
+  const prevOnClaimRef = useRef(onClaim);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!!prevOnClaimRef.current && !onClaim) {
+      setLoading(false);
+    }
+    prevOnClaimRef.current = onClaim;
+  }, [onClaim]);
+
+  const handleClaim = () => {
+    if (loading || !onClaim) return;
+    setLoading(true);
+    onClaim();
+  };
 
   return (
     <div
@@ -74,7 +90,7 @@ export const StakingReward = ({
       </div>
 
       {!!onClaim && (
-        <Button onClick={onClaim}>
+        <Button onClick={handleClaim} loading={loading} disabled={loading}>
           <p
             className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

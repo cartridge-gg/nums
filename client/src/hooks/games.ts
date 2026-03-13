@@ -28,7 +28,7 @@ const getGamesQuery = () => {
 };
 
 export const useGames = () => {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { controllers } = useControllers();
   const { client, scores } = useEntities();
   const { gameIds, isLoading: assetsLoading } = useAssets();
@@ -124,10 +124,11 @@ export const useGames = () => {
           ...game,
           username: username,
           score: score.score,
+          self: BigInt(score.player) === BigInt(address ?? "0"),
         };
       })
       .filter((game) => game !== undefined);
-  }, [games, scores, controllers]);
+  }, [games, scores, controllers, address]);
 
   return {
     playerGames,

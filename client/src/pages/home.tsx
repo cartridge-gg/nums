@@ -89,7 +89,7 @@ export const Home = () => {
         payout: `+$${(game.reward * price).toFixed(2)}`,
         to: `/game/${game.id}`,
         timestamp: game.over,
-        claimed: game.claimed,
+        claimed: game.self ? game.claimed : true,
         cells: [null, ...game.slots.map((slot) => slot !== 0), null],
       }));
   }, [allGames]);

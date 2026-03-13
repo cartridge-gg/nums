@@ -2,11 +2,10 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { TokenIcon, VTokenIcon } from "@/components/icons/exotics";
-import { SpinnerIcon } from "@/components/icons";
+import { SpinnerIcon, WalletIcon } from "@/components/icons";
 
 export interface StakingAmountProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingAmountVariants> {
   /** Available balance */
   balance?: number;
@@ -130,15 +129,20 @@ export const StakingAmount = ({
           type="button"
           onClick={handleUseMax}
           disabled={isDisabled}
-          className="group flex items-center gap-2.5 disabled:cursor-default"
+          className="group flex items-center gap-3 disabled:cursor-default"
         >
-          <span className="text-white-400 text-base/5">Available:</span>
-          <span className="group-enabled:group-hover:text-white-200 transition-colors">
-            {balance?.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </span>
+          <p className="text-base/5 px-1.5 bg-white-800 rounded group-enabled:group-hover:bg-white-900 group-enabled:group-hover:text-white-200 transition-colors">
+            Max
+          </p>
+          <div className="flex items-center gap-1">
+            <WalletIcon size="sm" />
+            <span>
+              {balance?.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+          </div>
         </button>
       </div>
     </div>

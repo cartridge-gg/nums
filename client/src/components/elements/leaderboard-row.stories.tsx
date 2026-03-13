@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LeaderboardRow } from "./leaderboard-row";
 
 const meta = {
-  title: "Elements/LeaderboardRow",
+  title: "Elements/Leaderboard Row",
   component: LeaderboardRow,
   parameters: {
     layout: "padded",

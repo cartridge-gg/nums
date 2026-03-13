@@ -20,6 +20,7 @@ type Story = StoryObj<typeof meta>;
 const regularIcons = [
   { name: "AddIcon", component: Icons.AddIcon },
   { name: "AngleIcon", component: Icons.AngleIcon },
+  { name: "ArrowDownIcon", component: Icons.ArrowDownIcon },
   { name: "ArrowLeftIcon", component: Icons.ArrowLeftIcon },
   { name: "ArrowRightIcon", component: Icons.ArrowRightIcon },
   { name: "AsteriskIcon", component: Icons.AsteriskIcon },
@@ -50,6 +51,7 @@ const regularIcons = [
   { name: "SubIcon", component: Icons.SubIcon },
   { name: "RefreshIcon", component: Icons.RefreshIcon },
   { name: "SignOutIcon", component: Icons.SignOutIcon },
+  { name: "ShareIcon", component: Icons.ShareIcon },
   { name: "SpinnerIcon", component: Icons.SpinnerIcon },
   { name: "SpinnerPxIcon", component: Icons.SpinnerPxIcon },
   { name: "SparklesIcon", component: Icons.SparklesIcon },

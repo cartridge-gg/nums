@@ -16,3 +16,4 @@ export * from "./header";
 export * from "./stakes";
 export * from "./events";
 export * from "./staking";
+export * from "./referral-payments";

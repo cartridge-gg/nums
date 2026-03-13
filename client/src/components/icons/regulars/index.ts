@@ -1,5 +1,6 @@
 export * from "./add";
 export * from "./angle";
+export * from "./arrow-down";
 export * from "./arrow-left";
 export * from "./arrow-right";
 export * from "./asterisk";

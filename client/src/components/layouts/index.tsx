@@ -5,11 +5,13 @@ import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
+import { ReferralScene } from "@/components/scenes/referral";
 import { StakingScene } from "@/components/scenes/staking";
 import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
+import { useReferral } from "@/hooks/referral";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
 import { Rewarder } from "@/helpers/rewarder";
@@ -54,11 +56,14 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
+  const [showReferralScene, setShowReferralScene] = useState(false);
   const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
+
+  const { data: referralData, refetch: refetchReferral } = useReferral();
 
   // Get username from controllers if account is connected
   const username = useMemo(() => {
@@ -70,6 +75,11 @@ export const Layout = ({ children }: LayoutProps) => {
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
   }, [getNumsPrice]);
+
+  const referralLink = useMemo(() => {
+    if (!username) return "";
+    return `${window.location.origin}/?ref=${encodeURIComponent(username)}`;
+  }, [username]);
 
   const { vaultInfo, vaultClaimed } = useVault();
   const stakingLocked = vaultInfo ? !vaultInfo.open : false;
@@ -150,6 +160,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowLeaderboardScene(false);
       setShowPurchaseScene(false);
       setShowStakingScene(false);
+      setShowReferralScene(false);
 
       // Find the newest game (first in the array)
       const newestGame = games[0];
@@ -242,6 +253,13 @@ export const Layout = ({ children }: LayoutProps) => {
     }
   }, [showLeaderboardScene, refetchLeaderboard]);
 
+  // Refetch referral data when modal opens
+  useEffect(() => {
+    if (showReferralScene) {
+      refetchReferral();
+    }
+  }, [showReferralScene, refetchReferral]);
+
   const events = useMemo(() => {
     if (loading) return [];
     return [
@@ -285,16 +303,26 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowQuestScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
+          setShowReferralScene(false);
         }}
         onQuests={() => {
           setShowQuestScene(!showQuestScene);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
+          setShowReferralScene(false);
         }}
         onLeaderboard={() => {
           setShowLeaderboardScene(!showLeaderboardScene);
           setShowQuestScene(false);
+          setShowPurchaseScene(false);
+          setShowStakingScene(false);
+          setShowReferralScene(false);
+        }}
+        onReferral={() => {
+          setShowReferralScene(!showReferralScene);
+          setShowQuestScene(false);
+          setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
         }}
@@ -314,6 +342,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowQuestScene(false);
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
+            setShowReferralScene(false);
           }}
         >
           {children}
@@ -376,6 +405,16 @@ export const Layout = ({ children }: LayoutProps) => {
                   : undefined
               }
               onClose={() => setShowStakingScene(false)}
+              className="h-full"
+            />
+          </div>
+        )}
+        {showReferralScene && (
+          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+            <ReferralScene
+              payments={referralData ?? []}
+              link={referralLink}
+              onClose={() => setShowReferralScene(false)}
               className="h-full"
             />
           </div>

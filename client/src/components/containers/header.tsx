@@ -3,6 +3,7 @@ import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
 import {
   QuestIcon,
   ShadowEffect,
+  ShareIcon,
   SparklesIcon,
   TrophyIcon,
 } from "@/components/icons";
@@ -27,6 +28,7 @@ export interface HeaderProps
   onProfile: () => void;
   onQuests?: () => void;
   onLeaderboard?: () => void;
+  onReferral?: () => void;
   onMint?: () => void;
 }
 
@@ -52,6 +54,7 @@ export const Header = ({
   onProfile,
   onQuests,
   onLeaderboard,
+  onReferral,
   onMint,
   variant,
   className,
@@ -100,6 +103,20 @@ export const Header = ({
           >
             <TrophyIcon
               variant="solid"
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${filterId})` }}
+            />
+          </Button>
+        )}
+        {onReferral && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onReferral}
+            disabled={!username}
+          >
+            <ShareIcon
               size="md"
               className="md:size-lg"
               style={{ filter: `url(#${filterId})` }}

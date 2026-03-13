@@ -46,3 +46,5 @@ export * from "./staking-yield";
 export * from "./staking-ratio";
 export * from "./game-icon";
 export * from "./activity-tab";
+export * from "./referral-link";
+export * from "./referral-payment";

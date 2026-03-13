@@ -134,7 +134,7 @@ export const ReferralScene = ({
               <Disclaimer />
             </div>
 
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 flex-1">
               <ReferralPayments
                 payments={payments.map(toPaymentProps)}
                 className="flex-1"

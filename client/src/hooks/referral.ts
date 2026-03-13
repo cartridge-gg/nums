@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@starknet-react/core";
 import { getChecksumAddress } from "starknet";
 import { PROTOCOL_FEE, REFERRAL_FEE } from "@/constants";
+import { useEntities } from "@/context/entities";
 
 export interface Referral {
   username: string;
@@ -17,7 +18,10 @@ const ARCADE_TORII_SQL_URL = `${import.meta.env.VITE_TORII_ARCADE_URL}/sql`;
 const MODEL_ID =
   "0x07a079295990e43441a7389fdc3b9ba063c6cd6aee16fb846f598c42a9f04ff7:0x06e1f6f6ed6b1d58c790b45fea70226d9a9ea380626d8fdf0050a730c24ffb84";
 
-const fetchReferrals = async (referrerAddress: string): Promise<Referral[]> => {
+const fetchReferrals = async (
+  referrerAddress: string,
+  starterpackIds: number[],
+): Promise<Referral[]> => {
   if (!ARCADE_TORII_SQL_URL) {
     throw new Error(
       "VITE_TORII_ARCADE_URL is not defined in environment variables",
@@ -34,12 +38,14 @@ const fetchReferrals = async (referrerAddress: string): Promise<Referral[]> => {
     data->>'$.payment_token' AS payment_token,
     data->>'$.amount' AS amount,
     data->>'$.referrer.Some' AS referrer,
+    data->>'$.starterpack_id' AS starterpack_id,
     executed_at
 FROM event_messages_historical
 JOIN controllers AS c ON c.address = data->>'$.recipient'
 WHERE model_id = '${MODEL_ID}'
 AND data->>'$.referrer.Some' IS NOT NULL
 AND data->>'$.referrer.Some' = '${referrerAddress}'
+AND data->>'$.starterpack_id' IN (${starterpackIds.join(",")})
 LIMIT 1000;`;
 
   let data: any;
@@ -100,14 +106,23 @@ LIMIT 1000;`;
 
 export const useReferral = () => {
   const { address } = useAccount();
+  const { starterpacks } = useEntities();
 
   const query = useQuery<Referral[]>({
-    queryKey: ["referrals", address],
+    queryKey: [
+      "referrals",
+      address,
+      starterpacks.map((starterpack) => starterpack.id),
+    ],
     queryFn: () => {
       if (!address) {
         throw new Error("Account address is required");
       }
-      return fetchReferrals(getChecksumAddress(BigInt(address)).toLowerCase());
+      const starterpackIds = starterpacks.map((starterpack) => starterpack.id);
+      return fetchReferrals(
+        getChecksumAddress(BigInt(address)).toLowerCase(),
+        starterpackIds,
+      );
     },
     enabled: !!address,
     staleTime: 1000 * 60 * 5,

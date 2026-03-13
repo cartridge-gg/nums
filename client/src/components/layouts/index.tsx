@@ -63,7 +63,7 @@ export const Layout = ({ children }: LayoutProps) => {
   // Toaster hook to display toast notifications for social and player events
   useToasters();
 
-  const { data: referralData } = useReferral();
+  const { data: referralData, refetch: refetchReferral } = useReferral();
 
   // Get username from controllers if account is connected
   const username = useMemo(() => {
@@ -252,6 +252,13 @@ export const Layout = ({ children }: LayoutProps) => {
       refetchLeaderboard();
     }
   }, [showLeaderboardScene, refetchLeaderboard]);
+
+  // Refetch referral data when modal opens
+  useEffect(() => {
+    if (showReferralScene) {
+      refetchReferral();
+    }
+  }, [showReferralScene, refetchReferral]);
 
   const events = useMemo(() => {
     if (loading) return [];

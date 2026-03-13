@@ -79,22 +79,37 @@ export const ReferralScene = ({
         </div>
 
         <div
-          className="grow overflow-y-auto flex flex-col gap-6"
+          className="flex-1 flex flex-col gap-6 overflow-hidden"
           style={{ scrollbarWidth: "none" }}
         >
           <Subtitle />
           <ReferralLink link={link} />
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-3">
-              <Count label="Players" count={players} className="flex-1" />
-              <Count label="Games" count={games} className="flex-1" />
+          <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <Count
+                  label="Players"
+                  value={`${players.toLocaleString()}`}
+                  className="flex-1"
+                />
+                <Count
+                  label="Games"
+                  value={`${games.toLocaleString()}`}
+                  className="flex-1"
+                />
+              </div>
+              <Count
+                label="Total Earned"
+                value={`$${total.toFixed(2)}`}
+                highlight
+              />
             </div>
-            <Total value={total} />
-            <ReferralPayments
-              payments={payments.map(toPaymentProps)}
-              className="max-h-[220px]"
-            />
-            <Disclaimer />
+            <div
+              className="flex-1 overflow-y-auto rounded-xl"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <ReferralPayments payments={payments.map(toPaymentProps)} />
+            </div>
           </div>
         </div>
       </div>
@@ -116,17 +131,27 @@ export const ReferralScene = ({
           </div>
 
           <div className="flex flex-col md:flex-row gap-8 max-h-[480px]">
-            <div className="flex flex-col gap-6 flex-1">
-              <Subtitle />
-              <div className="flex gap-3">
-                <Count label="Players" count={players} className="flex-1" />
-                <Count label="Games" count={games} className="flex-1" />
+            <div className="flex flex-col gap-6 w-1/2 max-w-1/2">
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                  <Count
+                    label="Players"
+                    value={`${players.toLocaleString()}`}
+                    className="flex-1"
+                  />
+                  <Count
+                    label="Games"
+                    value={`${games.toLocaleString()}`}
+                    className="flex-1"
+                  />
+                </div>
+                <Count label="Total Earned" value={`$${total.toFixed(2)}`} />
               </div>
-              <Total value={total} />
               <Disclaimer />
             </div>
 
-            <div className="flex flex-col gap-6 flex-1">
+            <div className="flex flex-col gap-6 w-1/2 max-w-1/2">
+              <Subtitle />
               <ReferralPayments
                 payments={payments.map(toPaymentProps)}
                 className="flex-1"
@@ -157,17 +182,20 @@ const Subtitle = () => (
 
 const Count = ({
   label,
-  count,
+  value,
+  highlight = false,
   className,
 }: {
   label: string;
-  count: number;
+  value: string;
+  highlight?: boolean;
   className?: string;
 }) => {
   return (
     <div
       className={cn(
-        "rounded-xl px-4 py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "rounded-xl p-4 md:py-6 flex flex-col items-center gap-2 md:gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        highlight && "gap-3",
         className,
       )}
     >
@@ -175,36 +203,13 @@ const Count = ({
         {label}
       </p>
       <p
-        className="text-[48px]/[33px] tracking-wide translate-y-1 text-white-100 font-thin"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-      >
-        {count.toLocaleString()}
-      </p>
-    </div>
-  );
-};
-
-const Total = ({ value, className }: { value: number; className?: string }) => {
-  return (
-    <div
-      className={cn(
-        "rounded-xl px-4 py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
-        className,
-      )}
-    >
-      <p
-        className={cn("text-lg/3 tracking-wide translate-y-0.5 text-green-400")}
-      >
-        Total Earned
-      </p>
-      <p
         className={cn(
-          "text-[48px]/[33px] tracking-wide translate-y-1 text-green-100 font-thin relative",
-          "before:content-['~'] before:absolute before:right-full before:mr-2 before:leading-[inherit] before:text-green-400",
+          "text-[36px]/[24px] md:text-[48px]/[33px] tracking-wide translate-y-1 text-white-100 font-thin",
+          highlight && "text-[48px]/[33px]",
         )}
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        {`$${value.toFixed(2).toLocaleString()}`}
+        {value}
       </p>
     </div>
   );

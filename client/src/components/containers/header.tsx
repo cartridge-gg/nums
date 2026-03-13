@@ -4,7 +4,6 @@ import {
   QuestIcon,
   ShadowEffect,
   ShareIcon,
-  SparklesIcon,
   TrophyIcon,
 } from "@/components/icons";
 import {

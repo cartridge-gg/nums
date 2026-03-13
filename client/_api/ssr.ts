@@ -204,7 +204,7 @@ async function loadBaseHtml(host: string): Promise<string> {
     }
     cachedBaseHtml = await response.text();
     return cachedBaseHtml;
-  } catch (fetchError) {
+  } catch (_fetchError) {
     const localPaths = [
       path.join(process.cwd(), "dist/index.html"),
       path.join(process.cwd(), "client/dist/index.html"),
@@ -243,9 +243,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Extract gameId from query (?id=) or path (/api/ssr/:id)
     const gameIdParam =
       (req.query.id as string | undefined) ??
-      (req.url?.match(/\/api\/ssr\/(\d+)/)?.[1]);
+      req.url?.match(/\/api\/ssr\/(\d+)/)?.[1];
     const gameId =
-      gameIdParam && !isNaN(parseInt(gameIdParam, 10))
+      gameIdParam && !Number.isNaN(parseInt(gameIdParam, 10))
         ? parseInt(gameIdParam, 10)
         : undefined;
 
@@ -270,12 +270,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error("SSR Error:", error);
     try {
-      const metaTags = await buildMetaTags("Nums", "The numbers must be sorted", `${baseUrl || "https://sepolia.nums.gg"}/api/image`, requestPath || "/");
-      const fallback = FALLBACK_HTML.replace("</head>", `  ${metaTags}\n  </head>`);
+      const metaTags = await buildMetaTags(
+        "Nums",
+        "The numbers must be sorted",
+        `${baseUrl || "https://sepolia.nums.gg"}/api/image`,
+        requestPath || "/",
+      );
+      const fallback = FALLBACK_HTML.replace(
+        "</head>",
+        `  ${metaTags}\n  </head>`,
+      );
       res.setHeader("Content-Type", "text/html");
       res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
       res.status(200).send(fallback);
-    } catch (fallbackError) {
+    } catch (_fallbackError) {
       res.setHeader("Content-Type", "text/html");
       res.status(200).send(FALLBACK_HTML);
     }

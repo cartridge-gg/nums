@@ -43,38 +43,36 @@ export const Instruction = ({
       onClick={onClick}
       {...props}
     >
-      <>
-        <div
-          className={cn(
-            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none",
-            !onClick
-              ? "hidden"
-              : variant != "destructive"
-                ? "text-mauve-100"
-                : "text-red-100",
-          )}
-        />
-        <div
-          className={cn(
-            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none",
-            !onClick
-              ? "hidden"
-              : variant != "destructive"
-                ? "text-mauve-100"
-                : "text-red-100",
-          )}
-        />
-        <div
-          className={cn(
-            "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none",
-            !onClick
-              ? "hidden"
-              : variant != "destructive"
-                ? "text-mauve-100"
-                : "text-red-100",
-          )}
-        />
-      </>
+      <div
+        className={cn(
+          "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none",
+          !onClick
+            ? "hidden"
+            : variant !== "destructive"
+              ? "text-mauve-100"
+              : "text-red-100",
+        )}
+      />
+      <div
+        className={cn(
+          "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none",
+          !onClick
+            ? "hidden"
+            : variant !== "destructive"
+              ? "text-mauve-100"
+              : "text-red-100",
+        )}
+      />
+      <div
+        className={cn(
+          "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none",
+          !onClick
+            ? "hidden"
+            : variant !== "destructive"
+              ? "text-mauve-100"
+              : "text-red-100",
+        )}
+      />
       <span className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px] tracking-wider">
         {content}
       </span>

@@ -22,7 +22,7 @@ export interface UseStakingParams {
 
 /** Convert a display number to on-chain bigint (18 decimals) */
 const toBigInt = (value: number): bigint => {
-  if (!isFinite(value) || value < 0) return 0n;
+  if (!Number.isFinite(value) || value < 0) return 0n;
   // toFixed(18) avoids scientific notation (e.g. 8e-17 → "0.000000000000000080")
   const fixed = value.toFixed(18);
   const [integer, fraction = ""] = fixed.split(".");

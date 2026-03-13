@@ -86,9 +86,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         onClick={handleClick}
-        children={loading ? <SpinnerIcon className="animate-spin" /> : children}
         {...props}
-      />
+      >
+        {loading ? <SpinnerIcon className="animate-spin" /> : children}
+      </Comp>
     );
   },
 );

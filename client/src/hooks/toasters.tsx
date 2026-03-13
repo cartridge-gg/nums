@@ -20,7 +20,7 @@ import { useAudio } from "@/context/audio";
 
 const getUsername = (result: Controller | undefined, player: string) => {
   const address = getChecksumAddress(player);
-  return result?.username || address.slice(0, 6) + "..." + address.slice(-4);
+  return result?.username || `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 /**

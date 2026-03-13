@@ -24,7 +24,7 @@ const rewardVariants = cva(
 );
 
 const formatMobileReward = (num: number): string => {
-  if (isNaN(num) || num < 0) {
+  if (Number.isNaN(num) || num < 0) {
     return "0";
   }
 
@@ -102,7 +102,7 @@ export const Reward = ({
   }, [reward, previousReward]);
 
   const formattedDesktop = useMemo(() => {
-    if (isNaN(reward)) return "0";
+    if (Number.isNaN(reward)) return "0";
     return reward.toLocaleString();
   }, [reward]);
 

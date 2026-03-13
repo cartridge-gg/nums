@@ -62,7 +62,6 @@ export const LeaderboardScene = ({
           total = row.games_played_week ?? 0;
           totalReward = row.total_reward_week ?? 0;
           break;
-        case "All":
         default:
           total = row.games_played;
           totalReward = row.total_reward;

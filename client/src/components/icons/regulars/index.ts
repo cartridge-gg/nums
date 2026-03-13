@@ -42,4 +42,5 @@ export * from "./star";
 export * from "./sub";
 export * from "./timer";
 export * from "./trophy.used";
+export * from "./wallet";
 export * from "./x";

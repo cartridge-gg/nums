@@ -328,14 +328,14 @@ export const Layout = ({ children }: LayoutProps) => {
         }}
         onMint={() => mint()}
       />
-      <Events events={events} />
       <div
-        className="relative flex-1 min-h-0 flex items-center justify-center"
+        className="relative flex-1 min-h-0 flex flex-col items-center justify-center"
         style={{
           background:
             "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
         }}
       >
+        <Events events={events} />
         <PurchaseModalProvider
           openPurchaseScene={() => {
             setShowPurchaseScene(true);
@@ -348,75 +348,85 @@ export const Layout = ({ children }: LayoutProps) => {
           {children}
         </PurchaseModalProvider>
         {showQuestScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <QuestScene
-              questsProps={questsProps}
-              onClaimAll={questsProps.onClaimAll}
-              onClose={() => setShowQuestScene(false)}
-              className="h-full"
-            />
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <QuestScene
+                questsProps={questsProps}
+                onClaimAll={questsProps.onClaimAll}
+                onClose={() => setShowQuestScene(false)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
         {showLeaderboardScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <LeaderboardScene
-              rows={leaderboardData ?? []}
-              currentUserAddress={account?.address}
-              onClose={() => setShowLeaderboardScene(false)}
-              className="h-full"
-            />
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <LeaderboardScene
+                rows={leaderboardData ?? []}
+                currentUserAddress={account?.address}
+                onClose={() => setShowLeaderboardScene(false)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
         {showPurchaseScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <PurchaseScene
-              slotCount={config?.slot_count || 18}
-              basePrice={basePrice}
-              playPrice={playPrice}
-              numsPrice={numsPrice}
-              multiplier={multiplier}
-              targetSupply={config?.target_supply || 0n}
-              currentSupply={headerData.supply}
-              stakesProps={{
-                total: starterpacks.length,
-                index: starterpackIndex,
-                setIndex: setStarterpackIndex,
-              }}
-              onConnect={
-                account?.address ? undefined : headerData.handleConnect
-              }
-              onPurchase={handlePurchase}
-              onClose={() => setShowPurchaseScene(false)}
-              className="h-full"
-            />
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <PurchaseScene
+                slotCount={config?.slot_count || 18}
+                basePrice={basePrice}
+                playPrice={playPrice}
+                numsPrice={numsPrice}
+                multiplier={multiplier}
+                targetSupply={config?.target_supply || 0n}
+                currentSupply={headerData.supply}
+                stakesProps={{
+                  total: starterpacks.length,
+                  index: starterpackIndex,
+                  setIndex: setStarterpackIndex,
+                }}
+                onConnect={
+                  account?.address ? undefined : headerData.handleConnect
+                }
+                onPurchase={handlePurchase}
+                onClose={() => setShowPurchaseScene(false)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
         {showStakingScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <StakingScene
-              {...stakingSceneProps}
-              locked={stakingLocked}
-              claimedProps={
-                vaultClaimed
-                  ? {
-                      amount: vaultClaimed.claimedAmount(),
-                      timestamp: vaultClaimed.claimedAt(),
-                    }
-                  : undefined
-              }
-              onClose={() => setShowStakingScene(false)}
-              className="h-full"
-            />
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <StakingScene
+                {...stakingSceneProps}
+                locked={stakingLocked}
+                claimedProps={
+                  vaultClaimed
+                    ? {
+                        amount: vaultClaimed.claimedAmount(),
+                        timestamp: vaultClaimed.claimedAt(),
+                      }
+                    : undefined
+                }
+                onClose={() => setShowStakingScene(false)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
         {showReferralScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <ReferralScene
-              payments={referralData ?? []}
-              link={referralLink}
-              onClose={() => setShowReferralScene(false)}
-              className="h-full"
-            />
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <ReferralScene
+                payments={referralData ?? []}
+                link={referralLink}
+                onClose={() => setShowReferralScene(false)}
+                className="h-full"
+              />
+            </div>
           </div>
         )}
       </div>

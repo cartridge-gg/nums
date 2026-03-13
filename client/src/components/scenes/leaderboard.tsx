@@ -9,8 +9,7 @@ import type { LeaderboardRowProps } from "../elements";
 import { useId, useMemo, useState } from "react";
 
 export interface LeaderboardSceneProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof leaderboardSceneVariants> {
   rows: LeaderboardRowData[];
   currentUserAddress?: string;

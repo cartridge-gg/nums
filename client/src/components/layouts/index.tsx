@@ -329,7 +329,7 @@ export const Layout = ({ children }: LayoutProps) => {
         onMint={() => mint()}
       />
       <div
-        className="relative flex-1 min-h-0 flex flex-col items-center justify-center"
+        className="relative flex-1 min-h-0 flex flex-col justify-between"
         style={{
           background:
             "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",

@@ -32,7 +32,7 @@ const homeSceneVariants = cva(
         default: "",
       },
       size: {
-        md: "h-full w-full max-w-[720px]",
+        md: "h-full w-full max-w-[720px] md:mx-auto",
       },
     },
     defaultVariants: {

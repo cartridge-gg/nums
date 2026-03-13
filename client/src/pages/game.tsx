@@ -467,7 +467,7 @@ export const Game = () => {
   if (!game || defaultLoading) return <LoadingScene />;
 
   return (
-    <>
+    <div className="flex items-center justify-center h-full">
       <GameScene
         key={game.id}
         game={game}
@@ -533,24 +533,26 @@ export const Game = () => {
       )}
       {/* Overlay and GameOver modal when game is over */}
       {showGameOver && gameOverData && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center m-3 md:m-6">
-          <GameOver
-            stages={{ states: gameProps.stages }}
-            payout={gameOverData.payout}
-            value={gameOverData.value}
-            score={gameOverData.score}
-            newGameId={gameOverData.newGameId}
-            newGameCount={gameOverData.newGameCount}
-            shareProps={blockchainGame ? { username } : undefined}
-            onClose={() => setShowGameOver(false)}
-            onPurchase={() => openPurchaseScene()}
-            onClaim={
-              isPracticeMode ? null : game.claimed ? undefined : handleClaim
-            }
-            onPlayAgain={isPracticeMode ? handlePlayAgain : undefined}
-          />
+        <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+          <div className="absolute inset-0 z-50 flex items-center justify-center m-3 md:m-6">
+            <GameOver
+              stages={{ states: gameProps.stages }}
+              payout={gameOverData.payout}
+              value={gameOverData.value}
+              score={gameOverData.score}
+              newGameId={gameOverData.newGameId}
+              newGameCount={gameOverData.newGameCount}
+              shareProps={blockchainGame ? { username } : undefined}
+              onClose={() => setShowGameOver(false)}
+              onPurchase={() => openPurchaseScene()}
+              onClaim={
+                isPracticeMode ? null : game.claimed ? undefined : handleClaim
+              }
+              onPlayAgain={isPracticeMode ? handlePlayAgain : undefined}
+            />
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 };

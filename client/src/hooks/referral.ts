@@ -3,6 +3,7 @@ import { useAccount } from "@starknet-react/core";
 import { getChecksumAddress } from "starknet";
 import { PROTOCOL_FEE, REFERRAL_FEE } from "@/constants";
 import { useEntities } from "@/context/entities";
+import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 export interface Referral {
   username: string;
@@ -13,8 +14,6 @@ export interface Referral {
   executed_at: string;
 }
 
-const ARCADE_TORII_SQL_URL = `${import.meta.env.VITE_TORII_ARCADE_URL}/sql`;
-
 const MODEL_ID =
   "0x07a079295990e43441a7389fdc3b9ba063c6cd6aee16fb846f598c42a9f04ff7:0x06e1f6f6ed6b1d58c790b45fea70226d9a9ea380626d8fdf0050a730c24ffb84";
 
@@ -22,12 +21,7 @@ const fetchReferrals = async (
   referrerAddress: string,
   starterpackIds: number[],
 ): Promise<Referral[]> => {
-  if (!ARCADE_TORII_SQL_URL) {
-    throw new Error(
-      "VITE_TORII_ARCADE_URL is not defined in environment variables",
-    );
-  }
-
+  const url = `${dojoConfigs[DEFAULT_CHAIN_ID].arcadeUrl}/sql`;
   if (!/^0x[a-fA-F0-9]+$/.test(referrerAddress)) {
     throw new Error(`Invalid referrer address format: ${referrerAddress}`);
   }
@@ -51,7 +45,7 @@ LIMIT 1000;`;
   let data: any;
 
   try {
-    const response = await fetch(ARCADE_TORII_SQL_URL, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",

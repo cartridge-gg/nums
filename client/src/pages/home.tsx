@@ -35,7 +35,7 @@ export const Home = () => {
   // Estimate multiplier from on-chain formula
   const multiplier = useMemo(() => {
     if (!config || !activeStarterpack || numsPrice <= 0) return 1;
-    return Rewarder.multiplier(
+    return Rewarder.estimate(
       config.base_price,
       BigInt(activeStarterpack.multiplier),
       BigInt(config.burn_percentage),

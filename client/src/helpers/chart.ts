@@ -42,12 +42,7 @@ export const ChartHelper = {
     }
 
     // Calculate rewards in NUMS for each level (1-slotCount)
-    const gameRewards = Game.rewards(
-      slotCount,
-      currentSupply,
-      targetSupply,
-      multiplier,
-    );
+    const gameRewards = Game.rewards(slotCount, multiplier);
 
     const chartValues = gameRewards;
 

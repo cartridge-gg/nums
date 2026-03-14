@@ -66,7 +66,7 @@ export class GameEngine {
     }
 
     // [Effect] Update game
-    game.update(rand, targetSupply);
+    game.update(rand);
 
     // [Return] Next number
     return game.number;

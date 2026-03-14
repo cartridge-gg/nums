@@ -169,21 +169,14 @@ export class Game {
    * @param targetSupply - The target supply of the game
    * @returns Array of slot-count reward values, one for each level
    */
-  public static rewards(
-    slotCount: number,
-    supply: bigint,
-    targetSupply: bigint,
-    multiplier: number,
-  ): number[] {
+  public static rewards(slotCount: number, multiplier: number): number[] {
+    const multiplierBig = BigInt(Math.round(multiplier * 100));
     return Array.from({ length: slotCount }, (_, index) => {
-      const level = index + 1;
       return Rewarder.amount(
-        BigInt(level),
+        BigInt(index + 1),
         1n,
         BigInt(slotCount),
-        supply,
-        targetSupply,
-        multiplier,
+        multiplierBig,
       );
     });
   }
@@ -406,14 +399,13 @@ export class Game {
    * Rewards the game for the current level
    * Equivalent to GameTrait::reward in models/game.cairo
    */
-  addReward(supply: bigint, target: bigint): void {
+  addReward(): void {
+    const multiplierBig = BigInt(Math.round(this.multiplier * 100));
     const rewardAmount = Rewarder.amount(
       BigInt(this.level),
       1n,
       BigInt(this.slot_count),
-      supply,
-      target,
-      this.multiplier,
+      multiplierBig,
     );
     this.reward = rewardAmount;
   }
@@ -427,23 +419,14 @@ export class Game {
    * @param numsPrice    - USD price of one NUMS token
    * @returns Break-even level (1-indexed), or slot_count if never reached
    */
-  getBreakEven(
-    supply: bigint,
-    targetSupply: bigint,
-    numsPrice: number,
-  ): number {
-    if (targetSupply === 0n || supply === 0n || numsPrice === 0) {
+  getBreakEven(numsPrice: number): number {
+    if (numsPrice === 0) {
       return this.slot_count;
     }
 
     const priceUsd = Number(this.price) / 1e6;
 
-    const gameRewards = Game.rewards(
-      this.slot_count,
-      supply,
-      targetSupply,
-      this.multiplier,
-    );
+    const gameRewards = Game.rewards(this.slot_count, this.multiplier);
 
     for (let i = 0; i < gameRewards.length; i++) {
       if (gameRewards[i] * numsPrice > priceUsd) return i + 1;
@@ -646,7 +629,7 @@ export class Game {
    * Update the game state
    * Equivalent to GameTrait::update in models/game.cairo
    */
-  update(rand: Random, target: bigint): void {
+  update(rand: Random): void {
     // [Check] Power is not selectable
     if (this.selectable_powers.length !== 0) {
       throw new Error("Game: power must be selected");
@@ -654,7 +637,7 @@ export class Game {
     // [Effect] Level up
     this.levelUp();
     // [Effect] Update Reward
-    this.addReward(this.supply, target);
+    this.addReward();
     // [Effect] Update numbers if the game is not completed
     if (!this.isCompleted()) {
       // [Info] Artificially add the number to the slots to avoid pulling the same number

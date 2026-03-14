@@ -3,7 +3,6 @@ pub mod PlayableComponent {
     // Imports
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
-    use constants::TEN_POW_18;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use ekubo::components::clear::IClearDispatcherTrait;
     use ekubo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -129,18 +128,14 @@ pub mod PlayableComponent {
             let burn_per_game = burn_amount / quantity.into();
             let supply_per_game = nums_supply - burn_per_game;
             let (avg_num, avg_den) = config.average_score();
-            let equilibrium_reward: u256 = Rewarder::amount(
-                score_num: avg_num.into(),
-                score_den: avg_den.into(),
-                slot_count: config.slot_count.into(),
-                supply: supply_per_game,
-                target: config.target_supply,
-            )
-                .into()
-                * TEN_POW_18.into();
-            let multiplier: u16 = (100 * burn_per_game / equilibrium_reward)
-                .try_into()
-                .expect('Multiplier overflow');
+            let multiplier = Rewarder::multiplier(
+                supply_per_game,
+                config.target_supply,
+                burn_per_game,
+                avg_num.into(),
+                avg_den.into(),
+                config.slot_count.into(),
+            );
 
             // [Interaction] Mint games
             let config = store.config();

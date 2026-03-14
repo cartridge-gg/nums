@@ -141,9 +141,10 @@ pub impl GameImpl of GameTrait {
 
     /// Rewards the game for the current level.
     #[inline]
-    fn reward(ref self: Game, supply: u256, target: u256) {
-        let reward = Rewarder::amount(self.level.into(), 1, self.slot_count.into(), supply, target);
-        self.reward = reward * self.multiplier.into() / 100;
+    fn reward(ref self: Game) {
+        self
+            .reward =
+                Rewarder::amount(self.level.into(), 1, self.slot_count.into(), self.multiplier);
     }
 
     /// Levels up the game.
@@ -306,7 +307,7 @@ pub impl GameImpl of GameTrait {
         // [Effect] Level up
         self.level_up();
         // [Effect] Update Reward
-        self.reward(self.supply.into(), target);
+        self.reward();
         // [Effect] Update numbers if the game is not completed
         let slots = self.slots();
         if !self.is_completed() {

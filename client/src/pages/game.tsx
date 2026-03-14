@@ -167,11 +167,7 @@ export const Game = () => {
       };
     }
 
-    const breakEven = game.getBreakEven(
-      purchaseProps.currentSupply,
-      purchaseProps.targetSupply,
-      purchaseProps.numsPrice,
-    );
+    const breakEven = game.getBreakEven(purchaseProps.numsPrice);
 
     // Calculate stages based on level and rewards
     const stages: StageState[] = Array.from(

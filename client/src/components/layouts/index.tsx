@@ -116,7 +116,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   const multiplier = useMemo(() => {
     if (!config || !starterpack || numsPrice <= 0) return 1;
-    return Rewarder.multiplier(
+    return Rewarder.estimate(
       config.base_price,
       BigInt(starterpack.multiplier),
       BigInt(config.burn_percentage),

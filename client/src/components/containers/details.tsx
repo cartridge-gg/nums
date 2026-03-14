@@ -11,6 +11,7 @@ export interface DetailsProps
   breakEven: string;
   expiration: string;
   maxPayout: string;
+  loading?: boolean;
 }
 
 const detailsVariants = cva("flex flex-col gap-6 grow", {
@@ -31,6 +32,7 @@ export const Details = ({
   breakEven,
   expiration,
   maxPayout,
+  loading,
   variant,
   className,
   ...props
@@ -52,16 +54,17 @@ export const Details = ({
           content={`$${entryPrice.toFixed(2)}`}
           discount={discount}
         />
-        {multiplier && (
+        {(multiplier || loading) && (
           <Detail
             title="Reward multiplier"
-            content={`${basePrice !== entryPrice ? "~" : ""}${multiplier.toFixed(2)}x`}
-            count={Math.min(multiplier, 10)}
+            content={`${basePrice !== entryPrice ? "~" : ""}${multiplier?.toFixed(2)}x`}
+            count={multiplier ? Math.min(multiplier, 10) : 0}
+            loading={loading}
           />
         )}
-        <Detail title="Break Even" content={breakEven} />
+        <Detail title="Break Even" content={breakEven} loading={loading} />
         <Detail title="Expire in" content={expiration} />
-        <Detail title="Maximum reward" content={maxPayout} />
+        <Detail title="Maximum reward" content={maxPayout} loading={loading} />
       </div>
     </div>
   );

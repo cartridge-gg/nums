@@ -8,7 +8,7 @@ import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
-import { Rewarder } from "@/helpers/rewarder";
+import { useMultiplier } from "@/hooks/multiplier";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
@@ -32,21 +32,19 @@ export const Home = () => {
     return Number(activeStarterpack?.price || 2_000_000n) / 10 ** 6;
   }, [activeStarterpack]);
 
-  // Estimate multiplier from on-chain formula
-  const multiplier = useMemo(() => {
-    if (!config || !activeStarterpack || numsPrice <= 0) return 1;
-    return Rewarder.estimate(
-      config.base_price,
-      BigInt(activeStarterpack.multiplier),
-      BigInt(config.burn_percentage),
-      BigInt(config.slot_count),
-      BigInt(config.average_score),
-      BigInt(config.average_weigth),
-      currentSupply,
-      config.target_supply,
-      BigInt(Math.round(numsPrice * 1_000_000)),
-    );
-  }, [config, activeStarterpack, currentSupply, numsPrice]);
+  // Estimate multiplier from on-chain formula via real Ekubo quote
+  const { multiplier } = useMultiplier({
+    basePrice: config?.base_price ?? 0n,
+    packMultiplier: BigInt(activeStarterpack?.multiplier ?? 1),
+    burnPercentage: BigInt(config?.burn_percentage ?? 0),
+    slotCount: BigInt(config?.slot_count ?? 18),
+    averageScore: BigInt(config?.average_score ?? 0),
+    averageWeight: BigInt(config?.average_weigth ?? 0),
+    currentSupply,
+    targetSupply: config?.target_supply ?? 0n,
+    numsAddress: config?.nums ?? "",
+    quoteAddress: config?.quote ?? "",
+  });
 
   // Chart data - calculate rewards for each level based on current supply
   const chartData = useMemo(() => {

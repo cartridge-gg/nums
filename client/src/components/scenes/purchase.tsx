@@ -17,7 +17,8 @@ export interface PurchaseSceneProps
   playPrice: number;
   numsPrice: number;
   multiplier: number;
-  expiration?: number; // Unix timestamp in seconds
+  loading?: boolean;
+  expiration?: number;
   targetSupply: bigint;
   currentSupply: bigint;
   stakesProps?: StakesProps;
@@ -47,6 +48,7 @@ export const PurchaseScene = ({
   playPrice,
   numsPrice,
   multiplier,
+  loading,
   expiration,
   targetSupply,
   currentSupply,
@@ -112,11 +114,13 @@ export const PurchaseScene = ({
       breakEven: chartAbscissa.toString(),
       expiration: expirationDisplay,
       maxPayout: `${maxPayoutNums.toFixed(0).toLocaleString()} NUMS ~ $${maxPayout.toFixed(2).toLocaleString()}`,
+      loading: loading,
     };
   }, [
     basePrice,
     playPrice,
     multiplier,
+    loading,
     chartAbscissa,
     expirationDisplay,
     maxPayoutNums,

@@ -61,7 +61,7 @@ export const Event = ({
                 "text-lg/3 font-primary translate-y-px tracking-wider font-thin whitespace-nowrap",
                 getColor(multiplier),
               )}
-            >{`${multiplier}x`}</strong>
+            >{`${multiplier.toFixed(2)}x`}</strong>
           </div>
           <p className="whitespace-nowrap translate-y-px">game</p>
         </div>

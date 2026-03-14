@@ -25,7 +25,6 @@ pub fn NAME() -> ByteArray {
     "Vault"
 }
 
-const DEPOSITOR_ROLE: felt252 = selector!("DEPOSITOR_ROLE");
 const PROVIDER_ROLE: felt252 = selector!("PROVIDER_ROLE");
 const PAUSER_ROLE: felt252 = selector!("PAUSER_ROLE");
 const KEEPER_ROLE: felt252 = selector!("KEEPER_ROLE");
@@ -59,10 +58,7 @@ pub mod Vault {
     use crate::systems::play::NAME as PLAY;
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
-    use super::{
-        COLLECTOR_ROLE, DEPOSITOR_ROLE, IKeeper, IPauser, IVault, KEEPER_ROLE, PAUSER_ROLE,
-        PROVIDER_ROLE,
-    };
+    use super::{COLLECTOR_ROLE, IKeeper, IPauser, IVault, KEEPER_ROLE, PAUSER_ROLE, PROVIDER_ROLE};
 
     const BASIS_POINT_SCALE: u256 = 10_000;
     const EXIT_FEE: u256 = 500; // 5%
@@ -165,7 +161,6 @@ pub mod Vault {
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol.initializer();
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
-        self.accesscontrol._grant_role(DEPOSITOR_ROLE, treasury_address);
         self.accesscontrol._grant_role(PAUSER_ROLE, treasury_address);
         self.accesscontrol._grant_role(COLLECTOR_ROLE, treasury_address);
         self.accesscontrol._grant_role(KEEPER_ROLE, treasury_address);
@@ -174,9 +169,6 @@ pub mod Vault {
         // [Effect] Extra rights for test purpose
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
-        self.accesscontrol._grant_role(COLLECTOR_ROLE, deployer_account);
-        self.accesscontrol._grant_role(DEPOSITOR_ROLE, deployer_account);
-        self.accesscontrol._grant_role(PAUSER_ROLE, deployer_account);
     }
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -201,12 +193,8 @@ pub mod Vault {
             // [Check] Contract is not paused
             let mut contract_state = self.get_contract_mut();
             contract_state.pausable.assert_not_paused();
-            // [Check] Vault is open or caller is allowed to deposit
-            let world = contract_state.world(@NAMESPACE());
-            if !contract_state.rewardable.is_open(world) {
-                contract_state.accesscontrol.assert_only_role(DEPOSITOR_ROLE);
-            }
             // [Effect] Update user position
+            let world = contract_state.world(@NAMESPACE());
             let balance = contract_state.erc20.balance_of(receiver);
             contract_state.rewardable.stake(world, receiver.into(), balance);
         }
@@ -223,8 +211,10 @@ pub mod Vault {
             // [Check] Contract is not paused
             let mut contract_state = self.get_contract_mut();
             contract_state.pausable.assert_not_paused();
-            // [Check] Update user position
+            // [Check] Vault is open
             let world = contract_state.world(@NAMESPACE());
+            contract_state.rewardable.assert_is_open(world);
+            // [Check] Update user position
             let balance = contract_state.erc20.balance_of(owner);
             contract_state.rewardable.unstake(world, owner.into(), balance);
             // [Interaction] Transfer fees
@@ -303,8 +293,10 @@ pub mod Vault {
         fn claim(ref self: ContractState) {
             // [Check] Contract is not paused
             self.pausable.assert_not_paused();
-            // [Effet] Claim rewards
+            // [Check] Vault is open
             let world = self.world(@NAMESPACE());
+            self.rewardable.assert_is_open(world);
+            // [Effet] Claim rewards
             let caller = get_caller_address();
             let balance = self.erc20.balance_of(caller);
             let amount = self.rewardable.claim(world, caller.into(), balance);

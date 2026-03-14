@@ -9,5 +9,7 @@ export const DEFAULT_DRAW_STAGE = 4;
 export const DEFAULT_EXPIRATION = 1 * 24 * 60 * 60; // One day
 export const DEFAULT_MULTIPLIER = 1;
 export const BASE_MULTIPLIER = 100;
+/** Matches rewarder.cairo MULTIPLIER_PRECISION (1_000_000). Multiplier scale: 1× = 1_000_000 */
+export const MULTIPLIER_PRECISION = 1_000_000n;
 export const REFERRAL_FEE = 0.05;
 export const PROTOCOL_FEE = 0.05;

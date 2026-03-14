@@ -74,9 +74,7 @@ pub mod types {
 pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
-    pub mod nums;
     pub mod registry;
-    pub mod token;
     pub mod vrf;
 }
 

@@ -3,14 +3,16 @@ pub mod PlayableComponent {
     // Imports
     use achievement::components::achievable::AchievableComponent;
     use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
+    use constants::TEN_POW_18;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use ekubo::components::clear::IClearDispatcherTrait;
-    use ekubo::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use ekubo::interfaces::erc20::IERC20Dispatcher;
     use ekubo::interfaces::router::{IRouterDispatcherTrait, RouteNode, TokenAmount};
     use ekubo::types::i129::i129;
     use ekubo::types::keys::PoolKey;
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
+    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
@@ -20,14 +22,14 @@ pub mod PlayableComponent {
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::helpers::random::RandomImpl;
     use crate::helpers::rewarder::Rewarder;
-    use crate::interfaces::nums::INumsTokenDispatcherTrait;
     use crate::models::config::{ConfigAssert, ConfigTrait};
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::models::starterpack::StarterpackAssert;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
-    use crate::systems::vault::IVaultDispatcherTrait;
+    use crate::systems::token::{ITokenDispatcher, ITokenDispatcherTrait};
+    use crate::systems::vault::{IVaultDispatcher, IVaultDispatcherTrait};
     use crate::{StoreImpl, StoreTrait, constants};
 
     // Constants
@@ -77,13 +79,12 @@ pub mod PlayableComponent {
                 * config.base_price
                 * config.burn_percentage.into()
                 / 100_u256;
-            let quote = IERC20Dispatcher { contract_address: pack.payment_token };
+            let quote = IERC20MixinDispatcher { contract_address: pack.payment_token };
             let router = store.ekubo_router();
             quote.transfer(router.contract_address, amount);
 
             // [Interaction] Swap Quote token for Nums
-            let nums = store.nums_disp();
-            let nums_address = nums.contract_address;
+            let nums_address = config.nums;
             let (token0, token1) = if quote.contract_address < nums_address {
                 (quote.contract_address, nums_address)
             } else {
@@ -114,12 +115,15 @@ pub mod PlayableComponent {
 
             // [Interaction] Burn the corresponding amount of Nums
             let this = starknet::get_contract_address();
-            let nums_supply = store.nums_disp().total_supply();
-            let burn_amount = nums.balance_of(this);
-            nums.burn(burn_amount);
+            let asset = IERC20MixinDispatcher { contract_address: nums_address };
+            let nums_supply = asset.total_supply();
+            let burn_amount = asset.balance_of(this);
+            let asset = ITokenDispatcher { contract_address: nums_address };
+            asset.burn(burn_amount);
 
             // [Interaction] Pay dividends to the vault
-            let vault = store.vault_disp();
+            let vault_address = config.vault;
+            let vault = IVaultDispatcher { contract_address: vault_address };
             let amount = quote.balanceOf(this);
             quote.approve(spender: vault.contract_address, amount: amount);
             vault.pay(recipient.into(), amount);
@@ -177,7 +181,7 @@ pub mod PlayableComponent {
             achievable.progress(world, player, task.identifier(), quantity.into(), true);
 
             // [Event] Emit purchase event
-            store.purchased(recipient.into(), starterpack_id, quantity, pack.multiplier);
+            store.purchased(recipient.into(), starterpack_id, quantity, multiplier);
         }
     }
 
@@ -228,7 +232,7 @@ pub mod PlayableComponent {
             let quest: QuestType = quest_id.into();
             let (amount, task) = quest.reward();
             if amount != 0 {
-                store.nums_disp().reward(recipient, amount);
+                store.nums_disp().reward(recipient, (amount.into() * TEN_POW_18).into());
             }
 
             // [Effect] Update achievement progression for daily quest completions
@@ -483,12 +487,14 @@ pub mod PlayableComponent {
             // [Check] Game state
             let mut game = store.game(game_id);
             game.assert_does_exist();
-            game.assert_is_claimable();
+            game.assert_is_over();
+            game.assert_not_expired();
             game.assert_not_claimed();
 
             // [Effect] Claim game
             let mut game = store.game(game_id);
-            let reward = game.claim();
+            let reward: u128 = game.claim();
+            let base_reward: u128 = reward / TEN_POW_18;
 
             // [Effect] Update game
             store.set_game(@game);
@@ -497,19 +503,19 @@ pub mod PlayableComponent {
             let player = self.owner(world, game_id);
             let questable = get_dep_component!(@self, Quest);
             let task = Task::Claimer;
-            questable.progress(world, player.into(), task.identifier(), reward.into(), true);
+            questable.progress(world, player.into(), task.identifier(), base_reward, true);
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let achievable = get_dep_component!(@self, Achievable);
             let task = Task::Claimer;
-            achievable.progress(world, player.into(), task.identifier(), reward.into(), true);
+            achievable.progress(world, player.into(), task.identifier(), base_reward, true);
 
             // [Interaction] Pay user reward
             let player = self.owner(world, game_id);
-            store.nums_disp().reward(player, reward);
+            store.nums_disp().reward(player, reward.into());
 
             // [Event] Emit claimed event
-            store.claimed(player.into(), game_id, reward);
+            store.claimed(player.into(), game_id, base_reward);
         }
     }
 

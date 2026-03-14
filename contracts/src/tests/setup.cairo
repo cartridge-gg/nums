@@ -4,10 +4,7 @@ pub mod setup {
     use achievement::events::index as achievement_events;
     use achievement::models::index as achievement_models;
     use dojo::world::{WorldStorage, WorldStorageTrait, world};
-    use dojo_cairo_test::{
-        ContractDef, ContractDefTrait, NamespaceDef, TestResource, WorldStorageTestTrait,
-        spawn_test_world,
-    };
+    use dojo_cairo_test::{ContractDef, NamespaceDef, TestResource, spawn_test_world};
     use quest::events::index as quest_events;
     use quest::models::index as quest_models;
     use starknet::ContractAddress;
@@ -97,24 +94,7 @@ pub mod setup {
 
     #[inline]
     fn setup_contracts() -> Span<ContractDef> {
-        [
-            ContractDefTrait::new(@NAMESPACE(), @SETUP_NAME())
-                .with_owner_of([dojo::utils::bytearray_hash(@NAMESPACE())].span())
-                .with_init_calldata(
-                    array![
-                        0x1, 0x1, 0x1, 0x1, OWNER().into(), 0x0, 0x0, 1_990_000, 10_000_000, 70, 12,
-                        0x0, 0x0, 0x0,
-                    ]
-                        .span(),
-                ),
-            ContractDefTrait::new(@NAMESPACE(), @PLAY_NAME())
-                .with_writer_of([dojo::utils::bytearray_hash(@NAMESPACE())].span())
-                .with_init_calldata(array![].span()),
-            ContractDefTrait::new(@NAMESPACE(), @COLLECTION_NAME())
-                .with_owner_of([dojo::utils::bytearray_hash(@NAMESPACE())].span())
-                .with_init_calldata(array![].span()),
-        ]
-            .span()
+        [].span()
     }
 
     #[inline]
@@ -124,7 +104,7 @@ pub mod setup {
         set_account_contract_address(OWNER());
         let namespace_def = setup_namespace();
         let world = spawn_test_world(world::TEST_CLASS_HASH, [namespace_def].span());
-        world.sync_perms_and_inits(setup_contracts());
+        // world.sync_perms_and_inits(setup_contracts());
         // [Setup] Systems
         let (play_address, _) = world.dns(@PLAY_NAME()).expect('Play not found');
         let (collection_address, _) = world.dns(@COLLECTION_NAME()).expect('Collection not found');

@@ -3,11 +3,12 @@
  * Equivalent to helpers/rewarder.cairo
  */
 
-const A = 306_211_270_390_303_800n;
+import { MULTIPLIER_PRECISION } from "@/constants";
+
+const TEN_POW_18 = 10n ** 18n;
+const A = 306_211_270_390_303_800n * TEN_POW_18;
 const B = 3n;
 const K = 10n;
-const PRECISION = 100n;
-const TEN_POW_18 = 10n ** 18n;
 
 export class Rewarder {
   /**
@@ -15,27 +16,27 @@ export class Rewarder {
    * @param scoreNum  - Numerator of the score fraction
    * @param scoreDen  - Denominator of the score fraction
    * @param slotCount - Number of slots in the game
-   * @returns Base reward (u128 equivalent, NUMS without 18 decimals)
+   * @returns Base reward (18-decimal bigint)
    */
   static base(scoreNum: bigint, scoreDen: bigint, slotCount: bigint): bigint {
     if (scoreDen === 0n) return 0n;
     const denLhs = (slotCount + B) ** K;
     const denRhs = scoreNum ** K / scoreDen ** K;
     if (denLhs <= denRhs) return 0n;
-    return A / (denLhs - denRhs) - A / denLhs + scoreNum / scoreDen;
+    return (A / (denLhs - denRhs) - A / denLhs + scoreNum * TEN_POW_18 / scoreDen);
   }
 
   /**
-   * Mirrors Rewarder::supply_multiplier — 100-based (100n = 1×).
+   * Mirrors Rewarder::supply_multiplier — MULTIPLIER_PRECISION-based (1_000_000 = 1×).
    * Returns 0 when supply ≥ 2 × target (no rewards).
    */
   static supplyMultiplier(supply: bigint, target: bigint): bigint {
     if (supply > target * 2n || target === 0n) return 0n;
-    return ((2n * target - supply) * PRECISION) / target;
+    return ((2n * target - supply) * MULTIPLIER_PRECISION) / target;
   }
 
   /**
-   * Mirrors Rewarder::burn_multiplier — 100-based (100n = 1×).
+   * Mirrors Rewarder::burn_multiplier — MULTIPLIER_PRECISION-based (1_000_000 = 1×).
    * @param burn - NUMS burned per game (18-decimal bigint)
    */
   static burnMultiplier(
@@ -46,18 +47,18 @@ export class Rewarder {
   ): bigint {
     const mint = Rewarder.base(scoreNum, scoreDen, slotCount);
     if (mint === 0n) return 0n;
-    return (burn * PRECISION) / (mint * TEN_POW_18);
+    return (burn * MULTIPLIER_PRECISION) / mint;
   }
 
   /**
-   * Mirrors Rewarder::multiplier — 100-based (100n = 1×).
+   * Mirrors Rewarder::multiplier — MULTIPLIER_PRECISION-based (1_000_000 = 1×).
    * @param supply    - Current supply of the game
    * @param target    - Target supply of the game
    * @param burn      - NUMS burned per game (18-dec bigint)
    * @param scoreNum  - Numerator of the score fraction
    * @param scoreDen  - Denominator of the score fraction
    * @param slotCount - Number of slots in the game
-   * @returns Multiplier on a 100-based scale (100n = 1×)
+   * @returns Multiplier on MULTIPLIER_PRECISION-based scale (1_000_000n = 1×)
    */
   static multiplier(
     supply: bigint,
@@ -74,13 +75,13 @@ export class Rewarder {
       scoreDen,
       slotCount,
     );
-    return (supplyMultiplier * burnMultiplier) / PRECISION;
+    return (supplyMultiplier * burnMultiplier) / MULTIPLIER_PRECISION;
   }
 
   /**
    * Mirrors Rewarder::amount
-   * @param multiplier - 100-based bigint (100n = 1×, as stored on-chain)
-   * @returns Reward amount (u64 equivalent, NUMS without 18 decimals)
+   * @param multiplier - MULTIPLIER_PRECISION-based bigint (1_000_000n = 1×, as stored on-chain)
+   * @returns Reward amount (NUMS, human-readable without 18 decimals)
    */
   static amount(
     scoreNum: bigint,
@@ -89,7 +90,7 @@ export class Rewarder {
     multiplier: bigint,
   ): number {
     const base = Rewarder.base(scoreNum, scoreDen, slotCount);
-    return Number((base * multiplier) / PRECISION);
+    return Number((base * multiplier) / MULTIPLIER_PRECISION / TEN_POW_18);
   }
 
   /**
@@ -149,6 +150,6 @@ export class Rewarder {
       avgDen,
       slotCount,
     );
-    return Number(multiplier) / Number(PRECISION);
+    return Number(multiplier) / Number(MULTIPLIER_PRECISION);
   }
 }

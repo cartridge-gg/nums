@@ -110,9 +110,15 @@ const CrosshairOverlay = ({
     containerActivePoint ?? activeDataPoints?.[0] ?? breakEvenPoint;
   const isBreakEven = !isHovering;
 
-  // Data → pixel (linear scale)
+  // Data → pixel (log scale: normalized = (log(y) - log(min)) / (log(max) - log(min)))
   const px = plotLeft + (active.x / DEFAULT_SLOT_COUNT) * plotWidth;
-  const py = plotTop + (1 - active.y / maxDataY) * plotHeight;
+  const safeY = Math.max(active.y, 1);
+  const minY = 1;
+  const logMax = Math.log(Math.max(maxDataY, 1));
+  const logMin = Math.log(minY);
+  const normalized =
+    logMax <= logMin ? 1 : (Math.log(safeY) - logMin) / (logMax - logMin);
+  const py = plotTop + (1 - normalized) * plotHeight;
 
   // ── Top tooltip: 8px padding L/R, 24px height, text centered
   const topLabel = isBreakEven ? "Break Even" : `Level ${active.x}`;
@@ -269,10 +275,10 @@ export const Chart = ({
   }, [abscissa, values]);
 
   const data = useMemo(() => {
-    const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
-    for (let i = 0; i < values.length; i++) {
-      points.push({ x: i + 1, y: values[i] });
-    }
+    const points: Array<{ x: number; y: number }> = values.map((y, i) => ({
+      x: i + 1,
+      y,
+    }));
     const abscissaIndex = points.findIndex(
       (p) => Math.abs(p.x - abscissa) < 0.001,
     );
@@ -288,6 +294,12 @@ export const Chart = ({
   }, [values, abscissa, abscissaY]);
 
   const maxY = Math.max(...values, 0);
+
+  // For log scale: y must be > 0; transform data for the Line
+  const chartData = useMemo(
+    () => data.map((p) => ({ ...p, y: Math.max(p.y, 1) })),
+    [data],
+  );
 
   const breakEvenPoint = useMemo(
     () => ({ x: abscissa, y: abscissaY }),
@@ -346,7 +358,18 @@ export const Chart = ({
     [breakEvenPoint, containerActive, containerRef],
   );
 
-  const xTicks = [1, DEFAULT_SLOT_COUNT];
+  const xTicks = useMemo(() => {
+    const ticks = [1, DEFAULT_SLOT_COUNT];
+    if (
+      abscissa > 1 &&
+      abscissa < DEFAULT_SLOT_COUNT &&
+      !ticks.some((t) => Math.abs(t - abscissa) < 0.01)
+    ) {
+      ticks.push(abscissa);
+      ticks.sort((a, b) => a - b);
+    }
+    return ticks;
+  }, [abscissa]);
 
   return (
     <div
@@ -367,7 +390,7 @@ export const Chart = ({
         minHeight={240}
       >
         <LineChart
-          data={data}
+          data={chartData}
           margin={{ top: 48, right: 12, bottom: 5, left: 16 }}
           style={{ outline: "none" }}
         >
@@ -419,11 +442,12 @@ export const Chart = ({
             tick={<XAxisTick showLabel={true} />}
           />
 
-          {/* Y-axis — width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
+          {/* Y-axis — log scale, width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
           <YAxis
             type="number"
+            scale="log"
             width={0}
-            domain={[0, Math.max(maxY, 1)]}
+            domain={[1, Math.max(maxY, 1)]}
             axisLine={false}
             tickLine={false}
             tick={() => null}

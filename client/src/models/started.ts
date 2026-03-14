@@ -1,5 +1,6 @@
 import type { EventProps } from "@/components/elements";
 import type { RawStarted } from "@/models";
+import { MULTIPLIER_PRECISION } from "@/constants";
 
 const MODEL_NAME = "Started";
 
@@ -30,7 +31,7 @@ export class Started {
     const props = {
       player_id: data.player_id.value,
       game_id: Number(data.game_id.value),
-      multiplier: Number(data.multiplier.value) / 100,
+      multiplier: Number(data.multiplier.value) / Number(MULTIPLIER_PRECISION),
       time: Number(data.time.value),
     };
     return new Started(

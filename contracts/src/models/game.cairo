@@ -40,7 +40,7 @@ pub impl GameImpl of GameTrait {
     #[inline]
     fn new(
         id: u64,
-        multiplier: u16,
+        multiplier: u128,
         slot_count: u8,
         slot_min: u16,
         slot_max: u16,
@@ -142,9 +142,10 @@ pub impl GameImpl of GameTrait {
     /// Rewards the game for the current level.
     #[inline]
     fn reward(ref self: Game) {
-        self
-            .reward =
-                Rewarder::amount(self.level.into(), 1, self.slot_count.into(), self.multiplier);
+        let reward = Rewarder::amount(
+            self.level.into(), 1, self.slot_count.into(), self.multiplier,
+        );
+        self.reward = reward.try_into().expect('Game: reward conversion failed');
     }
 
     /// Levels up the game.
@@ -336,7 +337,7 @@ pub impl GameImpl of GameTrait {
 
     /// Claims the game.
     #[inline]
-    fn claim(ref self: Game) -> u64 {
+    fn claim(ref self: Game) -> u128 {
         // [Effect] Claim game
         self.claimed = true;
         self.reward
@@ -426,12 +427,6 @@ pub impl GameAssert of AssertTrait {
         assert(self.over != @0, errors::GAME_NOT_OVER);
     }
 
-    /// Asserts is claimable.
-    #[inline]
-    fn assert_is_claimable(self: @Game) {
-        assert(self.over != @0 || self.is_expired(), errors::GAME_NOT_CLAIMABLE);
-    }
-
     /// Asserts that the game has started.
     #[inline]
     fn assert_has_started(self: @Game) {
@@ -456,7 +451,7 @@ mod tests {
     use super::{DEFAULT_DRAW_STAGE, Game, GameAssert, GameTrait, RandomImpl};
 
     const SUPPLY: u256 = 1;
-    const DEFAULT_MULTIPLIER: u16 = 1;
+    const DEFAULT_MULTIPLIER: u128 = 1;
     const DEFAULT_PRICE: u256 = 2 * 10_u256.pow(6);
 
     /// Helper function to create a test game instance

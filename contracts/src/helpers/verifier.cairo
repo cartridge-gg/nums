@@ -171,7 +171,7 @@ mod tests {
 
     const DEFAULT_PRICE: u256 = 2 * 10_u256.pow(6);
     const DEFAULT_SLOT_COUNT: u8 = 20;
-    const DEFAULT_MULTIPLIER: u16 = 1;
+    const DEFAULT_MULTIPLIER: u128 = 1;
     const SUPPLY: u256 = 1;
 
     fn create_test_game() -> Game {

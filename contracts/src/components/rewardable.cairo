@@ -6,7 +6,7 @@ pub mod RewardableComponent {
     use crate::constants::{TEN_POW_36, WORLD_RESOURCE};
     use crate::models::config::ConfigAssert;
     use crate::models::position::{PositionAssert, PositionTrait};
-    use crate::models::vault::VaultTrait;
+    use crate::models::vault::{VaultAssert, VaultTrait};
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -38,13 +38,6 @@ pub mod RewardableComponent {
             store.set_vault(@vault);
         }
 
-        fn is_open(ref self: ComponentState<TContractState>, world: WorldStorage) -> bool {
-            // [Setup] Store
-            let store = StoreImpl::new(world);
-            // [Return] Vault is open
-            store.vault().open
-        }
-
         fn assert_not_locked(
             ref self: ComponentState<TContractState>, world: WorldStorage, user: felt252,
         ) {
@@ -53,6 +46,22 @@ pub mod RewardableComponent {
             // [Check] Position is not locked
             let position = store.position(user);
             position.assert_not_locked();
+        }
+
+        fn assert_is_open(ref self: ComponentState<TContractState>, world: WorldStorage) {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+            // [Check] Vault is open
+            let vault = store.vault();
+            vault.assert_is_open();
+        }
+
+        fn assert_is_closed(ref self: ComponentState<TContractState>, world: WorldStorage) {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+            // [Check] Vault is closed
+            let vault = store.vault();
+            vault.assert_is_closed();
         }
 
         fn claimable(

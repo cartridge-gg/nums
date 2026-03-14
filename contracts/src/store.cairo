@@ -10,10 +10,10 @@ use crate::events::claimed::ClaimedTrait;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
-use crate::interfaces::nums::INumsTokenDispatcher;
 use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{Config, Game, Starterpack, VaultInfo, VaultPosition};
+use crate::systems::token::ITokenDispatcher;
 use crate::systems::vault::IVaultDispatcher;
 
 #[derive(Copy, Drop)]
@@ -29,9 +29,9 @@ pub impl StoreImpl of StoreTrait {
 
     //  Dispatchers
 
-    fn nums_disp(self: @Store) -> INumsTokenDispatcher {
+    fn nums_disp(self: @Store) -> ITokenDispatcher {
         let config = self.config();
-        INumsTokenDispatcher { contract_address: config.nums }
+        ITokenDispatcher { contract_address: config.nums }
     }
 
     fn vrf_disp(self: @Store) -> IVrfProviderDispatcher {
@@ -131,19 +131,19 @@ pub impl StoreImpl of StoreTrait {
 
     // Events
 
-    fn claimed(mut self: Store, player_id: felt252, game_id: u64, reward: u64) {
+    fn claimed(mut self: Store, player_id: felt252, game_id: u64, reward: u128) {
         let event = ClaimedTrait::new(player_id, game_id, reward);
         self.world.emit_event(@event);
     }
 
     fn purchased(
-        mut self: Store, player_id: felt252, starterpack_id: u32, quantity: u32, multiplier: u8,
+        mut self: Store, player_id: felt252, starterpack_id: u32, quantity: u32, multiplier: u128,
     ) {
         let event = PurchasedTrait::new(player_id, starterpack_id, quantity, multiplier);
         self.world.emit_event(@event);
     }
 
-    fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u16) {
+    fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u128) {
         let event = StartedTrait::new(player_id, game_id, multiplier);
         self.world.emit_event(@event);
     }

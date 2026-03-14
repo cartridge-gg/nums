@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { MULTIPLIER_PRECISION } from "@/constants";
 import { Rewarder } from "./rewarder";
 
 // Mirror of Cairo test constants in rewarder.cairo
@@ -7,13 +8,12 @@ const TARGET_SUPPLY = 1_000_000n;
 const SLOT_COUNT = 18n;
 
 // Shared multiplier calibrated at average score (12/1) and target supply
-// supply_multiplier(TARGET, TARGET) = 100
-// burn_multiplier(BURN, 12, 1, 18)  = BURN * 100 / (base(12,1,18) * 10^18)
-// multiplier = 100 * burn_mul / 100 = burn_mul
+// supply_multiplier(TARGET, TARGET) = MULTIPLIER_PRECISION
+// multiplier = supply_mult * burn_mult / MULTIPLIER_PRECISION
 const AVG_MULTIPLIER =
   (Rewarder.supplyMultiplier(TARGET_SUPPLY, TARGET_SUPPLY) *
     Rewarder.burnMultiplier(BURN, 12n, 1n, SLOT_COUNT)) /
-  100n;
+  MULTIPLIER_PRECISION;
 
 describe("Rewarder.base", () => {
   test("returns_0_when_score_den_is_0", () => {
@@ -32,12 +32,14 @@ describe("Rewarder.base", () => {
 });
 
 describe("Rewarder.supplyMultiplier", () => {
-  test("returns_100_at_target_supply", () => {
-    expect(Rewarder.supplyMultiplier(TARGET_SUPPLY, TARGET_SUPPLY)).toBe(100n);
+  test("returns_MULTIPLIER_PRECISION_at_target_supply", () => {
+    expect(Rewarder.supplyMultiplier(TARGET_SUPPLY, TARGET_SUPPLY)).toBe(
+      MULTIPLIER_PRECISION,
+    );
   });
 
-  test("returns_200_at_zero_supply", () => {
-    expect(Rewarder.supplyMultiplier(0n, TARGET_SUPPLY)).toBe(200n);
+  test("returns_2x_MULTIPLIER_PRECISION_at_zero_supply", () => {
+    expect(Rewarder.supplyMultiplier(0n, TARGET_SUPPLY)).toBe(MULTIPLIER_PRECISION * 2n);
   });
 
   test("returns_0_at_double_target_supply", () => {
@@ -59,9 +61,11 @@ describe("Rewarder.supplyMultiplier", () => {
 
 describe("Rewarder.amount", () => {
   test("test_rewarder_at_target_at_average", () => {
-    // At target supply, average score: reward == BURN / 10^18
+    // At target supply, average score: reward ≈ BURN / 10^18 (Cairo allows MULTIPLIER_PRECISION error)
     const reward = Rewarder.amount(12n, 1n, SLOT_COUNT, AVG_MULTIPLIER);
-    expect(reward).toBe(Number(BURN / 10n ** 18n)); // 1000
+    const burnHuman = Number(BURN / 10n ** 18n);
+    expect(reward).toBeGreaterThanOrEqual(burnHuman - 1);
+    expect(reward).toBeLessThanOrEqual(burnHuman + 1);
   });
 
   test("test_rewarder_at_target_below_average", () => {
@@ -85,21 +89,21 @@ describe("Rewarder.amount", () => {
   });
 
   test("test_rewarder_below_target_at_average", () => {
-    // Below target: supply_multiplier > 100 → more rewards
+    // Below target: supply_multiplier > MULTIPLIER_PRECISION → more rewards
     const belowMul =
       (Rewarder.supplyMultiplier(TARGET_SUPPLY / 2n, TARGET_SUPPLY) *
         Rewarder.burnMultiplier(BURN, 12n, 1n, SLOT_COUNT)) /
-      100n;
+      MULTIPLIER_PRECISION;
     const reward = Rewarder.amount(12n, 1n, SLOT_COUNT, belowMul);
     expect(reward).toBeGreaterThan(Number(BURN / 10n ** 18n));
   });
 
   test("test_rewarder_above_target_at_average", () => {
-    // Above target: supply_multiplier < 100 → fewer rewards
+    // Above target: supply_multiplier < MULTIPLIER_PRECISION → fewer rewards
     const aboveMul =
       (Rewarder.supplyMultiplier((TARGET_SUPPLY * 3n) / 2n, TARGET_SUPPLY) *
         Rewarder.burnMultiplier(BURN, 12n, 1n, SLOT_COUNT)) /
-      100n;
+      MULTIPLIER_PRECISION;
     const reward = Rewarder.amount(12n, 1n, SLOT_COUNT, aboveMul);
     expect(reward).toBeLessThan(Number(BURN / 10n ** 18n));
   });
@@ -109,7 +113,7 @@ describe("Rewarder.amount", () => {
     const zeroMul =
       (Rewarder.supplyMultiplier(TARGET_SUPPLY * 2n, TARGET_SUPPLY) *
         Rewarder.burnMultiplier(BURN, 12n, 1n, SLOT_COUNT)) /
-      100n;
+      MULTIPLIER_PRECISION;
     const reward = Rewarder.amount(12n, 1n, SLOT_COUNT, zeroMul);
     expect(reward).toBe(0);
   });
@@ -223,6 +227,7 @@ describe("Rewarder.estimate", () => {
   });
 
   test("test_multiplier_case_pack_1", () => {
+    // Synced with rewarder.cairo (MULTIPLIER_PRECISION 1_000_000)
     const multiplier = Rewarder.estimate(
       2_000_000n,
       1n,
@@ -234,10 +239,11 @@ describe("Rewarder.estimate", () => {
       10000000000000000000000000n,
       954n,
     );
-    expect(multiplier).toBe(14.87);
+    expect(multiplier).toBeCloseTo(18.62, 1);
   });
 
   test("test_multiplier_case_pack_10", () => {
+    // Synced with rewarder.cairo (MULTIPLIER_PRECISION 1_000_000)
     const multiplier = Rewarder.estimate(
       2_000_000n,
       10n,
@@ -249,6 +255,6 @@ describe("Rewarder.estimate", () => {
       10000000000000000000000000n,
       954n,
     );
-    expect(multiplier).toBe(150.71);
+    expect(multiplier).toBeCloseTo(186.5, 1);
   });
 });

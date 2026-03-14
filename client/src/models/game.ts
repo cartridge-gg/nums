@@ -4,13 +4,13 @@ import type { RawGame } from "@/models";
 import { Trap } from "@/types/trap";
 import { Verifier } from "@/helpers/verifier";
 import type { Random } from "@/helpers/random";
+import { MULTIPLIER_PRECISION } from "@/constants";
 import { Rewarder } from "@/helpers/rewarder";
 import {
   DEFAULT_DRAW_COUNT,
   DEFAULT_DRAW_STAGE,
   DEFAULT_MAX_DRAW,
   DEFAULT_EXPIRATION,
-  BASE_MULTIPLIER,
   DEFAULT_POWER_COUNT,
 } from "@/constants";
 import { TRAP_COUNT } from "@/types/trap";
@@ -75,7 +75,7 @@ export class Game {
     const props = {
       id: Number(data.id.value),
       claimed: !!data.claimed.value,
-      multiplier: Number(data.multiplier.value) / 100,
+      multiplier: Number(data.multiplier.value) / Number(MULTIPLIER_PRECISION),
       level: Number(data.level.value),
       slot_count: Number(data.slot_count.value),
       slot_min: Number(data.slot_min.value),
@@ -94,7 +94,7 @@ export class Game {
         1n,
         Number(data.slot_count.value),
       ).map((index) => index === 1),
-      reward: Number(data.reward.value),
+      reward: Number(BigInt(data.reward.value) / 10n ** 18n),
       over: Number(data.over.value),
       expiration: Number(data.expiration.value),
       traps: Trap.getTraps(BigInt(data.traps.value)),
@@ -170,7 +170,7 @@ export class Game {
    * @returns Array of slot-count reward values, one for each level
    */
   public static rewards(slotCount: number, multiplier: number): number[] {
-    const multiplierBig = BigInt(Math.round(multiplier * 100));
+    const multiplierBig = BigInt(Math.round(multiplier * Number(MULTIPLIER_PRECISION)));
     return Array.from({ length: slotCount }, (_, index) => {
       return Rewarder.amount(
         BigInt(index + 1),
@@ -400,7 +400,7 @@ export class Game {
    * Equivalent to GameTrait::reward in models/game.cairo
    */
   addReward(): void {
-    const multiplierBig = BigInt(Math.round(this.multiplier * 100));
+    const multiplierBig = BigInt(Math.round(this.multiplier * Number(MULTIPLIER_PRECISION)));
     const rewardAmount = Rewarder.amount(
       BigInt(this.level),
       1n,
@@ -668,8 +668,8 @@ export class Game {
    * Equivalent to GameTrait::claim in models/game.cairo
    */
   claim(): number {
-    // [Effect] Claim game
+    // [Effect] Claim game — Cairo returns self.reward directly (multiplier already applied)
     this.claimed = true;
-    return Math.floor((this.reward * this.multiplier) / BASE_MULTIPLIER);
+    return this.reward;
   }
 }

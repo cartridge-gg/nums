@@ -1,5 +1,6 @@
 import type { EventProps } from "@/components/elements";
 import type { RawPurchased } from "@/models";
+import { MULTIPLIER_PRECISION } from "@/constants";
 
 const MODEL_NAME = "Purchased";
 
@@ -33,7 +34,7 @@ export class Purchased {
       player_id: data.player_id.value,
       starterpack_id: Number(data.starterpack_id.value),
       quantity: Number(data.quantity.value),
-      multiplier: Number(data.multiplier.value),
+      multiplier: Number(data.multiplier.value) / Number(MULTIPLIER_PRECISION),
       time: Number(data.time.value),
     };
     return new Purchased(

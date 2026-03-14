@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNetwork } from "@starknet-react/core";
 import { getSwapQuote } from "@/api/ekubo";
+import { MULTIPLIER_PRECISION } from "@/constants";
 import { Rewarder } from "@/helpers/rewarder";
 
 const DEBOUNCE_MS = 500;
 const EMA_SCORE_PRECISION = 1000n;
-const PRECISION = 100n;
 
 export interface UseMultiplierParams {
   basePrice: bigint;
@@ -81,7 +81,7 @@ export const useMultiplier = ({
           avgDen,
           slotCount,
         );
-        setMultiplier(Number(mulRaw) / Number(PRECISION));
+        setMultiplier(Number(mulRaw) / Number(MULTIPLIER_PRECISION));
       } catch {
         // Keep previous value on network/API error
       } finally {

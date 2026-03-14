@@ -51,13 +51,14 @@ export const Details = ({
       >
         <Detail
           title="Entry Fee"
+          previous={`$${basePrice.toFixed(2)}`}
           content={`$${entryPrice.toFixed(2)}`}
           discount={discount}
         />
         {(multiplier || loading) && (
           <Detail
             title="Reward multiplier"
-            content={`${basePrice !== entryPrice ? "~" : ""}${multiplier?.toFixed(2)}x`}
+            content={`${multiplier?.toFixed(2)}x`}
             count={multiplier ? Math.min(multiplier, 10) : 0}
             loading={loading}
           />

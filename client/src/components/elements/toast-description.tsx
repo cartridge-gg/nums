@@ -54,7 +54,7 @@ export const ToastDescription = ({
               "text-[22px]/[15px] font-primary translate-y-0.5",
               color,
             )}
-          >{`${multiplier}x`}</strong>
+          >{`${multiplier.toFixed(2)}x`}</strong>
         </div>
         <p>game</p>
       </div>

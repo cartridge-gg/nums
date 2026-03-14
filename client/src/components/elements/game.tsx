@@ -88,8 +88,17 @@ export const Game = ({
           />
         </div>
 
+        {/* Break Even column */}
+        <div
+          className={cn("flex-1 flex-col gap-2", !!gameId ? "hidden" : "flex")}
+        >
+          <Content title="Break Even" value={breakEven} />
+        </div>
+
         {/* Score column */}
-        <div className="flex-1 flex flex-col gap-2">
+        <div
+          className={cn("flex-1 flex-col gap-2", !!gameId ? "flex" : "hidden")}
+        >
           <Content title="Score" value={score} />
         </div>
 

@@ -1,12 +1,11 @@
 // Imports
 
 use core::num::traits::Pow;
-use crate::constants::TEN_POW_18;
+use crate::constants::{MULTIPLIER_PRECISION, TEN_POW_18};
 
-pub const A: u256 = 306_211_270_390_303_800;
+pub const A: u256 = 306_211_270_390_303_800 * TEN_POW_18.into();
 pub const B: u256 = 3;
 pub const K: u32 = 10;
-pub const PRECISION: u16 = 100;
 
 /// Helper function to handle the reward calculation.
 #[generate_trait]
@@ -25,7 +24,7 @@ pub impl Rewarder of RewarderTrait {
         }
         let den_lhs: u256 = (slot_count + B).pow(K);
         let den_rhs: u256 = score_num.pow(K) / score_den.pow(K);
-        (A / (den_lhs - den_rhs) - A / den_lhs + score_num / score_den)
+        (A / (den_lhs - den_rhs) - A / den_lhs + score_num * TEN_POW_18.into() / score_den)
     }
 
     /// Calculate the supply multiplier for a given supply and target.
@@ -35,11 +34,11 @@ pub impl Rewarder of RewarderTrait {
     /// # Returns
     /// The supply multiplier on a 100-based scale.
     #[inline]
-    fn supply_multiplier(supply: u256, target: u256) -> u16 {
+    fn supply_multiplier(supply: u256, target: u256) -> u128 {
         if supply > target * 2 || target == 0 {
             return 0;
         }
-        ((2 * target - supply) * PRECISION.into() / target).try_into().unwrap()
+        ((2 * target - supply) * MULTIPLIER_PRECISION.into() / target).try_into().unwrap()
     }
 
     /// Calculate the burn multiplier for a given burn amount, score, and slot count.
@@ -51,12 +50,12 @@ pub impl Rewarder of RewarderTrait {
     /// # Returns
     /// The burn multiplier on a 100-based scale.
     #[inline]
-    fn burn_multiplier(burn: u256, score_num: u256, score_den: u256, slot_count: u256) -> u16 {
+    fn burn_multiplier(burn: u256, score_num: u256, score_den: u256, slot_count: u256) -> u128 {
         let mint = Self::base(score_num, score_den, slot_count);
         if mint == 0 {
             return 0;
         }
-        (burn * PRECISION.into() / (mint * TEN_POW_18.into())).try_into().unwrap()
+        (burn * MULTIPLIER_PRECISION.into() / mint).try_into().unwrap()
     }
 
     /// Calculate the multiplier for a given supply, target, burn, score, and slot count.
@@ -72,12 +71,11 @@ pub impl Rewarder of RewarderTrait {
     #[inline]
     fn multiplier(
         supply: u256, target: u256, burn: u256, score_num: u256, score_den: u256, slot_count: u256,
-    ) -> u16 {
-        let supply_multiplier: u128 = Self::supply_multiplier(supply, target).into();
-        let burn_multiplier: u128 = Self::burn_multiplier(burn, score_num, score_den, slot_count)
-            .into();
-        let multiplier: u128 = supply_multiplier * burn_multiplier / PRECISION.into();
-        multiplier.try_into().unwrap()
+    ) -> u128 {
+        let supply_multiplier: u128 = Self::supply_multiplier(supply, target);
+        let burn_multiplier: u128 = Self::burn_multiplier(burn, score_num, score_den, slot_count);
+        let multiplier: u128 = supply_multiplier * burn_multiplier / MULTIPLIER_PRECISION;
+        multiplier
     }
 
     /// Calculate the reward amount for a given score and multiplier.
@@ -89,10 +87,10 @@ pub impl Rewarder of RewarderTrait {
     /// # Returns
     /// The reward amount.
     #[inline]
-    fn amount(score_num: u256, score_den: u256, slot_count: u256, multiplier: u16) -> u64 {
+    fn amount(score_num: u256, score_den: u256, slot_count: u256, multiplier: u128) -> u256 {
         let base = Self::base(score_num, score_den, slot_count);
-        let amount = base * multiplier.into() / PRECISION.into();
-        amount.try_into().unwrap()
+        let amount = base * multiplier.into() / MULTIPLIER_PRECISION.into();
+        amount
     }
 }
 
@@ -100,7 +98,7 @@ pub impl Rewarder of RewarderTrait {
 mod tests {
     use super::*;
 
-    const BURN: u256 = 1000 * TEN_POW_18.into();
+    const BURN: u256 = 100 * TEN_POW_18.into();
     const TARGET_SUPPLY: u256 = 1_000_000;
     const SLOT_COUNT: u256 = 18;
 
@@ -110,7 +108,8 @@ mod tests {
             TARGET_SUPPLY, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_eq!(reward.into(), BURN / TEN_POW_18.into());
+        let err = (BURN - reward) * MULTIPLIER_PRECISION.into() / BURN;
+        assert_le!(err, MULTIPLIER_PRECISION.into());
     }
 
     #[test]
@@ -119,7 +118,7 @@ mod tests {
             TARGET_SUPPLY, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(10, 1, SLOT_COUNT, multiplier);
-        assert_lt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_lt!(reward.into(), BURN);
     }
 
     #[test]
@@ -128,7 +127,7 @@ mod tests {
             TARGET_SUPPLY, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(14, 1, SLOT_COUNT, multiplier);
-        assert_gt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_gt!(reward.into(), BURN);
     }
 
     #[test]
@@ -137,7 +136,7 @@ mod tests {
             TARGET_SUPPLY / 2, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_gt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_gt!(reward.into(), BURN);
     }
 
     #[test]
@@ -146,7 +145,7 @@ mod tests {
             TARGET_SUPPLY * 3 / 2, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_lt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_lt!(reward.into(), BURN);
     }
 
     #[test]
@@ -155,7 +154,7 @@ mod tests {
             TARGET_SUPPLY, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(0, 1, SLOT_COUNT, multiplier);
-        assert_eq!(reward.into(), 0);
+        assert_eq!(reward, 0);
     }
 
     #[test]
@@ -164,14 +163,14 @@ mod tests {
             TARGET_SUPPLY, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(18, 1, SLOT_COUNT, multiplier);
-        assert_gt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_gt!(reward.into(), BURN);
     }
 
     #[test]
     fn test_rewarder_at_lowest_at_average() {
         let multiplier = Rewarder::multiplier(0, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT);
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_gt!(reward.into(), BURN / TEN_POW_18.into());
+        assert_gt!(reward.into(), BURN);
     }
 
     #[test]
@@ -180,12 +179,12 @@ mod tests {
             TARGET_SUPPLY * 2, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_eq!(reward.into(), 0);
+        assert_eq!(reward, 0);
         let multiplier = Rewarder::multiplier(
             TARGET_SUPPLY * 3, TARGET_SUPPLY, BURN, 12, 1, SLOT_COUNT,
         );
         let reward = Rewarder::amount(12, 1, SLOT_COUNT, multiplier);
-        assert_eq!(reward.into(), 0);
+        assert_eq!(reward, 0);
     }
 
     #[test]
@@ -199,6 +198,22 @@ mod tests {
         let multiplier = Rewarder::multiplier(
             supply, targetSupply, burn, averageScore, averageWeight, slotCount,
         );
-        assert_eq!(multiplier, 137);
+        assert_eq!(multiplier * 100 / MULTIPLIER_PRECISION, 160);
+    }
+
+    #[test]
+    fn test_case_002() {
+        let averageScore = 10;
+        let averageWeight = 1;
+        let burn = 132982256858802733056;
+        let slotCount = 18;
+        let supply = 1_200_000_000_000_000_000;
+        let targetSupply = 1_000_000_000_000_000_000;
+        let multiplier = Rewarder::multiplier(
+            supply, targetSupply, burn, averageScore, averageWeight, slotCount,
+        );
+        assert_eq!(multiplier * 100 / MULTIPLIER_PRECISION, 506);
+        let reward = Rewarder::amount(1, 1, slotCount, multiplier);
+        assert_eq!(reward, 5062916005572319359);
     }
 }

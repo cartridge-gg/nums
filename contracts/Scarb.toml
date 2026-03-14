@@ -7,6 +7,7 @@ edition = "2024_07"
 [scripts]
 
 [[target.starknet-contract]]
+allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = true
 build-external-contracts = [

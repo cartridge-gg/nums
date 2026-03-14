@@ -244,7 +244,7 @@ export interface RawGame {
   };
   multiplier: {
     type: "primitive";
-    type_name: "u8";
+    type_name: "u128";
     value: string;
     key: boolean;
   };
@@ -310,7 +310,7 @@ export interface RawGame {
   };
   reward: {
     type: "primitive";
-    type_name: "u64";
+    type_name: "u128";
     value: string;
     key: boolean;
   };
@@ -373,7 +373,7 @@ export interface RawPurchased {
   };
   multiplier: {
     type: "primitive";
-    type_name: "u8";
+    type_name: "u128";
     value: string;
     key: boolean;
   };
@@ -400,7 +400,7 @@ export interface RawStarted {
   };
   multiplier: {
     type: "primitive";
-    type_name: "u8";
+    type_name: "u128";
     value: string;
     key: boolean;
   };
@@ -427,7 +427,7 @@ export interface RawClaimed {
   };
   reward: {
     type: "primitive";
-    type_name: "u64";
+    type_name: "u128";
     value: string;
     key: boolean;
   };

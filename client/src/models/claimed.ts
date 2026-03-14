@@ -30,7 +30,7 @@ export class Claimed {
     const props = {
       player_id: data.player_id.value,
       game_id: Number(data.game_id.value),
-      reward: Number(data.reward.value),
+      reward: Number(BigInt(data.reward.value) / 10n ** 18n),
       time: Number(data.time.value),
     };
     return new Claimed(

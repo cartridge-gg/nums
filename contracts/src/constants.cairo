@@ -67,5 +67,6 @@ pub const DEFAULT_MAX_DRAW: u8 = 15;
 pub const DEFAULT_DRAW_STAGE: u8 = 4;
 pub const DEFAULT_EXPIRATION: u64 = 1 * 24 * 60 * 60; // One day
 pub const BASE_MULTIPLIER: u8 = 100;
+pub const MULTIPLIER_PRECISION: u128 = 1_000_000;
 
 pub const VAULT_LOCKUP_DURATION: u64 = 0;

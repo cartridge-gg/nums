@@ -47,7 +47,7 @@ mod tests {
     use super::*;
 
     const DEFAULT_SLOT_COUNT: u8 = 20;
-    const DEFAULT_MULTIPLIER: u16 = 1;
+    const DEFAULT_MULTIPLIER: u128 = 1;
 
     #[test]
     fn test_ufo_basic_left() {

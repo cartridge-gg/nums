@@ -7,6 +7,7 @@ export interface DetailProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof detailVariants> {
   title: string;
+  previous?: string;
   content: string;
   count?: number;
   discount?: string;
@@ -30,6 +31,7 @@ const detailVariants = cva(
 
 export const Detail = ({
   title,
+  previous,
   content,
   discount,
   loading,
@@ -53,7 +55,10 @@ export const Detail = ({
             className="animate-spin text-white-400 shrink-0"
           />
         ) : (
-          <p className="font-sans text-white-100 text-base/5">{content}</p>
+          <p className="font-sans text-white-100 text-base/5">
+            {previous ? <span className="text-white-400 line-through mr-2">{previous}</span> : null}
+            {content}
+          </p>
         )}
       </div>
       {discount && (

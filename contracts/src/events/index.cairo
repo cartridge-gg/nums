@@ -5,7 +5,7 @@ pub struct Purchased {
     pub player_id: felt252,
     pub starterpack_id: u32,
     pub quantity: u32,
-    pub multiplier: u8,
+    pub multiplier: u128,
     pub time: u64,
 }
 
@@ -16,7 +16,7 @@ pub struct Started {
     pub player_id: felt252,
     #[key]
     pub game_id: u64,
-    pub multiplier: u16,
+    pub multiplier: u128,
     pub time: u64,
 }
 
@@ -27,7 +27,7 @@ pub struct Claimed {
     pub player_id: felt252,
     #[key]
     pub game_id: u64,
-    pub reward: u64,
+    pub reward: u128,
     pub time: u64,
 }
 

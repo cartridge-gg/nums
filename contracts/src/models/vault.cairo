@@ -1,6 +1,9 @@
 pub use crate::models::index::VaultInfo;
 
-pub mod errors {}
+pub mod errors {
+    pub const VAULT_IS_CLOSED: felt252 = 'Vault: is closed';
+    pub const VAULT_IS_OPEN: felt252 = 'Vault: is open';
+}
 
 #[generate_trait]
 pub impl VaultImpl of VaultTrait {
@@ -18,6 +21,19 @@ pub impl VaultImpl of VaultTrait {
 
     fn close(ref self: VaultInfo) {
         self.open = false;
+    }
+}
+
+#[generate_trait]
+pub impl VaultAssert of AssertTrait {
+    fn assert_is_open(self: @VaultInfo) {
+        // [Check] Vault is open
+        assert(*self.open, errors::VAULT_IS_CLOSED);
+    }
+
+    fn assert_is_closed(self: @VaultInfo) {
+        // [Check] Vault is closed
+        assert(!*self.open, errors::VAULT_IS_OPEN);
     }
 }
 

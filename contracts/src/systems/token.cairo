@@ -5,8 +5,7 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait IToken<TContractState> {
-    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u64) -> bool;
-    fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
+    fn reward(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
     fn burn(ref self: TContractState, amount: u256);
 }
 
@@ -23,7 +22,7 @@ mod Token {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::{DefaultConfig, ERC20Component};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::constants::{NAMESPACE, TEN_POW_18};
+    use crate::constants::NAMESPACE;
     use crate::interfaces::erc20::IERC20Metadata;
     use crate::systems::play::NAME as PLAY_NAME;
     use crate::systems::treasury::NAME as TREASURY;
@@ -106,16 +105,12 @@ mod Token {
 
     #[abi(embed_v0)]
     impl TokenImpl of super::IToken<ContractState> {
-        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u64) -> bool {
+        fn reward(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
             self.accesscontrol.assert_only_role(MINTER_ROLE);
             // [Effect] Reward minted to the recipient
-            self.erc20.mint(recipient, amount.into() * TEN_POW_18.into());
+            self.erc20.mint(recipient, amount);
             // [Return] Success
             true
-        }
-
-        fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-            self.erc20.mint(recipient, amount);
         }
 
         fn burn(ref self: ContractState, amount: u256) {

@@ -67,23 +67,50 @@ const CrosshairOverlay = ({
   const yDomain = useYAxisDomain();
   const chartW = useChartWidth() ?? 0;
   const chartH = useChartHeight() ?? 0;
-  const activeDataPoints = useActiveTooltipDataPoints<{ x: number; y: number }>();
+  const activeDataPoints = useActiveTooltipDataPoints<{
+    x: number;
+    y: number;
+  }>();
 
   if (!plotArea || !yDomain) return null;
 
   const maxDataY = yDomain[1] as number;
-  if (maxDataY === 0 || plotArea.width === 0 || plotArea.height === 0) return null;
+  const {
+    x: plotLeft,
+    y: plotTop,
+    width: plotWidth,
+    height: plotHeight,
+  } = plotArea;
+
+  // Y labels: maxY NUMS at top (no 0 by default), aligned with tooltip center
+  const yLabels =
+    plotArea.width > 0 && plotArea.height > 0 ? (
+      <Text
+        x={plotLeft + 8}
+        y={plotTop}
+        textAnchor="start"
+        fill="var(--white-100)"
+        fontSize={18}
+        letterSpacing="0.05em"
+        dominantBaseline="middle"
+      >
+        {`${maxDataY.toFixed(0)} NUMS`}
+      </Text>
+    ) : null;
+
+  if (maxDataY === 0 || plotArea.width === 0 || plotArea.height === 0) {
+    return <g>{yLabels}</g>;
+  }
 
   // Prefer container tracking (full ResponsiveContainer) over chart-internal hover
   const isHovering =
     containerActivePoint != null ||
     (activeDataPoints != null && activeDataPoints.length > 0);
-  const active = containerActivePoint ?? activeDataPoints?.[0] ?? breakEvenPoint;
+  const active =
+    containerActivePoint ?? activeDataPoints?.[0] ?? breakEvenPoint;
   const isBreakEven = !isHovering;
 
-  const { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight } = plotArea;
-
-  // Data → pixel
+  // Data → pixel (linear scale)
   const px = plotLeft + (active.x / DEFAULT_SLOT_COUNT) * plotWidth;
   const py = plotTop + (1 - active.y / maxDataY) * plotHeight;
 
@@ -99,7 +126,8 @@ const CrosshairOverlay = ({
   const leftW = leftLabel.length * 8 + 16; // 8px padding each side
   const leftH = 24;
   const xAxisHeight = 36; // Reserve space so tooltip stays above xTicks
-  const leftX = Math.max(0, Math.min(chartW - leftW, plotLeft - leftW + 2));
+  // Align with yTicks (inside plot at plotLeft + 8)
+  const leftX = Math.max(0, Math.min(chartW - leftW, plotLeft + 2));
   const leftY = Math.max(
     0,
     Math.min(chartH - leftH - xAxisHeight, py - leftH / 2),
@@ -116,7 +144,9 @@ const CrosshairOverlay = ({
         stroke="rgba(255,255,255,0.25)"
         strokeWidth={1.5}
         strokeDasharray="4 3"
-        style={{ transition: `x1 ${TRANSITION}, x2 ${TRANSITION}, y2 ${TRANSITION}` }}
+        style={{
+          transition: `x1 ${TRANSITION}, x2 ${TRANSITION}, y2 ${TRANSITION}`,
+        }}
       />
       {/* Horizontal dashed line: plotLeft → px */}
       <line
@@ -127,7 +157,9 @@ const CrosshairOverlay = ({
         stroke="rgba(255,255,255,0.25)"
         strokeWidth={1.5}
         strokeDasharray="4 3"
-        style={{ transition: `y1 ${TRANSITION}, y2 ${TRANSITION}, x2 ${TRANSITION}` }}
+        style={{
+          transition: `y1 ${TRANSITION}, y2 ${TRANSITION}, x2 ${TRANSITION}`,
+        }}
       />
       {/* Dot */}
       <circle
@@ -139,7 +171,8 @@ const CrosshairOverlay = ({
         strokeWidth={1}
         style={{ transition: `cx ${TRANSITION}, cy ${TRANSITION}` }}
       />
-      {/* Tooltips portaled to container — ensures they render above Y-axis ticks */}
+      {yLabels}
+      {/* Tooltips portaled to container */}
       {containerRef.current &&
         createPortal(
           <>
@@ -209,25 +242,6 @@ const XAxisTick = ({ x, y, payload, showLabel }: any) => {
   );
 };
 
-const YAxisTick = ({ x, y, payload, showLabel, tickFormatter }: any) => {
-  if (!showLabel) return null;
-  const formatted = tickFormatter ? tickFormatter(payload.value) : payload.value;
-  if (!formatted) return null;
-  return (
-    <Text
-      x={x - 72}
-      y={y}
-      textAnchor="start"
-      fill="var(--white-100)"
-      fontSize={18}
-      letterSpacing="0.05em"
-      dominantBaseline="middle"
-    >
-      {formatted}
-    </Text>
-  );
-};
-
 // ─── Chart ────────────────────────────────────────────────────────────────────
 
 export const Chart = ({
@@ -262,11 +276,7 @@ export const Chart = ({
     const abscissaIndex = points.findIndex(
       (p) => Math.abs(p.x - abscissa) < 0.001,
     );
-    if (
-      abscissaIndex === -1 &&
-      abscissa > 0 &&
-      abscissa < DEFAULT_SLOT_COUNT
-    ) {
+    if (abscissaIndex === -1 && abscissa > 0 && abscissa < DEFAULT_SLOT_COUNT) {
       const insertIndex = points.findIndex((p) => p.x > abscissa);
       if (insertIndex === -1) {
         points.push({ x: abscissa, y: abscissaY });
@@ -297,18 +307,25 @@ export const Chart = ({
       if (!el || data.length === 0) return;
       const rect = el.getBoundingClientRect();
       const relX = e.clientX - rect.left;
-      // Plot area: margin left 50 + Y-axis ~55, so plotLeft ≈ 105
-      const plotLeft = 105;
+      // Plot area: margin left 16, Y-axis width 0, so plotLeft = 16
+      const plotLeft = 16;
       const plotWidth = rect.width - plotLeft - 12; // margin right 12
       if (plotWidth <= 0) return;
       const dataX = Math.max(
         0,
-        Math.min(DEFAULT_SLOT_COUNT, ((relX - plotLeft) / plotWidth) * DEFAULT_SLOT_COUNT),
+        Math.min(
+          DEFAULT_SLOT_COUNT,
+          ((relX - plotLeft) / plotWidth) * DEFAULT_SLOT_COUNT,
+        ),
       );
       // stepAfter: y at dataX = y of rightmost point with p.x <= dataX
       const idx = data.findIndex((p) => p.x > dataX);
       const point =
-        idx === -1 ? data[data.length - 1]! : idx <= 0 ? data[0]! : data[idx - 1]!;
+        idx === -1
+          ? data[data.length - 1]!
+          : idx <= 0
+            ? data[0]!
+            : data[idx - 1]!;
       setContainerActive({ x: point.x, y: point.y });
     },
     [data],
@@ -331,16 +348,6 @@ export const Chart = ({
 
   const xTicks = [1, DEFAULT_SLOT_COUNT];
 
-  const yTicks = useMemo(() => [maxY], [maxY]);
-
-  const yTickFormatter = useCallback(
-    (value: number) =>
-      yTicks.some((t) => Math.abs(t - value) < 0.001)
-        ? `${value.toFixed(0)} NUMS`
-        : "",
-    [yTicks],
-  );
-
   return (
     <div
       ref={containerRef}
@@ -361,7 +368,7 @@ export const Chart = ({
       >
         <LineChart
           data={data}
-          margin={{ top: 48, right: 12, bottom: 5, left: 50 }}
+          margin={{ top: 48, right: 12, bottom: 5, left: 16 }}
           style={{ outline: "none" }}
         >
           <defs>
@@ -412,30 +419,14 @@ export const Chart = ({
             tick={<XAxisTick showLabel={true} />}
           />
 
-          {/* Y-axis */}
+          {/* Y-axis — width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
           <YAxis
             type="number"
-            domain={[0, maxY]}
+            width={0}
+            domain={[0, Math.max(maxY, 1)]}
             axisLine={false}
             tickLine={false}
-            ticks={yTicks}
-            tickFormatter={yTickFormatter}
-            interval={0}
-            allowDecimals={false}
-            tick={
-              <YAxisTick showLabel={true} tickFormatter={yTickFormatter} />
-            }
-          />
-
-          {/* Step line */}
-          <Line
-            type="stepAfter"
-            dataKey="y"
-            stroke="var(--green-100)"
-            strokeWidth={2}
-            dot={false}
-            activeDot={false}
-            connectNulls={false}
+            tick={() => null}
           />
 
           {/* Crosshair + tooltip overlay — rendered above the line */}

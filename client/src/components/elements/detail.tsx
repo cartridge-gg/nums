@@ -56,7 +56,11 @@ export const Detail = ({
           />
         ) : (
           <p className="font-sans text-white-100 text-base/5">
-            {previous ? <span className="text-white-400 line-through mr-2">{previous}</span> : null}
+            {previous ? (
+              <span className="text-white-400 line-through mr-2">
+                {previous}
+              </span>
+            ) : null}
             {content}
           </p>
         )}

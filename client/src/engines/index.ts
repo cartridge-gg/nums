@@ -42,7 +42,7 @@ export class GameEngine {
     game: Game,
     index: number,
     rand: Random,
-    targetSupply: bigint,
+    _targetSupply: bigint,
   ): number {
     // [Check] Game state
     if (game.number === 0) {

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Discount } from "@/components/elements";
+import { SpinnerIcon } from "../icons";
 
 export interface DetailProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -9,6 +10,7 @@ export interface DetailProps
   content: string;
   count?: number;
   discount?: string;
+  loading?: boolean;
 }
 
 const detailVariants = cva(
@@ -17,7 +19,7 @@ const detailVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-white-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+          "h-16 bg-white-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       },
     },
     defaultVariants: {
@@ -30,6 +32,7 @@ export const Detail = ({
   title,
   content,
   discount,
+  loading,
   count = 0,
   variant,
   className,
@@ -44,13 +47,14 @@ export const Detail = ({
         {title}
       </h3>
       <div className="flex items-center justify-between">
-        <p className="font-sans text-white-100 text-base/5">{content}</p>
-        <div className="flex items-center gap-1">
-          {count > 0 &&
-            Array.from({ length: count }).map((_, index) => (
-              <span key={index}>🔥</span>
-            ))}
-        </div>
+        {loading ? (
+          <SpinnerIcon
+            size="sm"
+            className="animate-spin text-white-400 shrink-0"
+          />
+        ) : (
+          <p className="font-sans text-white-100 text-base/5">{content}</p>
+        )}
       </div>
       {discount && (
         <Discount label={discount} className="absolute top-[-2px] right-3" />

@@ -7,7 +7,6 @@ const A = 306_211_270_390_303_800n;
 const B = 3n;
 const K = 10n;
 const PRECISION = 100n;
-const CONVERSION_FEE = 50n + 48n; // Swap fee + slippage estimation
 const TEN_POW_18 = 10n ** 18n;
 
 export class Rewarder {
@@ -75,10 +74,6 @@ export class Rewarder {
       scoreDen,
       slotCount,
     );
-    console.log({
-      supplyMultiplier,
-      burnMultiplier,
-    });
     return (supplyMultiplier * burnMultiplier) / PRECISION;
   }
 
@@ -98,14 +93,10 @@ export class Rewarder {
   }
 
   /**
-   * Estimates the on-chain multiplier from market/config conditions.
-   * Mirrors the playable.cairo computation (quantity = 1):
-   *   burn_usdc        = burn_percentage * pack_multiplier * base_price / 100
-   *   burn_amount_nums = burn_usdc * 10^18 / numsPrice  (net of swap fee)
-   *   supply_per_game  = current_supply - burn_per_game
-   *   multiplier       = supply_multiplier(supply_per_game, target)
-   *                    * burn_multiplier(burn, avg_num, avg_den, slot_count)
-   *                    / 100
+   * Pure-math fallback for multiplier estimation (no Ekubo fetch).
+   * Prefer useMultiplier() hook for live estimation with real swap quotes.
+   * Mirrors the playable.cairo computation (quantity = 1), using numsPrice
+   * as a linear rate without slippage.
    *
    * @param basePrice      - config.base_price (USDC, 6 decimals)
    * @param packMultiplier - starterpack.multiplier (raw, e.g. 1 or 10)
@@ -116,7 +107,7 @@ export class Rewarder {
    * @param currentSupply  - current NUMS total supply (18-dec bigint)
    * @param targetSupply   - config.target_supply (18-dec bigint)
    * @param numsPrice      - USD/NUMS scaled × 10^6 (e.g. 954n for $0.000954)
-   * @returns float multiplier (1.0 = 1×, same convention as game.multiplier)
+   * @returns float multiplier (1.0 = 1×)
    */
   static estimate(
     basePrice: bigint,
@@ -143,10 +134,8 @@ export class Rewarder {
     // burn_usdc = burn_percentage * pack_multiplier * base_price / 100 (6-dec USDC)
     const burnUsdc = (burnPercentage * packMultiplier * basePrice) / 100n;
 
-    // Convert USDC → NUMS (18-dec), net of conversion fee
-    const burnPerGame =
-      (((burnUsdc * TEN_POW_18) / numsPrice) * (1000n - CONVERSION_FEE)) /
-      1000n;
+    // Convert USDC → NUMS (18-dec) at the given numsPrice (no fee — pure math fallback)
+    const burnPerGame = (burnUsdc * TEN_POW_18) / numsPrice;
 
     const supplyPerGame =
       currentSupply > burnPerGame ? currentSupply - burnPerGame : 0n;

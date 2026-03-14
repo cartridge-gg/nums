@@ -14,7 +14,7 @@ import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
-import { Rewarder } from "@/helpers/rewarder";
+import { useMultiplier } from "@/hooks/multiplier";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
 import { usePrices } from "@/context/prices";
@@ -114,20 +114,18 @@ export const Layout = ({ children }: LayoutProps) => {
     return Number(starterpack?.price || 0n) / 10 ** 6;
   }, [starterpack]);
 
-  const multiplier = useMemo(() => {
-    if (!config || !starterpack || numsPrice <= 0) return 1;
-    return Rewarder.estimate(
-      config.base_price,
-      BigInt(starterpack.multiplier),
-      BigInt(config.burn_percentage),
-      BigInt(config.slot_count),
-      BigInt(config.average_score),
-      BigInt(config.average_weigth),
-      headerData.supply,
-      config.target_supply,
-      BigInt(Math.round(numsPrice * 1_000_000)),
-    );
-  }, [config, starterpack, headerData.supply, numsPrice]);
+  const { multiplier, isLoading: multiplierLoading } = useMultiplier({
+    basePrice: config?.base_price ?? 0n,
+    packMultiplier: BigInt(starterpack?.multiplier ?? 1),
+    burnPercentage: BigInt(config?.burn_percentage ?? 0),
+    slotCount: BigInt(config?.slot_count ?? 18),
+    averageScore: BigInt(config?.average_score ?? 0),
+    averageWeight: BigInt(config?.average_weigth ?? 0),
+    currentSupply: headerData.supply,
+    targetSupply: config?.target_supply ?? 0n,
+    numsAddress: config?.nums ?? "",
+    quoteAddress: config?.quote ?? "",
+  });
 
   const handlePurchase = useCallback(() => {
     if (starterpack) {
@@ -380,6 +378,7 @@ export const Layout = ({ children }: LayoutProps) => {
                 playPrice={playPrice}
                 numsPrice={numsPrice}
                 multiplier={multiplier}
+                loading={multiplierLoading}
                 targetSupply={config?.target_supply || 0n}
                 currentSupply={headerData.supply}
                 stakesProps={{

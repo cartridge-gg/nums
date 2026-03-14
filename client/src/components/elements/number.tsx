@@ -12,7 +12,7 @@ export interface NumberProps
 }
 
 const numberVariants = cva(
-  "select-none relative flex items-center justify-center px-2 py-1",
+  "select-none relative flex items-center justify-center px-2 py-1 w-fit",
   {
     variants: {
       variant: {

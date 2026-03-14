@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -26,16 +26,25 @@ import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useOwner } from "@/hooks/owner";
+import { useTutorial } from "@/context/tutorial";
+import { TutorialOverlay } from "@/components/containers/tutorial";
 
 export const Game = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isPracticeMode = location.pathname === "/practice";
 
   // Regular actions for blockchain mode
   const blockchainActions = useActions();
 
   // Practice context
-  const { game: practiceGame, start: startPractice } = usePractice();
+  const {
+    game: practiceGame,
+    start: startPractice,
+    setGame: setPracticeGame,
+    isTutorialMode,
+    startTutorial: startPracticeTutorial,
+  } = usePractice();
   const { supply: currentSupply, username, address } = useHeader();
 
   // Practice actions
@@ -64,6 +73,14 @@ export const Game = () => {
   );
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(true);
+  const {
+    isActive: tutorialActive,
+    hasCompleted: tutorialCompleted,
+    currentStep,
+    advance: tutorialAdvance,
+    skip: tutorialSkip,
+    startTutorial,
+  } = useTutorial();
 
   // Get game ID from path params (only in blockchain mode)
   const gameId = useMemo(() => {
@@ -154,6 +171,99 @@ export const Game = () => {
     };
   }, [game, config, basePrice, numsPrice]);
 
+  // Determine tutorial guided slot for current step
+  const tutorialGuidedSlot = useMemo(() => {
+    if (!tutorialActive || !currentStep || currentStep.type !== "set") {
+      return null;
+    }
+    return currentStep.guidedIndex ?? null;
+  }, [tutorialActive, currentStep]);
+
+  // Determine tutorial guided power index for apply steps
+  const tutorialGuidedPowerIndex = useMemo(() => {
+    if (!tutorialActive || !currentStep || currentStep.type !== "apply") {
+      return null;
+    }
+    return currentStep.guidedIndex ?? null;
+  }, [tutorialActive, currentStep]);
+
+  // Determine tutorial guided selection index for select steps
+  const tutorialGuidedSelectionIndex = useMemo(() => {
+    if (!tutorialActive || !currentStep || currentStep.type !== "select") {
+      return null;
+    }
+    return currentStep.guidedIndex ?? null;
+  }, [tutorialActive, currentStep]);
+
+  // "Play For Real" override for the final tutorial step
+  const tutorialInstructionOverride = useMemo(() => {
+    if (!tutorialActive || !currentStep || currentStep.id !== "ready") {
+      return undefined;
+    }
+    return {
+      content: "Play For Real",
+      onClick: () => {
+        tutorialSkip();
+        navigate("/");
+      },
+    };
+  }, [tutorialActive, currentStep, tutorialSkip, navigate]);
+
+  // Wrap set to handle tutorial actions
+  const wrappedSet = useCallback(
+    (gameId: number, index: number) => {
+      // During tutorial set steps, only allow the guided slot
+      if (
+        tutorialActive &&
+        currentStep?.type === "set" &&
+        currentStep.guidedIndex !== undefined &&
+        index !== currentStep.guidedIndex
+      ) {
+        return;
+      }
+      set(gameId, index);
+    },
+    [set, tutorialActive, currentStep],
+  );
+
+  // Handle state-override steps (guard with ref to prevent infinite re-render loop)
+  const stateOverrideAppliedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (
+      !tutorialActive ||
+      !currentStep ||
+      currentStep.type !== "state-override" ||
+      !game
+    ) {
+      return;
+    }
+
+    // Only apply the override once per step
+    if (stateOverrideAppliedRef.current === currentStep.id) {
+      return;
+    }
+    stateOverrideAppliedRef.current = currentStep.id;
+
+    // Apply state overrides
+    if (currentStep.stateOverrides) {
+      const cloned = game.clone();
+      if (currentStep.stateOverrides.over) {
+        cloned.over = Math.floor(Date.now() / 1000);
+      }
+      if (currentStep.stateOverrides.number !== undefined) {
+        cloned.number = currentStep.stateOverrides.number;
+      }
+      // Trigger React re-render
+      if (isPracticeMode) {
+        setPracticeGame(cloned);
+      }
+    }
+
+    // Advance immediately
+    tutorialAdvance();
+  }, [tutorialActive, currentStep, game, tutorialAdvance, isPracticeMode, setPracticeGame]);
+
   // Transform game data for Game
   const gameProps = useMemo(() => {
     if (!game || !purchaseProps) {
@@ -220,6 +330,7 @@ export const Game = () => {
               game.slot_count,
               game.slots,
             ),
+            tutorialGuided: tutorialGuidedPowerIndex === index,
           };
         } else {
           // Empty slot (no power or None power)
@@ -227,6 +338,7 @@ export const Game = () => {
             power: undefined, // No power for empty slot
             status: undefined,
             highlighted: false,
+            tutorialGuided: false,
           };
         }
       },
@@ -256,6 +368,15 @@ export const Game = () => {
         onClick: () => {
           // Only allow click if power exists and is not None
           if (power.power && !power.power.isNone()) {
+            // During tutorial apply steps, only allow the guided power
+            if (
+              tutorialActive &&
+              currentStep?.type === "apply" &&
+              currentStep.guidedIndex !== undefined &&
+              index !== currentStep.guidedIndex
+            ) {
+              return;
+            }
             // Open Uses modal instead of calling apply directly
             setSelectedPowerIndex(index);
             setShowUsesModal(true);
@@ -267,7 +388,12 @@ export const Game = () => {
           power.power.isNone() ||
           isLoading("power", index) ||
           hasSlotLoading ||
-          isSelectable,
+          isSelectable ||
+          // During tutorial apply steps, disable non-guided powers
+          (tutorialActive &&
+            currentStep?.type === "apply" &&
+            tutorialGuidedPowerIndex !== null &&
+            index !== tutorialGuidedPowerIndex),
       })),
       onGameInfo: () => {
         setShowPurchaseModal(true);
@@ -283,13 +409,23 @@ export const Game = () => {
           disabled: (hasSlotLoading && !slotLoading) || isOver || isSelectable, // Disable other slots when one is loading
           onSlotClick: () => {
             const trap = game.getTrap(index);
-            if (trap && !trap.isNone() && !game.isInactive(index) && !isDesktop) {
-              // If slot has a trap on mobile, open the modal
-              setSelectedSlotIndex(index);
-              setShowPlacesModal(true);
+            if (
+              trap &&
+              !trap.isNone() &&
+              !game.isInactive(index) &&
+              !isDesktop
+            ) {
+              // During tutorial, skip the trap modal and place directly
+              if (tutorialActive && currentStep?.type === "set") {
+                wrappedSet(game.id, index);
+              } else {
+                // If slot has a trap on mobile, open the modal
+                setSelectedSlotIndex(index);
+                setShowPlacesModal(true);
+              }
             } else {
               // On desktop or no trap, call set directly
-              set(game.id, index);
+              wrappedSet(game.id, index);
             }
           },
         };
@@ -301,7 +437,7 @@ export const Game = () => {
     purchaseProps,
     showGameOver,
     showSelectionModal,
-    set,
+    wrappedSet,
     setShowPlacesModal,
     setSelectedSlotIndex,
     setShowUsesModal,
@@ -310,6 +446,9 @@ export const Game = () => {
     isDesktop,
     setShowGameOver,
     setShowSelectionModal,
+    tutorialActive,
+    currentStep,
+    tutorialGuidedPowerIndex,
   ]);
 
   // Check if selectable powers exist and create selections
@@ -322,15 +461,36 @@ export const Game = () => {
     return game.selectable_powers.map((power, index) => ({
       power,
       loading: isLoading("power", index),
-      onClick: () => select(game.id, index),
+      tutorialGuided: tutorialGuidedSelectionIndex === index,
+      onClick: () => {
+        // During tutorial select steps, only allow the guided selection
+        if (
+          tutorialActive &&
+          currentStep?.type === "select" &&
+          currentStep.guidedIndex !== undefined &&
+          index !== currentStep.guidedIndex
+        ) {
+          return;
+        }
+        select(game.id, index);
+      },
     }));
-  }, [game, hasSelectablePowers, select, isLoading, setShowSelectionModal]);
+  }, [
+    game,
+    hasSelectablePowers,
+    select,
+    isLoading,
+    tutorialActive,
+    currentStep,
+    tutorialGuidedSelectionIndex,
+  ]);
 
-  // Show GameOver modal after 2 seconds when game is over
+  // Show GameOver modal after 2 seconds when game is over (but not during tutorial)
   useEffect(() => {
     if (
       !!game &&
       game.over > 0 &&
+      !isTutorialMode &&
       ((!game.claimed && isOwner) || isPracticeMode)
     ) {
       const timer = setTimeout(() => {
@@ -340,9 +500,9 @@ export const Game = () => {
     } else {
       setShowGameOver(false);
     }
-  }, [game, isOwner, isPracticeMode]);
+  }, [game, isOwner, isPracticeMode, isTutorialMode]);
 
-  // Show Selection modal after 2 seconds when selectable
+  // Show Selection modal after 1 second when selectable
   useEffect(() => {
     if (hasSelectablePowers && selections.length > 0) {
       const timer = setTimeout(() => {
@@ -406,13 +566,13 @@ export const Game = () => {
       loading: isLoading("slot", selectedSlotIndex),
       onClick: () => {
         // Call set with the selected slot index
-        set(game.id, selectedSlotIndex);
+        wrappedSet(game.id, selectedSlotIndex);
         // Close the modal
         setShowPlacesModal(false);
         setSelectedSlotIndex(null);
       },
     };
-  }, [game, selectedSlotIndex, set, isLoading]);
+  }, [game, selectedSlotIndex, wrappedSet, isLoading]);
 
   const handleClosePlacesModal = useCallback(() => {
     setShowPlacesModal(false);
@@ -456,6 +616,28 @@ export const Game = () => {
     }, 3000);
   }, []);
 
+  // Start tutorial for first-time users after loading completes
+  const tutorialStartedRef = useRef(false);
+  useEffect(() => {
+    if (
+      !defaultLoading &&
+      isPracticeMode &&
+      !tutorialCompleted &&
+      !tutorialStartedRef.current
+    ) {
+      tutorialStartedRef.current = true;
+      // Start the tutorial game via practice context
+      startPracticeTutorial();
+      startTutorial();
+    }
+  }, [
+    defaultLoading,
+    isPracticeMode,
+    tutorialCompleted,
+    startPracticeTutorial,
+    startTutorial,
+  ]);
+
   // Show loading state if game is not loaded
   if (!game || defaultLoading) return <LoadingScene />;
 
@@ -470,8 +652,12 @@ export const Game = () => {
         share={blockchainGame ? { username } : undefined}
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
         onInstruction={gameProps.onInstruction}
+        recommendedSlot={null}
+        tutorialGuidedSlot={tutorialGuidedSlot}
+        tutorialInstructionOverride={tutorialInstructionOverride}
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
       />
+      <TutorialOverlay />
       {/* Overlay and Selections modal when selectable powers exist */}
       {showSelectionModal && (
         <>
@@ -489,7 +675,7 @@ export const Game = () => {
       )}
       {/* Overlay and Places modal when selecting a trap */}
       {showPlacesModal && place && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4" data-tutorial-modal>
           <Places
             place={place}
             onClose={handleClosePlacesModal}
@@ -499,7 +685,7 @@ export const Game = () => {
       )}
       {/* Overlay and Uses modal when selecting a power up */}
       {showUsesModal && use && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4" data-tutorial-modal>
           <Uses
             use={use}
             onClose={handleCloseUsesModal}

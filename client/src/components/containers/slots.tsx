@@ -12,6 +12,8 @@ export interface SlotsProps
   min: number;
   max: number;
   slots: Array<SlotProps>;
+  recommendedSlot?: number | null;
+  tutorialGuidedSlot?: number | null;
 }
 
 const slotsVariants = cva(
@@ -33,6 +35,8 @@ export const Slots = ({
   min,
   max,
   slots,
+  recommendedSlot,
+  tutorialGuidedSlot,
   variant,
   className,
   ...props
@@ -87,16 +91,33 @@ export const Slots = ({
       <li className="flex justify-center">
         <Slot variant="locked" label={min} />
       </li>
-      {slots.map((slot, index) => (
-        <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
-          <Slot
-            {...slot}
-            label={slot.label || index + 2}
-            value={slot.value || 0}
-            invalid={slot.invalid || invalidIndexes.has(index)}
-          />
-        </li>
-      ))}
+      {slots.map((slot, index) => {
+        const isGuidedSlot =
+          tutorialGuidedSlot !== null &&
+          tutorialGuidedSlot !== undefined &&
+          index === tutorialGuidedSlot;
+        const isTutorialRestricted =
+          tutorialGuidedSlot !== null &&
+          tutorialGuidedSlot !== undefined &&
+          index !== tutorialGuidedSlot;
+
+        return (
+          <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
+            <Slot
+              {...slot}
+              label={slot.label || index + 2}
+              value={slot.value || 0}
+              invalid={slot.invalid || invalidIndexes.has(index)}
+              recommended={recommendedSlot === index}
+              disabled={slot.disabled || isTutorialRestricted}
+              tutorialGuided={isGuidedSlot}
+              className={cn(
+                isTutorialRestricted && !slot.value && "opacity-50",
+              )}
+            />
+          </li>
+        );
+      })}
       <li className="flex justify-center">
         <Slot variant="locked" label={max} />
       </li>

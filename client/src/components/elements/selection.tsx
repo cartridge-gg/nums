@@ -9,6 +9,7 @@ export interface SelectionProps
   power: Power;
   onClick: () => void;
   loading?: boolean;
+  tutorialGuided?: boolean;
 }
 
 const selectionVariants = cva(
@@ -30,6 +31,7 @@ export const Selection = ({
   content = "Take",
   onClick,
   loading = false,
+  tutorialGuided,
   variant,
   className,
   ...props
@@ -37,7 +39,11 @@ export const Selection = ({
   const Icon = power.icon();
 
   return (
-    <div className={cn(selectionVariants({ variant, className }))} {...props}>
+    <div
+      className={cn(selectionVariants({ variant, className }))}
+      {...(tutorialGuided ? { "data-tutorial-guided-selection": "" } : {})}
+      {...props}
+    >
       <div className="w-full flex flex-col items-center gap-6">
         {/* Icon */}
         {Icon && <Icon size="3xl" className={power.color()} />}

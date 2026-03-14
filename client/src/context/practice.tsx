@@ -4,6 +4,7 @@ import { Game } from "@/models/game";
 import { Random } from "@/helpers/random";
 import { Trap } from "@/types/trap";
 import { useHeader } from "@/hooks/header";
+import { createTutorialGame } from "@/tutorial/script";
 import {
   DEFAULT_SLOT_COUNT,
   DEFAULT_SLOT_MIN,
@@ -17,6 +18,8 @@ interface PracticeContextType {
   start: (supply?: bigint) => void;
   setGame: (game: Game | null) => void;
   clearGame: () => void;
+  isTutorialMode: boolean;
+  startTutorial: () => void;
 }
 
 const PracticeContext = createContext<PracticeContextType>({
@@ -24,6 +27,8 @@ const PracticeContext = createContext<PracticeContextType>({
   start: (_supply?: bigint) => {},
   setGame: () => {},
   clearGame: () => {},
+  isTutorialMode: false,
+  startTutorial: () => {},
 });
 
 export const usePractice = () => useContext(PracticeContext);
@@ -57,6 +62,7 @@ const createPracticeGame = (supply: bigint): Game => {
       .map(() => Trap.from(0)), // traps
     Array(DEFAULT_SLOT_COUNT).fill(0), // slots
     supply, // supply (use current supply like a classic game)
+    0n, // price
   );
 
   return game;
@@ -65,6 +71,7 @@ const createPracticeGame = (supply: bigint): Game => {
 export function PracticeProvider({ children }: { children: React.ReactNode }) {
   const { supply: currentSupply } = useHeader();
   const [game, setGameState] = useState<Game | null>(null);
+  const [isTutorialMode, setIsTutorialMode] = useState(false);
 
   const start = useCallback(
     (supply?: bigint) => {
@@ -74,9 +81,16 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       const rand = new Random(BigInt(newGame.id));
       newGame.start(rand);
       setGameState(newGame);
+      setIsTutorialMode(false);
     },
     [currentSupply],
   );
+
+  const startTutorial = useCallback(() => {
+    const tutorialGame = createTutorialGame();
+    setGameState(tutorialGame);
+    setIsTutorialMode(true);
+  }, []);
 
   const setGame = useCallback((newGame: Game | null) => {
     setGameState(newGame);
@@ -84,6 +98,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
 
   const clearGame = useCallback(() => {
     setGameState(null);
+    setIsTutorialMode(false);
   }, []);
 
   return (
@@ -93,6 +108,8 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
         start,
         setGame,
         clearGame,
+        isTutorialMode,
+        startTutorial,
       }}
     >
       {children}

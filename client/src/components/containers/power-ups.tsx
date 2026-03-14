@@ -46,6 +46,7 @@ export const PowerUps = ({
           <li key={`${index}`} className="w-full md:w-auto">
             <PowerUp
               {...powerProps}
+              data-tutorial-powerup=""
               className={cn(
                 "w-full md:w-auto",
                 index === 0 && "rounded-bl-4xl md:rounded-bl-lg",

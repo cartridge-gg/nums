@@ -26,6 +26,7 @@ import { WelcomeProvider } from "./context/welcome";
 import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
 import { VaultProvider } from "./context/vault";
+import { TutorialProvider } from "./context/tutorial";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -117,25 +118,21 @@ function AuthenticatedApp() {
                   <PricesProvider>
                     <WelcomeProvider>
                       <LoadingProvider>
-                        <SoundProvider>
-                          <Layout>
-                            <Routes>
-                              <Route path="/" element={<Home />} />
-                              <Route
-                                path="/game/:id"
-                                element={<Game />}
-                              />
-                              <Route
-                                path="/game"
-                                element={<Navigate to="/" replace />}
-                              />
-                              <Route
-                                path="/practice"
-                                element={<Game />}
-                              />
-                            </Routes>
-                          </Layout>
-                        </SoundProvider>
+                        <TutorialProvider>
+                          <SoundProvider>
+                            <Layout>
+                              <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/game/:id" element={<Game />} />
+                                <Route
+                                  path="/game"
+                                  element={<Navigate to="/" replace />}
+                                />
+                                <Route path="/practice" element={<Game />} />
+                              </Routes>
+                            </Layout>
+                          </SoundProvider>
+                        </TutorialProvider>
                       </LoadingProvider>
                     </WelcomeProvider>
                   </PricesProvider>

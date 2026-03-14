@@ -25,6 +25,7 @@ import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { Events } from "../containers/events";
 import { WelcomeScene } from "@/components/scenes";
+import { useTutorial } from "@/context/tutorial";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -256,6 +257,8 @@ export const Layout = ({ children }: LayoutProps) => {
       .slice(0, 10);
   }, [claimeds, starteds, find, loading]);
 
+  const { isActive: tutorialActive, skip: tutorialSkip } = useTutorial();
+
   const showWelcomeOverlay =
     pathname === "/" &&
     initialPathname === "/" &&
@@ -263,6 +266,23 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
+      {tutorialActive && (
+        <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-[#2a2660] border-b border-[#3d3970] z-[57]">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#8581ff] animate-pulse" />
+            <p className="text-base font-bold font-secondary tracking-wide text-white-100 uppercase">
+              Tutorial
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={tutorialSkip}
+            className="text-base font-bold font-secondary tracking-wide text-white-100 hover:text-white-100/80 transition-colors"
+          >
+            Skip Tutorial
+          </button>
+        </div>
+      )}
       {showWelcomeOverlay && (
         <WelcomeScene
           close={dismiss}

@@ -12,6 +12,7 @@ export interface PowerUpProps
   status?: PowerIconStatus;
   highlighted?: boolean;
   disabled?: boolean;
+  tutorialGuided?: boolean;
 }
 
 const powerUpVariants = cva(
@@ -39,6 +40,7 @@ export const PowerUp = ({
   size,
   highlighted,
   disabled,
+  tutorialGuided,
   className,
   ...props
 }: PowerUpProps) => {
@@ -59,6 +61,7 @@ export const PowerUp = ({
           ? "bg-mauve-700 hover:bg-mauve-500 disabled:bg-mauve-800 disabled:shadow-none"
           : "bg-black-800 shadow-none",
       )}
+      {...(tutorialGuided ? { "data-tutorial-guided-power": "" } : {})}
       {...props}
     >
       {!isDisabled && highlighted && (

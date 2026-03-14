@@ -27,6 +27,9 @@ export interface GameSceneProps
   share?: ShareProps;
   onGameInfo?: () => void;
   onInstruction?: () => void;
+  recommendedSlot?: number | null;
+  tutorialGuidedSlot?: number | null;
+  tutorialInstructionOverride?: { content: string; onClick: () => void };
 }
 
 const gameSceneVariants = cva(
@@ -55,6 +58,9 @@ export const GameScene = ({
   share,
   onGameInfo,
   onInstruction,
+  recommendedSlot,
+  tutorialGuidedSlot,
+  tutorialInstructionOverride,
   variant,
   size,
   className,
@@ -86,57 +92,71 @@ export const GameScene = ({
     >
       <div className="flex justify-between items-stretch gap-2 xs:gap-3 md:gap-8 w-full">
         <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
-          <Num value={game.number} invalid={isOver} sound />
+          <Num value={game.number} invalid={isOver} sound data-tutorial="current-number" />
           <div className="flex flex-col justify-between items-start h-full gap-2">
             <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
               Up next
             </p>
-            <Num variant="secondary" value={game.next_number} />
+            <Num variant="secondary" value={game.next_number} data-tutorial="next-number" />
           </div>
         </div>
-        <PowerUps powers={powers} className="hidden md:flex" />
-        <Reward reward={game.reward} className="md:hidden" />
+        <PowerUps powers={powers} className="hidden md:flex" data-tutorial="power-ups" />
+        <Reward
+          reward={game.reward}
+          className="md:hidden"
+          data-tutorial="reward"
+        />
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex justify-between items-center gap-4 w-full">
-          <Multiplier multiplier={game.multiplier} className="md:hidden" />
+          <Multiplier multiplier={game.multiplier} className="md:hidden" data-tutorial="multiplier" />
           <Instruction
             content={
-              isSelectable
-                ? "Take Power Up"
-                : isOver && isRescuable
-                  ? "Use Power up"
-                  : isOver
-                    ? "Game Over"
-                    : "Set Tile"
+              tutorialInstructionOverride
+                ? tutorialInstructionOverride.content
+                : isSelectable
+                  ? "Take Power Up"
+                  : isOver && isRescuable
+                    ? "Use Power up"
+                    : isOver
+                      ? "Game Over"
+                      : "Set Tile"
             }
-            variant={isOver && !isRescuable ? "destructive" : "default"}
-            onClick={onInstruction}
+            variant={isOver && !isRescuable && !tutorialInstructionOverride ? "destructive" : "default"}
+            onClick={tutorialInstructionOverride ? tutorialInstructionOverride.onClick : onInstruction}
+            {...(tutorialInstructionOverride ? { "data-tutorial-guided-instruction": "" } : {})}
           />
           {share && <Share {...share} />}
           {onGameInfo && (
             <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
           )}
         </div>
-        <Stages states={stages} className="w-full md:hidden" />
+        <Stages
+          states={stages}
+          className="w-full md:hidden"
+          data-tutorial="stages"
+        />
       </div>
       <div
         className="overflow-y-auto w-full p-3"
         style={{ scrollbarWidth: "none" }}
+        data-tutorial="slots"
       >
         <Slots
           number={game.number}
           min={game.slot_min}
           max={game.slot_max}
           slots={slots}
+          recommendedSlot={recommendedSlot}
+          tutorialGuidedSlot={tutorialGuidedSlot}
         />
       </div>
       <div className="hidden md:flex items-stretch justify-center gap-6 w-full">
-        <Multiplier multiplier={game.multiplier} />
-        <Stages states={stages} className="flex-1" />
-        <Reward reward={game.reward} />
+        <Multiplier multiplier={game.multiplier} data-tutorial="multiplier" />
+        <Stages states={stages} className="flex-1" data-tutorial="stages" />
+        <Reward reward={game.reward} data-tutorial="reward" />
       </div>
-      <PowerUps powers={powers} className="w-full md:hidden" />
+      <PowerUps powers={powers} className="w-full md:hidden" data-tutorial="power-ups" />
     </div>
   );
 };

@@ -22,6 +22,8 @@ export interface SlotProps
   loading?: boolean;
   inactive?: boolean;
   disabled?: boolean;
+  recommended?: boolean;
+  tutorialGuided?: boolean;
   trap?: Trap;
   onSlotClick?: () => void;
 }
@@ -53,6 +55,8 @@ export const Slot = ({
   loading = false,
   inactive = false,
   disabled = false,
+  recommended = false,
+  tutorialGuided = false,
   trap,
   variant,
   size,
@@ -147,7 +151,17 @@ export const Slot = ({
   }
 
   return (
-    <div className={cn(slotVariants({ variant, size, className }))} {...props}>
+    <div
+      className={cn(
+        slotVariants({ variant, size, className }),
+        recommended && "ring-2 ring-magnet-100/70 animate-pulse",
+      )}
+      data-tutorial-slot=""
+      {...(trap && !trap.isNone() ? { "data-tutorial-trap": "" } : {})}
+      {...(recommended ? { "data-tutorial": "recommended-slot" } : {})}
+      {...(tutorialGuided ? { "data-tutorial-guided-slot": "" } : {})}
+      {...props}
+    >
       {(!isDisabled || (invalid && !!value)) && (
         <>
           <div
@@ -190,10 +204,13 @@ export const Slot = ({
               sideOffset={8}
               className="hidden md:flex flex-col items-center gap-6 rounded-lg p-6 bg-black-300 backdrop-blur-[16px] border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] max-w-[250px]"
             >
-              {trap && (() => {
-                const ShadowIcon = trap.icon("shadow");
-                return ShadowIcon ? <ShadowIcon size="3xl" className={trap.color()} /> : null;
-              })()}
+              {trap &&
+                (() => {
+                  const ShadowIcon = trap.icon("shadow");
+                  return ShadowIcon ? (
+                    <ShadowIcon size="3xl" className={trap.color()} />
+                  ) : null;
+                })()}
               <div className="w-full flex flex-col gap-4">
                 <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
                   {trap?.name()}

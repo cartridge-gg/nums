@@ -3,12 +3,13 @@ pub use crate::models::index::VaultInfo;
 pub mod errors {
     pub const VAULT_IS_CLOSED: felt252 = 'Vault: is closed';
     pub const VAULT_IS_OPEN: felt252 = 'Vault: is open';
+    pub const VAULT_INVALID_FEE: felt252 = 'Vault: invalid fee';
 }
 
 #[generate_trait]
 pub impl VaultImpl of VaultTrait {
     fn new(world_resource: felt252, open: bool) -> VaultInfo {
-        VaultInfo { world_resource: world_resource, open: open, total_reward: 0 }
+        VaultInfo { world_resource: world_resource, open: open, fee: 0, total_reward: 0 }
     }
 
     fn add(ref self: VaultInfo, reward: u256) {
@@ -21,6 +22,12 @@ pub impl VaultImpl of VaultTrait {
 
     fn close(ref self: VaultInfo) {
         self.open = false;
+    }
+
+    fn set_fee(ref self: VaultInfo, fee: u16) {
+        // [Check] Fee range
+        assert(fee >= 0 && fee <= 10_000, errors::VAULT_INVALID_FEE);
+        self.fee = fee;
     }
 }
 

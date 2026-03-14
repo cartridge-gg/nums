@@ -74,6 +74,7 @@ pub struct VaultInfo {
     pub world_resource: felt252,
     pub open: bool,
     pub total_reward: u256,
+    pub fee: u16,
 }
 
 #[derive(Copy, Drop, Serde)]

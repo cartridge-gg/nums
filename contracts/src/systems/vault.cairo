@@ -19,6 +19,7 @@ pub trait IVault<TContractState> {
     fn pay(ref self: TContractState, player_id: felt252, amount: u256);
     fn claim(ref self: TContractState);
     fn collect(ref self: TContractState, address: ContractAddress);
+    fn set_fee(ref self: TContractState, fee: u16);
 }
 
 pub fn NAME() -> ByteArray {
@@ -61,7 +62,6 @@ pub mod Vault {
     use super::{COLLECTOR_ROLE, IKeeper, IPauser, IVault, KEEPER_ROLE, PAUSER_ROLE, PROVIDER_ROLE};
 
     const BASIS_POINT_SCALE: u256 = 10_000;
-    const EXIT_FEE: u256 = 500; // 5%
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
@@ -308,6 +308,14 @@ pub mod Vault {
             store.vault_claimed(caller.into(), amount);
         }
 
+        fn set_fee(ref self: ContractState, fee: u16) {
+            // [Check] Only admin can set fee
+            self.accesscontrol.assert_only_role(COLLECTOR_ROLE);
+            // [Effect] Set fee
+            let world = self.world(@NAMESPACE());
+            self.rewardable.set_fee(world, fee);
+        }
+
         /// Collect rewards from another address
         /// # Arguments
         /// * `address`: The address to collect rewards from
@@ -380,13 +388,19 @@ pub mod Vault {
         fn calculate_withdraw_fee(
             self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
-            let fee = fee_on_total(assets, EXIT_FEE);
+            let contract_state = self.get_contract();
+            let world = contract_state.world(@NAMESPACE());
+            let exit_fee = contract_state.rewardable.exit_fee(world);
+            let fee = fee_on_total(assets, exit_fee.into());
             Option::Some(Fee::Assets(fee))
         }
         fn calculate_redeem_fee(
             self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
-            let fee = fee_on_raw(shares, EXIT_FEE);
+            let contract_state = self.get_contract();
+            let world = contract_state.world(@NAMESPACE());
+            let exit_fee = contract_state.rewardable.exit_fee(world);
+            let fee = fee_on_raw(shares, exit_fee.into());
             Option::Some(Fee::Shares(fee))
         }
     }

@@ -64,6 +64,13 @@ pub mod RewardableComponent {
             vault.assert_is_closed();
         }
 
+        fn exit_fee(self: @ComponentState<TContractState>, world: WorldStorage) -> u16 {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+            // [Return] Exit fee
+            store.vault().fee
+        }
+
         fn claimable(
             self: @ComponentState<TContractState>, world: WorldStorage, user: felt252, shares: u256,
         ) -> u256 {
@@ -157,6 +164,15 @@ pub mod RewardableComponent {
             store.set_position(@position);
             // [Return] Claimable amount
             amount
+        }
+
+        fn set_fee(ref self: ComponentState<TContractState>, world: WorldStorage, fee: u16) {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+            // [Effect] Set fee
+            let mut vault = store.vault();
+            vault.set_fee(fee);
+            store.set_vault(@vault);
         }
 
         fn open(ref self: ComponentState<TContractState>, world: WorldStorage) {

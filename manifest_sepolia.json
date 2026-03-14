@@ -211,7 +211,7 @@
     },
     {
       "address": "0x773c23ecf54dece70548af51afc5d4b333d7757f14a23e11cb0130e2c1f73b2",
-      "class_hash": "0x3d27a917a17f9fa6863c27620d7757cc3a0b8e523cb8edd6c4183cc23909c7a",
+      "class_hash": "0x4b67e0ef9e885311a84cd3c1132a8506f8ed2f93e97b3556dea5e92fbb10e4",
       "init_calldata": [
         "0x0"
       ],
@@ -222,6 +222,7 @@
         "pay",
         "claim",
         "collect",
+        "set_fee",
         "pause",
         "unpause",
         "open",
@@ -790,9 +791,14 @@
           "name": "total_reward",
           "type": "core::integer::u256",
           "key": false
+        },
+        {
+          "name": "fee",
+          "type": "core::integer::u16",
+          "key": false
         }
       ],
-      "class_hash": "0x1b418d0752f50904b2b3a8628e910149fb2a06db7fe274821415fc3837a2c33",
+      "class_hash": "0x6f9db19426a651a062b66cee1c37fed2bcb709894f688ba354831c92e6e07d5",
       "tag": "NUMS-VaultInfo",
       "selector": "0x7170457116a78d12f9d456a2bbc2a73649df5da5ddbc5518ba3452b794b99a1"
     },
@@ -4554,6 +4560,10 @@
         {
           "name": "total_reward",
           "type": "core::integer::u256"
+        },
+        {
+          "name": "fee",
+          "type": "core::integer::u16"
         }
       ]
     },
@@ -4568,6 +4578,10 @@
         {
           "name": "total_reward",
           "type": "core::integer::u256"
+        },
+        {
+          "name": "fee",
+          "type": "core::integer::u16"
         }
       ]
     },
@@ -5421,6 +5435,18 @@
             {
               "name": "address",
               "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_fee",
+          "inputs": [
+            {
+              "name": "fee",
+              "type": "core::integer::u16"
             }
           ],
           "outputs": [],

@@ -303,6 +303,9 @@ pub mod PlayableComponent {
                         time: time,
                         to_store: true,
                     );
+
+                // [Effect] Claim rewards
+                self.claim(world, game_id);
             }
 
             // [Effect] Update achievement progression for the player - Filler tasks
@@ -415,6 +418,9 @@ pub mod PlayableComponent {
                         time: time,
                         to_store: true,
                     );
+
+                // [Effect] Claim rewards
+                self.claim(world, game_id);
             }
 
             // [Interaction] Update token metadata
@@ -467,6 +473,9 @@ pub mod PlayableComponent {
                         time: time,
                         to_store: true,
                     );
+
+                // [Effect] Claim rewards
+                self.claim(world, game_id);
             }
 
             // [Interaction] Update token metadata

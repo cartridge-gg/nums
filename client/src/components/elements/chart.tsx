@@ -110,14 +110,11 @@ const CrosshairOverlay = ({
     containerActivePoint ?? activeDataPoints?.[0] ?? breakEvenPoint;
   const isBreakEven = !isHovering;
 
-  // Data → pixel (log scale: normalized = (log(y) - log(min)) / (log(max) - log(min)))
+  // Data → pixel (linear scale)
   const px = plotLeft + (active.x / DEFAULT_SLOT_COUNT) * plotWidth;
-  const safeY = Math.max(active.y, 1);
-  const minY = 1;
-  const logMax = Math.log(Math.max(maxDataY, 1));
-  const logMin = Math.log(minY);
+  const x1Min = plotLeft + (1 / DEFAULT_SLOT_COUNT) * plotWidth; // Min abscissa: 1 (not 0)
   const normalized =
-    logMax <= logMin ? 1 : (Math.log(safeY) - logMin) / (logMax - logMin);
+    maxDataY <= 0 ? 1 : Math.min(1, Math.max(0, active.y / maxDataY));
   const py = plotTop + (1 - normalized) * plotHeight;
 
   // ── Top tooltip: 8px padding L/R, 24px height, text centered
@@ -154,9 +151,9 @@ const CrosshairOverlay = ({
           transition: `x1 ${TRANSITION}, x2 ${TRANSITION}, y2 ${TRANSITION}`,
         }}
       />
-      {/* Horizontal dashed line: plotLeft → px */}
+      {/* Horizontal dashed line: x1Min (abscissa 1) → px */}
       <line
-        x1={plotLeft}
+        x1={x1Min}
         y1={py}
         x2={px}
         y2={py}
@@ -167,21 +164,25 @@ const CrosshairOverlay = ({
           transition: `y1 ${TRANSITION}, y2 ${TRANSITION}, x2 ${TRANSITION}`,
         }}
       />
-      {/* Dot */}
-      <circle
-        cx={px}
-        cy={py}
-        r={4}
-        fill="var(--white-100)"
-        stroke="var(--black-400)"
-        strokeWidth={1}
-        style={{ transition: `cx ${TRANSITION}, cy ${TRANSITION}` }}
-      />
       {yLabels}
-      {/* Tooltips portaled to container */}
+      {/* Dot + tooltips portaled to container — ensures they render above the curve */}
       {containerRef.current &&
         createPortal(
           <>
+            <div
+              role="presentation"
+              aria-hidden
+              className="absolute rounded-full pointer-events-none border border-[var(--black-400)]"
+              style={{
+                left: px,
+                top: py,
+                width: 8,
+                height: 8,
+                marginLeft: -4,
+                marginTop: -4,
+                backgroundColor: "var(--white-100)",
+              }}
+            />
             <div
               role="tooltip"
               aria-hidden
@@ -191,7 +192,7 @@ const CrosshairOverlay = ({
                 top: topY,
                 width: topW,
                 height: topH,
-                backgroundColor: "var(--mauve-700)",
+                backgroundColor: "#2C255B",
                 color: "var(--white-100)",
                 fontSize: 18,
                 letterSpacing: "0.06em",
@@ -295,11 +296,7 @@ export const Chart = ({
 
   const maxY = Math.max(...values, 0);
 
-  // For log scale: y must be > 0; transform data for the Line
-  const chartData = useMemo(
-    () => data.map((p) => ({ ...p, y: Math.max(p.y, 1) })),
-    [data],
-  );
+  const chartData = data;
 
   const breakEvenPoint = useMemo(
     () => ({ x: abscissa, y: abscissaY }),
@@ -420,7 +417,6 @@ export const Chart = ({
             wrapperStyle={{ display: "none" }}
           />
 
-          {/* Line first so axes and overlay render on top */}
           <Line
             type="stepAfter"
             dataKey="y"
@@ -442,12 +438,11 @@ export const Chart = ({
             tick={<XAxisTick showLabel={true} />}
           />
 
-          {/* Y-axis — log scale, width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
+          {/* Y-axis — linear scale, width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
           <YAxis
             type="number"
-            scale="log"
             width={0}
-            domain={[1, Math.max(maxY, 1)]}
+            domain={[0, Math.max(maxY, 1)]}
             axisLine={false}
             tickLine={false}
             tick={() => null}

@@ -170,7 +170,9 @@ export class Game {
    * @returns Array of slot-count reward values, one for each level
    */
   public static rewards(slotCount: number, multiplier: number): number[] {
-    const multiplierBig = BigInt(Math.round(multiplier * Number(MULTIPLIER_PRECISION)));
+    const multiplierBig = BigInt(
+      Math.round(multiplier * Number(MULTIPLIER_PRECISION)),
+    );
     return Array.from({ length: slotCount }, (_, index) => {
       return Rewarder.amount(
         BigInt(index + 1),
@@ -400,7 +402,9 @@ export class Game {
    * Equivalent to GameTrait::reward in models/game.cairo
    */
   addReward(): void {
-    const multiplierBig = BigInt(Math.round(this.multiplier * Number(MULTIPLIER_PRECISION)));
+    const multiplierBig = BigInt(
+      Math.round(this.multiplier * Number(MULTIPLIER_PRECISION)),
+    );
     const rewardAmount = Rewarder.amount(
       BigInt(this.level),
       1n,

@@ -4,7 +4,7 @@ import { getSwapQuote } from "@/api/ekubo";
 import { MULTIPLIER_PRECISION } from "@/constants";
 import { Rewarder } from "@/helpers/rewarder";
 
-const DEBOUNCE_MS = 500;
+const DEBOUNCE_MS = 300;
 const EMA_SCORE_PRECISION = 1000n;
 
 export interface UseMultiplierParams {
@@ -23,7 +23,7 @@ export interface UseMultiplierParams {
 /**
  * Estimates the on-chain multiplier by fetching the real USDC → NUMS swap quote
  * from Ekubo (includes actual slippage) instead of using a hardcoded fee.
- * Updates are debounced by 500 ms.
+ * Updates are debounced by 300 ms.
  */
 export const useMultiplier = ({
   basePrice,
@@ -38,9 +38,15 @@ export const useMultiplier = ({
   quoteAddress,
 }: UseMultiplierParams): { multiplier: number; isLoading: boolean } => {
   const [multiplier, setMultiplier] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const lastSuccessfulPackMultiplierRef = useRef<bigint | null>(null);
   const { chain } = useNetwork();
+
+  // Derive loading: true immediately when packMultiplier changes (before useEffect)
+  // or while fetch is in progress
+  const isLoading =
+    isFetching || lastSuccessfulPackMultiplierRef.current !== packMultiplier;
 
   useEffect(() => {
     if (
@@ -56,7 +62,7 @@ export const useMultiplier = ({
     const burnUsdc = (burnPercentage * packMultiplier * basePrice) / 100n;
     if (burnUsdc === 0n) return;
 
-    setIsLoading(true);
+    setIsFetching(true);
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       try {
@@ -82,10 +88,11 @@ export const useMultiplier = ({
           slotCount,
         );
         setMultiplier(Number(mulRaw) / Number(MULTIPLIER_PRECISION));
+        lastSuccessfulPackMultiplierRef.current = packMultiplier;
       } catch {
         // Keep previous value on network/API error
       } finally {
-        setIsLoading(false);
+        setIsFetching(false);
       }
     }, DEBOUNCE_MS);
 

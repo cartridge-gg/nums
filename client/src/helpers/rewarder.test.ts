@@ -39,7 +39,9 @@ describe("Rewarder.supplyMultiplier", () => {
   });
 
   test("returns_2x_MULTIPLIER_PRECISION_at_zero_supply", () => {
-    expect(Rewarder.supplyMultiplier(0n, TARGET_SUPPLY)).toBe(MULTIPLIER_PRECISION * 2n);
+    expect(Rewarder.supplyMultiplier(0n, TARGET_SUPPLY)).toBe(
+      MULTIPLIER_PRECISION * 2n,
+    );
   });
 
   test("returns_0_at_double_target_supply", () => {

@@ -23,7 +23,9 @@ export class Rewarder {
     const denLhs = (slotCount + B) ** K;
     const denRhs = scoreNum ** K / scoreDen ** K;
     if (denLhs <= denRhs) return 0n;
-    return (A / (denLhs - denRhs) - A / denLhs + scoreNum * TEN_POW_18 / scoreDen);
+    return (
+      A / (denLhs - denRhs) - A / denLhs + (scoreNum * TEN_POW_18) / scoreDen
+    );
   }
 
   /**

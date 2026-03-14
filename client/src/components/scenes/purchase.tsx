@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShadowEffect, CloseIcon } from "@/components/icons";
 import { Purchase } from "@/components/containers/purchase";
 import { Details, Stakes, type StakesProps } from "../containers";
-import { useId, useMemo, useState, useEffect } from "react";
+import { useId, useMemo, useState, useEffect, useRef } from "react";
 import { ChartHelper } from "@/helpers/chart";
 import { Formatter } from "@/helpers/formatter";
 import { DEFAULT_EXPIRATION } from "@/constants";
@@ -62,11 +62,20 @@ export const PurchaseScene = ({
 }: PurchaseSceneProps) => {
   const filterId = useId();
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const lastStableChartRef = useRef<{
+    chartValues: number[];
+    chartAbscissa: number;
+    maxPayoutNums: number;
+    maxPayout: number;
+  } | null>(null);
 
-  // Calculate chart data using ChartHelper
+  // Calculate chart data — only update when multiplier has loaded (no intermediate change)
   const { chartValues, chartAbscissa, maxPayoutNums, maxPayout } =
     useMemo(() => {
-      return ChartHelper.calculate({
+      if (loading && lastStableChartRef.current) {
+        return lastStableChartRef.current;
+      }
+      const result = ChartHelper.calculate({
         slotCount,
         currentSupply,
         targetSupply,
@@ -74,6 +83,8 @@ export const PurchaseScene = ({
         playPrice,
         multiplier,
       });
+      if (!loading) lastStableChartRef.current = result;
+      return result;
     }, [
       slotCount,
       currentSupply,
@@ -81,6 +92,7 @@ export const PurchaseScene = ({
       numsPrice,
       playPrice,
       multiplier,
+      loading,
     ]);
 
   // Calculate expiration time display

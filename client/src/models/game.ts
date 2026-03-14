@@ -169,10 +169,7 @@ export class Game {
    * @param targetSupply - The target supply of the game
    * @returns Array of slot-count reward values, one for each level
    */
-  public static rewards(
-    slotCount: number,
-    multiplier: number,
-  ): number[] {
+  public static rewards(slotCount: number, multiplier: number): number[] {
     const multiplierBig = BigInt(Math.round(multiplier * 100));
     return Array.from({ length: slotCount }, (_, index) => {
       return Rewarder.amount(
@@ -429,10 +426,7 @@ export class Game {
 
     const priceUsd = Number(this.price) / 1e6;
 
-    const gameRewards = Game.rewards(
-      this.slot_count,
-      this.multiplier,
-    );
+    const gameRewards = Game.rewards(this.slot_count, this.multiplier);
 
     for (let i = 0; i < gameRewards.length; i++) {
       if (gameRewards[i] * numsPrice > priceUsd) return i + 1;

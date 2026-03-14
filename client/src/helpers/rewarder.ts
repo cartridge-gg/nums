@@ -31,8 +31,8 @@ export class Rewarder {
    * Returns 0 when supply ≥ 2 × target (no rewards).
    */
   static supplyMultiplier(supply: bigint, target: bigint): bigint {
-    if (supply > (target * 2n) || target === 0n) return 0n;
-    return (2n * target - supply) * PRECISION / target;
+    if (supply > target * 2n || target === 0n) return 0n;
+    return ((2n * target - supply) * PRECISION) / target;
   }
 
   /**
@@ -47,7 +47,7 @@ export class Rewarder {
   ): bigint {
     const mint = Rewarder.base(scoreNum, scoreDen, slotCount);
     if (mint === 0n) return 0n;
-    return burn * PRECISION / (mint * TEN_POW_18);
+    return (burn * PRECISION) / (mint * TEN_POW_18);
   }
 
   /**
@@ -69,12 +69,17 @@ export class Rewarder {
     slotCount: bigint,
   ): bigint {
     const supplyMultiplier = Rewarder.supplyMultiplier(supply, target);
-    const burnMultiplier = Rewarder.burnMultiplier(burn, scoreNum, scoreDen, slotCount);
+    const burnMultiplier = Rewarder.burnMultiplier(
+      burn,
+      scoreNum,
+      scoreDen,
+      slotCount,
+    );
     console.log({
       supplyMultiplier,
       burnMultiplier,
-    })
-    return supplyMultiplier * burnMultiplier / PRECISION;
+    });
+    return (supplyMultiplier * burnMultiplier) / PRECISION;
   }
 
   /**
@@ -89,7 +94,7 @@ export class Rewarder {
     multiplier: bigint,
   ): number {
     const base = Rewarder.base(scoreNum, scoreDen, slotCount);
-    return Number(base * multiplier / PRECISION);
+    return Number((base * multiplier) / PRECISION);
   }
 
   /**
@@ -136,11 +141,12 @@ export class Rewarder {
     }
 
     // burn_usdc = burn_percentage * pack_multiplier * base_price / 100 (6-dec USDC)
-    const burnUsdc = burnPercentage * packMultiplier * basePrice / 100n;
+    const burnUsdc = (burnPercentage * packMultiplier * basePrice) / 100n;
 
     // Convert USDC → NUMS (18-dec), net of conversion fee
     const burnPerGame =
-      burnUsdc * TEN_POW_18 / numsPrice * (1000n - CONVERSION_FEE) / 1000n;
+      (((burnUsdc * TEN_POW_18) / numsPrice) * (1000n - CONVERSION_FEE)) /
+      1000n;
 
     const supplyPerGame =
       currentSupply > burnPerGame ? currentSupply - burnPerGame : 0n;

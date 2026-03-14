@@ -8,8 +8,7 @@ import {
   RefreshIcon,
   ShadowEffect,
 } from "@/components/icons";
-import { useId, useState, useEffect, useMemo, useRef } from "react";
-import { useAudio } from "@/context/audio";
+import { useId, useState, useEffect, useMemo } from "react";
 import Confetti from "react-confetti";
 import { Link } from "@/lib/router";
 import { Stages, type StagesProps } from "@/components/containers";
@@ -136,8 +135,7 @@ export const GameOver = ({
             )}
           >
             <Payout payout={payout} className="rounded-t-xl" />
-            <Value value={value} />
-            <Claim onClaim={onClaim} className="rounded-b-xl" />
+            <Value value={value} className="rounded-b-xl" />
           </div>
           <PayoutInfo
             payout={payout}
@@ -331,67 +329,6 @@ const Value = ({ value, className }: { value: number; className?: string }) => {
       >
         {`$${value.toFixed(2).toLocaleString()}`}
       </p>
-    </div>
-  );
-};
-
-const Claim = ({
-  onClaim,
-  className,
-}: {
-  onClaim?: null | (() => void);
-  className?: string;
-}) => {
-  const { playPositive } = useAudio();
-  const prevOnClaimRef = useRef(onClaim);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!!prevOnClaimRef.current && !onClaim) {
-      playPositive();
-      setLoading(false);
-    }
-    prevOnClaimRef.current = onClaim;
-  }, [onClaim, playPositive]);
-
-  const handleClaim = () => {
-    if (loading || !onClaim) return;
-    setLoading(true);
-    onClaim();
-  };
-
-  return (
-    <div
-      className={cn(
-        "p-4 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
-        className,
-      )}
-    >
-      {!onClaim ? (
-        <div className="w-full h-10 flex items-center justify-center bg-black-700 rounded-lg">
-          <p
-            className="text-[22px]/[15px] tracking-wide translate-y-0.5 text-white-100"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-          >
-            Claimed
-          </p>
-        </div>
-      ) : (
-        <Button
-          variant="default"
-          className="w-full"
-          onClick={handleClaim}
-          loading={loading}
-          disabled={loading}
-        >
-          <p
-            className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
-          >
-            Claim Reward
-          </p>
-        </Button>
-      )}
     </div>
   );
 };

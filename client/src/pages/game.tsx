@@ -14,6 +14,7 @@ import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
+import { useAudio } from "@/context/audio";
 import { useLoading } from "@/context/loading";
 import { useHeader } from "@/hooks/header";
 import type { StageState } from "@/components/elements/stage";
@@ -25,8 +26,6 @@ import { useMediaQuery } from "usehooks-ts";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
-import { useOwner } from "@/hooks/owner";
-
 export const Game = () => {
   const location = useLocation();
   const isPracticeMode = location.pathname === "/practice";
@@ -36,7 +35,7 @@ export const Game = () => {
 
   // Practice context
   const { game: practiceGame, start: startPractice } = usePractice();
-  const { supply: currentSupply, username, address } = useHeader();
+  const { supply: currentSupply, username } = useHeader();
 
   // Practice actions
   const practiceActions = usePractices();
@@ -49,6 +48,7 @@ export const Game = () => {
   const { openPurchaseScene } = usePurchaseModal();
   const { playerGames: games } = useGames();
   const { config } = useEntities();
+  const { playPositive } = useAudio();
   const { isLoading, setLoading } = useLoading();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { id: idParam } = useParams<{ id: string }>();
@@ -73,11 +73,6 @@ export const Game = () => {
       : null;
   }, [idParam, isPracticeMode]);
 
-  const owner = useOwner(gameId);
-  const isOwner = useMemo(() => {
-    return BigInt(owner?.owner ?? "1") === BigInt(address ?? "0");
-  }, [owner, address]);
-
   // Load game data (only in blockchain mode)
   const blockchainGame = useGame(gameId);
 
@@ -86,6 +81,10 @@ export const Game = () => {
 
   // Track if we've initialized practice game for this practice mode session
   const practiceInitializedRef = useRef(false);
+
+  // Track previous game.over to detect transition false → true (for GameOver)
+  const prevOverRef = useRef<number>(0);
+  const prevGameIdRef = useRef<number | null>(null);
 
   // Create a new practice game if none exists when entering practice mode
   // (Game is already cleared and created in home when clicking Practice button)
@@ -329,21 +328,39 @@ export const Game = () => {
     }));
   }, [game, hasSelectablePowers, select, isLoading, setShowSelectionModal]);
 
-  // Show GameOver modal after 2 seconds when game is over
+  // Show GameOver modal when game.over transitions from false to true (not on claimed)
   useEffect(() => {
-    if (
-      !!game &&
-      game.over > 0 &&
-      ((!game.claimed && isOwner) || isPracticeMode)
-    ) {
+    if (!game) {
+      prevOverRef.current = 0;
+      prevGameIdRef.current = null;
+      setShowGameOver(false);
+      return;
+    }
+
+    // Reset refs when switching to a different game
+    if (prevGameIdRef.current !== game.id) {
+      prevGameIdRef.current = game.id;
+      prevOverRef.current = game.over;
+    }
+
+    if (game.over === 0) {
+      prevOverRef.current = 0;
+      setShowGameOver(false);
+      return;
+    }
+
+    // Transition: game.over went from 0 to > 0
+    if (prevOverRef.current === 0) {
+      playPositive();
       const timer = setTimeout(() => {
         setShowGameOver(true);
       }, 2000);
+      prevOverRef.current = game.over;
       return () => clearTimeout(timer);
-    } else {
-      setShowGameOver(false);
     }
-  }, [game, isOwner, isPracticeMode]);
+
+    prevOverRef.current = game.over;
+  }, [game, playPositive]);
 
   // Show Selection modal after 2 seconds when selectable
   useEffect(() => {

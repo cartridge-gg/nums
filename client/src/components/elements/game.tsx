@@ -90,14 +90,14 @@ export const Game = ({
 
         {/* Break Even column */}
         <div
-          className={cn("flex-1 flex-col gap-2", !!gameId ? "hidden" : "flex")}
+          className={cn("flex-1 flex-col gap-2", gameId ? "hidden" : "flex")}
         >
           <Content title="Break Even" value={breakEven} />
         </div>
 
         {/* Score column */}
         <div
-          className={cn("flex-1 flex-col gap-2", !!gameId ? "flex" : "hidden")}
+          className={cn("flex-1 flex-col gap-2", gameId ? "flex" : "hidden")}
         >
           <Content title="Score" value={score} />
         </div>

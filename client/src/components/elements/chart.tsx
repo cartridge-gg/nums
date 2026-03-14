@@ -1,15 +1,22 @@
 import { DEFAULT_SLOT_COUNT } from "@/constants";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { useMemo, useCallback, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   ResponsiveContainer,
-  ReferenceLine,
+  Customized,
+  Tooltip,
   Text,
+  usePlotArea,
+  useYAxisDomain,
+  useActiveTooltipDataPoints,
+  useChartWidth,
+  useChartHeight,
 } from "recharts";
 
 export interface ChartProps
@@ -37,60 +44,189 @@ const chartVariants = cva(
   },
 );
 
-// Custom tick component for X-axis
-const CustomXAxisTick = ({
-  x,
-  y,
-  payload,
-  showLabel,
-  abscissa,
-  orientation,
-}: any) => {
-  if (!showLabel) return null;
-  const isTop = orientation === "top";
-  const isAbscissaValue = Math.abs(payload.value - abscissa) < 0.001;
+const TRANSITION = "250ms ease";
 
-  // For top axis, show "Break Even" label at abscissa position with mauve-700 background
-  if (isTop && isAbscissaValue) {
-    const text = "Break Even";
-    const textWidth = text.length * 18 * 0.55;
-    const rectWidth = textWidth;
-    const rectHeight = 24; // Approximate height for fontSize 18
-    const rectX = x - rectWidth / 2; // Center the rectangle
-    const rectY = y - rectHeight - 8; // Position above the axis line
-    const borderRadius = 4; // rounded = 0.25rem = 4px
+// ─── Crosshair + tooltip overlay ─────────────────────────────────────────────
+// Rendered inside the chart via <Customized>; uses recharts v3 hooks to obtain
+// the plot area dimensions and the currently active data point.
 
-    return (
-      <g transform={"translate(0, 0)"}>
-        <rect
-          x={rectX}
-          y={rectY - 0.5}
-          width={rectWidth}
-          height={rectHeight}
-          rx={borderRadius}
-          ry={borderRadius}
-          fill="#332673"
-        />
-        <Text
-          x={x}
-          y={rectY + rectHeight / 2}
-          textAnchor="middle"
-          fill="var(--white-100)"
-          fontSize={18}
-          letterSpacing="0.05em"
-          dominantBaseline="middle"
-          filter="url(#ticker-shadow)"
-        >
-          {text}
-        </Text>
-      </g>
-    );
+interface CrosshairOverlayProps {
+  breakEvenPoint: { x: number; y: number };
+  /** When set, overrides recharts hover — used for container-wide tracking */
+  containerActivePoint?: { x: number; y: number } | null;
+  /** Ref to chart container — tooltips are portaled here to appear above axes */
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const CrosshairOverlay = ({
+  breakEvenPoint,
+  containerActivePoint,
+  containerRef,
+}: CrosshairOverlayProps) => {
+  const plotArea = usePlotArea();
+  const yDomain = useYAxisDomain();
+  const chartW = useChartWidth() ?? 0;
+  const chartH = useChartHeight() ?? 0;
+  const activeDataPoints = useActiveTooltipDataPoints<{
+    x: number;
+    y: number;
+  }>();
+
+  if (!plotArea || !yDomain) return null;
+
+  const maxDataY = yDomain[1] as number;
+  const {
+    x: plotLeft,
+    y: plotTop,
+    width: plotWidth,
+    height: plotHeight,
+  } = plotArea;
+
+  // Y labels: maxY NUMS at top (no 0 by default), aligned with tooltip center
+  const yLabels =
+    plotArea.width > 0 && plotArea.height > 0 ? (
+      <Text
+        x={plotLeft + 8}
+        y={plotTop}
+        textAnchor="start"
+        fill="var(--white-100)"
+        fontSize={18}
+        letterSpacing="0.05em"
+        dominantBaseline="middle"
+      >
+        {`${maxDataY.toFixed(0)} NUMS`}
+      </Text>
+    ) : null;
+
+  if (maxDataY === 0 || plotArea.width === 0 || plotArea.height === 0) {
+    return <g>{yLabels}</g>;
   }
 
-  // For top axis (non-abscissa values), don't show anything
-  if (isTop) return null;
+  // Prefer container tracking (full ResponsiveContainer) over chart-internal hover
+  const isHovering =
+    containerActivePoint != null ||
+    (activeDataPoints != null && activeDataPoints.length > 0);
+  const active =
+    containerActivePoint ?? activeDataPoints?.[0] ?? breakEvenPoint;
+  const isBreakEven = !isHovering;
 
-  // For bottom axis, show numeric values
+  // Data → pixel (linear scale)
+  const px = plotLeft + (active.x / DEFAULT_SLOT_COUNT) * plotWidth;
+  const py = plotTop + (1 - active.y / maxDataY) * plotHeight;
+
+  // ── Top tooltip: 8px padding L/R, 24px height, text centered
+  const topLabel = isBreakEven ? "Break Even" : `Level ${active.x}`;
+  const topW = topLabel.length * 9 + 16; // 8px padding each side
+  const topH = 24;
+  const topX = Math.max(0, Math.min(chartW - topW, px - topW / 2));
+  const topY = Math.max(0, Math.min(chartH - topH, plotTop - topH - 8));
+
+  // ── Left tooltip: 8px padding L/R, 24px height, text centered
+  const leftLabel = `${active.y.toFixed(0)} NUMS`;
+  const leftW = leftLabel.length * 8 + 16; // 8px padding each side
+  const leftH = 24;
+  const xAxisHeight = 36; // Reserve space so tooltip stays above xTicks
+  // Align with yTicks (inside plot at plotLeft + 8)
+  const leftX = Math.max(0, Math.min(chartW - leftW, plotLeft + 2));
+  const leftY = Math.max(
+    0,
+    Math.min(chartH - leftH - xAxisHeight, py - leftH / 2),
+  );
+
+  return (
+    <g>
+      {/* Vertical dashed line: plotTop → py */}
+      <line
+        x1={px}
+        y1={plotTop}
+        x2={px}
+        y2={py}
+        stroke="rgba(255,255,255,0.25)"
+        strokeWidth={1.5}
+        strokeDasharray="4 3"
+        style={{
+          transition: `x1 ${TRANSITION}, x2 ${TRANSITION}, y2 ${TRANSITION}`,
+        }}
+      />
+      {/* Horizontal dashed line: plotLeft → px */}
+      <line
+        x1={plotLeft}
+        y1={py}
+        x2={px}
+        y2={py}
+        stroke="rgba(255,255,255,0.25)"
+        strokeWidth={1.5}
+        strokeDasharray="4 3"
+        style={{
+          transition: `y1 ${TRANSITION}, y2 ${TRANSITION}, x2 ${TRANSITION}`,
+        }}
+      />
+      {/* Dot */}
+      <circle
+        cx={px}
+        cy={py}
+        r={4}
+        fill="var(--white-100)"
+        stroke="var(--black-400)"
+        strokeWidth={1}
+        style={{ transition: `cx ${TRANSITION}, cy ${TRANSITION}` }}
+      />
+      {yLabels}
+      {/* Tooltips portaled to container */}
+      {containerRef.current &&
+        createPortal(
+          <>
+            <div
+              role="tooltip"
+              aria-hidden
+              className="absolute rounded flex items-center justify-center pointer-events-none"
+              style={{
+                left: topX,
+                top: topY,
+                width: topW,
+                height: topH,
+                backgroundColor: "var(--mauve-700)",
+                color: "var(--white-100)",
+                fontSize: 18,
+                letterSpacing: "0.06em",
+                transition: `left ${TRANSITION}, top ${TRANSITION}`,
+              }}
+            >
+              <span style={{ display: "block", transform: "translateY(1px)" }}>
+                {topLabel}
+              </span>
+            </div>
+            <div
+              role="tooltip"
+              aria-hidden
+              className="absolute rounded flex items-center justify-center pointer-events-none"
+              style={{
+                left: leftX,
+                top: leftY,
+                width: leftW,
+                height: leftH,
+                backgroundColor: "#2C255B",
+                color: "var(--white-100)",
+                fontSize: 18,
+                letterSpacing: "0.05em",
+                transition: `left ${TRANSITION}, top ${TRANSITION}`,
+              }}
+            >
+              <span style={{ display: "block", transform: "translateY(1px)" }}>
+                {leftLabel}
+              </span>
+            </div>
+          </>,
+          containerRef.current,
+        )}
+    </g>
+  );
+};
+
+// ─── Axis ticks ───────────────────────────────────────────────────────────────
+
+const XAxisTick = ({ x, y, payload, showLabel }: any) => {
+  if (!showLabel) return null;
   return (
     <Text
       x={x}
@@ -98,7 +234,7 @@ const CustomXAxisTick = ({
       textAnchor="middle"
       fill="var(--white-100)"
       fontSize={18}
-      dy={10 + 4}
+      dy={14}
       letterSpacing="0.05em"
     >
       {payload.value}
@@ -106,64 +242,7 @@ const CustomXAxisTick = ({
   );
 };
 
-// Custom tick component for Y-axis
-const CustomYAxisTick = ({
-  x,
-  y,
-  payload,
-  showLabel,
-  tickFormatter,
-  abscissaY,
-}: any) => {
-  if (!showLabel) return null;
-  const formattedValue = tickFormatter
-    ? tickFormatter(payload.value)
-    : payload.value;
-
-  // Don't render if formatted value is empty
-  if (!formattedValue || formattedValue === "") return null;
-
-  const isAbscissaValue = Math.abs(payload.value - abscissaY) < 0.001; // Compare with small epsilon for float comparison
-
-  // Estimate text width (approximate: fontSize * characterCount * 0.55)
-  const textWidth = formattedValue.length * 18 * 0.55;
-  const rectWidth = textWidth;
-  const rectHeight = 24; // Approximate height for fontSize 18
-  const offsetLeft = 72; // Offset 72px to the left
-  const textX = x - offsetLeft; // Text position shifted 72px to the left (starting point for left alignment)
-  const rectX = textX - 7; // Rectangle position aligned with the start of the text
-  const rectY = y - rectHeight / 2;
-  const textY = rectY + rectHeight / 2;
-  const borderRadius = 4; // rounded = 0.25rem = 4px
-
-  return (
-    <g transform={"translate(0, 0)"}>
-      {isAbscissaValue && (
-        <rect
-          x={rectX}
-          y={rectY - 0.5}
-          width={rectWidth}
-          height={rectHeight}
-          rx={borderRadius}
-          ry={borderRadius}
-          fill="#332673"
-        />
-      )}
-      <Text
-        x={textX}
-        y={textY}
-        textAnchor="start"
-        fill="var(--white-100)"
-        fontSize={18}
-        letterSpacing="0.05em"
-        dominantBaseline="middle"
-        filter={isAbscissaValue ? "url(#ticker-shadow)" : undefined}
-      >
-        {formattedValue}
-      </Text>
-    </g>
-  );
-};
+// ─── Chart ────────────────────────────────────────────────────────────────────
 
 export const Chart = ({
   values,
@@ -173,17 +252,13 @@ export const Chart = ({
   className,
   ...props
 }: ChartProps) => {
-  // Ensure we have exactly 18 values
   if (values.length !== DEFAULT_SLOT_COUNT) {
     throw new Error(`Chart requires exactly ${DEFAULT_SLOT_COUNT} values`);
   }
-
-  // Ensure abscissa is between 0 and 18
   if (abscissa < 0 || abscissa > DEFAULT_SLOT_COUNT) {
     throw new Error(`Abscissa must be between 0 and ${DEFAULT_SLOT_COUNT}`);
   }
 
-  // Get the y value for the given abscissa
   const abscissaY = useMemo(() => {
     if (abscissa === 0) return 0;
     if (abscissa === DEFAULT_SLOT_COUNT) return values[DEFAULT_SLOT_COUNT - 1];
@@ -193,23 +268,15 @@ export const Chart = ({
     return values[index - 1];
   }, [abscissa, values]);
 
-  // Create data points: (0,0), (1, values[0]), ..., (18, values[17])
-  // Also add the abscissa point if it's not already in the data
   const data = useMemo(() => {
     const points: Array<{ x: number; y: number }> = [{ x: 0, y: 0 }];
-
-    // Add points for each value
     for (let i = 0; i < values.length; i++) {
       points.push({ x: i + 1, y: values[i] });
     }
-
-    // Add abscissa point if it's not already in the data
-    // For stepAfter, the point at abscissa should have y = abscissaY
     const abscissaIndex = points.findIndex(
       (p) => Math.abs(p.x - abscissa) < 0.001,
     );
     if (abscissaIndex === -1 && abscissa > 0 && abscissa < DEFAULT_SLOT_COUNT) {
-      // Insert abscissa point in the correct position (sorted by x)
       const insertIndex = points.findIndex((p) => p.x > abscissa);
       if (insertIndex === -1) {
         points.push({ x: abscissa, y: abscissaY });
@@ -217,78 +284,80 @@ export const Chart = ({
         points.splice(insertIndex, 0, { x: abscissa, y: abscissaY });
       }
     }
-
     return points;
   }, [values, abscissa, abscissaY]);
 
   const maxY = Math.max(...values, 0);
 
-  // Prepare X-axis ticks and labels
-  const xTicks = useMemo(() => {
-    const ticks = [1, DEFAULT_SLOT_COUNT];
-    if (
-      abscissa !== 1 &&
-      abscissa !== DEFAULT_SLOT_COUNT &&
-      abscissa > 0 &&
-      abscissa < DEFAULT_SLOT_COUNT
-    ) {
-      ticks.splice(1, 0, abscissa);
-    }
-    return ticks;
-  }, [abscissa]);
+  const breakEvenPoint = useMemo(
+    () => ({ x: abscissa, y: abscissaY }),
+    [abscissa, abscissaY],
+  );
 
-  // Prepare Y-axis ticks and labels
-  const yTicks = useMemo(() => {
-    const ticks = abscissa < 13 ? [maxY] : [0, maxY];
-    if (abscissaY !== 0 && abscissaY !== maxY) {
-      ticks.splice(1, 0, abscissaY);
-    }
-    // Remove duplicates to avoid React key warnings
-    return Array.from(new Set(ticks));
-  }, [abscissaY, maxY]);
+  // Container-wide tracking: mouse over the whole ResponsiveContainer updates the crosshair
+  const [containerActive, setContainerActive] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Custom tick formatter for X-axis
-  const xTickFormatter = (value: number) => {
-    if (xTicks.includes(value)) return value.toString();
-    return "";
-  };
-
-  // Custom tick formatter for Y-axis
-  const yTickFormatter = (value: number) => {
-    // Use epsilon comparison for floating point numbers to handle Y=0 correctly
-    const isInTicks = yTicks.some((tick) => Math.abs(tick - value) < 0.001);
-    if (isInTicks) {
-      return `${value.toFixed(0)} NUMS`;
-    }
-    return "";
-  };
-
-  // Custom dot component that only shows at the abscissa point
-  const AbscissaDot = (props: any) => {
-    const { cx, cy, payload } = props;
-    // Only show dot if this point corresponds to the abscissa
-    if (Math.abs(payload.x - abscissa) < 0.001) {
-      return (
-        <circle
-          cx={cx}
-          cy={cy}
-          r={3}
-          fill="var(--white-100)"
-          stroke="var(--black-400)"
-          strokeWidth={1}
-        />
+  const handleContainerMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = containerRef.current;
+      if (!el || data.length === 0) return;
+      const rect = el.getBoundingClientRect();
+      const relX = e.clientX - rect.left;
+      // Plot area: margin left 16, Y-axis width 0, so plotLeft = 16
+      const plotLeft = 16;
+      const plotWidth = rect.width - plotLeft - 12; // margin right 12
+      if (plotWidth <= 0) return;
+      const dataX = Math.max(
+        0,
+        Math.min(
+          DEFAULT_SLOT_COUNT,
+          ((relX - plotLeft) / plotWidth) * DEFAULT_SLOT_COUNT,
+        ),
       );
-    }
-    return null;
-  };
+      // stepAfter: y at dataX = y of rightmost point with p.x <= dataX
+      const idx = data.findIndex((p) => p.x > dataX);
+      const point =
+        idx === -1
+          ? data[data.length - 1]!
+          : idx <= 0
+            ? data[0]!
+            : data[idx - 1]!;
+      setContainerActive({ x: point.x, y: point.y });
+    },
+    [data],
+  );
+
+  const handleContainerMouseLeave = useCallback(() => {
+    setContainerActive(null);
+  }, []);
+
+  const renderOverlay = useCallback(
+    () => (
+      <CrosshairOverlay
+        breakEvenPoint={breakEvenPoint}
+        containerActivePoint={containerActive}
+        containerRef={containerRef}
+      />
+    ),
+    [breakEvenPoint, containerActive, containerRef],
+  );
+
+  const xTicks = [1, DEFAULT_SLOT_COUNT];
 
   return (
     <div
+      ref={containerRef}
       className={cn(chartVariants({ variant, size, className }))}
       {...props}
       tabIndex={-1}
       style={{ outline: "none", minHeight: 0, minWidth: 0, ...props.style }}
       onFocus={(e) => e.currentTarget.blur()}
+      onMouseMove={handleContainerMouseMove}
+      onMouseLeave={handleContainerMouseLeave}
     >
       <ResponsiveContainer
         initialDimension={{ width: 240, height: 240 }}
@@ -299,7 +368,7 @@ export const Chart = ({
       >
         <LineChart
           data={data}
-          margin={{ top: 20, right: 12, bottom: 5, left: 32 }}
+          margin={{ top: 48, right: 12, bottom: 5, left: 16 }}
           style={{ outline: "none" }}
         >
           <defs>
@@ -319,96 +388,49 @@ export const Chart = ({
             </filter>
           </defs>
 
-          {/* X-axis (top) - same as bottom */}
-          <XAxis
-            xAxisId="top"
-            type="number"
-            dataKey="x"
-            domain={[0, 18]}
-            orientation="top"
-            axisLine={false}
-            tickLine={false}
-            ticks={xTicks}
-            tickFormatter={xTickFormatter}
-            tick={
-              <CustomXAxisTick
-                showLabel={true}
-                abscissa={abscissa}
-                orientation="top"
-              />
-            }
+          {/* Hidden tooltip — required so recharts tracks mouse interaction
+              and feeds useActiveTooltipDataPoints() inside CrosshairOverlay */}
+          <Tooltip
+            content={() => null}
+            cursor={false}
+            animationDuration={0}
+            wrapperStyle={{ display: "none" }}
           />
 
-          {/* X-axis (bottom) - shows numeric values */}
-          <XAxis
-            xAxisId="bottom"
-            type="number"
-            dataKey="x"
-            domain={[0, 18]}
-            axisLine={false}
-            tickLine={false}
-            ticks={xTicks}
-            tickFormatter={xTickFormatter}
-            tick={
-              <CustomXAxisTick
-                showLabel={true}
-                abscissa={abscissa}
-                orientation="bottom"
-              />
-            }
-          />
-
-          {/* Y-axis */}
-          <YAxis
-            type="number"
-            domain={[0, maxY]}
-            axisLine={false}
-            tickLine={false}
-            ticks={yTicks}
-            tickFormatter={yTickFormatter}
-            interval={0}
-            allowDecimals={false}
-            tick={
-              <CustomYAxisTick
-                showLabel={true}
-                tickFormatter={yTickFormatter}
-                abscissaY={abscissaY}
-              />
-            }
-          />
-
-          {/* Reference lines for abscissa - vertical line (from top to abscissaY) */}
-          <ReferenceLine
-            stroke="var(--white-700)"
-            strokeDasharray="3 3"
-            strokeWidth={2}
-            segment={[
-              { x: abscissa, y: maxY },
-              { x: abscissa, y: abscissaY },
-            ]}
-          />
-
-          {/* Reference lines for abscissa - horizontal line (from left to abscissa) */}
-          <ReferenceLine
-            stroke="var(--white-700)"
-            strokeDasharray="3 3"
-            strokeWidth={2}
-            segment={[
-              { x: 0, y: abscissaY },
-              { x: abscissa, y: abscissaY },
-            ]}
-          />
-
-          {/* Step line chart (integer part) */}
+          {/* Line first so axes and overlay render on top */}
           <Line
             type="stepAfter"
             dataKey="y"
             stroke="var(--green-100)"
             strokeWidth={2}
-            dot={AbscissaDot}
+            dot={false}
             activeDot={false}
             connectNulls={false}
           />
+
+          {/* X-axis (renders above line) */}
+          <XAxis
+            type="number"
+            dataKey="x"
+            domain={[0, DEFAULT_SLOT_COUNT]}
+            axisLine={false}
+            tickLine={false}
+            ticks={xTicks}
+            tick={<XAxisTick showLabel={true} />}
+          />
+
+          {/* Y-axis — width 0 for full-width plot; Y labels drawn in CrosshairOverlay */}
+          <YAxis
+            type="number"
+            width={0}
+            domain={[0, Math.max(maxY, 1)]}
+            axisLine={false}
+            tickLine={false}
+            tick={() => null}
+          />
+
+          {/* Crosshair + tooltip overlay — rendered above the line */}
+          <Customized component={renderOverlay} />
         </LineChart>
       </ResponsiveContainer>
     </div>

@@ -19,7 +19,9 @@
     "storybook": "cd client && pnpm storybook",
     "storybook:build": "cd client && pnpm storybook:build",
     "storybook:serve": "cd client && pnpm storybook:build --quiet && pnpm http-server -c-1 storybook-static --port 6001 --silent",
-    "build-storybook": "cd client && pnpm build-storybook"
+    "build-storybook": "cd client && pnpm build-storybook",
+    "docs:serve": "vocs dev",
+    "docs:build": "vocs build"
   },
   "dependencies": {
     "@bal7hazar/arcade-sdk": "^0.0.74",
@@ -78,7 +80,8 @@
     "vite": "^5.4.21",
     "vite-plugin-pwa": "^1.1.0",
     "vite-plugin-static-copy": "^2.3.2",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vocs": "^1.4.1"
   },
   "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c"
 }

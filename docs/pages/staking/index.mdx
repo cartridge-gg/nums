@@ -1,0 +1,42 @@
+# Staking
+
+Token holders can stake their NUMS in the vault to participate in governance and earn rewards. Users must stake NUMS to participate in the vault. Staking provides two benefits:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Voting power</strong> — Staked tokens grant voting rights in protocol governance. The more you stake, the greater your influence over proposals, parameter changes, and key decisions affecting the protocol.</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Revenue share</strong> — Stakers are entitled to a share of protocol revenue proportionate to their stake. As the protocol generates revenue from game entries, a portion flows to the vault and is distributed to shareholders in USDC.</div>
+  </div>
+</div>
+
+## Setup
+
+Initially, the vault operates in one-way mode: anyone can stake, but no one can withdraw or claim rewards. This bootstrap phase ensures that the protocol builds up a base of committed stakeholders before enabling outflows. The vault will remain in this state until the protocol is sufficiently decentralized and the community is ready. At that point, governance can vote to open it—allowing withdrawals and reward claims.
+
+## Token
+
+**vNUMS** represents a share of the vault. It is a standard ERC-20 token with integrated voting functionality. When you stake NUMS, you receive vNUMS in return. As users withdraw and pay exit fees, the assets left behind are shared among remaining holders—so the parity shifts in favor of shares.
+
+:::note
+At protocol launch, the initial parity is 1 vNUMS for 1 NUMS.
+:::
+
+## Fee
+
+User positions are not time-locked: you can leave whenever you want, and no minimum staking duration is required. However, when you decide to withdraw from the vault, you pay an exit fee on your assets. This fee is redistributed to the shareholders who remain in the vault at the time of your withdrawal, reinforcing the value of long-term participation.
+
+:::note
+At protocol launch, the exit fee is 5%.
+:::
+
+## Rewards
+
+Protocol revenue is fully distributed to vault shareholders in USDC. Once the vault is open, stakers can claim their share at any time—no vesting or delay. These rewards represent 25–30% of the entry price of each game (see the [Token](/token) section for the breakdown). The more the protocol is used, the more USDC flows into the vault and the more each share is worth.
+
+:::tip
+**vNUMS is transferable.** This means it can be deposited into a liquidity pool. However, rewards are tied to depositor addresses—so placing vNUMS in a pool effectively gives up your claim on dividends (the pool contract becomes eligible instead). To prevent this value from being lost, the DAO has the power to recover revenue associated with contracts that are not user accounts and redirect it to the treasury. This is subject to a governance vote.
+:::

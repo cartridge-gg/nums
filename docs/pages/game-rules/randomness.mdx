@@ -1,0 +1,34 @@
+# Randomness
+
+The game uses a **VRF** (Verifiable Random Function), also known as vRNG (Verifiable Random Number Generator), to generate all random outcomes on-chain. This ensures that number draws and power-up choices are provably fair—neither players nor the protocol can predict or manipulate results.
+
+## Description
+
+Randomness is used throughout the game: the 18 numbers drawn for each game and the power-ups offered at Gem milestones. All of these are produced by the VRF at the moment they are needed, within the same transaction. The request and the random value are processed atomically, so there is no delay and no separate step to wait for—the result is immediately available and verifiable on Starknet.
+
+The system relies on the [Cartridge vRNG](https://docs.cartridge.gg/slot/vrng), which uses the Stark curve and Poseidon hash for efficient on-chain verification. The entire process occurs on-chain, keeping transparency and fairness auditable.
+
+## Key features
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Provably fair</strong> — Numbers and outcomes cannot be predicted or manipulated before or during play</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Atomic execution</strong> — Each random value is requested and consumed within the same transaction, with no waiting between steps</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Fully on-chain</strong> — All randomness is generated and verified on Starknet, ensuring transparency</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Unique draws</strong> — Each game receives 18 unique numbers between 1 and 999</div>
+  </div>
+</div>
+
+:::tip
+**More details.** For technical implementation, the request/response flow, and integration details, see the [Cartridge vRNG documentation](https://docs.cartridge.gg/slot/vrng).
+:::

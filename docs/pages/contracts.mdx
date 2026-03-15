@@ -1,0 +1,59 @@
+# Contracts
+
+The game is built with [Dojo](https://dojoengine.org), a framework for onchain games and applications on Starknet. All contracts are written in **Cairo**. Below are the deployed contract addresses by network.
+
+## Deployments
+
+Addresses are sourced from `manifest_sepolia.json`. Starknet mainnet deployments will be added once available.
+
+#### Dojo
+
+Root contract that orchestrates all systems and holds the global ECS state.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| World | [`0xc7cd2221...aa077b1d`](https://sepolia.voyager.online/contract/0xc7cd2221dbeb8c3a098d5300e4758277dda40bf7e64bec1fb5cae2aa077b1d) | — |
+
+#### Game
+
+Core game logic and initialization.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| Play | [`0x1fe6be6f...bdf5e7875d`](https://sepolia.voyager.online/contract/0x1fe6be6f2a5cbbfc3a324a75e09f2be88412a01f7f3f583eff1b6bdf5e7875d) | — |
+| Setup | [`0x5f2a1ece...902e4ab713`](https://sepolia.voyager.online/contract/0x5f2a1ececda995e6c02b12fc38a0b7979c98e4ce1d17fff321409902e4ab713) | — |
+
+##### Tokens
+
+Game-related tokens and NFT collection.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| NUMS (ERC-20) | [`0x573f645d...bf81ab1fa`](https://sepolia.voyager.online/contract/0x573f645db9f518a5aed5a5156b2b467b8703444a9913d2e53b51a9bf81ab1fa) | — |
+| vNUMS (ERC-20) | [`0x773c23ec...0e2c1f73b2`](https://sepolia.voyager.online/contract/0x773c23ecf54dece70548af51afc5d4b333d7757f14a23e11cb0130e2c1f73b2) | — |
+| Games (ERC-721) | [`0x2dd22b66...c6ece002ed`](https://sepolia.voyager.online/contract/0x2dd22b66d98d89f1117673fb51578d464cc98b5cb5034d287f204c6ece002ed) | — |
+
+#### DAO
+
+Governance contracts for proposals, voting, and protocol fund management.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| Governor | [`0x5f358e79...10cef3d17`](https://sepolia.voyager.online/contract/0x5f358e791c0d28150e522b2a8c82d9074adba3879cab7c50320f2e10cef3d17) | — |
+| Treasury | [`0x2e7040c0...d048d917c5`](https://sepolia.voyager.online/contract/0x2e7040c052858b3ac886259cf522705022ce4d0c02bffb58d36a0d048d917c5) | — |
+
+#### Staking
+
+Vault for staking NUMS and claiming a share of protocol revenue.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| Vault | [`0x773c23ec...0e2c1f73b2`](https://sepolia.voyager.online/contract/0x773c23ecf54dece70548af51afc5d4b333d7757f14a23e11cb0130e2c1f73b2) | — |
+
+#### Faucet
+
+Testnet token distribution for developers and players on Sepolia.
+
+| Contract | Sepolia | Starknet |
+|----------|---------|----------|
+| Faucet | [`0x25719494...cf2a669e41`](https://sepolia.voyager.online/contract/0x257194945b97c40cd84fe6a2000e7d7530ff76e7d0227a388bb20cf2a669e41) | — |

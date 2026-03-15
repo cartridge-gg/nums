@@ -1,0 +1,40 @@
+# Rewards
+
+When you buy a game, a **reward multiplier** is associated with it. Your final reward is then determined by your score and this game multiplier.
+
+## Description
+
+**At purchase** — A multiplier is locked in for your game based on:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Starting stake</strong> — The amount put at risk for the game</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Token price</strong> — Current NUMS price at the time of purchase</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Supply</strong> — NUMS supply conditions</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Average player performance</strong> — The protocol's aggregated performance metrics</div>
+  </div>
+</div>
+
+This multiplier stays fixed for the lifetime of that game.
+
+**When you finish** — Your reward is calculated from your score (slots filled) and the multiplier attached to your game. The better you perform, the higher the reward.
+
+## Claim
+
+When the game ends (game over), rewards are **claimed automatically**. No manual action is required—as soon as the game is over, the NUMS you earned are credited directly to your wallet based on the slots you filled and your game's multiplier. The amount is calculated on-chain and transferred to you in a single step.
+
+Once received, your NUMS are yours to use freely: stake them, trade them, or hold them—no restrictions apply.
+
+:::warning
+**24-hour validity.** A game is only valid for 24 hours after purchase. During this period, the game must be played and rewards claimed. Otherwise, the game is no longer playable.
+:::

@@ -17,7 +17,7 @@ pub fn SYMBOL() -> ByteArray {
 
 #[inline]
 pub fn DESCRIPTION() -> ByteArray {
-    "Number Challenge is a fully onchain game built using Dojo Engine on Starknet that blends strategy and chance. The goal is to place 20 randomly generated numbers into slots in ascending order to win significant prizes."
+    "Number Challenge is a fully onchain game built using Dojo Engine on Starknet that blends strategy and chance. The goal is to place 18 randomly generated numbers into slots in ascending order to win significant prizes."
 }
 
 pub fn DEVELOPER() -> ByteArray {

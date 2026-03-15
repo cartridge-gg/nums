@@ -1,0 +1,45 @@
+# Traps
+
+Some slots in the game may contain **traps** that affect gameplay when you place a number on them. Each trap triggers a specific effect; all effects produce coherent results—**the ascending order of numbers is always preserved**. Navigating traps is part of the strategy.
+
+## Activation
+
+Traps are predetermined at game start. You see their type and position from the very beginning—they are visible on the board before you place any number. A trap activates when you place a number on its slot; the effect triggers automatically and cannot be prevented. Plan your placements around known trap positions. Traps can reshape the board in your favor or work against you; adapting to the layout is key.
+
+:::note
+**One activation per trap.** A trap can only be activated once during the entire game. Once its effect has been triggered, it is disabled for the rest of the game.
+:::
+
+:::warning
+**Chain reactions are possible.** For example, if you place a number on a Magnet that pulls another number onto a slot with an active trap, that second trap will also activate immediately.
+:::
+
+## Traps
+
+<div className="docs-card-grid">
+  <div className="docs-card">
+    <img src="/assets/traps/bomb.svg" alt="Bomb" className="docs-card__icon" />
+    <h4 className="docs-card__title">Bomb</h4>
+    <p className="docs-card__desc">Reroll the two nearest set numbers after a number is placed here</p>
+  </div>
+  <div className="docs-card">
+    <img src="/assets/traps/lucky.svg" alt="Lucky" className="docs-card__icon" />
+    <h4 className="docs-card__title">Lucky</h4>
+    <p className="docs-card__desc">Reroll this tile after a number is placed here</p>
+  </div>
+  <div className="docs-card">
+    <img src="/assets/traps/magnet.svg" alt="Magnet" className="docs-card__icon" />
+    <h4 className="docs-card__title">Magnet</h4>
+    <p className="docs-card__desc">Pull the two nearest set numbers towards this tile</p>
+  </div>
+  <div className="docs-card">
+    <img src="/assets/traps/ufo.svg" alt="UFO" className="docs-card__icon" />
+    <h4 className="docs-card__title">UFO</h4>
+    <p className="docs-card__desc">Move this tile to a random slot after a number is placed here</p>
+  </div>
+  <div className="docs-card">
+    <img src="/assets/traps/windy.svg" alt="Windy" className="docs-card__icon" />
+    <h4 className="docs-card__title">Windy</h4>
+    <p className="docs-card__desc">Push the two nearest set numbers away from this tile</p>
+  </div>
+</div>

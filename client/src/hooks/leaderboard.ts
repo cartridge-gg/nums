@@ -24,8 +24,8 @@ const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
   const sqlQuery = `WITH RawData AS (
     SELECT 
         c.username,
-        s.player,
-        s.internal_executed_at,
+        g.player_id as player,
+        g.internal_executed_at,
         (CASE substr(lower(g.reward), -6, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -6, 1), '') AS INT) END * 1048576) +
         (CASE substr(lower(g.reward), -5, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -5, 1), '') AS INT) END * 65536) +
         (CASE substr(lower(g.reward), -4, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -4, 1), '') AS INT) END * 4096) +
@@ -33,12 +33,10 @@ const fetchLeaderboard = async (): Promise<LeaderboardRowData[]> => {
         (CASE substr(lower(g.reward), -2, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -2, 1), '') AS INT) END * 16) +
         (CASE substr(lower(g.reward), -1, 1) WHEN 'a' THEN 10 WHEN 'b' THEN 11 WHEN 'c' THEN 12 WHEN 'd' THEN 13 WHEN 'e' THEN 14 WHEN 'f' THEN 15 ELSE CAST(NULLIF(substr(g.reward, -1, 1), '') AS INT) END)
         AS reward_decimal,
-        CASE WHEN date(s.internal_executed_at) = date('now') THEN 1 ELSE 0 END AS is_today,
-        CASE WHEN strftime('%Y-%W', s.internal_executed_at) = strftime('%Y-%W', 'now') THEN 1 ELSE 0 END AS is_this_week
-    FROM "NUMS-LeaderboardScore" AS s
-    JOIN "NUMS-Game" AS g ON 
-        LTRIM(lower(s.game_id), '0x') = LTRIM(lower(g.id), '0x')
-    JOIN controllers AS c ON c.address = s.player
+        CASE WHEN date(g.internal_executed_at) = date('now') THEN 1 ELSE 0 END AS is_today,
+        CASE WHEN strftime('%Y-%W', g.internal_executed_at) = strftime('%Y-%W', 'now') THEN 1 ELSE 0 END AS is_this_week
+    FROM "NUMS-Claimed" AS g
+    JOIN controllers AS c ON c.address = g.player_id
 )
 
 SELECT 

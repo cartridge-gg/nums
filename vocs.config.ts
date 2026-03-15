@@ -2,7 +2,24 @@ import React from "react";
 import { defineConfig } from "vocs";
 
 const baseUrl = "https://nums-docs.preview.cartridge.gg";
-const ogImage = `${baseUrl}/docs/logo.png`;
+const ogImage = `${baseUrl}/logo.png`;
+const ogDescription =
+  "Complete documentation of the NUMS game - Number Challenge onchain. Game rules, tokenomics, staking, governance, referral program.";
+
+function ogMetaPlugin() {
+  return {
+    name: "og-meta-inject",
+    transformIndexHtml(html: string) {
+      const ogMeta = [
+        `<meta property="og:description" content="${ogDescription.replace(/"/g, "&quot;")}"/>`,
+        `<meta property="og:image" content="${ogImage}"/>`,
+        `<meta name="twitter:description" content="${ogDescription.replace(/"/g, "&quot;")}"/>`,
+        `<meta name="twitter:image" content="${ogImage}"/>`,
+      ].join("");
+      return html.replace("</head>", `${ogMeta}</head>`);
+    },
+  };
+}
 
 export default defineConfig({
   title: "Nums",
@@ -11,6 +28,9 @@ export default defineConfig({
   description:
     "Complete documentation of the NUMS game - Number Challenge onchain",
   ogImageUrl: ogImage,
+  vite: {
+    plugins: [ogMetaPlugin()],
+  },
   head: React.createElement(React.Fragment, null,
     React.createElement("meta", {
       key: "description",

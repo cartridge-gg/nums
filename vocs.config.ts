@@ -1,7 +1,7 @@
 import { defineConfig } from "vocs";
 
 export default defineConfig({
-  title: "Nums book",
+  title: "Nums",
   rootDir: "docs",
   description:
     "Complete documentation of the NUMS game - Number Challenge onchain",

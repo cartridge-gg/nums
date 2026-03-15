@@ -2,7 +2,7 @@ import React from "react";
 import { defineConfig } from "vocs";
 
 const baseUrl = "https://nums-docs.preview.cartridge.gg";
-const ogImage = `${baseUrl}/docs/nums_logo.png`;
+const ogImage = `${baseUrl}/docs/logo.png`;
 
 export default defineConfig({
   title: "Nums",
@@ -13,9 +13,20 @@ export default defineConfig({
   ogImageUrl: ogImage,
   head: React.createElement(React.Fragment, null,
     React.createElement("meta", {
+      key: "description",
+      name: "description",
+      content:
+        "Complete documentation of the NUMS game - Number Challenge onchain. Game rules, tokenomics, staking, governance, referral program.",
+    }),
+    React.createElement("meta", {
       key: "og-type",
       property: "og:type",
       content: "website",
+    }),
+    React.createElement("meta", {
+      key: "og-title",
+      property: "og:title",
+      content: "Nums – Documentation",
     }),
     React.createElement("meta", {
       key: "og-url",

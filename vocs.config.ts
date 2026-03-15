@@ -1,10 +1,60 @@
+import React from "react";
 import { defineConfig } from "vocs";
+
+const baseUrl = "https://nums-docs.preview.cartridge.gg";
+const ogImage = `${baseUrl}/docs/nums_logo.png`;
 
 export default defineConfig({
   title: "Nums",
   rootDir: "docs",
+  baseUrl,
   description:
     "Complete documentation of the NUMS game - Number Challenge onchain",
+  ogImageUrl: ogImage,
+  head: React.createElement(React.Fragment, null,
+    React.createElement("meta", {
+      key: "og-type",
+      property: "og:type",
+      content: "website",
+    }),
+    React.createElement("meta", {
+      key: "og-url",
+      property: "og:url",
+      content: baseUrl,
+    }),
+    React.createElement("meta", {
+      key: "og-desc",
+      property: "og:description",
+      content:
+        "Complete documentation of the NUMS game - Number Challenge onchain. Game rules, tokenomics, staking, governance, referral program.",
+    }),
+    React.createElement("meta", {
+      key: "og-image",
+      property: "og:image",
+      content: ogImage,
+    }),
+    React.createElement("meta", {
+      key: "tw-card",
+      name: "twitter:card",
+      content: "summary_large_image",
+    }),
+    React.createElement("meta", {
+      key: "tw-title",
+      name: "twitter:title",
+      content: "Nums – Documentation",
+    }),
+    React.createElement("meta", {
+      key: "tw-desc",
+      name: "twitter:description",
+      content:
+        "Complete documentation of the NUMS game - Number Challenge onchain.",
+    }),
+    React.createElement("meta", {
+      key: "tw-image",
+      name: "twitter:image",
+      content: ogImage,
+    }),
+  ),
   logoUrl: {
     light: "/logo-light.svg",
     dark: "/logo-dark.svg",

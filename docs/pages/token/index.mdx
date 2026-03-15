@@ -1,8 +1,107 @@
+import { SupplyPieChart } from "../../components/SupplyPieChart";
+
 # Token
 
-The native token of the game. This section covers the game economy, supply mechanics, and price.
+The **NUMS** token is the native asset of the game. Players buy games with USDC; the entry is distributed across buy-back and burn, referrals, and protocol revenue. Rewards in NUMS are minted based on performance. This page covers the economy, supply, and price mechanics.
 
-## In this section
+## Supply
 
-- [Economy](/token/economy) — Entry distribution, multiplier, rewards
-- [Supply](/token/supply) — Supply distribution, target supply, price
+At protocol launch, **1,200,000 tokens** are minted and distributed as follows:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>1,000,000</strong> — Injected into the liquidity pool with 10,000 USDC and given to the DAO.</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>200,000</strong> — Given to Cartridge and locked in the Vault.</div>
+  </div>
+</div>
+
+<SupplyPieChart />
+
+:::note
+**Vault and revenue shares.** The vault is used to claim protocol revenue in USDC. Withdrawing from it to sell tokens, for example, amounts to giving up shares of that revenue. More details in the [Staking](/staking) section.
+:::
+
+### Estimated supply
+
+An **estimated supply** is defined at the protocol level to determine the supply coefficient (see the [Multiplier](#multiplier) section). This estimate is initially set at 1,000,000 at the time of this document and can be adjusted up or down by the DAO. This value enables, among other things, a maximum supply of approximately 2,000,000 tokens.
+
+### Supply dynamics
+
+Player activity on the game continuously **burns** and **mints** tokens. Over time, community performance is the only criterion that stabilizes the token supply—which remains between 0 and 2,000,000.
+
+## Economy
+
+### Entry distribution
+
+Players buy a game with **USDC**. The entry is distributed across several uses:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <p style={{ margin: 0 }}><strong>Buy-back and burn</strong> — The majority of the entry is used to buy NUMS from the DEX and burn them, reducing the supply.</p>
+      <p style={{ marginTop: '0.25rem' }}><em>70% at the time this document was written.</em></p>
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <p style={{ margin: 0 }}><strong>Referral program</strong> — A smaller portion goes to the referral program if the game is eligible. See the [Referral Program](/referral-program) section for details.</p>
+      <p style={{ marginTop: '0.25rem' }}><em>5% at the time of writing.</em></p>
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <p style={{ margin: 0 }}><strong>Protocol revenue</strong> — The remaining USDC is used as protocol revenue and is fully transferred to the vault. See the [Staking](/staking) section for details.</p>
+      <p style={{ marginTop: '0.25rem' }}><em>25–30% at the time this document was written.</em></p>
+    </div>
+  </div>
+</div>
+
+### Reward distribution
+
+When the player finishes a game, rewards in NUMS are **newly minted** based on their score and their multiplier (see section below). They are credited immediately to the player's wallet—no manual action is required. Once received, NUMS are fully free to use: stake them, trade them, or hold them—no restrictions apply.
+
+:::note
+**Supply impact.** If the player underperforms, supply will have been burned in the process. If the player overperforms, supply will have been created in the process.
+:::
+
+### Multiplier
+
+When a player buys a game, a **macro multiplier** is determined for that game and remains fixed for 24 hours (after which the game is no longer playable). This multiplier drives the reward calculation. It is computed as follows:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content"><strong>Supply coefficient</strong> — A macro multiplier is applied as the ratio between the current supply and a target supply set at protocol inception. If the current supply is below target, this multiplier boosts rewards; if it is above target, it reduces emissions (down to zero when supply is twice the target).</div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Balance coefficient</strong> — Once the buy-back and burn are executed at purchase time, the ratio between the actual quantity of tokens burned and the ideal quantity determines this coefficient for the game. The ideal quantity is derived from:
+      <div className="docs-flow__substep">
+        <span className="docs-flow__submarker">→</span>
+        <div className="docs-flow__content"><strong>Average performance reward</strong> — The reward associated with average player performance is computed. The average score is tracked as a moving average over the last 1000 games, with safeguards to prevent manipulation.</div>
+      </div>
+      <div className="docs-flow__substep">
+        <span className="docs-flow__submarker">→</span>
+        <div className="docs-flow__content"><strong>Ideal burn quantity</strong> — Protocol revenue is added to this to obtain the ideal quantity of tokens to burn to balance the system.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+Together, these two coefficients determine the game's reward multiplier at purchase time. They encapsulate the token price, the starting stake, average player performance, and the current token supply.
+
+## Price
+
+Although the USD value of the token over time is not known in advance, we can nonetheless estimate that its price will depend on protocol revenue. Since you must stake the token to receive a share of protocol revenue (see the [Staking](/staking) section for more details), it is likely—barring euphoria—that the price will be directly correlated to these revenues. The more the protocol is used, the more revenue it generates, and the more attractive it becomes to hold shares in the protocol to capture a portion of that revenue.
+
+:::note
+**Initial reference price:** $0.01 per NUMS (see the distribution above for details).
+:::

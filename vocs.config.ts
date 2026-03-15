@@ -26,7 +26,6 @@ export default defineConfig({
       text: "Game rules",
       link: "/game-rules",
       items: [
-        { text: "Getting Started", link: "/game-rules/getting-started" },
         { text: "Power ups", link: "/game-rules/power-ups" },
         { text: "Traps", link: "/game-rules/traps" },
         { text: "Practice", link: "/game-rules/practice" },
@@ -34,30 +33,9 @@ export default defineConfig({
         { text: "Randomness", link: "/game-rules/randomness" },
       ],
     },
-    {
-      text: "Token",
-      link: "/token",
-      items: [
-        { text: "Economy", link: "/token/economy" },
-        { text: "Supply", link: "/token/supply" },
-      ],
-    },
-    {
-      text: "Staking",
-      link: "/staking",
-      items: [
-        { text: "Vault", link: "/staking/vault" },
-      ],
-    },
-    {
-      text: "Governance",
-      link: "/governance",
-      items: [
-        { text: "Votes", link: "/governance/votes" },
-        { text: "Treasury", link: "/governance/treasury" },
-        { text: "Earnings", link: "/governance/earnings" },
-      ],
-    },
+    { text: "Token", link: "/token" },
+    { text: "Staking", link: "/staking" },
+    { text: "Governance", link: "/governance" },
     { text: "Referral program", link: "/referral-program" },
     { text: "Contracts", link: "/contracts" },
     { text: "FAQ", link: "/faq" },

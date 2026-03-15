@@ -35,3 +35,7 @@ keystore*.json
 
 # Turbo
 .turbo
+
+# Docs build
+docs/_book
+docs/.out

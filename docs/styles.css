@@ -1,0 +1,216 @@
+/**
+ * NUMS Documentation - Dark theme
+ * Font: Circular-LL-Book (client font-sans)
+ */
+
+@font-face {
+  font-family: "Circular-LL-Book";
+  src: url("/fonts/circular-ll.book.ttf") format("truetype");
+  font-weight: 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root,
+:root.dark {
+  --vocs-fontFamily: "Circular-LL-Book", system-ui, sans-serif;
+}
+
+body {
+  font-family: "Circular-LL-Book", system-ui, sans-serif !important;
+}
+
+/* Card grid for power-ups and traps */
+.docs-card-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .docs-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.docs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.docs-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+}
+.docs-card__icon {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+.docs-card__title {
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.docs-card__desc {
+  font-size: 0.875rem;
+  color: rgba(156, 163, 175, 1);
+  text-align: center;
+  margin: 0;
+}
+
+/* Game flow steps */
+.docs-flow {
+  margin: 2rem 0;
+}
+.docs-flow__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.docs-flow__step:last-child {
+  border-bottom: none;
+}
+.docs-flow__num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(133, 129, 255, 0.25);
+  color: rgb(133, 129, 255);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.docs-flow__content {
+  flex: 1;
+}
+/* strong text adapts to theme */
+.docs-flow__content strong {
+  color: rgba(0, 0, 0, 0.9);
+}
+:root.dark .docs-flow__content strong,
+.dark .docs-flow__content strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+.docs-flow__bullet {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 50%;
+  background: rgba(133, 129, 255, 0.6);
+}
+.docs-flow__substep {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+}
+.docs-flow__submarker {
+  flex-shrink: 0;
+  color: rgba(133, 129, 255, 0.8);
+  font-size: 0.9em;
+  margin-top: 0.1rem;
+}
+
+/* Supply pie chart */
+.docs-pie-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+.docs-pie-chart__svg-wrap {
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.docs-pie-chart__svg {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  aspect-ratio: 1;
+  display: block;
+}
+.docs-pie-chart__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+}
+.docs-pie-chart__legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.docs-pie-chart__legend-item:hover,
+.docs-pie-chart__legend-item--active {
+  background: rgba(255, 255, 255, 0.06);
+}
+.docs-pie-chart__legend-dot {
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-top: 0.35rem;
+  transition: background-color 0.15s ease;
+}
+.docs-pie-chart__legend-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+.docs-pie-chart__legend-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.docs-pie-chart__legend-label {
+  font-weight: 600;
+}
+.docs-pie-chart__legend-value {
+  color: rgba(156, 163, 175, 1);
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+.docs-pie-chart__legend-desc {
+  font-size: 0.8125rem;
+  color: rgba(156, 163, 175, 1);
+  line-height: 1.4;
+}
+
+/* Inline icon in text */
+.docs-inline-icon {
+  display: inline;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: middle;
+  margin: 0 0.2em;
+}

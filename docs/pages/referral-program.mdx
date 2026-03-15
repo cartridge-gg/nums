@@ -1,0 +1,26 @@
+# Referral program
+
+The game offers a referral program: players who bring in new users can receive a share of entry fees.
+
+## How it works
+
+1. **Referral link** — Each user has a unique link to share
+2. **Conversion** — When a new player purchases a starterpack via this link, the referrer is recorded
+3. **Payment** — A portion of the amount paid is credited to the referrer
+
+## Parameters
+
+- **REFERRAL_FEE** — Percentage of the amount credited to the referrer
+- **PROTOCOL_FEE** — Protocol fees deducted before calculating the referral share
+
+## On-chain data
+
+Referrals are recorded in claim/starterpack purchase events. The `referrer` field in events allows attributing payments to referrers.
+
+## Interface
+
+The **Referral** section in the application displays:
+
+- Personal referral link
+- Payment history received
+- Amounts and dates of executed referrals

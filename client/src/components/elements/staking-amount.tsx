@@ -131,7 +131,7 @@ export const StakingAmount = ({
           disabled={isDisabled}
           className="group flex items-center gap-3 disabled:cursor-default"
         >
-          <p className="text-base/5 px-1.5 bg-white-800 rounded group-enabled:group-hover:bg-white-900 group-enabled:group-hover:text-white-200 transition-colors">
+          <p className="text-sm/5 px-1.5 bg-white-800 rounded group-enabled:group-hover:bg-white-900 group-enabled:group-hover:text-white-200 transition-colors">
             Max
           </p>
           <div className="flex items-center gap-1">

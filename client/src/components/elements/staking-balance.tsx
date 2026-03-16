@@ -19,13 +19,15 @@ const stakingBalanceVariants = cva(
 export interface StakingBalanceProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingBalanceVariants> {
-  /** Staked amount */
+  title?: string;
+  token?: string;
   stakedAmount?: number;
-  /** Total share in the vault */
   totalShare?: number;
 }
 
 export const StakingBalance = ({
+  title = "Staked",
+  token = "vNUMS",
   stakedAmount = 0,
   totalShare = 0,
   variant,
@@ -40,15 +42,24 @@ export const StakingBalance = ({
       {...props}
     >
       <div className="flex flex-col gap-3">
-        <span className="font-sans text-base/[18px] text-white-400">
-          Staked
-        </span>
+        <div className="flex justify-between items-center">
+          <span className="font-sans text-sm/[18px] text-white-400">
+            {title}
+          </span>
+          <span className="font-sans text-sm/[18px] text-white-100">
+            {ownership.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+            %
+          </span>
+        </div>
 
         <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-6">
           <div className="flex items-center gap-2">
             <VTokenIcon size="sm" />
             <span className="text-[#FFDE66] font-primary text-[22px]/[15px] tracking-wider translate-y-px">
-              vNUMS
+              {token}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -59,11 +70,11 @@ export const StakingBalance = ({
               })}
             </span>
             <span className="text-white-400">
-              {ownership.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+              /{" "}
+              {totalShare.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
               })}
-              %
             </span>
           </div>
         </div>

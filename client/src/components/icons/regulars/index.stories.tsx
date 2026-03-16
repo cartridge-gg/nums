@@ -38,6 +38,7 @@ const regularIcons = [
   { name: "CrownIcon", component: Icons.CrownIcon },
   { name: "DiamondIcon", component: Icons.DiamondIcon },
   { name: "DojoIcon", component: Icons.DojoIcon },
+  { name: "ExternalLinkIcon", component: Icons.ExternalLinkIcon },
   { name: "EyeIcon", component: Icons.EyeIcon },
   { name: "FlowIcon", component: Icons.FlowIcon },
   { name: "GearIcon", component: Icons.GearIcon },

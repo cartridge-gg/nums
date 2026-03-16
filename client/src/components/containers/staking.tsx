@@ -171,7 +171,7 @@ export const Staking = ({
             onClick={handleSubmit}
             disabled={!hasAmount || !!locked}
             className={cn(
-              "w-full duration-0",
+              "h-12 w-full duration-0",
               locked && "text-red-100 bg-red-700",
             )}
           >

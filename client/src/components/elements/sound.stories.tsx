@@ -6,7 +6,7 @@ const meta = {
   title: "Elements/Sound",
   component: Sound,
   parameters: {
-    layout: "centered",
+    layout: "padded",
   },
   globals: {
     backgrounds: {
@@ -14,24 +14,25 @@ const meta = {
     },
   },
   argTypes: {
-    isMuted: {
+    title: {
+      control: "text",
+      description: "The label displayed above the control",
+    },
+    value: {
+      control: { type: "range", min: 0, max: 100, step: 1 },
+      description: "Current volume value (0-100)",
+    },
+    muted: {
       control: "boolean",
       description: "Whether the sound is muted",
     },
-    variant: {
-      control: "select",
-      options: ["default"],
-      description: "The visual variant",
-    },
-    size: {
-      control: "select",
-      options: ["md"],
-      description: "The size variant",
-    },
   },
   args: {
-    isMuted: false,
-    onClick: fn(),
+    title: "Music",
+    value: 75,
+    muted: false,
+    onChange: fn(),
+    onMute: fn(),
   },
 } satisfies Meta<typeof Sound>;
 
@@ -42,6 +43,13 @@ export const Default: Story = {};
 
 export const Muted: Story = {
   args: {
-    isMuted: true,
+    muted: true,
+  },
+};
+
+export const Effects: Story = {
+  args: {
+    title: "Effects",
+    value: 50,
   },
 };

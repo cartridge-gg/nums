@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useId } from "react";
 import { cn } from "@/lib/utils";
-import { Sound } from "./sound";
+import { Button } from "@/components/ui/button";
 import { ShadowEffect, SoundOffIcon, SoundOnIcon } from "@/components/icons";
 import { Slider } from "@/components/ui/slider";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
-import { useId } from "react";
 
 function VolumeSlider({
   label,
@@ -62,6 +61,40 @@ function VolumeSlider({
   );
 }
 
+function SoundToggleButton({
+  isMuted,
+  onClick,
+}: {
+  isMuted: boolean;
+  onClick: () => void;
+}) {
+  const filterId = useId();
+  return (
+    <Button
+      variant="muted"
+      className="select-none relative rounded-lg flex items-center justify-center bg-mauve-700 hover:bg-mauve-500 h-10 w-10 md:h-12 md:w-14 px-2 md:px-4 py-2"
+      onClick={onClick}
+    >
+      <ShadowEffect filterId={filterId} />
+      {isMuted ? (
+        <SoundOffIcon
+          size="lg"
+          variant="solid"
+          className="min-w-6 min-h-6 md:min-w-8 md:min-h-8"
+          style={{ filter: `url(#${filterId})` }}
+        />
+      ) : (
+        <SoundOnIcon
+          size="lg"
+          variant="solid"
+          className="min-w-6 min-h-6 md:min-w-8 md:min-h-8"
+          style={{ filter: `url(#${filterId})` }}
+        />
+      )}
+    </Button>
+  );
+}
+
 export function SoundControls({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +134,7 @@ export function SoundControls({ className }: { className?: string }) {
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      <Sound isMuted={isMuted} onClick={handleToggleOpen} />
+      <SoundToggleButton isMuted={isMuted} onClick={handleToggleOpen} />
       {open && (
         <div
           className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 min-w-[200px] p-3 rounded-lg bg-mauve-200 border border-mauve-600 shadow-lg flex flex-col gap-3"

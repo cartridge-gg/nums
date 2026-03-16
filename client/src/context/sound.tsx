@@ -131,21 +131,17 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isMuted, playTrack]);
 
-  // Handle mute changes
   useEffect(() => {
+    if (!gainRef.current) return;
     if (isMuted) {
-      stopCurrent();
-    } else if (loadedRef.current) {
-      void playTrack(currentTrackRef.current);
-    }
-  }, [isMuted, playTrack, stopCurrent]);
-
-  // Handle volume changes
-  useEffect(() => {
-    if (gainRef.current) {
+      gainRef.current.gain.value = 0;
+    } else {
       gainRef.current.gain.value = volume / 100;
+      if (loadedRef.current && !sourceRef.current) {
+        void playTrack(currentTrackRef.current);
+      }
     }
-  }, [volume]);
+  }, [isMuted, volume, playTrack]);
 
   useEffect(() => {
     localStorage.setItem("soundMuted", JSON.stringify(isMuted));

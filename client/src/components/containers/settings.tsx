@@ -1,0 +1,193 @@
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/button";
+import {
+  ShadowEffect,
+  CloseIcon,
+  ReferralIcon,
+  LaurelIcon,
+  StakingIcon,
+  TrophyIcon,
+} from "@/components/icons";
+import { Sound } from "@/components/elements/sound";
+import { useId } from "react";
+
+export interface SettingsProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof settingsVariants> {
+  onClose: () => void;
+  musicVolume: number;
+  musicMuted: boolean;
+  onMusicChange: (value: number) => void;
+  onMusicMute: () => void;
+  sfxVolume: number;
+  sfxMuted: boolean;
+  onSfxChange: (value: number) => void;
+  onSfxMute: () => void;
+  onLeaderboard: () => void;
+  onReferrals: () => void;
+  onAchievements: () => void;
+  onStaking: () => void;
+  onLogOut: () => void;
+}
+
+const settingsVariants = cva(
+  "select-none relative flex flex-col p-6 md:p-12 gap-6 h-full w-full md:h-auto",
+  {
+    variants: {
+      variant: {
+        default:
+          "rounded-t-2xl rounded-b-4xl md:rounded-3xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
+export const Settings = ({
+  onClose,
+  musicVolume,
+  musicMuted,
+  onMusicChange,
+  onMusicMute,
+  sfxVolume,
+  sfxMuted,
+  onSfxChange,
+  onSfxMute,
+  onLeaderboard,
+  onReferrals,
+  onAchievements,
+  onStaking,
+  onLogOut,
+  variant,
+  className,
+  ...props
+}: SettingsProps) => {
+  const filterId = useId();
+
+  return (
+    <div className={cn(settingsVariants({ variant, className }))} {...props}>
+      <ShadowEffect filterId={filterId} />
+
+      {/* Mobile header */}
+      <div className="flex items-center justify-between md:hidden">
+        <h2
+          className="text-[36px]/6 uppercase tracking-wider translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          Settings
+        </h2>
+        <Button
+          variant="ghost"
+          className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
+          onClick={onClose}
+        >
+          <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
+        </Button>
+      </div>
+
+      {/* Desktop header */}
+      <Button
+        variant="ghost"
+        className="hidden md:flex absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+        onClick={onClose}
+      >
+        <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+      </Button>
+      <h2
+        className="hidden md:block text-[64px]/[44px] uppercase tracking-wider translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+      >
+        Settings
+      </h2>
+
+      {/* Content */}
+      <div className="flex flex-col gap-6">
+        <Sound
+          title="Music Volume"
+          value={musicVolume}
+          muted={musicMuted}
+          onChange={onMusicChange}
+          onMute={onMusicMute}
+        />
+        <Sound
+          title="SFX Volume"
+          value={sfxVolume}
+          muted={sfxMuted}
+          onChange={onSfxChange}
+          onMute={onSfxMute}
+        />
+
+        <div className="flex flex-col gap-4">
+          <Button
+            variant="secondary"
+            className="h-12 gap-1"
+            onClick={onReferrals}
+          >
+            <ReferralIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+            <span
+              className="px-1 text-[28px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Referrals
+            </span>
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-12 gap-1"
+            onClick={onAchievements}
+          >
+            <LaurelIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+            <span
+              className="px-1 text-[28px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Achievements
+            </span>
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-12 gap-1"
+            onClick={onLeaderboard}
+          >
+            <TrophyIcon
+              variant="solid"
+              size="lg"
+              style={{ filter: `url(#${filterId})` }}
+            />
+            <span
+              className="px-1 text-[28px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Leaderboard
+            </span>
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-12 gap-1"
+            onClick={onStaking}
+          >
+            <StakingIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+            <span
+              className="px-1 text-[28px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Staking
+            </span>
+          </Button>
+        </div>
+
+        <Button variant="destructive" className="h-12" onClick={onLogOut}>
+          <span
+            className="px-1 text-[28px] tracking-wide translate-y-0.5"
+            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+          >
+            Log Out
+          </span>
+        </Button>
+      </div>
+    </div>
+  );
+};

@@ -8,7 +8,7 @@ import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
 import { StakingScene } from "@/components/scenes/staking";
 import { useHeader } from "@/hooks/header";
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useDisconnect } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
@@ -25,8 +25,11 @@ import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
+import { Settings } from "@/components/containers/settings";
 import { Events } from "../containers/events";
 import { WelcomeScene } from "@/components/scenes";
+import { useAudio } from "@/context/audio";
+import { useSound } from "@/context/sound";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -57,11 +60,26 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
+  const [showSettingsScene, setShowSettingsScene] = useState(false);
   const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
+
+  const { disconnect } = useDisconnect();
+  const {
+    volume: musicVolume,
+    isMuted: musicMuted,
+    setVolume: setMusicVolume,
+    toggleMute: toggleMusicMute,
+  } = useSound();
+  const {
+    volume: sfxVolume,
+    isMuted: sfxMuted,
+    setVolume: setSfxVolume,
+    toggleMute: toggleSfxMute,
+  } = useAudio();
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
 
@@ -159,6 +177,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
+      setShowSettingsScene(false);
 
       // Find the newest game (first in the array)
       const newestGame = games[0];
@@ -302,27 +321,15 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowReferralScene(false);
+          setShowSettingsScene(false);
         }}
-        onQuests={() => {
-          setShowQuestScene(!showQuestScene);
-          setShowLeaderboardScene(false);
-          setShowPurchaseScene(false);
-          setShowStakingScene(false);
-          setShowReferralScene(false);
-        }}
-        onLeaderboard={() => {
-          setShowLeaderboardScene(!showLeaderboardScene);
-          setShowQuestScene(false);
-          setShowPurchaseScene(false);
-          setShowStakingScene(false);
-          setShowReferralScene(false);
-        }}
-        onReferral={() => {
-          setShowReferralScene(!showReferralScene);
+        onSettings={() => {
+          setShowSettingsScene(!showSettingsScene);
           setShowQuestScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
+          setShowReferralScene(false);
         }}
         onMint={() => mint()}
       />
@@ -341,6 +348,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
             setShowReferralScene(false);
+            setShowSettingsScene(false);
           }}
         >
           {children}
@@ -424,6 +432,44 @@ export const Layout = ({ children }: LayoutProps) => {
                 link={referralLink}
                 onClose={() => setShowReferralScene(false)}
                 className="h-full"
+              />
+            </div>
+          </div>
+        )}
+        {showSettingsScene && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
+              <Settings
+                onClose={() => setShowSettingsScene(false)}
+                musicVolume={musicVolume}
+                musicMuted={musicMuted}
+                onMusicChange={setMusicVolume}
+                onMusicMute={toggleMusicMute}
+                sfxVolume={sfxVolume}
+                sfxMuted={sfxMuted}
+                onSfxChange={setSfxVolume}
+                onSfxMute={toggleSfxMute}
+                onLeaderboard={() => {
+                  setShowSettingsScene(false);
+                  setShowLeaderboardScene(true);
+                }}
+                onReferrals={() => {
+                  setShowSettingsScene(false);
+                  setShowReferralScene(true);
+                }}
+                onAchievements={() => {
+                  setShowSettingsScene(false);
+                  setShowQuestScene(true);
+                }}
+                onStaking={() => {
+                  setShowSettingsScene(false);
+                  setShowStakingScene(true);
+                }}
+                onLogOut={() => {
+                  setShowSettingsScene(false);
+                  disconnect();
+                }}
+                className="md:max-w-[416px]"
               />
             </div>
           </div>

@@ -1,17 +1,7 @@
 import { Link } from "@/lib/router";
 import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
-import {
-  QuestIcon,
-  ShadowEffect,
-  ShareIcon,
-  TrophyIcon,
-} from "@/components/icons";
-import {
-  SoundControls,
-  Balance,
-  Profile,
-  Connect,
-} from "@/components/elements";
+import { GearIcon, ShadowEffect } from "@/components/icons";
+import { Balance, Profile, Connect } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -25,9 +15,7 @@ export interface HeaderProps
   username?: string;
   onConnect: () => void;
   onProfile: () => void;
-  onQuests?: () => void;
-  onLeaderboard?: () => void;
-  onReferral?: () => void;
+  onSettings?: () => void;
   onMint?: () => void;
 }
 
@@ -51,18 +39,18 @@ export const Header = ({
   username,
   onConnect,
   onProfile,
-  onQuests,
-  onLeaderboard,
-  onReferral,
+  onSettings,
   onMint,
   variant,
   className,
   ...props
 }: HeaderProps) => {
-  const filterId = useId();
+  const darkId = useId();
+  const lightId = useId();
   return (
     <div className={cn(headerVariants({ variant, className }))} {...props}>
-      <ShadowEffect filterId={filterId} opacity={0.95} />
+      <ShadowEffect filterId={darkId} opacity={0.95} />
+      <ShadowEffect filterId={lightId} />
       <Link
         to="/"
         className="flex items-center justify-start gap-2 cursor-pointer select-none [&_svg]:size-10 md:[&_svg]:size-12"
@@ -80,48 +68,6 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
-        <SoundControls className="z-[60]" />
-        {onQuests && (
-          <Button
-            variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-            onClick={onQuests}
-          >
-            <QuestIcon
-              size="md"
-              className="md:size-lg"
-              style={{ filter: `url(#${filterId})` }}
-            />
-          </Button>
-        )}
-        {onLeaderboard && (
-          <Button
-            variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-            onClick={onLeaderboard}
-          >
-            <TrophyIcon
-              variant="solid"
-              size="md"
-              className="md:size-lg"
-              style={{ filter: `url(#${filterId})` }}
-            />
-          </Button>
-        )}
-        {onReferral && (
-          <Button
-            variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-            onClick={onReferral}
-            disabled={!username}
-          >
-            <ShareIcon
-              size="md"
-              className="md:size-lg"
-              style={{ filter: `url(#${filterId})` }}
-            />
-          </Button>
-        )}
         {onMint && (
           <Button
             variant="muted"
@@ -131,7 +77,7 @@ export const Header = ({
             <QuoteIcon
               size="md"
               className="md:size-lg"
-              style={{ filter: `url(#${filterId})` }}
+              style={{ filter: `url(#${darkId})` }}
             />
           </Button>
         )}
@@ -139,6 +85,19 @@ export const Header = ({
           <>
             {balance !== undefined && (
               <Balance balance={balance} onClick={onBalance} />
+            )}
+            {onSettings && (
+              <Button
+                variant="muted"
+                className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+                onClick={onSettings}
+              >
+                <GearIcon
+                  size="md"
+                  className="md:size-lg"
+                  style={{ filter: `url(#${lightId})` }}
+                />
+              </Button>
             )}
             <Profile username={username} onClick={onProfile} />
           </>

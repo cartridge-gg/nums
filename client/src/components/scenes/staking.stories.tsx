@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, useRef } from "react";
 import { fn } from "storybook/test";
 import { StakingScene, type StakingSceneProps } from "./staking";
+import { BrowserRouter } from "react-router-dom";
 
 const meta = {
   title: "Scenes/Staking",
@@ -12,7 +13,9 @@ const meta = {
   decorators: [
     (Story) => (
       <div className="flex h-screen w-full p-4 md:p-6">
-        <Story />
+        <BrowserRouter>
+          <Story />
+        </BrowserRouter>
       </div>
     ),
   ],

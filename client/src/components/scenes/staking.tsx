@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,8 @@ export const StakingScene = ({
   ...props
 }: StakingSceneProps) => {
   const filterId = useId();
+  const [bypass, setBypass] = useState(false);
+  const effectiveLocked = locked && !bypass;
 
   return (
     <div
@@ -89,7 +91,7 @@ export const StakingScene = ({
     >
       <ShadowEffect filterId={filterId} />
 
-      {locked ? (
+      {effectiveLocked ? (
         <>
           {/* Mobile — Locked */}
           <div
@@ -112,6 +114,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Disclaimer />
+              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
               <StakingOnly {...stakingProps} />
               <StakingBalance
                 {...balanceProps}
@@ -134,7 +137,9 @@ export const StakingScene = ({
             </Button>
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
-              <Title content="Flip the Switch" />
+              <div onClick={() => setBypass(!bypass)}>
+                <Title content="Flip the Switch" />
+              </div>
 
               <div className="flex flex-row gap-6">
                 <div className="flex flex-col gap-4 flex-1">
@@ -178,6 +183,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Subtitle />
+              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
               <div className="flex gap-3">
                 {!!ratioProps && (
                   <StakingRatio {...ratioProps} className="hidden md:block" />
@@ -205,7 +211,9 @@ export const StakingScene = ({
 
             <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between gap-4">
-                <Title content="Staking" />
+                <div onClick={() => setBypass(!bypass)}>
+                  <Title content="Staking" />
+                </div>
                 <div className="flex gap-3 shrink-0">
                   {!!ratioProps && <StakingRatio {...ratioProps} />}
                   <StakingYield {...yieldProps} />
@@ -216,6 +224,7 @@ export const StakingScene = ({
                 <Staking {...stakingProps} className="flex-1" />
                 <div className="flex flex-col gap-6 flex-1">
                   <Subtitle />
+                  <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
                   <StakingBalance {...balanceProps} />
                   {!!claimedProps?.amount && (
                     <StakingClaimed {...claimedProps} />
@@ -241,7 +250,7 @@ const Title = ({ content = "Staking" }: { content?: string }) => (
 );
 
 const Subtitle = () => (
-  <p className="font-sans text-base/5 text-white-400">
+  <p className="font-sans text-base/5 text-white-100">
     For every game of NUMS a portion of the entry fee is redirected to NUMS
     stakers
   </p>

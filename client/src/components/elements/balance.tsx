@@ -113,7 +113,7 @@ export const Balance = ({
       />
       <div
         className="translate-y-0.5 tracking-wider overflow-clip px-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
         <span className="block md:hidden px-1">{formattedMobile}</span>
         <span className="hidden md:inline">{formattedDesktop}</span>

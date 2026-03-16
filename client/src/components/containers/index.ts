@@ -16,5 +16,6 @@ export * from "./header";
 export * from "./stakes";
 export * from "./events";
 export * from "./staking";
+export * from "./staking-only";
 export * from "./referral-payments";
 export * from "./settings";

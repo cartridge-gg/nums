@@ -30,7 +30,16 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     stakedAmount: 12500,
-    totalShare: 1000,
+    totalShare: 25000,
+  },
+};
+
+export const Contribution: Story = {
+  args: {
+    title: "You have contributed",
+    token: "NUMS",
+    stakedAmount: 12500,
+    totalShare: 25000,
   },
 };
 

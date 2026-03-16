@@ -19,6 +19,7 @@ export * from "./copy";
 export * from "./crown";
 export * from "./diamond";
 export * from "./dojo";
+export * from "./external-link";
 export * from "./eye";
 export * from "./flow";
 export * from "./gear";

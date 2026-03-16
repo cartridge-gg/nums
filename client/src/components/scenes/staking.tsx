@@ -2,8 +2,9 @@ import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon } from "@/components/icons";
+import { ShadowEffect, CloseIcon, ExternalLinkIcon } from "@/components/icons";
 import { Staking, type StakingProps } from "@/components/containers/staking";
+import { StakingOnly } from "@/components/containers/staking-only";
 import {
   StakingBalance,
   type StakingBalanceProps,
@@ -24,7 +25,15 @@ import {
   StakingRatio,
   type StakingRatioProps,
 } from "@/components/elements/staking-ratio";
-import { StakingStatus } from "@/components/elements/staking-status";
+import {
+  StakingGoal,
+  type StakingGoalProps,
+} from "@/components/elements/staking-goal";
+import {
+  StakingVault,
+  type StakingVaultProps,
+} from "@/components/elements/staking-vault";
+import { Link } from "@/lib/router";
 
 const stakingSceneVariants = cva(
   "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6",
@@ -44,21 +53,15 @@ const stakingSceneVariants = cva(
 export interface StakingSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingSceneVariants> {
-  /** Props forwarded to the Staking container */
   stakingProps?: StakingProps;
-  /** Props forwarded to StakingBalance */
   balanceProps?: StakingBalanceProps;
-  /** Props forwarded to StakingReward */
   rewardProps?: StakingRewardProps;
-  /** Props forwarded to StakingClaimed */
   claimedProps?: StakingClaimedProps;
-  /** Props forwarded to StakingYield */
   yieldProps?: StakingYieldProps;
-  /** Props forwarded to StakingRatio */
   ratioProps?: StakingRatioProps;
-  /** Whether to show the locked status badge */
+  goalProps?: StakingGoalProps;
+  vaultProps?: StakingVaultProps;
   locked?: boolean;
-  /** Close button callback */
   onClose?: () => void;
 }
 
@@ -69,6 +72,8 @@ export const StakingScene = ({
   claimedProps,
   yieldProps,
   ratioProps,
+  goalProps,
+  vaultProps,
   locked,
   onClose,
   variant,
@@ -86,98 +91,190 @@ export const StakingScene = ({
     >
       <ShadowEffect filterId={filterId} />
 
-      {/* Mobile */}
-      <div
-        className="flex flex-col md:hidden gap-6 w-full h-full pb-2"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <div className="flex items-center justify-between w-full">
-          <Title onBypass={() => setBypass((p) => !p)} />
-          <Button
-            variant="ghost"
-            className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-            onClick={onClose}
+      {effectiveLocked ? (
+        <>
+          {/* Mobile — Locked */}
+          <div
+            className="flex flex-col md:hidden gap-6 w-full h-full pb-2"
+            style={{ scrollbarWidth: "none" }}
           >
-            <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-          </Button>
-        </div>
+            <div className="flex items-center justify-between w-full">
+              <Title content="Flip the Switch" />
+              <Button
+                variant="ghost"
+                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
+                onClick={onClose}
+              >
+                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
+              </Button>
+            </div>
 
-        <div
-          className="grow overflow-y-auto flex flex-col gap-6 md:gap-8"
-          style={{ scrollbarWidth: "none" }}
-        >
-          <Subtitle />
-          <div className="flex gap-3">
-            {effectiveLocked && <StakingStatus className="hidden md:block" />}
-            {!!ratioProps && (
-              <StakingRatio {...ratioProps} className="hidden md:block" />
-            )}
-            <StakingYield {...yieldProps} />
-          </div>
-          <Staking {...stakingProps} locked={effectiveLocked} />
-          <div className="flex flex-col gap-6">
-            <StakingBalance {...balanceProps} />
-            <StakingClaimed {...claimedProps} />
-            <StakingReward {...rewardProps} />
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop */}
-      <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
-        <Button
-          variant="ghost"
-          className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
-          onClick={onClose}
-        >
-          <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-        </Button>
-
-        <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
-          <div className="flex items-center justify-between gap-4">
-            <Title onBypass={() => setBypass((p) => !p)} />
-            <div className="flex gap-3 shrink-0">
-              {effectiveLocked && <StakingStatus />}
-              {!!ratioProps && <StakingRatio {...ratioProps} />}
-              <StakingYield {...yieldProps} />
+            <div
+              className="grow overflow-y-auto flex flex-col gap-6"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <Disclaimer />
+              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+              <StakingOnly {...stakingProps} />
+              <StakingBalance
+                {...balanceProps}
+                title="You have contributed"
+                token="NUMS"
+              />
+              <StakingGoal {...goalProps} />
+              <StakingVault {...vaultProps} />
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-8">
-            <Staking
-              {...stakingProps}
-              locked={effectiveLocked}
-              className="flex-1"
-            />
-            <div className="flex flex-col gap-6 flex-1">
+          {/* Desktop — Locked */}
+          <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
+            <Button
+              variant="ghost"
+              className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+              onClick={onClose}
+            >
+              <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+            </Button>
+
+            <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
+              <div onClick={() => setBypass(!bypass)}>
+                <Title content="Flip the Switch" />
+              </div>
+
+              <div className="flex flex-row gap-6">
+                <div className="flex flex-col gap-4 flex-1">
+                  <StakingOnly {...stakingProps} />
+                  <StakingBalance
+                    {...balanceProps}
+                    title="You have contributed"
+                    token="NUMS"
+                  />
+                </div>
+                <div className="flex flex-col gap-4 flex-1">
+                  <Disclaimer />
+                  <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+                  <StakingGoal {...goalProps} />
+                  <StakingVault {...vaultProps} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Mobile — Unlocked */}
+          <div
+            className="flex flex-col md:hidden gap-6 w-full h-full pb-2"
+            style={{ scrollbarWidth: "none" }}
+          >
+            <div className="flex items-center justify-between w-full">
+              <Title content="Staking" />
+              <Button
+                variant="ghost"
+                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
+                onClick={onClose}
+              >
+                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
+              </Button>
+            </div>
+
+            <div
+              className="grow overflow-y-auto flex flex-col gap-6 md:gap-8"
+              style={{ scrollbarWidth: "none" }}
+            >
               <Subtitle />
-              <StakingBalance {...balanceProps} />
-              {!!claimedProps?.amount && <StakingClaimed {...claimedProps} />}
-              <StakingReward {...rewardProps} />
+              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+              <div className="flex gap-3">
+                {!!ratioProps && (
+                  <StakingRatio {...ratioProps} className="hidden md:block" />
+                )}
+                <StakingYield {...yieldProps} />
+              </div>
+              <Staking {...stakingProps} />
+              <div className="flex flex-col gap-6">
+                <StakingBalance {...balanceProps} />
+                <StakingClaimed {...claimedProps} />
+                <StakingReward {...rewardProps} />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+
+          {/* Desktop — Unlocked */}
+          <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
+            <Button
+              variant="ghost"
+              className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+              onClick={onClose}
+            >
+              <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+            </Button>
+
+            <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
+              <div className="flex items-center justify-between gap-4">
+                <div onClick={() => setBypass(!bypass)}>
+                  <Title content="Staking" />
+                </div>
+                <div className="flex gap-3 shrink-0">
+                  {!!ratioProps && <StakingRatio {...ratioProps} />}
+                  <StakingYield {...yieldProps} />
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-8">
+                <Staking {...stakingProps} className="flex-1" />
+                <div className="flex flex-col gap-6 flex-1">
+                  <Subtitle />
+                  <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+                  <StakingBalance {...balanceProps} />
+                  {!!claimedProps?.amount && (
+                    <StakingClaimed {...claimedProps} />
+                  )}
+                  <StakingReward {...rewardProps} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-const Title = ({ onBypass }: { onBypass: () => void }) => (
+const Title = ({ content = "Staking" }: { content?: string }) => (
   <h2
-    className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase tracking-wider translate-y-0.5"
+    className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase translate-y-0.5"
     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
   >
-    {"Sta"}
-    <span onClick={onBypass} className="select-none">
-      {"k"}
-    </span>
-    {"ing"}
+    {content}
   </h2>
 );
 
 const Subtitle = () => (
-  <p className="font-sans text-base/5 text-white-400">
+  <p className="font-sans text-base/5 text-white-100">
     For every game of NUMS a portion of the entry fee is redirected to NUMS
     stakers
   </p>
 );
+
+const Disclaimer = () => (
+  <p className="font-sans text-base/5 text-white-100">
+    Participate in the Flip the Switch event by staking NUMS, once the event
+    goal is met Cartridge will no longer be the majority contributor and a DAO
+    will be established.
+  </p>
+);
+
+const ReadMore = ({
+  to = "https://www.cartridge.gg/flip-the-switch",
+}: {
+  to?: string;
+}) => {
+  return (
+    <Link to={to} target="_blank" className="flex">
+      <div className="px-1 flex items-center gap-0.5 h-6 bg-white-900 hover:bg-white-800 rounded transition-colors duration-150">
+        <p className="font-sans text-sm/5 text-white-100 px-0.5">Read More</p>
+        <ExternalLinkIcon size="xs" />
+      </div>
+    </Link>
+  );
+};

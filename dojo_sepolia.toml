@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x00f923b2381b62d21ecf1efc71c4ce5e102000c47cee7d2bf0ca3113ef499605"
+world_address = "0x00f923b2381b62d21ecf1efc71c4ce5e102000c47cee7d2bf0ca3113ef499605"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
@@ -67,4 +67,6 @@ disable_multicall = true
   "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,
   "0x1000003f7f1380b75",                                                # pool_sqrt low,
   "0x0",                                                                # pool_sqrt high,
+  # "0x6f3528fe26840249f4b191ef6dff7928",                               # pool_sqrt low,
+  # "0xfffffc080ed7b455",                                               # pool_sqrt high,
 ]

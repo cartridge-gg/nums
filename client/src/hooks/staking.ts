@@ -7,16 +7,13 @@ const DECIMALS = 10n ** 18n;
 const USDC_DECIMALS = 10n ** 6n;
 const DEBOUNCE_DELAY = 500;
 
+const TEAM_STAKE = 200_000;
+
 export interface UseStakingParams {
-  /** NUMS balance string from useHeader */
   balance: number;
-  /** vNUMS (shares) balance string from useHeader */
   shares: number;
-  /** Total vNUMS supply (vault total_supply) from useHeader */
   totalShares: bigint;
-  /** Total NUMS assets in the vault — used for ERC4626 preview ratio */
   totalAssets: bigint;
-  /** NUMS price in USD */
   numsPrice: number;
 }
 
@@ -229,6 +226,14 @@ export const useStaking = ({
       ratioProps: {
         value: ratio,
       },
+      goalProps: {
+        totalStaked: toNumber(totalAssets) - TEAM_STAKE,
+        totalShares: TEAM_STAKE,
+      },
+      vaultProps: {
+        vaultAmount: claimableAmount,
+        usdcPrice: 1,
+      },
     }),
     [
       numsBalance,
@@ -246,6 +251,7 @@ export const useStaking = ({
       yieldValue,
       claimableAmount,
       totalShares,
+      totalAssets,
       vault,
       handleDepositChange,
       handleMintChange,

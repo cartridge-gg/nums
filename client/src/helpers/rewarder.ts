@@ -6,9 +6,9 @@
 import { MULTIPLIER_PRECISION } from "@/constants";
 
 const TEN_POW_18 = 10n ** 18n;
-const A = 306_211_270_390_303_800n * TEN_POW_18;
-const B = 3n;
-const K = 10n;
+const A = 665_768_430n * TEN_POW_18;
+const B = 2n;
+const K = 5n;
 
 export class Rewarder {
   /**

@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.51"
+seed = "nums-v1.0.52"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x063fe29d2db0965d938c73a1f425f48ca5c6e1a54e95ff3dbe6334737b894ee7"
+# world_address = "0x00f923b2381b62d21ecf1efc71c4ce5e102000c47cee7d2bf0ca3113ef499605"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
@@ -41,7 +41,7 @@ disable_multicall = true
   "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # Admin address
 ]
 "NUMS-Token" = [
-  "0xFE1C215E8F838E000000",                                             # initial_supply: 1.2M NUMS
+  "0xD3C21BCECCEDA1000000",                                             # initial_supply: 1.0M NUMS
   "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753", # recipient
 ]
 "NUMS-Faucet" = [
@@ -61,7 +61,7 @@ disable_multicall = true
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
   "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
   "0x46",                                                               # burn_percentage: 70%,
-  "0xC",                                                                # average_score: 12,
+  "0xA",                                                                # average_score: 10,
   "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,

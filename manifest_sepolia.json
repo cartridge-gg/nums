@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0xc7cd2221dbeb8c3a098d5300e4758277dda40bf7e64bec1fb5cae2aa077b1d",
-    "seed": "nums-v1.0.51",
+    "address": "0xf923b2381b62d21ecf1efc71c4ce5e102000c47cee7d2bf0ca3113ef499605",
+    "seed": "nums-v1.0.52",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x2dd22b66d98d89f1117673fb51578d464cc98b5cb5034d287f204c6ece002ed",
-      "class_hash": "0x147dd559eda13be902d8f05b9c2ebb4091dffbbd72ebd55d8b92dadbdaa982a",
+      "address": "0x2b831d263ffdee7e99f68703e5015b21ec72a2d2921ae2dead7a748dbdaa3b8",
+      "class_hash": "0x3711b91e3416acc7e68800ac76916d7b90c83783b08ae21e56088951e7cd7fa",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "address": "0x257194945b97c40cd84fe6a2000e7d7530ff76e7d0227a388bb20cf2a669e41",
+      "address": "0x1ec400a8d60969a236b2f4416aa7cec72a03b21f647f48f2c31bd2086f4678f",
       "class_hash": "0x5b652542bd48415e26dfa2eea505e9a34236808c20b5f88df7136877f495d56",
       "init_calldata": [
         "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343"
@@ -70,7 +70,7 @@
       ]
     },
     {
-      "address": "0x5f358e791c0d28150e522b2a8c82d9074adba3879cab7c50320f2e10cef3d17",
+      "address": "0x1d0ee61ae0f2d75fb0adb61b4b6bc5936c7f75ae2a002bbfe714028112fd76",
       "class_hash": "0x7260fd1d2e1422758f2ae2741ae449935b5d8b8c176216f89ae3f3d760f148b",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -95,8 +95,8 @@
       ]
     },
     {
-      "address": "0x1fe6be6f2a5cbbfc3a324a75e09f2be88412a01f7f3f583eff1b6bdf5e7875d",
-      "class_hash": "0x48ac4699d8084abb525d05389a4a2d0af6309971ee09a991e7e1ab9b3136683",
+      "address": "0x3d9811671990fa067ab9342840d0b7e00a3bfeaa2e7f31ad26329161c086c4b",
+      "class_hash": "0x77b3d53503783382da39fb03386948b78040e249374b616acf97f70a613172f",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -113,7 +113,7 @@
       ]
     },
     {
-      "address": "0x5f2a1ececda995e6c02b12fc38a0b7979c98e4ce1d17fff321409902e4ab713",
+      "address": "0x74e02714d63e8f3da3a2ab56564414303127e71a9c13b5a60209100d3b37d87",
       "class_hash": "0x32269f61f87770504c9c1e2d4da137a0cc2d3194f2d38dcdcb526177e34656d",
       "init_calldata": [
         "0x1",
@@ -129,7 +129,7 @@
         "0x1E8480",
         "0xD3C21BCECCEDA1000000",
         "0x46",
-        "0xC",
+        "0xA",
         "0xccccccccccccccccccccccccccccccc",
         "0x56a4c",
         "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",
@@ -159,10 +159,10 @@
       ]
     },
     {
-      "address": "0x573f645db9f518a5aed5a5156b2b467b8703444a9913d2e53b51a9bf81ab1fa",
+      "address": "0x32abd3de87a3d5ec44cda9bddf005525f5d85177027fc778856b23792a0078b",
       "class_hash": "0x74ba932dbc01ecdcd051d8b595953d06a090a0ac7c11296f9d702b86edf3d88",
       "init_calldata": [
-        "0xFE1C215E8F838E000000",
+        "0xD3C21BCECCEDA1000000",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
       ],
       "tag": "NUMS-Token",
@@ -182,7 +182,7 @@
       ]
     },
     {
-      "address": "0x2e7040c052858b3ac886259cf522705022ce4d0c02bffb58d36a0d048d917c5",
+      "address": "0x48cb27232dcf895d1e3cc78bc3d34d7aeb50702ab0fd73a795621865bd9e857",
       "class_hash": "0x7544b805d191f6d5307582d6cd3e564673805caedc36d840cdddde671fd0c38",
       "init_calldata": [
         "0xe10",
@@ -210,7 +210,7 @@
       ]
     },
     {
-      "address": "0x773c23ecf54dece70548af51afc5d4b333d7757f14a23e11cb0130e2c1f73b2",
+      "address": "0x13ccae72662fdd05119e0e339fb3836f9d8a6eaa64a448f0190031566998b3a",
       "class_hash": "0x4b67e0ef9e885311a84cd3c1132a8506f8ed2f93e97b3556dea5e92fbb10e4",
       "init_calldata": [
         "0x0"

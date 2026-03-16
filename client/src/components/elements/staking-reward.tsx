@@ -60,7 +60,7 @@ export const StakingReward = ({
       {...props}
     >
       <div className="flex flex-col gap-3">
-        <span className="font-sans text-base/[18px] text-white-400">
+        <span className="font-sans text-sm/[18px] text-white-400">
           Rewards
         </span>
 

@@ -32,7 +32,7 @@ export interface SettingsProps
 }
 
 const settingsVariants = cva(
-  "select-none relative flex flex-col p-6 md:p-12 gap-6 h-full w-full md:h-auto",
+  "select-none relative flex flex-col p-6 md:p-12 gap-6 md:gap-10 h-full w-full md:h-auto",
   {
     variants: {
       variant: {
@@ -97,7 +97,7 @@ export const Settings = ({
         <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
       </Button>
       <h2
-        className="hidden md:block text-[64px]/[44px] uppercase tracking-wider translate-y-0.5"
+        className="hidden md:block text-[48px]/[33px] uppercase tracking-wider translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         Settings

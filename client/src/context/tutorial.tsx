@@ -92,6 +92,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const skip = useCallback(() => {
     const proceed = onProceedRef.current;
     onProceedRef.current = null;
+    localStorage.setItem(STORAGE_KEY, "true");
     setPhase(null);
     proceed?.();
   }, []);

@@ -7,11 +7,10 @@ const DECIMALS = 10n ** 18n;
 const USDC_DECIMALS = 10n ** 6n;
 const DEBOUNCE_DELAY = 500;
 
-const TEAM_STAKE = 200_000;
-
 export interface UseStakingParams {
   balance: number;
   shares: number;
+  maxShare: number;
   totalShares: bigint;
   totalAssets: bigint;
   numsPrice: number;
@@ -46,6 +45,7 @@ const estimateRatio = (
 export const useStaking = ({
   balance,
   shares,
+  maxShare,
   totalShares,
   totalAssets,
   numsPrice,
@@ -82,16 +82,21 @@ export const useStaking = ({
 
   // Claimable reward: mirrors rewardable::claimable on-chain
   // result of vaultPosition.claimable() is in USDC raw units (6 decimals)
-  const claimableRaw = useMemo(() => {
-    if (!vaultPosition || !vaultInfo) return 0n;
+  const { claimableAmount, totalAmount } = useMemo(() => {
+    if (!vaultPosition || !vaultInfo)
+      return { claimableAmount: 0, totalAmount: 0 };
     const vNumsSharesBigInt = toBigInt(vNumsBalance);
-    return vaultPosition.claimable(vNumsSharesBigInt, vaultInfo.total_reward);
-  }, [vaultPosition, vaultInfo, vNumsBalance]);
-
-  const claimableAmount = useMemo(
-    () => Number(claimableRaw) / Number(USDC_DECIMALS),
-    [claimableRaw],
-  );
+    const amount = vaultPosition.claimable(
+      vNumsSharesBigInt,
+      vaultInfo.total_reward,
+    );
+    const total = vaultPosition.claimable(totalShares, vaultInfo.total_reward);
+    const decimals = Number(USDC_DECIMALS);
+    return {
+      claimableAmount: Number(amount) / decimals,
+      totalAmount: Number(total) / decimals,
+    };
+  }, [vaultPosition, vaultInfo, vNumsBalance, totalShares]);
 
   // Yield APR: placeholder until on-chain data is available
   const yieldValue = useMemo((): number | undefined => undefined, []);
@@ -227,12 +232,15 @@ export const useStaking = ({
         value: ratio,
       },
       goalProps: {
-        totalStaked: toNumber(totalAssets) - TEAM_STAKE,
-        totalShares: TEAM_STAKE,
+        totalStaked: toNumber(totalAssets) - maxShare,
+        totalShares: maxShare,
       },
       vaultProps: {
-        vaultAmount: claimableAmount,
+        vaultAmount: totalAmount,
         usdcPrice: 1,
+      },
+      supplyProps: {
+        totalShares: toNumber(totalShares),
       },
     }),
     [

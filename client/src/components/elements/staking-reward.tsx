@@ -60,9 +60,7 @@ export const StakingReward = ({
       {...props}
     >
       <div className="flex flex-col gap-3">
-        <span className="font-sans text-sm/[18px] text-white-400">
-          Rewards
-        </span>
+        <span className="font-sans text-sm/[18px] text-white-400">Rewards</span>
 
         <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-6">
           <div className="flex items-center gap-2">

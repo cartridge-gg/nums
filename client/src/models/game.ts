@@ -11,7 +11,11 @@ import {
   DEFAULT_DRAW_STAGE,
   DEFAULT_MAX_DRAW,
   DEFAULT_EXPIRATION,
+  DEFAULT_MULTIPLIER,
   DEFAULT_POWER_COUNT,
+  DEFAULT_SLOT_COUNT,
+  DEFAULT_SLOT_MIN,
+  DEFAULT_SLOT_MAX,
 } from "@/constants";
 import { TRAP_COUNT } from "@/types/trap";
 
@@ -133,6 +137,34 @@ export class Game {
       props.slots,
       props.supply,
       props.price,
+    );
+  }
+
+  static create(supply: bigint, multiplier?: number, price?: bigint): Game {
+    const gameId = Math.floor(Math.random() * 1000000);
+    return new Game(
+      gameId,
+      false, // claimed
+      multiplier ?? DEFAULT_MULTIPLIER,
+      0, // level
+      DEFAULT_SLOT_COUNT,
+      DEFAULT_SLOT_MIN,
+      DEFAULT_SLOT_MAX,
+      0, // number
+      0, // next_number
+      [], // selectable_powers
+      [], // selected_powers
+      Array(DEFAULT_POWER_COUNT).fill(false), // enabled_powers
+      Array(DEFAULT_SLOT_COUNT).fill(false), // disabled_traps
+      0, // reward
+      0, // over
+      0, // expiration (set by start())
+      Array(DEFAULT_SLOT_COUNT)
+        .fill(0)
+        .map(() => Trap.from(0)), // traps
+      Array(DEFAULT_SLOT_COUNT).fill(0), // slots
+      supply,
+      price ?? 0n,
     );
   }
 
@@ -650,11 +682,6 @@ export class Game {
       cloneSlots.push(this.number);
       this.next_number = this.next(cloneSlots, rand);
     }
-    // [Effect] Draw new powers if possible
-    if (this.isDrawable()) {
-      const powerIndexes = Power.draw(rand.nextSeed(), DEFAULT_DRAW_COUNT);
-      this.selectable_powers = powerIndexes.map((index) => Power.from(index));
-    }
     // [Effect] Assess game over
     // [Info] Game is over if:
     // - number cannot be placed
@@ -664,6 +691,11 @@ export class Game {
       // For practice mode, we use a mock timestamp
       const mockTimestamp = Math.floor(Date.now() / 1000);
       this.over = mockTimestamp;
+    }
+    // [Effect] Draw new powers if possible
+    if (this.over === 0 && this.isDrawable()) {
+      const powerIndexes = Power.draw(rand.nextSeed(), DEFAULT_DRAW_COUNT);
+      this.selectable_powers = powerIndexes.map((index) => Power.from(index));
     }
   }
 

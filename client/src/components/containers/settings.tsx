@@ -109,7 +109,7 @@ export const Settings = ({
       </h2>
 
       {/* Content */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 h-full">
         <Sound
           title="Music Volume"
           value={musicVolume}
@@ -125,102 +125,104 @@ export const Settings = ({
           onMute={onSfxMute}
         />
 
-        <div className="flex flex-col gap-4">
-          <Button
-            variant="secondary"
-            className="h-12 gap-1"
-            onClick={onReferrals}
-          >
-            <ReferralIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-            <span
-              className="px-1 text-[28px] tracking-wide translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        <div className="flex flex-col gap-6 flex-1 justify-between">
+          <div className="flex flex-col gap-4">
+            <Button
+              variant="secondary"
+              className="h-12 gap-1"
+              onClick={onReferrals}
             >
-              Referrals
-            </span>
-          </Button>
-          <Button
-            variant="secondary"
-            className="h-12 gap-1"
-            onClick={onAchievements}
-          >
-            <LaurelIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-            <span
-              className="px-1 text-[28px] tracking-wide translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              <ReferralIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Referrals
+              </span>
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 gap-1"
+              onClick={onAchievements}
             >
-              Achievements
-            </span>
-          </Button>
-          <Button
-            variant="secondary"
-            className="h-12 gap-1"
-            onClick={onLeaderboard}
-          >
-            <TrophyIcon
-              variant="solid"
-              size="lg"
-              style={{ filter: `url(#${filterId})` }}
-            />
-            <span
-              className="px-1 text-[28px] tracking-wide translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              <LaurelIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Achievements
+              </span>
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 gap-1"
+              onClick={onLeaderboard}
             >
-              Leaderboard
-            </span>
-          </Button>
-          <Button
-            variant="secondary"
-            className="h-12 gap-1"
-            onClick={onStaking}
-          >
-            <StakingIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-            <span
-              className="px-1 text-[28px] tracking-wide translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              <TrophyIcon
+                variant="solid"
+                size="lg"
+                style={{ filter: `url(#${filterId})` }}
+              />
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Leaderboard
+              </span>
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 gap-1"
+              onClick={onStaking}
             >
-              Staking
-            </span>
-          </Button>
-          <Button variant="destructive" className="h-12" onClick={onLogOut}>
-            <span
-              className="px-1 text-[28px] tracking-wide translate-y-0.5"
-              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-            >
-              Log Out
-            </span>
-          </Button>
-        </div>
+              <StakingIcon size="lg" style={{ filter: `url(#${filterId})` }} />
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Staking
+              </span>
+            </Button>
+            <Button variant="destructive" className="h-12" onClick={onLogOut}>
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Log Out
+              </span>
+            </Button>
+          </div>
 
-        <div className="flex gap-4 w-full">
-          <Link
-            to="https://nums-docs.preview.cartridge.gg/"
-            target="_blank"
-            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
-          >
-            <BookIcon size="lg" />
-          </Link>
-          <Link
-            to="https://github.com/cartridge-gg/nums"
-            target="_blank"
-            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
-          >
-            <GithubIcon size="lg" />
-          </Link>
-          <Link
-            to="https://discord.gg/rJGVUWQc25"
-            target="_blank"
-            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
-          >
-            <DiscordIcon size="lg" />
-          </Link>
-          <Link
-            to="https://x.com/numsgg"
-            target="_blank"
-            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
-          >
-            <XIcon size="lg" />
-          </Link>
+          <div className="flex gap-4 w-full">
+            <Link
+              to="https://nums-docs.preview.cartridge.gg/"
+              target="_blank"
+              className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+            >
+              <BookIcon size="lg" />
+            </Link>
+            <Link
+              to="https://github.com/cartridge-gg/nums"
+              target="_blank"
+              className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+            >
+              <GithubIcon size="lg" />
+            </Link>
+            <Link
+              to="https://discord.gg/rJGVUWQc25"
+              target="_blank"
+              className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+            >
+              <DiscordIcon size="lg" />
+            </Link>
+            <Link
+              to="https://x.com/numsgg"
+              target="_blank"
+              className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+            >
+              <XIcon size="lg" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

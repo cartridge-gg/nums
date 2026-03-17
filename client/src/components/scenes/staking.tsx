@@ -33,6 +33,10 @@ import {
   StakingVault,
   type StakingVaultProps,
 } from "@/components/elements/staking-vault";
+import {
+  StakingSupply,
+  type StakingSupplyProps,
+} from "@/components/elements/staking-supply";
 import { Link } from "@/lib/router";
 
 const stakingSceneVariants = cva(
@@ -61,6 +65,7 @@ export interface StakingSceneProps
   ratioProps?: StakingRatioProps;
   goalProps?: StakingGoalProps;
   vaultProps?: StakingVaultProps;
+  supplyProps?: StakingSupplyProps;
   locked?: boolean;
   onClose?: () => void;
 }
@@ -74,6 +79,7 @@ export const StakingScene = ({
   ratioProps,
   goalProps,
   vaultProps,
+  supplyProps,
   locked,
   onClose,
   variant,
@@ -115,6 +121,7 @@ export const StakingScene = ({
             >
               <Disclaimer />
               <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+              <StakingSupply {...supplyProps} />
               <StakingOnly {...stakingProps} />
               <StakingBalance
                 {...balanceProps}
@@ -137,12 +144,16 @@ export const StakingScene = ({
             </Button>
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
-              <div onClick={() => setBypass(!bypass)}>
+              <div
+                className="flex items-center justify-between"
+                onClick={() => setBypass(!bypass)}
+              >
                 <Title content="Flip the Switch" />
+                <StakingSupply {...supplyProps} />
               </div>
 
               <div className="flex flex-row gap-6">
-                <div className="flex flex-col gap-4 flex-1">
+                <div className="flex flex-col gap-6 flex-1">
                   <StakingOnly {...stakingProps} />
                   <StakingBalance
                     {...balanceProps}
@@ -150,7 +161,7 @@ export const StakingScene = ({
                     token="NUMS"
                   />
                 </div>
-                <div className="flex flex-col gap-4 flex-1">
+                <div className="flex flex-col gap-6 flex-1">
                   <Disclaimer />
                   <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
                   <StakingGoal {...goalProps} />
@@ -209,8 +220,8 @@ export const StakingScene = ({
               <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
             </Button>
 
-            <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
-              <div className="flex items-center justify-between gap-4">
+            <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
+              <div className="flex items-center justify-between gap-6">
                 <div onClick={() => setBypass(!bypass)}>
                   <Title content="Staking" />
                 </div>

@@ -51,8 +51,8 @@ export const StakingVault = ({
           <div className="flex items-center gap-2">
             <span>
               {vaultAmount.toLocaleString("en-US", {
-                minimumFractionDigits: 4,
-                maximumFractionDigits: 4,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               })}
             </span>
             <span className="text-white-400">

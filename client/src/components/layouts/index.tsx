@@ -105,6 +105,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const stakingSceneProps = useStaking({
     balance: headerData.balance,
     shares: headerData.shares,
+    maxShare: headerData.maxShare,
     totalShares: headerData.total,
     totalAssets: headerData.assets,
     numsPrice,

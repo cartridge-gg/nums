@@ -150,6 +150,7 @@ export const Locked: Story = {
       rewardProps={{ rewardAmount: 42.5, usdcPrice: 1, onClaim: fn() }}
       yieldProps={{ value: 12.5 }}
       ratioProps={{ value: 1.05 }}
+      supplyProps={{ totalShares: 125000 }}
       onClose={fn()}
     />
   ),

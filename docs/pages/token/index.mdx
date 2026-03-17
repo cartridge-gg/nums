@@ -6,12 +6,12 @@ The **NUMS** token is the native asset of the game. Players buy games with USDC;
 
 ## Supply
 
-At protocol launch, **1,200,000 tokens** are minted and distributed as follows:
+At protocol launch, **1,000,000 tokens** are minted and distributed as follows:
 
 <div className="docs-flow">
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
-    <div className="docs-flow__content"><strong>1,000,000</strong> — Injected into the liquidity pool with 10,000 USDC and given to the DAO.</div>
+    <div className="docs-flow__content"><strong>800,000</strong> — Injected into the liquidity pool with 10,000 USDC and given to the DAO.</div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
@@ -23,6 +23,10 @@ At protocol launch, **1,200,000 tokens** are minted and distributed as follows:
 
 :::note
 **Vault and revenue shares.** The vault is used to claim protocol revenue in USDC. Withdrawing from it to sell tokens, for example, amounts to giving up shares of that revenue. More details in the [Staking](/staking) section.
+:::
+
+:::tip
+**Initial reference price:** $0.0125 per NUMS (see the distribution above for details).
 :::
 
 ### Estimated supply
@@ -97,11 +101,3 @@ When a player buys a game, a **macro multiplier** is determined for that game an
 </div>
 
 Together, these two coefficients determine the game's reward multiplier at purchase time. They encapsulate the token price, the starting stake, average player performance, and the current token supply.
-
-## Price
-
-Although the USD value of the token over time is not known in advance, we can nonetheless estimate that its price will depend on protocol revenue. Since you must stake the token to receive a share of protocol revenue (see the [Staking](/staking) section for more details), it is likely—barring euphoria—that the price will be directly correlated to these revenues. The more the protocol is used, the more revenue it generates, and the more attractive it becomes to hold shares in the protocol to capture a portion of that revenue.
-
-:::note
-**Initial reference price:** $0.01 per NUMS (see the distribution above for details).
-:::

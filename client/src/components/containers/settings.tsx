@@ -8,8 +8,13 @@ import {
   LaurelIcon,
   StakingIcon,
   TrophyIcon,
+  GithubIcon,
+  DiscordIcon,
+  XIcon,
+  BookIcon,
 } from "@/components/icons";
 import { Sound } from "@/components/elements/sound";
+import { Link } from "@/lib/router";
 import { useId } from "react";
 
 export interface SettingsProps
@@ -177,16 +182,46 @@ export const Settings = ({
               Staking
             </span>
           </Button>
+          <Button variant="destructive" className="h-12" onClick={onLogOut}>
+            <span
+              className="px-1 text-[28px] tracking-wide translate-y-0.5"
+              style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+            >
+              Log Out
+            </span>
+          </Button>
         </div>
 
-        <Button variant="destructive" className="h-12" onClick={onLogOut}>
-          <span
-            className="px-1 text-[28px] tracking-wide translate-y-0.5"
-            style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        <div className="flex gap-4 w-full">
+          <Link
+            to="https://nums-docs.preview.cartridge.gg/"
+            target="_blank"
+            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
           >
-            Log Out
-          </span>
-        </Button>
+            <BookIcon size="lg" />
+          </Link>
+          <Link
+            to="https://github.com/cartridge-gg/nums"
+            target="_blank"
+            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+          >
+            <GithubIcon size="lg" />
+          </Link>
+          <Link
+            to="https://discord.gg/rJGVUWQc25"
+            target="_blank"
+            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+          >
+            <DiscordIcon size="lg" />
+          </Link>
+          <Link
+            to="https://x.com/numsgg"
+            target="_blank"
+            className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+          >
+            <XIcon size="lg" />
+          </Link>
+        </div>
       </div>
     </div>
   );

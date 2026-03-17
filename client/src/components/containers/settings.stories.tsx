@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Settings } from "./settings";
 import { fn } from "storybook/test";
+import { BrowserRouter } from "react-router-dom";
 
 const meta = {
   title: "Containers/Settings",
@@ -10,9 +11,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="mx-auto">
-        <Story />
-      </div>
+      <BrowserRouter>
+        <div className="mx-auto">
+          <Story />
+        </div>
+      </BrowserRouter>
     ),
   ],
   globals: {

@@ -74,6 +74,18 @@ export const useHeader = () => {
     return balanceScaled;
   }, [tokenBalances, vault, account, vaultAddress]);
 
+  const maxShare = useMemo(() => {
+    if (!vault) return 0;
+    const filtered = tokenBalances.filter(
+      (b) => BigInt(b.contract_address) === BigInt(vaultAddress),
+    );
+    if (filtered.length === 0) return 0;
+    const max = filtered.sort((a, b) =>
+      Number(BigInt(b.balance) - BigInt(a.balance)),
+    )[0];
+    return toDecimal(vault, max);
+  }, [tokenBalances, vault, vaultAddress]);
+
   const assets = useMemo(() => {
     if (!vault) return 0n;
     const tokenBalance = tokenBalances.find(
@@ -108,6 +120,7 @@ export const useHeader = () => {
     supply: BigInt(token?.total_supply ?? "0"),
     balance,
     shares,
+    maxShare,
     assets,
     total: BigInt(vault?.total_supply ?? "0"),
     username,

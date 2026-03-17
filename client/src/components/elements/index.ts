@@ -51,3 +51,4 @@ export * from "./game-icon";
 export * from "./activity-tab";
 export * from "./referral-link";
 export * from "./referral-payment";
+export * from "./staking-supply";

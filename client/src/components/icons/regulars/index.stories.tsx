@@ -47,6 +47,7 @@ const regularIcons = [
   { name: "GithubIcon", component: Icons.GithubIcon },
   { name: "YieldIcon", component: Icons.YieldIcon },
   { name: "LaurelIcon", component: Icons.LaurelIcon },
+  { name: "LightbulbIcon", component: Icons.LightbulbIcon },
   { name: "LinkIcon", component: Icons.LinkIcon },
   { name: "LockerIcon", component: Icons.LockerIcon },
   { name: "PlayIcon", component: Icons.PlayIcon },

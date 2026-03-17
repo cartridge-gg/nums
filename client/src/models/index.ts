@@ -29,6 +29,7 @@ export {
   type RawCompleted as RawAchievementCompleted,
   type RawClaimed as RawAchievementClaimed,
 } from "./achievement";
+export { Tutorial, TutorialPhase, type TutorialData } from "./tutorial";
 export {
   QuestDefinition,
   QuestCompletion,

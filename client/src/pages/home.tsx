@@ -7,6 +7,7 @@ import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
+import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
 
@@ -18,6 +19,7 @@ export const Home = () => {
   const { allGames, playerGames: games, loading } = useGames();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
+  const { propose } = useTutorial();
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
@@ -142,18 +144,28 @@ export const Home = () => {
   }, [games, gameId]);
 
   const handlePurchaseClick = useCallback(() => {
-    openPurchaseScene();
-  }, [openPurchaseScene]);
+    propose(() => {
+      openPurchaseScene();
+    });
+  }, [propose, openPurchaseScene]);
 
   const handlePracticeClick = useCallback(() => {
-    // Clear existing game and create a new one immediately to avoid showing old game
-    if (currentSupply !== undefined && currentSupply > 0n) {
-      clearGame();
-      startPractice(currentSupply, multiplier, activeStarterpack?.price);
-    }
-    // Navigate to practice mode
-    navigate("/practice");
-  }, [navigate, clearGame, startPractice, currentSupply, multiplier]);
+    propose(() => {
+      if (currentSupply !== undefined && currentSupply > 0n) {
+        clearGame();
+        startPractice(currentSupply, multiplier, activeStarterpack?.price);
+      }
+      navigate("/practice");
+    });
+  }, [
+    propose,
+    navigate,
+    clearGame,
+    startPractice,
+    currentSupply,
+    multiplier,
+    activeStarterpack?.price,
+  ]);
 
   useEffect(() => {
     setTimeout(() => {

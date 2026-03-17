@@ -1,15 +1,19 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Selection, type SelectionProps } from "@/components/elements";
 import { Button } from "@/components/ui/button";
 import { CloseIcon, ShadowEffect } from "@/components/icons";
 import { useId } from "react";
+import type { TutorialAnchor } from "@/models/tutorial";
 
 export interface SelectionsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof selectionsVariants> {
   selections: SelectionProps[];
   onClose: () => void;
+  tutorialAnchor?: TutorialAnchor;
+  tutorialOverlay?: ReactNode;
 }
 
 const selectionsVariants = cva(
@@ -30,6 +34,8 @@ const selectionsVariants = cva(
 export const Selections = ({
   selections,
   onClose,
+  tutorialAnchor,
+  tutorialOverlay,
   variant,
   className,
   ...props
@@ -77,13 +83,24 @@ export const Selections = ({
 
       {/* Selections */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-        {selections.map((selection, index) => (
-          <Selection
-            key={index}
-            {...selection}
-            className={cn("flex-1", selection.className)}
-          />
-        ))}
+        {selections.map((selection, index) => {
+          const hasPowersAnchor = tutorialAnchor?.type === "powers";
+          const isAnchor =
+            hasPowersAnchor &&
+            (tutorialAnchor as { type: "powers"; index: number }).index ===
+              index;
+          const isDisabled = hasPowersAnchor && !isAnchor;
+          return (
+            <Selection
+              key={index}
+              {...selection}
+              disabled={isDisabled}
+              highlighted={isAnchor}
+              tutorialOverlay={isAnchor ? tutorialOverlay : undefined}
+              className={cn("flex-1", selection.className)}
+            />
+          );
+        })}
       </div>
     </div>
   );

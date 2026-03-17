@@ -1,4 +1,5 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
@@ -30,6 +31,8 @@ import { Events } from "../containers/events";
 import { WelcomeScene } from "@/components/scenes";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
+import { useTutorial } from "@/context/tutorial";
+import { Tutorial } from "@/components/containers/tutorial";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -291,6 +294,14 @@ export const Layout = ({ children }: LayoutProps) => {
       .slice(0, 10);
   }, [claimeds, starteds, find, loading]);
 
+  const {
+    data: tutorialData,
+    isActive: tutorialActive,
+    next: tutorialNext,
+    skip: tutorialSkip,
+    restart: tutorialRestart,
+  } = useTutorial();
+
   const showWelcomeOverlay =
     pathname === "/" &&
     initialPathname === "/" &&
@@ -465,6 +476,10 @@ export const Layout = ({ children }: LayoutProps) => {
                   setShowSettingsScene(false);
                   setShowStakingScene(true);
                 }}
+                onTutorial={() => {
+                  setShowSettingsScene(false);
+                  tutorialRestart();
+                }}
                 onLogOut={() => {
                   setShowSettingsScene(false);
                   disconnect();
@@ -472,6 +487,28 @@ export const Layout = ({ children }: LayoutProps) => {
                 className="md:max-w-[416px]"
               />
             </div>
+          </div>
+        )}
+        {tutorialActive && tutorialData && !tutorialData.anchor && (
+          <div
+            className={cn(
+              "absolute inset-0 z-50 flex items-end md:items-center justify-center p-4",
+              tutorialData.foreground && "bg-black-700 backdrop-blur-[4px]",
+              !tutorialData.foreground && "pointer-events-none",
+            )}
+          >
+            <Tutorial
+              {...tutorialData}
+              onPrimary={tutorialNext}
+              onSecondary={
+                tutorialData.secondaryLabel ? tutorialSkip : undefined
+              }
+              onClose={tutorialData.secondaryLabel ? tutorialSkip : undefined}
+              className={cn(
+                "w-full md:max-w-[424px]",
+                !tutorialData.foreground && "pointer-events-auto",
+              )}
+            />
           </div>
         )}
       </div>

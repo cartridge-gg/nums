@@ -37,6 +37,7 @@ const meta = {
     onReferrals: fn(),
     onAchievements: fn(),
     onStaking: fn(),
+    onTutorial: fn(),
     onLogOut: fn(),
   },
 } satisfies Meta<typeof Settings>;

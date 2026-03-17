@@ -4,7 +4,6 @@ import { Selection, type SelectionProps } from "@/components/elements";
 import { Button } from "@/components/ui/button";
 import { CloseIcon, ShadowEffect } from "@/components/icons";
 import { useId } from "react";
-import { useTutorial } from "@/context/tutorial";
 
 export interface SelectionsProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -36,11 +35,6 @@ export const Selections = ({
   ...props
 }: SelectionsProps) => {
   const filterId = useId();
-  const { data: tutorialData } = useTutorial();
-  const powersAnchor =
-    tutorialData?.anchor?.type === "powers"
-      ? (tutorialData.anchor as { type: "powers"; index: number })
-      : null;
 
   return (
     <div
@@ -83,10 +77,6 @@ export const Selections = ({
             key={index}
             {...selection}
             id={`tutorial-powers-${index}`}
-            disabled={
-              selection.disabled ||
-              (powersAnchor !== null && powersAnchor.index !== index)
-            }
             className={cn("flex-1", selection.className)}
           />
         ))}

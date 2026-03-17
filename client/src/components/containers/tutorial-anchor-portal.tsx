@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTutorial } from "@/context/tutorial";
 import { useTutorialAnchor } from "@/hooks/tutorial-anchor";
 import { Tutorial } from "./tutorial";
@@ -22,6 +22,34 @@ export const TutorialAnchorPortal = () => {
       if (h > 0) setPanelHeight(h);
     }
   });
+
+  useEffect(() => {
+    if (!isActive || isPaused || !data?.anchor) return;
+    const anchor = data.anchor;
+    if (anchor.type !== "powers") return;
+
+    const targetIndex = (anchor as { type: "powers"; index: number }).index;
+    const els = document.querySelectorAll<HTMLElement>(
+      "[id^='tutorial-powers-']",
+    );
+
+    for (const el of els) {
+      const idx = parseInt(el.id.replace("tutorial-powers-", ""), 10);
+      if (idx !== targetIndex) {
+        el.dataset.tutorialDisabled = "true";
+        el.style.pointerEvents = "none";
+        el.style.opacity = "0.4";
+      }
+    }
+
+    return () => {
+      for (const el of els) {
+        delete el.dataset.tutorialDisabled;
+        el.style.pointerEvents = "";
+        el.style.opacity = "";
+      }
+    };
+  }, [isActive, isPaused, data?.anchor]);
 
   if (!isActive || isPaused || !data?.anchor || !rect) return null;
 

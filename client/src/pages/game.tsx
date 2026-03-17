@@ -27,9 +27,17 @@ import { useMediaQuery } from "usehooks-ts";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
+import { useTutorial } from "@/context/tutorial";
 export const Game = () => {
   const location = useLocation();
-  const isPracticeMode = location.pathname === "/practice";
+  const isPracticeMode =
+    location.pathname === "/practice" || location.pathname === "/tutorial";
+  const {
+    data: tutorialData,
+    isActive: tutorialActive,
+    pause: tutorialPause,
+    resume: tutorialResume,
+  } = useTutorial();
 
   // Regular actions for blockchain mode
   const blockchainActions = useActions();
@@ -70,6 +78,10 @@ export const Game = () => {
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
+  useEffect(() => {
+    if (showPlacesModal) tutorialPause();
+    else tutorialResume();
+  }, [showPlacesModal, tutorialPause, tutorialResume]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
   );
@@ -79,7 +91,7 @@ export const Game = () => {
     null,
   );
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [defaultLoading, setDefaultLoading] = useState(true);
+  const [defaultLoading, setDefaultLoading] = useState(!isPracticeMode);
 
   // Get game ID from path params (only in blockchain mode)
   const gameId = useMemo(() => {
@@ -278,7 +290,13 @@ export const Game = () => {
           power.power.isNone() ||
           isLoading("power", index) ||
           hasSlotLoading ||
-          isSelectable,
+          isSelectable ||
+          (tutorialActive &&
+            (!tutorialData?.anchor ||
+              tutorialData.disabled ||
+              tutorialData.anchor.type !== "power" ||
+              (tutorialData.anchor as { type: "power"; index: number })
+                .index !== index)),
       })),
       onGameInfo: () => {
         setShowPurchaseModal(true);
@@ -292,7 +310,16 @@ export const Game = () => {
           trap: game.getTrap(index),
           inactive: game.isInactive(index),
           loading: slotLoading,
-          disabled: (hasSlotLoading && !slotLoading) || isOver || isSelectable, // Disable other slots when one is loading
+          disabled:
+            (hasSlotLoading && !slotLoading) ||
+            isOver ||
+            isSelectable ||
+            (tutorialActive &&
+              (!tutorialData?.anchor ||
+                tutorialData.disabled ||
+                tutorialData.anchor.type !== "slot" ||
+                (tutorialData.anchor as { type: "slot"; index: number })
+                  .index !== index)),
           onSlotClick: () => {
             const trap = game.getTrap(index);
             if (
@@ -327,6 +354,9 @@ export const Game = () => {
     isDesktop,
     setShowGameOver,
     setShowSelectionModal,
+    tutorialActive,
+    tutorialData?.anchor,
+    tutorialData?.disabled,
   ]);
 
   // Check if selectable powers exist and create selections
@@ -507,20 +537,21 @@ export const Game = () => {
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
-      {showSelectionModal && (
-        <>
-          {/* Overlay to block interactions with Game */}
-          <div className="absolute inset-0 bg-black-900/80 z-40" />
-          {/* Selections modal */}
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
-            <Selections
-              selections={selections}
-              onClose={() => setShowSelectionModal(false)}
-              className="max-w-2xl w-full"
-            />
-          </div>
-        </>
-      )}
+      {showSelectionModal &&
+        (!tutorialActive || tutorialData?.anchor?.type === "powers") && (
+          <>
+            {/* Overlay to block interactions with Game */}
+            <div className="absolute inset-0 bg-black-900/80 z-40" />
+            {/* Selections modal */}
+            <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+              <Selections
+                selections={selections}
+                onClose={() => setShowSelectionModal(false)}
+                className="max-w-2xl w-full"
+              />
+            </div>
+          </>
+        )}
       {/* Overlay and Places modal when selecting a trap */}
       {showPlacesModal && place && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4">

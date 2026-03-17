@@ -58,17 +58,14 @@ export const Slots = ({
     const invalid = new Set<number>();
 
     if (allowedIndexes.length === 0) {
-      // Mark the 2 closest non-empty slots as invalid
       if (closestLower !== -1) invalid.add(closestLower);
       if (closestHigher !== -1) invalid.add(closestHigher);
-      // Also mark all empty slots as invalid
       slots.forEach((slot, index) => {
         if (!slot.value) {
           invalid.add(index);
         }
       });
     } else {
-      // Mark empty slots that are not allowed as invalid
       slots.forEach((slot, index) => {
         if (!slot.value && !allowedIndexes.includes(index)) {
           invalid.add(index);
@@ -91,6 +88,7 @@ export const Slots = ({
         <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
           <Slot
             {...slot}
+            id={`tutorial-slot-${index}`}
             label={slot.label || index + 2}
             value={slot.value || 0}
             invalid={slot.invalid || invalidIndexes.has(index)}

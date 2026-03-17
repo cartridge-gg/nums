@@ -24,6 +24,8 @@ const SLOT_SIZE = 12n;
 
 export class Game {
   type = MODEL_NAME;
+  private _drawQueue?: number[];
+  private _powerDrawQueue?: Power[][];
 
   constructor(
     public id: number,
@@ -166,6 +168,63 @@ export class Game {
       supply,
       price ?? 0n,
     );
+  }
+
+  static tutorial(supply: bigint): Game {
+    const drawSequence = [
+      300, 900, 200, 800, 500, 600, 550, 150, 100, 250, 350, 400, 450, 650, 700,
+      750, 850, 900, 42,
+    ];
+
+    const traps: Trap[] = Array(DEFAULT_SLOT_COUNT)
+      .fill(0)
+      .map((_, i) => {
+        switch (i) {
+          case 2:
+            return Trap.from(5); // Windy
+          case 5:
+            return Trap.from(1); // Bomb
+          case 9:
+            return Trap.from(3); // Magnet
+          case 11:
+            return Trap.from(2); // Lucky
+          case 15:
+            return Trap.from(4); // UFO
+          default:
+            return Trap.from(0); // None
+        }
+      });
+
+    const game = new Game(
+      0,
+      false,
+      DEFAULT_MULTIPLIER,
+      0,
+      DEFAULT_SLOT_COUNT,
+      DEFAULT_SLOT_MIN,
+      DEFAULT_SLOT_MAX,
+      drawSequence[0],
+      drawSequence[1],
+      [],
+      [],
+      Array(DEFAULT_POWER_COUNT).fill(false),
+      Array(DEFAULT_SLOT_COUNT).fill(false),
+      0,
+      0,
+      Math.floor(Date.now() / 1000) + DEFAULT_EXPIRATION,
+      traps,
+      Array(DEFAULT_SLOT_COUNT).fill(0),
+      supply,
+      0n,
+    );
+
+    game._drawQueue = drawSequence.slice(2);
+    game._powerDrawQueue = [
+      [Power.from(4), Power.from(2)], // Swap, High
+      [Power.from(5), Power.from(1)], // DoubleUp, Reroll
+      [Power.from(7), Power.from(3)], // Mirror, Low
+    ];
+    return game;
   }
 
   static deduplicate(items: Game[]): Game[] {
@@ -328,7 +387,7 @@ export class Game {
    * This ensures React detects state changes
    */
   clone(): Game {
-    return new Game(
+    const copy = new Game(
       this.id,
       this.claimed,
       this.multiplier,
@@ -350,6 +409,13 @@ export class Game {
       this.supply,
       this.price,
     );
+    if (this._drawQueue) {
+      copy._drawQueue = [...this._drawQueue];
+    }
+    if (this._powerDrawQueue) {
+      copy._powerDrawQueue = this._powerDrawQueue.map((p) => [...p]);
+    }
+    return copy;
   }
 
   /**
@@ -426,6 +492,9 @@ export class Game {
    * Equivalent to GameTrait::next in models/game.cairo
    */
   next(slots: number[], rand: Random): number {
+    if (this._drawQueue && this._drawQueue.length > 0) {
+      return this._drawQueue.shift()!;
+    }
     return rand.nextUnique(this.slot_min, this.slot_max, slots);
   }
 
@@ -694,8 +763,12 @@ export class Game {
     }
     // [Effect] Draw new powers if possible
     if (this.over === 0 && this.isDrawable()) {
-      const powerIndexes = Power.draw(rand.nextSeed(), DEFAULT_DRAW_COUNT);
-      this.selectable_powers = powerIndexes.map((index) => Power.from(index));
+      if (this._powerDrawQueue && this._powerDrawQueue.length > 0) {
+        this.selectable_powers = this._powerDrawQueue.shift()!;
+      } else {
+        const powerIndexes = Power.draw(rand.nextSeed(), DEFAULT_DRAW_COUNT);
+        this.selectable_powers = powerIndexes.map((index) => Power.from(index));
+      }
     }
   }
 

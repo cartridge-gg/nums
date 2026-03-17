@@ -14,7 +14,7 @@ const rewardVariants = cva(
   {
     variants: {
       variant: {
-        default: "w-20 md:w-[136px] bg-black-800",
+        default: "h-full w-20 md:w-[136px] bg-black-800",
       },
     },
     defaultVariants: {

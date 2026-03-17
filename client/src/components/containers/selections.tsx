@@ -35,14 +35,13 @@ export const Selections = ({
   ...props
 }: SelectionsProps) => {
   const filterId = useId();
+
   return (
     <div
       className={cn(selectionsVariants({ variant, className }), "relative")}
       {...props}
     >
       <ShadowEffect filterId={filterId} />
-
-      {/* Close button */}
       {onClose && (
         <Button
           variant="ghost"
@@ -63,9 +62,7 @@ export const Selections = ({
       )}
       <h2
         className="font-primary text-[48px]/[35px] tracking-wider uppercase translate-y-1"
-        style={{
-          textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-        }}
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         <span className="hidden md:inline">Take Power Up</span>
         <span className="md:hidden">
@@ -74,13 +71,12 @@ export const Selections = ({
           Power up
         </span>
       </h2>
-
-      {/* Selections */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
         {selections.map((selection, index) => (
           <Selection
             key={index}
             {...selection}
+            id={`tutorial-powers-${index}`}
             className={cn("flex-1", selection.className)}
           />
         ))}

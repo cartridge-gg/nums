@@ -86,20 +86,32 @@ export const GameScene = ({
     >
       <div className="flex justify-between items-stretch gap-2 xs:gap-3 md:gap-8 w-full">
         <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
-          <Num value={game.number} invalid={isOver} sound />
+          <Num id="tutorial-num" value={game.number} invalid={isOver} sound />
           <div className="flex flex-col justify-between items-start h-full gap-2">
             <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
               Up next
             </p>
-            <Num variant="secondary" value={game.next_number} />
+            <Num
+              id="tutorial-next-num"
+              variant="secondary"
+              value={game.next_number}
+            />
           </div>
         </div>
         <PowerUps powers={powers} className="hidden md:flex" />
-        <Reward reward={game.reward} className="md:hidden" />
+        <Reward
+          id="tutorial-reward"
+          reward={game.reward}
+          className="md:hidden"
+        />
       </div>
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex justify-between items-center gap-4 w-full">
-          <Multiplier multiplier={game.multiplier} className="md:hidden" />
+          <Multiplier
+            id="tutorial-multiplier"
+            multiplier={game.multiplier}
+            className="md:hidden"
+          />
           <Instruction
             content={
               isSelectable
@@ -118,13 +130,18 @@ export const GameScene = ({
             <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
           )}
         </div>
-        <Stages states={stages} className="w-full md:hidden" />
+        <Stages
+          id="tutorial-stages"
+          states={stages}
+          className="w-full md:hidden"
+        />
       </div>
       <div
         className="overflow-y-auto w-full p-3"
         style={{ scrollbarWidth: "none" }}
       >
         <Slots
+          id="tutorial-slots"
           number={game.number}
           min={game.slot_min}
           max={game.slot_max}
@@ -132,9 +149,9 @@ export const GameScene = ({
         />
       </div>
       <div className="hidden md:flex items-stretch justify-center gap-6 w-full">
-        <Multiplier multiplier={game.multiplier} />
-        <Stages states={stages} className="flex-1" />
-        <Reward reward={game.reward} />
+        <Multiplier id="tutorial-multiplier" multiplier={game.multiplier} />
+        <Stages id="tutorial-stages" states={stages} className="flex-1" />
+        <Reward id="tutorial-reward" reward={game.reward} />
       </div>
       <PowerUps powers={powers} className="w-full md:hidden" />
     </div>

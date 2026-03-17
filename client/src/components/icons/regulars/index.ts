@@ -30,6 +30,7 @@ export * from "./github";
 export * from "./yield";
 export * from "./glitchbomb";
 export * from "./laurel";
+export * from "./lightbulb";
 export * from "./link";
 export * from "./locker";
 export * from "./play";

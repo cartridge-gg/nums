@@ -7,6 +7,7 @@ import {
   ReferralIcon,
   LaurelIcon,
   StakingIcon,
+  LightbulbIcon,
   TrophyIcon,
   GithubIcon,
   DiscordIcon,
@@ -33,6 +34,7 @@ export interface SettingsProps
   onReferrals: () => void;
   onAchievements: () => void;
   onStaking: () => void;
+  onTutorial: () => void;
   onLogOut: () => void;
 }
 
@@ -65,6 +67,7 @@ export const Settings = ({
   onReferrals,
   onAchievements,
   onStaking,
+  onTutorial,
   onLogOut,
   variant,
   className,
@@ -181,6 +184,22 @@ export const Settings = ({
                 style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
               >
                 Staking
+              </span>
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 gap-1"
+              onClick={onTutorial}
+            >
+              <LightbulbIcon
+                size="lg"
+                style={{ filter: `url(#${filterId})` }}
+              />
+              <span
+                className="px-1 text-[28px] tracking-wide translate-y-0.5"
+                style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+              >
+                Tutorial
               </span>
             </Button>
             <Button variant="destructive" className="h-12" onClick={onLogOut}>

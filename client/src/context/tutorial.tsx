@@ -20,20 +20,26 @@ interface TutorialContextType {
   phase: TutorialPhase | null;
   data: TutorialData | null;
   isActive: boolean;
+  isPaused: boolean;
   next: () => void;
   skip: () => void;
   restart: () => void;
   propose: (onProceed: () => void) => void;
+  pause: () => void;
+  resume: () => void;
 }
 
 const TutorialContext = createContext<TutorialContextType>({
   phase: null,
   data: null,
   isActive: false,
+  isPaused: false,
   next: () => {},
   skip: () => {},
   restart: () => {},
   propose: () => {},
+  pause: () => {},
+  resume: () => {},
 });
 
 export const useTutorial = () => useContext(TutorialContext);
@@ -45,6 +51,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const { game, setGame, clearGame } = usePractice();
 
   const [phase, setPhase] = useState<TutorialPhase | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const onProceedRef = useRef<(() => void) | null>(null);
 
   const complete = useCallback(() => {
@@ -93,6 +100,9 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     setPhase(TutorialPhase.Initialization);
   }, []);
 
+  const pause = useCallback(() => setIsPaused(true), []);
+  const resume = useCallback(() => setIsPaused(false), []);
+
   const prevLevelRef = useRef<number>(0);
   const prevSelectableRef = useRef<number>(0);
 
@@ -127,7 +137,18 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
   return (
     <TutorialContext.Provider
-      value={{ phase, data, isActive, next, skip, restart, propose }}
+      value={{
+        phase,
+        data,
+        isActive,
+        isPaused,
+        next,
+        skip,
+        restart,
+        propose,
+        pause,
+        resume,
+      }}
     >
       {children}
     </TutorialContext.Provider>

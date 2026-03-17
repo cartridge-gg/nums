@@ -1,20 +1,11 @@
-import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PowerUp, type PowerUpProps } from "@/components/elements";
-import type { TutorialAnchor } from "@/models/tutorial";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
 
 export interface PowerUpsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof powerUpsVariants> {
   powers: PowerUpProps[];
-  tutorialAnchor?: TutorialAnchor;
-  tutorialOverlay?: ReactNode;
 }
 
 const powerUpsVariants = cva(
@@ -37,8 +28,6 @@ const powerUpsVariants = cva(
 
 export const PowerUps = ({
   powers,
-  tutorialAnchor,
-  tutorialOverlay,
   variant,
   size,
   className,
@@ -53,12 +42,12 @@ export const PowerUps = ({
         Power Ups
       </p>
       <ul className="flex justify-center gap-3 w-full">
-        {powers.map((powerProps, index) => {
-          const isAnchor =
-            tutorialAnchor?.type === "power" &&
-            (tutorialAnchor as { type: "power"; index: number }).index ===
-              index;
-          const powerEl = (
+        {powers.map((powerProps, index) => (
+          <li
+            id={`tutorial-power-${index}`}
+            key={`${index}`}
+            className="w-full md:w-auto"
+          >
             <PowerUp
               {...powerProps}
               className={cn(
@@ -69,43 +58,8 @@ export const PowerUps = ({
                 powerProps.className,
               )}
             />
-          );
-          return (
-            <li key={`${index}`} className="w-full md:w-auto">
-              {isAnchor && tutorialOverlay ? (
-                <Tooltip open>
-                  <TooltipTrigger asChild>
-                    <div className="relative">
-                      <svg
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect
-                          className="w-full h-full fill-none stroke-[2] stroke-yellow-100 animate-[marching-ants_0.5s_linear_infinite]"
-                          rx="8"
-                          ry="8"
-                          strokeDasharray="8,8"
-                        />
-                      </svg>
-                      {powerEl}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="start"
-                    sideOffset={8}
-                    collisionPadding={8}
-                    className="bg-transparent p-0 border-none shadow-none max-w-[calc(100vw-16px)]"
-                  >
-                    {tutorialOverlay}
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                powerEl
-              )}
-            </li>
-          );
-        })}
+          </li>
+        ))}
       </ul>
     </div>
   );

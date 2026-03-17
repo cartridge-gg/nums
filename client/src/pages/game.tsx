@@ -28,7 +28,6 @@ import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
-import { Tutorial as TutorialContainer } from "@/components/containers/tutorial";
 export const Game = () => {
   const location = useLocation();
   const isPracticeMode =
@@ -36,8 +35,8 @@ export const Game = () => {
   const {
     data: tutorialData,
     isActive: tutorialActive,
-    next: tutorialNext,
-    skip: tutorialSkip,
+    pause: tutorialPause,
+    resume: tutorialResume,
   } = useTutorial();
 
   // Regular actions for blockchain mode
@@ -79,6 +78,10 @@ export const Game = () => {
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
+  useEffect(() => {
+    if (showPlacesModal) tutorialPause();
+    else tutorialResume();
+  }, [showPlacesModal, tutorialPause, tutorialResume]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
   );
@@ -289,8 +292,8 @@ export const Game = () => {
           hasSlotLoading ||
           isSelectable ||
           (tutorialActive &&
-            (tutorialData?.disabled ||
-              !tutorialData?.anchor ||
+            (!tutorialData?.anchor ||
+              tutorialData.disabled ||
               tutorialData.anchor.type !== "power" ||
               (tutorialData.anchor as { type: "power"; index: number })
                 .index !== index)),
@@ -312,8 +315,8 @@ export const Game = () => {
             isOver ||
             isSelectable ||
             (tutorialActive &&
-              (tutorialData?.disabled ||
-                !tutorialData?.anchor ||
+              (!tutorialData?.anchor ||
+                tutorialData.disabled ||
                 tutorialData.anchor.type !== "slot" ||
                 (tutorialData.anchor as { type: "slot"; index: number })
                   .index !== index)),
@@ -352,7 +355,8 @@ export const Game = () => {
     setShowGameOver,
     setShowSelectionModal,
     tutorialActive,
-    tutorialData,
+    tutorialData?.anchor,
+    tutorialData?.disabled,
   ]);
 
   // Check if selectable powers exist and create selections
@@ -516,18 +520,6 @@ export const Game = () => {
     }, 3000);
   }, []);
 
-  const tutorialOverlay = useMemo(() => {
-    if (!tutorialActive || !tutorialData?.anchor) return undefined;
-    return (
-      <TutorialContainer
-        {...tutorialData}
-        onPrimary={tutorialNext}
-        onSecondary={tutorialData.secondaryLabel ? tutorialSkip : undefined}
-        className="w-full max-w-[424px]"
-      />
-    );
-  }, [tutorialActive, tutorialData, tutorialNext, tutorialSkip]);
-
   // Show loading state if game is not loaded
   if (!game || defaultLoading) return <LoadingScene />;
 
@@ -541,8 +533,6 @@ export const Game = () => {
         stages={gameProps.stages}
         share={blockchainGame ? { username } : undefined}
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
-        tutorialAnchor={tutorialData?.anchor}
-        tutorialOverlay={tutorialOverlay}
         onInstruction={gameProps.onInstruction}
         className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
       />
@@ -557,8 +547,6 @@ export const Game = () => {
               <Selections
                 selections={selections}
                 onClose={() => setShowSelectionModal(false)}
-                tutorialAnchor={tutorialData?.anchor}
-                tutorialOverlay={tutorialOverlay}
                 className="max-w-2xl w-full"
               />
             </div>

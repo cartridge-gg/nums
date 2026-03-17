@@ -287,6 +287,7 @@ export class Tutorial {
       primaryLabel: "Next",
       direction: "right",
       anchor: { type: "power", index: 0 },
+      disabled: true,
     },
   };
 

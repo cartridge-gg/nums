@@ -32,7 +32,7 @@ import { WelcomeScene } from "@/components/scenes";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
 import { useTutorial } from "@/context/tutorial";
-import { Tutorial } from "@/components/containers/tutorial";
+import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -512,6 +512,7 @@ export const Layout = ({ children }: LayoutProps) => {
           </div>
         )}
       </div>
+      <TutorialAnchorPortal />
       <Toaster expand />
     </div>
   );

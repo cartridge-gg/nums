@@ -139,7 +139,7 @@ body {
 @layer utilities {
   @keyframes marching-ants {
     to {
-      stroke-dashoffset: 16;
+      stroke-dashoffset: -16;
     }
   }
 }

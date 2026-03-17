@@ -1,19 +1,16 @@
-import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Selection, type SelectionProps } from "@/components/elements";
 import { Button } from "@/components/ui/button";
 import { CloseIcon, ShadowEffect } from "@/components/icons";
 import { useId } from "react";
-import type { TutorialAnchor } from "@/models/tutorial";
+import { useTutorial } from "@/context/tutorial";
 
 export interface SelectionsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof selectionsVariants> {
   selections: SelectionProps[];
   onClose: () => void;
-  tutorialAnchor?: TutorialAnchor;
-  tutorialOverlay?: ReactNode;
 }
 
 const selectionsVariants = cva(
@@ -34,21 +31,23 @@ const selectionsVariants = cva(
 export const Selections = ({
   selections,
   onClose,
-  tutorialAnchor,
-  tutorialOverlay,
   variant,
   className,
   ...props
 }: SelectionsProps) => {
   const filterId = useId();
+  const { data: tutorialData } = useTutorial();
+  const powersAnchor =
+    tutorialData?.anchor?.type === "powers"
+      ? (tutorialData.anchor as { type: "powers"; index: number })
+      : null;
+
   return (
     <div
       className={cn(selectionsVariants({ variant, className }), "relative")}
       {...props}
     >
       <ShadowEffect filterId={filterId} />
-
-      {/* Close button */}
       {onClose && (
         <Button
           variant="ghost"
@@ -69,9 +68,7 @@ export const Selections = ({
       )}
       <h2
         className="font-primary text-[48px]/[35px] tracking-wider uppercase translate-y-1"
-        style={{
-          textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-        }}
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
         <span className="hidden md:inline">Take Power Up</span>
         <span className="md:hidden">
@@ -80,27 +77,19 @@ export const Selections = ({
           Power up
         </span>
       </h2>
-
-      {/* Selections */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-        {selections.map((selection, index) => {
-          const hasPowersAnchor = tutorialAnchor?.type === "powers";
-          const isAnchor =
-            hasPowersAnchor &&
-            (tutorialAnchor as { type: "powers"; index: number }).index ===
-              index;
-          const isDisabled = hasPowersAnchor && !isAnchor;
-          return (
-            <Selection
-              key={index}
-              {...selection}
-              disabled={isDisabled}
-              highlighted={isAnchor}
-              tutorialOverlay={isAnchor ? tutorialOverlay : undefined}
-              className={cn("flex-1", selection.className)}
-            />
-          );
-        })}
+        {selections.map((selection, index) => (
+          <Selection
+            key={index}
+            {...selection}
+            id={`tutorial-powers-${index}`}
+            disabled={
+              selection.disabled ||
+              (powersAnchor !== null && powersAnchor.index !== index)
+            }
+            className={cn("flex-1", selection.className)}
+          />
+        ))}
       </div>
     </div>
   );

@@ -48,6 +48,6 @@ export class Bomb implements TrapTrait {
         return slot;
       }
     });
-    game.slots = newSlots;
+    game.force(newSlots);
   }
 }

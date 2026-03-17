@@ -149,11 +149,11 @@ export const Home = () => {
     // Clear existing game and create a new one immediately to avoid showing old game
     if (currentSupply !== undefined && currentSupply > 0n) {
       clearGame();
-      startPractice(currentSupply);
+      startPractice(currentSupply, multiplier, activeStarterpack?.price);
     }
     // Navigate to practice mode
     navigate("/practice");
-  }, [navigate, clearGame, startPractice, currentSupply]);
+  }, [navigate, clearGame, startPractice, currentSupply, multiplier]);
 
   useEffect(() => {
     setTimeout(() => {

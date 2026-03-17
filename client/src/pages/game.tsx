@@ -17,6 +17,7 @@ import { useEntities } from "@/context/entities";
 import { useAudio } from "@/context/audio";
 import { useLoading } from "@/context/loading";
 import { useHeader } from "@/hooks/header";
+import { useMultiplier } from "@/hooks/multiplier";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
@@ -47,7 +48,22 @@ export const Game = () => {
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { playerGames: games } = useGames();
-  const { config } = useEntities();
+  const { config, starterpacks } = useEntities();
+
+  const activeStarterpack = useMemo(() => starterpacks[0], [starterpacks]);
+
+  const { multiplier } = useMultiplier({
+    basePrice: config?.base_price ?? 0n,
+    packMultiplier: BigInt(activeStarterpack?.multiplier ?? 1),
+    burnPercentage: BigInt(config?.burn_percentage ?? 0),
+    slotCount: BigInt(config?.slot_count ?? 18),
+    averageScore: BigInt(config?.average_score ?? 0),
+    averageWeight: BigInt(config?.average_weigth ?? 0),
+    currentSupply,
+    targetSupply: config?.target_supply ?? 0n,
+    numsAddress: config?.nums ?? "",
+    quoteAddress: config?.quote ?? "",
+  });
   const { playPositive } = useAudio();
   const { isLoading, setLoading } = useLoading();
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -102,14 +118,13 @@ export const Game = () => {
       currentSupply !== undefined &&
       currentSupply > 0n
     ) {
-      // Create a new game if none exists (e.g., on page refresh)
-      startPractice(currentSupply);
+      startPractice(currentSupply, multiplier, activeStarterpack?.price);
       practiceInitializedRef.current = true;
     } else if (isPracticeMode && practiceGame) {
       // Mark as initialized if game already exists
       practiceInitializedRef.current = true;
     }
-  }, [isPracticeMode, practiceGame, currentSupply, startPractice]);
+  }, [isPracticeMode, practiceGame, currentSupply, startPractice, multiplier]);
 
   // Reset loading states when game model changes (transaction succeeded and data updated)
   useEffect(() => {
@@ -406,11 +421,10 @@ export const Game = () => {
   const handlePlayAgain = useCallback(() => {
     if (isPracticeMode) {
       // Start a new practice game
-      startPractice(currentSupply);
-      // Reset game over state
+      startPractice(currentSupply, multiplier, activeStarterpack?.price);
       setShowGameOver(false);
     }
-  }, [isPracticeMode, startPractice, currentSupply]);
+  }, [isPracticeMode, startPractice, currentSupply, multiplier]);
 
   // Create place props for the modal (only the trap on the selected slot)
   const place = useMemo<PlaceProps | null>(() => {

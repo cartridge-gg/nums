@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const data = [
   {
     label: "Liquidity pool",
-    value: 1_000_000,
+    value: 800_000,
     color: "rgba(133, 129, 255, 0.64)",
     colorHover: "rgba(133, 129, 255, 1)",
   },

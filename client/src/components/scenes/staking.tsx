@@ -144,11 +144,10 @@ export const StakingScene = ({
             </Button>
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
-              <div
-                className="flex items-center justify-between"
-                onClick={() => setBypass(!bypass)}
-              >
-                <Title content="Flip the Switch" />
+              <div className="flex items-center justify-between">
+                <div onClick={() => setBypass(!bypass)}>
+                  <Title content="Flip the Switch" />
+                </div>
                 <StakingSupply {...supplyProps} />
               </div>
 
@@ -190,7 +189,7 @@ export const StakingScene = ({
             </div>
 
             <div
-              className="grow overflow-y-auto flex flex-col gap-6 md:gap-8"
+              className="grow overflow-y-auto flex flex-col gap-6 md:gap-6"
               style={{ scrollbarWidth: "none" }}
             >
               <Subtitle />
@@ -231,8 +230,10 @@ export const StakingScene = ({
                 </div>
               </div>
 
-              <div className="flex flex-row gap-8">
-                <Staking {...stakingProps} className="flex-1" />
+              <div className="flex gap-6">
+                <div className="flex-1">
+                  <Staking {...stakingProps} />
+                </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Subtitle />
                   <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />

@@ -1,12 +1,10 @@
 import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import {
-  StakingAmount,
-  type StakingAmountProps,
-} from "@/components/elements/staking-amount";
+import { StakingAmount } from "@/components/elements/staking-amount";
 import { StakingWarning } from "@/components/elements/staking-warning";
 import { StakingInfo } from "@/components/elements/staking-info";
+import type { StakingProps } from "./staking";
 
 const stakingOnlyVariants = cva(
   "select-none flex flex-col p-6 gap-4 rounded-xl bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
@@ -22,20 +20,13 @@ const stakingOnlyVariants = cva(
   },
 );
 
-export interface StakingOnlyProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof stakingOnlyVariants> {
-  depositProps?: StakingAmountProps;
-  onStake?: () => void;
-}
-
 export const StakingOnly = ({
   depositProps,
   onStake,
   variant,
   className,
   ...props
-}: StakingOnlyProps) => {
+}: StakingProps) => {
   const hasAmount = (depositProps?.value ?? 0) > 0;
 
   return (

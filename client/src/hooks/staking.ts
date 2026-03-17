@@ -1,7 +1,11 @@
 import { useState, useRef, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useNetwork } from "@starknet-react/core";
+import { getChecksumAddress } from "starknet";
 import { useActions } from "@/hooks/actions";
 import { useCalls } from "@/hooks/calls";
 import { useVault } from "@/context/vault";
+import { DEFAULT_CHAIN_ID, dojoConfigs, getVaultAddress } from "@/config";
 
 const DECIMALS = 10n ** 18n;
 const USDC_DECIMALS = 10n ** 6n;
@@ -10,11 +14,70 @@ const DEBOUNCE_DELAY = 500;
 export interface UseStakingParams {
   balance: number;
   shares: number;
-  maxShare: number;
   totalShares: bigint;
   totalAssets: bigint;
   numsPrice: number;
 }
+
+const fetchMaxShare = async (vaultAddress: string): Promise<number> => {
+  const url = `${dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl}/sql`;
+  const contractAddress = getChecksumAddress(vaultAddress).toLowerCase();
+
+  const sqlQuery = `SELECT MAX(balance)
+FROM token_balances
+WHERE contract_address = '${contractAddress}'
+LIMIT 1000;`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: sqlQuery,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to fetch max share: ${response.status} ${response.statusText}. ${errorText}`,
+    );
+  }
+
+  const contentType = response.headers.get("content-type");
+  let data: unknown;
+  if (contentType?.includes("application/json")) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Unexpected response format: ${text.substring(0, 100)}`);
+    }
+  }
+
+  let rows: Record<string, unknown>[] = [];
+  if (Array.isArray(data)) {
+    rows = data;
+  } else if (
+    data &&
+    typeof data === "object" &&
+    "rows" in data &&
+    Array.isArray((data as { rows: unknown }).rows)
+  ) {
+    rows = (data as { rows: Record<string, unknown>[] }).rows;
+  } else if (
+    data &&
+    typeof data === "object" &&
+    "data" in data &&
+    Array.isArray((data as { data: unknown }).data)
+  ) {
+    rows = (data as { data: Record<string, unknown>[] }).data;
+  }
+
+  const raw = rows[0]?.["MAX(balance)"];
+  if (!raw) return 0;
+  const rawBalance = BigInt(String(raw));
+  return Number(rawBalance) / Number(DECIMALS);
+};
 
 /** Convert a display number to on-chain bigint (18 decimals) */
 const toBigInt = (value: number): bigint => {
@@ -45,7 +108,6 @@ const estimateRatio = (
 export const useStaking = ({
   balance,
   shares,
-  maxShare,
   totalShares,
   totalAssets,
   numsPrice,
@@ -53,6 +115,16 @@ export const useStaking = ({
   const { vault } = useActions();
   const calls = useCalls();
   const { vaultInfo, vaultPosition } = useVault();
+  const { chain } = useNetwork();
+  const vaultAddress = getVaultAddress(chain.id);
+
+  const { data: maxShare = 0 } = useQuery({
+    queryKey: ["maxShare", vaultAddress],
+    queryFn: () => fetchMaxShare(vaultAddress),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  });
 
   // Stake tab: deposit NUMS (top) → mint vNUMS (bottom)
   const [depositValue, setDepositValue] = useState(0);

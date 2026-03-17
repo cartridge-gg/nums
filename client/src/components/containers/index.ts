@@ -19,3 +19,5 @@ export * from "./staking";
 export * from "./staking-only";
 export * from "./referral-payments";
 export * from "./settings";
+export * from "./tutorial";
+export * from "./tutorial-anchor-portal";

@@ -43,7 +43,11 @@ export const PowerUps = ({
       </p>
       <ul className="flex justify-center gap-3 w-full">
         {powers.map((powerProps, index) => (
-          <li key={`${index}`} className="w-full md:w-auto">
+          <li
+            id={`tutorial-power-${index}`}
+            key={`${index}`}
+            className="w-full md:w-auto"
+          >
             <PowerUp
               {...powerProps}
               className={cn(

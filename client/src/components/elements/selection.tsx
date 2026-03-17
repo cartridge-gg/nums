@@ -9,6 +9,7 @@ export interface SelectionProps
   power: Power;
   onClick: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }
 
 const selectionVariants = cva(
@@ -30,6 +31,7 @@ export const Selection = ({
   content = "Take",
   onClick,
   loading = false,
+  disabled = false,
   variant,
   className,
   ...props
@@ -39,27 +41,20 @@ export const Selection = ({
   return (
     <div className={cn(selectionVariants({ variant, className }))} {...props}>
       <div className="w-full flex flex-col items-center gap-6">
-        {/* Icon */}
         {Icon && <Icon size="3xl" className={power.color()} />}
-
         <div className="w-full flex flex-col gap-4">
-          {/* Title */}
           <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
             {power.name()}
           </h3>
-
-          {/* Description */}
           <p className="text-2xl/[18px] font-secondary tracking-wider">
             {power.description()}
           </p>
         </div>
       </div>
-
-      {/* Take Button */}
       <Button
         variant="default"
         onClick={onClick}
-        disabled={loading}
+        disabled={loading || disabled}
         loading={loading}
         className={cn("w-full", power.buttonColor())}
       >

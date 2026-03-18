@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { motion } from "framer-motion";
 
 export interface AchievementProgressProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -46,9 +47,11 @@ export const AchievementProgress = ({
       className={cn(achievementProgressVariants({ variant, className }))}
       {...props}
     >
-      <div
+      <motion.div
         className={achievementProgressBarVariants({ variant })}
-        style={{ width: `${progress}%` }}
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       />
     </div>
   );

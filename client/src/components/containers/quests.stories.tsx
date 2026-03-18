@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Quests } from "./quests";
-import { fn } from "storybook/test";
 
 const meta = {
   title: "Containers/Quests",
@@ -27,31 +26,28 @@ type Story = StoryObj<typeof meta>;
 
 const sampleQuests = [
   {
-    title: "Claim a game",
-    task: "Start and play 3 games",
-    count: 3,
-    total: 3,
-    claimed: false,
-    expiration: 0,
-    onClaim: fn(),
+    id: "DAILY_PLACER_ONE",
+    icon: "fa-table-cells",
+    title: "Orientation",
+    description: "The work is mysterious and important.",
+    count: 12,
+    total: 20,
   },
   {
-    title: "Coin Collector",
-    task: "Earn 2K Nums cumulated while playing",
-    count: 240,
-    total: 2000,
-    claimed: false,
-    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-    onClaim: fn(),
+    id: "DAILY_POWER_ONE",
+    icon: "fa-bolt",
+    title: "Boost",
+    description: "A little boost never hurt anyone.",
+    count: 4,
+    total: 4,
   },
   {
-    title: "Halfway Hero",
-    task: "Fill 10 slots within a single game",
-    count: 1,
-    total: 1,
-    claimed: true,
-    expiration: 0,
-    onClaim: fn(),
+    id: "DAILY_TRIGGER_ONE",
+    icon: "fa-bomb",
+    title: "Risk Assessment",
+    description: "Every stumble is a step forward.",
+    count: 2,
+    total: 6,
   },
 ];
 
@@ -62,20 +58,9 @@ export const Default: Story = {
   },
 };
 
-export const Completed: Story = {
+export const AllCompleted: Story = {
   args: {
     quests: sampleQuests.map((quest) => ({ ...quest, count: quest.total })),
-    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-  },
-};
-
-export const Claimed: Story = {
-  args: {
-    quests: sampleQuests.map((quest) => ({
-      ...quest,
-      count: quest.total,
-      claimed: true,
-    })),
     expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
   },
 };

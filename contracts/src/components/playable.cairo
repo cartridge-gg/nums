@@ -209,7 +209,8 @@ pub mod PlayableComponent {
             let nums_address = store.nums_disp().contract_address;
             let asset = IERC20MixinDispatcher { contract_address: nums_address };
             let nums_supply = asset.total_supply();
-            self.create(world, recipient, 1, nums_supply, 0);
+            let multiplier = constants::MULTIPLIER_PRECISION;
+            self.create(world, recipient, multiplier, nums_supply, 0);
         }
     }
 

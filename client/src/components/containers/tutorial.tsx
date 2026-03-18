@@ -1,10 +1,11 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon } from "@/components/icons";
+import { ShadowEffect } from "@/components/icons";
 import {
   TutorialInstruction,
   type TutorialInstructionProps,
+  Close,
 } from "@/components/elements";
 import { useId } from "react";
 
@@ -63,21 +64,13 @@ export const Tutorial = ({
             >
               {title || "Tutorial"}
             </h2>
-            <Button
-              variant="ghost"
-              className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-              onClick={onClose}
-            >
-              <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-            </Button>
+            <Close size="md" onClick={onClose} />
           </div>
-          <Button
-            variant="ghost"
-            className="hidden md:flex absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+          <Close
+            size="lg"
             onClick={onClose}
-          >
-            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-          </Button>
+            className="hidden md:flex absolute z-10 top-6 right-6"
+          />
         </>
       )}
       {!!title && (

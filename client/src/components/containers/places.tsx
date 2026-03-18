@@ -1,9 +1,8 @@
 import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon } from "@/components/icons";
-import { Place, type PlaceProps } from "@/components/elements";
+import { ShadowEffect } from "@/components/icons";
+import { Place, type PlaceProps, Close } from "@/components/elements";
 
 export interface PlacesProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -42,22 +41,11 @@ export const Places = ({
 
       {/* Close button */}
       {onClose && (
-        <Button
-          variant="ghost"
-          className="absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+        <Close
+          size="lg"
           onClick={onClose}
-        >
-          <CloseIcon
-            size="lg"
-            className="md:hidden"
-            style={{ filter: `url(#${filterId})` }}
-          />
-          <CloseIcon
-            size="lg"
-            className="hidden md:block"
-            style={{ filter: `url(#${filterId})` }}
-          />
-        </Button>
+          className="absolute z-10 top-6 right-6"
+        />
       )}
 
       {/* Title */}

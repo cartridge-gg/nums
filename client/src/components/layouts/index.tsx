@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
+import { AchievementScene } from "@/components/scenes/achievement";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
@@ -18,6 +19,7 @@ import { useVault } from "@/context/vault";
 import { useMultiplier } from "@/hooks/multiplier";
 import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
+import { useAchievementScene } from "@/hooks/achievements";
 import { usePrices } from "@/context/prices";
 import { useGames } from "@/hooks/games";
 import { useEntities } from "@/context/entities";
@@ -64,6 +66,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
+  const [showAchievementScene, setShowAchievementScene] = useState(false);
   const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
@@ -85,6 +88,7 @@ export const Layout = ({ children }: LayoutProps) => {
   } = useAudio();
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
+  const achievementsProps = useAchievementScene();
 
   // Get username from controllers if account is connected
   const username = useMemo(() => {
@@ -181,6 +185,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowStakingScene(false);
       setShowReferralScene(false);
       setShowSettingsScene(false);
+      setShowAchievementScene(false);
 
       // Find the newest game (first in the array)
       const newestGame = games[0];
@@ -333,6 +338,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
+          setShowAchievementScene(false);
         }}
         onSettings={() => {
           setShowSettingsScene(!showSettingsScene);
@@ -341,6 +347,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowAchievementScene(false);
         }}
         onMint={() => mint()}
       />
@@ -360,6 +367,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowStakingScene(false);
             setShowReferralScene(false);
             setShowSettingsScene(false);
+            setShowAchievementScene(false);
           }}
         >
           {children}
@@ -470,6 +478,10 @@ export const Layout = ({ children }: LayoutProps) => {
                 }}
                 onAchievements={() => {
                   setShowSettingsScene(false);
+                  setShowAchievementScene(true);
+                }}
+                onQuests={() => {
+                  setShowSettingsScene(false);
                   setShowQuestScene(true);
                 }}
                 onStaking={() => {
@@ -484,7 +496,18 @@ export const Layout = ({ children }: LayoutProps) => {
                   setShowSettingsScene(false);
                   disconnect();
                 }}
-                className="md:max-w-[416px]"
+                className="md:max-w-[768px]"
+              />
+            </div>
+          </div>
+        )}
+        {showAchievementScene && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <AchievementScene
+                achievementsProps={achievementsProps}
+                onClose={() => setShowAchievementScene(false)}
+                className="h-full"
               />
             </div>
           </div>

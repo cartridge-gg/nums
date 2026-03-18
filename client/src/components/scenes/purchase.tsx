@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon } from "@/components/icons";
+import { ShadowEffect } from "@/components/icons";
 import { Purchase } from "@/components/containers/purchase";
 import { Details, Stakes, type StakesProps } from "../containers";
+import { Close } from "@/components/elements";
 import { useId, useMemo, useState, useEffect, useRef } from "react";
 import { ChartHelper } from "@/helpers/chart";
 import { Formatter } from "@/helpers/formatter";
@@ -166,25 +167,10 @@ export const PurchaseScene = ({
             <Title />
             {onClose && (!!onPurchase || !!onConnect) ? (
               <div className="flex justify-end flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-                  onClick={onClose}
-                >
-                  <CloseIcon
-                    size="md"
-                    style={{ filter: `url(#${filterId})` }}
-                  />
-                </Button>
+                <Close size="md" onClick={onClose} />
               </div>
             ) : (
-              <Button
-                variant="ghost"
-                className="h-10 w-10 p-0 text-white-400 hover:text-white-300 rounded"
-                onClick={onClose}
-              >
-                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-              </Button>
+              <Close size="md" onClick={onClose} />
             )}
           </div>
         </div>
@@ -230,21 +216,17 @@ export const PurchaseScene = ({
       <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
         {/* Close button */}
         {onClose && (!!onPurchase || !!onConnect) ? (
-          <Button
-            variant="ghost"
-            className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+          <Close
+            size="lg"
             onClick={onClose}
-          >
-            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-          </Button>
+            className="absolute z-10 top-8 right-8"
+          />
         ) : (
-          <Button
-            variant="ghost"
-            className="absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+          <Close
+            size="lg"
             onClick={onClose}
-          >
-            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-          </Button>
+            className="absolute z-10 top-6 right-6"
+          />
         )}
         <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-10">
           <Title />

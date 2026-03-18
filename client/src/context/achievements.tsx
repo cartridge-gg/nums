@@ -33,6 +33,8 @@ import { NAMESPACE } from "@/constants";
 
 export type Achievement = {
   id: string;
+  index: number;
+  group: string;
   icon: string;
   title: string;
   description: string;
@@ -306,6 +308,8 @@ export function AchievementsProvider({
         );
         return {
           id: definition.id,
+          index: creation?.index ?? 0,
+          group: creation?.group || "",
           icon: creation?.icon || "",
           title: creation?.title || definition.id,
           description:

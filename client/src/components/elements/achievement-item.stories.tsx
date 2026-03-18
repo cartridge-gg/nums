@@ -31,7 +31,7 @@ const meta = {
     },
     variant: {
       control: "select",
-      options: ["default", "complete", "empty"],
+      options: ["default", "complete", "hidden", "empty"],
       description: "Visual variant",
     },
   },
@@ -64,6 +64,16 @@ export const Empty: Story = {
   args: {},
 };
 
+export const Hidden: Story = {
+  args: {
+    icon: "fa-fish",
+    name: "Double Up",
+    count: 3,
+    total: 10,
+    variant: "default",
+    hidden: true,
+  },
+};
 export const Selected: Story = {
   args: {
     icon: "fa-fish",

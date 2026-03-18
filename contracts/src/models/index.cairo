@@ -5,17 +5,14 @@ use starknet::ContractAddress;
 pub struct Config {
     #[key]
     pub world_resource: felt252,
-    pub nums: ContractAddress,
     pub vrf: ContractAddress,
     pub starterpack: ContractAddress,
-    pub vault: ContractAddress,
-    pub owner: ContractAddress,
     pub quote: ContractAddress,
     pub ekubo_router: ContractAddress,
     pub ekubo_positions: ContractAddress,
     pub target_supply: u256,
-    pub count: u32,
     pub burn_percentage: u8,
+    pub vault_percentage: u8,
     pub slot_count: u8,
     pub slot_min: u16,
     pub slot_max: u16,

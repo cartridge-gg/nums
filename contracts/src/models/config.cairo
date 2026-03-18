@@ -11,15 +11,13 @@ pub mod errors {
 pub impl ConfigImpl of ConfigTrait {
     fn new(
         world_resource: felt252,
-        nums: ContractAddress,
         vrf: ContractAddress,
         starterpack: ContractAddress,
-        vault: ContractAddress,
-        owner: ContractAddress,
         quote: ContractAddress,
         ekubo_router: ContractAddress,
         ekubo_positions: ContractAddress,
         burn_percentage: u8,
+        vault_percentage: u8,
         target_supply: u256,
         average_score: u8,
         pool_fee: u128,
@@ -30,17 +28,14 @@ pub impl ConfigImpl of ConfigTrait {
     ) -> Config {
         Config {
             world_resource: world_resource,
-            nums: nums,
             vrf: vrf,
             starterpack: starterpack,
-            vault: vault,
-            owner: owner,
             quote: quote,
             ekubo_router: ekubo_router,
             ekubo_positions: ekubo_positions,
             burn_percentage: burn_percentage,
+            vault_percentage: vault_percentage,
             target_supply: target_supply,
-            count: 0,
             slot_count: constants::DEFAULT_SLOT_COUNT,
             slot_min: constants::DEFAULT_SLOT_MIN,
             slot_max: constants::DEFAULT_SLOT_MAX,
@@ -86,11 +81,6 @@ pub impl ConfigImpl of ConfigTrait {
 
 #[generate_trait]
 pub impl ConfigAssert of AssertTrait {
-    fn assert_is_owner(self: @Config, caller: ContractAddress) {
-        assert(caller == *self.owner, errors::CONFIG_CALLER_NOT_OWNER);
-    }
-
-
     fn assert_is_starterpack(self: @Config, starterpack: ContractAddress) {
         assert(starterpack == *self.starterpack, errors::CONFIG_CALLER_NOT_STARTERPACK);
     }
@@ -107,15 +97,13 @@ mod tests {
         let final_score = 20;
         let mut config: Config = ConfigTrait::new(
             world_resource: 0,
-            nums: 0.try_into().unwrap(),
             vrf: 0.try_into().unwrap(),
             starterpack: 0.try_into().unwrap(),
-            vault: 0.try_into().unwrap(),
-            owner: 0.try_into().unwrap(),
             quote: 0.try_into().unwrap(),
             ekubo_router: 0.try_into().unwrap(),
             ekubo_positions: 0.try_into().unwrap(),
             burn_percentage: 0,
+            vault_percentage: 0,
             target_supply: 0,
             average_score: initial_score,
             pool_fee: 0,
@@ -140,15 +128,13 @@ mod tests {
         let final_score = 0;
         let mut config: Config = ConfigTrait::new(
             world_resource: 0,
-            nums: 0.try_into().unwrap(),
             vrf: 0.try_into().unwrap(),
             starterpack: 0.try_into().unwrap(),
-            vault: 0.try_into().unwrap(),
-            owner: 0.try_into().unwrap(),
             quote: 0.try_into().unwrap(),
             ekubo_router: 0.try_into().unwrap(),
             ekubo_positions: 0.try_into().unwrap(),
             burn_percentage: 0,
+            vault_percentage: 0,
             target_supply: 0,
             average_score: initial_score,
             pool_fee: 0,

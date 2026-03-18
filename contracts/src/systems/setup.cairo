@@ -8,13 +8,12 @@ pub fn NAME() -> ByteArray {
 #[starknet::interface]
 pub trait ISetup<T> {
     fn set_starterpack(ref self: T, starterpack_address: ContractAddress);
-    fn set_nums_address(ref self: T, nums_address: ContractAddress);
     fn set_target_supply(ref self: T, supply: u256);
-    fn set_owner_address(ref self: T, owner_address: ContractAddress);
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
     fn set_ekubo_router_address(ref self: T, ekubo_router_address: ContractAddress);
     fn set_ekubo_positions_address(ref self: T, ekubo_positions_address: ContractAddress);
     fn set_burn_percentage(ref self: T, burn_percentage: u8);
+    fn set_vault_percentage(ref self: T, vault_percentage: u8);
     fn set_pool_fee(ref self: T, pool_fee: u128);
     fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
@@ -23,10 +22,14 @@ pub trait ISetup<T> {
     fn set_starterpack_referral(ref self: T, referral_percentage: u8);
 }
 
+const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
+
 #[dojo::contract]
 pub mod Setup {
     use achievement::components::achievable::AchievableComponent;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorage, WorldStorageTrait};
+    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
+    use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin::introspection::src5::SRC5Component;
     use quest::components::questable::QuestableComponent;
     use quest::interfaces::IQuestRegistry;
     use starknet::ContractAddress;
@@ -38,8 +41,9 @@ pub mod Setup {
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
     use crate::systems::token::NAME as TOKEN;
+    use crate::systems::treasury::NAME as TREASURY;
     use crate::systems::vault::NAME as VAULT;
-    use super::ISetup;
+    use super::{ADMIN_ROLE, ISetup};
 
     // Components
 
@@ -51,6 +55,12 @@ pub mod Setup {
     impl InitializableInternalImpl = InitializableComponent::InternalImpl<ContractState>;
     component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
     impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        AccessControlComponent::AccessControlImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // Storage
 
@@ -64,6 +74,10 @@ pub mod Setup {
         questable: QuestableComponent::Storage,
         #[substorage(v0)]
         starterpack: StarterpackComponent::Storage,
+        #[substorage(v0)]
+        accesscontrol: AccessControlComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
     }
 
     // Events
@@ -79,36 +93,32 @@ pub mod Setup {
         QuestableEvent: QuestableComponent::Event,
         #[flat]
         StarterpackEvent: StarterpackComponent::Event,
+        #[flat]
+        AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
     }
 
     fn dojo_init(
         ref self: ContractState,
-        nums_address: Option<ContractAddress>,
         vrf_address: Option<ContractAddress>,
         starterpack_address: Option<ContractAddress>,
-        vault_address: Option<ContractAddress>,
-        owner_address: ContractAddress,
         quote_address: ContractAddress,
         ekubo_router_address: ContractAddress,
         ekubo_positions_address: ContractAddress,
         entry_price: u128,
         target_supply: felt252,
         burn_percentage: u8,
+        vault_percentage: u8,
         average_score: u8,
         pool_fee: u128,
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
-        pool_sqrt: u256,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
         let mut store = StoreImpl::new(world);
         // [Effect] Create config
-        let nums_address = if let Option::Some(nums_address) = nums_address {
-            nums_address
-        } else {
-            world.dns_address(@TOKEN()).expect('Token not found!')
-        };
         let vrf_address = if let Option::Some(vrf_address) = vrf_address {
             vrf_address
         } else {
@@ -119,22 +129,21 @@ pub mod Setup {
         } else {
             world.dns_address(@REGISTRY()).expect('Registry not found!')
         };
-        let vault_address = if let Option::Some(vault_address) = vault_address {
-            vault_address
+        let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
+        let pool_sqrt = if nums_address < quote_address {
+            u256 { low: 0x6f3528fe26840249f4b191ef6dff7928, high: 0xfffffc080ed7b455 }
         } else {
-            world.dns_address(@VAULT()).expect('Vault not found!')
+            u256 { low: 0x1000003f7f1380b75, high: 0x0 }
         };
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
-            nums: nums_address,
             vrf: vrf_address,
             starterpack: starterpack_address,
-            vault: vault_address,
-            owner: owner_address,
             quote: quote_address,
             ekubo_router: ekubo_router_address,
             ekubo_positions: ekubo_positions_address,
             burn_percentage: burn_percentage,
+            vault_percentage: vault_percentage,
             target_supply: target_supply.into(),
             average_score: average_score,
             pool_fee: pool_fee,
@@ -150,7 +159,18 @@ pub mod Setup {
         // [Effect] Initialize starterpack
         self.starterpack.initialize(world, entry_price.into());
 
+        // [Effect] Initialize rights
+        self.accesscontrol.initializer();
+        let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
+        self.accesscontrol._grant_role(ADMIN_ROLE, treasury_address);
+        // [Effect] FIXME: Extra rights for test purpose
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
+        self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
+
         // [Event] Order torii to index the tokens
+        let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
         let instance_name: felt252 = nums_address.into();
         world
             .dispatcher
@@ -161,6 +181,7 @@ pub mod Setup {
                 contract_address: nums_address,
                 block_number: 1,
             );
+        let vault_address = world.dns_address(@VAULT()).expect('Vault not found!');
         let instance_name: felt252 = vault_address.into();
         world
             .dispatcher
@@ -190,22 +211,10 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.starterpack = starterpack_address;
-            store.set_config(config);
-        }
-
-        fn set_nums_address(ref self: ContractState, nums_address: ContractAddress) {
-            // [Setup] World and Store
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
-            self.assert_only_owner(world);
-            // [Effect] Update config
-            let mut config = store.config();
-            config.nums = nums_address;
             store.set_config(config);
         }
 
@@ -214,22 +223,10 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.target_supply = supply;
-            store.set_config(config);
-        }
-
-        fn set_owner_address(ref self: ContractState, owner_address: ContractAddress) {
-            // [Setup] World and Store
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
-            self.assert_only_owner(world);
-            // [Effect] Update config
-            let mut config = store.config();
-            config.owner = owner_address;
             store.set_config(config);
         }
 
@@ -238,7 +235,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.quote = quote_address;
@@ -252,7 +249,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.ekubo_router = ekubo_router_address;
@@ -266,7 +263,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.ekubo_positions = ekubo_positions_address;
@@ -278,10 +275,22 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.burn_percentage = burn_percentage;
+            store.set_config(config);
+        }
+
+        fn set_vault_percentage(ref self: ContractState, vault_percentage: u8) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.vault_percentage = vault_percentage;
             store.set_config(config);
         }
 
@@ -290,7 +299,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.pool_fee = pool_fee;
@@ -302,7 +311,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.pool_tick_spacing = pool_tick_spacing;
@@ -314,7 +323,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.pool_extension = pool_extension;
@@ -326,7 +335,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.pool_sqrt = pool_sqrt;
@@ -338,7 +347,7 @@ pub mod Setup {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Update config
             let mut config = store.config();
             config.base_price = base_price;
@@ -349,19 +358,11 @@ pub mod Setup {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             // [Check] Caller is allowed
-            self.assert_only_owner(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
             // [Effect] Fix starterpack
             self
                 .starterpack
                 .set_referral(world: world, from: 134, referral_percentage: referral_percentage);
-        }
-    }
-
-    #[generate_trait]
-    pub impl PrivateImpl of PrivateTrait {
-        fn assert_only_owner(ref self: ContractState, world: WorldStorage) {
-            let caller = starknet::get_caller_address();
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, caller), "Unauthorized caller");
         }
     }
 }

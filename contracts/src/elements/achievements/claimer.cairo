@@ -1,83 +1,79 @@
-use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
+use achievement::types::metadata::MetadataTrait;
+use crate::elements::achievements::index::AchievementProps;
+use crate::elements::achievements::interface::AchievementTrait;
+use crate::elements::tasks::index::{Task, TaskTrait};
 
-pub impl Claimer of AchievementTrait {
-    fn identifier(level: u8) -> felt252 {
-        match level {
-            0 => 'CLAIMER_I',
-            1 => 'CLAIMER_II',
-            2 => 'CLAIMER_III',
-            3 => 'CLAIMER_IV',
-            4 => 'CLAIMER_V',
-            _ => '',
+pub impl ClaimerOne of AchievementTrait {
+    fn identifier() -> felt252 {
+        'CLAIMER_ONE'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Petty Cash',
+            description: "A small reward for honest work.",
+            icon: 'fa-coins',
+            points: 15,
+            hidden: false,
+            index: 0,
+            group: 'Claimer',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::Claimer.tasks(10_000),
+            metadata: metadata,
         }
     }
+}
 
-    fn index(level: u8) -> u8 {
-        level
+pub impl ClaimerTwo of AchievementTrait {
+    fn identifier() -> felt252 {
+        'CLAIMER_TWO'
     }
 
-
-    fn hidden(level: u8) -> bool {
-        false
-    }
-
-    fn points(level: u8) -> u16 {
-        match level {
-            0 => 10,
-            1 => 15,
-            2 => 20,
-            3 => 25,
-            4 => 40,
-            _ => 0,
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Bonus Package',
+            description: "A handshake is available upon request.",
+            icon: 'fa-sack-dollar',
+            points: 30,
+            hidden: false,
+            index: 1,
+            group: 'Claimer',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::Claimer.tasks(50_000),
+            metadata: metadata,
         }
     }
+}
 
-    fn group() -> felt252 {
-        'Claimer'
+pub impl ClaimerThree of AchievementTrait {
+    fn identifier() -> felt252 {
+        'CLAIMER_THREE'
     }
 
-    fn icon(level: u8) -> felt252 {
-        match level {
-            0 => 'fa-shrimp',
-            1 => 'fa-fish-fins',
-            2 => 'fa-dolphin',
-            3 => 'fa-whale',
-            4 => 'fa-narwhal',
-            _ => '',
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Golden Parachute',
+            description: "Coveted as a fixed star.",
+            icon: 'fa-crown',
+            points: 55,
+            hidden: false,
+            index: 2,
+            group: 'Claimer',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::Claimer.tasks(100_000),
+            metadata: metadata,
         }
-    }
-
-    fn title(level: u8) -> felt252 {
-        match level {
-            0 => 'First Million',
-            1 => 'Double Up',
-            2 => 'Money Machine',
-            3 => 'Rolling in Gold',
-            4 => 'Untouchable',
-            _ => '',
-        }
-    }
-
-    fn description(level: u8) -> ByteArray {
-        match level {
-            0 => "The first step to fortune. Just a few more to go!",
-            1 => "Twice the riches, twice the glory!",
-            2 => "You're stacking up wealth at an impressive pace!",
-            3 => "You're not just rich, you're thriving!",
-            4 => "Wealth beyond imagination. You've reached the elite.",
-            _ => "",
-        }
-    }
-
-    fn tasks(level: u8) -> Span<AchievementTask> {
-        let count: u32 = match level {
-            0 => 100_000,
-            1 => 200_000,
-            2 => 400_000,
-            3 => 800_000,
-            4 => 1_600_000,
-            _ => 0,
-        };
-        Task::Claimer.tasks(count)
     }
 }

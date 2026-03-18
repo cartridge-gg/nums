@@ -21,14 +21,14 @@ pub enum Trap {
 #[generate_trait]
 pub impl TrapImpl of TrapTrait {
     #[inline]
-    fn apply(self: Trap, ref game: Game, slot_index: u8, ref rand: Random) {
+    fn apply(self: Trap, ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         match self {
             Trap::None => {},
-            Trap::Bomb => traps::bomb::Bomb::apply(ref game, slot_index, ref rand),
-            Trap::Lucky => traps::lucky::Lucky::apply(ref game, slot_index, ref rand),
-            Trap::Magnet => traps::magnet::Magnet::apply(ref game, slot_index, ref rand),
-            Trap::UFO => traps::ufo::Ufo::apply(ref game, slot_index, ref rand),
-            Trap::Windy => traps::windy::Windy::apply(ref game, slot_index, ref rand),
+            Trap::Bomb => traps::bomb::Bomb::apply(ref game, slot_index, ref rand, ref traps),
+            Trap::Lucky => traps::lucky::Lucky::apply(ref game, slot_index, ref rand, ref traps),
+            Trap::Magnet => traps::magnet::Magnet::apply(ref game, slot_index, ref rand, ref traps),
+            Trap::UFO => traps::ufo::Ufo::apply(ref game, slot_index, ref rand, ref traps),
+            Trap::Windy => traps::windy::Windy::apply(ref game, slot_index, ref rand, ref traps),
         }
     }
 

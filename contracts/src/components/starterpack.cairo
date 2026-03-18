@@ -4,10 +4,10 @@ pub mod StarterpackComponent {
 
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use crate::interfaces::registry::IStarterpackRegistryDispatcherTrait;
-    use crate::models::config;
     use crate::models::config::ConfigAssert;
     use crate::models::starterpack::{StarterpackAssert, StarterpackTrait};
     use crate::systems::play::NAME as PLAY;
+    use crate::systems::token::NAME as TOKEN;
     use crate::{StoreImpl, StoreTrait};
 
     // Constants
@@ -37,7 +37,7 @@ pub mod StarterpackComponent {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
             let starterpack_disp = store.starterpack_disp();
-            let nums_address = store.nums_disp().contract_address;
+            let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
             let payment_token = store.quote_disp().contract_address;
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             // [Effect] Register and store all starterpacks
@@ -115,11 +115,6 @@ pub mod StarterpackComponent {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
-            // [Check] Caller is allowed
-            let config = store.config();
-            let caller = starknet::get_caller_address();
-            config.assert_is_owner(caller);
-
             // [Check] Starterpack does exist
             let mut starterpack = store.starterpack(starterpack_id);
             starterpack.assert_does_exist();
@@ -147,9 +142,6 @@ pub mod StarterpackComponent {
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
-
-            // [Check] Caller is allowed
-            store.config().assert_is_owner(starknet::get_caller_address());
 
             // [Check] Starterpack does exist
             let pack = store.starterpack(starterpack_id);

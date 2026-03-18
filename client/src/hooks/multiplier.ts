@@ -3,6 +3,8 @@ import { useNetwork } from "@starknet-react/core";
 import { getSwapQuote } from "@/api/ekubo";
 import { MULTIPLIER_PRECISION } from "@/constants";
 import { Rewarder } from "@/helpers/rewarder";
+import { getTokenAddress } from "@/config";
+import { getChecksumAddress } from "starknet";
 
 const DEBOUNCE_MS = 300;
 const EMA_SCORE_PRECISION = 1000n;
@@ -16,7 +18,6 @@ export interface UseMultiplierParams {
   averageWeight: bigint;
   currentSupply: bigint;
   targetSupply: bigint;
-  numsAddress: string;
   quoteAddress: string;
 }
 
@@ -34,14 +35,14 @@ export const useMultiplier = ({
   averageWeight,
   currentSupply,
   targetSupply,
-  numsAddress,
   quoteAddress,
 }: UseMultiplierParams): { multiplier: number; isLoading: boolean } => {
+  const { chain } = useNetwork();
+  const numsAddress = getChecksumAddress(getTokenAddress(chain.id));
   const [multiplier, setMultiplier] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastSuccessfulPackMultiplierRef = useRef<bigint | null>(null);
-  const { chain } = useNetwork();
 
   // Derive loading: true immediately when packMultiplier changes (before useEffect)
   // or while fetch is in progress
@@ -73,6 +74,7 @@ export const useMultiplier = ({
           quoteAddress,
           numsAddress,
         );
+        console.log({ burnUsdc, quoteAddress, numsAddress, quote });
         const burnPerGame = BigInt(Math.round(quote.total));
         if (burnPerGame === 0n) return;
 

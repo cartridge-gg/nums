@@ -1,94 +1,179 @@
-use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
+use achievement::types::metadata::MetadataTrait;
+use crate::elements::achievements::index::AchievementProps;
+use crate::elements::achievements::interface::AchievementTrait;
+use crate::elements::tasks::index::{Task, TaskTrait};
 
-pub impl Reference of AchievementTrait {
-    fn identifier(level: u8) -> felt252 {
-        match level {
-            0 => 'REFERENCE_I',
-            1 => 'REFERENCE_II',
-            2 => 'REFERENCE_III',
-            3 => 'REFERENCE_IV',
-            4 => 'REFERENCE_V',
-            5 => 'REFERENCE_VI',
-            6 => 'REFERENCE_VII',
-            _ => '',
+pub impl ReferenceI of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_I'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Blackjack Master',
+            description: "Hit or stand, you know how to play the odds.",
+            icon: 'fa-cards',
+            points: 10,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceOne.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn index(level: u8) -> u8 {
-        0
+pub impl ReferenceII of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_II'
     }
 
-    fn hidden(level: u8) -> bool {
-        true
-    }
-
-    fn points(level: u8) -> u16 {
-        match level {
-            0 => 10,
-            1 => 10,
-            2 => 10,
-            3 => 10,
-            4 => 10,
-            5 => 10,
-            6 => 10,
-            _ => 0,
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'The Answer',
+            description: "Life, the Universe, and Everything. You figured it out.",
+            icon: 'fa-comment',
+            points: 15,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceTwo.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn group() -> felt252 {
-        'Numbers'
+pub impl ReferenceIII of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_III'
     }
 
-    fn icon(level: u8) -> felt252 {
-        match level {
-            0 => 'fa-cards',
-            1 => 'fa-comment',
-            2 => 'fa-circle-question',
-            3 => 'fa-slot-machine',
-            4 => 'fa-siren-on',
-            5 => 'fa-joint',
-            6 => 'fa-face-smirking',
-            _ => '',
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Achievement not found',
+            description: "Oops... Looks like you took a wrong turn.",
+            icon: 'fa-circle-question',
+            points: 10,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceThree.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn title(level: u8) -> felt252 {
-        match level {
-            0 => 'Blackjack Master',
-            1 => 'The Answer',
-            2 => 'Achievement not found',
-            3 => 'Jackpot!',
-            4 => 'Emergency Mode',
-            5 => 'Meme Lord',
-            6 => 'Nice',
-            _ => '',
-        }
+pub impl ReferenceIV of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_IV'
     }
 
-    fn description(level: u8) -> ByteArray {
-        match level {
-            0 => "Hit or stand, you know how to play the odds.",
-            1 => "Life, the Universe, and Everything. You figured it out.",
-            2 => "Oops... Looks like you took a wrong turn.",
-            3 => "Luck is on your side. Keep spinning!",
-            4 => "This is not a drill! Time to act fast.",
-            5 => "420 blaze it!",
-            6 => "Oh yeaaah",
-            _ => "",
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Jackpot!',
+            description: "Luck is on your side. Keep spinning!",
+            icon: 'fa-slot-machine',
+            points: 15,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceFour.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn tasks(level: u8) -> Span<AchievementTask> {
-        let count: u32 = 1;
-        match level {
-            0 => Task::ReferenceOne.tasks(count),
-            1 => Task::ReferenceTwo.tasks(count),
-            2 => Task::ReferenceThree.tasks(count),
-            3 => Task::ReferenceFour.tasks(count),
-            4 => Task::ReferenceFive.tasks(count),
-            5 => Task::ReferenceSix.tasks(count),
-            6 => Task::ReferenceSeven.tasks(count),
-            _ => [].span(),
+pub impl ReferenceV of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_V'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Emergency Mode',
+            description: "This is not a drill! Time to act fast.",
+            icon: 'fa-siren-on',
+            points: 10,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceFive.tasks(1),
+            metadata: metadata,
+        }
+    }
+}
+
+pub impl ReferenceVI of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_VI'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Meme Lord',
+            description: "420 blaze it!",
+            icon: 'fa-joint',
+            points: 10,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceSix.tasks(1),
+            metadata: metadata,
+        }
+    }
+}
+
+pub impl ReferenceVII of AchievementTrait {
+    fn identifier() -> felt252 {
+        'REFERENCE_VII'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Nice',
+            description: "Oh yeaaah",
+            icon: 'fa-face-smirking',
+            points: 10,
+            hidden: true,
+            index: 0,
+            group: 'Numbers',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::ReferenceSeven.tasks(1),
+            metadata: metadata,
         }
     }
 }

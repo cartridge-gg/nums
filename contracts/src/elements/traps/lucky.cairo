@@ -1,8 +1,8 @@
-use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, TrapTrait};
+use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, Trap, TrapTrait};
 
 pub impl Lucky of TrapTrait {
     #[inline]
-    fn apply(ref game: Game, slot_index: u8, ref rand: Random) {
+    fn apply(ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         game.shuffle(slot_index, ref rand);
     }
 }
@@ -18,12 +18,13 @@ mod tests {
 
     #[test]
     fn test_lucky_single() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Lucky::apply(ref game, 9, ref random);
+        Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 738, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         );
@@ -31,6 +32,7 @@ mod tests {
 
     #[test]
     fn test_lucky_full_large() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
@@ -42,7 +44,7 @@ mod tests {
                     999,
                 ],
             );
-        Lucky::apply(ref game, 9, ref random);
+        Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![
@@ -53,6 +55,7 @@ mod tests {
 
     #[test]
     fn test_lucky_full_tight() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
@@ -64,7 +67,7 @@ mod tests {
                     507, 508, 509, 510,
                 ],
             );
-        Lucky::apply(ref game, 9, ref random);
+        Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![
@@ -76,6 +79,7 @@ mod tests {
 
     #[test]
     fn test_lucky_full_even() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
@@ -87,7 +91,7 @@ mod tests {
                     500, 500, 500, 500,
                 ],
             );
-        Lucky::apply(ref game, 9, ref random);
+        Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![

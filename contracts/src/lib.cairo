@@ -9,6 +9,7 @@ pub mod systems {
     pub mod governor;
     pub mod play;
     pub mod setup;
+    pub mod team;
     pub mod token;
     pub mod treasury;
     pub mod vault;
@@ -80,25 +81,30 @@ pub mod interfaces {
 
 pub mod elements {
     pub mod achievements {
+        pub mod chainer;
         pub mod claimer;
         pub mod filler;
         pub mod grinder;
         pub mod index;
         pub mod interface;
-        pub mod master;
+        pub mod placer;
+        pub mod power;
         pub mod reference;
         pub mod streak;
+        pub mod trapper;
     }
     pub mod tasks {
+        pub mod chainer;
         pub mod claimer;
         pub mod filler;
         pub mod grinder;
         pub mod index;
         pub mod interface;
-        pub mod king;
         pub mod master;
+        pub mod power;
         pub mod reference;
         pub mod streaker;
+        pub mod trigger;
     }
     pub mod traps {
         pub mod bomb;
@@ -121,12 +127,12 @@ pub mod elements {
         pub mod swap;
     }
     pub mod quests {
-        pub mod contender;
-        pub mod earner;
         pub mod finisher;
         pub mod index;
         pub mod interface;
         pub mod placer;
+        pub mod power;
+        pub mod trigger;
     }
 }
 

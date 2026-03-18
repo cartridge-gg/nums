@@ -1,6 +1,6 @@
 use dojo::event::EventStorage;
 use dojo::model::ModelStorage;
-use dojo::world::WorldStorage;
+use dojo::world::{WorldStorage, WorldStorageTrait};
 use ekubo::components::clear::IClearDispatcher;
 use ekubo::interfaces::erc20::IERC20Dispatcher;
 use ekubo::interfaces::positions::IPositionsDispatcher;
@@ -13,8 +13,8 @@ use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
 use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{Config, Game, Starterpack, VaultInfo, VaultPosition};
-use crate::systems::token::ITokenDispatcher;
-use crate::systems::vault::IVaultDispatcher;
+use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
+use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
 
 #[derive(Copy, Drop)]
 pub struct Store {
@@ -30,8 +30,8 @@ pub impl StoreImpl of StoreTrait {
     //  Dispatchers
 
     fn nums_disp(self: @Store) -> ITokenDispatcher {
-        let config = self.config();
-        ITokenDispatcher { contract_address: config.nums }
+        let token_address = self.world.dns_address(@TOKEN()).expect('Token not found!');
+        ITokenDispatcher { contract_address: token_address }
     }
 
     fn vrf_disp(self: @Store) -> IVrfProviderDispatcher {
@@ -45,8 +45,8 @@ pub impl StoreImpl of StoreTrait {
     }
 
     fn vault_disp(self: @Store) -> IVaultDispatcher {
-        let config = self.config();
-        IVaultDispatcher { contract_address: config.vault }
+        let vault_address = self.world.dns_address(@VAULT()).expect('Vault not found!');
+        IVaultDispatcher { contract_address: vault_address }
     }
 
     fn quote_disp(self: @Store) -> IERC20Dispatcher {

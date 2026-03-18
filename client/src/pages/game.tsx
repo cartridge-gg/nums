@@ -69,7 +69,6 @@ export const Game = () => {
     averageWeight: BigInt(config?.average_weigth ?? 0),
     currentSupply,
     targetSupply: config?.target_supply ?? 0n,
-    numsAddress: config?.nums ?? "",
     quoteAddress: config?.quote ?? "",
   });
   const { playPositive } = useAudio();

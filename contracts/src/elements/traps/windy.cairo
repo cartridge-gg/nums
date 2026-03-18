@@ -1,8 +1,8 @@
-use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, TrapTrait};
+use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, Trap, TrapTrait};
 
 pub impl Windy of TrapTrait {
     #[inline]
-    fn apply(ref game: Game, slot_index: u8, ref rand: Random) {
+    fn apply(ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Effect] Push the nearest numbers away from slot_index
         let slots = game.slots();
 
@@ -13,7 +13,7 @@ pub impl Windy of TrapTrait {
             let slot = slots.at(index);
             if slot != @0 && slots.at(index - 1) == @0 {
                 let from: u8 = index.try_into().unwrap();
-                game.move(from, from - 1, ref rand);
+                game.move(from, from - 1, ref rand, ref traps);
                 break;
             } else if slot != @0 {
                 break;
@@ -28,7 +28,7 @@ pub impl Windy of TrapTrait {
             let slot = slots.at(index);
             if slot != @0 && slots.at(index + 1) == @0 {
                 let from: u8 = index.try_into().unwrap();
-                game.move(from, from + 1, ref rand);
+                game.move(from, from + 1, ref rand, ref traps);
                 break;
             } else if slot != @0 {
                 break;
@@ -48,12 +48,13 @@ mod tests {
 
     #[test]
     fn test_windy_basic_left() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Left slot at 0 should move away from slot_index (9) to the left, but already at boundary
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -62,12 +63,13 @@ mod tests {
 
     #[test]
     fn test_windy_basic_right() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Right slot at 19 should move away from slot_index (9) to the right, but already at
         // boundary
         assert_eq!(
@@ -77,12 +79,13 @@ mod tests {
 
     #[test]
     fn test_windy_both_sides() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Left slot at 0 can't move (boundary), right slot at 19 can't move (boundary)
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
@@ -91,12 +94,13 @@ mod tests {
 
     #[test]
     fn test_windy_move_left_away() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Left slot at 1 should move away from slot_index (9) to the left (to index 0)
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -105,12 +109,13 @@ mod tests {
 
     #[test]
     fn test_windy_move_right_away() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Right slot at 18 should move away from slot_index (9) to the right (to index 19)
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
@@ -119,12 +124,13 @@ mod tests {
 
     #[test]
     fn test_windy_target_occupied() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![200, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Left slot at 1 should move to 0, but 0 is occupied, so it doesn't move
         assert_eq!(
             game.slots(), array![200, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -133,12 +139,13 @@ mod tests {
 
     #[test]
     fn test_windy_no_slots() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         );
@@ -146,12 +153,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_occupied() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
-        Windy::apply(ref game, 9, ref random);
+        Windy::apply(ref game, 9, ref random, ref traps);
         // Left slot at 1 should move to 0, right slot at 18 should move to 19
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
@@ -160,12 +168,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_first_with_right_slot() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Windy::apply(ref game, 0, ref random);
+        Windy::apply(ref game, 0, ref random, ref traps);
         // slot_index is 0 (first), no left slot possible, right slot at 19 should move away from 0
         // to the right, but already at boundary
         assert_eq!(
@@ -175,12 +184,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_first_with_right_slot_close() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 0, ref random);
+        Windy::apply(ref game, 0, ref random, ref traps);
         // slot_index is 0 (first), right slot at 1 should move away from 0 to the right (to index
         // 2)
         assert_eq!(
@@ -190,12 +200,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_first_with_right_slot_target_occupied() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 500, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 0, ref random);
+        Windy::apply(ref game, 0, ref random, ref traps);
         // slot_index is 0 (first), right slot at 1 should move to 2, but 2 is occupied, so it
         // doesn't move
         assert_eq!(
@@ -205,12 +216,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_last_with_left_slot() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Windy::apply(ref game, 19, ref random);
+        Windy::apply(ref game, 19, ref random, ref traps);
         // slot_index is 19 (last), left slot at 0 should move away from 19 to the left, but already
         // at boundary
         assert_eq!(
@@ -220,12 +232,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_last_with_left_slot_close() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0]);
-        Windy::apply(ref game, 19, ref random);
+        Windy::apply(ref game, 19, ref random, ref traps);
         // slot_index is 19 (last), left slot at 18 should move away from 19 to the left (to index
         // 17)
         assert_eq!(
@@ -235,12 +248,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_last_with_left_slot_target_occupied() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 200, 100, 0]);
-        Windy::apply(ref game, 19, ref random);
+        Windy::apply(ref game, 19, ref random, ref traps);
         // slot_index is 19 (last), left slot at 18 should move to 17, but 17 is occupied, so it
         // doesn't move
         assert_eq!(
@@ -250,12 +264,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_first_with_both_sides() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Windy::apply(ref game, 0, ref random);
+        Windy::apply(ref game, 0, ref random, ref traps);
         // slot_index is 0 (first), left slot at 1 is actually to the right, so it should move right
         // to 2 Right slot at 19 should move away from 0 to the right, but already at boundary
         assert_eq!(
@@ -265,12 +280,13 @@ mod tests {
 
     #[test]
     fn test_windy_slot_index_last_with_both_sides() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
-        Windy::apply(ref game, 19, ref random);
+        Windy::apply(ref game, 19, ref random, ref traps);
         // slot_index is 19 (last), left slot at 0 should move away from 19 to the left, but already
         // at boundary Right slot at 18 should move to 17 (away from 19)
         assert_eq!(

@@ -8,8 +8,8 @@ pub mod errors {
 
 #[generate_trait]
 pub impl VaultImpl of VaultTrait {
-    fn new(world_resource: felt252, open: bool) -> VaultInfo {
-        VaultInfo { world_resource: world_resource, open: open, fee: 0, total_reward: 0 }
+    fn new(world_resource: felt252, open: bool, fee: u16) -> VaultInfo {
+        VaultInfo { world_resource: world_resource, open: open, fee: fee, total_reward: 0 }
     }
 
     fn add(ref self: VaultInfo, reward: u256) {

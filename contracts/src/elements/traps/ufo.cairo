@@ -1,8 +1,10 @@
-use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, RandomTrait, TrapTrait};
+use crate::elements::traps::interface::{
+    Game, GameTrait, Packer, Random, RandomTrait, Trap, TrapTrait,
+};
 
 pub impl Ufo of TrapTrait {
     #[inline]
-    fn apply(ref game: Game, slot_index: u8, ref rand: Random) {
+    fn apply(ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Effect] Push the nearest numbers away from slot_index
         let mut slots = game.slots();
 
@@ -35,7 +37,7 @@ pub impl Ufo of TrapTrait {
 
         // [Effect] Move the slot at slot_index somewhere between the nearest numbers
         let new_index: u32 = rand.between(left_index, right_index);
-        game.move(slot_index, new_index.try_into().unwrap(), ref rand);
+        game.move(slot_index, new_index.try_into().unwrap(), ref rand, ref traps);
     }
 }
 
@@ -51,12 +53,13 @@ mod tests {
 
     #[test]
     fn test_ufo_basic_left() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         );
@@ -64,12 +67,13 @@ mod tests {
 
     #[test]
     fn test_ufo_no_position_available() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 250, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Ufo::apply(ref game, 1, ref random);
+        Ufo::apply(ref game, 1, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![100, 250, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
@@ -78,12 +82,13 @@ mod tests {
 
     #[test]
     fn test_ufo_slot_index_at_boundary_left_no_filled_left() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Ufo::apply(ref game, 0, ref random);
+        Ufo::apply(ref game, 0, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 500],
         );
@@ -91,12 +96,13 @@ mod tests {
 
     #[test]
     fn test_ufo_slot_index_at_boundary_left_with_filled_left() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![250, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Ufo::apply(ref game, 0, ref random);
+        Ufo::apply(ref game, 0, ref random, ref traps);
         assert_eq!(
             game.slots(), array![250, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
         );
@@ -104,12 +110,13 @@ mod tests {
 
     #[test]
     fn test_ufo_slot_index_at_boundary_right_no_filled_right() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250]);
-        Ufo::apply(ref game, 19, ref random);
+        Ufo::apply(ref game, 19, ref random, ref traps);
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0],
         );
@@ -117,12 +124,13 @@ mod tests {
 
     #[test]
     fn test_ufo_slot_index_at_boundary_right_with_filled_right() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 250]);
-        Ufo::apply(ref game, 19, ref random);
+        Ufo::apply(ref game, 19, ref random, ref traps);
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 250],
         );
@@ -130,12 +138,13 @@ mod tests {
 
     #[test]
     fn test_ufo_no_filled_slots() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250],
         );
@@ -143,12 +152,13 @@ mod tests {
 
     #[test]
     fn test_ufo_only_filled_left() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0],
         );
@@ -156,12 +166,13 @@ mod tests {
 
     #[test]
     fn test_ufo_only_filled_right() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 500],
         );
@@ -169,12 +180,13 @@ mod tests {
 
     #[test]
     fn test_ufo_small_range() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 100, 250, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 100, 250, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         );
@@ -182,12 +194,13 @@ mod tests {
 
     #[test]
     fn test_ufo_large_range() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Ufo::apply(ref game, 9, ref random);
+        Ufo::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 500],
         );

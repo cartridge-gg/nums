@@ -11,7 +11,6 @@ export function useQuestScene(): QuestsProps {
     );
 
     const questProps = activeQuests.map((quest) => {
-      const firstTask = quest.tasks[0];
       const totalCount = quest.tasks.reduce(
         (acc, task) => acc + Number(task.count),
         0,
@@ -22,13 +21,12 @@ export function useQuestScene(): QuestsProps {
       );
 
       return {
+        id: quest.id,
+        icon: quest.icon,
         title: quest.name,
-        task: firstTask?.description || "Complete quest",
+        description: quest.description,
         count: totalCount,
         total: totalTotal,
-        expiration: quest.end,
-        claimed: quest.claimed,
-        rewards: quest.rewards,
       };
     });
 

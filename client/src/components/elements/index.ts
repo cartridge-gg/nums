@@ -13,7 +13,6 @@ export * from "./profile";
 export * from "./connect";
 export * from "./chart";
 export * from "./highlight";
-export * from "./quest";
 export * from "./leaderboard-row";
 export * from "./info";
 export * from "./play";

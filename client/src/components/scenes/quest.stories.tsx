@@ -27,84 +27,45 @@ type Story = StoryObj<typeof meta>;
 
 const sampleQuests = [
   {
-    title: "Claim a game",
-    task: "Start and play 3 games",
+    id: "DAILY_PLACER_ONE",
+    icon: "fa-table-cells",
+    title: "Orientation",
+    description: "The work is mysterious and important.",
+    count: 12,
+    total: 20,
+  },
+  {
+    id: "DAILY_POWER_ONE",
+    icon: "fa-bolt",
+    title: "Boost",
+    description: "A little boost never hurt anyone.",
+    count: 4,
+    total: 4,
+  },
+  {
+    id: "DAILY_TRIGGER_ONE",
+    icon: "fa-bomb",
+    title: "Risk Assessment",
+    description: "Every stumble is a step forward.",
     count: 2,
-    total: 3,
-    claimed: false,
-    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-    rewards: [
-      {
-        name: "Quest Reward",
-        description: "200 NUMS",
-        icon: "fa-coins",
-      },
-    ],
-    onClaim: fn(),
-  },
-  {
-    title: "Coin Collector",
-    task: "Earn 2K Nums cumulated while playing",
-    count: 240,
-    total: 2000,
-    claimed: false,
-    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-    rewards: [
-      {
-        name: "Quest Reward",
-        description: "200 NUMS",
-        icon: "fa-coins",
-      },
-    ],
-    onClaim: fn(),
-  },
-  {
-    title: "Halfway Hero",
-    task: "Fill 10 slots within a single game",
-    count: 1,
-    total: 1,
-    claimed: true,
-    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-    rewards: [
-      {
-        name: "Quest Reward",
-        description: "200 NUMS",
-        icon: "fa-coins",
-      },
-    ],
-    onClaim: fn(),
+    total: 6,
   },
 ];
 
 export const Default: Story = {
   args: {
     questsProps: {
-      quests: [...sampleQuests, ...sampleQuests, ...sampleQuests],
+      quests: sampleQuests,
       expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     },
     onClose: fn(),
   },
 };
 
-export const WithClaimAll: Story = {
+export const AllCompleted: Story = {
   args: {
     questsProps: {
       quests: sampleQuests.map((quest) => ({ ...quest, count: quest.total })),
-      expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
-    },
-    onClose: fn(),
-    onClaimAll: fn(),
-  },
-};
-
-export const AllClaimed: Story = {
-  args: {
-    questsProps: {
-      quests: sampleQuests.map((quest) => ({
-        ...quest,
-        count: quest.total,
-        claimed: true,
-      })),
       expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     },
     onClose: fn(),

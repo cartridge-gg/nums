@@ -36,6 +36,8 @@ export type Quests = {
   id: string;
   intervalId: number;
   name: string;
+  description: string;
+  icon: string;
   end: number;
   completed: boolean;
   locked: boolean;
@@ -283,6 +285,8 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         id: definition.id,
         intervalId: intervalId || 0,
         name: creation?.metadata.name || "Quest",
+        description: creation?.metadata.description || "",
+        icon: creation?.metadata.icon || "",
         registry: creation?.metadata.registry || "",
         end: definition.getNextEnd() || 0,
         completed: (completion?.timestamp || 0) > 0,

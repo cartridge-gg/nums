@@ -1,14 +1,14 @@
 import { useId, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon, AsteriskIcon } from "@/components/icons";
+import { ShadowEffect, AsteriskIcon } from "@/components/icons";
 import { ReferralLink } from "@/components/elements/referral-link";
+import { Close } from "@/components/elements";
 import { ReferralPayments } from "@/components/containers/referral-payments";
 import type { Referral } from "@/hooks/referral";
 
 const referralSceneVariants = cva(
-  "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6",
+  "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6 md:py-[120px]",
   {
     variants: {
       variant: {
@@ -69,13 +69,7 @@ export const ReferralScene = ({
       >
         <div className="flex items-center justify-between w-full">
           <Title />
-          <Button
-            variant="ghost"
-            className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-            onClick={onClose}
-          >
-            <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-          </Button>
+          <Close size="md" onClick={onClose} />
         </div>
 
         <div
@@ -116,13 +110,11 @@ export const ReferralScene = ({
 
       {/* Desktop */}
       <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
-        <Button
-          variant="ghost"
-          className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+        <Close
+          size="lg"
           onClick={onClose}
-        >
-          <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-        </Button>
+          className="absolute z-10 top-8 right-8"
+        />
 
         <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
           <div className="flex items-center justify-between gap-4">
@@ -130,7 +122,7 @@ export const ReferralScene = ({
             <ReferralLink link={link} />
           </div>
 
-          <div className="flex flex-col md:flex-row gap-8 max-h-[480px]">
+          <div className="flex flex-col md:flex-row gap-8">
             <div className="flex flex-col gap-6 w-1/2 max-w-1/2">
               <div className="flex flex-col gap-4">
                 <div className="flex gap-4">

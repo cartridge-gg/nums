@@ -1,8 +1,8 @@
 import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon, ExternalLinkIcon } from "@/components/icons";
+import { ShadowEffect, ExternalLinkIcon } from "@/components/icons";
+import { Close } from "@/components/elements";
 import { Staking, type StakingProps } from "@/components/containers/staking";
 import { StakingOnly } from "@/components/containers/staking-only";
 import {
@@ -106,13 +106,7 @@ export const StakingScene = ({
           >
             <div className="flex items-center justify-between w-full">
               <Title content="Flip the Switch" />
-              <Button
-                variant="ghost"
-                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-                onClick={onClose}
-              >
-                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-              </Button>
+              <Close size="md" onClick={onClose} />
             </div>
 
             <div
@@ -135,13 +129,11 @@ export const StakingScene = ({
 
           {/* Desktop — Locked */}
           <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
-            <Button
-              variant="ghost"
-              className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+            <Close
+              size="lg"
               onClick={onClose}
-            >
-              <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-            </Button>
+              className="absolute z-10 top-8 right-8"
+            />
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between">
@@ -179,13 +171,7 @@ export const StakingScene = ({
           >
             <div className="flex items-center justify-between w-full">
               <Title content="Staking" />
-              <Button
-                variant="ghost"
-                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-                onClick={onClose}
-              >
-                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-              </Button>
+              <Close size="md" onClick={onClose} />
             </div>
 
             <div
@@ -211,13 +197,11 @@ export const StakingScene = ({
 
           {/* Desktop — Unlocked */}
           <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
-            <Button
-              variant="ghost"
-              className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+            <Close
+              size="lg"
               onClick={onClose}
-            >
-              <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-            </Button>
+              className="absolute z-10 top-8 right-8"
+            />
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between gap-6">

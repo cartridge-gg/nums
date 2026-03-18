@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Button } from "@/components/ui/button";
-import { ShadowEffect, CloseIcon } from "@/components/icons";
+import { ShadowEffect } from "@/components/icons";
 import { Leaderboard } from "@/components/containers/leaderboard";
 import type { LeaderboardRowData } from "@/hooks/leaderboard";
 import { Ranges, type RangeType } from "@/components/elements/ranges";
+import { Close } from "@/components/elements";
 import type { LeaderboardRowProps } from "../elements";
 import { useId, useMemo, useState } from "react";
 
@@ -17,7 +17,7 @@ export interface LeaderboardSceneProps
 }
 
 const leaderboardSceneVariants = cva(
-  "select-none flex items-center justify-center gap-6 md:gap-10 p-2 xs:p-6 overflow-hidden w-full",
+  "select-none flex items-center justify-center gap-6 md:gap-10 p-2 xs:p-6 md:py-[120px] overflow-hidden w-full",
   {
     variants: {
       variant: {
@@ -115,13 +115,7 @@ export const LeaderboardScene = ({
           <Title />
           {onClose && (
             <div className="flex justify-end flex-shrink-0">
-              <Button
-                variant="ghost"
-                className="bg-white-800 h-10 w-10 p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded"
-                onClick={onClose}
-              >
-                <CloseIcon size="md" style={{ filter: `url(#${filterId})` }} />
-              </Button>
+              <Close size="md" onClick={onClose} />
             </div>
           )}
         </div>
@@ -133,16 +127,14 @@ export const LeaderboardScene = ({
       </div>
 
       {/* Desktop */}
-      <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full md:max-h-[581px]">
+      <div className="hidden md:flex md:flex-col md:items-stretch overflow-hidden h-full w-full">
         {/* Close button */}
         {onClose && (
-          <Button
-            variant="ghost"
-            className="absolute z-10 top-8 right-8 bg-white-800 h-12 w-[56px] p-0 text-white-100 hover:text-white-400 hover:bg-white-900 rounded-lg"
+          <Close
+            size="lg"
             onClick={onClose}
-          >
-            <CloseIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-          </Button>
+            className="absolute z-10 top-8 right-8"
+          />
         )}
         <div className="h-full w-full max-w-[720px] self-center overflow-hidden flex flex-col gap-6 md:gap-8">
           <div className="flex items-center justify-between">

@@ -9,11 +9,11 @@ export interface AchievementIconProps
   icon: string;
 }
 
-const achievementIconVariants = cva("flex items-center justify-center p-1", {
+const achievementIconVariants = cva("flex items-center justify-center", {
   variants: {
     size: {
-      md: "w-10 h-10 min-w-10 min-h-10",
-      lg: "w-12 h-12 min-w-12 min-h-12",
+      md: "w-10 h-10 min-w-10 min-h-10 p-1",
+      lg: "w-12 h-12 min-w-12 min-h-12 p-1.5",
     },
   },
   defaultVariants: {

@@ -148,7 +148,7 @@ pub mod Vault {
         RewardableEvent: RewardableComponent::Event,
     }
 
-    fn dojo_init(ref self: ContractState, open: bool) {
+    fn dojo_init(ref self: ContractState, open: bool, fee: u16) {
         // [Effect] Initialize ERC20
         self.erc20.initializer("vNums", "vNUMS");
         // [Effect] Initialize ERC4626
@@ -156,7 +156,7 @@ pub mod Vault {
         let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
         self.erc4626.initializer(asset_address: token_address);
         // [Effect] Initialize Rewardable
-        self.rewardable.initialize(world, open);
+        self.rewardable.initialize(world, open, fee);
         // [Effect] Initialize Access Control
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol.initializer();

@@ -17,8 +17,8 @@ import { useReferral } from "@/hooks/referral";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
 import { useMultiplier } from "@/hooks/multiplier";
-import { useQuests } from "@/context/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
+import { useQuestScene } from "@/hooks/quests";
 import { useAchievementScene } from "@/hooks/achievements";
 import { usePrices } from "@/context/prices";
 import { useGames } from "@/hooks/games";
@@ -49,11 +49,8 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
-  const {
-    mint,
-    quest: { claims, claim },
-  } = useActions();
-  const { quests } = useQuests();
+  const { mint } = useActions();
+  const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
   const { starterpacks, config, claimeds, starteds } = useEntities();
@@ -148,7 +145,6 @@ export const Layout = ({ children }: LayoutProps) => {
     averageWeight: BigInt(config?.average_weigth ?? 0),
     currentSupply: headerData.supply,
     targetSupply: config?.target_supply ?? 0n,
-    numsAddress: config?.nums ?? "",
     quoteAddress: config?.quote ?? "",
   });
 
@@ -205,67 +201,6 @@ export const Layout = ({ children }: LayoutProps) => {
     // Update ref for next comparison
     previousGamesLengthRef.current = currentLength;
   }, [games.length, games, gamesLoading, navigate, connector]);
-
-  // Prepare quests props for Quest
-  const questsProps = useMemo(() => {
-    const questProps = quests
-      .filter((quest) => !quest.locked)
-      .map((quest) => {
-        // Get the first task for now (or combine all tasks)
-        const firstTask = quest.tasks[0];
-        const totalCount = quest.tasks.reduce(
-          (acc, task) => acc + Number(task.count),
-          0,
-        );
-        const totalTotal = quest.tasks.reduce(
-          (acc, task) => acc + Number(task.total),
-          0,
-        );
-
-        return {
-          title: quest.name,
-          task: firstTask?.description || "Complete quest",
-          count: totalCount,
-          total: totalTotal,
-          expiration: quest.end,
-          claimed: quest.claimed,
-          rewards: quest.rewards,
-          onClaim: () => {
-            if (!account?.address) return;
-            claim(account?.address, quest.id, quest.intervalId).then(
-              (success) => {
-                if (success) {
-                  console.log("Quest claimed");
-                }
-              },
-            );
-          },
-        };
-      });
-    const expiration = quests.length > 0 ? quests[0].end : 0;
-    const params = quests
-      .filter((quest) => !quest.claimed && quest.completed)
-      .map((quest) => ({
-        playerAddress: account?.address || "",
-        questId: quest.id,
-        intervalId: quest.intervalId,
-      }));
-    const onClaimAll =
-      !account?.address || params.length === 0
-        ? undefined
-        : () => {
-            claims(params).then((success) => {
-              if (success) {
-                console.log("Quests claimed all");
-              }
-            });
-          };
-    return {
-      quests: questProps,
-      expiration: expiration,
-      onClaimAll: onClaimAll,
-    };
-  }, [quests, claim, claims, account?.address]);
 
   useEffect(() => {
     setStarterpackIndex(1);
@@ -377,7 +312,6 @@ export const Layout = ({ children }: LayoutProps) => {
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
               <QuestScene
                 questsProps={questsProps}
-                onClaimAll={questsProps.onClaimAll}
                 onClose={() => setShowQuestScene(false)}
                 className="h-full"
               />

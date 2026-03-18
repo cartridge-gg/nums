@@ -1,70 +1,79 @@
-use crate::elements::achievements::interface::{AchievementTask, AchievementTrait, Task, TaskTrait};
+use achievement::types::metadata::MetadataTrait;
+use crate::elements::achievements::index::AchievementProps;
+use crate::elements::achievements::interface::AchievementTrait;
+use crate::elements::tasks::index::{Task, TaskTrait};
 
-pub impl Streak of AchievementTrait {
-    fn identifier(level: u8) -> felt252 {
-        match level {
-            0 => 'STREAK_I',
-            1 => 'STREAK_II',
-            2 => 'STREAK_III',
-            _ => '',
+pub impl StreakOne of AchievementTrait {
+    fn identifier() -> felt252 {
+        'STREAK_ONE'
+    }
+
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Harmony',
+            description: "Some numbers just belong together.",
+            icon: 'fa-circle-2',
+            points: 20,
+            hidden: false,
+            index: 0,
+            group: 'Streak',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::StreakerOne.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn index(level: u8) -> u8 {
-        level
+pub impl StreakTwo of AchievementTrait {
+    fn identifier() -> felt252 {
+        'STREAK_TWO'
     }
 
-    fn hidden(level: u8) -> bool {
-        false
-    }
-
-    fn points(level: u8) -> u16 {
-        match level {
-            0 => 25,
-            1 => 75,
-            2 => 100,
-            _ => 0,
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Resonance',
+            description: "Order from chaos, three in a row.",
+            icon: 'fa-circle-3',
+            points: 40,
+            hidden: false,
+            index: 1,
+            group: 'Streak',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::StreakerTwo.tasks(1),
+            metadata: metadata,
         }
     }
+}
 
-    fn group() -> felt252 {
-        'Streak'
+pub impl StreakThree of AchievementTrait {
+    fn identifier() -> felt252 {
+        'STREAK_THREE'
     }
 
-    fn icon(level: u8) -> felt252 {
-        match level {
-            0 => 'fa-circle-2',
-            1 => 'fa-circle-3',
-            2 => 'fa-circle-4',
-            _ => '',
-        }
-    }
-
-    fn title(level: u8) -> felt252 {
-        match level {
-            0 => 'Double Trouble',
-            1 => 'Triple Threat',
-            2 => 'Against All Odds',
-            _ => '',
-        }
-    }
-
-    fn description(level: u8) -> ByteArray {
-        match level {
-            0 => "Coincidence or strategy? Either way, it's a streak!",
-            1 => "Now you're getting into the rhythm!",
-            2 => "A rare sight indeed! Fate must be on your side.",
-            _ => "",
-        }
-    }
-
-    fn tasks(level: u8) -> Span<AchievementTask> {
-        let count: u32 = 1;
-        match level {
-            0 => Task::StreakerOne.tasks(count),
-            1 => Task::StreakerTwo.tasks(count),
-            2 => Task::StreakerThree.tasks(count),
-            _ => [].span(),
+    fn props() -> AchievementProps {
+        let metadata = MetadataTrait::new(
+            title: 'Defiant Sequence',
+            description: "Some patterns refuse to be tamed.",
+            icon: 'fa-circle-4',
+            points: 80,
+            hidden: false,
+            index: 2,
+            group: 'Streak',
+            rewards: [].span(),
+            data: "",
+        );
+        AchievementProps {
+            id: Self::identifier(),
+            tasks: Task::StreakerThree.tasks(1),
+            metadata: metadata,
         }
     }
 }

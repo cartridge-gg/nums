@@ -7,17 +7,14 @@ export class Config {
 
   constructor(
     public world_resource: string,
-    public nums: string,
     public vrf: string,
     public starterpack: string,
-    public vault: string,
-    public owner: string,
     public quote: string,
     public ekubo_router: string,
     public ekubo_positions: string,
     public target_supply: bigint,
-    public count: number,
     public burn_percentage: number,
+    public vault_percentage: number,
     public slot_count: number,
     public slot_min: number,
     public slot_max: number,
@@ -31,17 +28,14 @@ export class Config {
     public pool_sqrt: bigint,
   ) {
     this.world_resource = world_resource;
-    this.nums = nums;
     this.vrf = vrf;
     this.starterpack = starterpack;
-    this.vault = vault;
-    this.owner = owner;
     this.quote = quote;
     this.ekubo_router = ekubo_router;
     this.ekubo_positions = ekubo_positions;
     this.target_supply = target_supply;
-    this.count = count;
     this.burn_percentage = burn_percentage;
+    this.vault_percentage = vault_percentage;
     this.slot_count = slot_count;
     this.slot_min = slot_min;
     this.slot_max = slot_max;
@@ -52,6 +46,7 @@ export class Config {
     this.pool_tick_spacing = pool_tick_spacing;
     this.pool_extension = pool_extension;
     this.base_price = base_price;
+    this.pool_sqrt = pool_sqrt;
   }
 
   static getModelName(): string {
@@ -65,17 +60,14 @@ export class Config {
   static parse(data: RawConfig) {
     const props = {
       world_resource: data.world_resource.value,
-      nums: data.nums.value,
       vrf: data.vrf.value,
       starterpack: data.starterpack.value,
-      vault: data.vault.value,
-      owner: data.owner.value,
       quote: data.quote.value,
       ekubo_router: data.ekubo_router.value,
       ekubo_positions: data.ekubo_positions.value,
       target_supply: BigInt(data.target_supply.value),
-      count: Number(data.count.value),
       burn_percentage: Number(data.burn_percentage.value),
+      vault_percentage: Number(data.vault_percentage.value),
       slot_count: Number(data.slot_count.value),
       slot_min: Number(data.slot_min.value),
       slot_max: Number(data.slot_max.value),
@@ -90,17 +82,14 @@ export class Config {
     };
     return new Config(
       props.world_resource,
-      props.nums,
       props.vrf,
       props.starterpack,
-      props.vault,
-      props.owner,
       props.quote,
       props.ekubo_router,
       props.ekubo_positions,
       props.target_supply,
-      props.count,
       props.burn_percentage,
+      props.vault_percentage,
       props.slot_count,
       props.slot_min,
       props.slot_max,
@@ -120,6 +109,6 @@ export class Config {
   }
 
   exists() {
-    return this.owner !== "0x0";
+    return this.base_price !== 0n;
   }
 }

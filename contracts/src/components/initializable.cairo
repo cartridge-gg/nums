@@ -7,7 +7,7 @@ pub mod InitializableComponent {
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use quest::components::questable::QuestableComponent;
     use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
-    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, AchievementTrait};
+    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, Achievement, IAchievement};
     use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::systems::play::NAME as PLAY;
 
@@ -37,15 +37,16 @@ pub mod InitializableComponent {
             let achievable = get_dep_component!(@self, Achievable);
             while achievement_id > 0 {
                 let achievement: Achievement = achievement_id.into();
+                let props = achievement.props();
                 achievable
                     .create(
                         world,
-                        id: achievement.identifier(),
+                        id: props.id,
                         rewarder: 0.try_into().unwrap(),
                         start: 0,
                         end: 0,
-                        tasks: achievement.tasks(),
-                        metadata: achievement.metadata(),
+                        tasks: props.tasks,
+                        metadata: props.metadata,
                         to_store: true,
                     );
                 achievement_id -= 1;

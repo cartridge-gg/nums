@@ -57,12 +57,6 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
-  nums: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
   vrf: {
     type: "primitive";
     type_name: "ContractAddress";
@@ -70,12 +64,6 @@ export interface RawConfig {
     key: boolean;
   };
   starterpack: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
-  vault: {
     type: "primitive";
     type_name: "ContractAddress";
     value: string;
@@ -99,25 +87,19 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
-  owner: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
   target_supply: {
     type: "primitive";
     type_name: "u256";
     value: string;
     key: boolean;
   };
-  count: {
+  burn_percentage: {
     type: "primitive";
-    type_name: "u32";
+    type_name: "u8";
     value: string;
     key: boolean;
   };
-  burn_percentage: {
+  vault_percentage: {
     type: "primitive";
     type_name: "u8";
     value: string;

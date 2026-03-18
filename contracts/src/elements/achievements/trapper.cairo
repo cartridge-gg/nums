@@ -3,76 +3,76 @@ use crate::elements::achievements::index::AchievementProps;
 use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
-pub impl GrinderOne of AchievementTrait {
+pub impl TrapperOne of AchievementTrait {
     fn identifier() -> felt252 {
-        'GRINDER_ONE'
+        'TRAPPER_ONE'
     }
 
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
-            title: 'New Hire',
-            description: "The work is mysterious and important.",
-            icon: 'fa-seedling',
+            title: 'Hazard Pay',
+            description: "Some risks come with the territory.",
+            icon: 'fa-skull',
             points: 15,
             hidden: false,
             index: 0,
-            group: 'Grinder',
+            group: 'Trapper',
             rewards: [].span(),
             data: "",
         );
         AchievementProps {
             id: Self::identifier(),
-            tasks: Task::Grinder.tasks(100),
+            tasks: Task::Trigger.tasks(300),
             metadata: metadata,
         }
     }
 }
 
-pub impl GrinderTwo of AchievementTrait {
+pub impl TrapperTwo of AchievementTrait {
     fn identifier() -> felt252 {
-        'GRINDER_TWO'
+        'TRAPPER_TWO'
     }
 
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
-            title: 'Department Chief',
-            description: "You have become what you repeatedly do.",
-            icon: 'fa-fire',
+            title: 'Wellness Check',
+            description: "The experience was designed to help.",
+            icon: 'fa-skull-crossbones',
             points: 30,
             hidden: false,
             index: 1,
-            group: 'Grinder',
+            group: 'Trapper',
             rewards: [].span(),
             data: "",
         );
         AchievementProps {
             id: Self::identifier(),
-            tasks: Task::Grinder.tasks(500),
+            tasks: Task::Trigger.tasks(1_500),
             metadata: metadata,
         }
     }
 }
 
-pub impl GrinderThree of AchievementTrait {
+pub impl TrapperThree of AchievementTrait {
     fn identifier() -> felt252 {
-        'GRINDER_THREE'
+        'TRAPPER_THREE'
     }
 
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
-            title: 'Perpetual',
-            description: "The remembered do not decay.",
-            icon: 'fa-dragon',
+            title: 'Calloused',
+            description: "Some people are forged, not born.",
+            icon: 'fa-radiation',
             points: 55,
             hidden: false,
             index: 2,
-            group: 'Grinder',
+            group: 'Trapper',
             rewards: [].span(),
             data: "",
         );
         AchievementProps {
             id: Self::identifier(),
-            tasks: Task::Grinder.tasks(1_000),
+            tasks: Task::Trigger.tasks(3_000),
             metadata: metadata,
         }
     }

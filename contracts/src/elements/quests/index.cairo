@@ -10,26 +10,24 @@ pub use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub const QUEST_COUNT: u8 = 10;
 pub const ONE_DAY: u64 = 24 * 60 * 60;
-
-pub fn ICON() -> ByteArray {
-    "https://imagedelivery.net/0xPAQaDtnQhBs8IzYRIlNg/90868d05-cb75-4c42-278c-5a540db2cf00/logo"
-}
+pub const TWO_DAYS: u64 = 2 * ONE_DAY;
+pub const THREE_DAYS: u64 = 3 * ONE_DAY;
 
 // Types
 
 #[derive(Copy, Drop)]
 pub enum QuestType {
     None,
-    DailyContenderOne,
-    DailyContenderTwo,
-    DailyContenderThree,
-    DailyEarnerOne,
-    DailyEarnerTwo,
-    DailyEarnerThree,
+    DailyFinisher,
     DailyPlacerOne,
     DailyPlacerTwo,
     DailyPlacerThree,
-    DailyFinisher,
+    DailyPowerOne,
+    DailyPowerTwo,
+    DailyPowerThree,
+    DailyTriggerOne,
+    DailyTriggerTwo,
+    DailyTriggerThree,
 }
 
 #[derive(Clone, Drop, Serde)]
@@ -48,51 +46,40 @@ pub struct QuestProps {
 pub impl QuestImpl of IQuest {
     fn identifier(self: QuestType) -> felt252 {
         match self {
-            QuestType::DailyContenderOne => quests::contender::DailyContenderOne::identifier(),
-            QuestType::DailyContenderTwo => quests::contender::DailyContenderTwo::identifier(),
-            QuestType::DailyContenderThree => quests::contender::DailyContenderThree::identifier(),
-            QuestType::DailyEarnerOne => quests::earner::DailyEarnerOne::identifier(),
-            QuestType::DailyEarnerTwo => quests::earner::DailyEarnerTwo::identifier(),
-            QuestType::DailyEarnerThree => quests::earner::DailyEarnerThree::identifier(),
+            QuestType::DailyFinisher => quests::finisher::DailyFinisher::identifier(),
             QuestType::DailyPlacerOne => quests::placer::DailyPlacerOne::identifier(),
             QuestType::DailyPlacerTwo => quests::placer::DailyPlacerTwo::identifier(),
             QuestType::DailyPlacerThree => quests::placer::DailyPlacerThree::identifier(),
-            QuestType::DailyFinisher => quests::finisher::DailyFinisher::identifier(),
+            QuestType::DailyPowerOne => quests::power::DailyPowerOne::identifier(),
+            QuestType::DailyPowerTwo => quests::power::DailyPowerTwo::identifier(),
+            QuestType::DailyPowerThree => quests::power::DailyPowerThree::identifier(),
+            QuestType::DailyTriggerOne => quests::trigger::DailyTriggerOne::identifier(),
+            QuestType::DailyTriggerTwo => quests::trigger::DailyTriggerTwo::identifier(),
+            QuestType::DailyTriggerThree => quests::trigger::DailyTriggerThree::identifier(),
             QuestType::None => 0,
         }
     }
 
     fn props(self: QuestType, registry: ContractAddress) -> QuestProps {
         match self {
-            QuestType::DailyContenderOne => quests::contender::DailyContenderOne::props(registry),
-            QuestType::DailyContenderTwo => quests::contender::DailyContenderTwo::props(registry),
-            QuestType::DailyContenderThree => quests::contender::DailyContenderThree::props(
-                registry,
-            ),
-            QuestType::DailyEarnerOne => quests::earner::DailyEarnerOne::props(registry),
-            QuestType::DailyEarnerTwo => quests::earner::DailyEarnerTwo::props(registry),
-            QuestType::DailyEarnerThree => quests::earner::DailyEarnerThree::props(registry),
+            QuestType::DailyFinisher => quests::finisher::DailyFinisher::props(registry),
             QuestType::DailyPlacerOne => quests::placer::DailyPlacerOne::props(registry),
             QuestType::DailyPlacerTwo => quests::placer::DailyPlacerTwo::props(registry),
             QuestType::DailyPlacerThree => quests::placer::DailyPlacerThree::props(registry),
-            QuestType::DailyFinisher => quests::finisher::DailyFinisher::props(registry),
+            QuestType::DailyPowerOne => quests::power::DailyPowerOne::props(registry),
+            QuestType::DailyPowerTwo => quests::power::DailyPowerTwo::props(registry),
+            QuestType::DailyPowerThree => quests::power::DailyPowerThree::props(registry),
+            QuestType::DailyTriggerOne => quests::trigger::DailyTriggerOne::props(registry),
+            QuestType::DailyTriggerTwo => quests::trigger::DailyTriggerTwo::props(registry),
+            QuestType::DailyTriggerThree => quests::trigger::DailyTriggerThree::props(registry),
             _ => Default::default(),
         }
     }
 
-    fn reward(self: QuestType) -> (u64, Task) {
+    fn reward(self: QuestType) -> bool {
         match self {
-            QuestType::DailyContenderOne => (200, Task::None),
-            QuestType::DailyContenderTwo => (400, Task::None),
-            QuestType::DailyContenderThree => (800, Task::None),
-            QuestType::DailyEarnerOne => (200, Task::None),
-            QuestType::DailyEarnerTwo => (400, Task::None),
-            QuestType::DailyEarnerThree => (800, Task::None),
-            QuestType::DailyPlacerOne => (200, Task::None),
-            QuestType::DailyPlacerTwo => (400, Task::None),
-            QuestType::DailyPlacerThree => (800, Task::None),
-            QuestType::DailyFinisher => (800, Task::Master),
-            _ => (0, Task::None),
+            QuestType::DailyFinisher => true,
+            _ => false,
         }
     }
 }
@@ -102,16 +89,16 @@ impl IntoQuestU8 of core::traits::Into<QuestType, u8> {
     fn into(self: QuestType) -> u8 {
         match self {
             QuestType::None => 0,
-            QuestType::DailyContenderOne => 1,
-            QuestType::DailyContenderTwo => 2,
-            QuestType::DailyContenderThree => 3,
-            QuestType::DailyEarnerOne => 4,
-            QuestType::DailyEarnerTwo => 5,
-            QuestType::DailyEarnerThree => 6,
-            QuestType::DailyPlacerOne => 7,
-            QuestType::DailyPlacerTwo => 8,
-            QuestType::DailyPlacerThree => 9,
-            QuestType::DailyFinisher => 10,
+            QuestType::DailyFinisher => 1,
+            QuestType::DailyPlacerOne => 2,
+            QuestType::DailyPlacerTwo => 3,
+            QuestType::DailyPlacerThree => 4,
+            QuestType::DailyPowerOne => 5,
+            QuestType::DailyPowerTwo => 6,
+            QuestType::DailyPowerThree => 7,
+            QuestType::DailyTriggerOne => 8,
+            QuestType::DailyTriggerTwo => 9,
+            QuestType::DailyTriggerThree => 10,
         }
     }
 }
@@ -120,16 +107,16 @@ impl IntoU8Quest of core::traits::Into<u8, QuestType> {
     fn into(self: u8) -> QuestType {
         match self {
             0 => QuestType::None,
-            1 => QuestType::DailyContenderOne,
-            2 => QuestType::DailyContenderTwo,
-            3 => QuestType::DailyContenderThree,
-            4 => QuestType::DailyEarnerOne,
-            5 => QuestType::DailyEarnerTwo,
-            6 => QuestType::DailyEarnerThree,
-            7 => QuestType::DailyPlacerOne,
-            8 => QuestType::DailyPlacerTwo,
-            9 => QuestType::DailyPlacerThree,
-            10 => QuestType::DailyFinisher,
+            1 => QuestType::DailyFinisher,
+            2 => QuestType::DailyPlacerOne,
+            3 => QuestType::DailyPlacerTwo,
+            4 => QuestType::DailyPlacerThree,
+            5 => QuestType::DailyPowerOne,
+            6 => QuestType::DailyPowerTwo,
+            7 => QuestType::DailyPowerThree,
+            8 => QuestType::DailyTriggerOne,
+            9 => QuestType::DailyTriggerTwo,
+            10 => QuestType::DailyTriggerThree,
             _ => QuestType::None,
         }
     }
@@ -137,26 +124,26 @@ impl IntoU8Quest of core::traits::Into<u8, QuestType> {
 
 impl IntoFelt252Quest of core::traits::Into<felt252, QuestType> {
     fn into(self: felt252) -> QuestType {
-        if self == quests::contender::DailyContenderOne::identifier() {
-            return QuestType::DailyContenderOne;
-        } else if self == quests::contender::DailyContenderTwo::identifier() {
-            return QuestType::DailyContenderTwo;
-        } else if self == quests::contender::DailyContenderThree::identifier() {
-            return QuestType::DailyContenderThree;
-        } else if self == quests::earner::DailyEarnerOne::identifier() {
-            return QuestType::DailyEarnerOne;
-        } else if self == quests::earner::DailyEarnerTwo::identifier() {
-            return QuestType::DailyEarnerTwo;
-        } else if self == quests::earner::DailyEarnerThree::identifier() {
-            return QuestType::DailyEarnerThree;
+        if self == quests::finisher::DailyFinisher::identifier() {
+            return QuestType::DailyFinisher;
         } else if self == quests::placer::DailyPlacerOne::identifier() {
             return QuestType::DailyPlacerOne;
         } else if self == quests::placer::DailyPlacerTwo::identifier() {
             return QuestType::DailyPlacerTwo;
         } else if self == quests::placer::DailyPlacerThree::identifier() {
             return QuestType::DailyPlacerThree;
-        } else if self == quests::finisher::DailyFinisher::identifier() {
-            return QuestType::DailyFinisher;
+        } else if self == quests::power::DailyPowerOne::identifier() {
+            return QuestType::DailyPowerOne;
+        } else if self == quests::power::DailyPowerTwo::identifier() {
+            return QuestType::DailyPowerTwo;
+        } else if self == quests::power::DailyPowerThree::identifier() {
+            return QuestType::DailyPowerThree;
+        } else if self == quests::trigger::DailyTriggerOne::identifier() {
+            return QuestType::DailyTriggerOne;
+        } else if self == quests::trigger::DailyTriggerTwo::identifier() {
+            return QuestType::DailyTriggerTwo;
+        } else if self == quests::trigger::DailyTriggerThree::identifier() {
+            return QuestType::DailyTriggerThree;
         } else {
             return QuestType::None;
         }

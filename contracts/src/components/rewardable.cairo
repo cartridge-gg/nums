@@ -30,11 +30,13 @@ pub mod RewardableComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        fn initialize(ref self: ComponentState<TContractState>, world: WorldStorage, open: bool) {
+        fn initialize(
+            ref self: ComponentState<TContractState>, world: WorldStorage, open: bool, fee: u16,
+        ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
             // [Effect] Create vault
-            let vault = VaultTrait::new(world_resource: WORLD_RESOURCE, open: open);
+            let vault = VaultTrait::new(world_resource: WORLD_RESOURCE, open: open, fee: fee);
             store.set_vault(@vault);
         }
 
@@ -137,6 +139,10 @@ pub mod RewardableComponent {
             amount: u256,
             total_shares: u256,
         ) {
+            // [Check] Amount is not zero
+            if amount == 0 {
+                return;
+            }
             // [Setup] Store
             let store = StoreImpl::new(world);
             // [Check] Shares are not zero

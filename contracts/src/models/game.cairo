@@ -164,7 +164,7 @@ pub impl GameImpl of GameTrait {
 
     /// Place number
     #[inline]
-    fn place(ref self: Game, number: u16, index: u8, ref rand: Random) {
+    fn place(ref self: Game, number: u16, index: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Check] Index is valid
         self.assert_valid_index(index);
         // [Check] Target slot is empty
@@ -178,7 +178,8 @@ pub impl GameImpl of GameTrait {
         let trap: Trap = Packer::get(self.traps, index, TRAP_SIZE, self.slot_count).into();
         if Bitmap::get(self.disabled_traps, index) == 0 && trap != Trap::None {
             self.disabled_traps = Bitmap::set(self.disabled_traps, index);
-            trap.apply(ref self, index, ref rand);
+            trap.apply(ref self, index, ref rand, ref traps);
+            traps.append(trap);
             return;
         }
     }
@@ -232,7 +233,7 @@ pub impl GameImpl of GameTrait {
     }
 
     #[inline]
-    fn move(ref self: Game, from: u8, to: u8, ref rand: Random) {
+    fn move(ref self: Game, from: u8, to: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Check] Index is valid
         self.assert_valid_index(from);
         self.assert_valid_index(to);
@@ -240,7 +241,7 @@ pub impl GameImpl of GameTrait {
         let slots: u256 = self.slots.into();
         let slot = Packer::get(slots, from, SLOT_SIZE, self.slot_count.into());
         self.unset(slots, from, self.slot_count.into());
-        self.place(slot, to, ref rand);
+        self.place(slot, to, ref rand, ref traps);
     }
 
     #[inline]

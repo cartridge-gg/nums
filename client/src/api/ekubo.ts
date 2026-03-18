@@ -32,9 +32,6 @@ export const getSwapQuote = async (
   const base = getEkuboUrl(chainId);
   const token0 = BigInt(token).toString(16);
   const token1 = BigInt(quote).toString(16);
-  // if (token0 > token1) {
-  //   [token0, token1] = [token1, token0];
-  // }
   const response = await fetch(
     `${base}/${amount.toString()}/0x${token0}/0x${token1}`,
   );

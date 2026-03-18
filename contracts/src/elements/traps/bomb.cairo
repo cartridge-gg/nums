@@ -1,8 +1,10 @@
-use crate::elements::traps::interface::{Game, GameTrait, Packer, Random, RandomTrait, TrapTrait};
+use crate::elements::traps::interface::{
+    Game, GameTrait, Packer, Random, RandomTrait, Trap, TrapTrait,
+};
 
 pub impl Bomb of TrapTrait {
     #[inline]
-    fn apply(ref game: Game, slot_index: u8, ref rand: Random) {
+    fn apply(ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Effect] Take the nearest number and shuffle them
         let slots = game.slots();
         // [Compute] Find the nearest number to the left
@@ -64,12 +66,13 @@ mod tests {
 
     #[test]
     fn test_bomb_large_range() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![1, 0, 0, 0, 250, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 999]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![1, 0, 0, 0, 120, 0, 0, 0, 0, 500, 0, 0, 0, 0, 503, 0, 0, 0, 0, 999],
@@ -78,12 +81,13 @@ mod tests {
 
     #[test]
     fn test_bomb_small_range() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![1, 0, 0, 0, 0, 0, 0, 100, 250, 500, 750, 900, 0, 0, 0, 0, 0, 0, 0, 999]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![1, 0, 0, 0, 0, 0, 0, 100, 200, 500, 846, 900, 0, 0, 0, 0, 0, 0, 0, 999],
@@ -92,12 +96,13 @@ mod tests {
 
     #[test]
     fn test_bomb_at_boundary() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![1, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 999]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![120, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 503],
         );
@@ -105,12 +110,13 @@ mod tests {
 
     #[test]
     fn test_bomb_even() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999],
@@ -119,12 +125,13 @@ mod tests {
 
     #[test]
     fn test_bomb_almost_even() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![1, 0, 0, 0, 0, 0, 0, 499, 499, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![1, 0, 0, 0, 0, 0, 0, 499, 500, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999],
@@ -133,12 +140,13 @@ mod tests {
 
     #[test]
     fn test_bomb_left_only() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 250, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 120, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         );
@@ -146,12 +154,13 @@ mod tests {
 
     #[test]
     fn test_bomb_right_only() {
+        let mut traps = array![];
         let mut random = RandomImpl::new(0);
         let mut game = GameTrait::new(
             0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
         );
         game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 0]);
-        Bomb::apply(ref game, 9, ref random);
+        Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 619, 0, 0, 0, 0, 0],
         );

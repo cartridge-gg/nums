@@ -24,7 +24,7 @@ export function useQuestScene(): QuestsProps {
         id: quest.id,
         icon: quest.icon,
         title: quest.name,
-        description: quest.description,
+        description: quest.tasks[0]?.description || quest.description,
         count: totalCount,
         total: totalTotal,
       };

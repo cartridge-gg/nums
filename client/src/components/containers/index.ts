@@ -21,3 +21,4 @@ export * from "./referral-payments";
 export * from "./settings";
 export * from "./tutorial";
 export * from "./tutorial-anchor-portal";
+export * from "./achievements";

@@ -3,7 +3,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import {
   AddIcon,
-  CloseIcon,
   CrownIcon,
   RefreshIcon,
   ShadowEffect,
@@ -12,7 +11,7 @@ import { useId, useState, useEffect, useMemo } from "react";
 import Confetti from "react-confetti";
 import { Link } from "@/lib/router";
 import { Stages, type StagesProps } from "@/components/containers";
-import { Share, type ShareProps } from "@/components/elements";
+import { Share, type ShareProps, Close } from "@/components/elements";
 
 export interface GameOverProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -99,22 +98,11 @@ export const GameOver = ({
       {/* Filters */}
       <ShadowEffect filterId={filterId} />
       {onClose && (
-        <Button
-          variant="ghost"
-          className="absolute z-10 top-6 right-6 h-12 w-12 p-0 text-white-400 hover:text-white-300 rounded"
+        <Close
+          size="lg"
           onClick={onClose}
-        >
-          <CloseIcon
-            size="lg"
-            className="md:hidden"
-            style={{ filter: `url(#${filterId})` }}
-          />
-          <CloseIcon
-            size="lg"
-            className="hidden md:block"
-            style={{ filter: `url(#${filterId})` }}
-          />
-        </Button>
+          className="absolute z-10 top-6 right-6"
+        />
       )}
       {/* Title */}
       <Header filterId={filterId} />

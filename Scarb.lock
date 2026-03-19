@@ -12,9 +12,9 @@ dependencies = [
 
 [[package]]
 name = "alexandria_bytes"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:c09087b8b6d2f49ea1719cc780fa2901852879258ac2a55190187ed5b9e8488e"
+checksum = "sha256:1ebc31b29ba196bd6ec70cfa487561f39a1ff9043f97319f302b2083e132284e"
 dependencies = [
  "alexandria_data_structures",
  "alexandria_math",
@@ -22,15 +22,15 @@ dependencies = [
 
 [[package]]
 name = "alexandria_data_structures"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:74cf0a36da91032e1ca5a65a0ce1349b1fcd8623a78f9afa3498fa58858491e1"
+checksum = "sha256:7af20f90c16e71aa2d4b176d37b792eccf798e09b8c3ef370a68766f2db4824f"
 
 [[package]]
 name = "alexandria_encoding"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:1de969247c55dbb2c2d2cc98e09a12f5c52be12814b9c11899059b16c7edf647"
+checksum = "sha256:6effe1616f1b697d8f03979c936c948e76d20c2869aceecf980eab65a640117b"
 dependencies = [
  "alexandria_bytes",
  "alexandria_data_structures",
@@ -40,15 +40,24 @@ dependencies = [
 
 [[package]]
 name = "alexandria_math"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:b17fd1964c054d8e8a3fde2ee7dfecd5f318767f0bced764a6fa887271432f76"
+checksum = "sha256:2f634a878ad20377041649f0c63ffff8d7f01fe578e3666371dfb15d243b6822"
+
+[[package]]
+name = "alexandria_merkle_tree"
+version = "0.7.0"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:de691731e447bc52ad21d73ba0b70349d3f3ffbc3bd0bfc8eae8fef89baf7681"
+dependencies = [
+ "alexandria_math",
+]
 
 [[package]]
 name = "alexandria_numeric"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:02b70ff561c48a97925cb07d183a9aeb53906fed443d6a38341f9bc4062b5768"
+checksum = "sha256:4208af0eeabc7eabdc53c440a58fdaf2ce8ff08de4a38f5368a0c992fdad30e4"
 dependencies = [
  "alexandria_math",
  "alexandria_searching",
@@ -56,9 +65,9 @@ dependencies = [
 
 [[package]]
 name = "alexandria_searching"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:70ef2765fa52a109467747601ab6be055295bc05de8ba105bc105437d8e551cd"
+checksum = "sha256:05f3f305b142a0160e5686c364d947ee60ff685ad15985dbdba8cf5ca7f308cd"
 dependencies = [
  "alexandria_data_structures",
 ]
@@ -116,6 +125,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "merkledrop"
+version = "0.0.0"
+source = "git+https://github.com/cartridge-gg/arcade?rev=f923d6b#f923d6b8fa856dbbafb67a0d775cad303baa4d3b"
+dependencies = [
+ "alexandria_merkle_tree",
+ "dojo",
+]
+
+[[package]]
 name = "models"
 version = "0.0.0"
 source = "git+https://github.com/cartridge-gg/arcade?rev=1a9d729#1a9d7294d6ddcf2640144dfb3901b10f1a4f1137"
@@ -137,6 +155,7 @@ dependencies = [
  "ekubo",
  "graffiti",
  "leaderboard",
+ "merkledrop",
  "openzeppelin",
  "quest",
  "starterpack",

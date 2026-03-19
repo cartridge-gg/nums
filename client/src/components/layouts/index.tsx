@@ -35,6 +35,7 @@ import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
 import { useTutorial } from "@/context/tutorial";
 import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
+import { useMerkledrops } from "@/context/merkledrops";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -49,7 +50,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
-  const { mint } = useActions();
+  const { mint, merkledrop: merkledropActions } = useActions();
   const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
@@ -102,6 +103,12 @@ export const Layout = ({ children }: LayoutProps) => {
     if (!username) return "";
     return `${window.location.origin}/?ref=${encodeURIComponent(username)}`;
   }, [username]);
+
+  const { merkledrops } = useMerkledrops();
+  const hasMerkledrop = useMemo(
+    () => merkledrops.some((m) => !m.claimed && !m.expired),
+    [merkledrops],
+  );
 
   const { vaultInfo, vaultClaimed } = useVault();
   const stakingLocked = vaultInfo ? !vaultInfo.open : false;
@@ -284,7 +291,15 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowReferralScene(false);
           setShowAchievementScene(false);
         }}
-        onMint={() => mint()}
+        faucetBalance={headerData.faucetBalance}
+        onFaucet={() => mint()}
+        hasMerkledrop={hasMerkledrop}
+        onMerkledrop={() => {
+          const drop = merkledrops.find((m) => !m.claimed && !m.expired);
+          if (drop) {
+            merkledropActions.claim(drop.root, drop.proofs, drop.data);
+          }
+        }}
       />
       <div
         className="relative flex-1 min-h-0 flex flex-col justify-between"

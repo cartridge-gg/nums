@@ -1,6 +1,6 @@
 import { Link } from "@/lib/router";
 import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
-import { GearIcon, ShadowEffect } from "@/components/icons";
+import { GearIcon, GiftIcon, ShadowEffect } from "@/components/icons";
 import { Balance, Profile, Connect } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -8,15 +8,19 @@ import { Button } from "@/components/ui/button";
 import { useId } from "react";
 
 export interface HeaderProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof headerVariants> {
   balance?: number;
+  faucetBalance?: number;
   onBalance?: () => void;
+  onFaucet?: () => void;
   username?: string;
   onConnect: () => void;
   onProfile: () => void;
   onSettings?: () => void;
-  onMint?: () => void;
+  hasMerkledrop?: boolean;
+  onMerkledrop?: () => void;
 }
 
 const headerVariants = cva(
@@ -40,7 +44,10 @@ export const Header = ({
   onConnect,
   onProfile,
   onSettings,
-  onMint,
+  faucetBalance,
+  onFaucet,
+  hasMerkledrop,
+  onMerkledrop,
   variant,
   className,
   ...props
@@ -68,18 +75,38 @@ export const Header = ({
         </h1>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
-        {onMint && (
+        {hasMerkledrop && onMerkledrop && (
           <Button
             variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-            onClick={onMint}
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-green-700 hover:bg-green-500"
+            onClick={onMerkledrop}
           >
-            <QuoteIcon
+            <GiftIcon
               size="md"
-              className="md:size-lg"
-              style={{ filter: `url(#${darkId})` }}
+              className="md:size-lg text-green-100"
+              style={{ filter: `url(#${lightId})` }}
             />
           </Button>
+        )}
+        {faucetBalance !== undefined && (
+          <Balance
+            balance={faucetBalance}
+            onClick={onFaucet}
+            icon={
+              <>
+                <QuoteIcon
+                  size="sm"
+                  className="block md:hidden"
+                  style={{ filter: `url(#${darkId})` }}
+                />
+                <QuoteIcon
+                  size="md"
+                  className="hidden md:block"
+                  style={{ filter: `url(#${darkId})` }}
+                />
+              </>
+            }
+          />
         )}
         {username ? (
           <>

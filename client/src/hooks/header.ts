@@ -2,7 +2,12 @@ import type ControllerConnector from "@cartridge/connector/controller";
 import { useAccount, useConnect, useNetwork } from "@starknet-react/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addAddressPadding, num } from "starknet";
-import { getTokenAddress, getVaultAddress, MAINNET_CHAIN_ID } from "@/config";
+import {
+  getFaucetAddress,
+  getTokenAddress,
+  getVaultAddress,
+  MAINNET_CHAIN_ID,
+} from "@/config";
 import { useTokens, toDecimal } from "@/hooks/tokens";
 
 export const useHeader = () => {
@@ -12,6 +17,7 @@ export const useHeader = () => {
   const isMainnet = chain.id === num.toBigInt(MAINNET_CHAIN_ID);
   const numsAddress = getTokenAddress(chain.id);
   const vaultAddress = getVaultAddress(chain.id);
+  const faucetAddress = getFaucetAddress(chain.id);
 
   const { tokenContracts, tokenBalances } = useTokens({
     accountAddresses: account?.address
@@ -20,6 +26,7 @@ export const useHeader = () => {
     contractAddresses: [
       addAddressPadding(num.toHex64(numsAddress)),
       addAddressPadding(num.toHex64(vaultAddress)),
+      addAddressPadding(num.toHex64(faucetAddress)),
     ],
   });
 
@@ -34,6 +41,12 @@ export const useHeader = () => {
       (i) => BigInt(i.contract_address) === BigInt(vaultAddress),
     );
   }, [tokenContracts, vaultAddress]);
+
+  const faucet = useMemo(() => {
+    return tokenContracts.find(
+      (i) => BigInt(i.contract_address) === BigInt(faucetAddress),
+    );
+  }, [tokenContracts, faucetAddress]);
 
   const prevBalanceRef = useRef<number | undefined>(undefined);
   const balanceDiff = useRef<{ value: number }>({ value: 0 });
@@ -85,6 +98,18 @@ export const useHeader = () => {
     return BigInt(tokenBalance?.balance ?? "0");
   }, [tokenBalances, vault, numsAddress, vaultAddress]);
 
+  const faucetBalance = useMemo(() => {
+    if (!account || !faucet) return 0;
+    const tokenBalance = tokenBalances.find(
+      (b) =>
+        BigInt(b.contract_address) === BigInt(faucetAddress) &&
+        BigInt(b.account_address) ===
+          BigInt(addAddressPadding(account.address)),
+    );
+    if (!tokenBalance) return 0;
+    return toDecimal(faucet, tokenBalance);
+  }, [tokenBalances, faucet, account, faucetAddress]);
+
   const [username, setUsername] = useState<string | null>(null);
   const controllerConnector = connector as never as ControllerConnector;
 
@@ -107,6 +132,7 @@ export const useHeader = () => {
   return {
     supply: BigInt(token?.total_supply ?? "0"),
     balance,
+    faucetBalance,
     shares,
     assets,
     total: BigInt(vault?.total_supply ?? "0"),

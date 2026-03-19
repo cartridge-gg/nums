@@ -31,6 +31,14 @@ export {
 } from "./achievement";
 export { Tutorial, TutorialPhase, type TutorialData } from "./tutorial";
 export {
+  MerkleTree,
+  MerkleClaim,
+  MerkleProofs,
+  type RawMerkleTree,
+  type RawMerkleClaim,
+  type RawMerkleProofs,
+} from "./merkledrop";
+export {
   QuestDefinition,
   QuestCompletion,
   QuestAdvancement,

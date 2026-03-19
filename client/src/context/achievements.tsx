@@ -113,6 +113,8 @@ export function AchievementsProvider({
   const [creations, setCreations] = useState<Map<string, AchievementCreation>>(
     new Map(),
   );
+  const creationsRef = useRef(creations);
+  creationsRef.current = creations;
   const [completions, setCompletions] = useState<AchievementCompletion[]>([]);
   const [advancements, setAdvancements] = useState<AchievementAdvancement[]>(
     [],
@@ -196,7 +198,7 @@ export function AchievementsProvider({
             `${NAMESPACE}-${AchievementCompleted.getModelName()}`
           ] as unknown as RawAchievementCompleted;
           const event = AchievementCompleted.parse(model);
-          const achievement = creations.get(event.achievement_id);
+          const achievement = creationsRef.current.get(event.achievement_id);
           if (achievement) {
             setCompleteds((prev) =>
               [{ event, achievement }, ...prev].filter(
@@ -207,7 +209,7 @@ export function AchievementsProvider({
         }
       });
     },
-    [NAMESPACE, creations],
+    [NAMESPACE],
   );
 
   const refresh = useCallback(async () => {

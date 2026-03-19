@@ -186,6 +186,7 @@ pub mod Play {
         }
     }
 
+    #[abi(embed_v0)]
     impl QuestRewarderImpl of IQuestRewarder<ContractState> {
         fn on_quest_unlock(
             ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,

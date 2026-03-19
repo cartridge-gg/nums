@@ -36,6 +36,7 @@ import { useSound } from "@/context/sound";
 import { useTutorial } from "@/context/tutorial";
 import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
 import { useMerkledrops } from "@/context/merkledrops";
+import { shortAddress } from "@/helpers";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -235,7 +236,8 @@ export const Layout = ({ children }: LayoutProps) => {
     ]
       .map((event) => ({
         ...event,
-        username: find(event.username)?.username || event.username,
+        username:
+          find(event.username)?.username || shortAddress(event.username),
       }))
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 10);

@@ -5,8 +5,7 @@ import { useId, useMemo } from "react";
 import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface BalanceProps
-  extends
-    React.HTMLAttributes<HTMLButtonElement>,
+  extends React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
   balance: number;
   icon?: React.ReactNode;

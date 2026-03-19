@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { useEntities } from "@/context/entities";
 import { Toast } from "@/components/elements";
 import { useControllers } from "@/context/controllers";
-import { getChecksumAddress } from "starknet";
 import type { Controller } from "@dojoengine/torii-wasm";
 import { useMediaQuery } from "usehooks-ts";
 import { useAccount } from "@starknet-react/core";
@@ -18,10 +17,11 @@ import {
 import { useQuests } from "@/context/quests";
 import { useAchievements } from "@/context/achievements";
 import { useAudio } from "@/context/audio";
+import { shortAddress } from "@/helpers";
 
 const getUsername = (result: Controller | undefined, player: string) => {
-  const address = getChecksumAddress(player);
-  return result?.username || `${address.slice(0, 6)}...${address.slice(-4)}`;
+  const address = `0x${BigInt(player).toString(16)}`;
+  return result?.username || shortAddress(address);
 };
 
 /**

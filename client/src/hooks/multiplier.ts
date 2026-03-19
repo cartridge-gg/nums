@@ -74,7 +74,7 @@ export const useMultiplier = ({
           quoteAddress,
           numsAddress,
         );
-        
+
         const burnPerGame = BigInt(Math.round(quote.total));
         if (burnPerGame === 0n) return;
 

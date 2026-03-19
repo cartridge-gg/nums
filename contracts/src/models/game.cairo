@@ -178,8 +178,8 @@ pub impl GameImpl of GameTrait {
         let trap: Trap = Packer::get(self.traps, index, TRAP_SIZE, self.slot_count).into();
         if Bitmap::get(self.disabled_traps, index) == 0 && trap != Trap::None {
             self.disabled_traps = Bitmap::set(self.disabled_traps, index);
-            trap.apply(ref self, index, ref rand, ref traps);
             traps.append(trap);
+            trap.apply(ref self, index, ref rand, ref traps);
             return;
         }
     }

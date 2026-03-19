@@ -101,7 +101,7 @@
     },
     {
       "address": "0x6a9d9e2bab0add166f9b706eca1d9fa37819645eb3d89f927ba24ae9c05d6ed",
-      "class_hash": "0x1e7d3ec8c6c0af46cc3270cdab1326728dd8bf93f9b20403758c0367ba9aed3",
+      "class_hash": "0x4072483a75260a44c090221f35dac00d6720c42d3594c4cd2caeb04cb1279ac",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -110,6 +110,9 @@
         "merkledrop_register",
         "merkledrop_claim",
         "on_issue",
+        "on_quest_unlock",
+        "on_quest_complete",
+        "on_quest_claim",
         "set",
         "select",
         "apply",
@@ -9031,6 +9034,72 @@
       "name": "quest::events::index::e_QuestUnlocked::Event",
       "kind": "enum",
       "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "quest::interfaces::IQuestRewarder",
+      "items": [
+        {
+          "type": "function",
+          "name": "on_quest_unlock",
+          "inputs": [
+            {
+              "name": "player",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "quest_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "interval_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "on_quest_complete",
+          "inputs": [
+            {
+              "name": "player",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "quest_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "interval_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "on_quest_claim",
+          "inputs": [
+            {
+              "name": "player",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "quest_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "interval_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
     },
     {
       "type": "struct",

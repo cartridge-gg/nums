@@ -1045,6 +1045,10 @@ export class QuestCompleted {
         ),
     );
   }
+
+  static getId(item: QuestCompleted): string {
+    return `${item.player_id}-${item.quest_id}-${item.interval_id}-${item.time}`;
+  }
 }
 
 export class QuestClaimed {

@@ -11,6 +11,7 @@ import {
   AchievementCompleted,
   Claimed,
   Purchased,
+  QuestCompleted,
   QuestClaimed,
   Started,
 } from "@/models";
@@ -32,7 +33,7 @@ export const useToasters = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { find, loading } = useControllers();
   const { started, claimed, purchased } = useEntities();
-  const { claimeds } = useQuests();
+  const { completeds: questCompleteds, claimeds } = useQuests();
   const { completeds } = useAchievements();
   const { playReplay } = useAudio();
   const toastedRef = useRef<Set<string>>(new Set());
@@ -126,7 +127,37 @@ export const useToasters = () => {
     );
   }, [address, purchased, loading, find, toastedRef]);
 
-  // Handle Quest Claimed events
+  useEffect(() => {
+    if (!questCompleteds || loading) return;
+
+    questCompleteds.forEach(({ event, quest }) => {
+      if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
+
+      const id = QuestCompleted.getId(event);
+      if (toastedRef.current.has(id)) return;
+      toastedRef.current.add(id);
+
+      playReplay();
+
+      toast(
+        <Toast
+          titleProps={{
+            title: quest.metadata.name,
+          }}
+          descriptionProps={{
+            reward: "Quest Completed",
+          }}
+          thumbnailProps={{
+            type: "quest",
+          }}
+        />,
+        {
+          position: isMobile ? "top-center" : "top-right",
+        },
+      );
+    });
+  }, [address, questCompleteds, loading, find, playReplay, toastedRef]);
+
   useEffect(() => {
     if (!claimeds || loading) return;
 

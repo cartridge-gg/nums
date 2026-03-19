@@ -19,11 +19,13 @@ import {
   QuestCompletion,
   QuestDefinition,
   QuestCreation,
+  QuestCompleted,
   QuestClaimed,
   type RawQuestDefinition,
   type RawQuestCompletion,
   type RawQuestAdvancement,
   type RawQuestCreation,
+  type RawQuestCompleted,
   type RawQuestClaimed,
 } from "@/models";
 import { getChecksumAddress } from "starknet";
@@ -54,6 +56,7 @@ export type Quests = {
 
 interface QuestsContextType {
   quests: Quests[];
+  completeds: { event: QuestCompleted; quest: QuestCreation }[];
   claimeds: { event: QuestClaimed; quest: QuestCreation }[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
@@ -96,11 +99,14 @@ const getPlayerEntityQuery = (NAMESPACE: string, playerId: string) => {
 };
 
 const getPlayerEventQuery = (NAMESPACE: string, playerId: string) => {
-  // const unlocked: `${string}-${string}` = `${NAMESPACE}-${QuestUnlocked.getModelName()}`;
-  // const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
-  const claimeds: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
+  const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
+  const claimed: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
   const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys([claimeds], [key], "VariableLen");
+  const clauses = new ClauseBuilder().keys(
+    [completed, claimed],
+    [key],
+    "VariableLen",
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
     .includeHashedKeys();
@@ -115,6 +121,11 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
   const [completions, setCompletions] = useState<QuestCompletion[]>([]);
   const [advancements, setAdvancements] = useState<QuestAdvancement[]>([]);
   const [creations, setCreations] = useState<QuestCreation[]>([]);
+  const creationsRef = useRef(creations);
+  creationsRef.current = creations;
+  const [completeds, setCompleteds] = useState<
+    { event: QuestCompleted; quest: QuestCreation }[]
+  >([]);
   const [claimeds, setClaimeds] = useState<
     { event: QuestClaimed; quest: QuestCreation }[]
   >([]);
@@ -178,12 +189,24 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
       (data.data || [data] || []).forEach((entity) => {
+        if (entity.models[`${NAMESPACE}-${QuestCompleted.getModelName()}`]) {
+          const model = entity.models[
+            `${NAMESPACE}-${QuestCompleted.getModelName()}`
+          ] as unknown as RawQuestCompleted;
+          const event = QuestCompleted.parse(model);
+          const quest = creationsRef.current.find(
+            (creation) => creation.definition.id === event.quest_id,
+          );
+          if (quest) {
+            setCompleteds((prev) => [{ event, quest }, ...prev]);
+          }
+        }
         if (entity.models[`${NAMESPACE}-${QuestClaimed.getModelName()}`]) {
           const model = entity.models[
             `${NAMESPACE}-${QuestClaimed.getModelName()}`
           ] as unknown as RawQuestClaimed;
           const event = QuestClaimed.parse(model);
-          const quest = creations.find(
+          const quest = creationsRef.current.find(
             (creation) => creation.definition.id === event.quest_id,
           );
           if (quest) {
@@ -196,7 +219,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
         }
       });
     },
-    [NAMESPACE, creations],
+    [NAMESPACE],
   );
 
   // Refresh function to fetch and subscribe to data
@@ -335,6 +358,7 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
 
   const value: QuestsContextType = {
     quests,
+    completeds,
     claimeds,
     status,
     refresh,

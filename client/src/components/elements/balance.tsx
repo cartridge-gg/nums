@@ -2,13 +2,14 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import { useId, useMemo } from "react";
-import { ShadowEffect, TokenIcon } from "@/components/icons";
+import { ShadowEffect, SpinnerIcon, TokenIcon } from "@/components/icons";
 
 export interface BalanceProps
   extends React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
   balance: number;
   icon?: React.ReactNode;
+  loading?: boolean;
 }
 
 const balanceVariants = cva(
@@ -77,6 +78,7 @@ const formatMobileBalance = (num: number): string => {
 export const Balance = ({
   balance,
   icon,
+  loading,
   variant,
   size,
   className,
@@ -118,11 +120,24 @@ export const Balance = ({
         </>
       )}
       <div
-        className="translate-y-0.5 tracking-wider overflow-clip px-0.5"
+        className={cn(
+          "relative tracking-wider overflow-clip px-0.5",
+          !loading && "translate-y-0.5",
+        )}
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
-        <span className="block md:hidden px-1">{formattedMobile}</span>
-        <span className="hidden md:inline">{formattedDesktop}</span>
+        <span className={cn("block md:hidden px-1", loading && "invisible")}>
+          {formattedMobile}
+        </span>
+        <span className={cn("hidden md:inline", loading && "md:invisible")}>
+          {formattedDesktop}
+        </span>
+        {loading && (
+          <SpinnerIcon
+            className="absolute inset-0 m-auto animate-spin text-white-400"
+            size="md"
+          />
+        )}
       </div>
     </Button>
   );

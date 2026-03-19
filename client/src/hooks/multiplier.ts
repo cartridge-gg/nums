@@ -74,7 +74,7 @@ export const useMultiplier = ({
           quoteAddress,
           numsAddress,
         );
-        console.log({ burnUsdc, quoteAddress, numsAddress, quote });
+        
         const burnPerGame = BigInt(Math.round(quote.total));
         if (burnPerGame === 0n) return;
 

@@ -17,7 +17,7 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[dojo::contract]
 mod Token {
-    use dojo::world::WorldStorageTrait;
+    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::{DefaultConfig, ERC20Component};
@@ -79,6 +79,18 @@ mod Token {
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         // [Effect] Mint initial supply
         self.erc20.mint(recipient, initial_supply.into());
+        // [Event] Emit a new registered contract for torii to index
+        let this = starknet::get_contract_address();
+        let instance_name: felt252 = this.into();
+        world
+            .dispatcher
+            .register_external_contract(
+                namespace: NAMESPACE(),
+                contract_name: "ERC20",
+                instance_name: format!("{}", instance_name),
+                contract_address: this,
+                block_number: 1,
+            )
     }
 
     #[abi(embed_v0)]

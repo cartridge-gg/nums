@@ -5,9 +5,11 @@ import { useId, useMemo } from "react";
 import { ShadowEffect, TokenIcon } from "@/components/icons";
 
 export interface BalanceProps
-  extends React.HTMLAttributes<HTMLButtonElement>,
+  extends
+    React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof balanceVariants> {
   balance: number;
+  icon?: React.ReactNode;
 }
 
 const balanceVariants = cva(
@@ -75,6 +77,7 @@ const formatMobileBalance = (num: number): string => {
 
 export const Balance = ({
   balance,
+  icon,
   variant,
   size,
   className,
@@ -101,16 +104,20 @@ export const Balance = ({
       {...props}
     >
       <ShadowEffect filterId={filterId} opacity={1} />
-      <TokenIcon
-        size="sm"
-        className="block md:hidden"
-        style={{ filter: `url(#${filterId})` }}
-      />
-      <TokenIcon
-        size="md"
-        className="hidden md:block"
-        style={{ filter: `url(#${filterId})` }}
-      />
+      {icon || (
+        <>
+          <TokenIcon
+            size="sm"
+            className="block md:hidden"
+            style={{ filter: `url(#${filterId})` }}
+          />
+          <TokenIcon
+            size="md"
+            className="hidden md:block"
+            style={{ filter: `url(#${filterId})` }}
+          />
+        </>
+      )}
       <div
         className="translate-y-0.5 tracking-wider overflow-clip px-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}

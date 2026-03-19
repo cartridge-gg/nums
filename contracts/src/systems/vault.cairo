@@ -34,7 +34,7 @@ const COLLECTOR_ROLE: felt252 = selector!("COLLECTOR_ROLE");
 #[dojo::contract]
 pub mod Vault {
     use core::num::traits::Zero;
-    use dojo::world::WorldStorageTrait;
+    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin::governance::votes::VotesComponent;
     use openzeppelin::interfaces::accounts::ISRC6_ID;
@@ -169,6 +169,19 @@ pub mod Vault {
         // [Effect] Extra rights for test purpose
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
+        // [Event] Emit a new registered contract for torii to index
+        let this = starknet::get_contract_address();
+        let instance_name: felt252 = this.into();
+        let world = self.world(@NAMESPACE());
+        world
+            .dispatcher
+            .register_external_contract(
+                namespace: NAMESPACE(),
+                contract_name: "ERC20",
+                instance_name: format!("{}", instance_name),
+                contract_address: this,
+                block_number: 1,
+            )
     }
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {

@@ -206,16 +206,17 @@ export const useActions = () => {
   );
 
   const mint = useCallback(
-    async (tokenAddress?: string) => {
+    async (amount: bigint = 100n * 10n ** 6n) => {
       try {
-        if (!account) return false;
-        const address = tokenAddress || getFaucetAddress(chain.id);
+        if (!account?.address) return false;
+        const faucetAddress = getFaucetAddress(chain.id);
         await account.execute([
           {
-            contractAddress: address,
-            entrypoint: "request",
+            contractAddress: faucetAddress,
+            entrypoint: "mint",
             calldata: CallData.compile({
-              amount: uint256.bnToUint256(10n * 10n ** 6n), // 10 USDC
+              recipient: account.address,
+              amount: uint256.bnToUint256(amount),
             }),
           },
         ]);
@@ -362,6 +363,32 @@ export const useActions = () => {
     }
   }, [account, chain.id]);
 
+  const merkledropClaim = useCallback(
+    async (treeId: string, proofs: string[], data: string[]) => {
+      try {
+        if (!account?.address) return false;
+        const gameAddress = getGameAddress(chain.id);
+        await account.execute([
+          {
+            contractAddress: gameAddress,
+            entrypoint: "merkledrop_claim",
+            calldata: CallData.compile({
+              tree_id: treeId,
+              proofs,
+              data,
+              receiver: account.address,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
   const start = useCallback(async (gameId: number, game: any) => {
     try {
       // Use GameEngine to start the game locally
@@ -387,6 +414,9 @@ export const useActions = () => {
     quest: {
       claims: questClaims,
       claim: questClaim,
+    },
+    merkledrop: {
+      claim: merkledropClaim,
     },
     vault: {
       deposit: vaultDeposit,

@@ -31,6 +31,9 @@ build-external-contracts = [
   "quest::events::index::e_QuestCompleted",
   "quest::events::index::e_QuestClaimed",
   "leaderboard::events::index::e_LeaderboardScore",
+  "merkledrop::models::index::m_MerkleTree",
+  "merkledrop::models::index::m_MerkleClaim",
+  "merkledrop::events::index::e_MerkleProofs",
 ]
 
 [dependencies]
@@ -38,6 +41,7 @@ collection.workspace = true
 achievement.workspace = true
 quest.workspace = true
 leaderboard.workspace = true
+merkledrop.workspace = true
 starterpack.workspace = true
 graffiti.workspace = true
 openzeppelin.workspace = true

@@ -27,11 +27,10 @@ const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
 #[dojo::contract]
 pub mod Setup {
     use achievement::components::achievable::AchievableComponent;
-    use dojo::world::{IWorldDispatcherTrait, WorldStorageTrait};
+    use dojo::world::WorldStorageTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin::introspection::src5::SRC5Component;
     use quest::components::questable::QuestableComponent;
-    use quest::interfaces::IQuestRegistry;
     use starknet::ContractAddress;
     use crate::StoreImpl;
     use crate::components::initializable::InitializableComponent;
@@ -40,9 +39,9 @@ pub mod Setup {
     use crate::mocks::registry::NAME as REGISTRY;
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
+    use crate::systems::faucet::NAME as FAUCET;
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
-    use crate::systems::vault::NAME as VAULT;
     use super::{ADMIN_ROLE, ISetup};
 
     // Components
@@ -103,7 +102,7 @@ pub mod Setup {
         ref self: ContractState,
         vrf_address: Option<ContractAddress>,
         starterpack_address: Option<ContractAddress>,
-        quote_address: ContractAddress,
+        quote_address: Option<ContractAddress>,
         ekubo_router_address: ContractAddress,
         ekubo_positions_address: ContractAddress,
         entry_price: u128,
@@ -128,6 +127,11 @@ pub mod Setup {
             starterpack_address
         } else {
             world.dns_address(@REGISTRY()).expect('Registry not found!')
+        };
+        let quote_address = if let Option::Some(quote_address) = quote_address {
+            quote_address
+        } else {
+            world.dns_address(@FAUCET()).expect('Faucet not found!')
         };
         let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
         let pool_sqrt = if nums_address < quote_address {
@@ -168,40 +172,6 @@ pub mod Setup {
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
-
-        // [Event] Order torii to index the tokens
-        let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
-        let instance_name: felt252 = nums_address.into();
-        world
-            .dispatcher
-            .register_external_contract(
-                namespace: NAMESPACE(),
-                contract_name: "ERC20",
-                instance_name: format!("{}", instance_name),
-                contract_address: nums_address,
-                block_number: 1,
-            );
-        let vault_address = world.dns_address(@VAULT()).expect('Vault not found!');
-        let instance_name: felt252 = vault_address.into();
-        world
-            .dispatcher
-            .register_external_contract(
-                namespace: NAMESPACE(),
-                contract_name: "ERC20",
-                instance_name: format!("{}", instance_name),
-                contract_address: vault_address,
-                block_number: 1,
-            );
-    }
-
-    #[abi(embed_v0)]
-    impl QuestRegistryImpl of IQuestRegistry<ContractState> {
-        fn quest_claim(
-            ref self: ContractState, player: ContractAddress, quest_id: felt252, interval_id: u64,
-        ) {
-            let world = self.world(@NAMESPACE());
-            self.questable.claim(world, player.into(), quest_id, interval_id);
-        }
     }
 
     #[abi(embed_v0)]

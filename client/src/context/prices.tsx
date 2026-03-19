@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
 import { getSwapQuote } from "@/api/ekubo";
-import { getTokenAddress } from "@/config";
+import { getFaucetAddress, getTokenAddress } from "@/config";
 import { useNetwork } from "@starknet-react/core";
-
-const USDC_ADDRESS =
-  "0x0512feac6339ff7889822cb5aa2a86c848e9d392bb0e3e237c008674feed8343";
 
 type PricesProviderProps = {
   children: React.ReactNode;
@@ -24,13 +21,14 @@ const PricesProviderContext = createContext<PricesProviderState | undefined>(
 const fetchTokenUsdPrice = async (
   chainId: bigint,
   tokenAddress: string,
+  quoteAddress: string,
 ): Promise<string | null> => {
   try {
     const swap = await getSwapQuote(
       chainId,
       100n * 10n ** 18n,
       tokenAddress,
-      USDC_ADDRESS,
+      quoteAddress,
     );
     const price = (swap.total / 1e6 / 100).toString();
     return price;
@@ -43,9 +41,10 @@ const fetchTokenUsdPrice = async (
 const fetchAllPrices = async (
   chainId: bigint,
   tokenAddresses: string[],
+  quoteAddress: string,
 ): Promise<Map<string, string>> => {
   const pricePromises = tokenAddresses.map((address) =>
-    fetchTokenUsdPrice(chainId, address),
+    fetchTokenUsdPrice(chainId, address, quoteAddress),
   );
 
   const prices = await Promise.allSettled(pricePromises);
@@ -64,14 +63,15 @@ const fetchAllPrices = async (
 export function PricesProvider({ children, ...props }: PricesProviderProps) {
   const { chain } = useNetwork();
   const numsAddress = useMemo(() => getTokenAddress(chain.id), [chain.id]);
+  const quoteAddress = useMemo(() => getFaucetAddress(chain.id), [chain.id]);
 
   // Track all token addresses that need prices
   // For now, we'll fetch NUMS price by default
   const tokenAddresses = useMemo(() => [numsAddress], [numsAddress]);
 
   const query = useQuery({
-    queryKey: ["tokenUsdPrices", tokenAddresses.join(",")],
-    queryFn: () => fetchAllPrices(chain.id, tokenAddresses),
+    queryKey: ["tokenUsdPrices", tokenAddresses.join(","), quoteAddress],
+    queryFn: () => fetchAllPrices(chain.id, tokenAddresses, quoteAddress),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,

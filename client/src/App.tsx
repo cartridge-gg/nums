@@ -27,6 +27,7 @@ import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
 import { TutorialProvider } from "./context/tutorial";
 import { VaultProvider } from "./context/vault";
+import { MerkledropsProvider } from "./context/merkledrops";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -116,26 +117,28 @@ function AuthenticatedApp() {
               <QuestsProvider>
                 <VaultProvider>
                   <AchievementsProvider>
-                    <PricesProvider>
-                      <WelcomeProvider>
-                        <LoadingProvider>
-                          <SoundProvider>
-                            <Layout>
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/game/:id" element={<Game />} />
-                                <Route
-                                  path="/game"
-                                  element={<Navigate to="/" replace />}
-                                />
-                                <Route path="/practice" element={<Game />} />
-                                <Route path="/tutorial" element={<Game />} />
-                              </Routes>
-                            </Layout>
-                          </SoundProvider>
-                        </LoadingProvider>
-                      </WelcomeProvider>
-                    </PricesProvider>
+                    <MerkledropsProvider>
+                      <PricesProvider>
+                        <WelcomeProvider>
+                          <LoadingProvider>
+                            <SoundProvider>
+                              <Layout>
+                                <Routes>
+                                  <Route path="/" element={<Home />} />
+                                  <Route path="/game/:id" element={<Game />} />
+                                  <Route
+                                    path="/game"
+                                    element={<Navigate to="/" replace />}
+                                  />
+                                  <Route path="/practice" element={<Game />} />
+                                  <Route path="/tutorial" element={<Game />} />
+                                </Routes>
+                              </Layout>
+                            </SoundProvider>
+                          </LoadingProvider>
+                        </WelcomeProvider>
+                      </PricesProvider>
+                    </MerkledropsProvider>
                   </AchievementsProvider>
                 </VaultProvider>
               </QuestsProvider>

@@ -186,7 +186,11 @@ pub mod PlayableComponent {
             let player = recipient.into();
             questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
 
-            // [Effect] Autoclaim quest
+            // [Effect] Autoclaim quest if reward is enabled
+            let quest: QuestType = quest_id.into();
+            if !quest.reward() {
+                return;
+            }
             questable.claim(world, player, quest_id, interval_id);
         }
 
@@ -197,20 +201,13 @@ pub mod PlayableComponent {
             quest_id: felt252,
             interval_id: u64,
         ) {
-            // [Setup] Store
-            let mut store = StoreImpl::new(world);
-
             // [Interaction] Reward player with Games
             let quest: QuestType = quest_id.into();
             if !quest.reward() {
                 return;
             }
             // [Effect] Create game
-            let nums_address = store.nums_disp().contract_address;
-            let asset = IERC20MixinDispatcher { contract_address: nums_address };
-            let nums_supply = asset.total_supply();
-            let multiplier = constants::MULTIPLIER_PRECISION;
-            self.create(world, recipient, multiplier, nums_supply, 0);
+            self.free(world, recipient);
         }
     }
 
@@ -223,6 +220,22 @@ pub mod PlayableComponent {
         impl Quest: QuestableComponent::HasComponent<TContractState>,
         impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
+        /// Create a default game.
+        fn free(
+            ref self: ComponentState<TContractState>,
+            world: WorldStorage,
+            recipient: ContractAddress,
+        ) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+            // [Effect] Create a game with default settings
+            let nums_address = store.nums_disp().contract_address;
+            let asset = IERC20MixinDispatcher { contract_address: nums_address };
+            let nums_supply = asset.total_supply();
+            let multiplier = constants::MULTIPLIER_PRECISION;
+            self.create(world, recipient, multiplier, nums_supply, 0);
+        }
+
         /// Create a new game. It ensures the game is valid and not already created.
         fn create(
             ref self: ComponentState<TContractState>,

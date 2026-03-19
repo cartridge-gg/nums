@@ -66,6 +66,7 @@ pub mod assets {
 }
 
 pub mod types {
+    pub mod drop;
     pub mod metadata;
     pub mod power;
     pub mod svg;

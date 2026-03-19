@@ -5,7 +5,7 @@ import { Balance, Profile, Connect } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { useId } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export interface HeaderProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -53,6 +53,22 @@ export const Header = ({
 }: HeaderProps) => {
   const darkId = useId();
   const lightId = useId();
+
+  const [faucetLoading, setFaucetLoading] = useState(false);
+  const prevFaucetBalance = useRef(faucetBalance);
+
+  useEffect(() => {
+    if (faucetLoading && faucetBalance !== prevFaucetBalance.current) {
+      setFaucetLoading(false);
+    }
+    prevFaucetBalance.current = faucetBalance;
+  }, [faucetBalance, faucetLoading]);
+
+  const handleFaucet = useCallback(() => {
+    setFaucetLoading(true);
+    onFaucet?.();
+  }, [onFaucet]);
+
   return (
     <div className={cn(headerVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={darkId} opacity={0.95} />
@@ -90,7 +106,8 @@ export const Header = ({
         {faucetBalance !== undefined && (
           <Balance
             balance={faucetBalance}
-            onClick={onFaucet}
+            loading={faucetLoading}
+            onClick={handleFaucet}
             icon={
               <>
                 <QuoteIcon

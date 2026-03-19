@@ -14,13 +14,14 @@ import {
   Multiplier,
 } from "@/components/elements";
 import { Slots, Stages, PowerUps } from "@/components/containers";
-import type { Game as GameModel } from "@/models/game";
+import type { Game as GameModel } from "@/models";
 import { Verifier } from "@/helpers/verifier";
 
 export interface GameSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gameSceneVariants> {
   game: GameModel;
+  multiplier: number;
   powers: PowerUpProps[];
   slots: Array<SlotProps>;
   stages: Array<StageState>;
@@ -49,6 +50,7 @@ const gameSceneVariants = cva(
 
 export const GameScene = ({
   game,
+  multiplier,
   powers,
   slots,
   stages,
@@ -109,7 +111,7 @@ export const GameScene = ({
         <div className="flex justify-between items-center gap-4 w-full">
           <Multiplier
             id="tutorial-multiplier"
-            multiplier={game.multiplier}
+            multiplier={multiplier}
             className="md:hidden"
           />
           <Instruction
@@ -149,7 +151,7 @@ export const GameScene = ({
         />
       </div>
       <div className="hidden md:flex items-stretch justify-center gap-6 w-full">
-        <Multiplier id="tutorial-multiplier" multiplier={game.multiplier} />
+        <Multiplier id="tutorial-multiplier" multiplier={multiplier} />
         <Stages id="tutorial-stages" states={stages} className="flex-1" />
         <Reward id="tutorial-reward" reward={game.reward} />
       </div>

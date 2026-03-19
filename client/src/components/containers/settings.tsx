@@ -228,7 +228,7 @@ const NavButtons = ({
   <>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onReferrals}
     >
       <ReferralIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -241,7 +241,7 @@ const NavButtons = ({
     </Button>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onAchievements}
     >
       <LaurelIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -254,7 +254,7 @@ const NavButtons = ({
     </Button>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onQuests}
     >
       <QuestIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -267,7 +267,7 @@ const NavButtons = ({
     </Button>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onLeaderboard}
     >
       <TrophyIcon
@@ -284,7 +284,7 @@ const NavButtons = ({
     </Button>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onStaking}
     >
       <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -297,7 +297,7 @@ const NavButtons = ({
     </Button>
     <Button
       variant="secondary"
-      className="h-10 min-h-10gap-1"
+      className="h-10 min-h-10 gap-1"
       onClick={onTutorial}
     >
       <LightbulbIcon size="md" style={{ filter: `url(#${filterId})` }} />

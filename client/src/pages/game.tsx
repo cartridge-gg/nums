@@ -527,6 +527,10 @@ export const Game = () => {
       <GameScene
         key={game.id}
         game={game}
+        multiplier={
+          starterpacks.find((sp) => sp.price === game.price)?.multiplier ??
+          game.multiplier
+        }
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}

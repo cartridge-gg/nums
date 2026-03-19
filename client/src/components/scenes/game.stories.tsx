@@ -67,6 +67,7 @@ const createMockGame = (
 
 export const Default: Story = {
   args: {
+    multiplier: 10,
     game: createMockGame(
       162, // currentNumber
       679, // nextNumber
@@ -130,6 +131,7 @@ export const Default: Story = {
 
 export const Rescuable: Story = {
   args: {
+    multiplier: 10,
     game: createMockGame(
       313, // currentNumber
       314, // nextNumber
@@ -194,6 +196,7 @@ export const Rescuable: Story = {
 
 export const GameOver: Story = {
   args: {
+    multiplier: 10,
     game: createMockGame(
       313, // currentNumber
       679, // nextNumber

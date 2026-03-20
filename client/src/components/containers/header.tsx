@@ -78,16 +78,18 @@ export const Header = ({
         className="flex items-center justify-start gap-2 cursor-pointer select-none [&_svg]:size-10 md:[&_svg]:size-12"
         draggable={false}
       >
-        <LogoIcon
-          className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] text-white"
-          aria-hidden="true"
-        />
-        <h1
-          className="text-[64px] leading-[48px] uppercase text-white translate-y-1 hidden md:block"
-          style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
-        >
-          NUMS.GG
-        </h1>
+        <Button variant="ghost" className="p-0">
+          <LogoIcon
+            className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] text-white"
+            aria-hidden="true"
+          />
+          <h1
+            className="text-[64px] leading-[48px] uppercase text-white translate-y-1 hidden md:block"
+            style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}
+          >
+            NUMS.GG
+          </h1>
+        </Button>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
         {hasMerkledrop && onMerkledrop && (

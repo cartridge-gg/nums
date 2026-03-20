@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "../ui/button";
 
 export interface ActivityTabProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof activityTabVariants> {
   active?: boolean;
 }
@@ -35,7 +36,8 @@ export const ActivityTab = ({
   ...props
 }: ActivityTabProps) => {
   return (
-    <div
+    <Button
+      variant="ghost"
       data-active={active}
       className={cn(activityTabVariants({ variant, size, className }))}
       {...props}
@@ -46,6 +48,6 @@ export const ActivityTab = ({
       >
         {children}
       </p>
-    </div>
+    </Button>
   );
 };

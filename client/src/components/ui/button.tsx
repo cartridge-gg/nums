@@ -66,7 +66,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
-    const { playClick, playPlace } = useAudio();
+    const { playClick, playPlace, playHover } = useAudio();
+
+    const handleMouseEnter = React.useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (!disabled) {
+          playHover();
+        }
+        onMouseEnter?.(event);
+      },
+      [disabled, onMouseEnter, playHover],
+    );
 
     const handleClick = React.useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,6 +96,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
         {...props}
       >
         {loading ? <SpinnerIcon className="animate-spin" /> : children}

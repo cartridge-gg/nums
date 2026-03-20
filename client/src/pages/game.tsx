@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -7,7 +7,6 @@ import { Places } from "@/components/containers/places";
 import { Uses } from "@/components/containers/uses";
 import { GameOver } from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
-import { usePractices } from "@/hooks/practices";
 import { usePractice } from "@/context/practice";
 import { useGame } from "@/hooks/game";
 import { usePrices } from "@/context/prices";
@@ -29,9 +28,6 @@ import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
 export const Game = () => {
-  const location = useLocation();
-  const isPracticeMode =
-    location.pathname === "/practice" || location.pathname === "/tutorial";
   const {
     data: tutorialData,
     isActive: tutorialActive,
@@ -39,20 +35,11 @@ export const Game = () => {
     resume: tutorialResume,
   } = useTutorial();
 
-  // Regular actions for blockchain mode
-  const blockchainActions = useActions();
+  const { isPracticeMode, optimisticGame, set, select, apply, claim } =
+    useActions();
 
-  // Practice context
   const { game: practiceGame, start: startPractice } = usePractice();
   const { supply: currentSupply, username } = useHeader();
-
-  // Practice actions
-  const practiceActions = usePractices();
-
-  // Use practice actions if in practice mode, otherwise use blockchain actions
-  const { set, select, apply, claim } = isPracticeMode
-    ? practiceActions
-    : blockchainActions;
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { playerGames: games } = useGames();
@@ -71,7 +58,7 @@ export const Game = () => {
     targetSupply: config?.target_supply ?? 0n,
     quoteAddress: config?.quote ?? "",
   });
-  const { playPositive } = useAudio();
+  const { playPositive, playPower } = useAudio();
   const { isLoading, setLoading } = useLoading();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { id: idParam } = useParams<{ id: string }>();
@@ -103,8 +90,8 @@ export const Game = () => {
   // Load game data (only in blockchain mode)
   const blockchainGame = useGame(gameId);
 
-  // Use practice game if in practice mode, otherwise use blockchain game
-  const game = isPracticeMode ? practiceGame : blockchainGame;
+  const game =
+    optimisticGame ?? (isPracticeMode ? practiceGame : blockchainGame);
 
   // Track if we've initialized practice game for this practice mode session
   const practiceInitializedRef = useRef(false);
@@ -223,7 +210,9 @@ export const Game = () => {
     // Ensure enabled_powers has DEFAULT_POWER_COUNT elements
     const enabledPowers = [
       ...game.enabled_powers,
-      ...Array(DEFAULT_POWER_COUNT - game.enabled_powers.length).fill(false),
+      ...Array(
+        Math.max(0, DEFAULT_POWER_COUNT - game.enabled_powers.length),
+      ).fill(false),
     ];
 
     const powersArray: PowerUpProps[] = Array.from(
@@ -368,7 +357,10 @@ export const Game = () => {
     return game.selectable_powers.map((power, index) => ({
       power,
       loading: isLoading("power", index),
-      onClick: () => select(game.id, index),
+      onClick: () => {
+        playPower();
+        select(game.id, index, game);
+      },
     }));
   }, [game, hasSelectablePowers, select, isLoading, setShowSelectionModal]);
 

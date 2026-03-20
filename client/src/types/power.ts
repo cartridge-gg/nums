@@ -74,7 +74,7 @@ export class Power {
   public static getPowers(bitmap: bigint): Power[] {
     // Extract indexes from packed
     const indexes = Packer.unpack(bitmap, 4n);
-    return indexes.map((index) => Power.from(index));
+    return indexes.map((index) => Power.from(index)).filter((p) => !p.isNone());
   }
 
   /**

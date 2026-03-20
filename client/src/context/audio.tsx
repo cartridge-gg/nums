@@ -24,6 +24,8 @@ interface AudioContextType {
   playWindy: () => void;
   playMagnet: () => void;
   playBomb: () => void;
+  playHover: () => void;
+  playPower: () => void;
 }
 
 const AudioCtx = createContext<AudioContextType>({
@@ -42,6 +44,8 @@ const AudioCtx = createContext<AudioContextType>({
   playWindy: () => {},
   playMagnet: () => {},
   playBomb: () => {},
+  playHover: () => {},
+  playPower: () => {},
 });
 
 export const useAudio = () => useContext(AudioCtx);
@@ -58,6 +62,8 @@ const SFX_PATHS = {
   windy: "/sounds/windy.wav",
   magnet: "/sounds/magnet.wav",
   bomb: "/sounds/bomb.wav",
+  hover: "/sounds/hover.wav",
+  power: "/sounds/power.wav",
 } as const;
 
 type SfxName = keyof typeof SFX_PATHS;
@@ -164,6 +170,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const playWindy = useCallback(() => playSfx("windy"), [playSfx]);
   const playMagnet = useCallback(() => playSfx("magnet"), [playSfx]);
   const playBomb = useCallback(() => playSfx("bomb"), [playSfx]);
+  const playHover = useCallback(() => playSfx("hover"), [playSfx]);
+  const playPower = useCallback(() => playSfx("power"), [playSfx]);
 
   return (
     <AudioCtx.Provider
@@ -183,6 +191,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         playWindy,
         playMagnet,
         playBomb,
+        playHover,
+        playPower,
       }}
     >
       {children}

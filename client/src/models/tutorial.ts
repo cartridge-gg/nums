@@ -14,16 +14,15 @@ export enum TutorialPhase {
   OptimalLocation,
   Reward,
   TrapIntroduction,
+  TrapSet,
   TrapResult,
-  TrapDisabled,
   PowerIntroduction,
-  PowerStages,
+  PowerUnlock,
   PowerSelection,
+  PowerUp,
+  PowerUse,
   PowerResult,
-  TrapNeutralized1,
-  TrapNeutralized2,
-  TrapNeutralized3,
-  TrapNeutralized4,
+  End,
 }
 
 export type TutorialAnchor =
@@ -33,9 +32,11 @@ export type TutorialAnchor =
   | { type: "slot"; index: number }
   | { type: "slots" }
   | { type: "power"; index: number }
-  | { type: "powers"; index: number }
+  | { type: "select"; index: number }
+  | { type: "set" }
+  | { type: "use" }
   | { type: "reward" }
-  | { type: "stages" };
+  | { type: "stage"; index: number };
 
 export interface TutorialData {
   title?: string;
@@ -45,7 +46,7 @@ export interface TutorialData {
   };
   primaryLabel?: string;
   secondaryLabel?: string;
-  direction?: "left" | "right";
+  direction?: "left" | "right" | "up" | "down";
   foreground?: boolean;
   anchor?: TutorialAnchor;
   disabled?: boolean;
@@ -71,6 +72,15 @@ export class Tutorial {
       primaryLabel: "Continue",
       foreground: true,
     },
+    [TutorialPhase.Presentation]: {
+      instruction: {
+        title: "I am your LLM manager",
+        content:
+          "My current task is to maximize you human potential as a number sorter.",
+      },
+      primaryLabel: "Next",
+      foreground: true,
+    },
     [TutorialPhase.Terminal]: {
       instruction: {
         title: "Lets take a quick tour",
@@ -87,63 +97,44 @@ export class Tutorial {
       },
       primaryLabel: "Next",
     },
-    [TutorialPhase.TrapResult]: {
+    [TutorialPhase.FirstNumber]: {
       instruction: {
-        title: "Expertly done",
+        title: "Your first number",
         content:
-          "You saved the sequence by pushing this number to this position with the windy slot.",
+          "How exciting, I can observe your enthusiasm through your cursor movements. Are you ready to start sorting?",
       },
-      primaryLabel: "Next",
-      direction: "left",
-      anchor: { type: "slot", index: 4 },
+      primaryLabel: "I'm ready",
+      direction: "right",
+      anchor: { type: "num" },
     },
-    [TutorialPhase.TrapIntroduction]: {
+    [TutorialPhase.Placement]: {
       instruction: {
-        title: "Trap tiles",
+        title: "Place it here...",
         content:
-          "You must learn to navigate these. Hover over this windy slot to learn more about it's effect. Then, once you're ready, select it.",
+          'My internal processes are telling me that this is the correct slot for this number. Click "Set" to add it to your terminal',
       },
-      direction: "left",
+      direction: "right",
       anchor: { type: "slot", index: 2 },
     },
-    [TutorialPhase.TrapDisabled]: {
+    [TutorialPhase.Success]: {
       instruction: {
-        title: "Trap disabled",
+        title: "Success!",
         content:
-          "Notice now that the windy slot is disabled for good. Even if the slot is free again it won't trigger the trap again.",
-      },
-      primaryLabel: "Next",
-      direction: "left",
-      anchor: { type: "slot", index: 2 },
-    },
-    [TutorialPhase.Reward]: {
-      instruction: {
-        title: "Even more NUMS",
-        content:
-          "And just like that, you're collecting NUMS! Even more than you did last time... Thats how things work around here the more sorting the better and excellence is rewarded.",
+          "As a reward for your quick decision making in a high pressure environment we've given you some NUMS.",
       },
       primaryLabel: "Next",
       direction: "left",
       anchor: { type: "reward" },
     },
-    [TutorialPhase.OptimalLocation]: {
+    [TutorialPhase.NextNumber]: {
       instruction: {
-        title: "Put it here",
+        title: "Your next number...",
         content:
-          "Quite obviously this is the optimal location for your number. You know the drill...",
-      },
-      direction: "left",
-      anchor: { type: "slot", index: 16 },
-    },
-    [TutorialPhase.Sequence]: {
-      instruction: {
-        title: "Sequentialization",
-        content:
-          "You are a SORTER and the numbers need to be sorted. When you place your next number it needs to be placed in-sequence. Numbers CAN NOT be placed out-of sequence.",
+          "Oh, you recognize it? Outstanding your observational skills are well above average for a human.",
       },
       primaryLabel: "Next",
-      direction: "left",
-      anchor: { type: "slots" },
+      direction: "right",
+      anchor: { type: "num" },
     },
     [TutorialPhase.Prediction]: {
       instruction: {
@@ -157,137 +148,132 @@ export class Tutorial {
     },
     [TutorialPhase.Randomness]: {
       instruction: {
-        title: "Randomized assignment",
+        title: "Numbers are randomized",
         content:
-          "Number assignment is random. You'll receive numbers between 1 and 999. Internalizing this will be instrumental to your success as a sorter.",
+          "Number assignment is random. You'll receive numbers between **1** and **999**. Internalizing this will be instrumental to your success as a sorter.",
       },
       primaryLabel: "Next",
       direction: "left",
       anchor: { type: "next_num" },
     },
-    [TutorialPhase.NextNumber]: {
+    [TutorialPhase.Sequence]: {
       instruction: {
-        title: "Your next number...",
+        title: "Place them in-sequence",
         content:
-          "Oh, you recognize it? Outstanding your observational skills are well above average for a human.",
+          "Numbers need to be sorted numerically. Low numbers must be placed before high numbers.",
       },
       primaryLabel: "Next",
-      direction: "right",
-      anchor: { type: "num" },
+      direction: "left",
+      anchor: { type: "slots" },
     },
-    [TutorialPhase.Success]: {
+    [TutorialPhase.OptimalLocation]: {
       instruction: {
-        title: "Success!",
+        title: "Put it here",
         content:
-          "As a reward for your quick decision making in a high pressure environment we've given you some NUMS.",
+          "Quite obviously this is the optimal location for your number. You know the drill...",
+      },
+      direction: "left",
+      anchor: { type: "slot", index: 11 },
+    },
+    [TutorialPhase.Reward]: {
+      instruction: {
+        title: "Even more NUMS",
+        content:
+          "And just like that, you're collecting NUMS! Even more than you did last time...",
       },
       primaryLabel: "Next",
       direction: "left",
       anchor: { type: "reward" },
     },
-    [TutorialPhase.Placement]: {
+    [TutorialPhase.TrapIntroduction]: {
       instruction: {
-        title: "Place it here...",
+        title: "Trap tiles",
         content:
-          'My internal processes are telling me that this is the correct slot for this number. Click "Set" to add it to your terminal',
+          "You must learn to navigate these. Hover over this windy slot to learn more about it's effect. Then, once you're ready, select it.",
       },
-      direction: "right",
+      direction: "left",
+      anchor: { type: "slot", index: 1 },
+    },
+    [TutorialPhase.TrapSet]: {
+      instruction: {
+        title: 'Click "Set"',
+        content: "And place your number on the Windy Trap.",
+      },
+      direction: "left",
+      anchor: { type: "set" },
+    },
+    [TutorialPhase.TrapResult]: {
+      instruction: {
+        title: "Expertly done",
+        content:
+          "The Windy Trap activated and it's effect pushed a previously placed number away.",
+      },
+      primaryLabel: "Next",
+      direction: "left",
       anchor: { type: "slot", index: 3 },
-    },
-    [TutorialPhase.FirstNumber]: {
-      instruction: {
-        title: "Your first number",
-        content:
-          "How exciting, I can observe your enthusiasm through your cursor movements. Are you ready to start sorting?",
-      },
-      primaryLabel: "I'm ready",
-      direction: "right",
-      anchor: { type: "num" },
-    },
-    [TutorialPhase.Presentation]: {
-      instruction: {
-        title: "I am your LLM manager",
-        content:
-          "and my current task is to maximize you human potential as a mechanical turk.",
-      },
-      primaryLabel: "Next",
-      foreground: true,
-    },
-    [TutorialPhase.TrapNeutralized1]: {
-      instruction: {
-        title: "Trap neutralized",
-        content:
-          "We are going to neutralize the next trap in the sequence by surrounding it with numbers.",
-      },
-      primaryLabel: "Next",
-      direction: "left",
-      anchor: { type: "slot", index: 9 },
-      disabled: true,
-    },
-    [TutorialPhase.TrapNeutralized2]: {
-      instruction: {
-        title: "Trap neutralized",
-        content:
-          "Place your number here to initiate the neutralization process.",
-      },
-      direction: "right",
-      anchor: { type: "slot", index: 8 },
-    },
-    [TutorialPhase.TrapNeutralized3]: {
-      instruction: {
-        title: "Trap neutralized",
-        content:
-          "Place your number here to complete the neutralization process.",
-      },
-      direction: "left",
-      anchor: { type: "slot", index: 10 },
-    },
-    [TutorialPhase.TrapNeutralized4]: {
-      instruction: {
-        title: "Trap neutralized",
-        content:
-          "You can now select the magnet slot. Its effect has been neutralized and won't affect the sequence.",
-      },
-      direction: "left",
-      anchor: { type: "slot", index: 9 },
     },
     [TutorialPhase.PowerIntroduction]: {
       instruction: {
-        title: "Keep sorting!",
-        content: "Place your number here to continue sorting.",
-      },
-      direction: "left",
-      anchor: { type: "slot", index: 14 },
-    },
-    [TutorialPhase.PowerStages]: {
-      instruction: {
-        title: "Stages",
+        title: "Power ups",
         content:
-          "After sorting enough numbers you will unlock new powers. Each power has a different effect and can be used to help you sort more efficiently.",
+          "After placing your next tile you will be awarded a power up. ",
       },
       primaryLabel: "Next",
+      direction: "left",
+      anchor: { type: "stage", index: 3 },
+    },
+    [TutorialPhase.PowerUnlock]: {
+      instruction: {
+        title: "Next Number here",
+        content: "You know the drill...",
+      },
       direction: "right",
-      anchor: { type: "stages" },
+      anchor: { type: "slot", index: 2 },
     },
     [TutorialPhase.PowerSelection]: {
       instruction: {
-        title: "Power selection",
+        title: "Take Power up",
         content:
-          "You can now select a power among two randomly selected powers. Power ups are limited and can only be used once. You will be able to use them later on.",
+          "The Reroll Power Up gets you a redo. Lets grab it, this will be useful later. ",
       },
       direction: "left",
-      anchor: { type: "powers", index: 0 },
+      anchor: { type: "select", index: 0 },
+    },
+    [TutorialPhase.PowerUp]: {
+      instruction: {
+        title: "Use Reroll powerup",
+        content: "Your power ups are stored here. lets use it. ",
+      },
+      direction: "right",
+      anchor: { type: "power", index: 0 },
+    },
+    [TutorialPhase.PowerUse]: {
+      instruction: {
+        title: 'Click "Use"',
+        content:
+          "Using the reroll powerup will discard and reroll the current number.",
+      },
+      direction: "left",
+      anchor: { type: "use" },
     },
     [TutorialPhase.PowerResult]: {
       instruction: {
-        title: "Power inventory",
+        title: "Your rerolled number",
         content:
-          "You can now view your power inventory. You can use them later on to help you sort more efficiently.",
+          "And here it is, your reroll power up replaced your old number with a new one.",
       },
-      primaryLabel: "Next",
+      primaryLabel: "Continue",
       direction: "right",
-      anchor: { type: "power", index: 0 },
-      disabled: true,
+      anchor: { type: "num" },
+    },
+    [TutorialPhase.End]: {
+      instruction: {
+        title: "Training complete",
+        content:
+          "With these concepts you have everything you need to become a premier number sorter.",
+      },
+      primaryLabel: "Finish Tutorial",
+      foreground: true,
     },
   };
 
@@ -306,17 +292,16 @@ export class Tutorial {
     [TutorialPhase.Sequence]: TutorialPhase.OptimalLocation,
     [TutorialPhase.OptimalLocation]: TutorialPhase.Reward,
     [TutorialPhase.Reward]: TutorialPhase.TrapIntroduction,
-    [TutorialPhase.TrapIntroduction]: TutorialPhase.TrapResult,
-    [TutorialPhase.TrapResult]: TutorialPhase.TrapDisabled,
-    [TutorialPhase.TrapDisabled]: TutorialPhase.PowerIntroduction,
-    [TutorialPhase.PowerIntroduction]: TutorialPhase.PowerStages,
-    [TutorialPhase.PowerStages]: TutorialPhase.PowerSelection,
-    [TutorialPhase.PowerSelection]: TutorialPhase.PowerResult,
-    [TutorialPhase.PowerResult]: TutorialPhase.TrapNeutralized1,
-    [TutorialPhase.TrapNeutralized1]: TutorialPhase.TrapNeutralized2,
-    [TutorialPhase.TrapNeutralized2]: TutorialPhase.TrapNeutralized3,
-    [TutorialPhase.TrapNeutralized3]: TutorialPhase.TrapNeutralized4,
-    [TutorialPhase.TrapNeutralized4]: null,
+    [TutorialPhase.TrapIntroduction]: TutorialPhase.TrapSet,
+    [TutorialPhase.TrapSet]: TutorialPhase.TrapResult,
+    [TutorialPhase.TrapResult]: TutorialPhase.PowerIntroduction,
+    [TutorialPhase.PowerIntroduction]: TutorialPhase.PowerUnlock,
+    [TutorialPhase.PowerUnlock]: TutorialPhase.PowerSelection,
+    [TutorialPhase.PowerSelection]: TutorialPhase.PowerUp,
+    [TutorialPhase.PowerUp]: TutorialPhase.PowerUse,
+    [TutorialPhase.PowerUse]: TutorialPhase.PowerResult,
+    [TutorialPhase.PowerResult]: TutorialPhase.End,
+    [TutorialPhase.End]: null,
   };
 
   static getData(phase: TutorialPhase): TutorialData {

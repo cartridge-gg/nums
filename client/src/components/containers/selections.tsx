@@ -64,7 +64,7 @@ export const Selections = ({
           <Selection
             key={index}
             {...selection}
-            id={`tutorial-powers-${index}`}
+            id={`tutorial-select-${index}`}
             className={cn("flex-1", selection.className)}
           />
         ))}

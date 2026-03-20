@@ -472,7 +472,11 @@ export const Layout = ({ children }: LayoutProps) => {
             )}
           >
             <Tutorial
-              {...tutorialData}
+              title={tutorialData.title}
+              instruction={tutorialData.instruction}
+              primaryLabel={tutorialData.primaryLabel}
+              secondaryLabel={tutorialData.secondaryLabel}
+              direction={tutorialData.direction}
               onPrimary={tutorialNext}
               onSecondary={
                 tutorialData.secondaryLabel ? tutorialSkip : undefined

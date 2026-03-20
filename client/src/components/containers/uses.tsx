@@ -63,6 +63,7 @@ export const Uses = ({
       <Selection
         {...use}
         content="Use"
+        buttonId="tutorial-use"
         className={cn("w-full", use.className)}
       />
     </div>

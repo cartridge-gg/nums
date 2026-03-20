@@ -10,6 +10,7 @@ export interface SelectionProps
   onClick: () => void;
   loading?: boolean;
   disabled?: boolean;
+  buttonId?: string;
 }
 
 const selectionVariants = cva(
@@ -32,6 +33,7 @@ export const Selection = ({
   onClick,
   loading = false,
   disabled = false,
+  buttonId,
   variant,
   className,
   ...props
@@ -52,6 +54,7 @@ export const Selection = ({
         </div>
       </div>
       <Button
+        id={buttonId}
         variant="default"
         onClick={onClick}
         disabled={loading || disabled}

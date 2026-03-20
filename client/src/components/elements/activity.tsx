@@ -20,7 +20,7 @@ export interface ActivityProps
 const activityVariants = cva("select-none flex gap-3 items-center", {
   variants: {
     variant: {
-      default: "",
+      default: "w-full overflow-hidden",
     },
   },
   defaultVariants: {
@@ -43,28 +43,28 @@ export const Activity = ({
 
   return (
     <div className={cn(activityVariants({ variant, className }))} {...props}>
-      <div className="grow bg-black-900 rounded-lg flex items-center gap-3">
+      <div className="flex-1 bg-black-900 rounded-lg flex items-center gap-3 overflow-hidden">
         {/* Game Id column */}
-        <div className="flex-[5] flex items-center gap-2 text-left">
-          <div className="h-10 flex items-center gap-2 rounded-lg px-3 py-2">
-            <div className="flex items-center justify-center">
+        <div className="flex-1 md:flex-[5] min-w-0 flex items-center gap-2 text-left">
+          <div className="min-w-0 h-10 flex items-center gap-2 rounded-lg px-3 py-2">
+            <div className="flex-shrink-0 flex items-center justify-center">
               <GameIcon cells={cells} />
             </div>
-            <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 whitespace-nowrap font-thin">
+            <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 truncate font-thin">
               {gameId}
             </span>
           </div>
         </div>
 
         {/* Score column */}
-        <div className="flex-[3] text-left translate-y-0.5">
+        <div className="min-w-6 md:flex-[2] text-left translate-y-0.5">
           <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 whitespace-nowrap font-thin">
             {score}
           </span>
         </div>
 
         {/* Payout column */}
-        <div className="flex-[5] text-left translate-y-0.5">
+        <div className="min-w-20 md:flex-[3] text-left translate-y-0.5">
           <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-green-100 whitespace-nowrap font-thin">
             {payout}
           </span>

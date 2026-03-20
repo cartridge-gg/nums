@@ -2,7 +2,7 @@ import { SupplyPieChart } from "../../components/SupplyPieChart";
 
 # Token
 
-The **NUMS** token is the native asset of the game. Players buy games with USDC; the entry is distributed across buy-back and burn, referrals, and protocol revenue. Rewards in NUMS are minted based on performance. This page covers the economy, supply, and price mechanics.
+The **NUMS** token is the native asset of the game. Players buy games with USDC; the entry is distributed across buy-back and burn, referrals, and protocol revenue. Rewards in NUMS are minted based on performance. This page covers the economy, supply, and multiplier mechanics.
 
 ## Supply
 
@@ -11,18 +11,23 @@ At protocol launch, **1,000,000 tokens** are minted and distributed as follows:
 <div className="docs-flow">
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
-    <div className="docs-flow__content"><strong>800,000</strong> — Injected into the liquidity pool with 10,000 USDC and given to the DAO.</div>
+    <div className="docs-flow__content">
+      <strong>800,000</strong> — Injected into the liquidity pool with 10,000
+      USDC and given to the DAO.
+    </div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
-    <div className="docs-flow__content"><strong>200,000</strong> — Given to Cartridge and locked in the Vault.</div>
+    <div className="docs-flow__content">
+      <strong>200,000</strong> — Given to Cartridge and locked in the Vault.
+    </div>
   </div>
 </div>
 
 <SupplyPieChart />
 
 :::note
-**Vault and revenue shares.** The vault is used to claim protocol revenue in USDC. Withdrawing from it to sell tokens, for example, amounts to giving up shares of that revenue. More details in the [Staking](/staking) section.
+**Vault and governance.** The vault is used to stake NUMS and participate in protocol governance. Staking grants voting power on proposals, treasury spending, and protocol parameters. More details in the [Governance](/governance) section.
 :::
 
 :::tip
@@ -47,22 +52,38 @@ Players buy a game with **USDC**. The entry is distributed across several uses:
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
     <div className="docs-flow__content">
-      <p style={{ margin: 0 }}><strong>Buy-back and burn</strong> — The majority of the entry is used to buy NUMS from the DEX and burn them, reducing the supply.</p>
-      <p style={{ marginTop: '0.25rem' }}><em>70% at the time this document was written.</em></p>
+      <p style={{ margin: 0 }}>
+        <strong>Buy-back and burn</strong> — The majority of the entry is used
+        to buy NUMS from the DEX and burn them, reducing the supply.
+      </p>
+      <p style={{ marginTop: "0.25rem" }}>
+        <em>70% at the time this document was written.</em>
+      </p>
     </div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
     <div className="docs-flow__content">
-      <p style={{ margin: 0 }}><strong>Referral program</strong> — A smaller portion goes to the referral program if the game is eligible. See the [Referral Program](/referral-program) section for details.</p>
-      <p style={{ marginTop: '0.25rem' }}><em>5% at the time of writing.</em></p>
+      <p style={{ margin: 0 }}>
+        <strong>Referral program</strong> — A smaller portion goes to the
+        referral program if the game is eligible. See the [Referral
+        Program](/referral-program) section for details.
+      </p>
+      <p style={{ marginTop: "0.25rem" }}>
+        <em>5% at the time of writing.</em>
+      </p>
     </div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
     <div className="docs-flow__content">
-      <p style={{ margin: 0 }}><strong>Protocol revenue</strong> — The remaining USDC is used as protocol revenue and is fully transferred to the vault. See the [Staking](/staking) section for details.</p>
-      <p style={{ marginTop: '0.25rem' }}><em>25–30% at the time this document was written.</em></p>
+      <p style={{ margin: 0 }}>
+        <strong>Protocol revenue</strong> — The remaining USDC is used as
+        protocol revenue and is fully transferred to the team.
+      </p>
+      <p style={{ marginTop: "0.25rem" }}>
+        <em>25–30% at the time this document was written.</em>
+      </p>
     </div>
   </div>
 </div>
@@ -82,19 +103,37 @@ When a player buys a game, a **macro multiplier** is determined for that game an
 <div className="docs-flow">
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
-    <div className="docs-flow__content"><strong>Supply coefficient</strong> — A macro multiplier is applied as the ratio between the current supply and a target supply set at protocol inception. If the current supply is below target, this multiplier boosts rewards; if it is above target, it reduces emissions (down to zero when supply is twice the target).</div>
+    <div className="docs-flow__content">
+      <strong>Supply coefficient</strong> — A macro multiplier is applied as the
+      ratio between the current supply and a target supply set at protocol
+      inception. If the current supply is below target, this multiplier boosts
+      rewards; if it is above target, it reduces emissions (down to zero when
+      supply is twice the target).
+    </div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__bullet" />
     <div className="docs-flow__content">
-      <strong>Balance coefficient</strong> — Once the buy-back and burn are executed at purchase time, the ratio between the actual quantity of tokens burned and the ideal quantity determines this coefficient for the game. The ideal quantity is derived from:
+      <strong>Balance coefficient</strong> — Once the buy-back and burn are
+      executed at purchase time, the ratio between the actual quantity of tokens
+      burned and the ideal quantity determines this coefficient for the game.
+      The ideal quantity is derived from:
       <div className="docs-flow__substep">
         <span className="docs-flow__submarker">→</span>
-        <div className="docs-flow__content"><strong>Average performance reward</strong> — The reward associated with average player performance is computed. The average score is tracked as a moving average over the last 1000 games, with safeguards to prevent manipulation.</div>
+        <div className="docs-flow__content">
+          <strong>Average performance reward</strong> — The reward associated
+          with average player performance is computed. The average score is
+          tracked as a moving average over the last 1000 games, with safeguards
+          to prevent manipulation.
+        </div>
       </div>
       <div className="docs-flow__substep">
         <span className="docs-flow__submarker">→</span>
-        <div className="docs-flow__content"><strong>Ideal burn quantity</strong> — Protocol revenue is added to this to obtain the ideal quantity of tokens to burn to balance the system.</div>
+        <div className="docs-flow__content">
+          <strong>Ideal burn quantity</strong> — Protocol revenue is added to
+          this to obtain the ideal quantity of tokens to burn to balance the
+          system.
+        </div>
       </div>
     </div>
   </div>

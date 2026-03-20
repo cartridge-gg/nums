@@ -31,7 +31,9 @@ export default defineConfig({
   vite: {
     plugins: [ogMetaPlugin()],
   },
-  head: React.createElement(React.Fragment, null,
+  head: React.createElement(
+    React.Fragment,
+    null,
     React.createElement("meta", {
       key: "description",
       name: "description",
@@ -115,8 +117,15 @@ export default defineConfig({
       ],
     },
     { text: "Token", link: "/token" },
-    { text: "Staking", link: "/staking" },
-    { text: "Governance", link: "/governance" },
+    {
+      text: "Governance",
+      link: "/governance",
+      items: [
+        { text: "Staking", link: "/governance/staking" },
+        { text: "Votes", link: "/governance/votes" },
+        { text: "Treasury", link: "/governance/treasury" },
+      ],
+    },
     { text: "Referral program", link: "/referral-program" },
     { text: "Contracts", link: "/contracts" },
     { text: "FAQ", link: "/faq" },

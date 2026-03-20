@@ -1,0 +1,191 @@
+# Votes
+
+The **Governor** contract is the backbone of onchain governance. It manages the full lifecycle of proposals—from submission to execution—and ensures that all protocol changes go through a transparent, community-driven process.
+
+## Proposal types
+
+Governance proposals can cover a wide range of protocol decisions. Typical categories include:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Game parameters</strong> — Adjust burn percentages, entry prices,
+      multiplier coefficients, estimated supply targets, or other
+      gameplay-related values that shape the economy.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Treasury matters</strong> — Allocate funds from the treasury for
+      grants, partnerships, liquidity provisioning, operational expenses, or
+      community initiatives.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Protocol upgrades</strong> — Approve contract upgrades, deploy new
+      features, integrate external services, or modify the governance process
+      itself.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Fee changes</strong> — Introduce or modify fees, such as a vault
+      withdrawal fee, referral rate adjustments, or swap fee changes on the
+      treasury-owned liquidity pool.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Revenue allocation</strong> — Adjust the split of protocol revenue
+      between the team and the vault. By default, all revenue goes to the team,
+      but governance can vote to redirect a portion (or all of it) to the vault.
+    </div>
+  </div>
+</div>
+
+Proposals are not limited to these categories. Any action that can be executed onchain through the Governor contract can be submitted for a vote.
+
+## Proposal lifecycle
+
+Every proposal follows a strict sequence of phases:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>1. Submission</strong> — A vNUMS holder whose balance meets the
+      proposal threshold submits a proposal. The proposal includes a description
+      and one or more onchain actions to execute if it passes.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>2. Voting delay</strong> — A short waiting period before voting
+      begins. This gives the community time to review the proposal and form
+      opinions before casting votes.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>3. Voting period</strong> — The window during which vNUMS holders
+      can cast their votes (for, against, or abstain). Voting power is based on
+      vNUMS balance at the time the proposal was created.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>4. Quorum check</strong> — Once the voting period ends, the
+      proposal must meet the quorum threshold (minimum percentage of circulating
+      vNUMS that participated) and have more votes in favor than against.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>5. Timelock</strong> — Approved proposals enter a timelock delay
+      before execution. This provides a final safety window during which
+      participants can react if needed (e.g., unstaking if they disagree with
+      the outcome).
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>6. Execution</strong> — After the timelock expires, anyone can
+      trigger the proposal's execution. The onchain actions specified in the
+      proposal are carried out by the Governor contract.
+    </div>
+  </div>
+</div>
+
+:::note
+**Initial parameters (Governor contract).** At protocol launch:
+
+- **Voting delay**: 5 minutes — Time between proposal creation and voting start
+- **Voting period**: 10 minutes — Duration of the voting window
+- **Proposal threshold**: 1 vNUMS — Minimum vNUMS required to submit a proposal
+- **Quorum**: 30% of circulating vNUMS — Minimum participation for a vote to be valid
+- **Timelock delay**: 1 hour — Enforced by the Treasury contract before execution
+  :::
+
+:::warning
+These are **test parameters** and will be updated before mainnet launch.
+:::
+
+## Voting
+
+Voting power is derived from your **vNUMS balance** at the time a proposal is created (see [Staking](/governance/staking) for details on how to acquire vNUMS). Each vNUMS equals one vote.
+
+### Delegation
+
+After staking, you must **choose a delegate** for your voting power. This is a required step—without delegation, your vNUMS do not count toward any vote.
+
+- **Self-delegation** — If you want to vote yourself, delegate to your own address. This is the most common choice for active participants.
+- **Delegate to another account** — If you prefer not to vote directly, you can delegate your voting power to another address. That delegate will then vote on your behalf with the weight of your vNUMS balance added to theirs.
+
+Delegation can be changed at any time. You can switch delegates or reclaim your voting power by self-delegating again. Delegating does not transfer your tokens—only the voting power associated with them.
+
+:::note
+Delegation is **mandatory** to activate voting power. Simply holding vNUMS is not enough—you must explicitly delegate (even to yourself) for your balance to count in governance votes.
+:::
+
+### Casting a vote
+
+When casting a vote, you choose one of three options:
+
+- **For** — You support the proposal and want it to pass.
+- **Against** — You oppose the proposal and want it to be rejected.
+- **Abstain** — You participate (contributing to quorum) without expressing a preference.
+
+Abstain votes count toward quorum but do not count for or against the proposal. This allows holders to help meet quorum without influencing the outcome.
+
+## How to participate
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Stake NUMS</strong> — Deposit NUMS in the vault to receive vNUMS.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Delegate</strong> — Choose a delegate for your voting power:
+      yourself (to vote directly) or another address. This step is mandatory to
+      activate your vNUMS for governance.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Review proposals</strong> — Monitor active and pending proposals.
+      Evaluate the description and the onchain actions that would be executed.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Cast your vote</strong> — During the voting period, submit your
+      vote (for, against, or abstain). Your vote weight equals your vNUMS
+      balance at proposal creation.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Submit proposals</strong> — If your vNUMS balance meets the
+      proposal threshold, you can create new proposals for the community to vote
+      on.
+    </div>
+  </div>
+</div>

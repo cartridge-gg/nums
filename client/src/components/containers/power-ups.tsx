@@ -46,7 +46,7 @@ export const PowerUps = ({
           <li
             id={`tutorial-power-${index}`}
             key={`${index}`}
-            className="w-full md:w-auto"
+            className="flex-1"
           >
             <PowerUp
               {...powerProps}

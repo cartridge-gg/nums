@@ -95,7 +95,7 @@ export const PowerUp = ({
           )}
         />
       ) : (
-        <DiamondIcon className="text-mauve-100 h-full w-full" />
+        <DiamondIcon className="text-mauve-100 h-6 w-6 md:h-9 md:w-9" />
       )}
     </Button>
   );

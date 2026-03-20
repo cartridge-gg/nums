@@ -1,5 +1,5 @@
 import { useAccount, useNetwork } from "@starknet-react/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { CallData, uint256 } from "starknet";
 import {
@@ -14,7 +14,6 @@ import { useLoading } from "@/context/loading";
 import { useEntities } from "@/context/entities";
 import { usePractice } from "@/context/practice";
 import { GameEngine } from "@/engines";
-import type { Game } from "@/models/game";
 import { Random } from "@/helpers/random";
 
 export const useActions = () => {
@@ -31,8 +30,6 @@ export const useActions = () => {
 
   const { game: practiceGame, setGame } = usePractice();
   const { config } = useEntities();
-
-  const [optimisticGame, setOptimisticGame] = useState<Game | null>(null);
 
   const set = useCallback(
     async (gameId: number, index: number) => {
@@ -108,7 +105,7 @@ export const useActions = () => {
   );
 
   const select = useCallback(
-    async (gameId: number, index: number, game?: Game) => {
+    async (gameId: number, index: number) => {
       if (isPracticeMode) {
         if (!practiceGame) return false;
         try {
@@ -128,27 +125,31 @@ export const useActions = () => {
         }
       }
 
-      if (!account?.address || !game) return false;
+      if (!account?.address) return false;
 
       try {
-        const gameAddress = getGameAddress(chain.id);
-        const { transaction_hash } = await account.execute([
-          {
-            contractAddress: gameAddress,
-            entrypoint: "select",
-            calldata: CallData.compile({
-              gameId: gameId,
-              index: index,
-            }),
-          },
-        ]);
-        const receipt = await account.waitForTransaction(transaction_hash);
-        return receipt.isSuccess();
+        return await withLoading("power", index, async () => {
+          const gameAddress = getGameAddress(chain.id);
+          const { transaction_hash } = await account.execute([
+            {
+              contractAddress: gameAddress,
+              entrypoint: "select",
+              calldata: CallData.compile({
+                gameId: gameId,
+                index: index,
+              }),
+            },
+          ]);
+          const receipt = await account.waitForTransaction(transaction_hash);
+          if (!receipt.isSuccess()) {
+            setLoading("power", index, false);
+            return false;
+          }
+          return true;
+        });
       } catch (e) {
         console.log({ e });
         return false;
-      } finally {
-        setOptimisticGame(null);
       }
     },
     [
@@ -533,7 +534,6 @@ export const useActions = () => {
 
   return {
     isPracticeMode,
-    optimisticGame,
     start,
     set,
     select,

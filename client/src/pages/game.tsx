@@ -33,8 +33,7 @@ export const Game = () => {
     next: tutorialNext,
   } = useTutorial();
 
-  const { isPracticeMode, optimisticGame, set, select, apply, claim } =
-    useActions();
+  const { isPracticeMode, set, select, apply, claim } = useActions();
 
   const { game: practiceGame, start: startPractice } = usePractice();
   const { supply: currentSupply, username } = useHeader();
@@ -83,8 +82,7 @@ export const Game = () => {
   // Load game data (only in blockchain mode)
   const blockchainGame = useGame(gameId);
 
-  const game =
-    optimisticGame ?? (isPracticeMode ? practiceGame : blockchainGame);
+  const game = isPracticeMode ? practiceGame : blockchainGame;
 
   // Track if we've initialized practice game for this practice mode session
   const practiceInitializedRef = useRef(false);
@@ -342,12 +340,16 @@ export const Game = () => {
 
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];
+    const hasAnyLoading = game.selectable_powers.some((_, i) =>
+      isLoading("power", i),
+    );
     return game.selectable_powers.map((power, index) => ({
       power,
       loading: isLoading("power", index),
+      disabled: hasAnyLoading && !isLoading("power", index),
       onClick: () => {
         playPower();
-        select(game.id, index, game);
+        select(game.id, index);
       },
     }));
   }, [game, hasSelectablePowers, select, isLoading, setShowSelectionModal]);

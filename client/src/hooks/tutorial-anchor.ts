@@ -18,16 +18,20 @@ function anchorToId(anchor: TutorialAnchor): string {
       return "tutorial-multiplier";
     case "reward":
       return "tutorial-reward";
-    case "stages":
-      return "tutorial-stages";
+    case "stage":
+      return `tutorial-stage-${anchor.index}`;
     case "slots":
       return "tutorial-slots";
     case "slot":
       return `tutorial-slot-${anchor.index}`;
     case "power":
       return `tutorial-power-${anchor.index}`;
-    case "powers":
-      return `tutorial-powers-${anchor.index}`;
+    case "select":
+      return `tutorial-select-${anchor.index}`;
+    case "set":
+      return "tutorial-set";
+    case "use":
+      return "tutorial-use";
   }
 }
 

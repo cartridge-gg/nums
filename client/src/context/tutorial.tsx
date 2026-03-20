@@ -12,7 +12,6 @@ import { Game } from "@/models/game";
 import { usePractice } from "@/context/practice";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { useLocation } from "react-router-dom";
-import { useHeader } from "@/hooks/header";
 
 const STORAGE_KEY = "tutorial-completed";
 
@@ -47,17 +46,23 @@ export const useTutorial = () => useContext(TutorialContext);
 export function TutorialProvider({ children }: { children: ReactNode }) {
   const navigate = usePreserveSearchNavigate();
   const location = useLocation();
-  const { supply: currentSupply } = useHeader();
   const { game, setGame, clearGame } = usePractice();
 
   const [phase, setPhase] = useState<TutorialPhase | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const onProceedRef = useRef<(() => void) | null>(null);
+  const completingRef = useRef(false);
+  const isOnTutorialRoute = location.pathname === "/tutorial";
 
   const complete = useCallback(() => {
+    const proceed = onProceedRef.current;
+    onProceedRef.current = null;
+    completingRef.current = true;
     localStorage.setItem(STORAGE_KEY, "true");
     setPhase(null);
-  }, []);
+    navigate("/");
+    proceed?.();
+  }, [navigate]);
 
   const propose = useCallback((onProceed: () => void) => {
     const completed = localStorage.getItem(STORAGE_KEY);
@@ -78,16 +83,15 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (phase === TutorialPhase.Initialization) {
-      onProceedRef.current = null;
+    if (phase === TutorialPhase.Initialization && !isOnTutorialRoute) {
       clearGame();
-      const tutorialGame = Game.tutorial(currentSupply);
+      const tutorialGame = Game.tutorial();
       setGame(tutorialGame);
       navigate("/tutorial");
     }
 
     setPhase(nextPhase);
-  }, [phase, complete, clearGame, setGame, currentSupply, navigate]);
+  }, [phase, complete, clearGame, setGame, navigate, isOnTutorialRoute]);
 
   const skip = useCallback(() => {
     const proceed = onProceedRef.current;
@@ -104,6 +108,18 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const pause = useCallback(() => setIsPaused(true), []);
   const resume = useCallback(() => setIsPaused(false), []);
 
+  useEffect(() => {
+    if (!isOnTutorialRoute || phase !== null) return;
+    if (completingRef.current) {
+      completingRef.current = false;
+      return;
+    }
+    clearGame();
+    const tutorialGame = Game.tutorial();
+    setGame(tutorialGame);
+    setPhase(TutorialPhase.Initialization);
+  }, [isOnTutorialRoute, phase, clearGame, setGame]);
+
   const prevLevelRef = useRef<number>(0);
   const prevSelectableRef = useRef<number>(0);
 
@@ -119,7 +135,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     if (
       prevSelectableRef.current > 0 &&
       game.selectable_powers.length === 0 &&
-      data.anchor?.type === "powers"
+      data.anchor?.type === "select"
     ) {
       const nextPhase = Tutorial.next(phase);
       if (nextPhase !== null) setPhase(nextPhase);
@@ -130,7 +146,6 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   }, [game?.level, game?.selectable_powers.length, phase]);
 
   const isInitialization = phase === TutorialPhase.Initialization;
-  const isOnTutorialRoute = location.pathname === "/tutorial";
   const isVisible = phase !== null && (isInitialization || isOnTutorialRoute);
 
   const isActive = isVisible;

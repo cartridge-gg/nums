@@ -57,7 +57,7 @@ export const PowerUp = ({
       variant="muted"
       className={cn(
         powerUpVariants({ variant, size, className }),
-        "p-3 md:p-4 disabled:opacity-100",
+        "px-3 py-2 md:px-4 md:py-4 disabled:opacity-100",
         loading && "disabled:text-white-400",
         power
           ? "bg-mauve-700 hover:bg-mauve-500 disabled:bg-mauve-800 disabled:shadow-none"

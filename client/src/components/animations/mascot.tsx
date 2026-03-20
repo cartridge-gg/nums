@@ -17,6 +17,7 @@ export interface MascotProps
   playing?: boolean;
   flipped?: boolean;
   frames?: number[];
+  rotated?: boolean;
 }
 
 export const Mascot = memo(
@@ -29,6 +30,7 @@ export const Mascot = memo(
         playing = true,
         flipped = false,
         frames = ALL_FRAMES,
+        rotated,
         style,
         ...props
       },
@@ -65,7 +67,17 @@ export const Mascot = memo(
             backgroundPosition: `${bgX}% ${bgY}%`,
             backgroundRepeat: "no-repeat",
             imageRendering: "pixelated",
-            transform: flipped ? "scaleX(-1)" : undefined,
+            transform:
+              [
+                flipped ? "scaleX(-1)" : "",
+                rotated === true
+                  ? "rotate(-90deg)"
+                  : rotated === false
+                    ? "rotate(90deg)"
+                    : "",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined,
             ...style,
           }}
           {...props}

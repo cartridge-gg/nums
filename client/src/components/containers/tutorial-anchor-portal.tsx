@@ -15,6 +15,9 @@ export const TutorialAnchorPortal = () => {
   );
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelHeight, setPanelHeight] = useState(300);
+  const [pointerRotation, setPointerRotation] = useState<number | undefined>(
+    undefined,
+  );
 
   useLayoutEffect(() => {
     if (panelRef.current) {
@@ -23,18 +26,46 @@ export const TutorialAnchorPortal = () => {
     }
   });
 
+  useLayoutEffect(() => {
+    if (!panelRef.current || !rect) {
+      setPointerRotation(undefined);
+      return;
+    }
+
+    const pointerEl = panelRef.current.querySelector('[aria-label="Pointer"]');
+    if (!pointerEl) {
+      setPointerRotation(undefined);
+      return;
+    }
+
+    const pr = pointerEl.getBoundingClientRect();
+    const pointerCenterX = pr.left + pr.width / 2;
+    const pointerCenterY = pr.top + pr.height / 2;
+    const anchorCenterX = rect.left + rect.width / 2;
+    const anchorCenterY = rect.top + rect.height / 2;
+
+    const deg = Math.round(
+      Math.atan2(
+        anchorCenterY - pointerCenterY,
+        anchorCenterX - pointerCenterX,
+      ) *
+        (180 / Math.PI),
+    );
+    setPointerRotation(deg);
+  });
+
   useEffect(() => {
     if (!isActive || isPaused || !data?.anchor) return;
     const anchor = data.anchor;
-    if (anchor.type !== "powers") return;
+    if (anchor.type !== "select") return;
 
-    const targetIndex = (anchor as { type: "powers"; index: number }).index;
+    const targetIndex = (anchor as { type: "select"; index: number }).index;
     const els = document.querySelectorAll<HTMLElement>(
-      "[id^='tutorial-powers-']",
+      "[id^='tutorial-select-']",
     );
 
     for (const el of els) {
-      const idx = parseInt(el.id.replace("tutorial-powers-", ""), 10);
+      const idx = parseInt(el.id.replace("tutorial-select-", ""), 10);
       if (idx !== targetIndex) {
         el.dataset.tutorialDisabled = "true";
         el.style.pointerEvents = "none";
@@ -75,6 +106,21 @@ export const TutorialAnchorPortal = () => {
     Math.min(idealLeft, window.innerWidth - panelWidth - VIEWPORT_PADDING),
   );
 
+  const targetCenterX = rect.left + rect.width / 2;
+  const targetCenterY = rect.top + rect.height / 2;
+  const panelCenterX = left + panelWidth / 2;
+  const panelCenterY = top + panelHeight / 2;
+  const dx = targetCenterX - panelCenterX;
+  const dy = targetCenterY - panelCenterY;
+  const autoDirection: "left" | "right" | "up" | "down" =
+    Math.abs(dx) >= Math.abs(dy)
+      ? dx > 0
+        ? "right"
+        : "left"
+      : dy > 0
+        ? "down"
+        : "up";
+
   return createPortal(
     <>
       <svg
@@ -112,7 +158,12 @@ export const TutorialAnchorPortal = () => {
         }}
       >
         <Tutorial
-          {...data}
+          title={data.title}
+          instruction={data.instruction}
+          primaryLabel={data.primaryLabel}
+          secondaryLabel={data.secondaryLabel}
+          direction={autoDirection}
+          rotation={pointerRotation}
           onPrimary={next}
           onSecondary={data.secondaryLabel ? skip : undefined}
           className="w-full shadow-xl"

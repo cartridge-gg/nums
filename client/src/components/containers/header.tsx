@@ -105,29 +105,29 @@ export const Header = ({
             />
           </Button>
         )}
-        {faucetBalance !== undefined && (
-          <Balance
-            balance={faucetBalance}
-            loading={faucetLoading}
-            onClick={handleFaucet}
-            icon={
-              <>
-                <QuoteIcon
-                  size="sm"
-                  className="block md:hidden"
-                  style={{ filter: `url(#${darkId})` }}
-                />
-                <QuoteIcon
-                  size="md"
-                  className="hidden md:block"
-                  style={{ filter: `url(#${darkId})` }}
-                />
-              </>
-            }
-          />
-        )}
         {username ? (
           <>
+            {faucetBalance !== undefined && (
+              <Balance
+                balance={faucetBalance}
+                loading={faucetLoading}
+                onClick={handleFaucet}
+                icon={
+                  <>
+                    <QuoteIcon
+                      size="sm"
+                      className="block md:hidden"
+                      style={{ filter: `url(#${darkId})` }}
+                    />
+                    <QuoteIcon
+                      size="md"
+                      className="hidden md:block"
+                      style={{ filter: `url(#${darkId})` }}
+                    />
+                  </>
+                }
+              />
+            )}
             {balance !== undefined && (
               <Balance balance={balance} onClick={onBalance} />
             )}

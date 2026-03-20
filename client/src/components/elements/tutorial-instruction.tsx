@@ -7,7 +7,8 @@ export interface TutorialInstructionProps
     VariantProps<typeof tutorialInstructionVariants> {
   title: string;
   content: string;
-  direction?: "left" | "right";
+  direction?: "left" | "right" | "up" | "down";
+  rotation?: number;
 }
 
 const tutorialInstructionVariants = cva("flex gap-3", {
@@ -27,6 +28,7 @@ export const TutorialInstruction = ({
   title,
   content,
   direction,
+  rotation: rotationOverride,
   variant,
   className,
   ...props
@@ -42,7 +44,17 @@ export const TutorialInstruction = ({
       {direction ? (
         <Pointer
           size="3xl"
-          flipped={direction === "left"}
+          rotation={
+            rotationOverride !== undefined
+              ? rotationOverride
+              : direction === "right"
+                ? 0
+                : direction === "left"
+                  ? 180
+                  : direction === "up"
+                    ? -90
+                    : 90
+          }
           frames={[8, 9, 10, 11, 4, 5, 6, 7, 6, 5, 4, 11, 10, 9]}
           className="min-w-16 min-h-16"
         />
@@ -52,7 +64,7 @@ export const TutorialInstruction = ({
       <div className="flex flex-col gap-3">
         <span
           className={cn(
-            "font-primary text-lg/5 translate-y-0.5 text-mauve-100 tracking-wider",
+            "font-primary text-lg/5 translate-y-0.5 text-mauve-100 tracking-wider md:whitespace-nowrap",
             variant === "ghost" && " text-[28px]/5",
           )}
         >
@@ -64,7 +76,15 @@ export const TutorialInstruction = ({
             variant === "ghost" && "text-base/5",
           )}
         >
-          {content}
+          {content.split(/\*\*(.+?)\*\*/).map((part, i) =>
+            i % 2 === 1 ? (
+              <span key={i} className="text-white-100">
+                {part}
+              </span>
+            ) : (
+              part
+            ),
+          )}
         </span>
       </div>
     </div>

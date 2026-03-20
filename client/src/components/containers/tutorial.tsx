@@ -17,7 +17,8 @@ export interface TutorialProps
   primaryLabel?: string;
   secondaryLabel?: string;
   onClose?: () => void;
-  direction?: "left" | "right";
+  direction?: "left" | "right" | "up" | "down";
+  rotation?: number;
   onPrimary?: () => void;
   onSecondary?: () => void;
 }
@@ -43,6 +44,7 @@ export const Tutorial = ({
   primaryLabel,
   secondaryLabel,
   direction,
+  rotation,
   onClose,
   onPrimary,
   onSecondary,
@@ -95,6 +97,7 @@ export const Tutorial = ({
         <TutorialInstruction
           variant={title ? "default" : "ghost"}
           direction={direction}
+          rotation={rotation}
           {...instruction}
         />
         <Button

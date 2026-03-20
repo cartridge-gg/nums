@@ -15,8 +15,14 @@ export interface PointerProps
     VariantProps<typeof animationVariants> {
   fps?: number;
   playing?: boolean;
-  flipped?: boolean;
+  rotation?: number;
   frames?: number[];
+}
+
+function computeTransform(rotation?: number): string | undefined {
+  if (rotation === undefined || rotation === 0) return undefined;
+  if (Math.abs(rotation) <= 90) return `rotate(${rotation}deg)`;
+  return `scaleX(-1) rotate(${180 - rotation}deg)`;
 }
 
 export const Pointer = memo(
@@ -27,7 +33,7 @@ export const Pointer = memo(
         size,
         fps = DEFAULT_FPS,
         playing = true,
-        flipped = false,
+        rotation,
         frames = ALL_FRAMES,
         style,
         ...props
@@ -65,7 +71,7 @@ export const Pointer = memo(
             backgroundPosition: `${bgX}% ${bgY}%`,
             backgroundRepeat: "no-repeat",
             imageRendering: "pixelated",
-            transform: flipped ? "scaleX(-1)" : undefined,
+            transform: computeTransform(rotation),
             ...style,
           }}
           {...props}

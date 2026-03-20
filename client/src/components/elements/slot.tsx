@@ -37,7 +37,7 @@ const slotVariants = cva(
         locked: "border-black-700 bg-black-900 text-mauve-100",
       },
       size: {
-        md: "h-10 w-[100px] md:w-[120px]",
+        md: "min-h-8 max-h-10 md:h-10 w-[100px] md:w-[120px]",
       },
     },
     defaultVariants: {
@@ -177,7 +177,7 @@ export const Slot = ({
       )}
       <div className="w-1/3">
         {!TrapIcon ? (
-          <p className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px">
+          <p className="text-[22px]/[15px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px">
             {label}
           </p>
         ) : (
@@ -216,7 +216,7 @@ export const Slot = ({
         placeSound
         loading={loading}
         className={cn(
-          "h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
+          "py-0 h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
           !!value && isDisabled && "disabled:text-white-300",
           highlight && !!value && "disabled:bg-green-600",
           invalid && !!value && "disabled:bg-red-800 disabled:opacity-100",
@@ -229,7 +229,7 @@ export const Slot = ({
         <div
           ref={slotCounterRef}
           className={cn(
-            "text-2xl font-secondary tracking-wide font-bold",
+            "text-2xl/[18px] font-secondary tracking-wide font-bold",
             highlight && !invalid && !!value && "text-green-100",
             invalid && !!value && "text-red-100",
           )}

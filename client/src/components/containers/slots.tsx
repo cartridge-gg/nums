@@ -15,7 +15,7 @@ export interface SlotsProps
 }
 
 const slotsVariants = cva(
-  "select-none relative rounded grid grid-flow-col grid-rows-10 xs:grid-rows-7 md:grid-rows-5 gap-3 md:gap-4 w-full",
+  "select-none relative rounded grid grid-flow-col grid-rows-7 md:grid-rows-5 gap-2 md:gap-4 w-full",
   {
     variants: {
       variant: {
@@ -81,11 +81,14 @@ export const Slots = ({
       <DraggerIcon className="absolute top-0 left-1/4 -translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
       <DraggerIcon className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-auto text-black-700 hidden md:block" />
       <DraggerIcon className="absolute top-0 right-1/4 translate-x-2/3 h-full w-auto text-black-700 hidden md:block" />
-      <li className="flex justify-center">
+      <li className="flex justify-center h-full md:min-h-10">
         <Slot variant="locked" label={min} />
       </li>
       {slots.map((slot, index) => (
-        <li key={`${index}-${slot}`} className="flex justify-center min-h-10">
+        <li
+          key={`${index}-${slot}`}
+          className="flex justify-center h-full md:min-h-10"
+        >
           <Slot
             {...slot}
             id={`tutorial-slot-${index}`}
@@ -95,10 +98,10 @@ export const Slots = ({
           />
         </li>
       ))}
-      <li className="flex justify-center">
+      <li className="flex justify-center h-full md:min-h-10">
         <Slot variant="locked" label={max} />
       </li>
-      <li className="justify-center hidden xs:flex md:hidden">
+      <li className="justify-center flex md:hidden">
         <Slot variant="placeholder" />
       </li>
     </ul>

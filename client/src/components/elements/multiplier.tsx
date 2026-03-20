@@ -13,7 +13,7 @@ const multiplierVariants = cva(
   {
     variants: {
       variant: {
-        default: "w-auto h-full md:w-[136px] bg-black-800",
+        default: "w-auto h-10 md:h-full md:w-[136px] bg-black-800",
       },
     },
     defaultVariants: {
@@ -55,7 +55,7 @@ export const Multiplier = ({
       />
       <p
         className={cn(
-          "relative z-10 text-[28px]/[19px] tracking-wider translate-y-0.5",
+          "relative z-10 text-[22px]/[15px] md:text-[28px]/[19px] tracking-wider translate-y-0.5",
           getColor(multiplier),
         )}
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

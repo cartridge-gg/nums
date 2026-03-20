@@ -22,7 +22,6 @@ import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
-import { useMediaQuery } from "usehooks-ts";
 import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
@@ -31,8 +30,7 @@ export const Game = () => {
   const {
     data: tutorialData,
     isActive: tutorialActive,
-    pause: tutorialPause,
-    resume: tutorialResume,
+    next: tutorialNext,
   } = useTutorial();
 
   const { isPracticeMode, optimisticGame, set, select, apply, claim } =
@@ -60,14 +58,9 @@ export const Game = () => {
   });
   const { playPositive, playPower } = useAudio();
   const { isLoading, setLoading } = useLoading();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
-  useEffect(() => {
-    if (showPlacesModal) tutorialPause();
-    else tutorialResume();
-  }, [showPlacesModal, tutorialPause, tutorialResume]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
     null,
   );
@@ -265,11 +258,10 @@ export const Game = () => {
         ...power,
         loading: isLoading("power", index),
         onClick: () => {
-          // Only allow click if power exists and is not None
           if (power.power && !power.power.isNone()) {
-            // Open Uses modal instead of calling apply directly
             setSelectedPowerIndex(index);
             setShowUsesModal(true);
+            if (tutorialActive) tutorialNext();
           }
         },
         disabled:
@@ -310,15 +302,11 @@ export const Game = () => {
                   .index !== index)),
           onSlotClick: () => {
             const trap = game.getTrap(index);
-            if (
-              trap &&
-              !trap.isNone() &&
-              !game.isInactive(index) &&
-              !isDesktop
-            ) {
-              // If slot has a trap on mobile, open the modal
+            if (trap && !trap.isNone() && !game.isInactive(index)) {
+              // If slot has a trap, open the modal
               setSelectedSlotIndex(index);
               setShowPlacesModal(true);
+              if (tutorialActive) tutorialNext();
             } else {
               // On desktop or no trap, call set directly
               set(game.id, index);
@@ -339,10 +327,10 @@ export const Game = () => {
     setShowUsesModal,
     setSelectedPowerIndex,
     isLoading,
-    isDesktop,
     setShowGameOver,
     setShowSelectionModal,
     tutorialActive,
+    tutorialNext,
     tutorialData?.anchor,
     tutorialData?.disabled,
   ]);
@@ -401,14 +389,18 @@ export const Game = () => {
   // Show Selection modal after 2 seconds when selectable
   useEffect(() => {
     if (hasSelectablePowers && selections.length > 0) {
-      const timer = setTimeout(() => {
+      if (tutorialActive) {
         setShowSelectionModal(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setShowSelectionModal(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
     } else {
       setShowSelectionModal(false);
     }
-  }, [hasSelectablePowers, selections]);
+  }, [hasSelectablePowers, selections, tutorialActive]);
 
   // Calculate GameOver props
   const gameOverData = useMemo(() => {
@@ -460,14 +452,13 @@ export const Game = () => {
       trap,
       loading: isLoading("slot", selectedSlotIndex),
       onClick: () => {
-        // Call set with the selected slot index
         set(game.id, selectedSlotIndex);
-        // Close the modal
         setShowPlacesModal(false);
         setSelectedSlotIndex(null);
+        if (tutorialActive) tutorialNext();
       },
     };
-  }, [game, selectedSlotIndex, set, isLoading]);
+  }, [game, selectedSlotIndex, set, isLoading, tutorialActive, tutorialNext]);
 
   const handleClosePlacesModal = useCallback(() => {
     setShowPlacesModal(false);
@@ -487,14 +478,20 @@ export const Game = () => {
       power,
       loading: isLoading("power", selectedPowerIndex),
       onClick: () => {
-        // Call apply with the selected power index
         apply(game.id, selectedPowerIndex);
-        // Close the modal
         setShowUsesModal(false);
         setSelectedPowerIndex(null);
+        if (tutorialActive) tutorialNext();
       },
     };
-  }, [game, selectedPowerIndex, apply, isLoading]);
+  }, [
+    game,
+    selectedPowerIndex,
+    apply,
+    isLoading,
+    tutorialActive,
+    tutorialNext,
+  ]);
 
   const handleCloseUsesModal = useCallback(() => {
     setShowUsesModal(false);
@@ -533,7 +530,7 @@ export const Game = () => {
       />
       {/* Overlay and Selections modal when selectable powers exist */}
       {showSelectionModal &&
-        (!tutorialActive || tutorialData?.anchor?.type === "powers") && (
+        (!tutorialActive || tutorialData?.anchor?.type === "select") && (
           <>
             {/* Overlay to block interactions with Game */}
             <div className="absolute inset-0 bg-black-900/80 z-40" />

@@ -41,8 +41,8 @@ const meta = {
     playing: {
       control: "boolean",
     },
-    flipped: {
-      control: "boolean",
+    rotation: {
+      control: { type: "range", min: -180, max: 180, step: 1 },
     },
   },
 } satisfies Meta<typeof Pointer>;
@@ -55,7 +55,7 @@ export const Default: Story = {
     size: "3xl",
     fps: 6,
     playing: true,
-    flipped: false,
+    rotation: 0,
     frames: [8, 9, 10, 11, 4, 5, 6, 7, 6, 5, 4, 11, 10, 9],
   },
 };

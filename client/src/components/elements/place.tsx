@@ -56,6 +56,7 @@ export const Place = ({
 
       {/* Set Button */}
       <Button
+        id="tutorial-set"
         variant="default"
         onClick={onClick}
         disabled={loading}

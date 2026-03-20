@@ -164,25 +164,22 @@ export class Game {
     );
   }
 
-  static tutorial(supply: bigint): Game {
-    const drawSequence = [
-      300, 900, 200, 800, 500, 600, 550, 150, 100, 250, 350, 400, 450, 650, 700,
-      750, 850, 900, 42,
-    ];
+  static tutorial(): Game {
+    const drawSequence = [162, 679, 81, 149, 376, 934];
 
     const traps: Trap[] = Array(DEFAULT_SLOT_COUNT)
       .fill(0)
       .map((_, i) => {
         switch (i) {
-          case 2:
+          case 1:
             return Trap.from(5); // Windy
-          case 5:
+          case 10:
             return Trap.from(1); // Bomb
-          case 9:
+          case 7:
             return Trap.from(3); // Magnet
-          case 11:
+          case 4:
             return Trap.from(2); // Lucky
-          case 15:
+          case 13:
             return Trap.from(4); // UFO
           default:
             return Trap.from(0); // None
@@ -192,7 +189,7 @@ export class Game {
     const game = new Game(
       0,
       false,
-      DEFAULT_MULTIPLIER,
+      1.5,
       0,
       DEFAULT_SLOT_COUNT,
       DEFAULT_SLOT_MIN,
@@ -208,15 +205,13 @@ export class Game {
       Math.floor(Date.now() / 1000) + DEFAULT_EXPIRATION,
       traps,
       Array(DEFAULT_SLOT_COUNT).fill(0),
-      supply,
       0n,
+      6n * 10n ** 5n,
     );
 
     game._drawQueue = drawSequence.slice(2);
     game._powerDrawQueue = [
-      [Power.from(4), Power.from(2)], // Swap, High
-      [Power.from(5), Power.from(1)], // DoubleUp, Reroll
-      [Power.from(7), Power.from(3)], // Mirror, Low
+      [Power.from(1), Power.from(2)], // Reroll, High
     ];
     return game;
   }

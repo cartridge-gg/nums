@@ -37,7 +37,10 @@ export const Stages = ({
   return (
     <ul className={cn(stagesVariants({ variant, size, className }))} {...props}>
       {states.map((state, index) => (
-        <li key={`${index}-${JSON.stringify(state)}`}>
+        <li
+          key={`${index}-${JSON.stringify(state)}`}
+          id={`tutorial-stage-${index}`}
+        >
           <Stage state={state} className="" variant={variant} />
         </li>
       ))}

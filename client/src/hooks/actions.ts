@@ -1,5 +1,6 @@
 import { useAccount, useNetwork } from "@starknet-react/core";
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { CallData, uint256 } from "starknet";
 import {
   getSetupAddress,
@@ -10,16 +11,54 @@ import {
   getFaucetAddress,
 } from "@/config";
 import { useLoading } from "@/context/loading";
+import { useEntities } from "@/context/entities";
+import { usePractice } from "@/context/practice";
 import { GameEngine } from "@/engines";
+import type { Game } from "@/models/game";
 import { Random } from "@/helpers/random";
 
 export const useActions = () => {
   const { account } = useAccount();
   const { chain } = useNetwork();
   const { withLoading, setLoading } = useLoading();
+  const location = useLocation();
+
+  const isPracticeMode = useMemo(
+    () =>
+      location.pathname === "/practice" || location.pathname === "/tutorial",
+    [location.pathname],
+  );
+
+  const { game: practiceGame, setGame } = usePractice();
+  const { config } = useEntities();
+
+  const [optimisticGame, setOptimisticGame] = useState<Game | null>(null);
 
   const set = useCallback(
     async (gameId: number, index: number) => {
+      if (isPracticeMode) {
+        if (!practiceGame) return false;
+        try {
+          const result = await withLoading("slot", index, async () => {
+            const rand = new Random(
+              BigInt(Math.floor(Math.random() * 1000000)),
+            );
+            const targetSupply = config?.target_supply || 0n;
+            GameEngine.set(practiceGame, index, rand, targetSupply);
+            setGame(practiceGame.clone());
+            return true;
+          });
+          if (result) {
+            setLoading("slot", index, false);
+          }
+          return result;
+        } catch (e) {
+          console.error(e);
+          setLoading("slot", index, false);
+          return false;
+        }
+      }
+
       try {
         return await withLoading("slot", index, async () => {
           if (!account?.address) return false;
@@ -56,42 +95,97 @@ export const useActions = () => {
         return false;
       }
     },
-    [account, chain.id, withLoading, setLoading],
+    [
+      isPracticeMode,
+      practiceGame,
+      config,
+      setGame,
+      account,
+      chain.id,
+      withLoading,
+      setLoading,
+    ],
   );
 
   const select = useCallback(
-    async (gameId: number, index: number) => {
-      try {
-        return await withLoading("power", index, async () => {
-          if (!account?.address) return false;
-          const gameAddress = getGameAddress(chain.id);
-          const { transaction_hash } = await account.execute([
-            {
-              contractAddress: gameAddress,
-              entrypoint: "select",
-              calldata: CallData.compile({
-                gameId: gameId,
-                index: index,
-              }),
-            },
-          ]);
-          const receipt = await account.waitForTransaction(transaction_hash);
-          if (!receipt.isSuccess()) {
+    async (gameId: number, index: number, game?: Game) => {
+      if (isPracticeMode) {
+        if (!practiceGame) return false;
+        try {
+          const result = await withLoading("power", index, async () => {
+            GameEngine.select(practiceGame, index);
+            setGame(practiceGame.clone());
+            return true;
+          });
+          if (result) {
             setLoading("power", index, false);
-            return false;
           }
-          return true;
-        });
+          return result;
+        } catch (e) {
+          console.error(e);
+          setLoading("power", index, false);
+          return false;
+        }
+      }
+
+      if (!account?.address || !game) return false;
+
+      try {
+        const gameAddress = getGameAddress(chain.id);
+        const { transaction_hash } = await account.execute([
+          {
+            contractAddress: gameAddress,
+            entrypoint: "select",
+            calldata: CallData.compile({
+              gameId: gameId,
+              index: index,
+            }),
+          },
+        ]);
+        const receipt = await account.waitForTransaction(transaction_hash);
+        return receipt.isSuccess();
       } catch (e) {
         console.log({ e });
         return false;
+      } finally {
+        setOptimisticGame(null);
       }
     },
-    [account, chain.id, withLoading, setLoading],
+    [
+      isPracticeMode,
+      practiceGame,
+      setGame,
+      account,
+      chain.id,
+      withLoading,
+      setLoading,
+    ],
   );
 
   const apply = useCallback(
     async (gameId: number, index: number) => {
+      if (isPracticeMode) {
+        if (!practiceGame) return false;
+        try {
+          const result = await withLoading("power", index, async () => {
+            const rand = new Random(
+              BigInt(Math.floor(Math.random() * 1000000)),
+            );
+            GameEngine.apply(practiceGame, index, rand);
+            setGame(practiceGame.clone());
+            return true;
+          });
+          if (result) {
+            setLoading("power", index, false);
+          }
+          return result;
+        } catch (e) {
+          console.error(e);
+          setLoading("power", index, false);
+          return false;
+        }
+      }
+
       try {
         return await withLoading("power", index, async () => {
           if (!account?.address) return false;
@@ -128,11 +222,31 @@ export const useActions = () => {
         return false;
       }
     },
-    [account, chain.id, withLoading, setLoading],
+    [
+      isPracticeMode,
+      practiceGame,
+      setGame,
+      account,
+      chain.id,
+      withLoading,
+      setLoading,
+    ],
   );
 
   const claim = useCallback(
     async (gameId: number) => {
+      if (isPracticeMode) {
+        if (!practiceGame) return false;
+        try {
+          GameEngine.claim(practiceGame);
+          setGame(practiceGame.clone());
+          return true;
+        } catch (e) {
+          console.error(e);
+          return false;
+        }
+      }
+
       try {
         if (!account?.address) return false;
         const gameAddress = getGameAddress(chain.id);
@@ -151,7 +265,35 @@ export const useActions = () => {
         return false;
       }
     },
-    [account, chain.id],
+    [isPracticeMode, practiceGame, setGame, account, chain.id],
+  );
+
+  const start = useCallback(
+    async (gameId: number, game: any) => {
+      if (isPracticeMode) {
+        if (!practiceGame) return false;
+        try {
+          const rand = new Random(BigInt(Math.floor(Math.random() * 1000000)));
+          GameEngine.start(practiceGame, rand);
+          setGame(practiceGame.clone());
+          return true;
+        } catch (e) {
+          console.error(e);
+          return false;
+        }
+      }
+
+      try {
+        if (!game) return false;
+        const rand = new Random(BigInt(gameId));
+        GameEngine.start(game, rand);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [isPracticeMode, practiceGame, setGame],
   );
 
   const questClaims = useCallback(
@@ -389,22 +531,9 @@ export const useActions = () => {
     [account, chain.id],
   );
 
-  const start = useCallback(async (gameId: number, game: any) => {
-    try {
-      // Use GameEngine to start the game locally
-      // Note: This is for practice mode compatibility
-      // In blockchain mode, the game is started when minted
-      if (!game) return false;
-      const rand = new Random(BigInt(gameId));
-      GameEngine.start(game, rand);
-      return true;
-    } catch (e) {
-      console.log({ e });
-      return false;
-    }
-  }, []);
-
   return {
+    isPracticeMode,
+    optimisticGame,
     start,
     set,
     select,

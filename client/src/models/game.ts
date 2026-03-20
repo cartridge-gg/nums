@@ -112,12 +112,6 @@ export class Game {
       supply: BigInt(data.supply.value),
       price: BigInt(data.price.value),
     };
-    // Selected powers must be a 4 power array size, add None powers if needed
-    props.selected_powers = props.selected_powers.concat(
-      Array.from({ length: 3 - props.selected_powers.length }, () =>
-        Power.from(0),
-      ),
-    );
     return new Game(
       props.id,
       props.claimed,

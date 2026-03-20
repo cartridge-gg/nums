@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "../ui/button";
 
 export interface InstructionProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof instructionVariants> {
   content: string;
 }
@@ -35,10 +36,11 @@ export const Instruction = ({
   ...props
 }: InstructionProps) => {
   return (
-    <div
+    <Button
+      variant="ghost"
       className={cn(
         instructionVariants({ variant, size, className }),
-        !!onClick && "cursor-pointer hover:bg-black-700",
+        onClick ? "hover:bg-black-700" : "cursor-default pointer-events-none",
       )}
       onClick={onClick}
       {...props}
@@ -76,6 +78,6 @@ export const Instruction = ({
       <span className="translate-y-0.5 md:translate-y-[3px] text-[22px] md:text-[28px] tracking-wider">
         {content}
       </span>
-    </div>
+    </Button>
   );
 };

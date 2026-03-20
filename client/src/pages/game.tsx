@@ -340,9 +340,13 @@ export const Game = () => {
 
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];
+    const hasAnyLoading = game.selectable_powers.some((_, i) =>
+      isLoading("power", i),
+    );
     return game.selectable_powers.map((power, index) => ({
       power,
       loading: isLoading("power", index),
+      disabled: hasAnyLoading && !isLoading("power", index),
       onClick: () => {
         playPower();
         select(game.id, index);

@@ -129,6 +129,14 @@ body {
     background-repeat: repeat, repeat, no-repeat, no-repeat;
     mix-blend-mode: color-dodge;
     filter: brightness(3.7) blur(4px) contrast(var(--fire-contrast, 6));
+    -webkit-mask-image:
+      linear-gradient(0deg, white 0%, white 25%, transparent 65%),
+      radial-gradient(ellipse at bottom, white 25%, transparent 55%);
+    -webkit-mask-composite: destination-in;
+    mask-image:
+      linear-gradient(0deg, white 0%, white 25%, transparent 65%),
+      radial-gradient(ellipse at bottom, white 25%, transparent 55%);
+    mask-composite: intersect;
     animation:
       multiplier-fire 1.75s linear infinite,
       multiplier-fire-out 0.5s ease-out 1.75s forwards;

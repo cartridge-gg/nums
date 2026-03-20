@@ -1,0 +1,41 @@
+# Staking
+
+Token holders can stake their NUMS in the vault to participate in protocol governance. Staking converts NUMS into **vNUMS**, a share token that represents your position in the vault and grants you voting power over proposals, parameter changes, and treasury decisions.
+
+## Token
+
+**vNUMS** is the vault share token. It is a standard ERC-20 with integrated voting functionality. When you deposit NUMS into the vault, you receive vNUMS in return at the current exchange rate. This token is fully transferable—you can hold it, trade it, or use it in DeFi protocols.
+
+The vNUMS/NUMS exchange rate starts at 1:1 at protocol launch. Over time, if withdrawal fees are introduced by governance (see [Fee](#fee) below), the exchange rate can shift in favor of remaining holders—meaning each vNUMS may become redeemable for more than one NUMS.
+
+:::note
+At protocol launch, the initial parity is **1 vNUMS for 1 NUMS**.
+:::
+
+:::tip
+**vNUMS is transferable.** You can deposit it into a liquidity pool or use it elsewhere. However, voting power is tied to the address holding vNUMS. If you transfer vNUMS to a contract (such as a DEX pool), the voting power associated with those tokens is lost—the pool contract cannot delegate or vote.
+:::
+
+## Voting power
+
+Your voting power is determined by your **vNUMS balance** at the time a proposal is created. The more vNUMS you hold, the greater your influence over governance decisions.
+
+Voting power applies to all proposal types: game parameter changes, treasury allocations, protocol upgrades, and any other action submitted to the Governor contract.
+
+### Considerations
+
+See [Votes — How to participate](/governance/votes#how-to-participate) for the full step-by-step guide to staking, delegating, and voting.
+
+- **Delegation is required**: simply holding vNUMS is not enough. You must delegate your voting power (even to yourself) for it to be active. See [Votes](/governance/votes#delegation) for details.
+- Voting power is **not retroactive**: only balances at proposal creation time count. Acquiring vNUMS after a proposal is created does not grant voting rights on that proposal.
+- There is no minimum stake to vote, but there is a **proposal threshold** to submit proposals (see [Votes](/governance/votes) for details).
+
+## Fee
+
+There is **no fee** associated with entering or exiting the vault. You can stake and unstake freely, with no lock-up period and no minimum duration.
+
+However, the DAO has the ability to introduce a **withdrawal fee** through a governance vote. If such a proposal passes, a fee would be applied when unstaking vNUMS back to NUMS. The collected fees would remain in the vault, mechanically increasing the vNUMS/NUMS exchange rate for remaining holders.
+
+:::note
+At protocol launch, **no fee** is applied on deposits or withdrawals. Any future fee can only be introduced through a successful governance vote.
+:::

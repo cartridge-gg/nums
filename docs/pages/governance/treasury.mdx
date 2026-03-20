@@ -1,0 +1,78 @@
+# Treasury
+
+The **Treasury** is the protocol's onchain reserve. It centralizes DAO-owned assets and serves as the financial backbone for grants, partnerships, liquidity management, and operational spending. Every movement of funds requires a passed governance proposal—no single actor can unilaterally access treasury assets.
+
+The Treasury contract is also the account that holds the **administrative permissions** on the protocol. It is the contract authorized to modify game parameters, collect liquidity pool fees, update contract configurations, and execute any privileged operation on the game.
+
+## Purpose
+
+The treasury exists to fund the long-term development and sustainability of the protocol. It enables the DAO to:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Fund development</strong> — Allocate resources to protocol
+      improvements, new features, audits, and infrastructure.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Support growth</strong> — Finance grants, partnerships, marketing
+      initiatives, and community programs that expand the protocol's reach.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Manage liquidity</strong> — Oversee the treasury-owned liquidity
+      pool, adjust positions, and ensure healthy trading conditions for the NUMS
+      token.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Cover operations</strong> — Pay for ongoing costs such as indexer
+      hosting, RPC services, and other infrastructure required to keep the
+      protocol running.
+    </div>
+  </div>
+</div>
+
+## Governance controls
+
+All treasury operations are governed by the proposal and voting process described in [Votes](/governance/votes). The key safeguards are:
+
+<div className="docs-flow">
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Proposal required</strong> — No funds can be moved without a
+      governance proposal that has passed the voting process.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Timelock enforced</strong> — Approved proposals enter a timelock
+      before execution, giving the community time to react.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Onchain execution</strong> — Fund transfers are executed by the
+      Governor contract directly. There is no off-chain step or manual
+      intervention.
+    </div>
+  </div>
+  <div className="docs-flow__step">
+    <span className="docs-flow__bullet" />
+    <div className="docs-flow__content">
+      <strong>Full transparency</strong> — Every transaction from the treasury
+      is recorded onchain and can be verified by anyone at any time.
+    </div>
+  </div>
+</div>

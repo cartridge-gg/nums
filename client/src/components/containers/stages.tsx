@@ -9,7 +9,7 @@ export interface StagesProps
 }
 
 const stagesVariants = cva(
-  "select-none relative rounded grid grid-cols-9 gap-1 xs:gap-2",
+  "select-none relative rounded grid grid-cols-9 gap-1 md:gap-2",
   {
     variants: {
       variant: {

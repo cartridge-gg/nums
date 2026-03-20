@@ -31,14 +31,14 @@ export interface GameSceneProps
 }
 
 const gameSceneVariants = cva(
-  "select-none relative flex flex-col justify-between items-center gap-4 md:gap-8",
+  "select-none relative flex flex-col justify-around items-center gap-2 md:gap-8",
   {
     variants: {
       variant: {
         default: "",
       },
       size: {
-        md: "h-full md:w-[720px] md:mx-auto",
+        md: "w-full h-full md:w-[720px] md:mx-auto",
       },
     },
     defaultVariants: {
@@ -86,29 +86,31 @@ export const GameScene = ({
       style={{ scrollbarWidth: "none", ...style }}
       {...props}
     >
-      <div className="flex justify-between items-stretch gap-2 xs:gap-3 md:gap-8 w-full">
-        <div className="flex justify-between items-center h-full gap-2 xs:gap-3 md:gap-6">
-          <Num id="tutorial-num" value={game.number} invalid={isOver} sound />
-          <div className="flex flex-col justify-between items-start h-full gap-2">
-            <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
-              Up next
-            </p>
-            <Num
-              id="tutorial-next-num"
-              variant="secondary"
-              value={game.next_number}
-            />
+      <div className="flex-[1] w-full flex items-center">
+        <div className="flex justify-between items-stretch gap-3 md:gap-8 w-full">
+          <div className="flex justify-between items-center h-full gap-3 md:gap-6">
+            <Num id="tutorial-num" value={game.number} invalid={isOver} sound />
+            <div className="flex flex-col justify-between items-start h-full gap-2">
+              <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
+                Up next
+              </p>
+              <Num
+                id="tutorial-next-num"
+                variant="secondary"
+                value={game.next_number}
+              />
+            </div>
           </div>
+          <PowerUps powers={powers} className="hidden md:flex" />
+          <Reward
+            id="tutorial-reward"
+            reward={game.reward}
+            className="md:hidden"
+          />
         </div>
-        <PowerUps powers={powers} className="hidden md:flex" />
-        <Reward
-          id="tutorial-reward"
-          reward={game.reward}
-          className="md:hidden"
-        />
       </div>
-      <div className="flex flex-col items-center gap-3 w-full">
-        <div className="flex justify-between items-center gap-4 w-full">
+      <div className="flex-[1] w-full flex items-center">
+        <div className="flex justify-between items-center gap-2 md:gap-4 w-full">
           <Multiplier
             id="tutorial-multiplier"
             multiplier={multiplier}
@@ -132,18 +134,14 @@ export const GameScene = ({
             <GameInfo onClick={onGameInfo} disabled={!onGameInfo} />
           )}
         </div>
-        <Stages
-          id="tutorial-stages"
-          states={stages}
-          className="w-full md:hidden"
-        />
       </div>
-      <div
-        className="overflow-y-auto w-full p-3"
-        style={{ scrollbarWidth: "none" }}
-      >
+      <div className="flex-[1] w-full flex items-center md:hidden">
+        <Stages id="tutorial-stages" states={stages} className="w-full" />
+      </div>
+      <div className="grow w-full p-1 md:p-3 flex items-center">
         <Slots
           id="tutorial-slots"
+          className="h-full max-h-[350px] md:max-h-auto"
           number={game.number}
           min={game.slot_min}
           max={game.slot_max}
@@ -155,7 +153,9 @@ export const GameScene = ({
         <Stages id="tutorial-stages" states={stages} className="flex-1" />
         <Reward id="tutorial-reward" reward={game.reward} />
       </div>
-      <PowerUps powers={powers} className="w-full md:hidden" />
+      <div className="flex-[1] w-full flex items-center">
+        <PowerUps powers={powers} className="w-full md:hidden" />
+      </div>
     </div>
   );
 };

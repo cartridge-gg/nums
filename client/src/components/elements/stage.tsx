@@ -167,7 +167,7 @@ const stageVariants = cva(
         over: "border border-transparent",
       },
       size: {
-        md: "h-6",
+        md: "h-5 md:h-6",
       },
     },
     defaultVariants: {

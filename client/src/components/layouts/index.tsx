@@ -310,7 +310,7 @@ export const Layout = ({ children }: LayoutProps) => {
             "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
         }}
       >
-        <Events events={events} />
+        <Events events={events} className="hidden md:block" />
         <PurchaseModalProvider
           openPurchaseScene={() => {
             setShowPurchaseScene(true);

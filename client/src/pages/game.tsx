@@ -537,7 +537,7 @@ export const Game = () => {
         share={blockchainGame ? { username } : undefined}
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
         onInstruction={gameProps.onInstruction}
-        className="md:max-h-[588px] p-4 md:p-0 md:pb-0"
+        className="md:max-h-[588px] p-4 md:px-0 md:py-0"
       />
       {/* Overlay and Selections modal when selectable powers exist */}
       {showSelectionModal &&

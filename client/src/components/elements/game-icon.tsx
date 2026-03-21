@@ -33,7 +33,7 @@ export const GameIcon = ({
         <div
           key={index}
           className={cn(
-            "rounded-full w-1 h-0.5",
+            "rounded-full min-w-1 max-w-1 min-h-0.5 max-h-0.5",
             cell === null && "bg-black-800",
             cell === false && "bg-black-700",
             cell === true && "bg-mauve-100",

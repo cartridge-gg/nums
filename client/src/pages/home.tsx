@@ -23,6 +23,7 @@ export const Home = () => {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    refetch: refetchActivities,
   } = useActivities();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
@@ -190,6 +191,7 @@ export const Home = () => {
         if (!isFetchingNextPage) fetchNextPage();
       }}
       hasMoreActivities={hasNextPage}
+      onRefreshActivities={refetchActivities}
       onPurchase={handlePurchaseClick}
       onPractice={handlePracticeClick}
     />

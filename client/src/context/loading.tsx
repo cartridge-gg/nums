@@ -13,6 +13,7 @@ interface LoadingContextType {
     index: number | null,
     loading: boolean,
   ) => void;
+  resetAll: (type: "slot" | "power") => void;
   withLoading: <T>(
     type: "slot" | "power",
     index: number,
@@ -77,6 +78,14 @@ export const LoadingProvider = ({ children }: LoadingProviderProps) => {
     [],
   );
 
+  const resetAll = useCallback((type: "slot" | "power") => {
+    if (type === "slot") {
+      setLoadingSlots(new Set());
+    } else {
+      setLoadingPowers(new Set());
+    }
+  }, []);
+
   const withLoading = useCallback(
     async <T,>(
       type: "slot" | "power",
@@ -96,7 +105,9 @@ export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   );
 
   return (
-    <LoadingContext.Provider value={{ isLoading, setLoading, withLoading }}>
+    <LoadingContext.Provider
+      value={{ isLoading, setLoading, resetAll, withLoading }}
+    >
       {children}
     </LoadingContext.Provider>
   );

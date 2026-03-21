@@ -22,6 +22,8 @@ export interface HomeSceneProps
   playerActivities: ActivitiesProps;
   onPractice?: () => void;
   onPurchase?: () => void;
+  onLoadMoreActivities?: () => void;
+  hasMoreActivities?: boolean;
 }
 
 const homeSceneVariants = cva(
@@ -49,6 +51,8 @@ export const HomeScene = ({
   playerActivities,
   onPractice,
   onPurchase,
+  onLoadMoreActivities,
+  hasMoreActivities,
   variant,
   className,
   ...props
@@ -70,6 +74,8 @@ export const HomeScene = ({
         {...activities}
         filter={activityFilter}
         onFilterChange={setActivityFilter}
+        onLoadMore={activityFilter === "all" ? onLoadMoreActivities : undefined}
+        hasMore={activityFilter === "all" ? hasMoreActivities : false}
         className="grow overflow-hidden px-2"
       />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">

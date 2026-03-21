@@ -1,22 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { createContext, useContext, useMemo } from "react";
+import { useMemo } from "react";
+import { queryKeys } from "@/api/keys";
 import { getSwapQuote } from "@/api/ekubo";
 import { getFaucetAddress, getTokenAddress } from "@/config";
 import { useNetwork } from "@starknet-react/core";
-
-type PricesProviderProps = {
-  children: React.ReactNode;
-};
-
-type PricesProviderState = {
-  getTokenPrice: (tokenAddress: string) => string | null;
-  getNumsPrice: () => string | null;
-  isLoading: boolean;
-};
-
-const PricesProviderContext = createContext<PricesProviderState | undefined>(
-  undefined,
-);
 
 const fetchTokenUsdPrice = async (
   chainId: bigint,
@@ -60,7 +47,7 @@ const fetchAllPrices = async (
   return priceMap;
 };
 
-export function PricesProvider({ children, ...props }: PricesProviderProps) {
+export const usePrices = () => {
   const { chain } = useNetwork();
   const numsAddress = useMemo(() => getTokenAddress(chain.id), [chain.id]);
   const quoteAddress = useMemo(() => getFaucetAddress(chain.id), [chain.id]);
@@ -70,7 +57,7 @@ export function PricesProvider({ children, ...props }: PricesProviderProps) {
   const tokenAddresses = useMemo(() => [numsAddress], [numsAddress]);
 
   const query = useQuery({
-    queryKey: ["tokenUsdPrices", tokenAddresses.join(","), quoteAddress],
+    queryKey: queryKeys.prices(tokenAddresses.join(","), quoteAddress),
     queryFn: () => fetchAllPrices(chain.id, tokenAddresses, quoteAddress),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
@@ -91,24 +78,9 @@ export function PricesProvider({ children, ...props }: PricesProviderProps) {
     };
   }, [getTokenPrice, numsAddress]);
 
-  return (
-    <PricesProviderContext.Provider
-      {...props}
-      value={{
-        getTokenPrice,
-        getNumsPrice,
-        isLoading: query.isLoading,
-      }}
-    >
-      {children}
-    </PricesProviderContext.Provider>
-  );
-}
-
-export const usePrices = () => {
-  const context = useContext(PricesProviderContext);
-  if (context === undefined) {
-    throw new Error("usePrices must be used within PricesProvider");
-  }
-  return context;
+  return {
+    getTokenPrice,
+    getNumsPrice,
+    isLoading: query.isLoading,
+  };
 };

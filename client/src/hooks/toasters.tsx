@@ -38,15 +38,13 @@ export const useToasters = () => {
   const { playReplay } = useAudio();
   const toastedRef = useRef<Set<string>>(new Set());
 
-  // Handle Started events
   useEffect(() => {
     if (!started || isMobile || loading) return;
+    if (started.hasExpired()) return;
     if (BigInt(started.player_id) === BigInt(address || "0x0")) return;
 
-    // Skip if already toasted
     const id = Started.getId(started);
     if (toastedRef.current.has(id)) return;
-    // Mark as toasted
     toastedRef.current.add(id);
 
     // Emit toast to social toaster
@@ -70,12 +68,11 @@ export const useToasters = () => {
 
   useEffect(() => {
     if (!claimed || isMobile || loading) return;
+    if (claimed.hasExpired()) return;
     if (BigInt(claimed.player_id) === BigInt(address || "0x0")) return;
 
-    // Skip if already toasted
     const id = Claimed.getId(claimed);
     if (toastedRef.current.has(id)) return;
-    // Mark as toasted
     toastedRef.current.add(id);
 
     // Emit toast to social toaster
@@ -97,15 +94,13 @@ export const useToasters = () => {
     );
   }, [address, isMobile, claimed, loading, find, toastedRef]);
 
-  // Handle Purchased events
   useEffect(() => {
     if (!purchased || loading) return;
+    if (purchased.hasExpired()) return;
     if (BigInt(purchased.player_id) !== BigInt(address || "0x0")) return;
 
-    // Skip if already toasted
     const id = Purchased.getId(purchased);
     if (toastedRef.current.has(id)) return;
-    // Mark as toasted
     toastedRef.current.add(id);
 
     // Emit toast to player toaster
@@ -131,6 +126,7 @@ export const useToasters = () => {
     if (!questCompleteds || loading) return;
 
     questCompleteds.forEach(({ event, quest }) => {
+      if (event.hasExpired()) return;
       if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
 
       const id = QuestCompleted.getId(event);
@@ -162,12 +158,11 @@ export const useToasters = () => {
     if (!claimeds || loading) return;
 
     claimeds.forEach(({ event, quest }) => {
+      if (event.hasExpired()) return;
       if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
 
-      // Skip if already toasted
       const id = QuestClaimed.getId(event);
       if (toastedRef.current.has(id)) return;
-      // Mark as toasted
       toastedRef.current.add(id);
 
       playReplay();
@@ -192,17 +187,15 @@ export const useToasters = () => {
     });
   }, [address, claimeds, loading, find, playReplay, toastedRef]);
 
-  // Handle Achievement Completed events
   useEffect(() => {
     if (!completeds || loading) return;
 
     completeds.forEach(({ event, achievement }) => {
+      if (event.hasExpired()) return;
       if (BigInt(event.player_id) !== BigInt(address || "0x0")) return;
 
-      // Skip if already toasted
       const id = AchievementCompleted.getId(event);
       if (toastedRef.current.has(id)) return;
-      // Mark as toasted
       toastedRef.current.add(id);
 
       playReplay();

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Activity, type ActivityProps } from "@/components/elements/activity";
 import { ActivityTab } from "@/components/elements/activity-tab";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 export type ActivityFilter = "all" | "mine";
 
@@ -12,6 +12,8 @@ export interface ActivitiesProps
   activities: Array<ActivityProps & { timestamp: number }>;
   filter?: ActivityFilter;
   onFilterChange?: (filter: ActivityFilter) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
 const activitiesVariants = cva(
@@ -82,10 +84,26 @@ export const Activities = ({
   activities,
   filter = "all",
   onFilterChange,
+  onLoadMore,
+  hasMore = false,
   variant,
   className,
   ...props
 }: ActivitiesProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    const element = scrollRef.current;
+    if (!element || !hasMore || !onLoadMore) return;
+
+    const distanceToBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight;
+
+    if (distanceToBottom <= 100) {
+      onLoadMore();
+    }
+  };
+
   const sections = useMemo<Section[]>(() => {
     const today: ActivityItem[] = [];
     const yesterday: ActivityItem[] = [];
@@ -171,6 +189,8 @@ export const Activities = ({
 
       {/* Activities list */}
       <div
+        ref={scrollRef}
+        onScroll={handleScroll}
         className="grow bg-black-900 border-2 border-black-800 rounded-xl flex flex-col p-4 gap-4 overflow-x-hidden overflow-y-auto"
         style={{ scrollbarWidth: "none" }}
       >
@@ -188,33 +208,35 @@ export const Activities = ({
             </p>
           </div>
         ) : (
-          sections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="flex flex-col gap-4">
-              {section.title && (
-                <h3
-                  className="text-[22px]/[15px] tracking-wider text-mauve-100 translate-y-0.5"
-                  style={{
-                    textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-                  }}
-                >
-                  {section.title}
-                </h3>
-              )}
-              <div className="flex flex-col gap-3">
-                {section.activities.map((activity) => (
-                  <Activity
-                    key={activity.to}
-                    gameId={activity.gameId}
-                    score={activity.score}
-                    payout={activity.payout}
-                    to={activity.to}
-                    claimed={activity.claimed}
-                    cells={activity.cells}
-                  />
-                ))}
+          <>
+            {sections.map((section, sectionIndex) => (
+              <div key={sectionIndex} className="flex flex-col gap-4">
+                {section.title && (
+                  <h3
+                    className="text-[22px]/[15px] tracking-wider text-mauve-100 translate-y-0.5"
+                    style={{
+                      textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+                    }}
+                  >
+                    {section.title}
+                  </h3>
+                )}
+                <div className="flex flex-col gap-3">
+                  {section.activities.map((activity) => (
+                    <Activity
+                      key={activity.to}
+                      gameId={activity.gameId}
+                      score={activity.score}
+                      payout={activity.payout}
+                      to={activity.to}
+                      claimed={activity.claimed}
+                      cells={activity.cells}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
     </div>

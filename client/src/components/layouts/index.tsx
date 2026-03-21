@@ -160,9 +160,21 @@ export const Layout = ({ children }: LayoutProps) => {
     if (starterpack) {
       (connector as ControllerConnector)?.controller.openStarterPack(
         starterpack.id.toString(),
+        {
+          onPurchaseComplete: () => {
+            setShowQuestScene(false);
+            setShowLeaderboardScene(false);
+            setShowPurchaseScene(false);
+            setShowStakingScene(false);
+            setShowReferralScene(false);
+            setShowSettingsScene(false);
+            setShowAchievementScene(false);
+            navigate("/game");
+          },
+        },
       );
     }
-  }, [connector, starterpack]);
+  }, [connector, starterpack, navigate]);
 
   // Detect new game and navigate to it
   useEffect(() => {
@@ -191,16 +203,14 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowSettingsScene(false);
       setShowAchievementScene(false);
 
-      // Find the newest game (first in the array)
       const newestGame = games[0];
-      // Check if the controller iframe is open from the DOM at iframe id "controller"
+      if (!newestGame) return;
+
       const controllerIframe = document.getElementById("controller");
-      // Check if opacity is 1
-      if (
-        newestGame &&
-        controllerIframe &&
-        getComputedStyle(controllerIframe).opacity === "1"
-      ) {
+      const isControllerOpen =
+        controllerIframe && getComputedStyle(controllerIframe).opacity === "1";
+
+      if (pathname === "/game" || (pathname === "/" && isControllerOpen)) {
         navigate(`/game/${newestGame.id}`);
         (connector as ControllerConnector)?.controller?.close?.();
       }
@@ -208,7 +218,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
     // Update ref for next comparison
     previousGamesLengthRef.current = currentLength;
-  }, [games.length, games, gamesLoading, navigate, connector]);
+  }, [games.length, games, gamesLoading, navigate, pathname]);
 
   useEffect(() => {
     setStarterpackIndex(1);

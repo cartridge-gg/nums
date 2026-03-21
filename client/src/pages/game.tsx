@@ -56,7 +56,7 @@ export const Game = () => {
     quoteAddress: config?.quote ?? "",
   });
   const { playPositive, playPower } = useAudio();
-  const { isLoading, setLoading } = useLoading();
+  const { isLoading, resetAll } = useLoading();
   const { id: idParam } = useParams<{ id: string }>();
   const [showGameOver, setShowGameOver] = useState(false);
   const [showPlacesModal, setShowPlacesModal] = useState(false);
@@ -118,20 +118,9 @@ export const Game = () => {
   // Reset loading states when game model changes (transaction succeeded and data updated)
   useEffect(() => {
     if (!game) return;
-
-    // Game model changed - reset loading states for slots/powers that are currently loading
-    // This handles the latency between transaction success and data push
-
-    // Reset slot loading states that are currently active (slots are 0-17)
-    for (let i = 0; i < game.slot_count; i++) {
-      setLoading("slot", i, false);
-    }
-
-    // Reset power loading states that are currently active (powers are 0-2)
-    for (let i = 0; i < game.selected_powers.length; i++) {
-      setLoading("power", i, false);
-    }
-  }, [game, setLoading]);
+    resetAll("slot");
+    resetAll("power");
+  }, [game, resetAll]);
 
   const basePrice = useMemo(() => {
     return Number(2000000n) / 10 ** 6;

@@ -114,7 +114,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { vaultInfo, vaultClaimed } = useVault();
   const stakingLocked = vaultInfo ? !vaultInfo.open : false;
 
-  const stakingSceneProps = useStaking({
+  const { refetch: refetchStaking, ...stakingSceneProps } = useStaking({
     balance: headerData.balance,
     shares: headerData.shares,
     totalShares: headerData.total,
@@ -276,6 +276,7 @@ export const Layout = ({ children }: LayoutProps) => {
         onConnect={headerData.handleConnect}
         onProfile={headerData.handleOpenProfile}
         onBalance={() => {
+          if (!showStakingScene) refetchStaking();
           setShowStakingScene(!showStakingScene);
           setShowQuestScene(false);
           setShowLeaderboardScene(false);

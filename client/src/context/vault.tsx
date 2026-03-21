@@ -1,4 +1,5 @@
 import type React from "react";
+import { useAtomValue } from "jotai";
 import {
   createContext,
   useCallback,
@@ -8,56 +9,12 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
 import type * as torii from "@dojoengine/torii-wasm";
-import { getChecksumAddress } from "starknet";
 import { useAccount } from "@starknet-react/core";
-import {
-  VaultInfo,
-  VaultPosition,
-  VaultClaimed,
-  type RawVaultInfo,
-  type RawVaultPosition,
-  type RawVaultClaimed,
-} from "@/models";
-import { useEntities } from "./entities";
-import { NAMESPACE } from "@/constants";
-
-// ---------------------------------------------------------------------------
-// Torii query builders
-// ---------------------------------------------------------------------------
-
-/** Query for VaultInfo — global entity, no user key needed */
-const getVaultInfoQuery = (namespace: string) => {
-  const model: `${string}-${string}` = `${namespace}-${VaultInfo.getModelName()}`;
-  return new ToriiQueryBuilder()
-    .withClause(
-      new ClauseBuilder().keys([model], [undefined], "FixedLen").build(),
-    )
-    .includeHashedKeys();
-};
-
-/** Query for VaultPosition — scoped to the connected user address */
-const getVaultPositionQuery = (namespace: string, userAddress: string) => {
-  const model: `${string}-${string}` = `${namespace}-${VaultPosition.getModelName()}`;
-  const key = getChecksumAddress(BigInt(userAddress)).toLowerCase();
-  return new ToriiQueryBuilder()
-    .withClause(new ClauseBuilder().keys([model], [key], "VariableLen").build())
-    .includeHashedKeys();
-};
-
-/** Query for VaultClaimed events — scoped to the connected user address */
-const getVaultClaimedQuery = (namespace: string, userAddress: string) => {
-  const model: `${string}-${string}` = `${namespace}-${VaultClaimed.getModelName()}`;
-  const key = getChecksumAddress(BigInt(userAddress)).toLowerCase();
-  return new ToriiQueryBuilder()
-    .withClause(new ClauseBuilder().keys([model], [key], "VariableLen").build())
-    .includeHashedKeys();
-};
+import { Vault } from "@/api/torii";
+import { subscribeEntities, subscribeEvents } from "@/api/torii/subscribe";
+import { toriiClientAtom } from "@/atoms";
+import type { VaultInfo, VaultPosition, VaultClaimed } from "@/models";
 
 // ---------------------------------------------------------------------------
 // Context types
@@ -82,11 +39,14 @@ const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export function VaultProvider({ children }: { children: React.ReactNode }) {
   const { address } = useAccount();
-  const { client } = useEntities();
+  const client = useAtomValue(toriiClientAtom);
 
   const infoSubRef = useRef<torii.Subscription | null>(null);
   const positionSubRef = useRef<torii.Subscription | null>(null);
   const claimedSubRef = useRef<torii.Subscription | null>(null);
+  const infoSubKeyRef = useRef<string>();
+  const positionSubKeyRef = useRef<string>();
+  const claimedSubKeyRef = useRef<string>();
 
   const [vaultInfo, setVaultInfo] = useState<VaultInfo>();
   const [vaultPosition, setVaultPosition] = useState<VaultPosition>();
@@ -99,129 +59,183 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   // Entity update handler
   // -------------------------------------------------------------------------
 
-  const onEntityUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${VaultInfo.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${VaultInfo.getModelName()}`
-          ] as unknown as RawVaultInfo;
-          const parsed = VaultInfo.parse(model);
-          if (parsed.exists()) setVaultInfo(parsed);
-        }
-        if (entity.models[`${NAMESPACE}-${VaultPosition.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${VaultPosition.getModelName()}`
-          ] as unknown as RawVaultPosition;
-          const parsed = VaultPosition.parse(model);
-          if (parsed.exists()) setVaultPosition(parsed);
-        }
-      });
-    },
-    [],
-  );
+  const onEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    const info = Vault.parseInfo(entities);
+    const position = Vault.parsePosition(entities);
+    if (info) setVaultInfo(info);
+    if (position) setVaultPosition(position);
+  }, []);
+  const onEntityUpdateRef = useRef(onEntityUpdate);
+  onEntityUpdateRef.current = onEntityUpdate;
 
-  const onClaimedEvent = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${VaultClaimed.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${VaultClaimed.getModelName()}`
-          ] as unknown as RawVaultClaimed;
-          const parsed = VaultClaimed.parse(model);
-          if (parsed.exists()) {
-            setVaultClaimed((prev) =>
-              !prev || parsed.time > prev.time ? parsed : prev,
-            );
-          }
-        }
-      });
-    },
-    [],
-  );
+  const onClaimedEvent = useCallback((entities: torii.Entity[]) => {
+    const claimed = Vault.parseClaimed(entities);
+    if (!claimed) return;
+    setVaultClaimed((prev) =>
+      !prev || claimed.time > prev.time ? claimed : prev,
+    );
+  }, []);
+  const onClaimedEventRef = useRef(onClaimedEvent);
+  onClaimedEventRef.current = onClaimedEvent;
+
+  const handleEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    onEntityUpdateRef.current(entities);
+  }, []);
+
+  const handleClaimedEvent = useCallback((entities: torii.Entity[]) => {
+    onClaimedEventRef.current(entities);
+  }, []);
 
   // -------------------------------------------------------------------------
   // Refresh — fetch initial data then subscribe
   // -------------------------------------------------------------------------
 
-  const refresh = useCallback(async () => {
+  const fetchVaultInfoInitial = useCallback(async () => {
     if (!client) return;
 
-    // Cancel existing subscriptions
+    const infoQuery = Vault.infoQuery();
+    await client
+      .getEntities(infoQuery.build())
+      .then((result) => handleEntityUpdate(result.items));
+  }, [client, handleEntityUpdate]);
+
+  const fetchUserInitial = useCallback(async () => {
+    if (!client || !address) return;
+
+    const positionQuery = Vault.positionQuery(address);
+    const claimedQuery = Vault.claimedQuery(address);
+
+    await client
+      .getEntities(positionQuery.build())
+      .then((result) => handleEntityUpdate(result.items));
+
+    await client
+      .getEventMessages(claimedQuery.build())
+      .then((result) => handleClaimedEvent(result.items));
+  }, [client, address, handleEntityUpdate, handleClaimedEvent]);
+
+  const setupVaultInfoSubscription = useCallback(async () => {
+    if (!client) return;
+
+    const infoClause = Vault.infoQuery().build().clause;
+    const infoKey = JSON.stringify(infoClause);
+
+    if (infoSubKeyRef.current === infoKey && infoSubRef.current) {
+      return;
+    }
+
     if (infoSubRef.current) {
       infoSubRef.current.cancel();
       infoSubRef.current = null;
     }
-    if (positionSubRef.current) {
-      positionSubRef.current.cancel();
-      positionSubRef.current = null;
+
+    infoSubRef.current = await subscribeEntities(
+      client,
+      infoClause,
+      handleEntityUpdate,
+    );
+    infoSubKeyRef.current = infoKey;
+  }, [client, handleEntityUpdate]);
+
+  const setupUserSubscriptions = useCallback(async () => {
+    if (!client || !address) return;
+
+    const positionClause = Vault.positionQuery(address).build().clause;
+    const claimedClause = Vault.claimedQuery(address).build().clause;
+    const positionKey = JSON.stringify(positionClause);
+    const claimedKey = JSON.stringify(claimedClause);
+
+    if (
+      !(positionSubKeyRef.current === positionKey && positionSubRef.current)
+    ) {
+      if (positionSubRef.current) {
+        positionSubRef.current.cancel();
+        positionSubRef.current = null;
+      }
+      positionSubRef.current = await subscribeEntities(
+        client,
+        positionClause,
+        handleEntityUpdate,
+      );
+      positionSubKeyRef.current = positionKey;
     }
-    if (claimedSubRef.current) {
-      claimedSubRef.current.cancel();
-      claimedSubRef.current = null;
+
+    if (!(claimedSubKeyRef.current === claimedKey && claimedSubRef.current)) {
+      if (claimedSubRef.current) {
+        claimedSubRef.current.cancel();
+        claimedSubRef.current = null;
+      }
+      claimedSubRef.current = await subscribeEvents(
+        client,
+        claimedClause,
+        handleClaimedEvent,
+      );
+      claimedSubKeyRef.current = claimedKey;
     }
+  }, [client, address, handleEntityUpdate, handleClaimedEvent]);
 
-    const infoQuery = getVaultInfoQuery(NAMESPACE);
-
-    // Always fetch VaultInfo
-    await client
-      .getEntities(infoQuery.build())
-      .then((result) =>
-        onEntityUpdate({ data: result.items, error: undefined }),
-      );
-
-    // Subscribe to VaultInfo updates
-    client
-      .onEntityUpdated(infoQuery.build().clause, [], onEntityUpdate)
-      .then((sub) => (infoSubRef.current = sub));
-
-    // VaultPosition requires a connected account
-    if (!address) return;
-
-    const positionQuery = getVaultPositionQuery(NAMESPACE, address);
-    const claimedQuery = getVaultClaimedQuery(NAMESPACE, address);
-
-    await client
-      .getEntities(positionQuery.build())
-      .then((result) =>
-        onEntityUpdate({ data: result.items, error: undefined }),
-      );
-
-    await client
-      .getEventMessages(claimedQuery.build())
-      .then((result) =>
-        onClaimedEvent({ data: result.items, error: undefined }),
-      );
-
-    client
-      .onEntityUpdated(positionQuery.build().clause, [], onEntityUpdate)
-      .then((sub) => (positionSubRef.current = sub));
-
-    client
-      .onEventMessageUpdated(claimedQuery.build().clause, [], onClaimedEvent)
-      .then((sub) => (claimedSubRef.current = sub));
-  }, [client, address, onEntityUpdate, onClaimedEvent]);
+  const refresh = useCallback(async () => {
+    await fetchVaultInfoInitial();
+    await fetchUserInitial();
+  }, [fetchVaultInfoInitial, fetchUserInitial]);
 
   // -------------------------------------------------------------------------
-  // Initial setup and re-run when account changes
-  // -------------------------------------------------------------------------
-
   useEffect(() => {
+    if (!client) return;
+    let cancelled = false;
+
     setStatus("loading");
-    refresh()
+
+    const run = async () => {
+      await fetchVaultInfoInitial();
+      await setupVaultInfoSubscription();
+    };
+
+    run()
       .then(() => setStatus("success"))
       .catch((error) => {
         console.error(error);
-        setStatus("error");
+        if (!cancelled) {
+          setStatus("error");
+        }
       });
 
     return () => {
+      cancelled = true;
       if (infoSubRef.current) {
         infoSubRef.current.cancel();
         infoSubRef.current = null;
       }
+      infoSubKeyRef.current = undefined;
+    };
+  }, [client, fetchVaultInfoInitial, setupVaultInfoSubscription]);
+
+  useEffect(() => {
+    if (!client || !address) return;
+    let cancelled = false;
+
+    setStatus("loading");
+
+    const run = async () => {
+      await fetchUserInitial();
+      await setupUserSubscriptions();
+    };
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      cancelled = true;
       if (positionSubRef.current) {
         positionSubRef.current.cancel();
         positionSubRef.current = null;
@@ -230,8 +244,10 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         claimedSubRef.current.cancel();
         claimedSubRef.current = null;
       }
+      positionSubKeyRef.current = undefined;
+      claimedSubKeyRef.current = undefined;
     };
-  }, [refresh]);
+  }, [client, address, fetchUserInitial, setupUserSubscriptions]);
 
   const value: VaultContextType = useMemo(
     () => ({ vaultInfo, vaultPosition, vaultClaimed, status, refresh }),

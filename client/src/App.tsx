@@ -8,19 +8,18 @@ import {
   voyager,
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Navigate } from "@/lib/router";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
-import { ControllersProvider } from "./context/controllers";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
 import { Game, Home, Support } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
-import { PricesProvider } from "./context/prices";
 import { LoadingProvider } from "./context/loading";
 import { WelcomeProvider } from "./context/welcome";
 import { Layout } from "./components/layouts";
@@ -81,29 +80,31 @@ const connectors = [new ControllerConnector(options) as never as Connector];
 
 function App() {
   return (
-    <TooltipProvider delayDuration={300}>
-      <QueryClientProvider client={queryClient}>
-        <StarknetConfig
-          autoConnect
-          chains={[chains[DEFAULT_CHAIN_ID]]}
-          connectors={connectors}
-          explorer={voyager}
-          provider={provider}
-        >
-          <Router
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
+    <JotaiProvider>
+      <TooltipProvider delayDuration={300}>
+        <QueryClientProvider client={queryClient}>
+          <StarknetConfig
+            autoConnect
+            chains={[chains[DEFAULT_CHAIN_ID]]}
+            connectors={connectors}
+            explorer={voyager}
+            provider={provider}
           >
-            <Routes>
-              <Route path="/support" element={<Support />} />
-              <Route path="/*" element={<AuthenticatedApp />} />
-            </Routes>
-          </Router>
-        </StarknetConfig>
-      </QueryClientProvider>
-    </TooltipProvider>
+            <Router
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              <Routes>
+                <Route path="/support" element={<Support />} />
+                <Route path="/*" element={<AuthenticatedApp />} />
+              </Routes>
+            </Router>
+          </StarknetConfig>
+        </QueryClientProvider>
+      </TooltipProvider>
+    </JotaiProvider>
   );
 }
 
@@ -113,36 +114,32 @@ function AuthenticatedApp() {
       <EntitiesProvider>
         <PracticeProvider>
           <TutorialProvider>
-            <ControllersProvider>
-              <QuestsProvider>
-                <VaultProvider>
-                  <AchievementsProvider>
-                    <MerkledropsProvider>
-                      <PricesProvider>
-                        <WelcomeProvider>
-                          <LoadingProvider>
-                            <SoundProvider>
-                              <Layout>
-                                <Routes>
-                                  <Route path="/" element={<Home />} />
-                                  <Route path="/game/:id" element={<Game />} />
-                                  <Route
-                                    path="/game"
-                                    element={<Navigate to="/" replace />}
-                                  />
-                                  <Route path="/practice" element={<Game />} />
-                                  <Route path="/tutorial" element={<Game />} />
-                                </Routes>
-                              </Layout>
-                            </SoundProvider>
-                          </LoadingProvider>
-                        </WelcomeProvider>
-                      </PricesProvider>
-                    </MerkledropsProvider>
-                  </AchievementsProvider>
-                </VaultProvider>
-              </QuestsProvider>
-            </ControllersProvider>
+            <QuestsProvider>
+              <VaultProvider>
+                <AchievementsProvider>
+                  <MerkledropsProvider>
+                    <WelcomeProvider>
+                      <LoadingProvider>
+                        <SoundProvider>
+                          <Layout>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/game/:id" element={<Game />} />
+                              <Route
+                                path="/game"
+                                element={<Navigate to="/" replace />}
+                              />
+                              <Route path="/practice" element={<Game />} />
+                              <Route path="/tutorial" element={<Game />} />
+                            </Routes>
+                          </Layout>
+                        </SoundProvider>
+                      </LoadingProvider>
+                    </WelcomeProvider>
+                  </MerkledropsProvider>
+                </AchievementsProvider>
+              </VaultProvider>
+            </QuestsProvider>
           </TutorialProvider>
         </PracticeProvider>
       </EntitiesProvider>

@@ -5,11 +5,11 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
-      retry: 3,
+      retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-      refetchOnMount: true,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
     },
     mutations: {
       retry: 2,

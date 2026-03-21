@@ -1,33 +1,29 @@
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
-import * as torii from "@dojoengine/torii-wasm";
+import type * as torii from "@dojoengine/torii-wasm";
+import { useSetAtom } from "jotai";
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
+  useCallback,
 } from "react";
-import { NAMESPACE } from "@/constants";
+import { initToriiClient } from "@/api/torii/client";
 import {
-  type RawClaimed,
-  type RawPurchased,
-  type RawStarted,
-  type RawConfig,
-  type RawStarterpack,
-  type RawScore,
+  Config as ConfigApi,
+  Event,
+  Starterpack as StarterpackApi,
+} from "@/api/torii";
+import { subscribeEntities, subscribeEvents } from "@/api/torii/subscribe";
+import { toriiClientAtom } from "@/atoms";
+import {
   Claimed,
-  Config,
+  type Config,
   Purchased,
   Started,
   Starterpack,
   Score,
 } from "@/models";
-import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 type EntitiesProviderProps = {
   children: React.ReactNode;
@@ -52,41 +48,16 @@ const EntitiesProviderContext = createContext<
   EntitiesProviderState | undefined
 >(undefined);
 
-const getEntityQuery = (namespace: string) => {
-  const config: `${string}-${string}` = `${namespace}-${Config.getModelName()}`;
-  const starterpack: `${string}-${string}` = `${namespace}-${Starterpack.getModelName()}`;
-  const clauses = new ClauseBuilder().keys(
-    [config, starterpack],
-    [undefined],
-    "FixedLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getEventQuery = (namespace: string) => {
-  const purchased: `${string}-${string}` = `${namespace}-${Purchased.getModelName()}`;
-  const started: `${string}-${string}` = `${namespace}-${Started.getModelName()}`;
-  const claimed: `${string}-${string}` = `${namespace}-${Claimed.getModelName()}`;
-  const score: `${string}-${string}` = `${namespace}-${Score.getModelName()}`;
-  const clauses = new ClauseBuilder().keys(
-    [purchased, started, claimed, score],
-    [],
-    "VariableLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
 export function EntitiesProvider({
   children,
   ...props
 }: EntitiesProviderProps) {
   const [client, setClient] = useState<torii.ToriiClient>();
+  const setToriiClient = useSetAtom(toriiClientAtom);
   const entitiesSubscriptionRef = useRef<torii.Subscription | null>(null);
   const eventsSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const entitiesSubscriptionKeyRef = useRef<string>();
+  const eventsSubscriptionKeyRef = useRef<string>();
   const [config, setConfig] = useState<Config>();
   const [starterpacks, setStarterpacks] = useState<Starterpack[]>([]);
   const [purchaseds, setPurchaseds] = useState<Purchased[]>([]);
@@ -102,168 +73,188 @@ export function EntitiesProvider({
 
   // Initialize Torii client
   useEffect(() => {
+    let mounted = true;
     const getClient = async () => {
-      const toriiUrl = dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl;
-      const client = await new torii.ToriiClient({
-        toriiUrl: toriiUrl,
-        worldAddress: "0x0",
-      });
+      const client = await initToriiClient();
+      if (!mounted) return;
       setClient(client);
+      setToriiClient(client);
     };
     getClient();
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [setToriiClient]);
 
   // Handler for entity updates
-  const onEntityUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Config.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Config.getModelName()}`
-          ] as unknown as RawConfig;
-          const parsed = Config.parse(model);
-          if (parsed) setConfig(parsed);
-        }
-        if (entity.models[`${NAMESPACE}-${Starterpack.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Starterpack.getModelName()}`
-          ] as unknown as RawStarterpack;
-          const parsed = Starterpack.parse(model);
-          if (parsed)
-            setStarterpacks((prev) =>
-              Starterpack.dedupe([...(prev || []), parsed]).sort((a, b) =>
-                Number(a.price - b.price),
-              ),
-            );
-        }
-      });
-    },
-    [],
-  );
+  const onEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    const parsedConfig = ConfigApi.parse(entities);
+    const parsedStarterpacks = StarterpackApi.parse(entities);
+
+    if (parsedConfig) setConfig(parsedConfig);
+    if (parsedStarterpacks.length > 0) {
+      setStarterpacks((prev) =>
+        Starterpack.dedupe([...(prev || []), ...parsedStarterpacks]).sort(
+          (a, b) => Number(a.price - b.price),
+        ),
+      );
+    }
+  }, []);
+  const onEntityUpdateRef = useRef(onEntityUpdate);
+  onEntityUpdateRef.current = onEntityUpdate;
 
   // Handler for event updates
-  const onEventUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Purchased.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Purchased.getModelName()}`
-          ] as unknown as RawPurchased;
-          const parsed = Purchased.parse(model);
-          setPurchaseds((prev) =>
-            Purchased.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setPurchased(parsed);
-        }
-        if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Started.getModelName()}`
-          ] as unknown as RawStarted;
-          const parsed = Started.parse(model);
-          setStarteds((prev) =>
-            Started.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setStarted(parsed);
-        }
-        if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Claimed.getModelName()}`
-          ] as unknown as RawClaimed;
-          const parsed = Claimed.parse(model);
-          setClaimeds((prev) =>
-            Claimed.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setClaimed(parsed);
-        }
-        if (entity.models[`${NAMESPACE}-${Score.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Score.getModelName()}`
-          ] as unknown as RawScore;
-          const parsed = Score.parse(model);
-          setScores((prev) => Score.dedupe([parsed, ...(prev || [])]));
-        }
-      });
-    },
-    [],
-  );
+  const onEventUpdate = useCallback((entities: torii.Entity[]) => {
+    const parsedPurchaseds = Event.parsePurchaseds(entities);
+    const parsedStarteds = Event.parseStarteds(entities);
+    const parsedClaimeds = Event.parseClaimeds(entities);
+    const parsedScores = Event.parseScores(entities);
 
-  // Refresh function to fetch and subscribe to data
-  const refresh = useCallback(async () => {
+    if (parsedPurchaseds.length > 0) {
+      setPurchaseds((prev) =>
+        Purchased.dedupe(
+          [...parsedPurchaseds, ...(prev || [])].sort(
+            (a, b) => b.time - a.time,
+          ),
+        ).slice(0, 10),
+      );
+      const nextPurchased = parsedPurchaseds.find((item) => !item.hasExpired());
+      if (nextPurchased) setPurchased(nextPurchased);
+    }
+
+    if (parsedStarteds.length > 0) {
+      setStarteds((prev) =>
+        Started.dedupe(
+          [...parsedStarteds, ...(prev || [])].sort((a, b) => b.time - a.time),
+        ).slice(0, 10),
+      );
+      const nextStarted = parsedStarteds.find((item) => !item.hasExpired());
+      if (nextStarted) setStarted(nextStarted);
+    }
+
+    if (parsedClaimeds.length > 0) {
+      setClaimeds((prev) =>
+        Claimed.dedupe(
+          [...parsedClaimeds, ...(prev || [])].sort((a, b) => b.time - a.time),
+        ).slice(0, 10),
+      );
+      const nextClaimed = parsedClaimeds.find((item) => !item.hasExpired());
+      if (nextClaimed) setClaimed(nextClaimed);
+    }
+
+    if (parsedScores.length > 0) {
+      setScores((prev) => Score.dedupe([...parsedScores, ...(prev || [])]));
+    }
+  }, []);
+  const onEventUpdateRef = useRef(onEventUpdate);
+  onEventUpdateRef.current = onEventUpdate;
+
+  const handleEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    onEntityUpdateRef.current(entities);
+  }, []);
+
+  const handleEventUpdate = useCallback((entities: torii.Entity[]) => {
+    onEventUpdateRef.current(entities);
+  }, []);
+
+  const fetchInitialData = useCallback(async () => {
     if (!client) return;
+    const entityQuery = ConfigApi.query();
+    const eventQuery = Event.query();
 
-    // Cancel existing subscriptions
-    if (entitiesSubscriptionRef.current) {
-      entitiesSubscriptionRef.current = null;
-    }
-    if (eventsSubscriptionRef.current) {
-      eventsSubscriptionRef.current = null;
-    }
-
-    // Create queries
-    const entityQuery = getEntityQuery(NAMESPACE);
-    const eventQuery = getEventQuery(NAMESPACE);
-
-    // Fetch initial data
     await Promise.all([
       client
         .getEntities(entityQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
+        .then((result) => handleEntityUpdate(result.items)),
     ]);
     await Promise.all([
       client
         .getEventMessages(eventQuery.build())
-        .then((result) =>
-          onEventUpdate({ data: result.items, error: undefined }),
-        ),
+        .then((result) => handleEventUpdate(result.items)),
     ]);
+  }, [client, handleEntityUpdate, handleEventUpdate]);
 
-    // Subscribe to entity and event updates
-    if (!config) return;
-    client
-      .onEntityUpdated(entityQuery.build().clause, [], onEntityUpdate)
-      .then((response) => {
-        entitiesSubscriptionRef.current = response;
-      });
-    client
-      .onEventMessageUpdated(eventQuery.build().clause, [], onEventUpdate)
-      .then((response) => {
-        eventsSubscriptionRef.current = response;
-      });
-  }, [client, config, onEntityUpdate, onEventUpdate]);
+  const setupSubscriptions = useCallback(async () => {
+    if (!client) return;
 
-  // Initial fetch and subscription setup
-  useEffect(() => {
-    if (entitiesSubscriptionRef.current || eventsSubscriptionRef.current)
-      return;
-    setStatus("loading");
-    refresh()
-      .then(() => {
-        setStatus("success");
-      })
-      .catch((error: Error) => {
-        console.error(error);
-        setStatus("error");
-      });
+    const entityClause = ConfigApi.query().build().clause;
+    const eventClause = Event.query().build().clause;
+    const entityKey = JSON.stringify(entityClause);
+    const eventKey = JSON.stringify(eventClause);
 
-    return () => {
+    if (
+      entitiesSubscriptionKeyRef.current !== entityKey ||
+      !entitiesSubscriptionRef.current
+    ) {
       if (entitiesSubscriptionRef.current) {
         entitiesSubscriptionRef.current.cancel();
       }
+      entitiesSubscriptionRef.current = await subscribeEntities(
+        client,
+        entityClause,
+        handleEntityUpdate,
+      );
+      entitiesSubscriptionKeyRef.current = entityKey;
+    }
+
+    if (
+      eventsSubscriptionKeyRef.current !== eventKey ||
+      !eventsSubscriptionRef.current
+    ) {
       if (eventsSubscriptionRef.current) {
         eventsSubscriptionRef.current.cancel();
       }
+      eventsSubscriptionRef.current = await subscribeEvents(
+        client,
+        eventClause,
+        handleEventUpdate,
+      );
+      eventsSubscriptionKeyRef.current = eventKey;
+    }
+  }, [client, handleEntityUpdate, handleEventUpdate]);
+
+  const refresh = useCallback(async () => {
+    await fetchInitialData();
+  }, [fetchInitialData]);
+
+  useEffect(() => {
+    if (!client) return;
+    let cancelled = false;
+
+    setStatus("loading");
+
+    const run = async () => {
+      await fetchInitialData();
+      await setupSubscriptions();
     };
-  }, [refresh, client]);
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error: Error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (entitiesSubscriptionRef.current) {
+        entitiesSubscriptionRef.current.cancel();
+        entitiesSubscriptionRef.current = null;
+      }
+      if (eventsSubscriptionRef.current) {
+        eventsSubscriptionRef.current.cancel();
+        eventsSubscriptionRef.current = null;
+      }
+      entitiesSubscriptionKeyRef.current = undefined;
+      eventsSubscriptionKeyRef.current = undefined;
+    };
+  }, [client, fetchInitialData, setupSubscriptions]);
 
   const value: EntitiesProviderState = {
     client,

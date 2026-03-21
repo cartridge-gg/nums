@@ -8,27 +8,22 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
+import { useAtomValue } from "jotai";
 import type * as torii from "@dojoengine/torii-wasm";
 import {
   AchievementDefinition,
   AchievementCompletion,
   AchievementAdvancement,
-  AchievementCreation,
-  AchievementCompleted,
-  type RawAchievementDefinition,
-  type RawAchievementCompletion,
-  type RawAchievementAdvancement,
-  type RawAchievementCreation,
-  type RawAchievementCompleted,
+  type AchievementCreation,
+  type AchievementCompleted,
 } from "@/models";
-import { getChecksumAddress } from "starknet";
 import { useAccount } from "@starknet-react/core";
-import { useEntities } from "./entities";
+import {
+  Achievement as AchievementApi,
+  subscribeEntities,
+  subscribeEvents,
+} from "@/api";
+import { toriiClientAtom } from "@/atoms";
 import { NAMESPACE } from "@/constants";
 
 export type Achievement = {
@@ -57,58 +52,17 @@ const AchievementsContext = createContext<AchievementsContextType | undefined>(
   undefined,
 );
 
-const getAchievementEntityQuery = (NAMESPACE: string) => {
-  const definition: `${string}-${string}` = `${NAMESPACE}-${AchievementDefinition.getModelName()}`;
-  const clauses = new ClauseBuilder().keys(
-    [definition],
-    [undefined],
-    "FixedLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getAchievementCreationEventQuery = (NAMESPACE: string) => {
-  const creation: `${string}-${string}` = `${NAMESPACE}-${AchievementCreation.getModelName()}`;
-  const clauses = new ClauseBuilder().keys([creation], [undefined], "FixedLen");
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getPlayerEntityQuery = (NAMESPACE: string, playerId: string) => {
-  const completion: `${string}-${string}` = `${NAMESPACE}-${AchievementCompletion.getModelName()}`;
-  const advancement: `${string}-${string}` = `${NAMESPACE}-${AchievementAdvancement.getModelName()}`;
-  const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys(
-    [completion, advancement],
-    [key],
-    "VariableLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getPlayerCompletedEventQuery = (NAMESPACE: string, playerId: string) => {
-  const completed: `${string}-${string}` = `${NAMESPACE}-${AchievementCompleted.getModelName()}`;
-  const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys([completed], [key], "VariableLen");
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
 export function AchievementsProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { address } = useAccount();
-  const { client } = useEntities();
+  const client = useAtomValue(toriiClientAtom);
   const entitySubscriptionRef = useRef<torii.Subscription | null>(null);
   const completedSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const entitySubscriptionKeyRef = useRef<string>();
+  const completedSubscriptionKeyRef = useRef<string>();
   const [definitions, setDefinitions] = useState<AchievementDefinition[]>([]);
   const [creations, setCreations] = useState<Map<string, AchievementCreation>>(
     new Map(),
@@ -126,170 +80,217 @@ export function AchievementsProvider({
     "loading",
   );
 
-  const onEntityUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (
-          entity.models[`${NAMESPACE}-${AchievementDefinition.getModelName()}`]
-        ) {
-          const model = entity.models[
-            `${NAMESPACE}-${AchievementDefinition.getModelName()}`
-          ] as unknown as RawAchievementDefinition;
-          setDefinitions((prev) =>
-            AchievementDefinition.deduplicate([
-              AchievementDefinition.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (
-          entity.models[`${NAMESPACE}-${AchievementCompletion.getModelName()}`]
-        ) {
-          const model = entity.models[
-            `${NAMESPACE}-${AchievementCompletion.getModelName()}`
-          ] as unknown as RawAchievementCompletion;
-          setCompletions((prev) =>
-            AchievementCompletion.deduplicate([
-              AchievementCompletion.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (
-          entity.models[`${NAMESPACE}-${AchievementAdvancement.getModelName()}`]
-        ) {
-          const model = entity.models[
-            `${NAMESPACE}-${AchievementAdvancement.getModelName()}`
-          ] as unknown as RawAchievementAdvancement;
-          setAdvancements((prev) =>
-            AchievementAdvancement.deduplicate([
-              AchievementAdvancement.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (
-          entity.models[`${NAMESPACE}-${AchievementCreation.getModelName()}`]
-        ) {
-          const model = entity.models[
-            `${NAMESPACE}-${AchievementCreation.getModelName()}`
-          ] as unknown as RawAchievementCreation;
-          const creation = AchievementCreation.parse(model);
-          setCreations((prev) => {
-            const next = new Map(prev);
-            next.set(creation.id, creation);
-            return next;
-          });
-        }
-      });
-    },
-    [NAMESPACE],
-  );
+  const onEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
 
-  const onCompletedEvent = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (
-          entity.models[`${NAMESPACE}-${AchievementCompleted.getModelName()}`]
-        ) {
-          const model = entity.models[
-            `${NAMESPACE}-${AchievementCompleted.getModelName()}`
-          ] as unknown as RawAchievementCompleted;
-          const event = AchievementCompleted.parse(model);
-          const achievement = creationsRef.current.get(event.achievement_id);
-          if (achievement) {
-            setCompleteds((prev) =>
-              [{ event, achievement }, ...prev].filter(
-                (item) => !item.event.hasExpired(),
-              ),
-            );
-          }
-        }
-      });
-    },
-    [NAMESPACE],
-  );
-
-  const refresh = useCallback(async () => {
-    if (!NAMESPACE || !client || !address) return;
-
-    if (entitySubscriptionRef.current) {
-      entitySubscriptionRef.current = null;
-    }
-    if (completedSubscriptionRef.current) {
-      completedSubscriptionRef.current = null;
+    const parsedDefinitions = AchievementApi.parseDefinitions(entities);
+    if (parsedDefinitions.length) {
+      setDefinitions((prev) =>
+        AchievementDefinition.deduplicate([...parsedDefinitions, ...prev]),
+      );
     }
 
-    const achievementEntityQuery = getAchievementEntityQuery(NAMESPACE);
-    const creationEventQuery = getAchievementCreationEventQuery(NAMESPACE);
-    const playerEntityQuery = getPlayerEntityQuery(NAMESPACE, address);
-    const completedEventQuery = getPlayerCompletedEventQuery(
-      NAMESPACE,
-      address,
+    const parsedCompletions = AchievementApi.parseCompletions(entities);
+    if (parsedCompletions.length) {
+      setCompletions((prev) =>
+        AchievementCompletion.deduplicate([...parsedCompletions, ...prev]),
+      );
+    }
+
+    const parsedAdvancements = AchievementApi.parseAdvancements(entities);
+    if (parsedAdvancements.length) {
+      setAdvancements((prev) =>
+        AchievementAdvancement.deduplicate([...parsedAdvancements, ...prev]),
+      );
+    }
+
+    const parsedCreations = AchievementApi.parseCreations(entities);
+    if (parsedCreations.length) {
+      setCreations((prev) => {
+        const next = new Map(prev);
+        for (const creation of parsedCreations) {
+          next.set(creation.id, creation);
+        }
+        return next;
+      });
+    }
+  }, []);
+  const onEntityUpdateRef = useRef(onEntityUpdate);
+  onEntityUpdateRef.current = onEntityUpdate;
+
+  const onCompletedEvent = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
+
+    const parsedCompleteds = AchievementApi.parseCompleted(entities);
+    const resolved = parsedCompleteds
+      .map((event) => {
+        const achievement = creationsRef.current.get(event.achievement_id);
+        return achievement ? { event, achievement } : undefined;
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          event: AchievementCompleted;
+          achievement: AchievementCreation;
+        } => !!item,
+      );
+
+    if (!resolved.length) return;
+
+    setCompleteds((prev) =>
+      [...resolved, ...prev].filter((item) => !item.event.hasExpired()),
     );
+  }, []);
+  const onCompletedEventRef = useRef(onCompletedEvent);
+  onCompletedEventRef.current = onCompletedEvent;
+
+  const handleEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    onEntityUpdateRef.current(entities);
+  }, []);
+
+  const handleCompletedEvent = useCallback((entities: torii.Entity[]) => {
+    onCompletedEventRef.current(entities);
+  }, []);
+
+  const fetchStaticData = useCallback(async () => {
+    if (!NAMESPACE || !client) return;
+
+    const definitionsQuery = AchievementApi.definitionsQuery();
+    const creationsQuery = AchievementApi.creationsQuery();
 
     await Promise.all([
       client
-        .getEntities(achievementEntityQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
+        .getEntities(definitionsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
       client
-        .getEventMessages(creationEventQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
-      client
-        .getEntities(playerEntityQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
+        .getEventMessages(creationsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
     ]);
+  }, [NAMESPACE, client, handleEntityUpdate]);
 
-    client
-      .onEventMessageUpdated(
-        completedEventQuery.build().clause,
-        [],
-        onCompletedEvent,
-      )
-      .then((response) => (completedSubscriptionRef.current = response))
-      .catch((error) => {
-        console.error("Error subscribing to completed events:", error);
-      });
+  const fetchPlayerData = useCallback(async () => {
+    if (!NAMESPACE || !client || !address) return;
 
-    client
-      .onEntityUpdated(playerEntityQuery.build().clause, [], onEntityUpdate)
-      .then((response) => (entitySubscriptionRef.current = response))
-      .catch((error) => {
-        console.error("Error subscribing to entity updates:", error);
-      });
-  }, [NAMESPACE, client, address, onEntityUpdate, onCompletedEvent]);
+    const playerQuery = AchievementApi.playerQuery(address);
+    const completedQuery = AchievementApi.completedQuery(address);
+
+    await Promise.all([
+      client
+        .getEntities(playerQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
+      client
+        .getEventMessages(completedQuery.build())
+        .then((result) => handleCompletedEvent(result.items)),
+    ]);
+  }, [NAMESPACE, client, address, handleEntityUpdate, handleCompletedEvent]);
+
+  const setupPlayerSubscriptions = useCallback(async () => {
+    if (!NAMESPACE || !client || !address) return;
+
+    const playerClause = AchievementApi.playerQuery(address).build().clause;
+    const completedClause =
+      AchievementApi.completedQuery(address).build().clause;
+    const playerKey = JSON.stringify(playerClause);
+    const completedKey = JSON.stringify(completedClause);
+
+    if (
+      entitySubscriptionKeyRef.current !== playerKey ||
+      !entitySubscriptionRef.current
+    ) {
+      if (entitySubscriptionRef.current) {
+        entitySubscriptionRef.current.cancel();
+        entitySubscriptionRef.current = null;
+      }
+
+      entitySubscriptionRef.current = await subscribeEntities(
+        client,
+        playerClause,
+        handleEntityUpdate,
+      );
+      entitySubscriptionKeyRef.current = playerKey;
+    }
+
+    if (
+      completedSubscriptionKeyRef.current !== completedKey ||
+      !completedSubscriptionRef.current
+    ) {
+      if (completedSubscriptionRef.current) {
+        completedSubscriptionRef.current.cancel();
+        completedSubscriptionRef.current = null;
+      }
+
+      completedSubscriptionRef.current = await subscribeEvents(
+        client,
+        completedClause,
+        handleCompletedEvent,
+      );
+      completedSubscriptionKeyRef.current = completedKey;
+    }
+  }, [NAMESPACE, client, address, handleEntityUpdate, handleCompletedEvent]);
 
   useEffect(() => {
-    if (entitySubscriptionRef.current || completedSubscriptionRef.current) {
-      return;
-    }
+    if (!NAMESPACE || !client) return;
+    let cancelled = false;
+
     setStatus("loading");
-    refresh()
+
+    fetchStaticData()
       .then(() => {
-        setStatus("success");
+        if (!cancelled) {
+          setStatus("success");
+        }
       })
       .catch((error) => {
         console.error(error);
-        setStatus("error");
+        if (!cancelled) {
+          setStatus("error");
+        }
       });
 
     return () => {
+      cancelled = true;
+    };
+  }, [NAMESPACE, client, fetchStaticData]);
+
+  useEffect(() => {
+    if (!NAMESPACE || !client || !address) return;
+    let cancelled = false;
+
+    setStatus("loading");
+
+    const run = async () => {
+      await fetchPlayerData();
+      await setupPlayerSubscriptions();
+    };
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      cancelled = true;
       if (entitySubscriptionRef.current) {
         entitySubscriptionRef.current.cancel();
+        entitySubscriptionRef.current = null;
       }
       if (completedSubscriptionRef.current) {
         completedSubscriptionRef.current.cancel();
+        completedSubscriptionRef.current = null;
       }
+      entitySubscriptionKeyRef.current = undefined;
+      completedSubscriptionKeyRef.current = undefined;
     };
-  }, [refresh]);
+  }, [NAMESPACE, client, address, fetchPlayerData, setupPlayerSubscriptions]);
 
   const achievements: Achievement[] = useMemo(() => {
     return definitions

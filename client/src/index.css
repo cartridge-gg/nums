@@ -10,6 +10,8 @@
     @apply bg-purple-100;
     font-family: "PixelGame", monospace;
     color: white;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .theme {
     --animate-shiny-text: shiny-text 8s infinite;

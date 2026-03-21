@@ -94,7 +94,7 @@ export const Home = () => {
       to: row.to,
       timestamp: row.timestamp,
       claimed: true,
-      cells: [],
+      cells: row.cells,
     }));
   }, [sqlActivities, chartAbscissa]);
 

@@ -1,4 +1,8 @@
 import { executeSql, getSqlUrl } from "./sql";
+import { Packer } from "@/helpers/packer";
+import { DEFAULT_SLOT_COUNT } from "@/constants";
+
+const SLOT_SIZE = 12n;
 
 export interface ActivityRow {
   username: string;
@@ -7,6 +11,7 @@ export interface ActivityRow {
   payout: string;
   to: string;
   timestamp: number;
+  cells: (boolean | null)[];
 }
 
 function parseHexDigit(char: string): number {
@@ -23,12 +28,14 @@ function parseHexScore(scoreHex: string): number {
 async function fetch(limit: number, offset: number): Promise<ActivityRow[]> {
   const query = `SELECT
     c.username,
+    g.slots,
     s.player,
     s.game_id,
     s.score,
     s.timestamp
 FROM "NUMS-LeaderboardScore" AS s
 JOIN controllers AS c ON s.player = c.address
+JOIN "NUMS-Game" AS g ON LTRIM(REPLACE(s.game_id, '0x', ''), '0') = LTRIM(REPLACE(g.id, '0x', ''), '0')
 ORDER BY timestamp DESC
 LIMIT ${limit}
 OFFSET ${offset};`;
@@ -38,6 +45,17 @@ OFFSET ${offset};`;
   return rows.map((row) => {
     const gameId = Number(row.game_id) || 0;
     const score = parseHexScore(String(row.score || "0"));
+    const slotsRaw = String(row.slots || "0x0");
+    const slots = Packer.sized_unpack(
+      BigInt(slotsRaw),
+      SLOT_SIZE,
+      DEFAULT_SLOT_COUNT,
+    );
+    const cells: (boolean | null)[] = [
+      null,
+      ...slots.map((slot) => slot !== 0),
+      null,
+    ];
     return {
       username: String(row.username || ""),
       gameId,
@@ -45,6 +63,7 @@ OFFSET ${offset};`;
       payout: `+$${(score * 0.05).toFixed(2)}`,
       to: `/game/${gameId}`,
       timestamp: Number(row.timestamp) || 0,
+      cells,
     };
   });
 }

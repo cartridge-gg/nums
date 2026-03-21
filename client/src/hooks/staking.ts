@@ -1,13 +1,13 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNetwork } from "@starknet-react/core";
-import { getChecksumAddress } from "starknet";
+import { queryKeys } from "@/api/keys";
+import { MaxShare } from "@/api/torii/max-share";
 import { useActions } from "@/hooks/actions";
 import { useCalls } from "@/hooks/calls";
 import { useVault } from "@/context/vault";
-import { DEFAULT_CHAIN_ID, dojoConfigs, getVaultAddress } from "@/config";
+import { getVaultAddress } from "@/config";
 
-const DECIMALS = 10n ** 18n;
 const USDC_DECIMALS = 10n ** 6n;
 const DEBOUNCE_DELAY = 500;
 
@@ -18,92 +18,6 @@ export interface UseStakingParams {
   totalAssets: bigint;
   numsPrice: number;
 }
-
-const fetchMaxShare = async (vaultAddress: string): Promise<number> => {
-  const url = `${dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl}/sql`;
-  const contractAddress = getChecksumAddress(vaultAddress).toLowerCase();
-
-  const sqlQuery = `SELECT MAX(balance)
-FROM token_balances
-WHERE contract_address = '${contractAddress}'
-LIMIT 1000;`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: sqlQuery,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to fetch max share: ${response.status} ${response.statusText}. ${errorText}`,
-    );
-  }
-
-  const contentType = response.headers.get("content-type");
-  let data: unknown;
-  if (contentType?.includes("application/json")) {
-    data = await response.json();
-  } else {
-    const text = await response.text();
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(`Unexpected response format: ${text.substring(0, 100)}`);
-    }
-  }
-
-  let rows: Record<string, unknown>[] = [];
-  if (Array.isArray(data)) {
-    rows = data;
-  } else if (
-    data &&
-    typeof data === "object" &&
-    "rows" in data &&
-    Array.isArray((data as { rows: unknown }).rows)
-  ) {
-    rows = (data as { rows: Record<string, unknown>[] }).rows;
-  } else if (
-    data &&
-    typeof data === "object" &&
-    "data" in data &&
-    Array.isArray((data as { data: unknown }).data)
-  ) {
-    rows = (data as { data: Record<string, unknown>[] }).data;
-  }
-
-  const raw = rows[0]?.["MAX(balance)"];
-  if (!raw) return 0;
-  const rawBalance = BigInt(String(raw));
-  return Number(rawBalance) / Number(DECIMALS);
-};
-
-/** Convert a display number to on-chain bigint (18 decimals) */
-const toBigInt = (value: number): bigint => {
-  if (!Number.isFinite(value) || value < 0) return 0n;
-  // toFixed(18) avoids scientific notation (e.g. 8e-17 → "0.000000000000000080")
-  const fixed = value.toFixed(18);
-  const [integer, fraction = ""] = fixed.split(".");
-  const paddedFraction = fraction.slice(0, 18).padEnd(18, "0");
-  return BigInt(integer) * DECIMALS + BigInt(paddedFraction);
-};
-
-/** Convert an on-chain bigint (18 decimals) to display number */
-const toNumber = (value: bigint): number => {
-  const integer = value / DECIMALS;
-  const fraction = value % DECIMALS;
-  return Number(integer) + Number(fraction) / Number(DECIMALS);
-};
-
-/** Local ERC4626 ratio estimate used only for the ratio display badge */
-const estimateRatio = (
-  totalAssets: bigint,
-  totalShares: bigint,
-): number | undefined => {
-  if (totalAssets === 0n || totalShares === 0n) return undefined;
-  return toNumber((DECIMALS * totalShares) / totalAssets);
-};
 
 export const useStaking = ({
   balance,
@@ -117,11 +31,24 @@ export const useStaking = ({
   const { vaultInfo, vaultPosition } = useVault();
   const { chain } = useNetwork();
   const vaultAddress = getVaultAddress(chain.id);
+  const toChainAmount = useCallback((value: number): bigint => {
+    if (!Number.isFinite(value) || value < 0) return 0n;
+    const fixed = value.toFixed(18);
+    const [integer, fraction = ""] = fixed.split(".");
+    const paddedFraction = fraction.slice(0, 18).padEnd(18, "0");
+    return BigInt(integer) * 10n ** 18n + BigInt(paddedFraction);
+  }, []);
+  const fromChainAmount = useCallback((value: bigint): number => {
+    const integer = value / 10n ** 18n;
+    const fraction = value % 10n ** 18n;
+    return Number(integer) + Number(fraction) / Number(10n ** 18n);
+  }, []);
 
-  const { data: maxShare = 0 } = useQuery({
-    queryKey: ["maxShare", vaultAddress],
-    queryFn: () => fetchMaxShare(vaultAddress),
-    staleTime: 1000 * 60 * 5,
+  const { data: maxShare = 0, refetch: refetchMaxShareQuery } = useQuery({
+    queryKey: queryKeys.vault.maxShare(vaultAddress),
+    queryFn: () => MaxShare.fetch(vaultAddress),
+    enabled: false,
+    staleTime: 0,
     gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
   });
@@ -147,17 +74,17 @@ export const useStaking = ({
   const vNumsBalance = useMemo(() => shares || 0, [shares]);
 
   // Ratio: 1 NUMS = ? vNUMS (local estimate from vault totals for the badge display)
-  const ratio = useMemo(
-    () => estimateRatio(totalAssets, totalShares),
-    [totalAssets, totalShares],
-  );
+  const ratio = useMemo(() => {
+    if (totalAssets === 0n || totalShares === 0n) return undefined;
+    return Number((10n ** 18n * totalShares) / totalAssets) / 10 ** 18;
+  }, [totalAssets, totalShares]);
 
   // Claimable reward: mirrors rewardable::claimable on-chain
   // result of vaultPosition.claimable() is in USDC raw units (6 decimals)
   const { claimableAmount, totalAmount } = useMemo(() => {
     if (!vaultPosition || !vaultInfo)
       return { claimableAmount: 0, totalAmount: 0 };
-    const vNumsSharesBigInt = toBigInt(vNumsBalance);
+    const vNumsSharesBigInt = toChainAmount(vNumsBalance);
     const amount = vaultPosition.claimable(
       vNumsSharesBigInt,
       vaultInfo.total_reward,
@@ -168,7 +95,7 @@ export const useStaking = ({
       claimableAmount: Number(amount) / decimals,
       totalAmount: Number(total) / decimals,
     };
-  }, [vaultPosition, vaultInfo, vNumsBalance, totalShares]);
+  }, [vaultPosition, vaultInfo, vNumsBalance, totalShares, toChainAmount]);
 
   // Yield APR: placeholder until on-chain data is available
   const yieldValue = useMemo((): number | undefined => undefined, []);
@@ -180,14 +107,14 @@ export const useStaking = ({
       clearTimeout(mintTimer.current);
       mintTimer.current = setTimeout(async () => {
         try {
-          const result = await calls.previewDeposit(toBigInt(value));
-          setMintValue(toNumber(result));
+          const result = await calls.previewDeposit(toChainAmount(value));
+          setMintValue(fromChainAmount(result));
         } finally {
           setMintLoading(false);
         }
       }, DEBOUNCE_DELAY);
     },
-    [calls],
+    [calls, fromChainAmount, toChainAmount],
   );
 
   const handleMintChange = useCallback(
@@ -197,14 +124,14 @@ export const useStaking = ({
       clearTimeout(depositTimer.current);
       depositTimer.current = setTimeout(async () => {
         try {
-          const result = await calls.previewMint(toBigInt(value));
-          setDepositValue(toNumber(result));
+          const result = await calls.previewMint(toChainAmount(value));
+          setDepositValue(fromChainAmount(result));
         } finally {
           setDepositLoading(false);
         }
       }, DEBOUNCE_DELAY);
     },
-    [calls],
+    [calls, fromChainAmount, toChainAmount],
   );
 
   const handleRedeemChange = useCallback(
@@ -214,14 +141,14 @@ export const useStaking = ({
       clearTimeout(withdrawTimer.current);
       withdrawTimer.current = setTimeout(async () => {
         try {
-          const result = await calls.previewRedeem(toBigInt(value));
-          setWithdrawValue(toNumber(result));
+          const result = await calls.previewRedeem(toChainAmount(value));
+          setWithdrawValue(fromChainAmount(result));
         } finally {
           setWithdrawLoading(false);
         }
       }, DEBOUNCE_DELAY);
     },
-    [calls],
+    [calls, fromChainAmount, toChainAmount],
   );
 
   const handleWithdrawChange = useCallback(
@@ -231,34 +158,39 @@ export const useStaking = ({
       clearTimeout(redeemTimer.current);
       redeemTimer.current = setTimeout(async () => {
         try {
-          const result = await calls.previewWithdraw(toBigInt(value));
-          setRedeemValue(toNumber(result));
+          const result = await calls.previewWithdraw(toChainAmount(value));
+          setRedeemValue(fromChainAmount(result));
         } finally {
           setRedeemLoading(false);
         }
       }, DEBOUNCE_DELAY);
     },
-    [calls],
+    [calls, fromChainAmount, toChainAmount],
   );
 
   const handleStake = useCallback(async () => {
     if (depositValue > 0) {
-      await vault.deposit(toBigInt(depositValue));
+      await vault.deposit(toChainAmount(depositValue));
       setDepositValue(0);
       setMintValue(0);
     }
-  }, [vault, depositValue]);
+  }, [vault, depositValue, toChainAmount]);
 
   const handleUnstake = useCallback(async () => {
     if (redeemValue > 0) {
-      await vault.redeem(toBigInt(redeemValue));
+      await vault.redeem(toChainAmount(redeemValue));
       setRedeemValue(0);
       setWithdrawValue(0);
     }
-  }, [vault, redeemValue]);
+  }, [vault, redeemValue, toChainAmount]);
+
+  const refetch = useCallback(() => {
+    refetchMaxShareQuery();
+  }, [refetchMaxShareQuery]);
 
   return useMemo(
     () => ({
+      refetch,
       stakingProps: {
         depositProps: {
           balance: numsBalance,
@@ -291,7 +223,7 @@ export const useStaking = ({
       },
       balanceProps: {
         stakedAmount: vNumsBalance,
-        totalShare: toNumber(totalShares),
+        totalShare: fromChainAmount(totalShares),
       },
       rewardProps: {
         rewardAmount: claimableAmount,
@@ -304,7 +236,7 @@ export const useStaking = ({
         value: ratio,
       },
       goalProps: {
-        totalStaked: toNumber(totalAssets) - maxShare,
+        totalStaked: fromChainAmount(totalAssets) - maxShare,
         totalShares: maxShare,
       },
       vaultProps: {
@@ -312,7 +244,7 @@ export const useStaking = ({
         usdcPrice: 1,
       },
       supplyProps: {
-        totalShares: toNumber(totalShares),
+        totalShares: fromChainAmount(totalShares),
       },
     }),
     [
@@ -332,6 +264,7 @@ export const useStaking = ({
       claimableAmount,
       totalShares,
       totalAssets,
+      fromChainAmount,
       vault,
       handleDepositChange,
       handleMintChange,

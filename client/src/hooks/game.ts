@@ -1,90 +1,74 @@
-import {
-  KeysClause,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { SubscriptionCallbackArgs } from "@dojoengine/sdk";
+import { useCallback, useEffect, useRef } from "react";
 import type * as torii from "@dojoengine/torii-wasm";
 import { NAMESPACE } from "@/constants";
-import { Game } from "@/models/game";
-import { useEntities } from "@/context/entities";
+import { Game as GameModel } from "@/models/game";
+import { useAtomValue } from "jotai";
+import { toriiClientAtom } from "@/atoms";
+import { Game } from "@/api/torii/game";
 import type { RawGame } from "@/models";
-
-const ENTITIES_LIMIT = 1;
-
-const getGameQuery = (gameId: number) => {
-  const clauses = KeysClause(
-    [`${NAMESPACE}-${Game.getModelName()}`],
-    [`0x${gameId.toString(16).padStart(16, "0")}`],
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys()
-    .withLimit(ENTITIES_LIMIT);
-};
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGame = (gameId: number | null | undefined) => {
-  const { client } = useEntities();
+  const client = useAtomValue(toriiClientAtom);
+  const queryClient = useQueryClient();
+  const subscriptionRef = useRef<torii.Subscription | null>(null);
 
-  const [game, setGame] = useState<Game | undefined>(undefined);
+  const queryKey = gameId ? Game.keys.byId(gameId) : ["game", null];
 
-  const subscriptionRef = useRef<any>(null);
+  const { data: game } = useQuery<GameModel | undefined>({
+    queryKey,
+    queryFn: async () => {
+      if (!client || !gameId) return undefined;
+      const result = await client.getEntities(Game.byIdQuery(gameId).build());
+      return Game.parseOne(result.items, gameId);
+    },
+    enabled: !!client && !!gameId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  });
 
   const onUpdate = useCallback(
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      const games: Game[] = [];
+      if (!data || data.error || !gameId) return;
+      const games: GameModel[] = [];
       (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Game.getModelName()}`]) {
+        if (entity.models[`${NAMESPACE}-${GameModel.getModelName()}`]) {
           const model = entity.models[
-            `${NAMESPACE}-${Game.getModelName()}`
+            `${NAMESPACE}-${GameModel.getModelName()}`
           ] as unknown as RawGame;
-          const parsed = Game.parse(model);
+          const parsed = GameModel.parse(model);
           if (parsed) games.push(parsed);
         }
       });
-      // Find the game matching the requested gameId
       const foundGame = games.find((g) => g.id === gameId);
       if (foundGame) {
-        setGame(foundGame);
+        queryClient.setQueryData(Game.keys.byId(gameId), foundGame);
       }
     },
-    [gameId],
+    [gameId, queryClient],
   );
 
-  // Refresh function to fetch and subscribe to data
-  const refresh = useCallback(async () => {
-    if (!gameId || !client) return;
-
-    // Cancel existing subscriptions
-    subscriptionRef.current = null;
-
-    // Create queries
-    const query = getGameQuery(gameId);
-
-    // Fetch initial data
-    await Promise.all([
-      client
-        .getEntities(query.build())
-        .then((result) => onUpdate({ data: result.items, error: undefined })),
-    ]);
-
-    // Subscribe to entity and event updates
-    client
-      .onEntityUpdated(query.build().clause, [], onUpdate)
-      .then((response) => {
-        subscriptionRef.current = response;
-      });
-  }, [client, gameId, onUpdate]);
-
   useEffect(() => {
-    refresh();
-    return () => {
+    if (!client || !gameId) return;
+
+    const query = Game.byIdQuery(gameId);
+
+    client.onEntityUpdated(query.build().clause, [], onUpdate).then((sub) => {
       if (subscriptionRef.current) {
         subscriptionRef.current.cancel();
       }
+      subscriptionRef.current = sub;
+    });
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.cancel();
+        subscriptionRef.current = null;
+      }
     };
-  }, [refresh]);
+  }, [client, gameId, onUpdate]);
 
   return game;
 };

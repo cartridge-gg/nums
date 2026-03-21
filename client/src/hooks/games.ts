@@ -1,138 +1,100 @@
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { SubscriptionCallbackArgs } from "@dojoengine/sdk";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type * as torii from "@dojoengine/torii-wasm";
 import { NAMESPACE } from "@/constants";
-import { Game } from "@/models/game";
+import { Game as GameModel } from "@/models/game";
 import { useEntities } from "@/context/entities";
-import type { RawGame } from "@/models";
 import { useAssets } from "@/hooks/assets";
-import { useAccount } from "@starknet-react/core";
-import { useControllers } from "@/context/controllers";
-
-const ENTITIES_LIMIT = 10_000;
-
-const getGamesQuery = () => {
-  const clauses = new ClauseBuilder().keys(
-    [`${NAMESPACE}-${Game.getModelName()}`],
-    [undefined],
-    "FixedLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys()
-    .withLimit(ENTITIES_LIMIT);
-};
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Game } from "@/api/torii/game";
+import type { RawGame } from "@/models";
 
 export const useGames = () => {
-  const { isConnected, address } = useAccount();
-  const { controllers } = useControllers();
-  const { client, scores } = useEntities();
+  const { client } = useEntities();
   const { gameIds, isLoading: assetsLoading } = useAssets();
 
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+  const queryKey = Game.keys.all();
+  const subscriptionRef = useRef<torii.Subscription | null>(null);
 
-  const subscriptionRef = useRef<any>(null);
+  const {
+    data: games = [],
+    isLoading: loading,
+    refetch: refresh,
+  } = useQuery<GameModel[]>({
+    queryKey,
+    queryFn: async () => {
+      if (!client) throw new Error("Client not available");
+      const result = await client.getEntities(Game.allQuery().build());
+      return GameModel.deduplicate(Game.parse(result.items));
+    },
+    enabled: !!client,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  });
 
-  // Create a stable key from gameIds for comparison
-  // Use ref to track previous value and only update if content actually changed
-  const prevKeyRef = useRef<string>("");
-  const currentKey = gameIds
-    .slice()
-    .sort((a, b) => a - b)
-    .join(",");
-  const gameIdsKey = useMemo(() => {
-    if (currentKey !== prevKeyRef.current) {
-      prevKeyRef.current = currentKey;
-    }
-    return prevKeyRef.current;
-  }, [currentKey]);
-
-  const onUpdate = useCallback(
+  const onSubscriptionUpdate = useCallback(
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
-      const games: Game[] = [];
+      const newGames: GameModel[] = [];
       (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Game.getModelName()}`]) {
+        if (entity.models[`${NAMESPACE}-${GameModel.getModelName()}`]) {
           const model = entity.models[
-            `${NAMESPACE}-${Game.getModelName()}`
+            `${NAMESPACE}-${GameModel.getModelName()}`
           ] as unknown as RawGame;
-          const parsed = Game.parse(model);
-          if (parsed) games.push(parsed);
+          const parsed = GameModel.parse(model);
+          if (parsed) newGames.push(parsed);
         }
       });
-      setGames((prev) => Game.deduplicate([...games, ...prev]));
+      if (newGames.length === 0) return;
+      queryClient.setQueryData<GameModel[]>(queryKey, (prev) =>
+        GameModel.deduplicate([...newGames, ...(prev || [])]),
+      );
     },
-    [],
+    [queryClient, queryKey],
   );
 
-  // Refresh function to fetch and subscribe to data
-  const refresh = useCallback(async () => {
-    // Wait for assets to load before fetching games
-    if (!client) return;
-    // Cancel existing subscriptions
-    setLoading(true);
-    subscriptionRef.current = null;
-
-    // Create queries
-    const query = getGamesQuery();
-
-    // Fetch initial data
-    await Promise.all([
-      client
-        .getEntities(query.build())
-        .then((result) => onUpdate({ data: result.items, error: undefined })),
-    ]);
-
-    // Subscribe to entity and event updates
-    client
-      .onEntityUpdated(query.build().clause, [], onUpdate)
-      .then((response) => {
-        subscriptionRef.current = response;
-        setLoading(false);
-      });
-  }, [client, onUpdate, setLoading]);
-
   useEffect(() => {
-    refresh();
+    if (!client) return;
+
+    const query = Game.allQuery();
+
+    client
+      .onEntityUpdated(query.build().clause, [], onSubscriptionUpdate)
+      .then((sub) => {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
+        }
+        subscriptionRef.current = sub;
+      });
+
     return () => {
       if (subscriptionRef.current) {
         subscriptionRef.current.cancel();
+        subscriptionRef.current = null;
       }
     };
-  }, [gameIdsKey, refresh, isConnected, setLoading]);
+  }, [client, onSubscriptionUpdate]);
+
+  const gameIdsKey = gameIds
+    .slice()
+    .sort((a, b) => a - b)
+    .join(",");
+  const prevGameIdsKeyRef = useRef(gameIdsKey);
+
+  useEffect(() => {
+    if (prevGameIdsKeyRef.current === gameIdsKey) return;
+    prevGameIdsKeyRef.current = gameIdsKey;
+    refresh();
+  }, [gameIdsKey, refresh]);
 
   const playerGames = useMemo(() => {
     return games.filter((game) => gameIds.includes(game.id));
   }, [games, gameIds]);
 
-  const allGames = useMemo(() => {
-    if (!controllers) return [];
-    return games
-      .map((game) => {
-        const score = scores.find((score) => score.game_id === game.id);
-        if (!score) return undefined;
-        const username = controllers.find(
-          (controller) => BigInt(controller.address) === BigInt(score.player),
-        )?.username;
-        if (!username) return undefined;
-        return {
-          ...game,
-          username: username,
-          score: score.score,
-          self: BigInt(score.player) === BigInt(address ?? "0"),
-        };
-      })
-      .filter((game) => game !== undefined);
-  }, [games, scores, controllers, address]);
-
   return {
     playerGames,
-    allGames,
     loading: loading || assetsLoading,
     refresh,
   };

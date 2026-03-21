@@ -4,16 +4,19 @@ import type {
   Subscription,
   TokenBalance,
   TokenContract,
-  TokenTransfer,
 } from "@dojoengine/torii-wasm";
 import { useAccount } from "@starknet-react/core";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { addAddressPadding, num } from "starknet";
-import { useEntities } from "@/context/entities";
-import { equal } from "@/helpers";
-
-const CONTRACT_LIMIT = 1_000;
-const BALANCE_LIMIT = 1_000;
+import { useAtomValue } from "jotai";
+import { toriiClientAtom } from "@/atoms";
+import { queryKeys } from "@/api/keys";
+import {
+  fetchTokenContracts,
+  fetchTokenBalances,
+  updateTokenBalance,
+} from "@/api/torii/tokens";
+import { useQuery } from "@tanstack/react-query";
 
 export function toDecimal(
   token: TokenContract,
@@ -21,81 +24,51 @@ export function toDecimal(
 ): number {
   const rawBalance = BigInt(balance?.balance ?? "0");
   const divisor = 10n ** BigInt(token.decimals);
-  // Convert to number with decimal precision
   return Number(rawBalance) / Number(divisor);
 }
 
 export function useTokenContracts(
   request: GetTokenRequest & { contractType?: ContractType },
 ) {
-  const { client } = useEntities();
-  const [contracts, setContracts] = useState<TokenContract[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const requestRef = useRef<
-    (GetTokenRequest & { contractType?: ContractType }) | null
-  >(null);
+  const client = useAtomValue(toriiClientAtom);
+  const contractType = request.contractType || "ERC20";
 
-  const subscriptionRef = useRef<Subscription | null>(null);
+  const contractAddressesKey = JSON.stringify(request.contractAddresses);
+  const contractAddresses = useMemo(
+    () =>
+      request.contractAddresses?.map((i: string) => addAddressPadding(i)) || [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [contractAddressesKey],
+  );
 
-  const fetchTokens = useCallback(async () => {
-    if (!client || !request.contractAddresses) return;
-    const contractType = request.contractType || "ERC20";
-    const contractAddresses =
-      request.contractAddresses?.map((i: string) => addAddressPadding(i)) || [];
-    if (contractAddresses.length === 0) return;
-    const tokens = await client.getTokenContracts({
-      contract_addresses: contractAddresses,
-      contract_types: [contractType],
-      pagination: {
-        cursor: undefined,
-        direction: "Backward",
-        limit: CONTRACT_LIMIT,
-        order_by: [],
-      },
-    });
-    // Subscribe to token transfer to update the token supply
-    const subscription = await client.onTokenTransferUpdated(
-      contractAddresses,
-      [],
-      [],
-      async (_data: TokenTransfer) => {
-        const tokens = await client.getTokenContracts({
-          contract_addresses: contractAddresses,
-          contract_types: [contractType],
-          pagination: {
-            cursor: undefined,
-            direction: "Backward",
-            limit: CONTRACT_LIMIT,
-            order_by: [],
-          },
-        });
-        setContracts(tokens.items);
-      },
-    );
-    if (subscriptionRef.current) {
-      subscriptionRef.current.cancel();
-    }
-    subscriptionRef.current = subscription;
-    setContracts(tokens.items);
-    setLoading(false);
-  }, [client, request]);
+  const queryKey = useMemo(
+    () => queryKeys.tokens.contracts(contractAddresses, contractType),
+    [contractAddresses, contractType],
+  );
 
-  const refetch = useCallback(async () => {
-    fetchTokens();
-  }, [fetchTokens]);
-
-  useEffect(() => {
-    if (!client) return;
-    if (equal(request, requestRef.current)) return;
-    requestRef.current = request;
-    refetch();
-  }, [request, refetch, client]);
-
-  return {
-    contracts,
-    loading,
+  const {
+    data: contracts = [],
+    isLoading: loading,
     refetch,
-  };
+  } = useQuery<TokenContract[]>({
+    queryKey,
+    queryFn: async () => {
+      if (!client) throw new Error("Client not available");
+      return fetchTokenContracts(
+        client,
+        contractAddresses,
+        contractType as "ERC20" | "ERC721",
+      );
+    },
+    enabled: !!client && contractAddresses.length > 0,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
+  });
+
+  return { contracts, loading, refetch };
 }
 
 export function useTokens(
@@ -103,83 +76,108 @@ export function useTokens(
     GetTokenBalanceRequest & { contractType?: ContractType },
 ) {
   const { account } = useAccount();
-  const { client } = useEntities();
+  const client = useAtomValue(toriiClientAtom);
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const requestRef = useRef<(GetTokenRequest & GetTokenBalanceRequest) | null>(
-    null,
-  );
   const subscriptionRef = useRef<Subscription | null>(null);
 
   const { contracts, loading: contractsLoading } = useTokenContracts(request);
 
-  const fetchBalances = useCallback(async () => {
-    if (!requestRef.current || !client || !account) return;
-    setLoading(true);
-    const contractAddresses =
+  const contractAddressesKey = JSON.stringify(request.contractAddresses);
+  const contractAddresses = useMemo(
+    () =>
       request.contractAddresses?.map((i: string) =>
         addAddressPadding(num.toHex64(i)),
-      ) || [];
-    const accountAddresses =
+      ) || [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [contractAddressesKey],
+  );
+
+  const accountAddressesKey = JSON.stringify(request.accountAddresses);
+  const accountAddresses = useMemo(
+    () =>
       request.accountAddresses?.map((i: string) =>
         addAddressPadding(num.toHex64(i)),
-      ) || [];
-    // Fetch initial balance
-    const balances = await client.getTokenBalances({
-      contract_addresses: contractAddresses,
-      account_addresses: accountAddresses,
-      token_ids: [],
-      pagination: {
-        cursor: undefined,
-        direction: "Backward",
-        limit: BALANCE_LIMIT,
-        order_by: [],
-      },
-    });
-    // Subscribe to balance updates
-    const subscription = await client.onTokenBalanceUpdated(
-      contractAddresses,
-      accountAddresses,
-      [],
-      async (data: TokenBalance) => {
-        setTokenBalances((prev) => update(prev, data));
-      },
-    );
+      ) || [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [accountAddressesKey],
+  );
 
-    if (subscriptionRef.current) {
-      subscriptionRef.current.cancel();
-    }
-    subscriptionRef.current = subscription;
-    setTokenBalances(balances.items);
-    setLoading(false);
+  const stableKey = `${contractAddressesKey}:${accountAddressesKey}`;
+
+  useEffect(() => {
+    if (
+      !client ||
+      !account ||
+      contractsLoading ||
+      contracts.length === 0 ||
+      accountAddresses.length === 0 ||
+      contractAddresses.length === 0
+    )
+      return;
+
+    let cancelled = false;
+
+    const fetchAndSubscribe = async () => {
+      setLoading(true);
+
+      const balances = await fetchTokenBalances(
+        client,
+        contractAddresses,
+        accountAddresses,
+      );
+
+      if (cancelled) return;
+      setTokenBalances(balances);
+
+      const subscription = await client.onTokenBalanceUpdated(
+        contractAddresses,
+        accountAddresses,
+        [],
+        async (data: TokenBalance) => {
+          if (!cancelled) {
+            setTokenBalances((prev) => updateTokenBalance(prev, data));
+          }
+        },
+      );
+
+      if (cancelled) {
+        subscription.cancel();
+      } else {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
+        }
+        subscriptionRef.current = subscription;
+      }
+
+      setLoading(false);
+    };
+
+    fetchAndSubscribe();
+
+    return () => {
+      cancelled = true;
+      if (subscriptionRef.current) {
+        subscriptionRef.current.cancel();
+        subscriptionRef.current = null;
+      }
+    };
   }, [
     client,
     account,
-    request.contractAddresses,
-    request.accountAddresses,
-    requestRef,
-    setLoading,
+    contractsLoading,
+    contracts.length,
+    stableKey,
+    contractAddresses,
+    accountAddresses,
   ]);
 
-  useEffect(() => {
-    // Wait for contracts to load before fetching balances
-    if (
-      contractsLoading ||
-      !account ||
-      (request?.accountAddresses || []).length === 0 ||
-      (contracts || []).length === 0
-    ) {
-      setLoading(false);
-      return;
-    }
-    if (equal(request, requestRef.current)) return;
-    requestRef.current = request;
-    fetchBalances();
-  }, [contracts, contractsLoading, fetchBalances, request, account]);
-
-  const refetch = useCallback(async () => {
-    fetchBalances();
-  }, [fetchBalances]);
+  const refetch = useCallback(() => {
+    if (!client || !account) return;
+    fetchTokenBalances(client, contractAddresses, accountAddresses).then(
+      setTokenBalances,
+    );
+  }, [client, account, contractAddresses, accountAddresses]);
 
   return {
     tokenContracts: contracts,
@@ -187,33 +185,4 @@ export function useTokens(
     loading: loading || contractsLoading,
     refetch,
   };
-}
-
-function update(
-  previousBalances: TokenBalance[],
-  newBalance: TokenBalance,
-): TokenBalance[] {
-  if (
-    BigInt(newBalance.account_address) === 0n &&
-    BigInt(newBalance.contract_address) === 0n
-  ) {
-    return previousBalances;
-  }
-  const existingBalanceIndex = previousBalances.findIndex(
-    (balance) =>
-      BigInt(balance.token_id || 0) === BigInt(newBalance.token_id || 0) &&
-      BigInt(balance.contract_address) ===
-        BigInt(newBalance.contract_address) &&
-      BigInt(balance.account_address) === BigInt(newBalance.account_address),
-  );
-
-  // If balance doesn't exist, append it to the list
-  if (existingBalanceIndex === -1) {
-    return [...previousBalances, newBalance];
-  }
-
-  // If balance exists, update it while preserving order
-  return previousBalances.map((balance, index) =>
-    index === existingBalanceIndex ? newBalance : balance,
-  );
 }

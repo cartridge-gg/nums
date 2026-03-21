@@ -51,13 +51,13 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<TutorialPhase | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const onProceedRef = useRef<(() => void) | null>(null);
-  const completingRef = useRef(false);
+  const leavingRef = useRef(false);
   const isOnTutorialRoute = location.pathname === "/tutorial";
 
   const complete = useCallback(() => {
     const proceed = onProceedRef.current;
     onProceedRef.current = null;
-    completingRef.current = true;
+    leavingRef.current = true;
     localStorage.setItem(STORAGE_KEY, "true");
     setPhase(null);
     navigate("/");
@@ -96,10 +96,14 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
   const skip = useCallback(() => {
     const proceed = onProceedRef.current;
     onProceedRef.current = null;
+    leavingRef.current = true;
     localStorage.setItem(STORAGE_KEY, "true");
     setPhase(null);
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
     proceed?.();
-  }, []);
+  }, [location.pathname, navigate]);
 
   const restart = useCallback(() => {
     setPhase(TutorialPhase.Initialization);
@@ -110,8 +114,8 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isOnTutorialRoute || phase !== null) return;
-    if (completingRef.current) {
-      completingRef.current = false;
+    if (leavingRef.current) {
+      leavingRef.current = false;
       return;
     }
     clearGame();

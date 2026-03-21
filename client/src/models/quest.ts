@@ -1049,6 +1049,10 @@ export class QuestCompleted {
   static getId(item: QuestCompleted): string {
     return `${item.player_id}-${item.quest_id}-${item.interval_id}-${item.time}`;
   }
+
+  hasExpired(): boolean {
+    return this.time + 30 < Math.floor(Date.now() / 1000);
+  }
 }
 
 export class QuestClaimed {
@@ -1114,8 +1118,6 @@ export class QuestClaimed {
   }
 
   hasExpired(): boolean {
-    // Event expires in 30 seconds
-    // return this.time + 30 < Math.floor(Date.now() / 1000);
-    return false;
+    return this.time + 30 < Math.floor(Date.now() / 1000);
   }
 }

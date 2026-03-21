@@ -8,29 +8,19 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
+import { useAtomValue } from "jotai";
 import type * as torii from "@dojoengine/torii-wasm";
 import {
   QuestAdvancement,
   QuestCompletion,
   QuestDefinition,
   QuestCreation,
-  QuestCompleted,
-  QuestClaimed,
-  type RawQuestDefinition,
-  type RawQuestCompletion,
-  type RawQuestAdvancement,
-  type RawQuestCreation,
-  type RawQuestCompleted,
-  type RawQuestClaimed,
+  type QuestCompleted,
+  type QuestClaimed,
 } from "@/models";
-import { getChecksumAddress } from "starknet";
 import { useAccount } from "@starknet-react/core";
-import { useEntities } from "./entities";
+import { Quest, subscribeEntities, subscribeEvents } from "@/api";
+import { toriiClientAtom } from "@/atoms";
 import { NAMESPACE } from "@/constants";
 import type { QuestReward } from "@/models/quest";
 
@@ -64,59 +54,13 @@ interface QuestsContextType {
 
 const QuestsContext = createContext<QuestsContextType | undefined>(undefined);
 
-const getQuestEntityQuery = (NAMESPACE: string) => {
-  const definition: `${string}-${string}` = `${NAMESPACE}-${QuestDefinition.getModelName()}`;
-  const clauses = new ClauseBuilder().keys(
-    [definition],
-    [undefined],
-    "FixedLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getQuestEventQuery = (NAMESPACE: string) => {
-  const creation: `${string}-${string}` = `${NAMESPACE}-${QuestCreation.getModelName()}`;
-  const clauses = new ClauseBuilder().keys([creation], [undefined], "FixedLen");
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getPlayerEntityQuery = (NAMESPACE: string, playerId: string) => {
-  const completion: `${string}-${string}` = `${NAMESPACE}-${QuestCompletion.getModelName()}`;
-  const advancement: `${string}-${string}` = `${NAMESPACE}-${QuestAdvancement.getModelName()}`;
-  const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys(
-    [completion, advancement],
-    [key],
-    "VariableLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getPlayerEventQuery = (NAMESPACE: string, playerId: string) => {
-  const completed: `${string}-${string}` = `${NAMESPACE}-${QuestCompleted.getModelName()}`;
-  const claimed: `${string}-${string}` = `${NAMESPACE}-${QuestClaimed.getModelName()}`;
-  const key = getChecksumAddress(BigInt(playerId)).toLowerCase();
-  const clauses = new ClauseBuilder().keys(
-    [completed, claimed],
-    [key],
-    "VariableLen",
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
 export function QuestsProvider({ children }: { children: React.ReactNode }) {
   const { address } = useAccount();
-  const { client } = useEntities();
+  const client = useAtomValue(toriiClientAtom);
   const entitySubscriptionRef = useRef<torii.Subscription | null>(null);
   const eventSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const entitySubscriptionKeyRef = useRef<string>();
+  const eventSubscriptionKeyRef = useRef<string>();
   const [definitions, setDefinitions] = useState<QuestDefinition[]>([]);
   const [completions, setCompletions] = useState<QuestCompletion[]>([]);
   const [advancements, setAdvancements] = useState<QuestAdvancement[]>([]);
@@ -133,166 +77,268 @@ export function QuestsProvider({ children }: { children: React.ReactNode }) {
     "loading",
   );
 
-  // Handler for entity updates (definitions, completions, advancements, creations)
-  const onEntityUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${QuestDefinition.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestDefinition.getModelName()}`
-          ] as unknown as RawQuestDefinition;
-          setDefinitions((prev) =>
-            QuestDefinition.deduplicate([
-              QuestDefinition.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (entity.models[`${NAMESPACE}-${QuestCompletion.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestCompletion.getModelName()}`
-          ] as unknown as RawQuestCompletion;
-          setCompletions((prev) =>
-            QuestCompletion.deduplicate([
-              QuestCompletion.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (entity.models[`${NAMESPACE}-${QuestAdvancement.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestAdvancement.getModelName()}`
-          ] as unknown as RawQuestAdvancement;
-          setAdvancements((prev) =>
-            QuestAdvancement.deduplicate([
-              QuestAdvancement.parse(model),
-              ...prev,
-            ]),
-          );
-        }
-        if (entity.models[`${NAMESPACE}-${QuestCreation.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestCreation.getModelName()}`
-          ] as unknown as RawQuestCreation;
-          setCreations((prev) =>
-            QuestCreation.deduplicate([QuestCreation.parse(model), ...prev]),
-          );
-        }
-      });
-    },
-    [NAMESPACE],
-  );
+  const onEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
 
-  // Handler for quest events (unlocked, completed, claimed) - triggers toasts
-  const onQuestEvent = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${QuestCompleted.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestCompleted.getModelName()}`
-          ] as unknown as RawQuestCompleted;
-          const event = QuestCompleted.parse(model);
-          const quest = creationsRef.current.find(
-            (creation) => creation.definition.id === event.quest_id,
-          );
-          if (quest) {
-            setCompleteds((prev) => [{ event, quest }, ...prev]);
-          }
-        }
-        if (entity.models[`${NAMESPACE}-${QuestClaimed.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${QuestClaimed.getModelName()}`
-          ] as unknown as RawQuestClaimed;
-          const event = QuestClaimed.parse(model);
-          const quest = creationsRef.current.find(
-            (creation) => creation.definition.id === event.quest_id,
-          );
-          if (quest) {
-            setClaimeds((prev) =>
-              [{ event, quest }, ...prev].filter(
-                (item) => !item.event.hasExpired(),
-              ),
-            );
-          }
-        }
-      });
-    },
-    [NAMESPACE],
-  );
+    const parsedDefinitions = Quest.parseDefinitions(entities);
+    if (parsedDefinitions.length) {
+      setDefinitions((prev) =>
+        QuestDefinition.deduplicate([...parsedDefinitions, ...prev]),
+      );
+    }
 
-  // Refresh function to fetch and subscribe to data
+    const parsedCompletions = Quest.parseCompletions(entities);
+    if (parsedCompletions.length) {
+      setCompletions((prev) =>
+        QuestCompletion.deduplicate([...parsedCompletions, ...prev]),
+      );
+    }
+
+    const parsedAdvancements = Quest.parseAdvancements(entities);
+    if (parsedAdvancements.length) {
+      setAdvancements((prev) =>
+        QuestAdvancement.deduplicate([...parsedAdvancements, ...prev]),
+      );
+    }
+
+    const parsedCreations = Quest.parseCreations(entities);
+    if (parsedCreations.length) {
+      setCreations((prev) =>
+        QuestCreation.deduplicate([...parsedCreations, ...prev]),
+      );
+    }
+  }, []);
+  const onEntityUpdateRef = useRef(onEntityUpdate);
+  onEntityUpdateRef.current = onEntityUpdate;
+
+  const onQuestEvent = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
+
+    const completedEvents = Quest.parseCompleted(entities);
+    const completedWithQuest = completedEvents
+      .map((event) => {
+        const quest = creationsRef.current.find(
+          (creation) => creation.definition.id === event.quest_id,
+        );
+        return quest ? { event, quest } : undefined;
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          event: QuestCompleted;
+          quest: QuestCreation;
+        } => !!item,
+      );
+
+    if (completedWithQuest.length) {
+      setCompleteds((prev) => [...completedWithQuest, ...prev]);
+    }
+
+    const claimedEvents = Quest.parseClaimed(entities);
+    const claimedWithQuest = claimedEvents
+      .map((event) => {
+        const quest = creationsRef.current.find(
+          (creation) => creation.definition.id === event.quest_id,
+        );
+        return quest ? { event, quest } : undefined;
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          event: QuestClaimed;
+          quest: QuestCreation;
+        } => !!item,
+      );
+
+    if (claimedWithQuest.length) {
+      setClaimeds((prev) =>
+        [...claimedWithQuest, ...prev].filter(
+          (item) => !item.event.hasExpired(),
+        ),
+      );
+    }
+  }, []);
+  const onQuestEventRef = useRef(onQuestEvent);
+  onQuestEventRef.current = onQuestEvent;
+
+  const handleEntityUpdate = useCallback((entities: torii.Entity[]) => {
+    onEntityUpdateRef.current(entities);
+  }, []);
+
+  const handleQuestEvent = useCallback((entities: torii.Entity[]) => {
+    onQuestEventRef.current(entities);
+  }, []);
+
   const refresh = useCallback(async () => {
-    if (!NAMESPACE || !client || !address) return;
+    if (!NAMESPACE || !client) return;
 
-    // Cancel existing subscriptions
-    if (entitySubscriptionRef.current) {
-      entitySubscriptionRef.current = null;
-    }
-    if (eventSubscriptionRef.current) {
-      eventSubscriptionRef.current = null;
-    }
+    const definitionsQuery = Quest.definitionsQuery();
+    const creationsQuery = Quest.creationsQuery();
 
-    // Create queries
-    const questEntityQuery = getQuestEntityQuery(NAMESPACE);
-    const questEventQuery = getQuestEventQuery(NAMESPACE);
-    const playerEventQuery = getPlayerEventQuery(NAMESPACE, address);
-    const playerEntityQuery = getPlayerEntityQuery(NAMESPACE, address);
-
-    // Fetch initial data
     await Promise.all([
       client
-        .getEntities(questEntityQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
+        .getEntities(definitionsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
       client
-        .getEventMessages(questEventQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
-      client
-        .getEntities(playerEntityQuery.build())
-        .then((result) =>
-          onEntityUpdate({ data: result.items, error: undefined }),
-        ),
+        .getEventMessages(creationsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
     ]);
 
-    // Subscribe to entity and event updates
-    if (!creations.length) return;
-    client
-      .onEventMessageUpdated(playerEventQuery.build().clause, [], onQuestEvent)
-      .then((response) => (eventSubscriptionRef.current = response));
-    client
-      .onEntityUpdated(playerEntityQuery.build().clause, [], onEntityUpdate)
-      .then((response) => (entitySubscriptionRef.current = response));
-  }, [NAMESPACE, client, address, onEntityUpdate, onQuestEvent, creations]);
+    if (!address) return;
 
-  // Initial fetch and subscription setup
+    const eventsQuery = Quest.eventsQuery(address);
+    const playerQuery = Quest.playerQuery(address);
+
+    await Promise.all([
+      client
+        .getEntities(playerQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
+      client
+        .getEventMessages(eventsQuery.build())
+        .then((result) => handleQuestEvent(result.items)),
+    ]);
+  }, [NAMESPACE, client, address, handleEntityUpdate, handleQuestEvent]);
+
+  const fetchStaticData = useCallback(async () => {
+    if (!NAMESPACE || !client) return;
+
+    const definitionsQuery = Quest.definitionsQuery();
+    const creationsQuery = Quest.creationsQuery();
+
+    await Promise.all([
+      client
+        .getEntities(definitionsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
+      client
+        .getEventMessages(creationsQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
+    ]);
+  }, [NAMESPACE, client, handleEntityUpdate]);
+
+  const fetchPlayerData = useCallback(async () => {
+    if (!NAMESPACE || !client || !address) return;
+
+    const eventsQuery = Quest.eventsQuery(address);
+    const playerQuery = Quest.playerQuery(address);
+
+    await Promise.all([
+      client
+        .getEntities(playerQuery.build())
+        .then((result) => handleEntityUpdate(result.items)),
+      client
+        .getEventMessages(eventsQuery.build())
+        .then((result) => handleQuestEvent(result.items)),
+    ]);
+  }, [NAMESPACE, client, address, handleEntityUpdate, handleQuestEvent]);
+
+  const setupPlayerSubscriptions = useCallback(async () => {
+    if (!NAMESPACE || !client || !address) return;
+
+    const playerClause = Quest.playerQuery(address).build().clause;
+    const eventsClause = Quest.eventsQuery(address).build().clause;
+    const playerKey = JSON.stringify(playerClause);
+    const eventsKey = JSON.stringify(eventsClause);
+
+    if (
+      entitySubscriptionKeyRef.current !== playerKey ||
+      !entitySubscriptionRef.current
+    ) {
+      if (entitySubscriptionRef.current) {
+        entitySubscriptionRef.current.cancel();
+        entitySubscriptionRef.current = null;
+      }
+
+      entitySubscriptionRef.current = await subscribeEntities(
+        client,
+        playerClause,
+        handleEntityUpdate,
+      );
+      entitySubscriptionKeyRef.current = playerKey;
+    }
+
+    if (
+      eventSubscriptionKeyRef.current !== eventsKey ||
+      !eventSubscriptionRef.current
+    ) {
+      if (eventSubscriptionRef.current) {
+        eventSubscriptionRef.current.cancel();
+        eventSubscriptionRef.current = null;
+      }
+
+      eventSubscriptionRef.current = await subscribeEvents(
+        client,
+        eventsClause,
+        handleQuestEvent,
+      );
+      eventSubscriptionKeyRef.current = eventsKey;
+    }
+  }, [NAMESPACE, client, address, handleEntityUpdate, handleQuestEvent]);
+
   useEffect(() => {
-    if (entitySubscriptionRef.current || eventSubscriptionRef.current) return;
+    if (!NAMESPACE || !client) return;
+    let cancelled = false;
+
     setStatus("loading");
-    refresh()
+
+    fetchStaticData()
       .then(() => {
-        setStatus("success");
+        if (!cancelled) {
+          setStatus("success");
+        }
       })
       .catch((error) => {
         console.error(error);
-        setStatus("error");
+        if (!cancelled) {
+          setStatus("error");
+        }
       });
 
     return () => {
+      cancelled = true;
+    };
+  }, [NAMESPACE, client, fetchStaticData]);
+
+  useEffect(() => {
+    if (!NAMESPACE || !client || !address) return;
+    let cancelled = false;
+
+    setStatus("loading");
+
+    const run = async () => {
+      await fetchPlayerData();
+      await setupPlayerSubscriptions();
+    };
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      cancelled = true;
       if (entitySubscriptionRef.current) {
         entitySubscriptionRef.current.cancel();
+        entitySubscriptionRef.current = null;
       }
       if (eventSubscriptionRef.current) {
         eventSubscriptionRef.current.cancel();
+        eventSubscriptionRef.current = null;
       }
+      entitySubscriptionKeyRef.current = undefined;
+      eventSubscriptionKeyRef.current = undefined;
     };
-  }, [refresh, client]);
+  }, [NAMESPACE, client, address, fetchPlayerData, setupPlayerSubscriptions]);
 
-  // Compute quests from the raw data
   const quests: Quests[] = useMemo(() => {
     const questList = definitions.map((definition) => {
       const intervalId = definition.getIntervalId();

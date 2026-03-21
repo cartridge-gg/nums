@@ -8,22 +8,12 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ClauseBuilder,
-  type SubscriptionCallbackArgs,
-  ToriiQueryBuilder,
-} from "@dojoengine/sdk";
+import { useAtomValue } from "jotai";
 import type * as torii from "@dojoengine/torii-wasm";
-import {
-  MerkleTree,
-  MerkleClaim,
-  MerkleProofs,
-  type RawMerkleTree,
-  type RawMerkleClaim,
-  type RawMerkleProofs,
-} from "@/models";
+import { MerkleTree, MerkleClaim, MerkleProofs } from "@/models";
 import { useAccount } from "@starknet-react/core";
-import { useEntities } from "./entities";
+import { Merkledrop as MerkledropApi, subscribeEntities } from "@/api";
+import { toriiClientAtom } from "@/atoms";
 import { NAMESPACE } from "@/constants";
 
 export type Merkledrop = {
@@ -46,43 +36,19 @@ const MerkledropsContext = createContext<MerkledropsContextType | undefined>(
   undefined,
 );
 
-const getTreeEntityQuery = (namespace: string) => {
-  const tree: `${string}-${string}` = `${namespace}-${MerkleTree.getModelName()}`;
-  const clauses = new ClauseBuilder().keys([tree], [undefined], "FixedLen");
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getProofsEventQuery = (namespace: string, playerId: string) => {
-  const model = `${namespace}-${MerkleProofs.getModelName()}`;
-  const clauses = new ClauseBuilder().where(
-    model as any,
-    "recipient" as any,
-    "Eq",
-    { type: "Felt252", value: playerId },
-  );
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
-const getClaimEntityQuery = (namespace: string, root: string, leaf: string) => {
-  const claim: `${string}-${string}` = `${namespace}-${MerkleClaim.getModelName()}`;
-  const clauses = new ClauseBuilder().keys([claim], [root, leaf], "FixedLen");
-  return new ToriiQueryBuilder()
-    .withClause(clauses.build())
-    .includeHashedKeys();
-};
-
 export function MerkledropsProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { address } = useAccount();
-  const { client } = useEntities();
-  const claimSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const client = useAtomValue(toriiClientAtom);
+  const treeSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const proofsSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const claimSubscriptionRef = useRef<torii.Subscription[]>([]);
+  const treeSubscriptionKeyRef = useRef<string>();
+  const proofsSubscriptionKeyRef = useRef<string>();
+  const claimSubscriptionKeyRef = useRef<string>();
   const [trees, setTrees] = useState<MerkleTree[]>([]);
   const [proofs, setProofs] = useState<MerkleProofs[]>([]);
   const [claims, setClaims] = useState<MerkleClaim[]>([]);
@@ -90,129 +56,283 @@ export function MerkledropsProvider({
     "loading",
   );
 
-  const onTreeUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${MerkleTree.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${MerkleTree.getModelName()}`
-          ] as unknown as RawMerkleTree;
-          setTrees((prev) =>
-            MerkleTree.deduplicate([MerkleTree.parse(model), ...prev]),
-          );
-        }
-      });
-    },
-    [],
-  );
+  const onTreeUpdate = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
 
-  const onProofsUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${MerkleProofs.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${MerkleProofs.getModelName()}`
-          ] as unknown as RawMerkleProofs;
-          setProofs((prev) =>
-            MerkleProofs.deduplicate([MerkleProofs.parse(model), ...prev]),
-          );
-        }
-      });
-    },
-    [],
-  );
+    const parsedTrees = MerkledropApi.parseTrees(entities);
+    if (parsedTrees.length) {
+      setTrees((prev) => MerkleTree.deduplicate([...parsedTrees, ...prev]));
+    }
+  }, []);
+  const onTreeUpdateRef = useRef(onTreeUpdate);
+  onTreeUpdateRef.current = onTreeUpdate;
 
-  const onClaimUpdate = useCallback(
-    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
-      if (!data || data.error) return;
-      (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${MerkleClaim.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${MerkleClaim.getModelName()}`
-          ] as unknown as RawMerkleClaim;
-          setClaims((prev) =>
-            MerkleClaim.deduplicate([MerkleClaim.parse(model), ...prev]),
-          );
-        }
-      });
-    },
-    [],
-  );
+  const onProofsUpdate = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
+
+    const parsedProofs = MerkledropApi.parseProofs(entities);
+    if (parsedProofs.length) {
+      setProofs((prev) => MerkleProofs.deduplicate([...parsedProofs, ...prev]));
+    }
+  }, []);
+  const onProofsUpdateRef = useRef(onProofsUpdate);
+  onProofsUpdateRef.current = onProofsUpdate;
+
+  const onClaimUpdate = useCallback((entities: torii.Entity[]) => {
+    if (!entities.length) return;
+
+    const parsedClaims = MerkledropApi.parseClaims(entities);
+    if (parsedClaims.length) {
+      setClaims((prev) => MerkleClaim.deduplicate([...parsedClaims, ...prev]));
+    }
+  }, []);
+  const onClaimUpdateRef = useRef(onClaimUpdate);
+  onClaimUpdateRef.current = onClaimUpdate;
+
+  const handleTreeUpdate = useCallback((entities: torii.Entity[]) => {
+    onTreeUpdateRef.current(entities);
+  }, []);
+
+  const handleProofsUpdate = useCallback((entities: torii.Entity[]) => {
+    onProofsUpdateRef.current(entities);
+  }, []);
+
+  const handleClaimUpdate = useCallback((entities: torii.Entity[]) => {
+    onClaimUpdateRef.current(entities);
+  }, []);
 
   const refresh = useCallback(async () => {
+    if (!NAMESPACE || !client) return;
+
+    const treesQuery = MerkledropApi.treesQuery();
+
+    await client
+      .getEntities(treesQuery.build())
+      .then((result) => handleTreeUpdate(result.items));
+
+    if (!address) return;
+
+    const proofsQuery = MerkledropApi.proofsQuery(address);
+    await client
+      .getEventMessages(proofsQuery.build())
+      .then((result) => handleProofsUpdate(result.items));
+  }, [NAMESPACE, client, address, handleTreeUpdate, handleProofsUpdate]);
+
+  const fetchTrees = useCallback(async () => {
+    if (!NAMESPACE || !client) return;
+    const treesQuery = MerkledropApi.treesQuery();
+    await client
+      .getEntities(treesQuery.build())
+      .then((result) => handleTreeUpdate(result.items));
+  }, [NAMESPACE, client, handleTreeUpdate]);
+
+  const setupTreeSubscription = useCallback(async () => {
+    if (!NAMESPACE || !client) return;
+
+    const treeClause = MerkledropApi.treesQuery().build().clause;
+    const treeKey = JSON.stringify(treeClause);
+
+    if (
+      treeSubscriptionKeyRef.current === treeKey &&
+      treeSubscriptionRef.current
+    ) {
+      return;
+    }
+
+    if (treeSubscriptionRef.current) {
+      treeSubscriptionRef.current.cancel();
+      treeSubscriptionRef.current = null;
+    }
+
+    treeSubscriptionRef.current = await subscribeEntities(
+      client,
+      treeClause,
+      handleTreeUpdate,
+    );
+    treeSubscriptionKeyRef.current = treeKey;
+  }, [NAMESPACE, client, handleTreeUpdate]);
+
+  const fetchProofs = useCallback(async () => {
+    if (!NAMESPACE || !client || !address) return;
+    const proofsQuery = MerkledropApi.proofsQuery(address);
+    await client
+      .getEventMessages(proofsQuery.build())
+      .then((result) => handleProofsUpdate(result.items));
+  }, [NAMESPACE, client, address, handleProofsUpdate]);
+
+  const setupProofsSubscription = useCallback(async () => {
     if (!NAMESPACE || !client || !address) return;
 
-    const treeQuery = getTreeEntityQuery(NAMESPACE);
-    const proofsQuery = getProofsEventQuery(NAMESPACE, address);
+    const proofsClause = MerkledropApi.proofsQuery(address).build().clause;
+    const proofsKey = JSON.stringify(proofsClause);
 
-    await Promise.all([
-      client
-        .getEntities(treeQuery.build())
-        .then((result) =>
-          onTreeUpdate({ data: result.items, error: undefined }),
+    if (
+      proofsSubscriptionKeyRef.current === proofsKey &&
+      proofsSubscriptionRef.current
+    ) {
+      return;
+    }
+
+    if (proofsSubscriptionRef.current) {
+      proofsSubscriptionRef.current.cancel();
+      proofsSubscriptionRef.current = null;
+    }
+
+    proofsSubscriptionRef.current = await subscribeEntities(
+      client,
+      proofsClause,
+      handleProofsUpdate,
+    );
+    proofsSubscriptionKeyRef.current = proofsKey;
+  }, [NAMESPACE, client, address, handleProofsUpdate]);
+
+  const fetchClaims = useCallback(async () => {
+    if (!client || !proofs.length) return;
+
+    await Promise.all(
+      proofs.map((proof) =>
+        client
+          .getEntities(MerkledropApi.claimQuery(proof.root, proof.leaf).build())
+          .then((result) => handleClaimUpdate(result.items)),
+      ),
+    );
+  }, [client, proofs, handleClaimUpdate]);
+
+  const setupClaimSubscriptions = useCallback(async () => {
+    if (!client || !proofs.length) return;
+
+    const claimKey = JSON.stringify(
+      [...proofs]
+        .map((proof) => `${proof.root}:${proof.leaf}`)
+        .sort((a, b) => a.localeCompare(b)),
+    );
+
+    if (
+      claimSubscriptionKeyRef.current === claimKey &&
+      claimSubscriptionRef.current.length
+    ) {
+      return;
+    }
+
+    for (const subscription of claimSubscriptionRef.current) {
+      subscription.cancel();
+    }
+    claimSubscriptionRef.current = [];
+
+    claimSubscriptionRef.current = await Promise.all(
+      proofs.map((proof) =>
+        subscribeEntities(
+          client,
+          MerkledropApi.claimQuery(proof.root, proof.leaf).build().clause,
+          handleClaimUpdate,
         ),
-      client
-        .getEventMessages(proofsQuery.build())
-        .then((result) =>
-          onProofsUpdate({ data: result.items, error: undefined }),
-        ),
-    ]);
-  }, [NAMESPACE, client, address, onTreeUpdate, onProofsUpdate]);
+      ),
+    );
+
+    claimSubscriptionKeyRef.current = claimKey;
+  }, [client, proofs, handleClaimUpdate]);
 
   useEffect(() => {
+    if (!NAMESPACE || !client) return;
+    let cancelled = false;
+
     setStatus("loading");
-    refresh()
-      .then(() => setStatus("success"))
+
+    const run = async () => {
+      await fetchTrees();
+      await setupTreeSubscription();
+    };
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
       .catch((error) => {
         console.error(error);
-        setStatus("error");
+        if (!cancelled) {
+          setStatus("error");
+        }
       });
-  }, [refresh, client]);
+
+    return () => {
+      cancelled = true;
+      if (treeSubscriptionRef.current) {
+        treeSubscriptionRef.current.cancel();
+        treeSubscriptionRef.current = null;
+      }
+      treeSubscriptionKeyRef.current = undefined;
+    };
+  }, [NAMESPACE, client, fetchTrees, setupTreeSubscription]);
+
+  useEffect(() => {
+    if (!NAMESPACE || !client || !address) return;
+    let cancelled = false;
+
+    setStatus("loading");
+
+    const run = async () => {
+      await fetchProofs();
+      await setupProofsSubscription();
+    };
+
+    run()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (proofsSubscriptionRef.current) {
+        proofsSubscriptionRef.current.cancel();
+        proofsSubscriptionRef.current = null;
+      }
+      proofsSubscriptionKeyRef.current = undefined;
+    };
+  }, [NAMESPACE, client, address, fetchProofs, setupProofsSubscription]);
 
   useEffect(() => {
     if (!client || !proofs.length) return;
+    let cancelled = false;
 
-    if (claimSubscriptionRef.current) {
-      claimSubscriptionRef.current = null;
-    }
+    setStatus("loading");
 
     const fetchAndSubscribeClaims = async () => {
-      await Promise.all(
-        proofs.map((proof) =>
-          client
-            .getEntities(
-              getClaimEntityQuery(NAMESPACE, proof.root, proof.leaf).build(),
-            )
-            .then((result) =>
-              onClaimUpdate({ data: result.items, error: undefined }),
-            ),
-        ),
-      );
-
-      const claim: `${string}-${string}` = `${NAMESPACE}-${MerkleClaim.getModelName()}`;
-      const clauses = new ClauseBuilder().keys(
-        proofs.map(() => claim),
-        proofs.map((p) => p.root),
-        "VariableLen",
-      );
-      client
-        .onEntityUpdated(clauses.build(), [], onClaimUpdate)
-        .then((response) => {
-          claimSubscriptionRef.current = response;
-        });
+      await fetchClaims();
+      await setupClaimSubscriptions();
     };
 
-    fetchAndSubscribeClaims();
+    fetchAndSubscribeClaims()
+      .then(() => {
+        if (!cancelled) {
+          setStatus("success");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          setStatus("error");
+        }
+      });
 
     return () => {
-      if (claimSubscriptionRef.current) {
-        claimSubscriptionRef.current.cancel();
-        claimSubscriptionRef.current = null;
+      cancelled = true;
+      for (const subscription of claimSubscriptionRef.current) {
+        subscription.cancel();
       }
+      claimSubscriptionRef.current = [];
+      claimSubscriptionKeyRef.current = undefined;
     };
-  }, [client, proofs, onClaimUpdate]);
+  }, [client, proofs, fetchClaims, setupClaimSubscriptions]);
 
   const merkledrops: Merkledrop[] = useMemo(() => {
     return proofs.map((proof) => {

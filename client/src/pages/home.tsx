@@ -10,13 +10,21 @@ import { usePractice } from "@/context/practice";
 import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
+import { useActivities } from "@/hooks/activities";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply } = useHeader();
-  const { allGames, playerGames: games, loading } = useGames();
+  const { playerGames: games, loading } = useGames();
+  const {
+    activities: sqlActivities,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch: refetchActivities,
+  } = useActivities();
   const { openPurchaseScene } = usePurchaseModal();
   const { clearGame, start: startPractice } = usePractice();
   const { propose } = useTutorial();
@@ -78,20 +86,17 @@ export const Home = () => {
   }, [games]);
 
   const allActivities = useMemo(() => {
-    const price = parseFloat(getNumsPrice() || "0.0");
-    return allGames
-      .filter((game) => !!game.over)
-      .map((game) => ({
-        gameId: game.username,
-        score: game.level,
-        breakEven: chartAbscissa.toString(),
-        payout: `+$${(game.reward * price).toFixed(2)}`,
-        to: `/game/${game.id}`,
-        timestamp: game.over,
-        claimed: game.self ? game.claimed : true,
-        cells: [null, ...game.slots.map((slot) => slot !== 0), null],
-      }));
-  }, [allGames]);
+    return sqlActivities.map((row) => ({
+      gameId: row.username,
+      score: row.score,
+      breakEven: chartAbscissa.toString(),
+      payout: row.payout,
+      to: row.to,
+      timestamp: row.timestamp,
+      claimed: true,
+      cells: [],
+    }));
+  }, [sqlActivities, chartAbscissa]);
 
   // Transform games for Games component (only non-over games)
   const gamesProps = useMemo(() => {
@@ -182,6 +187,11 @@ export const Home = () => {
       games={gamesProps}
       allActivities={{ activities: allActivities }}
       playerActivities={{ activities: playerActivities }}
+      onLoadMoreActivities={() => {
+        if (!isFetchingNextPage) fetchNextPage();
+      }}
+      hasMoreActivities={hasNextPage}
+      onRefreshActivities={refetchActivities}
       onPurchase={handlePurchaseClick}
       onPractice={handlePracticeClick}
     />

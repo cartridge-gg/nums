@@ -10,7 +10,6 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { Navigate } from "@/lib/router";
 import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
@@ -18,6 +17,7 @@ import { SoundProvider } from "./context/sound";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
 import { Game, Home, Support } from "./pages";
+import { LoadingScene } from "./components/scenes";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { LoadingProvider } from "./context/loading";
@@ -125,10 +125,7 @@ function AuthenticatedApp() {
                             <Routes>
                               <Route path="/" element={<Home />} />
                               <Route path="/game/:id" element={<Game />} />
-                              <Route
-                                path="/game"
-                                element={<Navigate to="/" replace />}
-                              />
+                              <Route path="/game" element={<LoadingScene />} />
                               <Route path="/practice" element={<Game />} />
                               <Route path="/tutorial" element={<Game />} />
                             </Routes>

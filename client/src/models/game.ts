@@ -94,7 +94,7 @@ export class Game {
         1n,
         Number(data.slot_count.value),
       ).map((index) => index === 1),
-      reward: Number(data.reward.value),
+      reward: Number(BigInt(data.reward.value) / 10n ** 18n),
       over: Number(data.over.value),
       expiration: Number(data.expiration.value),
       traps: Trap.getTraps(BigInt(data.traps.value)),

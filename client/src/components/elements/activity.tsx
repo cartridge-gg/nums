@@ -40,14 +40,14 @@ export const Activity = ({
 
   return (
     <div className={cn(activityVariants({ variant, className }))} {...props}>
-      <div className="grow bg-black-900 rounded-lg flex items-center gap-3">
+      <div className="grow bg-black-900 rounded-lg flex items-center gap-3 overflow-hidden">
         {/* Game Id column */}
-        <div className="flex-[5] flex items-center gap-2 text-left">
-          <div className="h-10 flex items-center gap-2 rounded-lg px-3 py-2">
-            <div className="w-5 flex items-center justify-center">
+        <div className="flex-[5] min-w-0 flex items-center gap-2 text-left">
+          <div className="h-10 min-w-0 flex items-center gap-2 rounded-lg px-3 py-2">
+            <div className="w-5 flex-shrink-0 flex items-center justify-center">
               <BrandIcon size="sm" />
             </div>
-            <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 whitespace-nowrap font-thin truncate">
+            <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 font-thin truncate">
               {typeof gameId === "number" ? `#${gameId}` : gameId}
             </span>
           </div>

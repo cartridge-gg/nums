@@ -14,7 +14,7 @@ const DEFAULT_SUPPLY = 1000n;
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { account } = useAccount();
-  const { config, starterpacks } = useEntities();
+  const { config, starterpacks, claimeds, starteds } = useEntities();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply, handleConnect } = useHeader();
   const { games: blockchainGames } = useGames();
@@ -57,19 +57,28 @@ export const Home = () => {
   const allActivities = useMemo(() => {
     const price = parseFloat(getNumsPrice() || "0.0");
 
-    return blockchainGames
-      .filter((game) => !!game.over)
-      .map((game) => ({
-        gameId: game.id,
-        score: game.level,
-        breakEven: chartAbscissa.toString(),
-        payout: `+$${(game.reward * price).toFixed(2)}`,
-        to: `/game/${game.id}`,
-        timestamp: game.over,
-        claimed: game.claimed,
-      }))
-      .sort((a, b) => b.timestamp - a.timestamp);
-  }, [blockchainGames, getNumsPrice, chartAbscissa]);
+    const claimedActivities = claimeds.map((claimed) => ({
+      gameId: claimed.game_id,
+      score: 0,
+      payout: `+$${(claimed.reward * price).toFixed(2)}`,
+      to: `/game/${claimed.game_id}`,
+      timestamp: claimed.time,
+      claimed: true,
+    }));
+
+    const startedActivities = starteds.map((started) => ({
+      gameId: started.game_id,
+      score: 0,
+      payout: `${started.multiplier.toFixed(1)}x`,
+      to: `/game/${started.game_id}`,
+      timestamp: started.time,
+      claimed: true,
+    }));
+
+    return [...claimedActivities, ...startedActivities].sort(
+      (a, b) => b.timestamp - a.timestamp,
+    );
+  }, [claimeds, starteds, getNumsPrice]);
 
   const myActivities = useMemo(() => {
     return practiceGames

@@ -61,8 +61,10 @@ export const Home = () => {
 
     return claimeds
       .map((claimed) => {
+        const addr = claimed.player_id;
         const username =
-          find(claimed.player_id)?.username || claimed.player_id;
+          find(addr)?.username ||
+          `${addr.slice(0, 6)}...${addr.slice(-4)}`;
         return {
           gameId: username,
           score: claimed.reward,

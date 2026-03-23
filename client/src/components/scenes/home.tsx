@@ -70,7 +70,7 @@ export const HomeScene = ({
               onClick={onPractice}
             >
               <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-                Practice
+                New Game
               </span>
             </Button>
             {gameId && (
@@ -92,7 +92,7 @@ export const HomeScene = ({
             onClick={onConnect}
           >
             <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-              Connect
+              Log In
             </span>
           </Button>
         )}

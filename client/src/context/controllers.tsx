@@ -34,19 +34,23 @@ export function ControllersProvider({
 
   const refresh = async () => {
     if (!client) return;
-    // fetch all
-    const res = await client.getControllers({
-      contract_addresses: [],
-      usernames: [],
-      pagination: {
-        cursor: undefined,
-        direction: "Backward",
-        limit: 50_000,
-        order_by: [],
-      },
-    });
-    setControllers(res.items as Controller[]);
-    setLoading(false);
+    try {
+      const res = await client.getControllers({
+        contract_addresses: [],
+        usernames: [],
+        pagination: {
+          cursor: undefined,
+          direction: "Backward",
+          limit: 50_000,
+          order_by: [],
+        },
+      });
+      setControllers(res.items as Controller[]);
+    } catch (e) {
+      console.error("Failed to fetch controllers:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const find = useCallback(

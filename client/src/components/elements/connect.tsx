@@ -40,7 +40,7 @@ export const Connect = ({
         className={cn("translate-y-0.5 tracking-wide")}
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 1)" }}
       >
-        Connect
+        Log In
       </p>
     </Button>
   );

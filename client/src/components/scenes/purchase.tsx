@@ -190,7 +190,7 @@ export const PurchaseScene = ({
               className="text-[28px]/[15px] tracking-wide translate-y-0.5"
               style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
             >
-              Connect
+              Log In
             </p>
           </Button>
         ) : onPurchase ? (
@@ -249,7 +249,7 @@ export const PurchaseScene = ({
                     className="text-[28px]/[15px] tracking-wide translate-y-0.5"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
                   >
-                    Connect
+                    Log In
                   </p>
                 </Button>
               ) : onPurchase ? (

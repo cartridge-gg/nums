@@ -1,5 +1,6 @@
 import { Achievement } from "./torii/achievement";
 import { Activities } from "./torii/activities";
+import { BundleApi } from "./torii/bundle";
 import { Config } from "./torii/config";
 import { Event } from "./torii/event";
 import { Game } from "./torii/game";
@@ -12,6 +13,7 @@ import { Vault } from "./torii/vault";
 
 export const queryKeys = {
   games: Game.keys,
+  bundles: BundleApi.keys,
 
   tokens: {
     contracts: (contractAddresses: string[], contractType: string) =>

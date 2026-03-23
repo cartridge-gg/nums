@@ -511,13 +511,13 @@ export const Game = () => {
     }, 3000);
   }, []);
 
-  // Redirect to home if not connected and game is not over (can't play)
-  if (!isPracticeMode && gameId && !account?.address && !game?.over) {
-    return <Navigate to="/" replace />;
-  }
-
   // Show loading state if game is not loaded
   if (!game || (!isPracticeMode && defaultLoading)) return <LoadingScene />;
+
+  // Redirect to home if not connected and game is still active (can't play)
+  if (!isPracticeMode && gameId && !account?.address && !game.over) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <>

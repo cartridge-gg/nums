@@ -113,24 +113,32 @@ export function EntitiesProvider({
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
       (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Config.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Config.getModelName()}`
-          ] as unknown as RawConfig;
-          const parsed = Config.parse(model);
-          if (parsed) setConfig(parsed);
+        try {
+          if (entity.models[`${NAMESPACE}-${Config.getModelName()}`]) {
+            const model = entity.models[
+              `${NAMESPACE}-${Config.getModelName()}`
+            ] as unknown as RawConfig;
+            const parsed = Config.parse(model);
+            if (parsed) setConfig(parsed);
+          }
+        } catch (e) {
+          console.warn("Failed to parse Config entity:", e);
         }
-        if (entity.models[`${NAMESPACE}-${Starterpack.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Starterpack.getModelName()}`
-          ] as unknown as RawStarterpack;
-          const parsed = Starterpack.parse(model);
-          if (parsed)
-            setStarterpacks((prev) =>
-              Starterpack.dedupe([...(prev || []), parsed]).sort((a, b) =>
-                Number(a.price - b.price),
-              ),
-            );
+        try {
+          if (entity.models[`${NAMESPACE}-${Starterpack.getModelName()}`]) {
+            const model = entity.models[
+              `${NAMESPACE}-${Starterpack.getModelName()}`
+            ] as unknown as RawStarterpack;
+            const parsed = Starterpack.parse(model);
+            if (parsed)
+              setStarterpacks((prev) =>
+                Starterpack.dedupe([...(prev || []), parsed]).sort((a, b) =>
+                  Number(a.price - b.price),
+                ),
+              );
+          }
+        } catch (e) {
+          console.warn("Failed to parse Starterpack entity:", e);
         }
       });
     },
@@ -142,41 +150,53 @@ export function EntitiesProvider({
     (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
       if (!data || data.error) return;
       (data.data || [data] || []).forEach((entity) => {
-        if (entity.models[`${NAMESPACE}-${Purchased.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Purchased.getModelName()}`
-          ] as unknown as RawPurchased;
-          const parsed = Purchased.parse(model);
-          setPurchaseds((prev) =>
-            Purchased.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setPurchased(parsed);
+        try {
+          if (entity.models[`${NAMESPACE}-${Purchased.getModelName()}`]) {
+            const model = entity.models[
+              `${NAMESPACE}-${Purchased.getModelName()}`
+            ] as unknown as RawPurchased;
+            const parsed = Purchased.parse(model);
+            setPurchaseds((prev) =>
+              Purchased.dedupe(
+                [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+              ).slice(0, 10),
+            );
+            if (!parsed.hasExpired()) setPurchased(parsed);
+          }
+        } catch (_e) {
+          // Skip malformed Purchased events
         }
-        if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Started.getModelName()}`
-          ] as unknown as RawStarted;
-          const parsed = Started.parse(model);
-          setStarteds((prev) =>
-            Started.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setStarted(parsed);
+        try {
+          if (entity.models[`${NAMESPACE}-${Started.getModelName()}`]) {
+            const model = entity.models[
+              `${NAMESPACE}-${Started.getModelName()}`
+            ] as unknown as RawStarted;
+            const parsed = Started.parse(model);
+            setStarteds((prev) =>
+              Started.dedupe(
+                [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+              ).slice(0, 10),
+            );
+            if (!parsed.hasExpired()) setStarted(parsed);
+          }
+        } catch (_e) {
+          // Skip malformed Started events
         }
-        if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
-          const model = entity.models[
-            `${NAMESPACE}-${Claimed.getModelName()}`
-          ] as unknown as RawClaimed;
-          const parsed = Claimed.parse(model);
-          setClaimeds((prev) =>
-            Claimed.dedupe(
-              [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
-            ).slice(0, 10),
-          );
-          if (!parsed.hasExpired()) setClaimed(parsed);
+        try {
+          if (entity.models[`${NAMESPACE}-${Claimed.getModelName()}`]) {
+            const model = entity.models[
+              `${NAMESPACE}-${Claimed.getModelName()}`
+            ] as unknown as RawClaimed;
+            const parsed = Claimed.parse(model);
+            setClaimeds((prev) =>
+              Claimed.dedupe(
+                [parsed, ...(prev || [])].sort((a, b) => b.time - a.time),
+              ).slice(0, 10),
+            );
+            if (!parsed.hasExpired()) setClaimed(parsed);
+          }
+        } catch (_e) {
+          // Skip malformed Claimed events
         }
       });
     },

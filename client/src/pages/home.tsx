@@ -8,13 +8,15 @@ import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { ChartHelper } from "@/helpers/chart";
 import { useAccount } from "@starknet-react/core";
+import { useControllers } from "@/context/controllers";
 
 const DEFAULT_SUPPLY = 1000n;
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { account } = useAccount();
-  const { config, starterpacks, claimeds, starteds } = useEntities();
+  const { config, starterpacks, claimeds } = useEntities();
+  const { find } = useControllers();
   const { getNumsPrice } = usePrices();
   const { supply: currentSupply, handleConnect } = useHeader();
   const { games: blockchainGames } = useGames();
@@ -57,28 +59,21 @@ export const Home = () => {
   const allActivities = useMemo(() => {
     const price = parseFloat(getNumsPrice() || "0.0");
 
-    const claimedActivities = claimeds.map((claimed) => ({
-      gameId: claimed.game_id,
-      score: 0,
-      payout: `+$${(claimed.reward * price).toFixed(2)}`,
-      to: `/game/${claimed.game_id}`,
-      timestamp: claimed.time,
-      claimed: true,
-    }));
-
-    const startedActivities = starteds.map((started) => ({
-      gameId: started.game_id,
-      score: 0,
-      payout: `${started.multiplier.toFixed(1)}x`,
-      to: `/game/${started.game_id}`,
-      timestamp: started.time,
-      claimed: true,
-    }));
-
-    return [...claimedActivities, ...startedActivities].sort(
-      (a, b) => b.timestamp - a.timestamp,
-    );
-  }, [claimeds, starteds, getNumsPrice]);
+    return claimeds
+      .map((claimed) => {
+        const username =
+          find(claimed.player_id)?.username || claimed.player_id;
+        return {
+          gameId: username,
+          score: claimed.reward,
+          payout: `+$${(claimed.reward * price).toFixed(2)}`,
+          to: `/game/${claimed.game_id}`,
+          timestamp: claimed.time,
+          claimed: true,
+        };
+      })
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [claimeds, getNumsPrice, find]);
 
   const myActivities = useMemo(() => {
     return practiceGames

@@ -61,15 +61,15 @@ export const Home = () => {
 
     return claimeds
       .map((claimed) => {
-        const addr = claimed.player_id;
+        const addr = claimed.player_id.replace(/^0x0+/, "0x");
         const username =
-          find(addr)?.username ||
-          `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+          find(claimed.player_id)?.username ||
+          `${addr.slice(0, 4)}...${addr.slice(-4)}`;
         return {
           gameId: username,
           score: claimed.reward,
           payout: `+$${(claimed.reward * price).toFixed(2)}`,
-          to: `/game/${claimed.game_id}`,
+          to: "#",
           timestamp: claimed.time,
           claimed: true,
         };

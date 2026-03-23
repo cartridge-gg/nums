@@ -67,8 +67,8 @@ export const Home = () => {
           `${addr.slice(0, 4)}...${addr.slice(-4)}`;
         return {
           gameId: username,
-          score: claimed.reward,
-          payout: `+$${(claimed.reward * price).toFixed(2)}`,
+          score: Math.round(claimed.reward / 1e18),
+          payout: `+$${((claimed.reward / 1e18) * price).toFixed(2)}`,
           to: `/game/${claimed.game_id}`,
           timestamp: claimed.time,
           claimed: true,

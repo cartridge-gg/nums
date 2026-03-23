@@ -415,7 +415,7 @@ export const Game = () => {
 
     const numsPrice = getNumsPrice();
     const price = numsPrice ? parseFloat(numsPrice) : 0.0; // Default fallback
-    const payout = game.reward;
+    const payout = game.reward / 1e18;
     const value = payout * price;
     const score = game.level;
     const newGames = GameModel.deduplicate([game, ...games])

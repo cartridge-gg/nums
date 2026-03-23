@@ -6,17 +6,19 @@ import {
   Activities,
   type GamesProps,
   type ActivitiesProps,
+  type ActivityFilter,
 } from "../containers";
 import { Button } from "../ui/button";
 import { ShadowEffect } from "../icons";
-import { useId } from "react";
+import { useId, useState } from "react";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
   gamesProps?: GamesProps;
-  activitiesProps: ActivitiesProps;
+  allActivities: ActivitiesProps;
+  myActivities: ActivitiesProps;
   isConnected: boolean;
   onConnect: () => void;
   onPractice?: () => void;
@@ -44,7 +46,8 @@ const homeSceneVariants = cva(
 export const HomeScene = ({
   gameId,
   gamesProps,
-  activitiesProps,
+  allActivities,
+  myActivities,
   isConnected,
   onConnect,
   onPractice,
@@ -54,13 +57,24 @@ export const HomeScene = ({
   ...props
 }: HomeSceneProps) => {
   const filterId = useId();
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>(
+    myActivities.activities.length > 0 ? "mine" : "all",
+  );
+
+  const activities =
+    activityFilter === "all" ? allActivities : myActivities;
 
   return (
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
       <Banners />
       {gamesProps && <Games {...gamesProps} />}
-      <Activities {...activitiesProps} className="grow overflow-hidden px-2" />
+      <Activities
+        {...activities}
+        filter={activityFilter}
+        onFilterChange={setActivityFilter}
+        className="grow overflow-hidden px-2"
+      />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
         {isConnected ? (
           <>

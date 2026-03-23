@@ -54,11 +54,10 @@ export const Home = () => {
 
   const { chartAbscissa } = chartData;
 
-  const activities = useMemo(() => {
+  const allActivities = useMemo(() => {
     const price = parseFloat(getNumsPrice() || "0.0");
 
-    // Blockchain game activities
-    const blockchainActivities = blockchainGames
+    return blockchainGames
       .filter((game) => !!game.over)
       .map((game) => ({
         gameId: game.id,
@@ -68,10 +67,12 @@ export const Home = () => {
         to: `/game/${game.id}`,
         timestamp: game.over,
         claimed: game.claimed,
-      }));
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [blockchainGames, getNumsPrice, chartAbscissa]);
 
-    // Practice game activities (completed games only)
-    const practiceActivities = practiceGames
+  const myActivities = useMemo(() => {
+    return practiceGames
       .filter((game) => game.over > 0)
       .map((game) => ({
         gameId: game.id,
@@ -81,12 +82,9 @@ export const Home = () => {
         to: "#",
         timestamp: game.over,
         claimed: true,
-      }));
-
-    return [...blockchainActivities, ...practiceActivities].sort(
-      (a, b) => b.timestamp - a.timestamp,
-    );
-  }, [blockchainGames, practiceGames, getNumsPrice, chartAbscissa]);
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [practiceGames]);
 
   // Build games carousel from blockchain + active practice games
   const gamesProps = useMemo(() => {
@@ -191,7 +189,8 @@ export const Home = () => {
       className="md:p-16"
       gameId={gameId}
       gamesProps={gamesProps}
-      activitiesProps={{ activities }}
+      allActivities={{ activities: allActivities }}
+      myActivities={{ activities: myActivities }}
       isConnected={isConnected}
       onConnect={handleConnect}
       onPractice={handlePracticeClick}

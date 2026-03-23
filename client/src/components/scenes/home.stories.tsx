@@ -58,7 +58,8 @@ export const Connected: Story = {
     onConnect: fn(),
     onPractice: fn(),
     onContinue: fn(),
-    activitiesProps: { activities: sampleActivities },
+    allActivities: { activities: sampleActivities },
+    myActivities: { activities: sampleActivities.filter((a) => a.payout === "Practice") },
   },
 };
 
@@ -69,7 +70,8 @@ export const Disconnected: Story = {
     onConnect: fn(),
     onPractice: fn(),
     onContinue: fn(),
-    activitiesProps: { activities: [] },
+    allActivities: { activities: [] },
+    myActivities: { activities: [] },
   },
 };
 
@@ -80,6 +82,7 @@ export const NoActivities: Story = {
     onConnect: fn(),
     onPractice: fn(),
     onContinue: fn(),
-    activitiesProps: { activities: [] },
+    allActivities: { activities: [] },
+    myActivities: { activities: [] },
   },
 };

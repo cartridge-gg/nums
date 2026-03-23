@@ -25,6 +25,7 @@ export * from "./stat";
 export * from "./ranges";
 export * from "./banner";
 export * from "./activity";
+export * from "./activity-tab";
 export * from "./detail";
 export * from "./stake-change";
 export * from "./stake-state";

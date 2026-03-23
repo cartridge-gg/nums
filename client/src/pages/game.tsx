@@ -511,8 +511,8 @@ export const Game = () => {
     }, 3000);
   }, []);
 
-  // Redirect to home if not connected in blockchain mode
-  if (!isPracticeMode && gameId && !account?.address) {
+  // Redirect to home if not connected and game is not over (can't play)
+  if (!isPracticeMode && gameId && !account?.address && !game?.over) {
     return <Navigate to="/" replace />;
   }
 

@@ -69,7 +69,7 @@ export const Home = () => {
           gameId: username,
           score: claimed.reward,
           payout: `+$${(claimed.reward * price).toFixed(2)}`,
-          to: "#",
+          to: `/game/${claimed.game_id}`,
           timestamp: claimed.time,
           claimed: true,
         };

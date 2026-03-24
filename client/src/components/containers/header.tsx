@@ -1,7 +1,12 @@
 import { Link } from "@/lib/router";
 import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
-import { GearIcon, GiftIcon, ShadowEffect } from "@/components/icons";
-import { Balance, Profile, Connect } from "@/components/elements";
+import {
+  ListIcon,
+  GiftIcon,
+  ShadowEffect,
+  TrophyIcon,
+} from "@/components/icons";
+import { Balance, Connect } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -16,7 +21,7 @@ export interface HeaderProps
   onFaucet?: () => void;
   username?: string;
   onConnect: () => void;
-  onProfile: () => void;
+  onLeaderboard?: () => void;
   onSettings?: () => void;
   hasMerkledrop?: boolean;
   onMerkledrop?: () => void;
@@ -41,7 +46,7 @@ export const Header = ({
   onBalance,
   username,
   onConnect,
-  onProfile,
+  onLeaderboard,
   onSettings,
   faucetBalance,
   onFaucet,
@@ -92,6 +97,20 @@ export const Header = ({
         </Button>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
+        {onLeaderboard && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onLeaderboard}
+          >
+            <TrophyIcon
+              variant="solid"
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${lightId})` }}
+            />
+          </Button>
+        )}
         {hasMerkledrop && onMerkledrop && (
           <Button
             variant="muted"
@@ -105,7 +124,7 @@ export const Header = ({
             />
           </Button>
         )}
-        {username ? (
+        {username && (
           <>
             {faucetBalance !== undefined && (
               <Balance
@@ -131,24 +150,22 @@ export const Header = ({
             {balance !== undefined && (
               <Balance balance={balance} onClick={onBalance} />
             )}
-            {onSettings && (
-              <Button
-                variant="muted"
-                className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-                onClick={onSettings}
-              >
-                <GearIcon
-                  size="md"
-                  className="md:size-lg"
-                  style={{ filter: `url(#${lightId})` }}
-                />
-              </Button>
-            )}
-            <Profile username={username} onClick={onProfile} />
           </>
-        ) : (
-          <Connect onClick={onConnect} />
         )}
+        {onSettings && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onSettings}
+          >
+            <ListIcon
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${lightId})` }}
+            />
+          </Button>
+        )}
+        {!username && <Connect onClick={onConnect} />}
       </div>
     </div>
   );

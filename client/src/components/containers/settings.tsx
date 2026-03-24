@@ -5,8 +5,8 @@ import {
   ShadowEffect,
   ReferralIcon,
   LaurelIcon,
-  StakingIcon,
   LightbulbIcon,
+  StakingIcon,
   TrophyIcon,
   QuestIcon,
   GithubIcon,
@@ -37,6 +37,9 @@ export interface SettingsProps
   onStaking: () => void;
   onTutorial: () => void;
   onLogOut: () => void;
+  onConnect: () => void;
+  username?: string;
+  onProfile?: () => void;
 }
 
 const settingsVariants = cva(
@@ -71,6 +74,9 @@ export const Settings = ({
   onStaking,
   onTutorial,
   onLogOut,
+  onConnect,
+  username,
+  onProfile,
   variant,
   className,
   ...props
@@ -130,8 +136,16 @@ export const Settings = ({
               onLeaderboard={onLeaderboard}
               onStaking={onStaking}
               onTutorial={onTutorial}
+              connected={!!username}
             />
-            <LogOutButton onLogOut={onLogOut} />
+            {username && onProfile ? (
+              <>
+                <ProfileButton username={username} onProfile={onProfile} />
+                <LogOutButton onLogOut={onLogOut} />
+              </>
+            ) : (
+              <LogInButton onConnect={onConnect} />
+            )}
           </div>
           <Socials />
         </div>
@@ -148,6 +162,7 @@ export const Settings = ({
             onLeaderboard={onLeaderboard}
             onStaking={onStaking}
             onTutorial={onTutorial}
+            connected={!!username}
           />
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1">
@@ -162,7 +177,14 @@ export const Settings = ({
             onSfxMute={onSfxMute}
           />
           <div className="flex flex-col gap-4">
-            <LogOutButton onLogOut={onLogOut} />
+            {username && onProfile ? (
+              <div className="flex gap-4">
+                <ProfileButton username={username} onProfile={onProfile} />
+                <LogOutButton onLogOut={onLogOut} />
+              </div>
+            ) : (
+              <LogInButton onConnect={onConnect} />
+            )}
             <Socials />
           </div>
         </div>
@@ -210,61 +232,24 @@ const Volumes = ({
 
 const NavButtons = ({
   filterId,
-  onReferrals,
-  onAchievements,
-  onQuests,
   onLeaderboard,
+  onQuests,
+  onAchievements,
+  onReferrals,
   onStaking,
   onTutorial,
+  connected,
 }: {
   filterId: string;
-  onReferrals: () => void;
-  onAchievements: () => void;
-  onQuests: () => void;
   onLeaderboard: () => void;
+  onQuests: () => void;
+  onAchievements: () => void;
+  onReferrals: () => void;
   onStaking: () => void;
   onTutorial: () => void;
+  connected: boolean;
 }) => (
   <>
-    <Button
-      variant="secondary"
-      className="h-10 min-h-10 gap-1"
-      onClick={onReferrals}
-    >
-      <ReferralIcon size="md" style={{ filter: `url(#${filterId})` }} />
-      <span
-        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-      >
-        Referrals
-      </span>
-    </Button>
-    <Button
-      variant="secondary"
-      className="h-10 min-h-10 gap-1"
-      onClick={onAchievements}
-    >
-      <LaurelIcon size="md" style={{ filter: `url(#${filterId})` }} />
-      <span
-        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-      >
-        Achievements
-      </span>
-    </Button>
-    <Button
-      variant="secondary"
-      className="h-10 min-h-10 gap-1"
-      onClick={onQuests}
-    >
-      <QuestIcon size="md" style={{ filter: `url(#${filterId})` }} />
-      <span
-        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
-      >
-        Quests
-      </span>
-    </Button>
     <Button
       variant="secondary"
       className="h-10 min-h-10 gap-1"
@@ -285,6 +270,47 @@ const NavButtons = ({
     <Button
       variant="secondary"
       className="h-10 min-h-10 gap-1"
+      onClick={onQuests}
+    >
+      <QuestIcon size="md" style={{ filter: `url(#${filterId})` }} />
+      <span
+        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+      >
+        Quests
+      </span>
+    </Button>
+    <Button
+      variant="secondary"
+      className="h-10 min-h-10 gap-1"
+      onClick={onAchievements}
+    >
+      <LaurelIcon size="md" style={{ filter: `url(#${filterId})` }} />
+      <span
+        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+      >
+        Achievements
+      </span>
+    </Button>
+    {connected && (
+      <Button
+        variant="secondary"
+        className="h-10 min-h-10 gap-1"
+        onClick={onReferrals}
+      >
+        <ReferralIcon size="md" style={{ filter: `url(#${filterId})` }} />
+        <span
+          className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        >
+          Referrals
+        </span>
+      </Button>
+    )}
+    <Button
+      variant="secondary"
+      className="h-10 min-h-10 gap-1 hidden"
       onClick={onStaking}
     >
       <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -311,8 +337,44 @@ const NavButtons = ({
   </>
 );
 
+const ProfileButton = ({
+  username,
+  onProfile,
+}: {
+  username: string;
+  onProfile: () => void;
+}) => (
+  <Button
+    variant="constructive"
+    className="h-10 min-h-10 flex-1"
+    onClick={onProfile}
+  >
+    <span
+      className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5 truncate"
+      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+    >
+      {username}
+    </span>
+  </Button>
+);
+
+const LogInButton = ({ onConnect }: { onConnect: () => void }) => (
+  <Button variant="informative" className="h-10 min-h-10" onClick={onConnect}>
+    <span
+      className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+    >
+      Log In
+    </span>
+  </Button>
+);
+
 const LogOutButton = ({ onLogOut }: { onLogOut: () => void }) => (
-  <Button variant="destructive" className="h-10 min-h-10" onClick={onLogOut}>
+  <Button
+    variant="destructive"
+    className="h-10 min-h-10 flex-1"
+    onClick={onLogOut}
+  >
     <span
       className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}

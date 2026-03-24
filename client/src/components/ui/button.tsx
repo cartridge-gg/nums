@@ -13,8 +13,12 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-yellow-100 text-brown-100 rounded-lg hover:bg-yellow-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        constructive:
+          "text-green-100 bg-green-800 hover:bg-green-700 shadow-none rounded-lg",
         destructive:
           "text-red-100 bg-red-800 hover:bg-red-700 shadow-none rounded-lg",
+        informative:
+          "text-yellow-100 bg-yellow-800 hover:bg-yellow-700 shadow-none rounded-lg",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:

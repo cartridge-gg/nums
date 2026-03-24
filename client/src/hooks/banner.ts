@@ -33,7 +33,11 @@ const BANNERS: GameBanner[] = [
   { preset: "nums", name: "tutorial" },
   { preset: "loot-survivor", name: "loot-survivor", position: 64 },
   { preset: "dope-wars", name: "dope-wars", position: 16 },
-  { preset: "jokers-of-neon", name: "jokers-of-neon" },
+  {
+    preset: "jokers-of-neon",
+    name: "jokers-of-neon",
+    origin: "https://play.jokersofneon.com/",
+  },
   {
     preset: "eternum",
     name: "eternum",

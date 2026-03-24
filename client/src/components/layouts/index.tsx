@@ -314,7 +314,15 @@ export const Layout = ({ children }: LayoutProps) => {
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}
-        onProfile={headerData.handleOpenProfile}
+        onLeaderboard={() => {
+          setShowLeaderboardScene(!showLeaderboardScene);
+          setShowQuestScene(false);
+          setShowPurchaseScene(false);
+          setShowStakingScene(false);
+          setShowReferralScene(false);
+          setShowSettingsScene(false);
+          setShowAchievementScene(false);
+        }}
         onBalance={() => {
           if (!showStakingScene) refetchStaking();
           setShowStakingScene(!showStakingScene);
@@ -456,6 +464,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
               <Settings
                 onClose={() => setShowSettingsScene(false)}
+                username={username}
+                onProfile={headerData.handleOpenProfile}
+                onConnect={headerData.handleConnect}
                 musicVolume={musicVolume}
                 musicMuted={musicMuted}
                 onMusicChange={setMusicVolume}

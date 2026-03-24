@@ -36,9 +36,13 @@ const meta = {
     onLeaderboard: fn(),
     onReferrals: fn(),
     onAchievements: fn(),
+    onQuests: fn(),
     onStaking: fn(),
     onTutorial: fn(),
     onLogOut: fn(),
+    onConnect: fn(),
+    username: "Player123",
+    onProfile: fn(),
   },
 } satisfies Meta<typeof Settings>;
 
@@ -46,3 +50,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Disconnected: Story = {
+  args: {
+    username: undefined,
+    onProfile: undefined,
+  },
+};

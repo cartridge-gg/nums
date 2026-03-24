@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const BASE_URL = "https://sepolia.nums.gg";
-const TORII_URL = "https://api.cartridge.gg/x/nums-bal/torii";
+const TORII_URL = "https://api.cartridge.gg/x/nums-sepolia/torii";
 const SLOT_SIZE = 12n;
 
 interface GraphQLResponse<T> {

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { CloseIcon, ShadowEffect } from "@/components/icons";
+import { CloseIcon, EyeIcon, ShadowEffect } from "@/components/icons";
 import { useId } from "react";
 import { Button } from "../ui/button";
 
@@ -12,6 +12,10 @@ const closeVariants = cva(
   "flex items-center justify-center bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg text-white-100 p-0",
   {
     variants: {
+      variant: {
+        default: "",
+        eye: "",
+      },
       size: {
         md: "size-10",
         lg: "size-12",
@@ -23,7 +27,7 @@ const closeVariants = cva(
   },
 );
 
-export const Close = ({ size, className, ...props }: CloseProps) => {
+export const Close = ({ variant, size, className, ...props }: CloseProps) => {
   const filterId = useId();
 
   return (
@@ -33,7 +37,14 @@ export const Close = ({ size, className, ...props }: CloseProps) => {
       {...props}
     >
       <ShadowEffect filterId={filterId} />
-      <CloseIcon size={size ?? "md"} style={{ filter: `url(#${filterId})` }} />
+      {variant === "eye" ? (
+        <EyeIcon size={size ?? "md"} style={{ filter: `url(#${filterId})` }} />
+      ) : (
+        <CloseIcon
+          size={size ?? "md"}
+          style={{ filter: `url(#${filterId})` }}
+        />
+      )}
     </Button>
   );
 };

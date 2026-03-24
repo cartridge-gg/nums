@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl ClaimerOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CLAIMER_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Petty Cash',
@@ -21,18 +23,18 @@ pub impl ClaimerOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Claimer.tasks(10_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Claimer.tasks(10_000), metadata: metadata,
         }
     }
 }
 
 pub impl ClaimerTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CLAIMER_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Bonus Package',
@@ -46,18 +48,18 @@ pub impl ClaimerTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Claimer.tasks(50_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Claimer.tasks(50_000), metadata: metadata,
         }
     }
 }
 
 pub impl ClaimerThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CLAIMER_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Golden Parachute',
@@ -71,9 +73,7 @@ pub impl ClaimerThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Claimer.tasks(100_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Claimer.tasks(100_000), metadata: metadata,
         }
     }
 }

@@ -6,7 +6,6 @@ pub struct Config {
     #[key]
     pub world_resource: felt252,
     pub vrf: ContractAddress,
-    pub starterpack: ContractAddress,
     pub quote: ContractAddress,
     pub ekubo_router: ContractAddress,
     pub ekubo_positions: ContractAddress,
@@ -22,20 +21,8 @@ pub struct Config {
     pub pool_fee: u128,
     pub pool_tick_spacing: u128,
     pub pool_extension: ContractAddress,
-    pub base_price: u256,
     pub pool_sqrt: u256,
-}
-
-#[derive(Drop, Serde)]
-#[dojo::model]
-pub struct Starterpack {
-    #[key]
-    pub id: u32,
-    pub reissuable: bool,
-    pub referral_percentage: u8,
-    pub price: u256,
-    pub payment_token: ContractAddress,
-    pub multiplier: u8,
+    pub base_price: u256,
 }
 
 #[derive(Copy, Drop, Serde)]

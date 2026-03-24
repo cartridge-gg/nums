@@ -1,6 +1,6 @@
+use bundle::types::item::ItemTrait;
+use bundle::types::metadata::MetadataTrait;
 use starknet::ContractAddress;
-use starterpack::types::item::ItemTrait;
-use starterpack::types::metadata::MetadataTrait;
 pub use crate::constants::IMAGE;
 use crate::models::index::Starterpack;
 
@@ -62,6 +62,7 @@ pub impl StarterpackImpl of StarterpackTrait {
             image_uri: IMAGE(),
             items: array![item].span(),
             tokens: payment_tokens,
+            conditions: array![].span(),
         );
         metadata.jsonify()
     }

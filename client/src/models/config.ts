@@ -8,7 +8,6 @@ export class Config {
   constructor(
     public world_resource: string,
     public vrf: string,
-    public starterpack: string,
     public quote: string,
     public ekubo_router: string,
     public ekubo_positions: string,
@@ -29,7 +28,6 @@ export class Config {
   ) {
     this.world_resource = world_resource;
     this.vrf = vrf;
-    this.starterpack = starterpack;
     this.quote = quote;
     this.ekubo_router = ekubo_router;
     this.ekubo_positions = ekubo_positions;
@@ -61,7 +59,6 @@ export class Config {
     const props = {
       world_resource: data.world_resource.value,
       vrf: data.vrf.value,
-      starterpack: data.starterpack.value,
       quote: data.quote.value,
       ekubo_router: data.ekubo_router.value,
       ekubo_positions: data.ekubo_positions.value,
@@ -83,7 +80,6 @@ export class Config {
     return new Config(
       props.world_resource,
       props.vrf,
-      props.starterpack,
       props.quote,
       props.ekubo_router,
       props.ekubo_positions,

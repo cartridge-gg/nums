@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl StreakOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'STREAK_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Harmony',
@@ -21,18 +23,18 @@ pub impl StreakOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::StreakerOne.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::StreakerOne.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl StreakTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'STREAK_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Resonance',
@@ -46,18 +48,18 @@ pub impl StreakTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::StreakerTwo.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::StreakerTwo.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl StreakThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'STREAK_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Defiant Sequence',
@@ -71,9 +73,7 @@ pub impl StreakThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::StreakerThree.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::StreakerThree.tasks(1), metadata: metadata,
         }
     }
 }

@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl FillerOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'FILLER_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Almost There',
@@ -21,18 +23,18 @@ pub impl FillerOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::FillerSixteen.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::FillerSixteen.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl FillerTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'FILLER_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Final Bins',
@@ -46,18 +48,18 @@ pub impl FillerTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::FillerSeventeen.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::FillerSeventeen.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl FillerThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'FILLER_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Pristine',
@@ -71,9 +73,7 @@ pub impl FillerThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::FillerEighteen.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::FillerEighteen.tasks(1), metadata: metadata,
         }
     }
 }

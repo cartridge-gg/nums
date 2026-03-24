@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl PlacerOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'PLACER_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Data Entry',
@@ -21,18 +23,18 @@ pub impl PlacerOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Filler.tasks(1_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Filler.tasks(1_000), metadata: metadata,
         }
     }
 }
 
 pub impl PlacerTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'PLACER_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Refinement',
@@ -46,18 +48,18 @@ pub impl PlacerTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Filler.tasks(5_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Filler.tasks(5_000), metadata: metadata,
         }
     }
 }
 
 pub impl PlacerThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'PLACER_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'The Whole Board',
@@ -71,9 +73,7 @@ pub impl PlacerThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Filler.tasks(10_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Filler.tasks(10_000), metadata: metadata,
         }
     }
 }

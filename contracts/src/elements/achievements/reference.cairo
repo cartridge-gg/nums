@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl ReferenceI of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_I'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Blackjack Master',
@@ -21,18 +23,18 @@ pub impl ReferenceI of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceOne.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceOne.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceII of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_II'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'The Answer',
@@ -46,18 +48,18 @@ pub impl ReferenceII of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceTwo.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceTwo.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceIII of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_III'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Achievement not found',
@@ -71,18 +73,18 @@ pub impl ReferenceIII of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceThree.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceThree.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceIV of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_IV'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Jackpot!',
@@ -96,18 +98,18 @@ pub impl ReferenceIV of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceFour.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceFour.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceV of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_V'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Emergency Mode',
@@ -121,18 +123,18 @@ pub impl ReferenceV of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceFive.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceFive.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceVI of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_VI'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Meme Lord',
@@ -146,18 +148,18 @@ pub impl ReferenceVI of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceSix.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceSix.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ReferenceVII of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'REFERENCE_VII'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Nice',
@@ -171,9 +173,7 @@ pub impl ReferenceVII of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ReferenceSeven.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ReferenceSeven.tasks(1), metadata: metadata,
         }
     }
 }

@@ -18,6 +18,8 @@ type BundlesProviderProps = {
 
 type BundlesProviderState = {
   bundles: Bundle[];
+  freeBundles: Bundle[];
+  paidBundles: Bundle[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 };
@@ -38,7 +40,11 @@ export function BundlesProvider({ children, ...props }: BundlesProviderProps) {
   const onEntityUpdate = useCallback((entities: torii.Entity[]) => {
     const parsed = BundleApi.parseBundles(entities);
     if (parsed.length > 0) {
-      setBundles((prev) => Bundle.dedupe([...parsed, ...(prev || [])]));
+      setBundles((prev) =>
+        Bundle.dedupe([...parsed, ...(prev || [])]).sort((a, b) =>
+          Number(a.price - b.price),
+        ),
+      );
     }
   }, []);
   const onEntityUpdateRef = useRef(onEntityUpdate);
@@ -113,6 +119,8 @@ export function BundlesProvider({ children, ...props }: BundlesProviderProps) {
 
   const value: BundlesProviderState = {
     bundles,
+    freeBundles: bundles.filter((b) => b.price === 0n),
+    paidBundles: bundles.filter((b) => b.price > 0n),
     status,
     refresh,
   };

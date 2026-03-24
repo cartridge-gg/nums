@@ -34,12 +34,21 @@ build-external-contracts = [
   "merkledrop::models::index::m_MerkleTree",
   "merkledrop::models::index::m_MerkleClaim",
   "merkledrop::events::index::e_MerkleProofs",
+  "bundle::models::index::m_Bundle",
+  "bundle::models::index::m_BundleIssuance",
+  "bundle::models::index::m_BundleReferral",
+  "bundle::models::index::m_BundleGroup",
+  "bundle::models::index::m_BundleVoucher",
+  "bundle::events::index::e_BundleRegistered",
+  "bundle::events::index::e_BundleUpdated",
+  "bundle::events::index::e_BundleIssued",
 ]
 
 [dependencies]
 collection.workspace = true
 achievement.workspace = true
 quest.workspace = true
+bundle.workspace = true
 leaderboard.workspace = true
 merkledrop.workspace = true
 starterpack.workspace = true

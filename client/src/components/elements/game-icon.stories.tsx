@@ -16,7 +16,7 @@ const meta = {
     cells: {
       control: "object",
       description:
-        "Array of boolean | null: true = filled (mauve), false = empty (dark), null = border (darkest)",
+        "Array of boolean | null: true = filled, false = empty, null = unused. Rendered as a pie chart showing fill ratio.",
     },
   },
 } satisfies Meta<typeof GameIcon>;

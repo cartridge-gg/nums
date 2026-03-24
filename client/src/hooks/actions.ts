@@ -13,6 +13,7 @@ import {
 import { useLoading } from "@/context/loading";
 import { useEntities } from "@/context/entities";
 import { usePractice } from "@/context/practice";
+import { usePostHog } from "@/context/posthog";
 import { GameEngine } from "@/engines";
 import { Random } from "@/helpers/random";
 
@@ -21,12 +22,19 @@ export const useActions = () => {
   const { chain } = useNetwork();
   const { withLoading, setLoading } = useLoading();
   const location = useLocation();
+  const { capture } = usePostHog();
 
   const isPracticeMode = useMemo(
     () =>
       location.pathname === "/practice" || location.pathname === "/tutorial",
     [location.pathname],
   );
+
+  const mode = useMemo(() => {
+    if (location.pathname === "/tutorial") return "tutorial";
+    if (location.pathname === "/practice") return "practice";
+    return "real";
+  }, [location.pathname]);
 
   const { game: practiceGame, setGame } = usePractice();
   const { config } = useEntities();
@@ -47,6 +55,11 @@ export const useActions = () => {
           });
           if (result) {
             setLoading("slot", index, false);
+            capture("slot_placed", {
+              game_id: gameId,
+              slot_index: index,
+              mode,
+            });
           }
           return result;
         } catch (e) {
@@ -84,6 +97,7 @@ export const useActions = () => {
             setLoading("slot", index, false);
             return false;
           }
+          capture("slot_placed", { game_id: gameId, slot_index: index, mode });
           return true;
         });
       } catch (e) {
@@ -101,6 +115,8 @@ export const useActions = () => {
       chain.id,
       withLoading,
       setLoading,
+      capture,
+      mode,
     ],
   );
 
@@ -116,6 +132,11 @@ export const useActions = () => {
           });
           if (result) {
             setLoading("power", index, false);
+            capture("power_selected", {
+              game_id: gameId,
+              power_index: index,
+              mode,
+            });
           }
           return result;
         } catch (e) {
@@ -145,6 +166,11 @@ export const useActions = () => {
             setLoading("power", index, false);
             return false;
           }
+          capture("power_selected", {
+            game_id: gameId,
+            power_index: index,
+            mode,
+          });
           return true;
         });
       } catch (e) {
@@ -160,6 +186,8 @@ export const useActions = () => {
       chain.id,
       withLoading,
       setLoading,
+      capture,
+      mode,
     ],
   );
 
@@ -178,6 +206,11 @@ export const useActions = () => {
           });
           if (result) {
             setLoading("power", index, false);
+            capture("power_applied", {
+              game_id: gameId,
+              power_index: index,
+              mode,
+            });
           }
           return result;
         } catch (e) {
@@ -215,6 +248,11 @@ export const useActions = () => {
             setLoading("power", index, false);
             return false;
           }
+          capture("power_applied", {
+            game_id: gameId,
+            power_index: index,
+            mode,
+          });
           return true;
         });
       } catch (e) {
@@ -231,6 +269,8 @@ export const useActions = () => {
       chain.id,
       withLoading,
       setLoading,
+      capture,
+      mode,
     ],
   );
 
@@ -241,6 +281,7 @@ export const useActions = () => {
         try {
           GameEngine.claim(practiceGame);
           setGame(practiceGame.clone());
+          capture("reward_claimed", { game_id: gameId, mode });
           return true;
         } catch (e) {
           console.error(e);
@@ -260,13 +301,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("reward_claimed", { game_id: gameId, mode });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [isPracticeMode, practiceGame, setGame, account, chain.id],
+    [isPracticeMode, practiceGame, setGame, account, chain.id, capture, mode],
   );
 
   const start = useCallback(
@@ -277,6 +319,7 @@ export const useActions = () => {
           const rand = new Random(BigInt(Math.floor(Math.random() * 1000000)));
           GameEngine.start(practiceGame, rand);
           setGame(practiceGame.clone());
+          capture("game_started", { game_id: gameId, mode });
           return true;
         } catch (e) {
           console.error(e);
@@ -288,13 +331,14 @@ export const useActions = () => {
         if (!game) return false;
         const rand = new Random(BigInt(gameId));
         GameEngine.start(game, rand);
+        capture("game_started", { game_id: gameId, mode });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [isPracticeMode, practiceGame, setGame],
+    [isPracticeMode, practiceGame, setGame, capture, mode],
   );
 
   const questClaims = useCallback(
@@ -339,13 +383,17 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("quest_claimed", {
+          quest_id: questId,
+          interval_id: intervalId,
+        });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const mint = useCallback(
@@ -363,13 +411,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("faucet_minted", {});
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const vaultDeposit = useCallback(
@@ -396,13 +445,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("vault_deposit", { amount: amount.toString() });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const vaultMint = useCallback(
@@ -429,13 +479,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("vault_mint", { amount: amount.toString() });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const vaultWithdraw = useCallback(
@@ -454,13 +505,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("vault_withdraw", { amount: amount.toString() });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const vaultRedeem = useCallback(
@@ -479,13 +531,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("vault_redeem", { amount: amount.toString() });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const vaultClaim = useCallback(async () => {
@@ -499,12 +552,13 @@ export const useActions = () => {
           calldata: [],
         },
       ]);
+      capture("vault_claim", {});
       return true;
     } catch (e) {
       console.log({ e });
       return false;
     }
-  }, [account, chain.id]);
+  }, [account, chain.id, capture]);
 
   const bundleIssue = useCallback(
     async (bundleId: number, price: bigint, paymentToken: string) => {
@@ -541,13 +595,17 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("purchase_confirmed", {
+          bundle_id: bundleId,
+          price: price.toString(),
+        });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const socialIssue = useCallback(
@@ -588,13 +646,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("social_issue", { bundle_id: bundleId });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   const merkledropClaim = useCallback(
@@ -614,13 +673,14 @@ export const useActions = () => {
             }),
           },
         ]);
+        capture("merkledrop_claimed", { tree_id: treeId });
         return true;
       } catch (e) {
         console.log({ e });
         return false;
       }
     },
-    [account, chain.id],
+    [account, chain.id, capture],
   );
 
   return {

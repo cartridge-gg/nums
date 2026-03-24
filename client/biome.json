@@ -84,6 +84,19 @@
           "enabled": false
         }
       }
+    },
+    {
+      "includes": ["src/components/og/**", "_api/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedImports": "off"
+          }
+        }
+      }
     }
   ]
 }

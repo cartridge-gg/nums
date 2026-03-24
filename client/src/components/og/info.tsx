@@ -1,6 +1,6 @@
-import type React from "react";
-import { Title } from "./title";
+import React from "react";
 import { Grid } from "./grid";
+import { Title } from "./title";
 
 export interface InfoProps {
   over: boolean;

@@ -1,9 +1,9 @@
-import type React from "react";
-import { Score, type ScoreProps } from "./score";
-import { Reward, type RewardProps } from "./reward";
-import { Info, type InfoProps } from "./info";
-import { BrandLogo } from "./brand-logo";
+import React from "react";
 import { BACKGROUND, FONT_NAME } from "./asset";
+import { BrandLogo } from "./brand-logo";
+import { Info, type InfoProps } from "./info";
+import { Reward, type RewardProps } from "./reward";
+import { Score, type ScoreProps } from "./score";
 
 interface CardProps {
   scoreProps: ScoreProps;

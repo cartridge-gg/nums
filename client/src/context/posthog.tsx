@@ -37,8 +37,9 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
       return;
     }
 
+    const host = import.meta.env.VITE_POSTHOG_HOST || "/ingest";
     clientRef.current = new PostHog(key, {
-      host: "/ingest",
+      host,
       persistence: "localStorage",
     });
 

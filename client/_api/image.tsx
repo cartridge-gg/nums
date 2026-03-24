@@ -1,9 +1,11 @@
 // @ts-nocheck
+
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { ImageResponse } from "@vercel/og";
-import { getGame } from "./ssr";
+import React from "react";
 import { Card, Placeholder } from "@/components/og";
-import { FONT_NAME, FONT_BASE64 } from "@/components/og/asset";
+import { FONT_BASE64, FONT_NAME } from "@/components/og/asset";
+import { getGame } from "./ssr";
 
 async function fallback(res: VercelResponse) {
   const imageResponse = new ImageResponse(<Placeholder />, {

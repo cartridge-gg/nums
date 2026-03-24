@@ -1,6 +1,7 @@
 export { initToriiClient } from "./client";
 export * from "./achievement";
 export * from "./activities";
+export * from "./bundle";
 export * from "./config";
 export * from "./event";
 export * from "./game";

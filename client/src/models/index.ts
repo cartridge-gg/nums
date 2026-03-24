@@ -31,6 +31,24 @@ export {
 } from "./achievement";
 export { Tutorial, TutorialPhase, type TutorialData } from "./tutorial";
 export {
+  Bundle,
+  BundleIssuance,
+  BundleReferral,
+  BundleGroup,
+  BundleVoucher,
+  BundleRegistered,
+  BundleUpdated,
+  BundleIssued,
+  type RawBundle,
+  type RawBundleIssuance,
+  type RawBundleReferral,
+  type RawBundleGroup,
+  type RawBundleVoucher,
+  type RawBundleRegistered,
+  type RawBundleUpdated,
+  type RawBundleIssued,
+} from "./bundle";
+export {
   MerkleTree,
   MerkleClaim,
   MerkleProofs,
@@ -66,12 +84,6 @@ export interface RawConfig {
     key: boolean;
   };
   vrf: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
-  starterpack: {
     type: "primitive";
     type_name: "ContractAddress";
     value: string;

@@ -4,7 +4,6 @@ pub mod RewardableComponent {
 
     use dojo::world::WorldStorage;
     use crate::constants::{TEN_POW_36, WORLD_RESOURCE};
-    use crate::models::config::ConfigAssert;
     use crate::models::position::{PositionAssert, PositionTrait};
     use crate::models::vault::{VaultAssert, VaultTrait};
     use crate::{StoreImpl, StoreTrait};

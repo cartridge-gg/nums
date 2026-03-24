@@ -16,10 +16,9 @@ pub mod systems {
 }
 
 pub mod components {
-    pub mod initializable;
     pub mod playable;
+    pub mod purchase;
     pub mod rewardable;
-    pub mod starterpack;
 }
 
 pub mod models {
@@ -27,7 +26,6 @@ pub mod models {
     pub mod game;
     pub mod index;
     pub mod position;
-    pub mod starterpack;
     pub mod vault;
 }
 
@@ -76,7 +74,6 @@ pub mod types {
 pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
-    pub mod registry;
     pub mod vrf;
 }
 
@@ -138,7 +135,6 @@ pub mod elements {
 }
 
 pub mod mocks {
-    pub mod registry;
     pub mod vrf;
 }
 

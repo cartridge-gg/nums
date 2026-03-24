@@ -39,12 +39,6 @@ export interface RawDefinition {
     value: string;
     key: boolean;
   };
-  rewarder: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
 }
 
 export interface RawCompletion {
@@ -323,20 +317,17 @@ export class AchievementTask {
 
 export class AchievementDefinition {
   id: string;
-  rewarder: string;
   start: number;
   end: number;
   tasks: AchievementTask[];
 
   constructor(
     id: string,
-    rewarder: string,
     start: number,
     end: number,
     tasks: AchievementTask[],
   ) {
     this.id = id;
-    this.rewarder = rewarder;
     this.start = start;
     this.end = end;
     this.tasks = tasks;
@@ -355,16 +346,12 @@ export class AchievementDefinition {
       id: shortString.decodeShortString(
         `0x${BigInt(data.id.value).toString(16)}`,
       ),
-      rewarder: getChecksumAddress(
-        `0x${BigInt(data.rewarder.value).toString(16)}`,
-      ),
       start: parseInt(data.start.value, 10),
       end: parseInt(data.end.value, 10),
       tasks: data.tasks.value.map((task) => AchievementTask.parse(task.value)),
     };
     return new AchievementDefinition(
       props.id,
-      props.rewarder,
       props.start,
       props.end,
       props.tasks,

@@ -56,7 +56,7 @@ pub mod Vault {
     use crate::components::rewardable::RewardableComponent;
     use crate::constants::NAMESPACE;
     use crate::store::StoreTrait;
-    use crate::systems::play::NAME as PLAY;
+    use crate::systems::setup::NAME as SETUP;
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
     use super::{COLLECTOR_ROLE, IKeeper, IPauser, IVault, KEEPER_ROLE, PAUSER_ROLE, PROVIDER_ROLE};
@@ -164,8 +164,8 @@ pub mod Vault {
         self.accesscontrol._grant_role(PAUSER_ROLE, treasury_address);
         self.accesscontrol._grant_role(COLLECTOR_ROLE, treasury_address);
         self.accesscontrol._grant_role(KEEPER_ROLE, treasury_address);
-        let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
-        self.accesscontrol._grant_role(PROVIDER_ROLE, play_address);
+        let setup_address = world.dns_address(@SETUP()).expect('Play contract not found!');
+        self.accesscontrol._grant_role(PROVIDER_ROLE, setup_address);
         // [Effect] Extra rights for test purpose
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);

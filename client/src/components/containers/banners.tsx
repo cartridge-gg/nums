@@ -7,12 +7,13 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
-import { Banner } from "@/components/elements/banner";
-import { useBanners, type GameBanner } from "@/hooks/banner";
+import { Banner, type BannerProps } from "@/components/elements/banner";
 
 export interface BannersProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof bannersVariants> {}
+    VariantProps<typeof bannersVariants> {
+  banners: BannerProps[];
+}
 
 const bannersVariants = cva("select-none relative w-full", {
   variants: {
@@ -29,29 +30,14 @@ const bannersVariants = cva("select-none relative w-full", {
   },
 });
 
-const BANNERS: GameBanner[] = [
-  { preset: "nums", name: "social" },
-  { preset: "nums", name: "tutorial" },
-  { preset: "loot-survivor", name: "loot-survivor", position: 64 },
-  { preset: "dope-wars", name: "dope-wars", position: 16 },
-  {
-    preset: "eternum",
-    name: "eternum",
-    position: 16,
-    origin: "https://blitz.realms.world/",
-  },
-  { preset: "glitch-bomb", name: "glitch-bomb", position: 0 },
-  { preset: "savage-summit", name: "savage-summit", position: 0 },
-];
-
 export const Banners = ({
+  banners,
   variant,
   size,
   className,
   ...props
 }: BannersProps) => {
   const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
-  const { banners } = useBanners(BANNERS);
 
   return (
     <Carousel
@@ -66,6 +52,8 @@ export const Banners = ({
         {banners.map((banner) => (
           <CarouselItem key={`${banner.preset}-${banner.name}`}>
             <Banner
+              disabled={banner.disabled}
+              hidden={banner.hidden}
               preset={banner.preset}
               name={banner.name}
               config={banner.config}

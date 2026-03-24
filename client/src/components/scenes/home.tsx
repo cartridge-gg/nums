@@ -12,12 +12,14 @@ import { Link } from "@/lib/router";
 import { AddIcon, ShadowEffect } from "../icons";
 import { useId, useState } from "react";
 import type { ActivityFilter } from "../containers";
+import type { BannerProps } from "../elements";
 
 export interface HomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
   games: GamesProps;
+  banners: BannerProps[];
   allActivities: ActivitiesProps;
   playerActivities: ActivitiesProps;
   onPractice?: () => void;
@@ -48,6 +50,7 @@ const homeSceneVariants = cva(
 export const HomeScene = ({
   gameId,
   games,
+  banners,
   allActivities,
   playerActivities,
   onPractice,
@@ -70,7 +73,7 @@ export const HomeScene = ({
   return (
     <div className={cn(homeSceneVariants({ variant, className }))} {...props}>
       <ShadowEffect filterId={filterId} />
-      <Banners />
+      <Banners banners={banners} />
       <Games {...games} />
       <Activities
         {...activities}

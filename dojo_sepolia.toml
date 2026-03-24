@@ -63,6 +63,6 @@ disable_multicall = true
   "0xA",                                                                # average_score: 10,
   "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
   "0x56a4c",                                                            # pool_tick_spacing,
-  "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,
-  "0x004f92738513dfd145228c06e639ac13bc0bb3b68219981227331f8ba93c5576", # bundle_allower
+  "0x073ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971", # pool_extension,
+  "0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab", # bundle_allower
 ]

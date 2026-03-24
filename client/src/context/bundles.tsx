@@ -7,9 +7,11 @@ import {
   useState,
   useCallback,
 } from "react";
+import { useAccount } from "@starknet-react/core";
+import { getChecksumAddress } from "starknet";
 import { BundleApi } from "@/api/torii";
 import { subscribeEntities } from "@/api/torii/subscribe";
-import { Bundle } from "@/models";
+import { Bundle, BundleIssuance } from "@/models";
 import { useEntities } from "@/context/entities";
 
 type BundlesProviderProps = {
@@ -18,6 +20,7 @@ type BundlesProviderProps = {
 
 type BundlesProviderState = {
   bundles: Bundle[];
+  issuances: BundleIssuance[];
   freeBundles: Bundle[];
   paidBundles: Bundle[];
   status: "loading" | "error" | "success";
@@ -30,9 +33,13 @@ const BundlesProviderContext = createContext<BundlesProviderState | undefined>(
 
 export function BundlesProvider({ children, ...props }: BundlesProviderProps) {
   const { client } = useEntities();
+  const { address } = useAccount();
   const subscriptionRef = useRef<torii.Subscription | null>(null);
   const subscriptionKeyRef = useRef<string>();
+  const issuanceSubscriptionRef = useRef<torii.Subscription | null>(null);
+  const issuanceSubscriptionKeyRef = useRef<string>();
   const [bundles, setBundles] = useState<Bundle[]>([]);
+  const [issuances, setIssuances] = useState<BundleIssuance[]>([]);
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading",
   );
@@ -83,9 +90,58 @@ export function BundlesProvider({ children, ...props }: BundlesProviderProps) {
     subscriptionKeyRef.current = key;
   }, [client, handleEntityUpdate]);
 
+  const onIssuanceUpdate = useCallback((entities: torii.Entity[]) => {
+    const parsed = BundleApi.parseIssuances(entities);
+    if (parsed.length > 0) {
+      setIssuances((prev) => BundleIssuance.dedupe([...parsed, ...prev]));
+    }
+  }, []);
+  const onIssuanceUpdateRef = useRef(onIssuanceUpdate);
+  onIssuanceUpdateRef.current = onIssuanceUpdate;
+
+  const handleIssuanceUpdate = useCallback((entities: torii.Entity[]) => {
+    onIssuanceUpdateRef.current(entities);
+  }, []);
+
+  const fetchIssuances = useCallback(async () => {
+    if (!client || !address) return;
+    const recipient = getChecksumAddress(BigInt(address)).toLowerCase();
+    const query = BundleApi.issuancesByRecipientQuery(recipient);
+    const result = await client.getEntities(query.build());
+    handleIssuanceUpdate(result.items);
+  }, [client, address, handleIssuanceUpdate]);
+
+  const setupIssuanceSubscription = useCallback(async () => {
+    if (!client || !address) return;
+
+    const recipient = getChecksumAddress(BigInt(address)).toLowerCase();
+    const clause =
+      BundleApi.issuancesByRecipientQuery(recipient).build().clause;
+    const key = JSON.stringify(clause);
+
+    if (
+      issuanceSubscriptionKeyRef.current === key &&
+      issuanceSubscriptionRef.current
+    ) {
+      return;
+    }
+
+    if (issuanceSubscriptionRef.current) {
+      issuanceSubscriptionRef.current.cancel();
+    }
+
+    issuanceSubscriptionRef.current = await subscribeEntities(
+      client,
+      clause,
+      handleIssuanceUpdate,
+    );
+    issuanceSubscriptionKeyRef.current = key;
+  }, [client, address, handleIssuanceUpdate]);
+
   const refresh = useCallback(async () => {
     await fetchInitialData();
-  }, [fetchInitialData]);
+    await fetchIssuances();
+  }, [fetchInitialData, fetchIssuances]);
 
   useEffect(() => {
     if (!client) return;
@@ -117,8 +173,32 @@ export function BundlesProvider({ children, ...props }: BundlesProviderProps) {
     };
   }, [client, fetchInitialData, setupSubscription]);
 
+  useEffect(() => {
+    if (!client || !address) return;
+    let cancelled = false;
+
+    const run = async () => {
+      await fetchIssuances();
+      await setupIssuanceSubscription();
+    };
+
+    run().catch((error: Error) => {
+      if (!cancelled) console.error(error);
+    });
+
+    return () => {
+      cancelled = true;
+      if (issuanceSubscriptionRef.current) {
+        issuanceSubscriptionRef.current.cancel();
+        issuanceSubscriptionRef.current = null;
+      }
+      issuanceSubscriptionKeyRef.current = undefined;
+    };
+  }, [client, address, fetchIssuances, setupIssuanceSubscription]);
+
   const value: BundlesProviderState = {
     bundles,
+    issuances,
     freeBundles: bundles.filter((b) => b.price === 0n),
     paidBundles: bundles.filter((b) => b.price > 0n),
     status,

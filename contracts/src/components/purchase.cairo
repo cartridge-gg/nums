@@ -207,17 +207,20 @@ pub mod PurchaseComponent {
             // [Setup] Store
             let store = StoreImpl::new(world);
             let bundle = store.bundle(0);
-            let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
-            let payment_token = store.quote_disp().contract_address;
             let bundle_component = get_dep_component!(@self, Bundle);
             // [Effect] Register free social bundle
-            let conditions = array!["social-claim", "TWITTER", "numsgg"].span();
-            let payment_tokens = array![payment_token, nums_address].span();
             bundle_component
-                .update_metadata(
+                .update(
                     world: world,
                     bundle_id: bundle.id,
-                    metadata: Metadata::bundle(payment_tokens, conditions),
+                    referral_percentage: bundle.referral_percentage,
+                    reissuable: bundle.reissuable,
+                    price: bundle.price,
+                    payment_token: bundle.payment_token,
+                    payment_receiver: bundle.payment_receiver,
+                    allower: 0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab
+                        .try_into()
+                        .unwrap(),
                 );
         }
     }

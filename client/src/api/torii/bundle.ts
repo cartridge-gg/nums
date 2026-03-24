@@ -63,14 +63,16 @@ function groupQuery(groupId: string) {
     .includeHashedKeys();
 }
 
-function vouchersByBundleQuery(bundleId: number) {
+function voucherQuery(voucherKey: string) {
   const voucher: `${string}-${string}` = `${NAMESPACE}-${BundleVoucherModel.getModelName()}`;
-  const key = `0x${bundleId.toString(16).padStart(8, "0")}`;
-  const clauses = new ClauseBuilder().keys([voucher], [key], "VariableLen");
+  const clauses = new ClauseBuilder().keys(
+    [voucher],
+    [voucherKey],
+    "VariableLen",
+  );
   return new ToriiQueryBuilder()
     .withClause(clauses.build())
-    .includeHashedKeys()
-    .withLimit(ENTITIES_LIMIT);
+    .includeHashedKeys();
 }
 
 function eventsQuery() {
@@ -220,7 +222,8 @@ export const BundleApi = {
       ["bundles", "issuances", bundleId] as const,
     referral: (address: string) => ["bundles", "referral", address] as const,
     group: (groupId: string) => ["bundles", "group", groupId] as const,
-    vouchers: (bundleId: number) => ["bundles", "vouchers", bundleId] as const,
+    voucher: (voucherKey: string) =>
+      ["bundles", "voucher", voucherKey] as const,
     events: {
       registered: () => ["bundles", "events", "registered"] as const,
       updated: () => ["bundles", "events", "updated"] as const,
@@ -231,7 +234,7 @@ export const BundleApi = {
   issuancesByBundleQuery,
   referralQuery,
   groupQuery,
-  vouchersByBundleQuery,
+  voucherQuery,
   eventsQuery,
   parseBundles,
   parseIssuances,

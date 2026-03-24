@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl ChainerOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CHAINER_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Chain Reaction',
@@ -21,18 +23,18 @@ pub impl ChainerOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ChainerOne.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ChainerOne.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ChainerTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CHAINER_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Tempered',
@@ -46,18 +48,18 @@ pub impl ChainerTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ChainerTwo.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ChainerTwo.tasks(1), metadata: metadata,
         }
     }
 }
 
 pub impl ChainerThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'CHAINER_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Overtime',
@@ -71,9 +73,7 @@ pub impl ChainerThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::ChainerThree.tasks(1),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::ChainerThree.tasks(1), metadata: metadata,
         }
     }
 }

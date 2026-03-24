@@ -59,6 +59,12 @@ export interface RawBundle {
     value: string;
     key: boolean;
   };
+  contract: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
   allower: {
     type: "primitive";
     type_name: "ContractAddress";
@@ -131,13 +137,7 @@ export interface RawBundleGroup {
 }
 
 export interface RawBundleVoucher {
-  bundle_id: {
-    type: "primitive";
-    type_name: "u32";
-    value: string;
-    key: boolean;
-  };
-  voucher_key: {
+  key: {
     type: "primitive";
     type_name: "felt252";
     value: string;
@@ -146,12 +146,6 @@ export interface RawBundleVoucher {
   recipient: {
     type: "primitive";
     type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
-  claimed_at: {
-    type: "primitive";
-    type_name: "u64";
     value: string;
     key: boolean;
   };
@@ -343,6 +337,7 @@ export class Bundle {
     public total_issued: number,
     public created_at: number,
     public metadata: string,
+    public contract: string,
     public allower: string,
   ) {}
 
@@ -365,6 +360,7 @@ export class Bundle {
       Number(data.total_issued.value),
       Number(data.created_at.value),
       data.metadata.value,
+      data.contract.value,
       data.allower.value,
     );
   }
@@ -513,10 +509,8 @@ export class BundleVoucher {
   readonly type = BUNDLE_VOUCHER_MODEL;
 
   constructor(
-    public bundle_id: number,
-    public voucher_key: string,
+    public key: string,
     public recipient: string,
-    public claimed_at: number,
   ) {}
 
   static getModelName(): string {
@@ -528,31 +522,17 @@ export class BundleVoucher {
   }
 
   static parse(data: RawBundleVoucher): BundleVoucher {
-    return new BundleVoucher(
-      Number(data.bundle_id.value),
-      data.voucher_key.value,
-      data.recipient.value,
-      Number(data.claimed_at.value),
-    );
+    return new BundleVoucher(data.key.value, data.recipient.value);
   }
 
   exists(): boolean {
-    return BigInt(this.voucher_key) !== 0n;
-  }
-
-  isClaimed(): boolean {
-    return this.claimed_at > 0;
+    return BigInt(this.key) !== 0n;
   }
 
   static dedupe(items: BundleVoucher[]): BundleVoucher[] {
     return items.filter(
       (item, index, self) =>
-        index ===
-        self.findIndex(
-          (t) =>
-            t.bundle_id === item.bundle_id &&
-            t.voucher_key === item.voucher_key,
-        ),
+        index === self.findIndex((t) => t.key === item.key),
     );
   }
 }

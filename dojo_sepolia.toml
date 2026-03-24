@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.54"
+seed = "nums-v1.0.56"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x003f15a50317f4f9b74ceacb36322dc9373a8912924fb7a32ae6f314fd1cab4f"
+# world_address = "0x048d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 
@@ -34,7 +34,7 @@ disable_multicall = true
 
 [init_call_args]
 "NUMS-Vault" = [
-  "0x1", # open: false
+  "0x1", # open: true
   "0x0", # fee: 500 basis points (10000 basis points = 100%)
 ]
 "NUMS-Governor" = []
@@ -53,17 +53,16 @@ disable_multicall = true
 "NUMS-Setup" = [
   "0x0",                                                                # Option::Some
   "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
-  "0x0",                                                                # Option::Some
-  "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43", # starterpack_address
   "0x1",                                                                # quote_address: None
   "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2", # ekubo router address
   "0x06a2aee84bb0ed5dded4384ddd0e40e9c1372b818668375ab8e3ec08807417e5", # ekubo positions address
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
   "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
   "0x46",                                                               # burn_percentage: 70%,
-  "0x32",                                                               # vault_percentage: 50%,
+  "0x0",                                                                # vault_percentage: 0%,
   "0xA",                                                                # average_score: 10,
   "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",  # pool_extension,
+  "0x004f92738513dfd145228c06e639ac13bc0bb3b68219981227331f8ba93c5576", # bundle_allower
 ]

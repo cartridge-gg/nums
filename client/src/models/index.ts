@@ -89,12 +89,6 @@ export interface RawConfig {
     value: string;
     key: boolean;
   };
-  starterpack: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
   quote: {
     type: "primitive";
     type_name: "ContractAddress";

@@ -1,7 +1,7 @@
 import { useAccount, useNetwork } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { CallData, uint256 } from "starknet";
+import { CallData, uint256, CairoOption, CairoOptionVariant } from "starknet";
 import {
   getSetupAddress,
   getGameAddress,
@@ -506,6 +506,46 @@ export const useActions = () => {
     }
   }, [account, chain.id]);
 
+  const bundleIssue = useCallback(
+    async (bundleId: number, price: bigint, paymentToken: string) => {
+      try {
+        if (!account?.address) return false;
+        const setupAddress = getSetupAddress(chain.id);
+        const none = new CairoOption<string>(CairoOptionVariant.None);
+        await account.execute([
+          {
+            contractAddress: paymentToken,
+            entrypoint: "approve",
+            calldata: CallData.compile({
+              spender: setupAddress,
+              amount: uint256.bnToUint256(price),
+            }),
+          },
+          {
+            contractAddress: setupAddress,
+            entrypoint: "issue",
+            calldata: CallData.compile({
+              recipient: account.address,
+              bundle_id: bundleId,
+              quantity: 1,
+              referrer: none,
+              referrer_group: none,
+              client: none,
+              client_percentage: 0,
+              voucher_key: none,
+              signature: none,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
   const merkledropClaim = useCallback(
     async (treeId: string, proofs: string[], data: string[]) => {
       try {
@@ -546,6 +586,9 @@ export const useActions = () => {
     },
     merkledrop: {
       claim: merkledropClaim,
+    },
+    bundle: {
+      issue: bundleIssue,
     },
     vault: {
       deposit: vaultDeposit,

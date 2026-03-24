@@ -7,7 +7,6 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait ISetup<T> {
-    fn set_starterpack(ref self: T, starterpack_address: ContractAddress);
     fn set_target_supply(ref self: T, supply: u256);
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
     fn set_ekubo_router_address(ref self: T, ekubo_router_address: ContractAddress);
@@ -19,41 +18,52 @@ pub trait ISetup<T> {
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
     fn set_pool_sqrt(ref self: T, pool_sqrt: u256);
     fn set_base_price(ref self: T, base_price: u256);
-    fn set_starterpack_referral(ref self: T, referral_percentage: u8);
+    fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
+    fn merkledrop_claim(
+        ref self: T,
+        tree_id: felt252,
+        proofs: Span<felt252>,
+        data: Span<felt252>,
+        receiver: ContractAddress,
+    );
+    fn fix(ref self: T);
 }
 
 const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
 
 #[dojo::contract]
 pub mod Setup {
-    use achievement::components::achievable::AchievableComponent;
+    use bundle::component::Component as BundleComponent;
+    use bundle::component::Component::{BundleQuote, BundleTrait};
+    use bundle::interface::IBundle;
     use dojo::world::WorldStorageTrait;
+    use merkledrop::component::Component as MerkledropComponent;
+    use merkledrop::component::Component::MerkledropTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component;
-    use quest::components::questable::QuestableComponent;
     use starknet::ContractAddress;
     use crate::StoreImpl;
-    use crate::components::initializable::InitializableComponent;
-    use crate::components::starterpack::StarterpackComponent;
-    use crate::constants::{NAMESPACE, WORLD_RESOURCE};
-    use crate::mocks::registry::NAME as REGISTRY;
+    use crate::components::purchase::PurchaseComponent;
+    use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE, WORLD_RESOURCE};
     use crate::mocks::vrf::NAME as VRF;
     use crate::models::config::ConfigTrait;
     use crate::systems::faucet::NAME as FAUCET;
+    use crate::systems::play::{IPlayDispatcher, IPlayDispatcherTrait, NAME as PLAY};
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
+    use crate::types::drop::MerkleDrop;
     use super::{ADMIN_ROLE, ISetup};
 
     // Components
 
-    component!(path: AchievableComponent, storage: achievable, event: AchievableEvent);
-    impl AchievableInternalImpl = AchievableComponent::InternalImpl<ContractState>;
-    component!(path: QuestableComponent, storage: questable, event: QuestableEvent);
-    impl QuestableInternalImpl = QuestableComponent::InternalImpl<ContractState>;
-    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
-    impl InitializableInternalImpl = InitializableComponent::InternalImpl<ContractState>;
-    component!(path: StarterpackComponent, storage: starterpack, event: StarterpackEvent);
-    impl StarterpackInternalImpl = StarterpackComponent::InternalImpl<ContractState>;
+    component!(path: BundleComponent, storage: bundle, event: BundleEvent);
+    impl BundleInternalImpl = BundleComponent::InternalImpl<ContractState>;
+    impl BundleFeeImpl of BundleComponent::BundleFeeTrait<ContractState> {}
+    component!(path: PurchaseComponent, storage: purchase, event: PurchaseEvent);
+    impl PurchaseInternalImpl = PurchaseComponent::InternalImpl<ContractState>;
+    component!(path: MerkledropComponent, storage: merkledrop, event: MerkledropEvent);
+    impl MerkledropInternalImpl = MerkledropComponent::InternalImpl<ContractState>;
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     #[abi(embed_v0)]
     impl AccessControlImpl =
@@ -66,13 +76,11 @@ pub mod Setup {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        initializable: InitializableComponent::Storage,
+        bundle: BundleComponent::Storage,
         #[substorage(v0)]
-        achievable: AchievableComponent::Storage,
+        purchase: PurchaseComponent::Storage,
         #[substorage(v0)]
-        questable: QuestableComponent::Storage,
-        #[substorage(v0)]
-        starterpack: StarterpackComponent::Storage,
+        merkledrop: MerkledropComponent::Storage,
         #[substorage(v0)]
         accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
@@ -85,23 +93,73 @@ pub mod Setup {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        InitializableEvent: InitializableComponent::Event,
+        BundleEvent: BundleComponent::Event,
         #[flat]
-        AchievableEvent: AchievableComponent::Event,
+        PurchaseEvent: PurchaseComponent::Event,
         #[flat]
-        QuestableEvent: QuestableComponent::Event,
-        #[flat]
-        StarterpackEvent: StarterpackComponent::Event,
+        MerkledropEvent: MerkledropComponent::Event,
         #[flat]
         AccessControlEvent: AccessControlComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
     }
 
+    impl BundleImpl of BundleTrait<ContractState> {
+        fn on_issue(
+            ref self: BundleComponent::ComponentState<ContractState>,
+            recipient: ContractAddress,
+            bundle_id: u32,
+            quantity: u32,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            let world = contract_state.world(@NAMESPACE());
+            let (recipient, multiplier, supply, price, quantity) = contract_state
+                .purchase
+                .execute(world, recipient, bundle_id, quantity);
+            let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
+            let play = IPlayDispatcher { contract_address: play_address };
+            play.create(recipient, multiplier, supply, price, quantity);
+        }
+        fn supply(
+            self: @BundleComponent::ComponentState<ContractState>, bundle_id: u32,
+        ) -> Option<u32> {
+            Option::None
+        }
+    }
+
+    impl MerkledropImpl of MerkledropTrait<ContractState> {
+        fn get_recipient(
+            self: @MerkledropComponent::ComponentState<ContractState>, mut data: Span<felt252>,
+        ) -> ContractAddress {
+            // [Return] Return recipient, first item in the data array
+            let drop: MerkleDrop = Serde::<MerkleDrop>::deserialize(ref data).unwrap();
+            drop.recipient
+        }
+        fn on_merkledrop_claim(
+            ref self: MerkledropComponent::ComponentState<ContractState>,
+            root: felt252,
+            leaf: felt252,
+            receiver: ContractAddress,
+            mut data: Span<felt252>,
+        ) {
+            // [Effect] Claim free games
+            let drop: MerkleDrop = Serde::<MerkleDrop>::deserialize(ref data).unwrap();
+            let mut contract_state = self.get_contract_mut();
+            let world = contract_state.world(@NAMESPACE());
+            let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
+            let play = IPlayDispatcher { contract_address: play_address };
+            let token_address = world.dns_address(@TOKEN()).expect('Token contract not found!');
+            let token = IERC20MixinDispatcher { contract_address: token_address };
+            let supply = token.total_supply();
+            play.create(receiver, MULTIPLIER_PRECISION, supply, 0, drop.quantity.into());
+        }
+    }
+
+    // Constructor
+
     fn dojo_init(
         ref self: ContractState,
         vrf_address: Option<ContractAddress>,
-        starterpack_address: Option<ContractAddress>,
         quote_address: Option<ContractAddress>,
         ekubo_router_address: ContractAddress,
         ekubo_positions_address: ContractAddress,
@@ -113,6 +171,7 @@ pub mod Setup {
         pool_fee: u128,
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
+        bundle_allower: ContractAddress,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -122,11 +181,6 @@ pub mod Setup {
             vrf_address
         } else {
             world.dns_address(@VRF()).expect('VRF not found!')
-        };
-        let starterpack_address = if let Option::Some(starterpack_address) = starterpack_address {
-            starterpack_address
-        } else {
-            world.dns_address(@REGISTRY()).expect('Registry not found!')
         };
         let quote_address = if let Option::Some(quote_address) = quote_address {
             quote_address
@@ -142,7 +196,6 @@ pub mod Setup {
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
             vrf: vrf_address,
-            starterpack: starterpack_address,
             quote: quote_address,
             ekubo_router: ekubo_router_address,
             ekubo_positions: ekubo_positions_address,
@@ -157,11 +210,9 @@ pub mod Setup {
             base_price: entry_price.into(),
         );
         store.set_config(config);
-        // [Effect] Initialize components
-        self.initializable.initialize(world);
 
         // [Effect] Initialize starterpack
-        self.starterpack.initialize(world, entry_price.into());
+        self.purchase.initialize(world, entry_price.into(), bundle_allower);
 
         // [Effect] Initialize rights
         self.accesscontrol.initializer();
@@ -175,19 +226,55 @@ pub mod Setup {
     }
 
     #[abi(embed_v0)]
-    impl SetupImpl of ISetup<ContractState> {
-        fn set_starterpack(ref self: ContractState, starterpack_address: ContractAddress) {
-            // [Setup] World and Store
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
-            self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
-            let mut config = store.config();
-            config.starterpack = starterpack_address;
-            store.set_config(config);
+    impl IBundleImpl of IBundle<ContractState> {
+        fn get_metadata(self: @ContractState, bundle_id: u32) -> ByteArray {
+            let world = self.world(@NAMESPACE());
+            self.bundle.get_metadata(world, bundle_id)
         }
 
+        fn quote(
+            self: @ContractState,
+            bundle_id: u32,
+            quantity: u32,
+            has_referrer: bool,
+            client_percentage: u8,
+        ) -> BundleQuote {
+            let world = self.world(@NAMESPACE());
+            self.bundle.quote(world, bundle_id, quantity, has_referrer, client_percentage)
+        }
+
+        fn issue(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            bundle_id: u32,
+            quantity: u32,
+            referrer: Option<ContractAddress>,
+            referrer_group: Option<felt252>,
+            client: Option<ContractAddress>,
+            client_percentage: u8,
+            voucher_key: Option<felt252>,
+            signature: Option<Span<felt252>>,
+        ) {
+            let mut world = self.world(@NAMESPACE());
+            self
+                .bundle
+                .issue(
+                    world,
+                    recipient,
+                    bundle_id,
+                    quantity,
+                    referrer,
+                    referrer_group,
+                    client,
+                    client_percentage,
+                    voucher_key,
+                    signature,
+                )
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl SetupImpl of ISetup<ContractState> {
         fn set_target_supply(ref self: ContractState, supply: u256) {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
@@ -324,15 +411,32 @@ pub mod Setup {
             store.set_config(config);
         }
 
-        fn set_starterpack_referral(ref self: ContractState, referral_percentage: u8) {
+        fn merkledrop_register(
+            ref self: ContractState, data: Span<Span<felt252>>, expiration: u64,
+        ) -> felt252 {
+            // [Check] Only admin can register
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
+            // [Effect] Register merkledrop
+            let world = self.world(@NAMESPACE());
+            self.merkledrop.register(world, data, expiration)
+        }
+
+        fn merkledrop_claim(
+            ref self: ContractState,
+            tree_id: felt252,
+            proofs: Span<felt252>,
+            data: Span<felt252>,
+            receiver: ContractAddress,
+        ) {
+            let world = self.world(@NAMESPACE());
+            self.merkledrop.claim(world, tree_id, proofs, data, receiver)
+        }
+
+        fn fix(ref self: ContractState) {
             // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
-            // [Check] Caller is allowed
-            self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Fix starterpack
-            self
-                .starterpack
-                .set_referral(world: world, from: 134, referral_percentage: referral_percentage);
+            // [Effect] Fix
+            self.purchase.fix(world);
         }
     }
 }

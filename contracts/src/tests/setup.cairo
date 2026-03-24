@@ -13,9 +13,7 @@ pub mod setup {
     use crate::constants::NAMESPACE;
     use crate::events::index as events;
     use crate::interfaces::erc20::IERC20Dispatcher;
-    use crate::interfaces::registry::IStarterpackRegistryDispatcher;
     use crate::interfaces::vrf::IVrfProviderDispatcher;
-    use crate::mocks::registry::{NAME as REGISTRY, Registry};
     use crate::mocks::vrf::{NAME as VRF, Vrf};
     use crate::models::index as models;
     use crate::systems::collection::{Collection, ICollectionDispatcher, NAME as COLLECTION_NAME};
@@ -42,7 +40,6 @@ pub mod setup {
         pub token: IERC20Dispatcher,
         pub vault: IVaultDispatcher,
         pub vrf: IVrfProviderDispatcher,
-        pub registry: IStarterpackRegistryDispatcher,
         pub starterpack: IStarterpackImplementationDispatcher,
     }
 
@@ -57,7 +54,6 @@ pub mod setup {
             namespace: NAMESPACE(),
             resources: [
                 TestResource::Model(models::m_Game::TEST_CLASS_HASH),
-                TestResource::Model(models::m_Starterpack::TEST_CLASS_HASH),
                 TestResource::Model(models::m_Config::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementDefinition::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementAdvancement::TEST_CLASS_HASH),
@@ -86,7 +82,6 @@ pub mod setup {
                 TestResource::Contract(Token::TEST_CLASS_HASH),
                 TestResource::Contract(Vault::TEST_CLASS_HASH),
                 TestResource::Contract(Vrf::TEST_CLASS_HASH),
-                TestResource::Contract(Registry::TEST_CLASS_HASH),
             ]
                 .span(),
         }
@@ -112,7 +107,6 @@ pub mod setup {
         let (token_address, _) = world.dns(@TOKEN()).expect('Token not found');
         let (vault_address, _) = world.dns(@VAULT()).expect('Vault not found');
         let (vrf_address, _) = world.dns(@VRF()).expect('Vrf not found');
-        let (registry_address, _) = world.dns(@REGISTRY()).expect('Registry not found');
         let systems = Systems {
             play: IPlayDispatcher { contract_address: play_address },
             collection: ICollectionDispatcher { contract_address: collection_address },
@@ -120,7 +114,6 @@ pub mod setup {
             token: IERC20Dispatcher { contract_address: token_address },
             vault: IVaultDispatcher { contract_address: vault_address },
             vrf: IVrfProviderDispatcher { contract_address: vrf_address },
-            registry: IStarterpackRegistryDispatcher { contract_address: registry_address },
             starterpack: IStarterpackImplementationDispatcher { contract_address: play_address },
         };
 

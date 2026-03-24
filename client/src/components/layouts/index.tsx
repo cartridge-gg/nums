@@ -35,6 +35,7 @@ import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
 import { useTutorial } from "@/context/tutorial";
 import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
+import { useBundles } from "@/context/bundles";
 import { useMerkledrops } from "@/context/merkledrops";
 import { shortAddress } from "@/helpers";
 
@@ -51,11 +52,16 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
-  const { mint, merkledrop: merkledropActions } = useActions();
+  const {
+    mint,
+    bundle: bundleActions,
+    merkledrop: merkledropActions,
+  } = useActions();
   const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
-  const { starterpacks, config, claimeds, starteds } = useEntities();
+  const { config, claimeds, starteds } = useEntities();
+  const { paidBundles: bundles } = useBundles();
   const { getNumsPrice } = usePrices();
   const { playerGames: games, loading: gamesLoading } = useGames();
   const navigate = usePreserveSearchNavigate();
@@ -66,7 +72,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showReferralScene, setShowReferralScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
   const [showAchievementScene, setShowAchievementScene] = useState(false);
-  const [starterpackIndex, setStarterpackIndex] = useState<number>(1);
+  const [bundleIndex, setBundleIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
   // Toaster hook to display toast notifications for social and player events
@@ -122,31 +128,30 @@ export const Layout = ({ children }: LayoutProps) => {
     numsPrice,
   });
 
-  const starterpack = useMemo(() => {
-    if (
-      starterpacks.length === 0 ||
-      starterpackIndex < 1 ||
-      starterpackIndex > starterpacks.length
-    )
+  const bundle = useMemo(() => {
+    if (bundles.length === 0 || bundleIndex < 1 || bundleIndex > bundles.length)
       return undefined;
-    return starterpacks[starterpackIndex - 1];
-  }, [starterpacks, starterpackIndex]);
+    return bundles[bundleIndex - 1];
+  }, [bundles, bundleIndex]);
+
+  const packMultiplier = useMemo(() => {
+    if (!bundle || !config?.base_price || config.base_price === 0n) return 1;
+    return Number(bundle.price / config.base_price) + 1;
+  }, [bundle, config]);
 
   const basePrice = useMemo(() => {
     return (
-      (Number(config?.base_price || 2_000_000n) *
-        (starterpack?.multiplier || 1)) /
-      10 ** 6
+      (Number(config?.base_price || 2_000_000n) * packMultiplier) / 10 ** 6
     );
-  }, [config, starterpack]);
+  }, [config, packMultiplier]);
 
   const playPrice = useMemo(() => {
-    return Number(starterpack?.price || 0n) / 10 ** 6;
-  }, [starterpack]);
+    return Number(bundle?.price || 0n) / 10 ** 6;
+  }, [bundle]);
 
   const { multiplier, isLoading: multiplierLoading } = useMultiplier({
     basePrice: config?.base_price ?? 0n,
-    packMultiplier: BigInt(starterpack?.multiplier ?? 1),
+    packMultiplier: BigInt(packMultiplier),
     burnPercentage: BigInt(config?.burn_percentage ?? 0),
     slotCount: BigInt(config?.slot_count ?? 18),
     averageScore: BigInt(config?.average_score ?? 0),
@@ -156,25 +161,25 @@ export const Layout = ({ children }: LayoutProps) => {
     quoteAddress: config?.quote ?? "",
   });
 
-  const handlePurchase = useCallback(() => {
-    if (starterpack) {
-      (connector as ControllerConnector)?.controller.openStarterPack(
-        starterpack.id.toString(),
-        {
-          onPurchaseComplete: () => {
-            setShowQuestScene(false);
-            setShowLeaderboardScene(false);
-            setShowPurchaseScene(false);
-            setShowStakingScene(false);
-            setShowReferralScene(false);
-            setShowSettingsScene(false);
-            setShowAchievementScene(false);
-            navigate("/game");
-          },
-        },
+  const handlePurchase = useCallback(async () => {
+    if (bundle) {
+      const success = await bundleActions.issue(
+        bundle.id,
+        bundle.price,
+        bundle.payment_token,
       );
+      if (success) {
+        setShowQuestScene(false);
+        setShowLeaderboardScene(false);
+        setShowPurchaseScene(false);
+        setShowStakingScene(false);
+        setShowReferralScene(false);
+        setShowSettingsScene(false);
+        setShowAchievementScene(false);
+        navigate("/game");
+      }
     }
-  }, [connector, starterpack, navigate]);
+  }, [bundle, bundleActions, navigate]);
 
   // Detect new game and navigate to it
   useEffect(() => {
@@ -221,7 +226,7 @@ export const Layout = ({ children }: LayoutProps) => {
   }, [games.length, games, gamesLoading, navigate, pathname]);
 
   useEffect(() => {
-    setStarterpackIndex(1);
+    setBundleIndex(1);
   }, [showPurchaseScene]);
 
   // Refetch leaderboard data when modal opens
@@ -371,9 +376,9 @@ export const Layout = ({ children }: LayoutProps) => {
                 targetSupply={config?.target_supply || 0n}
                 currentSupply={headerData.supply}
                 stakesProps={{
-                  total: starterpacks.length,
-                  index: starterpackIndex,
-                  setIndex: setStarterpackIndex,
+                  total: bundles.length,
+                  index: bundleIndex,
+                  setIndex: setBundleIndex,
                 }}
                 onConnect={
                   account?.address ? undefined : headerData.handleConnect

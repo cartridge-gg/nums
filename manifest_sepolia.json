@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x3f15a50317f4f9b74ceacb36322dc9373a8912924fb7a32ae6f314fd1cab4f",
-    "seed": "nums-v1.0.54",
+    "address": "0x48d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2",
+    "seed": "nums-v1.0.56",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x7e03f5e09a7ed207d7d8252dfe14f3740f1a47e8e947551aea5439460850afc",
+      "address": "0x1137c1539ce55772d38a4b151400a390797a1a2986cd8ca1deec279862792d",
       "class_hash": "0x3711b91e3416acc7e68800ac76916d7b90c83783b08ae21e56088951e7cd7fa",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "address": "0x5b0212f09cdab0a7234afc0f8b7e1301025753a00b443df4b22295ec06a80f4",
+      "address": "0x37d4aef94ac5e9b2d49eb763bfa2db76f3f82e31506a78ef8458dc458e820b",
       "class_hash": "0x491ffcc13f14512297a3a758feacbb7f3048abb52bd9e917a04490a14b9eea8",
       "init_calldata": [
         "0x2540BE400",
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "address": "0x3137f2ecfec3386b4eca5f604880d790aa2feab51d8430e6c13bdc354512fcd",
+      "address": "0x73f72debc30118f7498ef794fcaf2f0ffbf3c3b0ed1fdb447cf35e96a8854d9",
       "class_hash": "0x7260fd1d2e1422758f2ae2741ae449935b5d8b8c176216f89ae3f3d760f148b",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -100,19 +100,14 @@
       ]
     },
     {
-      "address": "0x6a9d9e2bab0add166f9b706eca1d9fa37819645eb3d89f927ba24ae9c05d6ed",
-      "class_hash": "0x4072483a75260a44c090221f35dac00d6720c42d3594c4cd2caeb04cb1279ac",
+      "address": "0x3774eb7f309e2b2c9b02103ae7050d542ca3c75d55e59fed6ca3fa524d19cd1",
+      "class_hash": "0x4ece0af9674b07b6979402aead7408fdb979b12b99599b9e7ecd31b932b5c2",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
       "systems": [
         "dojo_init",
-        "merkledrop_register",
-        "merkledrop_claim",
-        "on_issue",
-        "on_quest_unlock",
-        "on_quest_complete",
-        "on_quest_claim",
+        "create",
         "set",
         "select",
         "apply",
@@ -124,30 +119,29 @@
       ]
     },
     {
-      "address": "0x142f0b74c86a77eb859db75c9c6f41d990c90a04a17bf1c33b93c676d3d8969",
-      "class_hash": "0x2cb896ed51d9a46521178621cd2e78cdb4db169ae95a41ed37d93dc2c27aac7",
+      "address": "0x6361108a877e3bf74e3d92242907d40315824555d50bd7cad08a021021ed8a4",
+      "class_hash": "0x43a61e9d01a801902ae8945a9b678dbc376c849236bc6a8db480d1936358f43",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
-        "0x0",
-        "0x03eb03b8f2be0ec2aafd186d72f6d8f3dd320dbc89f2b6802bca7465f6ccaa43",
         "0x1",
         "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2",
         "0x06a2aee84bb0ed5dded4384ddd0e40e9c1372b818668375ab8e3ec08807417e5",
         "0x1E8480",
         "0xD3C21BCECCEDA1000000",
         "0x46",
-        "0x32",
+        "0x0",
         "0xA",
         "0xccccccccccccccccccccccccccccccc",
         "0x56a4c",
-        "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971"
+        "0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971",
+        "0x004f92738513dfd145228c06e639ac13bc0bb3b68219981227331f8ba93c5576"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
       "systems": [
         "dojo_init",
-        "set_starterpack",
+        "issue",
         "set_target_supply",
         "set_quote_address",
         "set_ekubo_router_address",
@@ -159,7 +153,9 @@
         "set_pool_extension",
         "set_pool_sqrt",
         "set_base_price",
-        "set_starterpack_referral",
+        "merkledrop_register",
+        "merkledrop_claim",
+        "fix",
         "upgrade",
         "grant_role",
         "revoke_role",
@@ -167,8 +163,8 @@
       ]
     },
     {
-      "address": "0x79a70b26211db50a1c48204277f1ad75c7d8fc780ce22177fbd27b1661f5d9c",
-      "class_hash": "0x58cc15bbf8f3c720cbfc44d2167cd2a3d6b3354a964c987c3d7a97df4d4a26c",
+      "address": "0x32b7a6f69db05eed8c8b9cdbabb27cda53f41545825794a52cc37911adbfb2a",
+      "class_hash": "0x7a5d999c0bba898e6782476999a99b504f24c7be242dfd83239d07284840723",
       "init_calldata": [],
       "tag": "NUMS-Team",
       "selector": "0x32e0358a4bb7835ee59fcb9d8add7b9c693db14f54d1f8d44a3e238a3b3c2",
@@ -182,7 +178,7 @@
       ]
     },
     {
-      "address": "0xa71dc25aea1c269dd23970e0b394b0fbd84f2f78e26a0b1e72b9dc896da447",
+      "address": "0x3c27ade072f09c834e94126979b4210f111ae15893716d44e73de5a7d04919c",
       "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
@@ -205,8 +201,8 @@
       ]
     },
     {
-      "address": "0x5305278ad61ca036a793b880a66b13eb1bf1e65cd137f943741e15812501ed0",
-      "class_hash": "0x15674fff60a172586c793f83c43bc8b3e15b03926106f743611f54931552d7",
+      "address": "0x6fc6e7bc598d4eb335277480512aee30edcb4162cafe2185a9eb3685b508b82",
+      "class_hash": "0x2aecd849edafba341c3ab7d4ea3f137dcb8db59255a5042e9c366650b48b8c3",
       "init_calldata": [
         "0xe10",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -233,8 +229,8 @@
       ]
     },
     {
-      "address": "0x7b40587e4f2c2261222c289bb609e253a5faf0f592f9fb659361622190b92e2",
-      "class_hash": "0xf4742c20591f8c3085227e53d5b2c7e370ca4ea3943f932bb3410b837c56b6",
+      "address": "0x2ded562376646054bebdabded77594c93ffd6d5bd2838b630e6a2d35c21820e",
+      "class_hash": "0x24f117621518fc2f5f324f0d2418c7adddce44fd86ee00668c918fb6271d4bf",
       "init_calldata": [
         "0x1",
         "0x0"
@@ -354,11 +350,6 @@
           "key": true
         },
         {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
           "name": "start",
           "type": "core::integer::u64",
           "key": false
@@ -374,9 +365,154 @@
           "key": false
         }
       ],
-      "class_hash": "0x6c6a9c45913331fa4e602135926cf9a622b60d2abb04381c37e0ba79861f11d",
+      "class_hash": "0x2e2a6993fc1fdf0a07125f67c42f70d60b7f1335a8a2883c19a0a4302a2f8d3",
       "tag": "NUMS-AchievementDefinition",
       "selector": "0x2fb36aa981a8fd5fc9e445d77cd4b5eead6390e1c546a1e9bc50f308b8d47ac"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32",
+          "key": true
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "total_issued",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray",
+          "key": false
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "allower",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x4dd989b8e777ff770905994783570d06fae691b301d95efdcc8d217568338b7",
+      "tag": "NUMS-Bundle",
+      "selector": "0x3affccdcbbfeef4fe21c7abc1af04b151908ad61a6458919d1a557f0dec3b48"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "total_fees",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x73e35b535ae77ec3cbe4dc1cae493ae59d69f5859f9e3d8ca72bc866a7ee878",
+      "tag": "NUMS-BundleGroup",
+      "selector": "0x7991c1fbeee30646ce2d6867c9c07a01c5f9c4da4bc4b5e92c8536263500745"
+    },
+    {
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32",
+          "key": true
+        },
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "issued_at",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x22192a3beb0de39d469febf959e64485648412b22352d9cd10e0aa52690fe48",
+      "tag": "NUMS-BundleIssuance",
+      "selector": "0x44e2df4bbece2f13cda364f88b5a6f4620cb28cc16b8b058755d2bcd9231613"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "total_fees",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x26cae110fae34ce3a9a4e4ffa63658d1dc1a824caab297ecb6c017785ce92ac",
+      "tag": "NUMS-BundleReferral",
+      "selector": "0x2ba13483820f0dd15654e2204e98525ae1021b4f291060962c2ba548ce753dc"
+    },
+    {
+      "members": [
+        {
+          "name": "key",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x56794c7e01990d3e6454da93fd1c3226f9773121f881754120dd22e7f332dfe",
+      "tag": "NUMS-BundleVoucher",
+      "selector": "0x1052fc086f9eb3e29e32e3f0a6105e0f2c9b5a5b3bb92b36d95c048f06548eb"
     },
     {
       "members": [
@@ -387,11 +523,6 @@
         },
         {
           "name": "vrf",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
-          "name": "starterpack",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
         },
@@ -471,17 +602,17 @@
           "key": false
         },
         {
-          "name": "base_price",
+          "name": "pool_sqrt",
           "type": "core::integer::u256",
           "key": false
         },
         {
-          "name": "pool_sqrt",
+          "name": "base_price",
           "type": "core::integer::u256",
           "key": false
         }
       ],
-      "class_hash": "0x1fc2c8cb3113946d51a8316f8be74b7cb52ab9a8917ba60939e53c3478bb8a1",
+      "class_hash": "0x4814e0f4b1d539d5aca28ec78db15583983bcb6ae0725dc3f3515407ed77e11",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -747,11 +878,6 @@
           "key": true
         },
         {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
           "name": "start",
           "type": "core::integer::u64",
           "key": false
@@ -782,46 +908,9 @@
           "key": false
         }
       ],
-      "class_hash": "0x3edb92531c36a3a546994e1612de4dd6c43c09aeaf265c8889e61b85d92b071",
+      "class_hash": "0x4ff02a9f5e7c86031aea770f0bbbc6539ac1c658d747245d80895caef1001d4",
       "tag": "NUMS-QuestDefinition",
       "selector": "0x59166a3019817da04cf768993440f0dda52d9c614e013bf257c94a2f90754c8"
-    },
-    {
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u32",
-          "key": true
-        },
-        {
-          "name": "reissuable",
-          "type": "core::bool",
-          "key": false
-        },
-        {
-          "name": "referral_percentage",
-          "type": "core::integer::u8",
-          "key": false
-        },
-        {
-          "name": "price",
-          "type": "core::integer::u256",
-          "key": false
-        },
-        {
-          "name": "payment_token",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
-        },
-        {
-          "name": "multiplier",
-          "type": "core::integer::u8",
-          "key": false
-        }
-      ],
-      "class_hash": "0x538f71dd672c1f0a269d2f1023b0b927e3b2ed4c4b37ab87493a95be139496a",
-      "tag": "NUMS-Starterpack",
-      "selector": "0x3f3cc056073e60a11367e5da8db50e6bf9d08c401ec55cc5838015114dab550"
     },
     {
       "members": [
@@ -922,6 +1011,132 @@
       "class_hash": "0x7862bab5e54ec6aa89c4a0ef6f39ca01a6440434b08d4fdd8098ee6e920e9a6",
       "tag": "NUMS-AchievementCompleted",
       "selector": "0x7e4cf0da0a14e4bdd3787a6d2a3a5c8ed8d4e96101d0ff6281928e147ea817f"
+    },
+    {
+      "members": [
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32",
+          "key": true
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32",
+          "key": false
+        },
+        {
+          "name": "referrer",
+          "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>",
+          "key": false
+        },
+        {
+          "name": "referrer_group",
+          "type": "core::option::Option::<core::felt252>",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x7252b7ed6b7699825ecb8306e2e44d3bcea66748796244ff30990b11da4d707",
+      "tag": "NUMS-BundleIssued",
+      "selector": "0x27fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7"
+    },
+    {
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32",
+          "key": true
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x5ae9c4e8262fa242de23de11dc78aa16d2581533e798bd6113ae99535c9cbee",
+      "tag": "NUMS-BundleRegistered",
+      "selector": "0x52aba9774fa592fd538860925faef32e71de94139ce29cb8e88ebe15cf732c2"
+    },
+    {
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32",
+          "key": true
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray",
+          "key": false
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x1507f042e469d428e2fbe0c6dfbc5020e742b052ee818e5292a0f102bbcdcd5",
+      "tag": "NUMS-BundleUpdated",
+      "selector": "0x8e5f3379fa9d717561046e6ccde7716c2b30651e40e2ee4e2ea31b373e6adf"
     },
     {
       "members": [
@@ -1118,7 +1333,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x3887943e3f8a828e25560b36cad9b496e750e5a448bc1f33d0bb938e06676ab",
+      "class_hash": "0x6462b8d93d4316cc3bb900dd3d749f4c2e35533d6da87341957fcfc97ce8189",
       "tag": "NUMS-QuestCreation",
       "selector": "0x7a1005c1ed6d354adec095f6239463e92767e9ac13f371cd2f51be926c0ccbe"
     },
@@ -1346,7 +1561,7 @@
   "abis": [
     {
       "type": "event",
-      "name": "achievement::components::achievable::AchievableComponent::Event",
+      "name": "achievement::component::Component::Event",
       "kind": "enum",
       "variants": []
     },
@@ -1679,10 +1894,6 @@
           "type": "core::felt252"
         },
         {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "start",
           "type": "core::integer::u64"
         },
@@ -1700,10 +1911,6 @@
       "type": "struct",
       "name": "achievement::models::index::AchievementDefinitionValue",
       "members": [
-        {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
         {
           "name": "start",
           "type": "core::integer::u64"
@@ -1759,6 +1966,588 @@
           "type": "core::byte_array::ByteArray"
         }
       ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::component::Component::BundleQuote",
+      "members": [
+        {
+          "name": "base_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "referral_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "client_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "protocol_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "total_cost",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "bundle::component::Component::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleIssued",
+      "members": [
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "referrer",
+          "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+        },
+        {
+          "name": "referrer_group",
+          "type": "core::option::Option::<core::felt252>"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleIssuedValue",
+      "members": [
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "quantity",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "referrer",
+          "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+        },
+        {
+          "name": "referrer_group",
+          "type": "core::option::Option::<core::felt252>"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleRegistered",
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleRegisteredValue",
+      "members": [
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleUpdated",
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::events::index::BundleUpdatedValue",
+      "members": [
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "bundle::events::index::e_BundleIssued::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::events::index::e_BundleRegistered::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::events::index::e_BundleUpdated::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "bundle::interface::IBundle",
+      "items": [
+        {
+          "type": "function",
+          "name": "get_metadata",
+          "inputs": [
+            {
+              "name": "bundle_id",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::byte_array::ByteArray"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "quote",
+          "inputs": [
+            {
+              "name": "bundle_id",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "quantity",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "has_referrer",
+              "type": "core::bool"
+            },
+            {
+              "name": "client_percentage",
+              "type": "core::integer::u8"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "bundle::component::Component::BundleQuote"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "issue",
+          "inputs": [
+            {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "bundle_id",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "quantity",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "referrer",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "referrer_group",
+              "type": "core::option::Option::<core::felt252>"
+            },
+            {
+              "name": "client",
+              "type": "core::option::Option::<core::starknet::contract_address::ContractAddress>"
+            },
+            {
+              "name": "client_percentage",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "voucher_key",
+              "type": "core::option::Option::<core::felt252>"
+            },
+            {
+              "name": "signature",
+              "type": "core::option::Option::<core::array::Span::<core::felt252>>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::Bundle",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "total_issued",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "allower",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleGroup",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_fees",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleGroupValue",
+      "members": [
+        {
+          "name": "total_fees",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleIssuance",
+      "members": [
+        {
+          "name": "bundle_id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "issued_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleIssuanceValue",
+      "members": [
+        {
+          "name": "issued_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleReferral",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "total_fees",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleReferralValue",
+      "members": [
+        {
+          "name": "total_fees",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_referrals",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleValue",
+      "members": [
+        {
+          "name": "referral_percentage",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "reissuable",
+          "type": "core::bool"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "payment_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "payment_receiver",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "total_issued",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "metadata",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "allower",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleVoucher",
+      "members": [
+        {
+          "name": "key",
+          "type": "core::felt252"
+        },
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "bundle::models::index::BundleVoucherValue",
+      "members": [
+        {
+          "name": "recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "bundle::models::index::m_Bundle::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::models::index::m_BundleGroup::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::models::index::m_BundleIssuance::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::models::index::m_BundleReferral::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "bundle::models::index::m_BundleVoucher::Event",
+      "kind": "enum",
+      "variants": []
     },
     {
       "type": "event",
@@ -2009,6 +2798,34 @@
         {
           "name": "high",
           "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::option::Option::<core::array::Span::<core::felt252>>",
+      "variants": [
+        {
+          "name": "Some",
+          "type": "core::array::Span::<core::felt252>"
+        },
+        {
+          "name": "None",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::option::Option::<core::felt252>",
+      "variants": [
+        {
+          "name": "Some",
+          "type": "core::felt252"
+        },
+        {
+          "name": "None",
+          "type": "()"
         }
       ]
     },
@@ -3938,7 +4755,7 @@
     },
     {
       "type": "event",
-      "name": "merkledrop::components::merkledrop::MerkledropComponent::Event",
+      "name": "merkledrop::component::Component::Event",
       "kind": "enum",
       "variants": []
     },
@@ -4058,25 +4875,19 @@
     },
     {
       "type": "event",
-      "name": "nums::components::initializable::InitializableComponent::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
       "name": "nums::components::playable::PlayableComponent::Event",
       "kind": "enum",
       "variants": []
     },
     {
       "type": "event",
-      "name": "nums::components::rewardable::RewardableComponent::Event",
+      "name": "nums::components::purchase::PurchaseComponent::Event",
       "kind": "enum",
       "variants": []
     },
     {
       "type": "event",
-      "name": "nums::components::starterpack::StarterpackComponent::Event",
+      "name": "nums::components::rewardable::RewardableComponent::Event",
       "kind": "enum",
       "variants": []
     },
@@ -4346,10 +5157,6 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "starterpack",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "quote",
           "type": "core::starknet::contract_address::ContractAddress"
         },
@@ -4410,11 +5217,11 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "base_price",
+          "name": "pool_sqrt",
           "type": "core::integer::u256"
         },
         {
-          "name": "pool_sqrt",
+          "name": "base_price",
           "type": "core::integer::u256"
         }
       ]
@@ -4428,10 +5235,6 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "starterpack",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "quote",
           "type": "core::starknet::contract_address::ContractAddress"
         },
@@ -4492,11 +5295,11 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
-          "name": "base_price",
+          "name": "pool_sqrt",
           "type": "core::integer::u256"
         },
         {
-          "name": "pool_sqrt",
+          "name": "base_price",
           "type": "core::integer::u256"
         }
       ]
@@ -4671,62 +5474,6 @@
     },
     {
       "type": "struct",
-      "name": "nums::models::index::Starterpack",
-      "members": [
-        {
-          "name": "id",
-          "type": "core::integer::u32"
-        },
-        {
-          "name": "reissuable",
-          "type": "core::bool"
-        },
-        {
-          "name": "referral_percentage",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "price",
-          "type": "core::integer::u256"
-        },
-        {
-          "name": "payment_token",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "multiplier",
-          "type": "core::integer::u8"
-        }
-      ]
-    },
-    {
-      "type": "struct",
-      "name": "nums::models::index::StarterpackValue",
-      "members": [
-        {
-          "name": "reissuable",
-          "type": "core::bool"
-        },
-        {
-          "name": "referral_percentage",
-          "type": "core::integer::u8"
-        },
-        {
-          "name": "price",
-          "type": "core::integer::u256"
-        },
-        {
-          "name": "payment_token",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "multiplier",
-          "type": "core::integer::u8"
-        }
-      ]
-    },
-    {
-      "type": "struct",
       "name": "nums::models::index::VaultInfo",
       "members": [
         {
@@ -4814,12 +5561,6 @@
     {
       "type": "event",
       "name": "nums::models::index::m_Game::Event",
-      "kind": "enum",
-      "variants": []
-    },
-    {
-      "type": "event",
-      "name": "nums::models::index::m_Starterpack::Event",
       "kind": "enum",
       "variants": []
     },
@@ -5048,58 +5789,36 @@
     },
     {
       "type": "interface",
-      "name": "nums::systems::play::IMerkledrop",
+      "name": "nums::systems::play::IPlay",
       "items": [
         {
           "type": "function",
-          "name": "merkledrop_register",
+          "name": "create",
           "inputs": [
             {
-              "name": "data",
-              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
-            },
-            {
-              "name": "expiration",
-              "type": "core::integer::u64"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::felt252"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "merkledrop_claim",
-          "inputs": [
-            {
-              "name": "tree_id",
-              "type": "core::felt252"
-            },
-            {
-              "name": "proofs",
-              "type": "core::array::Span::<core::felt252>"
-            },
-            {
-              "name": "data",
-              "type": "core::array::Span::<core::felt252>"
-            },
-            {
-              "name": "receiver",
+              "name": "player",
               "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "multiplier",
+              "type": "core::integer::u128"
+            },
+            {
+              "name": "supply",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "price",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "quantity",
+              "type": "core::integer::u32"
             }
           ],
           "outputs": [],
           "state_mutability": "external"
-        }
-      ]
-    },
-    {
-      "type": "interface",
-      "name": "nums::systems::play::IPlay",
-      "items": [
+        },
         {
           "type": "function",
           "name": "set",
@@ -5196,23 +5915,18 @@
           "kind": "flat"
         },
         {
-          "name": "AchievableEvent",
-          "type": "achievement::components::achievable::AchievableComponent::Event",
+          "name": "AchievementEvent",
+          "type": "achievement::component::Component::Event",
           "kind": "flat"
         },
         {
-          "name": "QuestableEvent",
-          "type": "quest::components::questable::QuestableComponent::Event",
+          "name": "QuestEvent",
+          "type": "quest::component::Component::Event",
           "kind": "flat"
         },
         {
           "name": "RankableEvent",
           "type": "leaderboard::components::rankable::RankableComponent::Event",
-          "kind": "flat"
-        },
-        {
-          "name": "MerkledropEvent",
-          "type": "merkledrop::components::merkledrop::MerkledropComponent::Event",
           "kind": "flat"
         },
         {
@@ -5226,18 +5940,6 @@
       "type": "interface",
       "name": "nums::systems::setup::ISetup",
       "items": [
-        {
-          "type": "function",
-          "name": "set_starterpack",
-          "inputs": [
-            {
-              "name": "starterpack_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
         {
           "type": "function",
           "name": "set_target_supply",
@@ -5372,13 +6074,52 @@
         },
         {
           "type": "function",
-          "name": "set_starterpack_referral",
+          "name": "merkledrop_register",
           "inputs": [
             {
-              "name": "referral_percentage",
-              "type": "core::integer::u8"
+              "name": "data",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            },
+            {
+              "name": "expiration",
+              "type": "core::integer::u64"
             }
           ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "merkledrop_claim",
+          "inputs": [
+            {
+              "name": "tree_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "proofs",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "data",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "receiver",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "fix",
+          "inputs": [],
           "outputs": [],
           "state_mutability": "external"
         }
@@ -5400,23 +6141,18 @@
           "kind": "nested"
         },
         {
-          "name": "InitializableEvent",
-          "type": "nums::components::initializable::InitializableComponent::Event",
+          "name": "BundleEvent",
+          "type": "bundle::component::Component::Event",
           "kind": "flat"
         },
         {
-          "name": "AchievableEvent",
-          "type": "achievement::components::achievable::AchievableComponent::Event",
+          "name": "PurchaseEvent",
+          "type": "nums::components::purchase::PurchaseComponent::Event",
           "kind": "flat"
         },
         {
-          "name": "QuestableEvent",
-          "type": "quest::components::questable::QuestableComponent::Event",
-          "kind": "flat"
-        },
-        {
-          "name": "StarterpackEvent",
-          "type": "nums::components::starterpack::StarterpackComponent::Event",
+          "name": "MerkledropEvent",
+          "type": "merkledrop::component::Component::Event",
           "kind": "flat"
         },
         {
@@ -8837,7 +9573,7 @@
     },
     {
       "type": "event",
-      "name": "quest::components::questable::QuestableComponent::Event",
+      "name": "quest::component::Component::Event",
       "kind": "enum",
       "variants": []
     },
@@ -9036,72 +9772,6 @@
       "variants": []
     },
     {
-      "type": "interface",
-      "name": "quest::interfaces::IQuestRewarder",
-      "items": [
-        {
-          "type": "function",
-          "name": "on_quest_unlock",
-          "inputs": [
-            {
-              "name": "player",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "quest_id",
-              "type": "core::felt252"
-            },
-            {
-              "name": "interval_id",
-              "type": "core::integer::u64"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "on_quest_complete",
-          "inputs": [
-            {
-              "name": "player",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "quest_id",
-              "type": "core::felt252"
-            },
-            {
-              "name": "interval_id",
-              "type": "core::integer::u64"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "on_quest_claim",
-          "inputs": [
-            {
-              "name": "player",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "quest_id",
-              "type": "core::felt252"
-            },
-            {
-              "name": "interval_id",
-              "type": "core::integer::u64"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
-    },
-    {
       "type": "struct",
       "name": "quest::models::index::QuestAdvancement",
       "members": [
@@ -9250,10 +9920,6 @@
           "type": "core::felt252"
         },
         {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
           "name": "start",
           "type": "core::integer::u64"
         },
@@ -9283,10 +9949,6 @@
       "type": "struct",
       "name": "quest::models::index::QuestDefinitionValue",
       "members": [
-        {
-          "name": "rewarder",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
         {
           "name": "start",
           "type": "core::integer::u64"
@@ -9358,48 +10020,6 @@
         {
           "name": "description",
           "type": "core::byte_array::ByteArray"
-        }
-      ]
-    },
-    {
-      "type": "interface",
-      "name": "starterpack::interface::IStarterpackImplementation",
-      "items": [
-        {
-          "type": "function",
-          "name": "on_issue",
-          "inputs": [
-            {
-              "name": "recipient",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "starterpack_id",
-              "type": "core::integer::u32"
-            },
-            {
-              "name": "quantity",
-              "type": "core::integer::u32"
-            }
-          ],
-          "outputs": [],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "supply",
-          "inputs": [
-            {
-              "name": "starterpack_id",
-              "type": "core::integer::u32"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::option::Option::<core::integer::u32>"
-            }
-          ],
-          "state_mutability": "view"
         }
       ]
     }

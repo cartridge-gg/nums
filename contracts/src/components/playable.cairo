@@ -1,36 +1,30 @@
 #[starknet::component]
 pub mod PlayableComponent {
     // Imports
-    use achievement::components::achievable::AchievableComponent;
-    use achievement::components::achievable::AchievableComponent::InternalImpl as AchievableInternalImpl;
+    use achievement::component::Component as AchievementComponent;
+    use achievement::component::Component::InternalImpl as AchievementInternalImpl;
     use constants::TEN_POW_18;
     use dojo::world::{WorldStorage, WorldStorageTrait};
-    use ekubo::components::clear::IClearDispatcherTrait;
-    use ekubo::interfaces::erc20::IERC20Dispatcher;
-    use ekubo::interfaces::router::{IRouterDispatcherTrait, RouteNode, TokenAmount};
-    use ekubo::types::i129::i129;
-    use ekubo::types::keys::PoolKey;
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
-    use quest::components::questable::QuestableComponent;
-    use quest::components::questable::QuestableComponent::InternalImpl as QuestableInternalImpl;
+    use quest::component::Component as QuestableComponent;
+    use quest::component::Component::InternalImpl as QuestableInternalImpl;
     use starknet::ContractAddress;
+    use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, AchievementType, IAchievement};
     use crate::elements::quests::finisher;
-    use crate::elements::quests::index::{IQuest, QuestType};
+    use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
     use crate::helpers::random::RandomImpl;
     use crate::helpers::rewarder::Rewarder;
-    use crate::models::config::{ConfigAssert, ConfigTrait};
+    use crate::models::config::ConfigTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
-    use crate::models::starterpack::StarterpackAssert;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
-    use crate::systems::team::NAME as TEAM;
     use crate::systems::token::{ITokenDispatcher, ITokenDispatcherTrait, NAME as TOKEN};
-    use crate::systems::vault::{IVaultDispatcher, IVaultDispatcherTrait, NAME as VAULT};
+    use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
     use crate::{StoreImpl, StoreTrait, constants};
 
     // Constants
@@ -49,155 +43,39 @@ pub mod PlayableComponent {
     pub enum Event {}
 
     #[generate_trait]
-    pub impl StarterpackImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        +Drop<TContractState>,
-        impl Achievable: AchievableComponent::HasComponent<TContractState>,
-        impl Quest: QuestableComponent::HasComponent<TContractState>,
-        impl Rankable: RankableComponent::HasComponent<TContractState>,
-    > of StarterpackTrait<TContractState> {
-        fn on_issue(
-            ref self: ComponentState<TContractState>,
-            world: WorldStorage,
-            recipient: ContractAddress,
-            starterpack_id: u32,
-            quantity: u32,
-        ) {
-            // [Setup] Store
-            let store = StoreImpl::new(world);
-
-            // [Check] Caller is allowed
-            let config = store.config();
-            let caller = starknet::get_caller_address();
-            config.assert_is_starterpack(caller);
-
-            // [Check] Starterpack is valid
-            let pack = store.starterpack(starterpack_id);
-            pack.assert_does_exist();
-
-            // [Interaction] Transfer the burn share to Ekubo
-            let amount = quantity.into()
-                * pack.multiplier.into()
-                * config.base_price
-                * config.burn_percentage.into()
-                / 100_u256;
-            let quote = IERC20MixinDispatcher { contract_address: pack.payment_token };
-            let router = store.ekubo_router();
-            quote.transfer(router.contract_address, amount);
-
-            // [Interaction] Swap Quote token for Nums
-            let nums_address = self.get_token(world).contract_address;
-            let (token0, token1) = if quote.contract_address < nums_address {
-                (quote.contract_address, nums_address)
-            } else {
-                (nums_address, quote.contract_address)
-            };
-            let pool_key = PoolKey {
-                token0: token0,
-                token1: token1,
-                fee: config.pool_fee, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
-                tick_spacing: config.pool_tick_spacing, // 0x56a4c,
-                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
-                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
-                extension: config.pool_extension,
-            };
-            let route_node = RouteNode {
-                pool_key: pool_key, sqrt_ratio_limit: config.pool_sqrt, skip_ahead: 0,
-            };
-            let quote_address = quote.contract_address;
-            let token_amount = TokenAmount {
-                token: quote_address, amount: i129 { mag: amount.low, sign: false },
-            };
-            router.swap(route_node, token_amount);
-
-            // [Interaction] Clear minimum
-            let clearer = store.ekubo_clearer();
-            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
-            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
-
-            // [Interaction] Burn the corresponding amount of Nums
-            let this = starknet::get_contract_address();
-            let asset = IERC20MixinDispatcher { contract_address: nums_address };
-            let nums_supply = asset.total_supply();
-            let burn_amount = asset.balance_of(this);
-            let asset = ITokenDispatcher { contract_address: nums_address };
-            asset.burn(burn_amount);
-
-            // [Interaction] Pay dividends to the vault
-            let vault_address = self.get_vault(world).contract_address;
-            let vault = IVaultDispatcher { contract_address: vault_address };
-            let amount = quote.balanceOf(this);
-            let vault_amount = amount * config.vault_percentage.into() / 100;
-            quote.approve(spender: vault.contract_address, amount: vault_amount);
-            vault.pay(recipient.into(), vault_amount);
-
-            // [Interaction] Transfer the remaining amount to the team
-            let team_address = world.dns_address(@TEAM()).expect('Team not found!');
-            let team_amount = quote.balanceOf(this);
-            quote.transfer(team_address, team_amount);
-
-            // [Compute] Multiplier per game
-            let burn_per_game = burn_amount / quantity.into();
-            let supply_per_game = nums_supply - burn_per_game;
-            let (avg_num, avg_den) = config.average_score();
-            let multiplier = Rewarder::multiplier(
-                supply_per_game,
-                config.target_supply,
-                burn_per_game,
-                avg_num.into(),
-                avg_den.into(),
-                config.slot_count.into(),
-            );
-
-            // [Interaction] Mint games
-            let pack = store.starterpack(starterpack_id);
-            let mut count = quantity;
-            while count > 0 {
-                // [Effect] Create game
-                self.create(world, recipient, multiplier, supply_per_game, pack.price);
-                // [Compute] Update count
-                count -= 1;
-            }
-
-            // [Event] Emit purchase event
-            store.purchased(recipient.into(), starterpack_id, quantity, multiplier);
-        }
-    }
-
-    #[generate_trait]
     pub impl QuestRewarderImpl<
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
-        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Achievement: AchievementComponent::HasComponent<TContractState>,
+        impl AchievementImpl: AchievementComponent::AchievementTrait<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl QuestImpl: QuestableComponent::QuestTrait<TContractState>,
         impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of QuestRewarderTrait<TContractState> {
         fn on_quest_complete(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
-            recipient: ContractAddress,
+            player_id: felt252,
             quest_id: felt252,
             interval_id: u64,
         ) {
             // [Effect] Update daily quest completions
-            let questable = get_dep_component!(@self, Quest);
-            let player = recipient.into();
-            questable.progress(world, player, finisher::DailyFinisher::identifier(), 1, true);
+            let mut questable = get_dep_component_mut!(ref self, Quest);
+            questable.progress(world, player_id, finisher::DailyFinisher::identifier(), 1, true);
 
             // [Effect] Autoclaim quest if reward is enabled
             let quest: QuestType = quest_id.into();
             if !quest.reward() {
                 return;
             }
-            questable.claim(world, player, quest_id, interval_id);
+            questable.claim(world, player_id, quest_id, interval_id);
         }
 
         fn on_quest_claim(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
-            recipient: ContractAddress,
+            player_id: felt252,
             quest_id: felt252,
             interval_id: u64,
         ) {
@@ -207,7 +85,7 @@ pub mod PlayableComponent {
                 return;
             }
             // [Effect] Create game
-            self.free(world, recipient);
+            self.free(world, player_id.try_into().unwrap());
         }
     }
 
@@ -216,10 +94,56 @@ pub mod PlayableComponent {
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
-        impl Achievable: AchievableComponent::HasComponent<TContractState>,
+        impl Achievement: AchievementComponent::HasComponent<TContractState>,
+        impl AchievementImpl: AchievementComponent::AchievementTrait<TContractState>,
         impl Quest: QuestableComponent::HasComponent<TContractState>,
+        impl QuestImpl: QuestableComponent::QuestTrait<TContractState>,
         impl Rankable: RankableComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
+        /// Initializes the components.
+        fn initialize(ref self: ComponentState<TContractState>, mut world: WorldStorage) {
+            // [Event] Initialize all Achievements
+            let mut achievement_id: u8 = ACHIEVEMENT_COUNT;
+            let mut achievement = get_dep_component_mut!(ref self, Achievement);
+            while achievement_id > 0 {
+                let achievement_type: AchievementType = achievement_id.into();
+                let props = achievement_type.props();
+                achievement
+                    .create(
+                        world,
+                        id: props.id,
+                        start: 0,
+                        end: 0,
+                        tasks: props.tasks,
+                        metadata: props.metadata,
+                        to_store: true,
+                    );
+                achievement_id -= 1;
+            }
+            // [Event] Initialize all Quests
+            let mut quest_id: u8 = QUEST_COUNT;
+            let mut quest = get_dep_component_mut!(ref self, Quest);
+            let registry = starknet::get_contract_address();
+            while quest_id > 0 {
+                let quest_type: QuestType = quest_id.into();
+                let props: QuestProps = quest_type.props(registry);
+                quest
+                    .create(
+                        world: world,
+                        id: props.id,
+                        start: props.start,
+                        end: props.end,
+                        duration: props.duration,
+                        interval: props.interval,
+                        tasks: props.tasks.span(),
+                        conditions: props.conditions.span(),
+                        metadata: props.metadata,
+                        to_store: true,
+                    );
+                quest_id -= 1;
+            };
+        }
+
         /// Create a default game.
         fn free(
             ref self: ComponentState<TContractState>,
@@ -328,40 +252,43 @@ pub mod PlayableComponent {
             }
 
             // [Effect] Update quest progression for the player
-            let questable = get_dep_component!(@self, Quest);
-            questable.progress(world, player.into(), Task::Filler.identifier(), 1, true);
-            questable
+            let mut quest = get_dep_component_mut!(ref self, Quest);
+            quest.progress(world, player.into(), Task::Filler.identifier(), 1, true);
+            quest
                 .progress(
                     world, player.into(), Task::Trigger.identifier(), traps.len().into(), true,
                 );
 
             // [Effect] Update achievement progression for the player
-            let achievable = get_dep_component!(@self, Achievable);
+            let mut achievement = get_dep_component_mut!(ref self, Achievement);
             if target_number == 21 {
-                achievable.progress(world, player.into(), Task::ReferenceOne.identifier(), 1, true);
+                achievement
+                    .progress(world, player.into(), Task::ReferenceOne.identifier(), 1, true);
             } else if target_number == 42 {
-                achievable.progress(world, player.into(), Task::ReferenceTwo.identifier(), 1, true);
+                achievement
+                    .progress(world, player.into(), Task::ReferenceTwo.identifier(), 1, true);
             } else if target_number == 404 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::ReferenceThree.identifier(), 1, true);
             } else if target_number == 777 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::ReferenceFour.identifier(), 1, true);
             } else if target_number == 911 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::ReferenceFive.identifier(), 1, true);
             } else if target_number == 420 {
-                achievable.progress(world, player.into(), Task::ReferenceSix.identifier(), 1, true);
+                achievement
+                    .progress(world, player.into(), Task::ReferenceSix.identifier(), 1, true);
             } else if target_number == 69 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::ReferenceSeven.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression - Placer (cumulative)
-            achievable.progress(world, player.into(), Task::Filler.identifier(), 1, true);
+            achievement.progress(world, player.into(), Task::Filler.identifier(), 1, true);
 
             // [Effect] Update achievement progression - Trapper (cumulative)
-            achievable
+            achievement
                 .progress(
                     world, player.into(), Task::Trigger.identifier(), traps.len().into(), true,
                 );
@@ -369,26 +296,27 @@ pub mod PlayableComponent {
             // [Effect] Update achievement progression - Chainer (single turn)
             let trap_count: u32 = traps.len();
             if trap_count >= 3 {
-                achievable.progress(world, player.into(), Task::ChainerOne.identifier(), 1, true);
+                achievement.progress(world, player.into(), Task::ChainerOne.identifier(), 1, true);
             }
             if trap_count >= 4 {
-                achievable.progress(world, player.into(), Task::ChainerTwo.identifier(), 1, true);
+                achievement.progress(world, player.into(), Task::ChainerTwo.identifier(), 1, true);
             }
             if trap_count >= 5 {
-                achievable.progress(world, player.into(), Task::ChainerThree.identifier(), 1, true);
+                achievement
+                    .progress(world, player.into(), Task::ChainerThree.identifier(), 1, true);
             }
 
             // [Effect] Update achievement progression - Streak
             let mut slots = game.slots();
             let streak = GameTrait::streak(ref slots);
             if streak >= 2 {
-                achievable.progress(world, player.into(), Task::StreakerOne.identifier(), 1, true);
+                achievement.progress(world, player.into(), Task::StreakerOne.identifier(), 1, true);
             }
             if streak >= 3 {
-                achievable.progress(world, player.into(), Task::StreakerTwo.identifier(), 1, true);
+                achievement.progress(world, player.into(), Task::StreakerTwo.identifier(), 1, true);
             }
             if streak >= 4 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::StreakerThree.identifier(), 1, true);
             }
 
@@ -401,15 +329,15 @@ pub mod PlayableComponent {
                 store.started(player.into(), game_id, game.multiplier);
                 // [Effect] Update quest progression for the player - Grinder task
                 let task = Task::Grinder;
-                achievable.progress(world, player.into(), task.identifier(), 1, true);
+                achievement.progress(world, player.into(), task.identifier(), 1, true);
             } else if game.level == 16 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::FillerSixteen.identifier(), 1, true);
             } else if game.level == 17 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::FillerSeventeen.identifier(), 1, true);
             } else if game.level == 18 {
-                achievable
+                achievement
                     .progress(world, player.into(), Task::FillerEighteen.identifier(), 1, true);
             }
 
@@ -523,41 +451,41 @@ pub mod PlayableComponent {
             }
 
             // [Effect] Update quest progression for the player
-            let questable = get_dep_component!(@self, Quest);
-            questable.progress(world, player.into(), Task::Power.identifier(), 1, true);
+            let mut quest = get_dep_component_mut!(ref self, Quest);
+            quest.progress(world, player.into(), Task::Power.identifier(), 1, true);
 
             // [Effect] Update achievement progression - Power (cumulative)
-            let achievable = get_dep_component!(@self, Achievable);
-            achievable.progress(world, player.into(), Task::Power.identifier(), 1, true);
+            let mut achievement = get_dep_component_mut!(ref self, Achievement);
+            achievement.progress(world, player.into(), Task::Power.identifier(), 1, true);
 
             // [Effect] Update achievement progression - Game over (Streak, Filler)
             if game.over != 0 {
                 let mut slots = game.slots();
                 let streak = GameTrait::streak(ref slots);
                 if streak >= 2 {
-                    achievable
+                    achievement
                         .progress(world, player.into(), Task::StreakerOne.identifier(), 1, true);
                 }
                 if streak >= 3 {
-                    achievable
+                    achievement
                         .progress(world, player.into(), Task::StreakerTwo.identifier(), 1, true);
                 }
                 if streak >= 4 {
-                    achievable
+                    achievement
                         .progress(world, player.into(), Task::StreakerThree.identifier(), 1, true);
                 }
                 if game.level >= 16 {
-                    achievable
+                    achievement
                         .progress(world, player.into(), Task::FillerSixteen.identifier(), 1, true);
                 }
                 if game.level >= 17 {
-                    achievable
+                    achievement
                         .progress(
                             world, player.into(), Task::FillerSeventeen.identifier(), 1, true,
                         );
                 }
                 if game.level >= 18 {
-                    achievable
+                    achievement
                         .progress(world, player.into(), Task::FillerEighteen.identifier(), 1, true);
                 }
             }
@@ -594,9 +522,9 @@ pub mod PlayableComponent {
 
             // [Effect] Update achievement progression for the player - Claimer tasks
             let player = self.owner(world, game_id);
-            let achievable = get_dep_component!(@self, Achievable);
+            let mut achievement = get_dep_component_mut!(ref self, Achievement);
             let task = Task::Claimer;
-            achievable.progress(world, player.into(), task.identifier(), base_reward, true);
+            achievement.progress(world, player.into(), task.identifier(), base_reward, true);
 
             // [Interaction] Pay user reward
             let player = self.owner(world, game_id);

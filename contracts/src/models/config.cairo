@@ -12,7 +12,6 @@ pub impl ConfigImpl of ConfigTrait {
     fn new(
         world_resource: felt252,
         vrf: ContractAddress,
-        starterpack: ContractAddress,
         quote: ContractAddress,
         ekubo_router: ContractAddress,
         ekubo_positions: ContractAddress,
@@ -29,7 +28,6 @@ pub impl ConfigImpl of ConfigTrait {
         Config {
             world_resource: world_resource,
             vrf: vrf,
-            starterpack: starterpack,
             quote: quote,
             ekubo_router: ekubo_router,
             ekubo_positions: ekubo_positions,
@@ -79,13 +77,6 @@ pub impl ConfigImpl of ConfigTrait {
     }
 }
 
-#[generate_trait]
-pub impl ConfigAssert of AssertTrait {
-    fn assert_is_starterpack(self: @Config, starterpack: ContractAddress) {
-        assert(starterpack == *self.starterpack, errors::CONFIG_CALLER_NOT_STARTERPACK);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use starknet::testing::set_block_timestamp;
@@ -98,7 +89,6 @@ mod tests {
         let mut config: Config = ConfigTrait::new(
             world_resource: 0,
             vrf: 0.try_into().unwrap(),
-            starterpack: 0.try_into().unwrap(),
             quote: 0.try_into().unwrap(),
             ekubo_router: 0.try_into().unwrap(),
             ekubo_positions: 0.try_into().unwrap(),
@@ -129,7 +119,6 @@ mod tests {
         let mut config: Config = ConfigTrait::new(
             world_resource: 0,
             vrf: 0.try_into().unwrap(),
-            starterpack: 0.try_into().unwrap(),
             quote: 0.try_into().unwrap(),
             ekubo_router: 0.try_into().unwrap(),
             ekubo_positions: 0.try_into().unwrap(),

@@ -343,12 +343,6 @@ export interface RawDefinition {
     value: string;
     key: boolean;
   };
-  rewarder: {
-    type: "primitive";
-    type_name: "ContractAddress";
-    value: string;
-    key: boolean;
-  };
   duration: {
     type: "primitive";
     type_name: "u64";
@@ -404,7 +398,6 @@ export class QuestTask {
 
 export class QuestDefinition {
   id: string;
-  rewarder: string;
   start: number;
   end: number;
   duration: number;
@@ -414,7 +407,6 @@ export class QuestDefinition {
 
   constructor(
     id: string,
-    rewarder: string,
     start: number,
     end: number,
     duration: number,
@@ -423,7 +415,6 @@ export class QuestDefinition {
     conditions: string[],
   ) {
     this.id = id;
-    this.rewarder = rewarder;
     this.start = start;
     this.end = end;
     this.duration = duration;
@@ -445,9 +436,6 @@ export class QuestDefinition {
       id: shortString.decodeShortString(
         `0x${BigInt(data.id.value).toString(16)}`,
       ),
-      rewarder: getChecksumAddress(
-        `0x${BigInt(data.rewarder.value).toString(16)}`,
-      ),
       start: parseInt(data.start.value, 10),
       end: parseInt(data.end.value, 10),
       duration: parseInt(data.duration.value, 10),
@@ -461,7 +449,6 @@ export class QuestDefinition {
     };
     return new QuestDefinition(
       props.id,
-      props.rewarder,
       props.start,
       props.end,
       props.duration,

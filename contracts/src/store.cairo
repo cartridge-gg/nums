@@ -1,3 +1,4 @@
+use bundle::models::index::Bundle;
 use dojo::event::EventStorage;
 use dojo::model::ModelStorage;
 use dojo::world::{WorldStorage, WorldStorageTrait};
@@ -10,9 +11,8 @@ use crate::events::claimed::ClaimedTrait;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
-use crate::interfaces::registry::IStarterpackRegistryDispatcher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Config, Game, Starterpack, VaultInfo, VaultPosition};
+use crate::models::index::{Config, Game, VaultInfo, VaultPosition};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
 use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
 
@@ -37,11 +37,6 @@ pub impl StoreImpl of StoreTrait {
     fn vrf_disp(self: @Store) -> IVrfProviderDispatcher {
         let config = self.config();
         IVrfProviderDispatcher { contract_address: config.vrf }
-    }
-
-    fn starterpack_disp(self: @Store) -> IStarterpackRegistryDispatcher {
-        let config = self.config();
-        IStarterpackRegistryDispatcher { contract_address: config.starterpack }
     }
 
     fn vault_disp(self: @Store) -> IVaultDispatcher {
@@ -99,14 +94,14 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(game)
     }
 
-    // Starterpack
+    // Bundle
 
-    fn starterpack(self: @Store, starterpack_id: u32) -> Starterpack {
-        self.world.read_model(starterpack_id)
+    fn bundle(self: @Store, bundle_id: u32) -> Bundle {
+        self.world.read_model(bundle_id)
     }
 
-    fn set_starterpack(mut self: Store, starterpack: @Starterpack) {
-        self.world.write_model(starterpack)
+    fn set_bundle(mut self: Store, bundle: @Bundle) {
+        self.world.write_model(bundle)
     }
 
     // Vault
@@ -137,9 +132,9 @@ pub impl StoreImpl of StoreTrait {
     }
 
     fn purchased(
-        mut self: Store, player_id: felt252, starterpack_id: u32, quantity: u32, multiplier: u128,
+        mut self: Store, player_id: felt252, bundle_id: u32, quantity: u32, multiplier: u128,
     ) {
-        let event = PurchasedTrait::new(player_id, starterpack_id, quantity, multiplier);
+        let event = PurchasedTrait::new(player_id, bundle_id, quantity, multiplier);
         self.world.emit_event(@event);
     }
 

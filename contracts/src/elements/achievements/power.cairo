@@ -4,10 +4,12 @@ use crate::elements::achievements::interface::AchievementTrait;
 use crate::elements::tasks::index::{Task, TaskTrait};
 
 pub impl PowerOne of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'POWER_ONE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Supplemental',
@@ -21,18 +23,18 @@ pub impl PowerOne of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Power.tasks(200),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Power.tasks(200), metadata: metadata,
         }
     }
 }
 
 pub impl PowerTwo of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'POWER_TWO'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Enhanced',
@@ -46,18 +48,18 @@ pub impl PowerTwo of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Power.tasks(1_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Power.tasks(1_000), metadata: metadata,
         }
     }
 }
 
 pub impl PowerThree of AchievementTrait {
+    #[inline]
     fn identifier() -> felt252 {
         'POWER_THREE'
     }
 
+    #[inline]
     fn props() -> AchievementProps {
         let metadata = MetadataTrait::new(
             title: 'Full Override',
@@ -71,9 +73,7 @@ pub impl PowerThree of AchievementTrait {
             data: "",
         );
         AchievementProps {
-            id: Self::identifier(),
-            tasks: Task::Power.tasks(2_000),
-            metadata: metadata,
+            id: Self::identifier(), tasks: Task::Power.tasks(2_000), metadata: metadata,
         }
     }
 }

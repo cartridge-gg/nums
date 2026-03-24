@@ -550,6 +550,53 @@ export const useActions = () => {
     [account, chain.id],
   );
 
+  const socialIssue = useCallback(
+    async (bundleId: number) => {
+      try {
+        if (!account?.address) return false;
+        const setupAddress = getSetupAddress(chain.id);
+        const none = new CairoOption<string>(CairoOptionVariant.None);
+        const referrer = new CairoOption<string>(
+          CairoOptionVariant.Some,
+          "0x008B95A26E1392ED9E817607bfae2dD93efB9c66ee7DB0b018091A11D9037006",
+        );
+        const voucherKey = new CairoOption<string>(
+          CairoOptionVariant.Some,
+          "0x123456789",
+        );
+        const signature = new CairoOption<Array<string>>(
+          CairoOptionVariant.Some,
+          [
+            "0x48ea12654ec897c04b9b65790e778e5f7e11c11c6f6bc82fe198873aa5c97b8",
+            "0x7186a1deff41e9e1885e524e6399ecf778ddb2c1055b00940d7cf064ba61f57",
+          ],
+        );
+        await account.execute([
+          {
+            contractAddress: setupAddress,
+            entrypoint: "issue",
+            calldata: CallData.compile({
+              recipient: account.address,
+              bundle_id: bundleId,
+              quantity: 1,
+              referrer: referrer,
+              referrer_group: none,
+              client: none,
+              client_percentage: 0,
+              voucher_key: voucherKey,
+              signature: signature,
+            }),
+          },
+        ]);
+        return true;
+      } catch (e) {
+        console.log({ e });
+        return false;
+      }
+    },
+    [account, chain.id],
+  );
+
   const merkledropClaim = useCallback(
     async (treeId: string, proofs: string[], data: string[]) => {
       try {
@@ -593,6 +640,7 @@ export const useActions = () => {
     },
     bundle: {
       issue: bundleIssue,
+      social: socialIssue,
     },
     vault: {
       deposit: vaultDeposit,

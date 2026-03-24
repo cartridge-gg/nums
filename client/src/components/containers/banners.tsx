@@ -8,6 +8,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { Banner } from "@/components/elements/banner";
+import { useBanners, type GameBanner } from "@/hooks/banner";
 
 export interface BannersProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -28,6 +29,21 @@ const bannersVariants = cva("select-none relative w-full", {
   },
 });
 
+const BANNERS: GameBanner[] = [
+  { preset: "nums", name: "social" },
+  { preset: "nums", name: "tutorial" },
+  { preset: "loot-survivor", name: "loot-survivor", position: 64 },
+  { preset: "dope-wars", name: "dope-wars", position: 16 },
+  {
+    preset: "eternum",
+    name: "eternum",
+    position: 16,
+    origin: "https://blitz.realms.world/",
+  },
+  { preset: "glitch-bomb", name: "glitch-bomb", position: 0 },
+  { preset: "savage-summit", name: "savage-summit", position: 0 },
+];
+
 export const Banners = ({
   variant,
   size,
@@ -35,6 +51,7 @@ export const Banners = ({
   ...props
 }: BannersProps) => {
   const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
+  const { banners } = useBanners(BANNERS);
 
   return (
     <Carousel
@@ -46,15 +63,18 @@ export const Banners = ({
       {...props}
     >
       <CarouselContent className="w-full">
-        <CarouselItem>
-          <Banner variant="social" />
-        </CarouselItem>
-        <CarouselItem>
-          <Banner variant="tutorial" />
-        </CarouselItem>
-        <CarouselItem>
-          <Banner variant="glitchbomb" />
-        </CarouselItem>
+        {banners.map((banner) => (
+          <CarouselItem key={`${banner.preset}-${banner.name}`}>
+            <Banner
+              preset={banner.preset}
+              name={banner.name}
+              config={banner.config}
+              position={banner.position}
+              origin={banner.origin}
+              onClick={banner.onClick}
+            />
+          </CarouselItem>
+        ))}
       </CarouselContent>
     </Carousel>
   );

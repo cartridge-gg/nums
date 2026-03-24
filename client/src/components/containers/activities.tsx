@@ -208,35 +208,33 @@ export const Activities = ({
             </p>
           </div>
         ) : (
-          <>
-            {sections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="flex flex-col gap-4">
-                {section.title && (
-                  <h3
-                    className="text-[22px]/[15px] tracking-wider text-mauve-100 translate-y-0.5"
-                    style={{
-                      textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-                    }}
-                  >
-                    {section.title}
-                  </h3>
-                )}
-                <div className="flex flex-col gap-3">
-                  {section.activities.map((activity) => (
-                    <Activity
-                      key={activity.to}
-                      gameId={activity.gameId}
-                      score={activity.score}
-                      payout={activity.payout}
-                      to={activity.to}
-                      claimed={activity.claimed}
-                      cells={activity.cells}
-                    />
-                  ))}
-                </div>
+          sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="flex flex-col gap-4">
+              {section.title && (
+                <h3
+                  className="text-[22px]/[15px] tracking-wider text-mauve-100 translate-y-0.5"
+                  style={{
+                    textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
+                  }}
+                >
+                  {section.title}
+                </h3>
+              )}
+              <div className="flex flex-col gap-3">
+                {section.activities.map((activity) => (
+                  <Activity
+                    key={activity.to}
+                    gameId={activity.gameId}
+                    score={activity.score}
+                    payout={activity.payout}
+                    to={activity.to}
+                    claimed={activity.claimed}
+                    cells={activity.cells}
+                  />
+                ))}
               </div>
-            ))}
-          </>
+            </div>
+          ))
         )}
       </div>
     </div>

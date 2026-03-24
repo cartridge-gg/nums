@@ -1,6 +1,6 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import fs from "node:fs";
 import path from "node:path";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const BASE_URL = "https://sepolia.nums.gg";
 const TORII_URL = "https://api.cartridge.gg/x/nums-sepolia/torii";
@@ -55,7 +55,7 @@ export async function getGame(gameId: number): Promise<GameData | null> {
       },
       body: JSON.stringify({
         query: GAME_QUERY,
-        variables: { id: gameId.toString(16).padStart(16, "0") },
+        variables: { id: gameId.toString() },
       }),
     });
 
@@ -84,7 +84,7 @@ export async function getGame(gameId: number): Promise<GameData | null> {
       );
     }
 
-    if (!json.data?.numsGameModels?.edges) {
+    if (!json.data?.numsGameModels?.edges?.length) {
       throw new Error("No game data returned from Torii");
     }
 
@@ -93,7 +93,7 @@ export async function getGame(gameId: number): Promise<GameData | null> {
       id: parseInt(raw.id, 16),
       over: parseInt(raw.over, 16) !== 0,
       score: Number(raw.level),
-      reward: Number(raw.reward),
+      reward: Number(BigInt(raw.reward) / 10n ** 18n),
       slots: Packer.sized_unpack(BigInt(raw.slots), SLOT_SIZE, raw.slot_count),
     };
     return game;

@@ -1,7 +1,7 @@
 export { Card } from "./card";
-export { Placeholder } from "./placeholder";
 export { Grid } from "./grid";
 export { Info } from "./info";
+export { Placeholder } from "./placeholder";
 export { Reward } from "./reward";
 export { Score } from "./score";
 export { Slot } from "./slot";

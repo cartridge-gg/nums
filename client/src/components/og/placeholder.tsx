@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import { PLACEHOLDER } from "./asset";
 
 export const Placeholder: React.FC = () => {

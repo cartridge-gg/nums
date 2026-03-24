@@ -32,7 +32,7 @@
 
       .frame {
         opacity: 0;
-        animation: frameAnimation 3s infinite;
+        animation: frameAnimation 2s infinite;
       }
 
       .frame-1 {
@@ -40,23 +40,23 @@
       }
 
       .frame-2 {
-        animation-delay: 0.5s;
+        animation-delay: 0.333s;
       }
 
       .frame-3 {
-        animation-delay: 1s;
+        animation-delay: 0.666s;
       }
 
       .frame-4 {
-        animation-delay: 1.5s;
+        animation-delay: 1s;
       }
 
       .frame-5 {
-        animation-delay: 2s;
+        animation-delay: 1.333s;
       }
 
       .frame-6 {
-        animation-delay: 2.5s;
+        animation-delay: 1.666s;
       }
     </style>
   </defs>

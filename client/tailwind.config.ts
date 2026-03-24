@@ -56,6 +56,7 @@ const config = {
         "pulse-border-1": "pulse-border 3s ease-out infinite 1s backwards",
         "pulse-border-2": "pulse-border 3s ease-out infinite 2s backwards",
         "toast-progress": "toast-progress 4000ms linear forwards",
+        'spin': 'spin 0.5s linear infinite',
       },
     },
   },

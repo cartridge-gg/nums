@@ -125,13 +125,13 @@ export const useActions = () => {
       if (isPracticeMode) {
         if (!practiceGame) return false;
         try {
-          const result = await withLoading("power", index, async () => {
+          const result = await withLoading("select", index, async () => {
             GameEngine.select(practiceGame, index);
             setGame(practiceGame.clone());
             return true;
           });
           if (result) {
-            setLoading("power", index, false);
+            setLoading("select", index, false);
             capture("power_selected", {
               game_id: gameId,
               power_index: index,
@@ -141,7 +141,7 @@ export const useActions = () => {
           return result;
         } catch (e) {
           console.error(e);
-          setLoading("power", index, false);
+          setLoading("select", index, false);
           return false;
         }
       }
@@ -149,7 +149,7 @@ export const useActions = () => {
       if (!account?.address) return false;
 
       try {
-        return await withLoading("power", index, async () => {
+        return await withLoading("select", index, async () => {
           const gameAddress = getGameAddress(chain.id);
           const { transaction_hash } = await account.execute([
             {
@@ -163,7 +163,7 @@ export const useActions = () => {
           ]);
           const receipt = await account.waitForTransaction(transaction_hash);
           if (!receipt.isSuccess()) {
-            setLoading("power", index, false);
+            setLoading("select", index, false);
             return false;
           }
           capture("power_selected", {

@@ -123,6 +123,7 @@ export const Game = () => {
     if (!game) return;
     resetAll("slot");
     resetAll("power");
+    resetAll("select");
   }, [game, resetAll]);
 
   const basePrice = useMemo(() => {
@@ -230,6 +231,11 @@ export const Game = () => {
       isLoading("slot", index),
     );
 
+    // Check if any power is loading
+    const hasPowerLoading = powersArray.some((_, index) =>
+      isLoading("power", index),
+    );
+
     const isOver = game.over > 0;
     const isSelectable = game.selectable_powers.length > 0;
     const onInstruction =
@@ -258,7 +264,7 @@ export const Game = () => {
           isOver ||
           !power.power ||
           power.power.isNone() ||
-          isLoading("power", index) ||
+          hasPowerLoading ||
           hasSlotLoading ||
           isSelectable ||
           (tutorialActive &&
@@ -333,12 +339,12 @@ export const Game = () => {
   const selections = useMemo<SelectionProps[]>(() => {
     if (!game || !hasSelectablePowers) return [];
     const hasAnyLoading = game.selectable_powers.some((_, i) =>
-      isLoading("power", i),
+      isLoading("select", i),
     );
     return game.selectable_powers.map((power, index) => ({
       power,
-      loading: isLoading("power", index),
-      disabled: hasAnyLoading && !isLoading("power", index),
+      loading: isLoading("select", index),
+      disabled: hasAnyLoading && !isLoading("select", index),
       onClick: () => {
         playPower();
         select(game.id, index);

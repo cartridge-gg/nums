@@ -3,19 +3,22 @@ import {
   useContext,
   useState,
   useCallback,
+  useMemo,
   type ReactNode,
 } from "react";
 
+type LoadingType = "slot" | "power" | "select";
+
 interface LoadingContextType {
-  isLoading: (type: "slot" | "power", index: number) => boolean;
+  isLoading: (type: LoadingType, index: number) => boolean;
   setLoading: (
-    type: "slot" | "power",
+    type: LoadingType,
     index: number | null,
     loading: boolean,
   ) => void;
-  resetAll: (type: "slot" | "power") => void;
+  resetAll: (type: LoadingType) => void;
   withLoading: <T>(
-    type: "slot" | "power",
+    type: LoadingType,
     index: number,
     action: () => Promise<T>,
   ) => Promise<T>;
@@ -38,57 +41,54 @@ interface LoadingProviderProps {
 export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   const [loadingSlots, setLoadingSlots] = useState<Set<number>>(new Set());
   const [loadingPowers, setLoadingPowers] = useState<Set<number>>(new Set());
+  const [loadingSelects, setLoadingSelects] = useState<Set<number>>(new Set());
 
-  const isLoading = useCallback(
-    (type: "slot" | "power", index: number): boolean => {
-      if (type === "slot") {
-        return loadingSlots.has(index);
-      }
-      return loadingPowers.has(index);
-    },
-    [loadingSlots, loadingPowers],
-  );
-
-  const setLoading = useCallback(
-    (type: "slot" | "power", index: number | null, loading: boolean) => {
-      if (index === null) return;
-
-      if (type === "slot") {
-        setLoadingSlots((prev) => {
-          const next = new Set(prev);
-          if (loading) {
-            next.add(index);
-          } else {
-            next.delete(index);
-          }
-          return next;
-        });
-      } else {
-        setLoadingPowers((prev) => {
-          const next = new Set(prev);
-          if (loading) {
-            next.add(index);
-          } else {
-            next.delete(index);
-          }
-          return next;
-        });
-      }
-    },
+  type SetState = React.Dispatch<React.SetStateAction<Set<number>>>;
+  const setterMap = useMemo<Record<LoadingType, SetState>>(
+    () => ({
+      slot: setLoadingSlots,
+      power: setLoadingPowers,
+      select: setLoadingSelects,
+    }),
     [],
   );
 
-  const resetAll = useCallback((type: "slot" | "power") => {
-    if (type === "slot") {
-      setLoadingSlots(new Set());
-    } else {
-      setLoadingPowers(new Set());
-    }
-  }, []);
+  const isLoading = useCallback(
+    (type: LoadingType, index: number): boolean => {
+      if (type === "slot") return loadingSlots.has(index);
+      if (type === "power") return loadingPowers.has(index);
+      return loadingSelects.has(index);
+    },
+    [loadingSlots, loadingPowers, loadingSelects],
+  );
+
+  const setLoading = useCallback(
+    (type: LoadingType, index: number | null, loading: boolean) => {
+      if (index === null) return;
+      const setter = setterMap[type];
+      setter((prev) => {
+        const next = new Set(prev);
+        if (loading) {
+          next.add(index);
+        } else {
+          next.delete(index);
+        }
+        return next;
+      });
+    },
+    [setterMap],
+  );
+
+  const resetAll = useCallback(
+    (type: LoadingType) => {
+      setterMap[type](new Set());
+    },
+    [setterMap],
+  );
 
   const withLoading = useCallback(
     async <T,>(
-      type: "slot" | "power",
+      type: LoadingType,
       index: number,
       action: () => Promise<T>,
     ): Promise<T> => {

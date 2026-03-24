@@ -8,7 +8,7 @@ export interface ActivityRow {
   username: string;
   gameId: number;
   score: number;
-  payout: string;
+  reward: number;
   to: string;
   timestamp: number;
   cells: (boolean | null)[];
@@ -29,6 +29,7 @@ async function fetch(limit: number, offset: number): Promise<ActivityRow[]> {
   const query = `SELECT
     c.username,
     g.slots,
+    g.reward,
     s.player,
     s.game_id,
     s.score,
@@ -56,11 +57,12 @@ OFFSET ${offset};`;
       ...slots.map((slot) => slot !== 0),
       null,
     ];
+    const reward = Number(BigInt(String(row.reward || "0x0")) / 10n ** 18n);
     return {
       username: String(row.username || ""),
       gameId,
       score,
-      payout: `+$${(score * 0.05).toFixed(2)}`,
+      reward,
       to: `/game/${gameId}`,
       timestamp: Number(row.timestamp) || 0,
       cells,

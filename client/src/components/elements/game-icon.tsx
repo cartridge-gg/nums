@@ -7,19 +7,16 @@ export interface GameIconProps
   cells: (boolean | null)[];
 }
 
-const gameIconVariants = cva(
-  "rounded-sm grid grid-rows-5 grid-flow-col gap-px bg-black-800 p-[3px]",
-  {
-    variants: {
-      variant: {
-        default: "",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
+const gameIconVariants = cva("rounded-full flex items-center justify-center", {
+  variants: {
+    variant: {
+      default: "h-5 w-5 bg-black-800",
     },
   },
-);
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 export const GameIcon = ({
   cells,
@@ -27,19 +24,18 @@ export const GameIcon = ({
   className,
   ...props
 }: GameIconProps) => {
+  const total = cells.length;
+  const filled = cells.filter((cell) => cell === true).length;
+  const angle = total > 0 ? (filled / total) * 360 : 0;
+
   return (
     <div className={cn(gameIconVariants({ variant, className }))} {...props}>
-      {cells.map((cell, index) => (
-        <div
-          key={index}
-          className={cn(
-            "rounded-full min-w-1 max-w-1 min-h-0.5 max-h-0.5",
-            cell === null && "bg-black-800",
-            cell === false && "bg-black-700",
-            cell === true && "bg-mauve-100",
-          )}
-        />
-      ))}
+      <div
+        className="h-4 w-4 rounded-full"
+        style={{
+          background: `conic-gradient(var(--mauve-100) ${angle}deg, transparent ${angle}deg)`,
+        }}
+      />
     </div>
   );
 };

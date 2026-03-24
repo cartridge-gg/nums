@@ -72,33 +72,32 @@ export const Home = () => {
   const { chartAbscissa } = chartData;
 
   const playerActivities = useMemo(() => {
-    const price = parseFloat(getNumsPrice() || "0.0");
     return games
       .filter((game) => !!game.over)
       .map((game) => ({
         gameId: `#${game.id}`,
         score: game.level,
         breakEven: chartAbscissa.toString(),
-        payout: `+$${(game.reward * price).toFixed(2)}`,
+        payout: `+$${(game.reward * numsPrice).toFixed(2)}`,
         to: `/game/${game.id}`,
         timestamp: game.over,
         claimed: game.claimed,
         cells: [null, ...game.slots.map((slot) => slot !== 0), null],
       }));
-  }, [games]);
+  }, [games, numsPrice]);
 
   const allActivities = useMemo(() => {
     return sqlActivities.map((row) => ({
       gameId: row.username,
       score: row.score,
       breakEven: chartAbscissa.toString(),
-      payout: row.payout,
+      payout: `+$${(row.reward * numsPrice).toFixed(2)}`,
       to: row.to,
       timestamp: row.timestamp,
       claimed: true,
       cells: row.cells,
     }));
-  }, [sqlActivities, chartAbscissa]);
+  }, [sqlActivities, chartAbscissa, numsPrice]);
 
   // Transform games for Games component (only non-over games)
   const gamesProps = useMemo(() => {

@@ -12,6 +12,7 @@ sierra = true
 casm = true
 build-external-contracts = [
   "dojo::world::world_contract::world",
+  "openzeppelin::presets::account::AccountUpgradeable",
   "achievement::models::index::m_AchievementDefinition",
   "achievement::models::index::m_AchievementCompletion",
   "achievement::models::index::m_AchievementAdvancement",

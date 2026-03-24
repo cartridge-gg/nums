@@ -9,6 +9,8 @@ export interface BannerProps
     VariantProps<typeof bannerVariants> {
   preset: string;
   name: string;
+  disabled?: boolean;
+  hidden?: boolean;
   config?: ControllerConfig;
   position?: number;
   origin?: string;
@@ -57,6 +59,7 @@ export const Banner = (props: BannerProps) => {
 };
 
 const Social = ({
+  disabled,
   config,
   position,
   size,
@@ -101,6 +104,7 @@ const Social = ({
         </strong>
       </div>
       <Button
+        disabled={disabled}
         variant="muted"
         className="relative bg-mauve-100 hover:bg-mauve-200 px-3 py-1"
         onClick={onClick}
@@ -109,7 +113,7 @@ const Social = ({
           className="text-[28px]/[19px] tracking-wider hidden md:block translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
         >
-          Share to claim!
+          {onClick ? "Share to claim!" : "Claimed!"}
         </p>
         <p
           className="text-[28px]/[19px] tracking-wider block md:hidden translate-y-0.5"
@@ -261,7 +265,7 @@ const Game = ({
       <div className="absolute right-4 md:right-6 bg-black-100 p-1 rounded-xl">
         {onClick ? (
           <Button
-            className="px-3 py-1 text-black-100 rounded-lg hover:opacity-80"
+            className="h-9 md:h-10 px-2 md:px-3 py-1 text-black-100 rounded-lg hover:opacity-80"
             style={{ backgroundColor: primary ?? "rgba(255,255,255,0.2)" }}
             onClick={onClick}
           >
@@ -275,7 +279,7 @@ const Game = ({
         ) : (
           <Button
             asChild
-            className="px-3 py-1 text-black-100 rounded-lg hover:opacity-80"
+            className="h-9 md:h-10 px-2 md:px-3 py-1 text-black-100 rounded-lg hover:opacity-80"
             style={{ backgroundColor: primary ?? "rgba(255,255,255,0.2)" }}
           >
             <Link to={origin} target="_blank">

@@ -46,6 +46,20 @@ function issuancesByBundleQuery(bundleId: number) {
     .withLimit(ENTITIES_LIMIT);
 }
 
+function issuancesByRecipientQuery(address: string) {
+  const issuance: `${string}-${string}` = `${NAMESPACE}-${BundleIssuanceModel.getModelName()}`;
+  const clauses = new ClauseBuilder().where(
+    issuance,
+    "recipient" as never,
+    "Eq",
+    { type: "ContractAddress", value: address },
+  );
+  return new ToriiQueryBuilder()
+    .withClause(clauses.build())
+    .includeHashedKeys()
+    .withLimit(ENTITIES_LIMIT);
+}
+
 function referralQuery(address: string) {
   const referral: `${string}-${string}` = `${NAMESPACE}-${BundleReferralModel.getModelName()}`;
   const key = getChecksumAddress(BigInt(address)).toLowerCase();
@@ -220,6 +234,8 @@ export const BundleApi = {
     all: () => ["bundles"] as const,
     issuances: (bundleId: number) =>
       ["bundles", "issuances", bundleId] as const,
+    issuancesByRecipient: (address: string) =>
+      ["bundles", "issuances", "recipient", address] as const,
     referral: (address: string) => ["bundles", "referral", address] as const,
     group: (groupId: string) => ["bundles", "group", groupId] as const,
     voucher: (voucherKey: string) =>
@@ -232,6 +248,7 @@ export const BundleApi = {
   },
   allBundlesQuery,
   issuancesByBundleQuery,
+  issuancesByRecipientQuery,
   referralQuery,
   groupQuery,
   voucherQuery,

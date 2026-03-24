@@ -120,7 +120,7 @@
     },
     {
       "address": "0x6361108a877e3bf74e3d92242907d40315824555d50bd7cad08a021021ed8a4",
-      "class_hash": "0x43a61e9d01a801902ae8945a9b678dbc376c849236bc6a8db480d1936358f43",
+      "class_hash": "0x768937c11d8816a53333d9793f223b43a06570cef6094120c21b8e1b8f129d2",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",

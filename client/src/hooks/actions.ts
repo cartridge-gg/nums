@@ -567,8 +567,8 @@ export const useActions = () => {
         const signature = new CairoOption<Array<string>>(
           CairoOptionVariant.Some,
           [
-            "0x48ea12654ec897c04b9b65790e778e5f7e11c11c6f6bc82fe198873aa5c97b8",
-            "0x7186a1deff41e9e1885e524e6399ecf778ddb2c1055b00940d7cf064ba61f57",
+            "0x12224BC400C280D11D630FFA61815ED9D75488C8B7864EB252357C062DB6FFE",
+            "0x35E850DF62BCDBD62FA6B5CBF750830865A66894F5BE3A6374BDBD8614985C3",
           ],
         );
         await account.execute([

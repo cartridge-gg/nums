@@ -11,6 +11,7 @@ import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
 import { useActivities } from "@/hooks/activities";
+import { useBanners } from "@/hooks/banner";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
@@ -30,6 +31,7 @@ export const Home = () => {
   const { propose } = useTutorial();
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
+  const { banners } = useBanners();
 
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
@@ -185,6 +187,7 @@ export const Home = () => {
       className="md:py-16"
       gameId={gameId}
       games={gamesProps}
+      banners={banners}
       allActivities={{ activities: allActivities }}
       playerActivities={{ activities: playerActivities }}
       onLoadMoreActivities={() => {

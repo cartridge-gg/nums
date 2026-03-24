@@ -46,18 +46,12 @@ const meta = {
         disable: true,
       },
     },
-    onProfile: {
-      table: {
-        disable: true,
-      },
-    },
   },
   args: {
     balance: "100,200",
     username: undefined,
     isMainnet: false,
     onConnect: () => {},
-    onProfile: () => {},
     onBalance: () => {},
   },
   decorators: [

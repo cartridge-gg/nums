@@ -32,6 +32,7 @@ export * from "./glitchbomb";
 export * from "./laurel";
 export * from "./lightbulb";
 export * from "./link";
+export * from "./list";
 export * from "./locker";
 export * from "./play";
 export * from "./plus";

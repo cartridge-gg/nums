@@ -6,26 +6,21 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@starknet-react/core";
 import { PROTOCOL_FEE, REFERRAL_FEE } from "@/constants";
-import { useEntities } from "@/context/entities";
+import { useBundles } from "@/context/bundles";
 export type Referral = ReferralRow;
 
 export const useReferral = () => {
   const { address } = useAccount();
-  const { starterpacks } = useEntities();
-  const starterpackIds = starterpacks.map((starterpack) => starterpack.id);
+  const { bundles } = useBundles();
+  const bundleIds = bundles.map((bundle) => bundle.id);
 
   const query = useQuery<Referral[]>({
-    queryKey: queryKeys.referrals(address, starterpackIds),
+    queryKey: queryKeys.referrals(address, bundleIds),
     queryFn: () => {
       if (!address) {
         throw new Error("Account address is required");
       }
-      return ReferralApi.fetch(
-        address,
-        starterpackIds,
-        PROTOCOL_FEE,
-        REFERRAL_FEE,
-      );
+      return ReferralApi.fetch(address, bundleIds, PROTOCOL_FEE, REFERRAL_FEE);
     },
     enabled: false,
     staleTime: 0,

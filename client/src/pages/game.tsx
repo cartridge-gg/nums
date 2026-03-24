@@ -496,7 +496,7 @@ export const Game = () => {
   useEffect(() => {
     setTimeout(() => {
       setDefaultLoading(false);
-    }, 3000);
+    }, 2000);
   }, []);
 
   // Show loading state if game is not loaded

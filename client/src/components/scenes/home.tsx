@@ -103,7 +103,7 @@ export const HomeScene = ({
         ) : (
           <Button
             variant="default"
-            className="h-12 w-full bg-green-100 hover:bg-green-200 rounded-b-[32px] md:rounded-b-lg"
+            className="h-12 w-full bg-green-100 hover:bg-green-200"
           >
             <Link
               to={`/game/${gameId}`}
@@ -132,10 +132,7 @@ export const NewGame = ({
   return (
     <Button
       variant="default"
-      className={cn(
-        "h-12 w-full rounded-b-[32px] md:rounded-b-lg gap-1",
-        className,
-      )}
+      className={cn("h-12 w-full gap-1", className)}
       onClick={onClick}
     >
       <AddIcon size="lg" style={{ filter: `url(#${filterId})` }} />

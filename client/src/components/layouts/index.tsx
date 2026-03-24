@@ -38,6 +38,7 @@ import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
 import { useBundles } from "@/context/bundles";
 import { useMerkledrops } from "@/context/merkledrops";
 import { shortAddress } from "@/helpers";
+import { usePostHog } from "@/context/posthog";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -77,6 +78,30 @@ export const Layout = ({ children }: LayoutProps) => {
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
+
+  // PostHog analytics
+  const { capture, identify } = usePostHog();
+  const prevAddressRef = useRef<string | undefined>(undefined);
+
+  // Track wallet connect/disconnect and identify user
+  useEffect(() => {
+    const address = account?.address;
+    const prev = prevAddressRef.current;
+
+    if (!prev && address) {
+      const controller = find(address);
+      const refParam = new URLSearchParams(window.location.search).get("ref");
+      identify(address, {
+        $set: { username: controller?.username, wallet_address: address },
+        $set_once: { referrer: refParam || undefined },
+      });
+      capture("wallet_connected", { address, username: controller?.username });
+    } else if (prev && !address) {
+      capture("wallet_disconnected", {});
+    }
+
+    prevAddressRef.current = address;
+  }, [account?.address, find, capture, identify]);
 
   const { disconnect } = useDisconnect();
   const {
@@ -336,6 +361,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowReferralScene(false);
             setShowSettingsScene(false);
             setShowAchievementScene(false);
+            capture("purchase_modal_opened", {});
           }}
         >
           {children}
@@ -384,7 +410,10 @@ export const Layout = ({ children }: LayoutProps) => {
                   account?.address ? undefined : headerData.handleConnect
                 }
                 onPurchase={handlePurchase}
-                onClose={() => setShowPurchaseScene(false)}
+                onClose={() => {
+                  setShowPurchaseScene(false);
+                  capture("purchase_modal_closed", {});
+                }}
                 className="h-full"
               />
             </div>

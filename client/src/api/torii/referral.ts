@@ -1,5 +1,5 @@
 import { getChecksumAddress } from "starknet";
-import { getArcadeSqlUrl, executeSql } from "./sql";
+import { getSqlUrl, executeSql } from "./sql";
 
 export interface ReferralRow {
   username: string;
@@ -11,7 +11,7 @@ export interface ReferralRow {
 }
 
 const MODEL_ID =
-  "0x07a079295990e43441a7389fdc3b9ba063c6cd6aee16fb846f598c42a9f04ff7:0x06e1f6f6ed6b1d58c790b45fea70226d9a9ea380626d8fdf0050a730c24ffb84";
+  "0x048d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2:0x027fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7";
 
 async function fetch(
   referrerAddress: string,
@@ -31,20 +31,17 @@ async function fetch(
     data->>'$.payment_token' AS payment_token,
     data->>'$.amount' AS amount,
     data->>'$.referrer.Some' AS referrer,
-    data->>'$.starterpack_id' AS starterpack_id,
+    data->>'$.bundle_id' AS bundle_id,
     executed_at
 FROM event_messages_historical
 JOIN controllers AS c ON c.address = data->>'$.recipient'
 WHERE model_id = '${MODEL_ID}'
 AND data->>'$.referrer.Some' IS NOT NULL
 AND data->>'$.referrer.Some' = '${address}'
-AND data->>'$.starterpack_id' IN (${starterpackIds.join(",")})
+AND data->>'$.bundle_id' IN (${starterpackIds.join(",")})
 LIMIT 1000;`;
 
-  const rows = await executeSql<Record<string, unknown>>(
-    getArcadeSqlUrl(),
-    query,
-  );
+  const rows = await executeSql<Record<string, unknown>>(getSqlUrl(), query);
 
   return rows.map((row) => ({
     username: String(row.username || ""),

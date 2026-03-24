@@ -512,6 +512,10 @@ export const useActions = () => {
         if (!account?.address) return false;
         const setupAddress = getSetupAddress(chain.id);
         const none = new CairoOption<string>(CairoOptionVariant.None);
+        const some = new CairoOption<string>(
+          CairoOptionVariant.Some,
+          "0x008B95A26E1392ED9E817607bfae2dD93efB9c66ee7DB0b018091A11D9037006",
+        );
         await account.execute([
           {
             contractAddress: paymentToken,
@@ -528,7 +532,7 @@ export const useActions = () => {
               recipient: account.address,
               bundle_id: bundleId,
               quantity: 1,
-              referrer: none,
+              referrer: some,
               referrer_group: none,
               client: none,
               client_percentage: 0,

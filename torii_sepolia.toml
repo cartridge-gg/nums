@@ -16,7 +16,11 @@ polling_interval = 250
 contracts = []
 
 [sql]
-historical = ["NUMS-TrophyProgression", "NUMS-QuestProgression"]
+historical = [
+  "NUMS-TrophyProgression",
+  "NUMS-QuestProgression",
+  "NUMS-BundleIssued",
+]
 
 [erc]
 metadata_updates = true

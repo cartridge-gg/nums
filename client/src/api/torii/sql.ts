@@ -4,10 +4,6 @@ export function getSqlUrl(): string {
   return `${dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl}/sql`;
 }
 
-export function getArcadeSqlUrl(): string {
-  return `${dojoConfigs[DEFAULT_CHAIN_ID].arcadeUrl}/sql`;
-}
-
 function parseSqlResponse<T>(data: unknown): T[] {
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object") {

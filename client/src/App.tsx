@@ -28,6 +28,7 @@ import { TutorialProvider } from "./context/tutorial";
 import { VaultProvider } from "./context/vault";
 import { BundlesProvider } from "./context/bundles";
 import { MerkledropsProvider } from "./context/merkledrops";
+import { PostHogProvider } from "./context/posthog";
 
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -111,42 +112,44 @@ function App() {
 
 function AuthenticatedApp() {
   return (
-    <AudioProvider>
-      <EntitiesProvider>
-        <BundlesProvider>
-          <PracticeProvider>
-            <TutorialProvider>
-              <QuestsProvider>
-                <VaultProvider>
-                  <AchievementsProvider>
-                    <MerkledropsProvider>
-                      <WelcomeProvider>
-                        <LoadingProvider>
-                          <SoundProvider>
-                            <Layout>
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/game/:id" element={<Game />} />
-                                <Route
-                                  path="/game"
-                                  element={<LoadingScene />}
-                                />
-                                <Route path="/practice" element={<Game />} />
-                                <Route path="/tutorial" element={<Game />} />
-                              </Routes>
-                            </Layout>
-                          </SoundProvider>
-                        </LoadingProvider>
-                      </WelcomeProvider>
-                    </MerkledropsProvider>
-                  </AchievementsProvider>
-                </VaultProvider>
-              </QuestsProvider>
-            </TutorialProvider>
-          </PracticeProvider>
-        </BundlesProvider>
-      </EntitiesProvider>
-    </AudioProvider>
+    <PostHogProvider>
+      <AudioProvider>
+        <EntitiesProvider>
+          <BundlesProvider>
+            <PracticeProvider>
+              <TutorialProvider>
+                <QuestsProvider>
+                  <VaultProvider>
+                    <AchievementsProvider>
+                      <MerkledropsProvider>
+                        <WelcomeProvider>
+                          <LoadingProvider>
+                            <SoundProvider>
+                              <Layout>
+                                <Routes>
+                                  <Route path="/" element={<Home />} />
+                                  <Route path="/game/:id" element={<Game />} />
+                                  <Route
+                                    path="/game"
+                                    element={<LoadingScene />}
+                                  />
+                                  <Route path="/practice" element={<Game />} />
+                                  <Route path="/tutorial" element={<Game />} />
+                                </Routes>
+                              </Layout>
+                            </SoundProvider>
+                          </LoadingProvider>
+                        </WelcomeProvider>
+                      </MerkledropsProvider>
+                    </AchievementsProvider>
+                  </VaultProvider>
+                </QuestsProvider>
+              </TutorialProvider>
+            </PracticeProvider>
+          </BundlesProvider>
+        </EntitiesProvider>
+      </AudioProvider>
+    </PostHogProvider>
   );
 }
 

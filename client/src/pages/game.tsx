@@ -26,6 +26,7 @@ import { DEFAULT_POWER_COUNT } from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
+import { usePostHog } from "@/context/posthog";
 export const Game = () => {
   const {
     data: tutorialData,
@@ -34,6 +35,8 @@ export const Game = () => {
   } = useTutorial();
 
   const { isPracticeMode, set, select, apply, claim } = useActions();
+  const { capture } = usePostHog();
+  const gameOverFiredRef = useRef<number | null>(null);
 
   const { game: practiceGame, start: startPractice } = usePractice();
   const { supply: currentSupply, username } = useHeader();
@@ -367,6 +370,16 @@ export const Game = () => {
     // Transition: game.over went from 0 to > 0
     if (prevOverRef.current === 0) {
       playPositive();
+      if (gameOverFiredRef.current !== game.id) {
+        const slotsFilled = game.slots.filter((s: number) => s > 0).length;
+        capture("game_over", {
+          game_id: game.id,
+          score: game.level,
+          slots_filled: slotsFilled,
+          mode: isPracticeMode ? "practice" : "real",
+        });
+        gameOverFiredRef.current = game.id;
+      }
       const timer = setTimeout(() => {
         setShowGameOver(true);
       }, 2000);
@@ -375,7 +388,18 @@ export const Game = () => {
     }
 
     prevOverRef.current = game.over;
-  }, [game, playPositive]);
+  }, [game, playPositive, capture, isPracticeMode]);
+
+  // Track practice/tutorial mode entry
+  useEffect(() => {
+    if (isPracticeMode) {
+      const mode =
+        window.location.pathname === "/tutorial"
+          ? "tutorial_started"
+          : "practice_mode_started";
+      capture(mode, {});
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- fire once on mount
 
   // Show Selection modal after 2 seconds when selectable
   useEffect(() => {

@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.sample
+!.env.production
 
 # Logs
 logs

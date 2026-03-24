@@ -403,7 +403,7 @@ export const Game = () => {
     const value = payout * price;
     const score = game.level;
     const newGames = GameModel.deduplicate([game, ...games])
-      .filter((g) => !g.over)
+      .filter((g) => !g.over && !g.isExpired())
       .sort((a, b) => b.id - a.id);
     const newGameId = newGames[0]?.id || 0;
     const newGameCount = newGames.length;

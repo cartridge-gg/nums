@@ -14,7 +14,7 @@ export interface SelectionProps
 }
 
 const selectionVariants = cva(
-  "select-none flex flex-col justify-between items-center gap-6 rounded-lg p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none flex flex-col justify-between items-center gap-4 md:gap-6 rounded-lg p-4 md:p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
   {
     variants: {
       variant: {
@@ -42,9 +42,16 @@ export const Selection = ({
 
   return (
     <div className={cn(selectionVariants({ variant, className }))} {...props}>
-      <div className="w-full flex flex-col items-center gap-6">
-        {Icon && <Icon size="3xl" className={power.color()} />}
-        <div className="w-full flex flex-col gap-4">
+      <div className="w-full flex md:flex-col md:items-center gap-4 md:gap-6">
+        {Icon && (
+          <Icon
+            className={cn(
+              "min-w-12 w-12 md:min-w-16 md:w-16 min-h-12 h-12 md:min-h-16 md:h-16",
+              power.color(),
+            )}
+          />
+        )}
+        <div className="w-full flex flex-col gap-3 md:gap-4">
           <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
             {power.name()}
           </h3>

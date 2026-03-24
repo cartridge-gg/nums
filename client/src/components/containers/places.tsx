@@ -17,7 +17,7 @@ const placesVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-t-2xl rounded-b-4xl md:rounded-3xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[16px]",
+          "rounded-2xl md:rounded-3xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[16px]",
       },
     },
     defaultVariants: {
@@ -40,28 +40,22 @@ export const Places = ({
       <ShadowEffect filterId={filterId} />
 
       {/* Close button */}
-      {onClose && (
-        <Close
-          size="lg"
-          onClick={onClose}
-          className="absolute z-10 top-6 right-6"
-        />
-      )}
+      <Close
+        size="lg"
+        onClick={onClose}
+        className="absolute z-10 top-6 right-6 hidden md:flex"
+      />
 
       {/* Title */}
-      <h2
-        className="font-primary text-[48px]/[35px] tracking-wider uppercase translate-y-1"
-        style={{
-          textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
-        }}
-      >
-        <span className="hidden md:inline">Special Tile</span>
-        <span className="md:hidden">
-          Special
-          <br />
-          Tile
-        </span>
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2
+          className="font-primary text-[36px]/[24px] md:text-[48px]/[33px] tracking-wider uppercase translate-y-1"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          Special Tile
+        </h2>
+        <Close size="md" className="md:hidden" onClick={onClose} />
+      </div>
 
       {/* Place */}
       <Place {...place} className={cn("w-full", place.className)} />

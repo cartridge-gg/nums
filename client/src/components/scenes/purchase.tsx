@@ -34,7 +34,7 @@ const purchaseSceneVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-t-2xl rounded-b-4xl md:rounded-3xl bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
+          "rounded-2xl md:rounded-3xl bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
       },
     },
     defaultVariants: {
@@ -192,7 +192,7 @@ export const PurchaseScene = ({
               className="text-[28px]/[15px] tracking-wide translate-y-0.5"
               style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
             >
-              Connect
+              Log In
             </p>
           </Button>
         ) : onPurchase ? (
@@ -247,7 +247,7 @@ export const PurchaseScene = ({
                     className="text-[28px]/[15px] tracking-wide translate-y-0.5"
                     style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
                   >
-                    Connect
+                    Log In
                   </p>
                 </Button>
               ) : onPurchase ? (

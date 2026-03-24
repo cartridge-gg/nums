@@ -50,13 +50,7 @@ export const PowerUps = ({
           >
             <PowerUp
               {...powerProps}
-              className={cn(
-                "w-full md:w-auto",
-                index === 0 && "rounded-bl-4xl md:rounded-bl-lg",
-                index === powers.length - 1 &&
-                  "rounded-br-4xl md:rounded-br-lg",
-                powerProps.className,
-              )}
+              className={cn("w-full md:w-auto", powerProps.className)}
             />
           </li>
         ))}

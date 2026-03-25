@@ -16,7 +16,7 @@ export interface PurchaseProps
 }
 
 const purchaseVariants = cva(
-  "select-none p-3 md:p-4 flex flex-col justify-between gap-4 w-full",
+  "select-none p-3 md:p-4 flex flex-col justify-between gap-2 md:gap-4 w-full",
   {
     variants: {
       variant: {

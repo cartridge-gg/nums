@@ -30,7 +30,7 @@ export interface GameOverProps
 }
 
 const gameOverVariants = cva(
-  "select-none relative flex flex-col items-center p-6 pt-0 gap-6 h-full w-full justify-between",
+  "select-none relative flex flex-col items-center p-6 md:pt-0 gap-6 h-full w-full justify-between",
   {
     variants: {
       variant: {
@@ -97,18 +97,29 @@ export const GameOver = ({
 
       {/* Filters */}
       <ShadowEffect filterId={filterId} />
+
+      {/* Mobile */}
+      <div className="flex items-center justify-between w-full px-1 md:hidden">
+        <Title />
+        {onClose && (
+          <div className="flex justify-end flex-shrink-0">
+            <Close size="md" onClick={onClose} />
+          </div>
+        )}
+      </div>
+
+      {/* Desktop */}
       {onClose && (
         <Close
           size="lg"
           onClick={onClose}
-          className="absolute z-10 top-6 right-6"
+          className="absolute z-10 top-6 right-6 hidden md:flex"
         />
       )}
-      {/* Title */}
-      <Header filterId={filterId} />
+      <Header filterId={filterId} className="hidden md:flex" />
 
       <div className="h-full md:h-auto w-full flex flex-col gap-6 justify-between md:justify-center items-stretch md:max-w-[416px] flex-1">
-        <div className="w-full flex flex-col gap-4 justify-center items-stretch flex-1 md:flex-none">
+        <div className="w-full flex flex-col gap-4 md:justify-center items-stretch flex-1 md:flex-none">
           {/* Score */}
           <Score score={score} className="rounded-xl" />
 
@@ -139,7 +150,7 @@ export const GameOver = ({
           {shareProps && (
             <Share
               {...shareProps}
-              className="h-12 px-2.5 bg-purple-100 rounded-lg hover:bg-purple-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
+              className="h-12 min-w-[52px] px-2.5 bg-purple-100 rounded-lg hover:bg-purple-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
             />
           )}
           {onPlayAgain ? (
@@ -168,6 +179,17 @@ export const GameOver = ({
         </div>
       </div>
     </div>
+  );
+};
+
+const Title = () => {
+  return (
+    <h2
+      className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase tracking-wider translate-y-0.5"
+      style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+    >
+      Game Over
+    </h2>
   );
 };
 

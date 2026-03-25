@@ -76,9 +76,8 @@ export const Home = () => {
       .filter((game) => !!game.over)
       .map((game) => ({
         gameId: `#${game.id}`,
-        score: game.level,
         breakEven: chartAbscissa.toString(),
-        payout: `+$${(game.reward * numsPrice).toFixed(2)}`,
+        payout: `$${(game.reward * numsPrice).toFixed(2)}`,
         to: `/game/${game.id}`,
         timestamp: game.over,
         claimed: game.claimed,
@@ -89,9 +88,8 @@ export const Home = () => {
   const allActivities = useMemo(() => {
     return sqlActivities.map((row) => ({
       gameId: row.username,
-      score: row.score,
       breakEven: chartAbscissa.toString(),
-      payout: `+$${(row.reward * numsPrice).toFixed(2)}`,
+      payout: `$${(row.reward * numsPrice).toFixed(2)}`,
       to: row.to,
       timestamp: row.timestamp,
       claimed: true,

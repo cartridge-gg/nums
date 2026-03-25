@@ -225,7 +225,6 @@ export const Activities = ({
                   <Activity
                     key={activity.to}
                     gameId={activity.gameId}
-                    score={activity.score}
                     payout={activity.payout}
                     to={activity.to}
                     claimed={activity.claimed}

@@ -30,7 +30,7 @@ export interface GameOverProps
 }
 
 const gameOverVariants = cva(
-  "select-none relative flex flex-col items-center p-6 md:pt-0 gap-6 h-full w-full justify-between",
+  "select-none relative flex flex-col items-center p-6 md:pt-0 gap-4 md:gap-6 h-full w-full justify-between",
   {
     variants: {
       variant: {
@@ -300,7 +300,7 @@ const Score = ({ score, className }: { score: number; className?: string }) => {
   return (
     <div
       className={cn(
-        "px-4 py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-4 py-4 md:py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >

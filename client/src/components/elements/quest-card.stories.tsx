@@ -59,3 +59,15 @@ export const Complete: Story = {
     variant: "complete",
   },
 };
+
+export const WithNotification: Story = {
+  args: {
+    icon: "fa-table-cells",
+    title: "Orientation",
+    description: "The work is mysterious and important.",
+    count: 12,
+    total: 20,
+    variant: "default",
+    isNew: true,
+  },
+};

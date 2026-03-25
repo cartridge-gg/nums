@@ -43,3 +43,12 @@ export const Default: Story = {
     timestamp: Math.floor(Date.now() / 1000) - 2 * 24 * 3600,
   },
 };
+
+export const WithNotification: Story = {
+  args: {
+    username: "mataleone",
+    amount: "0.10 USDC",
+    timestamp: Math.floor(Date.now() / 1000) - 60,
+    isNew: true,
+  },
+};

@@ -4,6 +4,7 @@ import { ShadowEffect } from "../icons";
 import { useId } from "react";
 import { AchievementIcon } from "./achievement-icon";
 import { AchievementProgress } from "./achievement-progress";
+import { NotificationPing } from "./notification-ping";
 
 export interface AchievementItemProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -14,6 +15,7 @@ export interface AchievementItemProps
   total?: number;
   selected?: boolean;
   hidden?: boolean;
+  isNew?: boolean;
 }
 
 const achievementItemVariants = cva(
@@ -41,6 +43,7 @@ export const AchievementItem = ({
   total = 0,
   selected = false,
   hidden = false,
+  isNew,
   variant,
   className,
   ...props
@@ -67,6 +70,7 @@ export const AchievementItem = ({
       })}
       {...props}
     >
+      {isNew && <NotificationPing />}
       {selected && (
         <div className="absolute inset-0 rounded-lg outline outline-2 outline-white-100 md:hidden" />
       )}

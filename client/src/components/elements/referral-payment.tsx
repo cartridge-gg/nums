@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { QuoteIcon, ArrowDownIcon } from "@/components/icons";
 import { Formatter } from "@/helpers";
+import { NotificationPing } from "./notification-ping";
 
 export interface ReferralPaymentProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -9,6 +10,7 @@ export interface ReferralPaymentProps
   username: string;
   amount: string;
   timestamp: number;
+  isNew?: boolean;
 }
 
 const referralPaymentVariants = cva(
@@ -29,6 +31,7 @@ export const ReferralPayment = ({
   username,
   amount,
   timestamp,
+  isNew,
   variant,
   className,
   ...props
@@ -36,9 +39,13 @@ export const ReferralPayment = ({
   const timedelta = Date.now() - timestamp * 1000;
   return (
     <div
-      className={cn(referralPaymentVariants({ variant, className }))}
+      className={cn(
+        "relative",
+        referralPaymentVariants({ variant, className }),
+      )}
       {...props}
     >
+      {isNew && <NotificationPing />}
       <div className="flex items-center gap-2 overflow-hidden">
         <ArrowDownIcon size="md" className="min-w-6 min-h-6" />
 

@@ -11,6 +11,7 @@ export interface QuestsProps
     VariantProps<typeof questsVariants> {
   quests: (QuestCardProps & { id: string })[];
   expiration: number;
+  newQuestIds?: Set<string>;
 }
 
 const questsVariants = cva(
@@ -30,6 +31,7 @@ const questsVariants = cva(
 export const Quests = ({
   quests,
   expiration,
+  newQuestIds,
   variant,
   className,
   ...props
@@ -64,7 +66,12 @@ export const Quests = ({
             {remaining.length > 0 && (
               <QuestSection title="Remaining">
                 {remaining.map((quest) => (
-                  <QuestCard key={quest.id} {...quest} variant="default" />
+                  <QuestCard
+                    key={quest.id}
+                    {...quest}
+                    variant="default"
+                    isNew={newQuestIds?.has(quest.id)}
+                  />
                 ))}
               </QuestSection>
             )}
@@ -72,7 +79,12 @@ export const Quests = ({
             {completed.length > 0 && (
               <QuestSection title="Completed">
                 {completed.map((quest) => (
-                  <QuestCard key={quest.id} {...quest} variant="complete" />
+                  <QuestCard
+                    key={quest.id}
+                    {...quest}
+                    variant="complete"
+                    isNew={newQuestIds?.has(quest.id)}
+                  />
                 ))}
               </QuestSection>
             )}

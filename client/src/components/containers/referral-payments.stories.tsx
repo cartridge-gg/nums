@@ -60,6 +60,27 @@ export const Default: Story = {
   },
 };
 
+export const WithNotifications: Story = {
+  args: {
+    payments: [
+      { username: "mataleone", amount: "0.10 USDC", timestamp: now - 60 },
+      { username: "shinobi", amount: "0.10 USDC", timestamp: now - 120 },
+      {
+        username: "bal7hazar",
+        amount: "20 NUMS",
+        timestamp: now - 2 * 24 * 3600,
+      },
+      {
+        username: "mataleone",
+        amount: "0.10 USDC",
+        timestamp: now - 3 * 24 * 3600,
+      },
+    ],
+    newPaymentCount: 2,
+    className: "max-h-[300px]",
+  },
+};
+
 export const Empty: Story = {
   args: {
     payments: [],

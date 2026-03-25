@@ -22,9 +22,10 @@ export const useReferral = () => {
       }
       return ReferralApi.fetch(address, bundleIds, PROTOCOL_FEE, REFERRAL_FEE);
     },
-    enabled: false,
+    enabled: !!address && bundleIds.length > 0,
     staleTime: 0,
     gcTime: 1000 * 60 * 10,
+    refetchInterval: 120_000,
     refetchOnWindowFocus: false,
   });
 

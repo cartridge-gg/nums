@@ -150,7 +150,7 @@ pub mod Vault {
 
     fn dojo_init(ref self: ContractState, open: bool, fee: u16) {
         // [Effect] Initialize ERC20
-        self.erc20.initializer("vNums", "vNUMS");
+        self.erc20.initializer("Nums (Vault)", "vNUMS");
         // [Effect] Initialize ERC4626
         let world = self.world(@NAMESPACE());
         let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');

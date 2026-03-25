@@ -39,7 +39,7 @@ export const Leaderboard = ({
       <div className="flex items-center gap-4 h-3 px-4">
         <div className="flex-1 text-left">
           <span
-            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5"
+            className="font-primary text-lg/3 tracking-wider align-middle text-white-400 translate-y-0.5"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}
@@ -50,7 +50,7 @@ export const Leaderboard = ({
         </div>
         <div className="flex-[3] min-w-0 text-left">
           <span
-            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5"
+            className="font-primary text-lg/3 tracking-wider align-middle text-white-400 translate-y-0.5"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}
@@ -60,7 +60,7 @@ export const Leaderboard = ({
         </div>
         <div className="flex-[2] text-left">
           <span
-            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5"
+            className="font-primary text-lg/3 tracking-wider align-middle text-white-400 translate-y-0.5"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}
@@ -71,13 +71,13 @@ export const Leaderboard = ({
         </div>
         <div className="flex-[2] text-left">
           <span
-            className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5"
+            className="font-primary text-lg/3 tracking-wider align-middle text-white-400 translate-y-0.5"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
             }}
           >
-            <span className="hidden md:inline">Total Earned</span>
-            <span className="inline md:hidden">Earned</span>
+            <span className="hidden md:inline">Total Nums</span>
+            <span className="inline md:hidden">Nums</span>
           </span>
         </div>
       </div>

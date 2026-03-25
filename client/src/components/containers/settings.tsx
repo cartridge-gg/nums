@@ -156,7 +156,7 @@ export const Settings = ({
 
       {/* Desktop content */}
       <div className="hidden md:flex gap-8 flex-1">
-        <div className="flex flex-col gap-4 flex-1">
+        <div className="flex flex-col gap-4 flex-1 min-w-0">
           <NavButtons
             filterId={filterId}
             onReferrals={onReferrals}
@@ -169,7 +169,7 @@ export const Settings = ({
             hasReferralNotification={hasReferralNotification}
           />
         </div>
-        <div className="flex flex-col justify-between gap-4 flex-1">
+        <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
           <Volumes
             musicVolume={musicVolume}
             musicMuted={musicMuted}
@@ -353,7 +353,7 @@ const ProfileButton = ({
 }) => (
   <Button
     variant="constructive"
-    className="h-10 min-h-10 flex-1"
+    className="h-10 min-h-10 flex-1 min-w-0"
     onClick={onProfile}
   >
     <span
@@ -379,7 +379,7 @@ const LogInButton = ({ onConnect }: { onConnect: () => void }) => (
 const LogOutButton = ({ onLogOut }: { onLogOut: () => void }) => (
   <Button
     variant="destructive"
-    className="h-10 min-h-10 flex-1"
+    className="h-10 min-h-10 flex-1 min-w-0"
     onClick={onLogOut}
   >
     <span

@@ -71,3 +71,11 @@ export const Empty: Story = {
     expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
   },
 };
+
+export const WithNotifications: Story = {
+  args: {
+    quests: sampleQuests,
+    expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
+    newQuestIds: new Set(["DAILY_PLACER_ONE", "DAILY_TRIGGER_ONE"]),
+  },
+};

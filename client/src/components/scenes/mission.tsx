@@ -6,7 +6,11 @@ import {
   type AchievementsProps,
 } from "@/components/containers/achievements";
 import { Quests, type QuestsProps } from "@/components/containers/quests";
-import { AchievementCount, Close } from "@/components/elements";
+import {
+  AchievementCount,
+  Close,
+  NotificationPing,
+} from "@/components/elements";
 import { QuestCount } from "@/components/elements/quest-count";
 import { QuestGift } from "@/components/elements/quest-gift";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -20,6 +24,10 @@ export interface MissionSceneProps
   achievementsProps: AchievementsProps;
   questsProps: QuestsProps;
   defaultTab?: MissionTab;
+  hasQuestNotification?: boolean;
+  hasAchievementNotification?: boolean;
+  newQuestIds?: Set<string>;
+  newAchievementIds?: Set<string>;
   onClose?: () => void;
 }
 
@@ -42,6 +50,10 @@ export const MissionScene = ({
   achievementsProps,
   questsProps,
   defaultTab = "quests",
+  hasQuestNotification,
+  hasAchievementNotification,
+  newQuestIds,
+  newAchievementIds,
   onClose,
   variant,
   className,
@@ -82,11 +94,27 @@ export const MissionScene = ({
             {onClose && <Close size="md" onClick={onClose} />}
           </div>
         </div>
-        <MissionTabs value={tab} onValueChange={setTab} className="w-full" />
+        <MissionTabs
+          value={tab}
+          onValueChange={setTab}
+          hasQuestNotification={hasQuestNotification && tab !== "quests"}
+          hasAchievementNotification={
+            hasAchievementNotification && tab !== "achievements"
+          }
+          className="w-full"
+        />
         {tab === "quests" ? (
-          <Quests {...questsProps} className="overflow-hidden" />
+          <Quests
+            {...questsProps}
+            newQuestIds={newQuestIds}
+            className="overflow-hidden"
+          />
         ) : (
-          <Achievements {...achievementsProps} className="overflow-hidden" />
+          <Achievements
+            {...achievementsProps}
+            newAchievementIds={newAchievementIds}
+            className="overflow-hidden"
+          />
         )}
       </div>
 
@@ -114,11 +142,22 @@ export const MissionScene = ({
               />
             )}
           </div>
-          <MissionTabs value={tab} onValueChange={setTab} className="w-full" />
+          <MissionTabs
+            value={tab}
+            onValueChange={setTab}
+            hasQuestNotification={hasQuestNotification && tab !== "quests"}
+            hasAchievementNotification={
+              hasAchievementNotification && tab !== "achievements"
+            }
+            className="w-full"
+          />
           {tab === "quests" ? (
-            <Quests {...questsProps} />
+            <Quests {...questsProps} newQuestIds={newQuestIds} />
           ) : (
-            <Achievements {...achievementsProps} />
+            <Achievements
+              {...achievementsProps}
+              newAchievementIds={newAchievementIds}
+            />
           )}
         </div>
       </div>
@@ -140,10 +179,14 @@ const Title = () => {
 const MissionTabs = ({
   value,
   onValueChange,
+  hasQuestNotification,
+  hasAchievementNotification,
   className,
 }: {
   value: MissionTab;
   onValueChange: (value: MissionTab) => void;
+  hasQuestNotification?: boolean;
+  hasAchievementNotification?: boolean;
   className?: string;
 }) => {
   const filterId = useId();
@@ -176,8 +219,9 @@ const MissionTabs = ({
       <ToggleGroupItem
         value="quests"
         aria-label="Quests"
-        className="h-10 flex-1 flex gap-0.5 py-2 px-3 rounded-l-lg min-w-auto"
+        className="relative h-10 flex-1 flex gap-0.5 py-2 px-3 rounded-l-lg min-w-auto"
       >
+        {hasQuestNotification && <NotificationPing />}
         <QuestIcon
           size="md"
           className="min-w-6 min-h-6"
@@ -198,8 +242,9 @@ const MissionTabs = ({
       <ToggleGroupItem
         value="achievements"
         aria-label="Achievements"
-        className="h-10 flex-1 flex gap-0.5 py-2 px-3 rounded-r-lg min-w-auto"
+        className="relative h-10 flex-1 flex gap-0.5 py-2 px-3 rounded-r-lg min-w-auto"
       >
+        {hasAchievementNotification && <NotificationPing />}
         <LaurelIcon
           size="md"
           className="min-w-6 min-h-6"

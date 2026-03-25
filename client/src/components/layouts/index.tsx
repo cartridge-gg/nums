@@ -25,6 +25,7 @@ import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
+import { useNotifications } from "@/hooks/notifications";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { Settings } from "@/components/containers/settings";
@@ -126,6 +127,8 @@ export const Layout = ({ children }: LayoutProps) => {
     const controller = find(account.address);
     return controller?.username;
   }, [account?.address, find]);
+
+  const notifications = useNotifications(referralData);
 
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
@@ -312,6 +315,8 @@ export const Layout = ({ children }: LayoutProps) => {
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}
+        hasMissionNotification={notifications.hasMissionNotification}
+        hasSettingsNotification={notifications.hasSettingsNotification}
         onMissions={() => {
           setMissionDefaultTab("quests");
           setShowMissionScene(!showMissionScene);
@@ -384,7 +389,16 @@ export const Layout = ({ children }: LayoutProps) => {
                 questsProps={questsProps}
                 achievementsProps={achievementsProps}
                 defaultTab={missionDefaultTab}
-                onClose={() => setShowMissionScene(false)}
+                hasQuestNotification={notifications.hasQuestNotification}
+                hasAchievementNotification={
+                  notifications.hasAchievementNotification
+                }
+                newQuestIds={notifications.newQuestIds}
+                newAchievementIds={notifications.newAchievementIds}
+                onClose={() => {
+                  setShowMissionScene(false);
+                  notifications.clearMissionNotifications();
+                }}
                 className="h-full"
               />
             </div>
@@ -458,7 +472,11 @@ export const Layout = ({ children }: LayoutProps) => {
               <ReferralScene
                 payments={referralData ?? []}
                 link={referralLink}
-                onClose={() => setShowReferralScene(false)}
+                newPaymentCount={notifications.newReferralCount}
+                onClose={() => {
+                  setShowReferralScene(false);
+                  notifications.clearReferralNotifications();
+                }}
                 className="h-full"
               />
             </div>
@@ -468,8 +486,12 @@ export const Layout = ({ children }: LayoutProps) => {
           <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
               <Settings
-                onClose={() => setShowSettingsScene(false)}
+                onClose={() => {
+                  setShowSettingsScene(false);
+                  notifications.clearReferralNotifications();
+                }}
                 username={username}
+                hasReferralNotification={notifications.hasSettingsNotification}
                 onProfile={headerData.handleOpenProfile}
                 onConnect={headerData.handleConnect}
                 musicVolume={musicVolume}

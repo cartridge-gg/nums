@@ -84,3 +84,14 @@ export const Selected: Story = {
     selected: true,
   },
 };
+
+export const WithNotification: Story = {
+  args: {
+    icon: "fa-fish",
+    name: "Double Up",
+    count: 10,
+    total: 10,
+    variant: "complete",
+    isNew: true,
+  },
+};

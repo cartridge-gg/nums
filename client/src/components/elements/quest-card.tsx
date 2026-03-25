@@ -7,6 +7,7 @@ import {
 } from "@/components/icons";
 import { AchievementIcon } from "./achievement-icon";
 import { AchievementProgress } from "./achievement-progress";
+import { NotificationPing } from "./notification-ping";
 
 export interface QuestCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -16,24 +17,22 @@ export interface QuestCardProps
   description: string;
   count: number;
   total: number;
+  isNew?: boolean;
 }
 
-const questCardVariants = cva(
-  "select-none flex flex-col w-full overflow-hidden",
-  {
-    variants: {
-      variant: {
-        default:
-          "gap-2 px-4 py-3 md:px-6 md:py-6 rounded-lg bg-white-900 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.04),1px_1px_0px_rgba(0,0,0,0.12)]",
-        complete:
-          "gap-2 px-4 py-3 md:px-6 md:py-6 rounded-lg bg-green-900 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.04),1px_1px_0px_rgba(0,0,0,0.12)]",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
+const questCardVariants = cva("select-none flex flex-col w-full", {
+  variants: {
+    variant: {
+      default:
+        "gap-2 px-4 py-3 md:px-6 md:py-6 rounded-lg bg-white-900 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.04),1px_1px_0px_rgba(0,0,0,0.12)]",
+      complete:
+        "gap-2 px-4 py-3 md:px-6 md:py-6 rounded-lg bg-green-900 shadow-[inset_1px_1px_0px_rgba(255,255,255,0.04),1px_1px_0px_rgba(0,0,0,0.12)]",
     },
   },
-);
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 export const QuestCard = ({
   icon,
@@ -41,6 +40,7 @@ export const QuestCard = ({
   description,
   count,
   total,
+  isNew,
   variant,
   className,
   ...props
@@ -48,7 +48,11 @@ export const QuestCard = ({
   const isComplete = count >= total;
 
   return (
-    <div className={cn(questCardVariants({ variant, className }))} {...props}>
+    <div
+      className={cn("relative", questCardVariants({ variant, className }))}
+      {...props}
+    >
+      {isNew && <NotificationPing />}
       <div className="flex gap-2 items-center">
         <AchievementIcon
           icon={icon}

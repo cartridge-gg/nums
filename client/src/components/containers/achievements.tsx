@@ -17,6 +17,7 @@ export interface AchievementsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof achievementsVariants> {
   achievements: (AchievementCardProps & { id: string })[];
+  newAchievementIds?: Set<string>;
 }
 
 const achievementsVariants = cva(
@@ -35,6 +36,7 @@ const achievementsVariants = cva(
 
 export const Achievements = ({
   achievements,
+  newAchievementIds,
   variant,
   className,
   ...props
@@ -99,6 +101,7 @@ export const Achievements = ({
                     itemVariant="complete"
                     selected={selected === index}
                     hidden={false}
+                    isNew={newAchievementIds?.has(item.id)}
                     onSelect={() => setSelected(index)}
                   />
                 );
@@ -119,6 +122,7 @@ export const Achievements = ({
                     itemVariant="default"
                     selected={selected === index}
                     hidden={item.hidden || false}
+                    isNew={newAchievementIds?.has(item.id)}
                     onSelect={() => setSelected(index)}
                   />
                 );
@@ -138,6 +142,7 @@ const AchievementItemWithTooltip = ({
   itemVariant,
   selected,
   hidden,
+  isNew,
   onSelect,
 }: {
   item: AchievementCardProps;
@@ -145,6 +150,7 @@ const AchievementItemWithTooltip = ({
   itemVariant: "default" | "complete";
   selected: boolean;
   hidden: boolean;
+  isNew?: boolean;
   onSelect: () => void;
 }) => (
   <Tooltip>
@@ -158,6 +164,7 @@ const AchievementItemWithTooltip = ({
           variant={itemVariant}
           selected={selected}
           hidden={hidden}
+          isNew={isNew}
           onClick={() => {
             if (window.matchMedia("(min-width: 768px)").matches || hidden)
               return;

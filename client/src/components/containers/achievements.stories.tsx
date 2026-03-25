@@ -98,3 +98,10 @@ export const NoneEarned: Story = {
     })),
   },
 };
+
+export const WithNotifications: Story = {
+  args: {
+    achievements: sampleAchievements,
+    newAchievementIds: new Set(["FIRST_MILLION", "EMERGENCY_MODE"]),
+  },
+};

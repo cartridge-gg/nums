@@ -14,7 +14,7 @@ import {
   XIcon,
   BookIcon,
 } from "@/components/icons";
-import { Sound, Close } from "@/components/elements";
+import { Sound, Close, NotificationPing } from "@/components/elements";
 import { Link } from "@/lib/router";
 import { useId } from "react";
 
@@ -38,6 +38,7 @@ export interface SettingsProps
   onTutorial: () => void;
   onLogOut: () => void;
   onConnect: () => void;
+  hasReferralNotification?: boolean;
   username?: string;
   onProfile?: () => void;
 }
@@ -75,6 +76,7 @@ export const Settings = ({
   onTutorial,
   onLogOut,
   onConnect,
+  hasReferralNotification,
   username,
   onProfile,
   variant,
@@ -137,6 +139,7 @@ export const Settings = ({
               onStaking={onStaking}
               onTutorial={onTutorial}
               connected={!!username}
+              hasReferralNotification={hasReferralNotification}
             />
             {username && onProfile ? (
               <>
@@ -163,6 +166,7 @@ export const Settings = ({
             onStaking={onStaking}
             onTutorial={onTutorial}
             connected={!!username}
+            hasReferralNotification={hasReferralNotification}
           />
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1">
@@ -239,6 +243,7 @@ const NavButtons = ({
   onStaking,
   onTutorial,
   connected,
+  hasReferralNotification,
 }: {
   filterId: string;
   onLeaderboard: () => void;
@@ -248,6 +253,7 @@ const NavButtons = ({
   onStaking: () => void;
   onTutorial: () => void;
   connected: boolean;
+  hasReferralNotification?: boolean;
 }) => (
   <>
     <Button
@@ -296,7 +302,7 @@ const NavButtons = ({
     {connected && (
       <Button
         variant="secondary"
-        className="h-10 min-h-10 gap-1"
+        className="relative h-10 min-h-10 gap-1"
         onClick={onReferrals}
       >
         <ReferralIcon size="md" style={{ filter: `url(#${filterId})` }} />
@@ -306,6 +312,7 @@ const NavButtons = ({
         >
           Referrals
         </span>
+        {hasReferralNotification && <NotificationPing />}
       </Button>
     )}
     <Button

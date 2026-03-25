@@ -9,6 +9,7 @@ export interface ReferralPaymentsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof referralPaymentsVariants> {
   payments: ReferralPaymentProps[];
+  newPaymentCount?: number;
 }
 
 const referralPaymentsVariants = cva(
@@ -28,6 +29,7 @@ const referralPaymentsVariants = cva(
 
 export const ReferralPayments = ({
   payments,
+  newPaymentCount = 0,
   variant,
   className,
   ...props
@@ -48,7 +50,11 @@ export const ReferralPayments = ({
         </div>
       ) : (
         payments.map((payment, index) => (
-          <ReferralPayment key={index} {...payment} />
+          <ReferralPayment
+            key={index}
+            {...payment}
+            isNew={index < newPaymentCount}
+          />
         ))
       )}
     </div>

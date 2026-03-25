@@ -27,6 +27,7 @@ export interface ReferralSceneProps
     VariantProps<typeof referralSceneVariants> {
   payments: Referral[];
   link: string;
+  newPaymentCount?: number;
   onClose?: () => void;
 }
 
@@ -39,6 +40,7 @@ const toPaymentProps = (referral: Referral) => ({
 export const ReferralScene = ({
   payments,
   link,
+  newPaymentCount = 0,
   onClose,
   variant,
   className,
@@ -102,7 +104,10 @@ export const ReferralScene = ({
               className="flex-1 overflow-y-auto rounded-xl"
               style={{ scrollbarWidth: "none" }}
             >
-              <ReferralPayments payments={payments.map(toPaymentProps)} />
+              <ReferralPayments
+                payments={payments.map(toPaymentProps)}
+                newPaymentCount={newPaymentCount}
+              />
             </div>
           </div>
         </div>
@@ -146,6 +151,7 @@ export const ReferralScene = ({
               <Subtitle />
               <ReferralPayments
                 payments={payments.map(toPaymentProps)}
+                newPaymentCount={newPaymentCount}
                 className="flex-1"
               />
             </div>

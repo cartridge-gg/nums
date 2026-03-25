@@ -7,7 +7,7 @@ import {
   ShadowEffect,
   TrophyIcon,
 } from "@/components/icons";
-import { Balance, Connect } from "@/components/elements";
+import { Balance, Connect, NotificationPing } from "@/components/elements";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ export interface HeaderProps
   onMissions?: () => void;
   onLeaderboard?: () => void;
   onSettings?: () => void;
+  hasMissionNotification?: boolean;
+  hasSettingsNotification?: boolean;
   hasMerkledrop?: boolean;
   onMerkledrop?: () => void;
 }
@@ -51,6 +53,8 @@ export const Header = ({
   onMissions,
   onLeaderboard,
   onSettings,
+  hasMissionNotification,
+  hasSettingsNotification,
   faucetBalance,
   onFaucet,
   hasMerkledrop,
@@ -117,7 +121,7 @@ export const Header = ({
         {onMissions && (
           <Button
             variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
             onClick={onMissions}
           >
             <StarIcon
@@ -125,6 +129,7 @@ export const Header = ({
               className="md:size-lg"
               style={{ filter: `url(#${lightId})` }}
             />
+            {hasMissionNotification && <NotificationPing />}
           </Button>
         )}
         {hasMerkledrop && onMerkledrop && (
@@ -171,7 +176,7 @@ export const Header = ({
         {onSettings && (
           <Button
             variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
             onClick={onSettings}
           >
             <ListIcon
@@ -179,6 +184,7 @@ export const Header = ({
               className="md:size-lg"
               style={{ filter: `url(#${lightId})` }}
             />
+            {hasSettingsNotification && <NotificationPing />}
           </Button>
         )}
         {!username && <Connect onClick={onConnect} />}

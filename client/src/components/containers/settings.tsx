@@ -394,7 +394,7 @@ const LogOutButton = ({ onLogOut }: { onLogOut: () => void }) => (
 const Socials = () => (
   <div className="flex gap-4 w-full">
     <Link
-      to="https://nums-docs.preview.cartridge.gg/"
+      to="https://docs.nums.gg//"
       target="_blank"
       className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >

@@ -21,15 +21,15 @@ mod Governor {
     use crate::systems::treasury::NAME as TREASURY;
     use crate::systems::vault::NAME as VAULT;
 
-    // pub const VOTING_DELAY: u64 = 3600; // 1 hour
-    // pub const VOTING_PERIOD: u64 = 432000; // 5 days
-    // pub const PROPOSAL_THRESHOLD: u256 = 50_000 * 10_u256.pow(18); // 50k tokens 18 decimals
-    // pub const QUORUM_NUMERATOR: u256 = 300; // 30%
-
-    pub const VOTING_DELAY: u64 = 5 * 60; // 5 minutes
-    pub const VOTING_PERIOD: u64 = 10 * 60; // 10 minutes
-    pub const PROPOSAL_THRESHOLD: u256 = 1 * 10_u256.pow(18); // 1 token with 18 decimals
+    pub const VOTING_DELAY: u64 = 3600; // 1 hour
+    pub const VOTING_PERIOD: u64 = 432000; // 5 days
+    pub const PROPOSAL_THRESHOLD: u256 = 10_000 * 10_u256.pow(18); // 10k tokens 18 decimals
     pub const QUORUM_NUMERATOR: u256 = 300; // 30%
+
+    // pub const VOTING_DELAY: u64 = 5 * 60; // 5 minutes
+    // pub const VOTING_PERIOD: u64 = 10 * 60; // 10 minutes
+    // pub const PROPOSAL_THRESHOLD: u256 = 1 * 10_u256.pow(18); // 1 token with 18 decimals
+    // pub const QUORUM_NUMERATOR: u256 = 300; // 30%
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(

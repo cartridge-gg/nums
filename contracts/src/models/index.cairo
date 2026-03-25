@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Drop, Serde)]
+#[derive(Drop, Serde, IntrospectPacked)]
 #[dojo::model]
 pub struct Config {
     #[key]
@@ -25,7 +25,7 @@ pub struct Config {
     pub base_price: u256,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, IntrospectPacked)]
 #[dojo::model]
 pub struct Game {
     #[key]

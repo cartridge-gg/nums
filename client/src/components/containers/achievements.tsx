@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
-  AchievementCount,
   AchievementCard,
   type AchievementCardProps,
   AchievementItem,
@@ -68,9 +67,9 @@ export const Achievements = ({
       className={cn(achievementsVariants({ variant, className }))}
       {...props}
     >
-      <div className="flex px-1 md:hidden">
+      {/* <div className="flex px-1 md:hidden">
         <AchievementCount count={earned.length} total={achievements.length} />
-      </div>
+      </div> */}
 
       {featured && (
         <div className="flex w-full px-1 md:hidden">

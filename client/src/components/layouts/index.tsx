@@ -3,8 +3,7 @@ import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
-import { QuestScene } from "@/components/scenes/quest";
-import { AchievementScene } from "@/components/scenes/achievement";
+import { MissionScene, type MissionTab } from "@/components/scenes/mission";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
@@ -66,13 +65,14 @@ export const Layout = ({ children }: LayoutProps) => {
   const { getNumsPrice } = usePrices();
   const { playerGames: games, loading: gamesLoading } = useGames();
   const navigate = usePreserveSearchNavigate();
-  const [showQuestScene, setShowQuestScene] = useState(false);
+  const [showMissionScene, setShowMissionScene] = useState(false);
+  const [missionDefaultTab, setMissionDefaultTab] =
+    useState<MissionTab>("quests");
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
-  const [showAchievementScene, setShowAchievementScene] = useState(false);
   const [bundleIndex, setBundleIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
@@ -194,13 +194,12 @@ export const Layout = ({ children }: LayoutProps) => {
         bundle.payment_token,
       );
       if (success) {
-        setShowQuestScene(false);
+        setShowMissionScene(false);
         setShowLeaderboardScene(false);
         setShowPurchaseScene(false);
         setShowStakingScene(false);
         setShowReferralScene(false);
         setShowSettingsScene(false);
-        setShowAchievementScene(false);
         navigate("/game");
       }
     }
@@ -225,13 +224,12 @@ export const Layout = ({ children }: LayoutProps) => {
     // Only trigger when length increases (new game added)
     if (currentLength > previousLength) {
       // Close all modals
-      setShowQuestScene(false);
+      setShowMissionScene(false);
       setShowLeaderboardScene(false);
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
       setShowSettingsScene(false);
-      setShowAchievementScene(false);
 
       const newestGame = games[0];
       if (!newestGame) return;
@@ -314,33 +312,39 @@ export const Layout = ({ children }: LayoutProps) => {
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}
-        onLeaderboard={() => {
-          setShowLeaderboardScene(!showLeaderboardScene);
-          setShowQuestScene(false);
+        onMissions={() => {
+          setMissionDefaultTab("quests");
+          setShowMissionScene(!showMissionScene);
+          setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
-          setShowAchievementScene(false);
+        }}
+        onLeaderboard={() => {
+          setShowLeaderboardScene(!showLeaderboardScene);
+          setShowMissionScene(false);
+          setShowPurchaseScene(false);
+          setShowStakingScene(false);
+          setShowReferralScene(false);
+          setShowSettingsScene(false);
         }}
         onBalance={() => {
           if (!showStakingScene) refetchStaking();
           setShowStakingScene(!showStakingScene);
-          setShowQuestScene(false);
+          setShowMissionScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
-          setShowAchievementScene(false);
         }}
         onSettings={() => {
           setShowSettingsScene(!showSettingsScene);
-          setShowQuestScene(false);
+          setShowMissionScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
-          setShowAchievementScene(false);
         }}
         faucetBalance={headerData.faucetBalance}
         onFaucet={() => mint()}
@@ -363,23 +367,24 @@ export const Layout = ({ children }: LayoutProps) => {
         <PurchaseModalProvider
           openPurchaseScene={() => {
             setShowPurchaseScene(true);
-            setShowQuestScene(false);
+            setShowMissionScene(false);
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
             setShowReferralScene(false);
             setShowSettingsScene(false);
-            setShowAchievementScene(false);
             capture("purchase_modal_opened", {});
           }}
         >
           {children}
         </PurchaseModalProvider>
-        {showQuestScene && (
+        {showMissionScene && (
           <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-              <QuestScene
+              <MissionScene
                 questsProps={questsProps}
-                onClose={() => setShowQuestScene(false)}
+                achievementsProps={achievementsProps}
+                defaultTab={missionDefaultTab}
+                onClose={() => setShowMissionScene(false)}
                 className="h-full"
               />
             </div>
@@ -485,11 +490,13 @@ export const Layout = ({ children }: LayoutProps) => {
                 }}
                 onAchievements={() => {
                   setShowSettingsScene(false);
-                  setShowAchievementScene(true);
+                  setMissionDefaultTab("achievements");
+                  setShowMissionScene(true);
                 }}
                 onQuests={() => {
                   setShowSettingsScene(false);
-                  setShowQuestScene(true);
+                  setMissionDefaultTab("quests");
+                  setShowMissionScene(true);
                 }}
                 onStaking={() => {
                   setShowSettingsScene(false);
@@ -508,17 +515,7 @@ export const Layout = ({ children }: LayoutProps) => {
             </div>
           </div>
         )}
-        {showAchievementScene && (
-          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
-            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-              <AchievementScene
-                achievementsProps={achievementsProps}
-                onClose={() => setShowAchievementScene(false)}
-                className="h-full"
-              />
-            </div>
-          </div>
-        )}
+
         {tutorialActive && tutorialData && !tutorialData.anchor && (
           <div
             className={cn(

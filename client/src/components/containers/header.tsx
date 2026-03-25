@@ -3,6 +3,7 @@ import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
 import {
   ListIcon,
   GiftIcon,
+  StarIcon,
   ShadowEffect,
   TrophyIcon,
 } from "@/components/icons";
@@ -21,6 +22,7 @@ export interface HeaderProps
   onFaucet?: () => void;
   username?: string;
   onConnect: () => void;
+  onMissions?: () => void;
   onLeaderboard?: () => void;
   onSettings?: () => void;
   hasMerkledrop?: boolean;
@@ -46,6 +48,7 @@ export const Header = ({
   onBalance,
   username,
   onConnect,
+  onMissions,
   onLeaderboard,
   onSettings,
   faucetBalance,
@@ -105,6 +108,19 @@ export const Header = ({
           >
             <TrophyIcon
               variant="solid"
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${lightId})` }}
+            />
+          </Button>
+        )}
+        {onMissions && (
+          <Button
+            variant="muted"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            onClick={onMissions}
+          >
+            <StarIcon
               size="md"
               className="md:size-lg"
               style={{ filter: `url(#${lightId})` }}

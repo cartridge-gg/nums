@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AchievementScene } from "./achievement";
+import { MissionScene } from "./mission";
 import { fn } from "storybook/test";
 
 const meta = {
-  title: "Scenes/Achievement",
-  component: AchievementScene,
+  title: "Scenes/Mission",
+  component: MissionScene,
   parameters: {
     layout: "fullscreen",
   },
@@ -20,10 +20,37 @@ const meta = {
       value: "purple",
     },
   },
-} satisfies Meta<typeof AchievementScene>;
+} satisfies Meta<typeof MissionScene>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+const sampleQuests = [
+  {
+    id: "DAILY_PLACER_ONE",
+    icon: "fa-table-cells",
+    title: "Orientation",
+    description: "The work is mysterious and important.",
+    count: 12,
+    total: 20,
+  },
+  {
+    id: "DAILY_POWER_ONE",
+    icon: "fa-bolt",
+    title: "Boost",
+    description: "A little boost never hurt anyone.",
+    count: 4,
+    total: 4,
+  },
+  {
+    id: "DAILY_TRIGGER_ONE",
+    icon: "fa-bomb",
+    title: "Risk Assessment",
+    description: "Every stumble is a step forward.",
+    count: 2,
+    total: 6,
+  },
+];
 
 const sampleAchievements = [
   {
@@ -76,23 +103,30 @@ const sampleAchievements = [
   },
 ];
 
-export const Default: Story = {
+export const Quests: Story = {
   args: {
+    questsProps: {
+      quests: sampleQuests,
+      expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
+    },
     achievementsProps: {
       achievements: sampleAchievements,
     },
+    defaultTab: "quests",
     onClose: fn(),
   },
 };
 
-export const AllEarned: Story = {
+export const Achievements: Story = {
   args: {
-    achievementsProps: {
-      achievements: sampleAchievements.map((a) => ({
-        ...a,
-        count: a.total,
-      })),
+    questsProps: {
+      quests: sampleQuests,
+      expiration: Date.now() / 1000 + 12 * 3600 + 24 * 60,
     },
+    achievementsProps: {
+      achievements: sampleAchievements,
+    },
+    defaultTab: "achievements",
     onClose: fn(),
   },
 };

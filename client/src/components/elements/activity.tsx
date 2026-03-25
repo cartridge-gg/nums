@@ -1,51 +1,53 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, GiftIcon } from "@/components/icons";
 import { GameIcon } from "@/components/elements/game-icon";
-import { useId } from "react";
 import { Link } from "@/lib/router";
 
 export interface ActivityProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLAnchorElement>,
     VariantProps<typeof activityVariants> {
   gameId: string;
-  score: number;
   payout: string;
   to: string;
   claimed: boolean;
   cells: (boolean | null)[];
 }
 
-const activityVariants = cva("select-none flex gap-3 items-center", {
-  variants: {
-    variant: {
-      default: "w-full overflow-hidden",
+const activityVariants = cva(
+  "select-none flex gap-3 items-center overflow-hidden",
+  {
+    variants: {
+      variant: {
+        default:
+          "w-full bg-black-900 hover:bg-black-800 rounded-lg flex items-center gap-3 overflow-hidden h-auto p-0",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+);
 
 export const Activity = ({
   gameId,
-  score,
   payout,
   to,
-  claimed,
   cells,
+  claimed: _claimed,
   variant,
   className,
   ...props
 }: ActivityProps) => {
-  const filterId = useId();
-
   return (
-    <div className={cn(activityVariants({ variant, className }))} {...props}>
-      <div className="flex-1 bg-black-900 rounded-lg flex items-center gap-3 overflow-hidden">
+    <Button
+      variant="ghost"
+      asChild
+      className={cn(activityVariants({ variant, className }), "")}
+    >
+      <Link to={to} {...props}>
         {/* Game Id column */}
-        <div className="flex-1 md:flex-[5] min-w-0 flex items-center gap-2 text-left">
+        <div className="min-w-0 flex items-center gap-2 text-left">
           <div className="min-w-0 h-10 flex items-center gap-2 rounded-lg px-3 py-2">
             <div className="flex-shrink-0 flex items-center justify-center">
               <GameIcon cells={cells} />
@@ -56,78 +58,13 @@ export const Activity = ({
           </div>
         </div>
 
-        {/* Score column */}
-        <div className="min-w-6 md:flex-[2] text-left translate-y-0.5">
-          <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 whitespace-nowrap font-thin">
-            {score}
-          </span>
-        </div>
-
         {/* Payout column */}
-        <div className="min-w-20 md:flex-[3] text-left translate-y-0.5">
+        <div className="ml-auto text-right translate-y-0.5 pr-3">
           <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-green-100 whitespace-nowrap font-thin">
             {payout}
           </span>
         </div>
-      </div>
-
-      {claimed ? (
-        <Button
-          variant="muted"
-          asChild
-          className="px-3 bg-black-900 hover:bg-black-800"
-        >
-          <Link to={to}>
-            <svg width="0" height="0" style={{ position: "absolute" }}>
-              <defs>
-                <filter
-                  id={filterId}
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feDropShadow
-                    dx="2"
-                    dy="2"
-                    stdDeviation="0"
-                    floodColor="rgba(0, 0, 0, 0.24)"
-                  />
-                </filter>
-              </defs>
-            </svg>
-            <EyeIcon size="md" style={{ filter: `url(#${filterId})` }} />
-          </Link>
-        </Button>
-      ) : (
-        <Button
-          variant="default"
-          asChild
-          className="bg-green-100 hover:bg-green-200 px-2 py-1"
-        >
-          <Link to={to}>
-            <svg width="0" height="0" style={{ position: "absolute" }}>
-              <defs>
-                <filter
-                  id={filterId}
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feDropShadow
-                    dx="2"
-                    dy="2"
-                    stdDeviation="0"
-                    floodColor="rgba(0, 0, 0, 0.24)"
-                  />
-                </filter>
-              </defs>
-            </svg>
-            <GiftIcon size="lg" style={{ filter: `url(#${filterId})` }} />
-          </Link>
-        </Button>
-      )}
-    </div>
+      </Link>
+    </Button>
   );
 };

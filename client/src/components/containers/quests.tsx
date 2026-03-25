@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { QuestCount } from "@/components/elements/quest-count";
-import { QuestGift } from "@/components/elements/quest-gift";
 import { QuestRefresh } from "@/components/elements/quest-refresh";
 import {
   QuestCard,
@@ -41,10 +39,10 @@ export const Quests = ({
 
   return (
     <div className={cn(questsVariants({ variant, className }))} {...props}>
-      <div className="flex items-center gap-2 px-1 md:hidden">
+      {/* <div className="flex items-center gap-2 px-1 md:hidden">
         <QuestCount count={completed.length} total={quests.length} />
         {completed.length < quests.length && <QuestGift direction="left" />}
-      </div>
+      </div> */}
 
       <QuestRefresh expiration={expiration} className="mx-1" />
 

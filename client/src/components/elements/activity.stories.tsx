@@ -28,7 +28,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     gameId: "1144",
-    score: 14,
     payout: "+$0.72",
     to: "#",
     claimed: true,
@@ -60,7 +59,6 @@ export const Default: Story = {
 export const Claimable: Story = {
   args: {
     gameId: "1144",
-    score: 14,
     payout: "+$0.72",
     to: "#",
     claimed: false,

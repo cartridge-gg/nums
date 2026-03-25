@@ -48,7 +48,7 @@ const settingsVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-2xl md:rounded-3xl bg-black-300 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]",
+          "rounded-2xl md:rounded-3xl bg-black-200 border-2 border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] backdrop-blur-[4px]",
       },
     },
     defaultVariants: {

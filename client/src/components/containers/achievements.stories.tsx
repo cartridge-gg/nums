@@ -26,6 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 const sampleAchievements = [
   {
+    id: "FIRST_MILLION",
     icon: "fa-coins",
     title: "First Million",
     description: "Claim NUMS Tokens",
@@ -33,6 +34,7 @@ const sampleAchievements = [
     total: 100000,
   },
   {
+    id: "NOVICE",
     icon: "fa-graduation-cap",
     title: "Novice",
     description: "Play 10 games",
@@ -40,6 +42,7 @@ const sampleAchievements = [
     total: 10,
   },
   {
+    id: "EMERGENCY_MODE",
     icon: "fa-bolt",
     title: "Emergency Mode",
     description: "Use 5 power-ups in a single game",
@@ -47,6 +50,7 @@ const sampleAchievements = [
     total: 5,
   },
   {
+    id: "DOUBLE_UP",
     icon: "fa-arrow-up",
     title: "Double Up",
     description: "Use the double power-up 10 times",
@@ -54,6 +58,7 @@ const sampleAchievements = [
     total: 10,
   },
   {
+    id: "MONEY_MACHINE",
     icon: "fa-money-bill",
     title: "Money Machine",
     description: "Earn 2K Nums cumulated",
@@ -61,6 +66,7 @@ const sampleAchievements = [
     total: 2000,
   },
   {
+    id: "ROLLING_IN_IT",
     icon: "fa-trophy",
     title: "Rolling in it",
     description: "Win a jackpot",

@@ -44,6 +44,7 @@ export const useGame = (gameId: number | null | undefined) => {
       });
       const foundGame = games.find((g) => g.id === gameId);
       if (foundGame) {
+        console.log(`GAME UPDATED AT ${new Date().toISOString()}: ${foundGame.id}`);
         queryClient.setQueryData(Game.keys.byId(gameId), foundGame);
       }
     },

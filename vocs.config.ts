@@ -1,7 +1,7 @@
 import React from "react";
 import { defineConfig } from "vocs";
 
-const baseUrl = "https://nums-docs.preview.cartridge.gg";
+const baseUrl = "https://docs.nums.gg/";
 const ogImage = `${baseUrl}/logo.png`;
 const ogDescription =
   "Complete documentation of the NUMS game - Number Challenge onchain. Game rules, tokenomics, staking, governance, referral program.";

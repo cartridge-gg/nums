@@ -92,7 +92,9 @@ export const useActions = () => {
               }),
             },
           ]);
+          console.log(`TX SENT AT ${new Date().toISOString()}: ${transaction_hash}`);
           const receipt = await account.waitForTransaction(transaction_hash);
+          console.log(`TX RECEIPT AT ${new Date().toISOString()}: ${receipt.statusReceipt}`);
           if (!receipt.isSuccess()) {
             setLoading("slot", index, false);
             return false;

@@ -114,7 +114,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Disclaimer />
-              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+              <ReadMore to="https://docs.nums.gg//staking" />
               <StakingSupply {...supplyProps} />
               <StakingOnly {...stakingProps} />
               <StakingBalance
@@ -154,7 +154,7 @@ export const StakingScene = ({
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Disclaimer />
-                  <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+                  <ReadMore to="https://docs.nums.gg//staking" />
                   <StakingGoal {...goalProps} />
                   <StakingVault {...vaultProps} />
                 </div>
@@ -179,7 +179,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Subtitle />
-              <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+              <ReadMore to="https://docs.nums.gg//staking" />
               <div className="flex gap-3">
                 {!!ratioProps && (
                   <StakingRatio {...ratioProps} className="hidden md:block" />
@@ -220,7 +220,7 @@ export const StakingScene = ({
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Subtitle />
-                  <ReadMore to="https://nums-docs.preview.cartridge.gg/staking" />
+                  <ReadMore to="https://docs.nums.gg//staking" />
                   <StakingBalance {...balanceProps} />
                   {!!claimedProps?.amount && (
                     <StakingClaimed {...claimedProps} />

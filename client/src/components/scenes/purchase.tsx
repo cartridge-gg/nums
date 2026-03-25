@@ -158,7 +158,7 @@ export const PurchaseScene = ({
 
       {/* Mobile */}
       <div
-        className="flex flex-col md:hidden gap-6 w-full h-full pb-2"
+        className="flex flex-col md:hidden gap-6 w-full h-full"
         style={{ scrollbarWidth: "none" }}
       >
         {/* Mobile header with close button */}
@@ -175,7 +175,7 @@ export const PurchaseScene = ({
           </div>
         </div>
         <div
-          className="grow overflow-y-auto flex flex-col gap-6"
+          className="grow overflow-y-auto flex flex-col gap-4 md:gap-6"
           style={{ scrollbarWidth: "none" }}
         >
           <Purchase {...purchaseProps} />

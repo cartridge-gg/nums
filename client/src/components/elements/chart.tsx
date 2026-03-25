@@ -34,7 +34,7 @@ const chartVariants = cva(
         default: "",
       },
       size: {
-        md: "w-full h-full min-h-[240px] min-w-0",
+        md: "w-full h-[160px] md:h-full md:min-h-[240px] min-w-0",
       },
     },
     defaultVariants: {
@@ -380,11 +380,10 @@ export const Chart = ({
       onMouseLeave={handleContainerMouseLeave}
     >
       <ResponsiveContainer
-        initialDimension={{ width: 240, height: 240 }}
+        initialDimension={{ width: 240, height: 160 }}
         width="100%"
         height="100%"
         className="chart-container"
-        minHeight={240}
       >
         <LineChart
           data={chartData}

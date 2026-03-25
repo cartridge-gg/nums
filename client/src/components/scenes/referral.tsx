@@ -13,7 +13,7 @@ const referralSceneVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-2xl md:rounded-3xl bg-black-300 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
+          "rounded-2xl md:rounded-3xl bg-black-200 backdrop-blur-[8px] border-[2px] border-black-300 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
       },
     },
     defaultVariants: {
@@ -116,13 +116,13 @@ export const ReferralScene = ({
           className="absolute z-10 top-8 right-8"
         />
 
-        <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col justify-center gap-6">
+        <div className="h-full w-full max-w-[752px] self-center overflow-hidden flex flex-col gap-6">
           <div className="flex items-center justify-between gap-4">
             <Title />
             <ReferralLink link={link} />
           </div>
 
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="overflow-hidden flex flex-col md:flex-row gap-8">
             <div className="flex flex-col gap-6 w-1/2 max-w-1/2">
               <div className="flex flex-col gap-4">
                 <div className="flex gap-4">

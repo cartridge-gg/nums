@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x6589c9fb6a4908f84ba48c1fee0258dbc39e00245de7add36c04b47638652b1",
-    "seed": "nums-v1.0.57",
+    "address": "0x19d44cee87d8266ea7e026e44c8b5031449cb4ffd2fec139e4c50054b00c333",
+    "seed": "nums-v1.0.58",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x7750b25b8ee0858030fd2118bb3f5aed0b26fbf6ea6452158985ac08d3af1ff",
+      "address": "0x574beb9eddbaff52c51f6485dbe59418b2652d230195cfa28d542825fa49f99",
       "class_hash": "0x55b302fe1b46b5c9be3b2397036290bccc53be07cff78ba229c2644c439172",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "address": "0x637947a41fd075e7715b198fe55e876b78bc630a0efe0db9d1cc1b9a5786a9c",
+      "address": "0x2dd479882239d9ca37dc3b2d5cad7a4ef8758e10188de6dcacd7a26280eb8a",
       "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "address": "0x39ecc568c2aecbb826b698093eabba17e16a60eae66985f8699beafad5be2bb",
+      "address": "0x25580b079b2d1c629dea6751af9425885e8e83c22217e3078c53722df5134c5",
       "class_hash": "0x1a04ad3d4066d571d7fd4334b6acac70140fded7f55cfe4a7396ce77b9fe417",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -100,8 +100,8 @@
       ]
     },
     {
-      "address": "0x523487f7d5adc7b6b041593ecac5e90e38465f60b6d07cbf448305f9e02114b",
-      "class_hash": "0x5151cb7d3198a27c9116584d557c92ae49b5a68be83490dd0c03b13d0b869d4",
+      "address": "0x329371ae36153ea617954776160ed5bd43fe3c460a5547ea742ad9b17218bb7",
+      "class_hash": "0x519300e6110452dc4fa98f3be7045c42ae3fa6b44aaacfb1cc8484b7f83784d",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -119,7 +119,7 @@
       ]
     },
     {
-      "address": "0x4912c0ecd00eb4ee1dae8aa7f10683740deda6a15a84360ff93e1eb803ca4b9",
+      "address": "0x4494b8134a2540cdb91a8883f7b17b51f3647ec9f9ffa326fe32f7c39071e1b",
       "class_hash": "0x75ddd4319641f993b23355150494d746bcb960ed8edf159c74c44d355caedaa",
       "init_calldata": [
         "0x0",
@@ -163,7 +163,7 @@
       ]
     },
     {
-      "address": "0x67ffa7fe2e0a321b46d1df57ebbdc7540edb7f3b8df8a79d737776e771e44d0",
+      "address": "0x23a6cadf991e75e3809b7e87337ea91fd1325eaf7427f0f586eccab95b54485",
       "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
@@ -186,7 +186,7 @@
       ]
     },
     {
-      "address": "0x2e85cf9f1e61ee023a8d7c2576dff4a0655b52d6cd8a8d1acbe7f8230de6bee",
+      "address": "0x320f124e3363f0560f4d70daf2532e97bf481ada86a19e285dea0548713ef58",
       "class_hash": "0x108c043199db093d66dc239f259a9dd0821f6e9f83ed1b667647ff8bfe6cb0",
       "init_calldata": [
         "0xe10",
@@ -214,11 +214,11 @@
       ]
     },
     {
-      "address": "0x5737038082f708ea5adff66e588be197b7937e64565765dd41fc2ac89bb9197",
+      "address": "0x75fb58b25b51c146a45a436c5873449cdf65c4ea972688f7058ac575d00a458",
       "class_hash": "0x5215217394313d8961a7b192d0fc2d2bbcd09e6adde61fec57b8e9128681b43",
       "init_calldata": [
         "0x1",
-        "0x1F4"
+        "0x0"
       ],
       "tag": "NUMS-Vault",
       "selector": "0x62e34e3b9b2ffaeb5384597a44c02d8219a11a1d8b5ba667422c244c599324",

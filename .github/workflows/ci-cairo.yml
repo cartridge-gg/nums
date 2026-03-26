@@ -18,26 +18,7 @@ env:
   DOJO_VERSION: "1.8.5"
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: ${{ env.SCARB_VERSION }}
-
-      - name: Install Dojo
-        run: |
-          curl -L https://install.dojoengine.org | bash
-          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
-          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
-
-      - name: Verify toolchain
-        run: scarb --version && sozo --version
-
   format:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,9 +42,10 @@ jobs:
 
       - name: Install Dojo
         run: |
-          curl -L https://install.dojoengine.org | bash
-          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
-          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
+          curl -L "https://github.com/dojoengine/dojo/releases/download/sozo%2Fv${DOJO_VERSION}/sozo_v${DOJO_VERSION}_linux_amd64.tar.gz" -o /tmp/sozo.tar.gz
+          tar -xzf /tmp/sozo.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/sozo
+          sozo --version
 
       - name: Build
         run: sozo build
@@ -80,9 +62,10 @@ jobs:
 
       - name: Install Dojo
         run: |
-          curl -L https://install.dojoengine.org | bash
-          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
-          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
+          curl -L "https://github.com/dojoengine/dojo/releases/download/sozo%2Fv${DOJO_VERSION}/sozo_v${DOJO_VERSION}_linux_amd64.tar.gz" -o /tmp/sozo.tar.gz
+          tar -xzf /tmp/sozo.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/sozo
+          sozo --version
 
       - name: Test
         run: scarb test

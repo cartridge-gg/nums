@@ -1,0 +1,88 @@
+name: CI Cairo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.cairo"
+      - "**/Scarb.toml"
+      - "**/Scarb.lock"
+  pull_request:
+    paths:
+      - "**/*.cairo"
+      - "**/Scarb.toml"
+      - "**/Scarb.lock"
+
+env:
+  SCARB_VERSION: "2.13.1"
+  DOJO_VERSION: "1.8.5"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Install Dojo
+        run: |
+          curl -L https://install.dojoengine.org | bash
+          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
+          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
+
+      - name: Verify toolchain
+        run: scarb --version && sozo --version
+
+  format:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Format check
+        run: scarb fmt --check
+
+  build:
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Install Dojo
+        run: |
+          curl -L https://install.dojoengine.org | bash
+          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
+          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: sozo build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Install Dojo
+        run: |
+          curl -L https://install.dojoengine.org | bash
+          ~/.dojo/bin/dojoup -v ${{ env.DOJO_VERSION }}
+          echo "${HOME}/.dojo/bin" >> "$GITHUB_PATH"
+
+      - name: Test
+        run: scarb test

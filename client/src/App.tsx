@@ -17,7 +17,7 @@ import { SoundProvider } from "./context/sound";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
 import { Game, Home, Support } from "./pages";
-import { LoadingScene } from "./components/scenes";
+import { LoadingScene, WelcomeScene } from "./components/scenes";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { LoadingProvider } from "./context/loading";
@@ -80,6 +80,35 @@ const options: ControllerOptions = {
 
 const connectors = [new ControllerConnector(options) as never as Connector];
 
+function DeployGate() {
+  const bypass = new URLSearchParams(window.location.search).has("bypass");
+
+  if (!bypass) {
+    return (
+      <div className="h-screen w-screen">
+        <WelcomeScene
+          close={() => {}}
+          className="absolute inset-0 z-[100] w-full h-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      <Routes>
+        <Route path="/support" element={<Support />} />
+        <Route path="/*" element={<AuthenticatedApp />} />
+      </Routes>
+    </Router>
+  );
+}
+
 function App() {
   return (
     <JotaiProvider>
@@ -92,17 +121,7 @@ function App() {
             explorer={voyager}
             provider={provider}
           >
-            <Router
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-              }}
-            >
-              <Routes>
-                <Route path="/support" element={<Support />} />
-                <Route path="/*" element={<AuthenticatedApp />} />
-              </Routes>
-            </Router>
+            <DeployGate />
           </StarknetConfig>
         </QueryClientProvider>
       </TooltipProvider>

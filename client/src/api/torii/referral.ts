@@ -11,7 +11,7 @@ export interface ReferralRow {
 }
 
 const MODEL_ID =
-  "0x048d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2:0x027fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7";
+  "0x06589c9fb6a4908f84ba48c1fee0258dbc39e00245de7add36c04b47638652b1:0x027fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7";
 
 async function fetch(
   referrerAddress: string,

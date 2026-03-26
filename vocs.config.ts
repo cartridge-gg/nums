@@ -127,6 +127,7 @@ export default defineConfig({
       ],
     },
     { text: "Referral program", link: "/referral-program" },
+    { text: "Airdrop", link: "/airdrop" },
     { text: "Contracts", link: "/contracts" },
     { text: "FAQ", link: "/faq" },
   ],

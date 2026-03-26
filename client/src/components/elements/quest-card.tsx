@@ -91,7 +91,7 @@ export const QuestCard = ({
 
       <div className="h-5 flex gap-3 items-center">
         <AchievementProgress
-          count={count}
+          count={Math.min(count, total)}
           total={total}
           variant={isComplete ? "complete" : "default"}
           className="flex-1"

@@ -1,7 +1,7 @@
 import { useAccount, useNetwork } from "@starknet-react/core";
 import { useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { CallData, uint256, CairoOption, CairoOptionVariant } from "starknet";
+import { CallData, uint256 } from "starknet";
 import {
   getSetupAddress,
   getGameAddress,
@@ -92,9 +92,7 @@ export const useActions = () => {
               }),
             },
           ]);
-          console.log(`TX SENT AT ${new Date().toISOString()}: ${transaction_hash}`);
           const receipt = await account.waitForTransaction(transaction_hash);
-          console.log(`TX RECEIPT AT ${new Date().toISOString()}: ${receipt.statusReceipt}`);
           if (!receipt.isSuccess()) {
             setLoading("slot", index, false);
             return false;
@@ -562,102 +560,6 @@ export const useActions = () => {
     }
   }, [account, chain.id, capture]);
 
-  const bundleIssue = useCallback(
-    async (bundleId: number, price: bigint, paymentToken: string) => {
-      try {
-        if (!account?.address) return false;
-        const setupAddress = getSetupAddress(chain.id);
-        const none = new CairoOption<string>(CairoOptionVariant.None);
-        const some = new CairoOption<string>(
-          CairoOptionVariant.Some,
-          "0x008B95A26E1392ED9E817607bfae2dD93efB9c66ee7DB0b018091A11D9037006",
-        );
-        await account.execute([
-          {
-            contractAddress: paymentToken,
-            entrypoint: "approve",
-            calldata: CallData.compile({
-              spender: setupAddress,
-              amount: uint256.bnToUint256(price),
-            }),
-          },
-          {
-            contractAddress: setupAddress,
-            entrypoint: "issue",
-            calldata: CallData.compile({
-              recipient: account.address,
-              bundle_id: bundleId,
-              quantity: 1,
-              referrer: some,
-              referrer_group: none,
-              client: none,
-              client_percentage: 0,
-              voucher_key: none,
-              signature: none,
-            }),
-          },
-        ]);
-        capture("purchase_confirmed", {
-          bundle_id: bundleId,
-          price: price.toString(),
-        });
-        return true;
-      } catch (e) {
-        console.log({ e });
-        return false;
-      }
-    },
-    [account, chain.id, capture],
-  );
-
-  const socialIssue = useCallback(
-    async (bundleId: number) => {
-      try {
-        if (!account?.address) return false;
-        const setupAddress = getSetupAddress(chain.id);
-        const none = new CairoOption<string>(CairoOptionVariant.None);
-        const referrer = new CairoOption<string>(
-          CairoOptionVariant.Some,
-          "0x008B95A26E1392ED9E817607bfae2dD93efB9c66ee7DB0b018091A11D9037006",
-        );
-        const voucherKey = new CairoOption<string>(
-          CairoOptionVariant.Some,
-          "0x123456789",
-        );
-        const signature = new CairoOption<Array<string>>(
-          CairoOptionVariant.Some,
-          [
-            "0x12224BC400C280D11D630FFA61815ED9D75488C8B7864EB252357C062DB6FFE",
-            "0x35E850DF62BCDBD62FA6B5CBF750830865A66894F5BE3A6374BDBD8614985C3",
-          ],
-        );
-        await account.execute([
-          {
-            contractAddress: setupAddress,
-            entrypoint: "issue",
-            calldata: CallData.compile({
-              recipient: account.address,
-              bundle_id: bundleId,
-              quantity: 1,
-              referrer: referrer,
-              referrer_group: none,
-              client: none,
-              client_percentage: 0,
-              voucher_key: voucherKey,
-              signature: signature,
-            }),
-          },
-        ]);
-        capture("social_issue", { bundle_id: bundleId });
-        return true;
-      } catch (e) {
-        console.log({ e });
-        return false;
-      }
-    },
-    [account, chain.id, capture],
-  );
-
   const merkledropClaim = useCallback(
     async (treeId: string, proofs: string[], data: string[]) => {
       try {
@@ -699,10 +601,6 @@ export const useActions = () => {
     },
     merkledrop: {
       claim: merkledropClaim,
-    },
-    bundle: {
-      issue: bundleIssue,
-      social: socialIssue,
     },
     vault: {
       deposit: vaultDeposit,

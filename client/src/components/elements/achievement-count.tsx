@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { TrophyIcon } from "@/components/icons";
+import { LaurelIcon } from "@/components/icons";
 
 export interface AchievementCountProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -10,7 +10,7 @@ export interface AchievementCountProps
 }
 
 const achievementCountVariants = cva(
-  "flex items-center px-3 py-2.5 gap-2 bg-white-900 rounded-lg",
+  "flex justify-center items-center p-2.5 gap-2 bg-white-900 rounded-lg",
   {
     variants: {
       variant: {
@@ -35,7 +35,7 @@ export const AchievementCount = ({
       className={cn(achievementCountVariants({ variant, className }))}
       {...props}
     >
-      <TrophyIcon size="sm" variant="solid" className="text-green-100" />
+      <LaurelIcon size="sm" className="text-green-100" />
       <div className="flex items-center gap-1 font-sans text-base/5">
         <span className="text-green-100">{count}</span>
         <span className="text-white-400">/</span>

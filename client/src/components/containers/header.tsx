@@ -3,9 +3,10 @@ import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
 import {
   ListIcon,
   GiftIcon,
-  StarIcon,
   ShadowEffect,
   TrophyIcon,
+  QuestIcon,
+  LaurelIcon,
 } from "@/components/icons";
 import { Balance, Connect, NotificationPing } from "@/components/elements";
 import { cn } from "@/lib/utils";
@@ -22,10 +23,12 @@ export interface HeaderProps
   onFaucet?: () => void;
   username?: string;
   onConnect: () => void;
-  onMissions?: () => void;
+  onQuests?: () => void;
+  onAchievements?: () => void;
   onLeaderboard?: () => void;
   onSettings?: () => void;
-  hasMissionNotification?: boolean;
+  hasQuestNotification?: boolean;
+  hasAchievementNotification?: boolean;
   hasSettingsNotification?: boolean;
   hasMerkledrop?: boolean;
   onMerkledrop?: () => void;
@@ -50,10 +53,12 @@ export const Header = ({
   onBalance,
   username,
   onConnect,
-  onMissions,
+  onQuests,
+  onAchievements,
   onLeaderboard,
   onSettings,
-  hasMissionNotification,
+  hasQuestNotification,
+  hasAchievementNotification,
   hasSettingsNotification,
   faucetBalance,
   onFaucet,
@@ -118,18 +123,32 @@ export const Header = ({
             />
           </Button>
         )}
-        {onMissions && (
+        {onQuests && (
           <Button
             variant="muted"
-            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
-            onClick={onMissions}
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500 hidden md:flex"
+            onClick={onQuests}
           >
-            <StarIcon
+            <QuestIcon
               size="md"
               className="md:size-lg"
               style={{ filter: `url(#${lightId})` }}
             />
-            {hasMissionNotification && <NotificationPing />}
+            {hasQuestNotification && <NotificationPing />}
+          </Button>
+        )}
+        {onAchievements && (
+          <Button
+            variant="muted"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500 hidden md:flex"
+            onClick={onAchievements}
+          >
+            <LaurelIcon
+              size="md"
+              className="md:size-lg"
+              style={{ filter: `url(#${lightId})` }}
+            />
+            {hasAchievementNotification && <NotificationPing />}
           </Button>
         )}
         {hasMerkledrop && onMerkledrop && (

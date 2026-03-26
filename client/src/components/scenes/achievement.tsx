@@ -56,6 +56,14 @@ export const AchievementScene = ({
             </div>
           )}
         </div>
+        <AchievementCount
+          count={
+            achievementsProps.achievements.filter((a) => a.count >= a.total)
+              .length
+          }
+          total={achievementsProps.achievements.length}
+          className="w-full"
+        />
         <Achievements {...achievementsProps} className="overflow-hidden" />
       </div>
 

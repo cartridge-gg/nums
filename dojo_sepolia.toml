@@ -9,7 +9,7 @@ default = "NUMS"
 
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
-# world_address = "0x048d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2"
+# world_address = "0x06589c9fb6a4908f84ba48c1fee0258dbc39e00245de7add36c04b47638652b1"
 account_address = "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
 keystore_path = "./keystore_sepolia.json"
 

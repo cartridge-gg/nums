@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { StakingOnly, type StakingOnlyProps } from "./staking-only";
+import { StakingOnly } from "./staking-only";
+import type { StakingProps } from "./staking";
 import { fn } from "storybook/test";
 
 const meta = {
@@ -19,7 +20,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const StakingOnlyWrapper = (args: Partial<StakingOnlyProps>) => {
+const StakingOnlyWrapper = (args: Partial<StakingProps>) => {
   const [value, setValue] = useState(0);
 
   return (

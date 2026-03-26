@@ -8,13 +8,13 @@ version = "0.0.0"
 edition = "2024_07"
 
 [workspace.dependencies]
-achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-collection = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-bundle = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-leaderboard = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-merkledrop = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-quest = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
-starterpack = { git = "https://github.com/cartridge-gg/arcade", rev = "2c0735a" }
+achievement = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+collection = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+bundle = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+leaderboard = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+merkledrop = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+quest = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
+starterpack = { git = "https://github.com/cartridge-gg/arcade", rev = "fc2e81c" }
 graffiti = { git = "https://github.com/bal7hazar/graffiti.git", rev = "e8b0854" }
 ekubo = { git = "https://github.com/EkuboProtocol/starknet-contracts", rev = "cf2e95f" }
 dojo = "1.8.0"

@@ -4,6 +4,7 @@ pub mod PurchaseComponent {
     use bundle::component::Component as BundleComponent;
     use bundle::component::Component::{BundleTrait, InternalImpl as BundleInternalImpl};
     use bundle::models::bundle::BundleAssert;
+    use bundle::types::condition::{ConditionTrait, Twitter};
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use ekubo::components::clear::IClearDispatcherTrait;
     use ekubo::interfaces::erc20::IERC20Dispatcher;
@@ -18,7 +19,6 @@ pub mod PurchaseComponent {
     use crate::helpers::rewarder::Rewarder;
     use crate::models::config::ConfigTrait;
     use crate::models::game::GameAssert;
-    use crate::systems::team::NAME as TEAM;
     use crate::systems::token::{ITokenDispatcher, ITokenDispatcherTrait, NAME as TOKEN};
     use crate::systems::vault::{IVaultDispatcher, IVaultDispatcherTrait, NAME as VAULT};
     use crate::types::metadata::Metadata;
@@ -65,7 +65,7 @@ pub mod PurchaseComponent {
             let payment_receiver = starknet::get_contract_address();
             let bundle_component = get_dep_component!(@self, Bundle);
             // [Effect] Register free social bundle
-            let conditions = array!["social-claim", "conditions", "numsgg"].span();
+            let conditions = Twitter::new("numsgg", "1884657985219403776");
             bundle_component
                 .register(
                     world: world,
@@ -74,7 +74,7 @@ pub mod PurchaseComponent {
                     price: 0,
                     payment_token: payment_token,
                     payment_receiver: payment_receiver,
-                    metadata: Metadata::bundle(payment_tokens, conditions),
+                    metadata: Metadata::bundle(payment_tokens, conditions.span()),
                     allower: allower,
                 );
             // [Effect] Register paid bundles
@@ -171,20 +171,26 @@ pub mod PurchaseComponent {
             let this = starknet::get_contract_address();
             let burn_amount = asset.balance_of(this);
             let asset = ITokenDispatcher { contract_address: nums_address };
-            asset.burn(burn_amount);
+            if burn_amount > 0 {
+                asset.burn(burn_amount);
+            }
 
             // [Interaction] Pay dividends to the vault
             let vault_address = self.get_vault(world).contract_address;
             let vault = IVaultDispatcher { contract_address: vault_address };
             let amount = quote.balanceOf(this);
             let vault_amount = amount * config.vault_percentage.into() / 100;
-            quote.approve(spender: vault.contract_address, amount: vault_amount);
-            vault.pay(recipient.into(), vault_amount);
+            if vault_amount > 0 {
+                quote.approve(spender: vault.contract_address, amount: vault_amount);
+                vault.pay(recipient.into(), vault_amount);
+            }
 
             // [Interaction] Transfer the remaining amount to the team
-            let team_address = world.dns_address(@TEAM()).expect('Team not found!');
+            let team_address = config.team_address;
             let team_amount = quote.balanceOf(this);
-            quote.transfer(team_address, team_amount);
+            if team_amount > 0 {
+                quote.transfer(team_address, team_amount);
+            }
 
             // [Compute] Multiplier per game
             let burn_per_game = burn_amount / quantity.into();
@@ -201,27 +207,6 @@ pub mod PurchaseComponent {
 
             // [Return] Result
             (recipient, multiplier, supply_per_game, bundle.price, quantity)
-        }
-
-        fn fix(ref self: ComponentState<TContractState>, world: WorldStorage) {
-            // [Setup] Store
-            let store = StoreImpl::new(world);
-            let bundle = store.bundle(0);
-            let bundle_component = get_dep_component!(@self, Bundle);
-            // [Effect] Register free social bundle
-            bundle_component
-                .update(
-                    world: world,
-                    bundle_id: bundle.id,
-                    referral_percentage: bundle.referral_percentage,
-                    reissuable: bundle.reissuable,
-                    price: bundle.price,
-                    payment_token: bundle.payment_token,
-                    payment_receiver: bundle.payment_receiver,
-                    allower: 0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab
-                        .try_into()
-                        .unwrap(),
-                );
         }
     }
 

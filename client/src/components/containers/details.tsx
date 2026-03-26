@@ -51,7 +51,7 @@ export const Details = ({
       >
         <Detail
           title="Entry Fee"
-          previous={`$${basePrice.toFixed(2)}`}
+          previous={discount ? `$${basePrice.toFixed(2)}` : undefined}
           content={`$${entryPrice.toFixed(2)}`}
           discount={discount}
         />

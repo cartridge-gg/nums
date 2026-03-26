@@ -1,1 +1,0 @@
-SELECT address, username FROM controllers;

@@ -27,6 +27,7 @@ import { AchievementsProvider } from "./context/achievements";
 import { TutorialProvider } from "./context/tutorial";
 import { VaultProvider } from "./context/vault";
 import { BundlesProvider } from "./context/bundles";
+import { GamesProvider } from "./context/games";
 import { MerkledropsProvider } from "./context/merkledrops";
 import { PostHogProvider } from "./context/posthog";
 
@@ -135,36 +136,47 @@ function AuthenticatedApp() {
       <AudioProvider>
         <EntitiesProvider>
           <BundlesProvider>
-            <PracticeProvider>
-              <TutorialProvider>
-                <QuestsProvider>
-                  <VaultProvider>
-                    <AchievementsProvider>
-                      <MerkledropsProvider>
-                        <WelcomeProvider>
-                          <LoadingProvider>
-                            <SoundProvider>
-                              <Layout>
-                                <Routes>
-                                  <Route path="/" element={<Home />} />
-                                  <Route path="/game/:id" element={<Game />} />
-                                  <Route
-                                    path="/game"
-                                    element={<LoadingScene />}
-                                  />
-                                  <Route path="/practice" element={<Game />} />
-                                  <Route path="/tutorial" element={<Game />} />
-                                </Routes>
-                              </Layout>
-                            </SoundProvider>
-                          </LoadingProvider>
-                        </WelcomeProvider>
-                      </MerkledropsProvider>
-                    </AchievementsProvider>
-                  </VaultProvider>
-                </QuestsProvider>
-              </TutorialProvider>
-            </PracticeProvider>
+            <GamesProvider>
+              <PracticeProvider>
+                <TutorialProvider>
+                  <QuestsProvider>
+                    <VaultProvider>
+                      <AchievementsProvider>
+                        <MerkledropsProvider>
+                          <WelcomeProvider>
+                            <LoadingProvider>
+                              <SoundProvider>
+                                <Layout>
+                                  <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route
+                                      path="/game/:id"
+                                      element={<Game />}
+                                    />
+                                    <Route
+                                      path="/game"
+                                      element={<LoadingScene />}
+                                    />
+                                    <Route
+                                      path="/practice"
+                                      element={<Game />}
+                                    />
+                                    <Route
+                                      path="/tutorial"
+                                      element={<Game />}
+                                    />
+                                  </Routes>
+                                </Layout>
+                              </SoundProvider>
+                            </LoadingProvider>
+                          </WelcomeProvider>
+                        </MerkledropsProvider>
+                      </AchievementsProvider>
+                    </VaultProvider>
+                  </QuestsProvider>
+                </TutorialProvider>
+              </PracticeProvider>
+            </GamesProvider>
           </BundlesProvider>
         </EntitiesProvider>
       </AudioProvider>

@@ -6,59 +6,41 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DATE = "20260326";
-const LEGACY_TIER_1 = 5_000;
-const LEGACY_TIER_2 = 50_000;
+const MAX_QUANTITY = 3;
 
-const controllers = JSON.parse(
-  readFileSync(join(__dirname, `sns-controllers-${DATE}.json`), "utf-8"),
-);
-const egs = JSON.parse(
-  readFileSync(join(__dirname, `sns-egs-${DATE}.json`), "utf-8"),
-);
-const legacy = JSON.parse(
-  readFileSync(join(__dirname, `sns-legacy-${DATE}.json`), "utf-8"),
-);
+const snapshots = [
+  JSON.parse(readFileSync(join(__dirname, `sns-egs-${DATE}.json`), "utf-8")),
+  JSON.parse(readFileSync(join(__dirname, `sns-nums-${DATE}.json`), "utf-8")),
+  JSON.parse(readFileSync(join(__dirname, `sns-flip-${DATE}.json`), "utf-8")),
+  JSON.parse(readFileSync(join(__dirname, `sns-lords-${DATE}.json`), "utf-8")),
+  JSON.parse(readFileSync(join(__dirname, `sns-papers-${DATE}.json`), "utf-8")),
+];
 
-// account_address -> { username, quantity }
+// account_address -> { username, total }
 const map = new Map();
 
-function add(address, username, games) {
-  const entry = map.get(address);
-  if (entry) {
-    entry.quantity += games;
-    if (!entry.username && username) entry.username = username;
-  } else {
-    map.set(address, { username: username || null, quantity: games });
+for (const entries of snapshots) {
+  for (const entry of entries) {
+    const existing = map.get(entry.account_address);
+    if (existing) {
+      existing.total += 1;
+      if (!existing.username && entry.username)
+        existing.username = entry.username;
+    } else {
+      map.set(entry.account_address, {
+        username: entry.username || null,
+        total: 1,
+      });
+    }
   }
-}
-
-// 1. Cartridge Controller created before snapshot -> 1 game
-for (const c of controllers) {
-  add(c.account_address, c.username, 1);
-}
-
-// 2. Owned at least 1 EGS NFT before snapshot -> 1 game
-for (const e of egs) {
-  if (e.quantity >= 1) {
-    add(e.account_address, e.username, 1);
-  }
-}
-
-// 3. Legacy NUMS balance at snapshot -> 1/2/3 games
-for (const l of legacy) {
-  const balance = Number(BigInt(l.balance) / BigInt(10 ** 18));
-  let games;
-  if (balance < LEGACY_TIER_1) games = 1;
-  else if (balance < LEGACY_TIER_2) games = 2;
-  else games = 3;
-  add(l.account_address, l.username, games);
 }
 
 const snapshot = Array.from(map.entries())
-  .map(([account_address, { username, quantity }]) => ({
+  .map(([account_address, { username, total }]) => ({
     account_address,
     username,
-    quantity,
+    total,
+    quantity: Math.min(total, MAX_QUANTITY),
   }))
   .sort(
     (a, b) =>

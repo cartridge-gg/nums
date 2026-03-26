@@ -29,22 +29,29 @@ const StakesWrapper = ({
   return <Stakes total={total} index={index} setIndex={setIndex} />;
 };
 
+const noOp = () => {};
+
 export const Default: Story = {
+  args: { total: 5, index: 0, setIndex: noOp },
   render: () => <StakesWrapper total={5} />,
 };
 
 export const WithInitialIndex: Story = {
+  args: { total: 5, index: 2, setIndex: noOp },
   render: () => <StakesWrapper total={5} initialIndex={2} />,
 };
 
 export const Small: Story = {
+  args: { total: 3, index: 0, setIndex: noOp },
   render: () => <StakesWrapper total={3} />,
 };
 
 export const Large: Story = {
+  args: { total: 10, index: 0, setIndex: noOp },
   render: () => <StakesWrapper total={10} />,
 };
 
 export const Full: Story = {
+  args: { total: 5, index: 5, setIndex: noOp },
   render: () => <StakesWrapper total={5} initialIndex={5} />,
 };

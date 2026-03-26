@@ -220,10 +220,16 @@ pub mod Collection {
             let world = self.world(@NAMESPACE());
             let store = StoreTrait::new(world);
             let game = store.game(game_id);
+            let mut game_slots = game.slots().span();
+            let mut slots = array![game.slot_min];
+            while let Some(slot) = game_slots.pop_front() {
+                slots.append(*slot);
+            }
+            slots.append(game.slot_max);
             Metadata::gen(
                 name: "Nums Games",
                 description: "Nums Games",
-                game_slots: game.slots().span(),
+                game_slots: slots.span(),
                 game_id: game.id,
                 game_number: game.number,
                 game_level: game.level,

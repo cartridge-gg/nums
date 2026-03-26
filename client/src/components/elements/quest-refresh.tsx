@@ -14,7 +14,7 @@ const questRefreshVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-purple-900 rounded-lg",
+        default: "bg-white-900 rounded-lg",
       },
     },
     defaultVariants: {
@@ -60,7 +60,8 @@ export const QuestRefresh = ({
         className="font-primary text-[22px]/[25px] tracking-[0.03em] text-white-500 translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
-        New Quests in: {countdown}
+        <span className="hidden md:inline">New Quests in: </span>
+        {countdown}
       </p>
     </div>
   );

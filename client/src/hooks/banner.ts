@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   loadConfig,
   getAvailableConfigs,
   type ControllerConfig,
 } from "@cartridge/presets";
-import { useActions } from "./actions";
 import { useBundles } from "@/context/bundles";
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useNetwork } from "@starknet-react/core";
+import type ControllerConnector from "@cartridge/connector/controller";
+import { getSetupAddress } from "@/config";
+import { usePreserveSearchNavigate } from "@/lib/router";
+import { useControllers } from "@/context/controllers";
 
 export interface GameBanner {
   preset: string;
@@ -49,13 +52,42 @@ const BANNERS: GameBanner[] = [
 ];
 
 export const useBanners = () => {
-  const {
-    bundle: { social },
-  } = useActions();
-  const { account } = useAccount();
+  const { account, connector } = useAccount();
+  const { chain } = useNetwork();
   const { issuances } = useBundles();
   const [results, setResults] = useState<BannerConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = usePreserveSearchNavigate();
+  const { find } = useControllers();
+
+  const username = useMemo(() => {
+    if (!account?.address) return undefined;
+    const controller = find(account.address);
+    return controller?.username;
+  }, [account?.address, find]);
+
+  const referralLink = useMemo(() => {
+    if (!username) return "";
+    return `${window.location.origin}/?ref=${encodeURIComponent(username)}`;
+  }, [username]);
+
+  const handleShare = useCallback(async () => {
+    if (!username || !chain) return;
+    const onPurchaseComplete = () => {
+      navigate("/game");
+    };
+
+    const socialClaimOptions = {
+      shareMessage: `Check out @numsgg!\n${referralLink}`,
+    };
+
+    const controller = connector as ControllerConnector;
+    const registry = getSetupAddress(chain.id);
+    await controller.controller.openBundle(0, registry, {
+      onPurchaseComplete,
+      socialClaimOptions,
+    });
+  }, [navigate, chain.id, username, referralLink]);
 
   useEffect(() => {
     const load = async () => {
@@ -78,7 +110,7 @@ export const useBanners = () => {
           if (config) entry.config = config;
           if (b.position !== undefined) entry.position = b.position;
           if (b.origin) entry.origin = b.origin;
-          if (b.name === "social" && !issuance) entry.onClick = () => social(0);
+          if (b.name === "social" && !issuance) entry.onClick = handleShare;
           if (b.name === "social" && (!account || !!issuance))
             entry.disabled = true;
           if (b.name === "social" && !!issuance) entry.hidden = true;

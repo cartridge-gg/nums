@@ -5,6 +5,7 @@ import { Quests, type QuestsProps } from "@/components/containers/quests";
 import { Close } from "@/components/elements";
 import { QuestCount } from "@/components/elements/quest-count";
 import { QuestGift } from "@/components/elements/quest-gift";
+import { QuestRefresh } from "@/components/elements/quest-refresh";
 import { useId } from "react";
 
 export interface QuestSceneProps
@@ -54,6 +55,16 @@ export const QuestScene = ({
             </div>
           )}
         </div>
+        <div className="flex items-center gap-3 mx-1">
+          <QuestRefresh
+            expiration={questsProps.expiration}
+            className="flex-1"
+          />
+          <div className="flex items-center gap-2">
+            <QuestCount count={count} total={total} />
+            {count < total && <QuestGift direction="left" />}
+          </div>
+        </div>
         <Quests {...questsProps} className="overflow-hidden" />
       </div>
 
@@ -74,6 +85,7 @@ export const QuestScene = ({
               <QuestCount count={count} total={total} />
             </div>
           </div>
+          <QuestRefresh expiration={questsProps.expiration} />
           <Quests {...questsProps} />
         </div>
       </div>
@@ -87,7 +99,7 @@ const Title = () => {
       className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase tracking-wider translate-y-0.5"
       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      Quests
+      Daily Quests
     </h2>
   );
 };

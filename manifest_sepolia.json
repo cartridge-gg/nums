@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x48d9413e93af3644407a952ba99596310cb285575819aed9251fe9f45883be2",
-    "seed": "nums-v1.0.56",
+    "address": "0x6589c9fb6a4908f84ba48c1fee0258dbc39e00245de7add36c04b47638652b1",
+    "seed": "nums-v1.0.57",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,8 +33,8 @@
   },
   "contracts": [
     {
-      "address": "0x1137c1539ce55772d38a4b151400a390797a1a2986cd8ca1deec279862792d",
-      "class_hash": "0x3711b91e3416acc7e68800ac76916d7b90c83783b08ae21e56088951e7cd7fa",
+      "address": "0x7750b25b8ee0858030fd2118bb3f5aed0b26fbf6ea6452158985ac08d3af1ff",
+      "class_hash": "0x55b302fe1b46b5c9be3b2397036290bccc53be07cff78ba229c2644c439172",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -55,8 +55,8 @@
       ]
     },
     {
-      "address": "0x37d4aef94ac5e9b2d49eb763bfa2db76f3f82e31506a78ef8458dc458e820b",
-      "class_hash": "0x491ffcc13f14512297a3a758feacbb7f3048abb52bd9e917a04490a14b9eea8",
+      "address": "0x637947a41fd075e7715b198fe55e876b78bc630a0efe0db9d1cc1b9a5786a9c",
+      "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -75,8 +75,8 @@
       ]
     },
     {
-      "address": "0x73f72debc30118f7498ef794fcaf2f0ffbf3c3b0ed1fdb447cf35e96a8854d9",
-      "class_hash": "0x7260fd1d2e1422758f2ae2741ae449935b5d8b8c176216f89ae3f3d760f148b",
+      "address": "0x39ecc568c2aecbb826b698093eabba17e16a60eae66985f8699beafad5be2bb",
+      "class_hash": "0x1a04ad3d4066d571d7fd4334b6acac70140fded7f55cfe4a7396ce77b9fe417",
       "init_calldata": [],
       "tag": "NUMS-Governor",
       "selector": "0x397194f3d41e280f3d5b2467cb3fdc0e46a0eca901bc5246b608da913bb655e",
@@ -100,8 +100,8 @@
       ]
     },
     {
-      "address": "0x3774eb7f309e2b2c9b02103ae7050d542ca3c75d55e59fed6ca3fa524d19cd1",
-      "class_hash": "0x4ece0af9674b07b6979402aead7408fdb979b12b99599b9e7ecd31b932b5c2",
+      "address": "0x523487f7d5adc7b6b041593ecac5e90e38465f60b6d07cbf448305f9e02114b",
+      "class_hash": "0x5151cb7d3198a27c9116584d557c92ae49b5a68be83490dd0c03b13d0b869d4",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -119,12 +119,13 @@
       ]
     },
     {
-      "address": "0x6361108a877e3bf74e3d92242907d40315824555d50bd7cad08a021021ed8a4",
-      "class_hash": "0x37731797d3604ed5ea9ba739a408c5cb4aa1a85109168636118a24ff1f2a9ff",
+      "address": "0x4912c0ecd00eb4ee1dae8aa7f10683740deda6a15a84360ff93e1eb803ca4b9",
+      "class_hash": "0x75ddd4319641f993b23355150494d746bcb960ed8edf159c74c44d355caedaa",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
         "0x1",
+        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753",
         "0x050d4da9f66589eadaa1d5e31cf73b08ac1a67c8b4dcd88e6fd4fe501c628af2",
         "0x06a2aee84bb0ed5dded4384ddd0e40e9c1372b818668375ab8e3ec08807417e5",
         "0x1E8480",
@@ -155,7 +156,6 @@
         "set_base_price",
         "merkledrop_register",
         "merkledrop_claim",
-        "fix",
         "upgrade",
         "grant_role",
         "revoke_role",
@@ -163,22 +163,7 @@
       ]
     },
     {
-      "address": "0x32b7a6f69db05eed8c8b9cdbabb27cda53f41545825794a52cc37911adbfb2a",
-      "class_hash": "0x7a5d999c0bba898e6782476999a99b504f24c7be242dfd83239d07284840723",
-      "init_calldata": [],
-      "tag": "NUMS-Team",
-      "selector": "0x32e0358a4bb7835ee59fcb9d8add7b9c693db14f54d1f8d44a3e238a3b3c2",
-      "systems": [
-        "dojo_init",
-        "withdraw",
-        "upgrade",
-        "grant_role",
-        "revoke_role",
-        "renounce_role"
-      ]
-    },
-    {
-      "address": "0x3c27ade072f09c834e94126979b4210f111ae15893716d44e73de5a7d04919c",
+      "address": "0x67ffa7fe2e0a321b46d1df57ebbdc7540edb7f3b8df8a79d737776e771e44d0",
       "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
@@ -201,8 +186,8 @@
       ]
     },
     {
-      "address": "0x6fc6e7bc598d4eb335277480512aee30edcb4162cafe2185a9eb3685b508b82",
-      "class_hash": "0x2aecd849edafba341c3ab7d4ea3f137dcb8db59255a5042e9c366650b48b8c3",
+      "address": "0x2e85cf9f1e61ee023a8d7c2576dff4a0655b52d6cd8a8d1acbe7f8230de6bee",
+      "class_hash": "0x108c043199db093d66dc239f259a9dd0821f6e9f83ed1b667647ff8bfe6cb0",
       "init_calldata": [
         "0xe10",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -229,11 +214,11 @@
       ]
     },
     {
-      "address": "0x2ded562376646054bebdabded77594c93ffd6d5bd2838b630e6a2d35c21820e",
-      "class_hash": "0x24f117621518fc2f5f324f0d2418c7adddce44fd86ee00668c918fb6271d4bf",
+      "address": "0x5737038082f708ea5adff66e588be197b7937e64565765dd41fc2ac89bb9197",
+      "class_hash": "0x5215217394313d8961a7b192d0fc2d2bbcd09e6adde61fec57b8e9128681b43",
       "init_calldata": [
         "0x1",
-        "0x0"
+        "0x1F4"
       ],
       "tag": "NUMS-Vault",
       "selector": "0x62e34e3b9b2ffaeb5384597a44c02d8219a11a1d8b5ba667422c244c599324",
@@ -532,6 +517,11 @@
           "key": false
         },
         {
+          "name": "team_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
           "name": "ekubo_router",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
@@ -612,7 +602,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x4814e0f4b1d539d5aca28ec78db15583983bcb6ae0725dc3f3515407ed77e11",
+      "class_hash": "0x2749115684d9339b9055256626141590d758a4853b78729d91aeb41a538c55e",
       "tag": "NUMS-Config",
       "selector": "0x23d513dd3f3a058c7e225fa6a00da6e73ee01951efd20fedd5987066283c49b"
     },
@@ -719,7 +709,7 @@
           "key": false
         }
       ],
-      "class_hash": "0x48a3422fdd0adbca95c477ef3d68d86803378db2909d52fbbcaf90c00701c06",
+      "class_hash": "0x3e1c0e035f1ea62628a5735b5f2f822bd8a5b67b3317c2c9c4e6105f5b78eca",
       "tag": "NUMS-Game",
       "selector": "0x4b7042c99557f807ddab816d4e36179293a4ca4580a4d4af3bdfa4e1fb7c22e"
     },
@@ -5161,6 +5151,10 @@
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
+          "name": "team_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
           "name": "ekubo_router",
           "type": "core::starknet::contract_address::ContractAddress"
         },
@@ -5236,6 +5230,10 @@
         },
         {
           "name": "quote",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "team_address",
           "type": "core::starknet::contract_address::ContractAddress"
         },
         {
@@ -6115,13 +6113,6 @@
           ],
           "outputs": [],
           "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "fix",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "external"
         }
       ]
     },
@@ -6154,46 +6145,6 @@
           "name": "MerkledropEvent",
           "type": "merkledrop::component::Component::Event",
           "kind": "flat"
-        },
-        {
-          "name": "AccessControlEvent",
-          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
-          "kind": "flat"
-        },
-        {
-          "name": "SRC5Event",
-          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
-          "kind": "flat"
-        }
-      ]
-    },
-    {
-      "type": "interface",
-      "name": "nums::systems::team::ITeam",
-      "items": [
-        {
-          "type": "function",
-          "name": "withdraw",
-          "inputs": [],
-          "outputs": [],
-          "state_mutability": "external"
-        }
-      ]
-    },
-    {
-      "type": "event",
-      "name": "nums::systems::team::Team::Event",
-      "kind": "enum",
-      "variants": [
-        {
-          "name": "UpgradeableEvent",
-          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
-          "kind": "nested"
-        },
-        {
-          "name": "WorldProviderEvent",
-          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
-          "kind": "nested"
         },
         {
           "name": "AccessControlEvent",

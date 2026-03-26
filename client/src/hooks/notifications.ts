@@ -5,14 +5,14 @@ import { useAchievements } from "@/context/achievements";
 import type { Referral } from "@/hooks/referral";
 
 export interface Notifications {
-  hasMissionNotification: boolean;
-  hasSettingsNotification: boolean;
   hasQuestNotification: boolean;
   hasAchievementNotification: boolean;
+  hasSettingsNotification: boolean;
   newQuestIds: Set<string>;
   newAchievementIds: Set<string>;
   newReferralCount: number;
-  clearMissionNotifications: () => void;
+  clearQuestNotifications: () => void;
+  clearAchievementNotifications: () => void;
   clearReferralNotifications: () => void;
 }
 
@@ -124,11 +124,9 @@ export function useNotifications(
 
   const hasQuestNotification = newQuestIds.size > 0;
   const hasAchievementNotification = newAchievementIds.size > 0;
-  const hasMissionNotification =
-    hasQuestNotification || hasAchievementNotification;
   const hasSettingsNotification = newReferralCount > 0;
 
-  const clearMissionNotifications = useCallback(() => {
+  const clearQuestNotifications = useCallback(() => {
     setAcknowledgedQuestIds((prev) => {
       const next = new Set(prev);
       for (const id of newQuestIds) {
@@ -136,6 +134,9 @@ export function useNotifications(
       }
       return next;
     });
+  }, [newQuestIds]);
+
+  const clearAchievementNotifications = useCallback(() => {
     setAcknowledgedAchievementIds((prev) => {
       const next = new Set(prev);
       for (const id of newAchievementIds) {
@@ -143,21 +144,21 @@ export function useNotifications(
       }
       return next;
     });
-  }, [newQuestIds, newAchievementIds]);
+  }, [newAchievementIds]);
 
   const clearReferralNotifications = useCallback(() => {
     setAcknowledgedReferralCount(referralData?.length ?? 0);
   }, [referralData]);
 
   return {
-    hasMissionNotification,
-    hasSettingsNotification,
     hasQuestNotification,
     hasAchievementNotification,
+    hasSettingsNotification,
     newQuestIds,
     newAchievementIds,
     newReferralCount,
-    clearMissionNotifications,
+    clearQuestNotifications,
+    clearAchievementNotifications,
     clearReferralNotifications,
   };
 }

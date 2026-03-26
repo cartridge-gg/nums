@@ -1,0 +1,61 @@
+name: CI Cairo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.cairo"
+      - "**/Scarb.toml"
+      - "**/Scarb.lock"
+  pull_request:
+    paths:
+      - "**/*.cairo"
+      - "**/Scarb.toml"
+      - "**/Scarb.lock"
+
+env:
+  SCARB_VERSION: "2.13.1"
+  DOJO_VERSION: "1.8.5"
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Format check
+        run: scarb fmt --check
+
+  build:
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - uses: ./.github/actions/setup-dojo
+
+      - name: Build
+        run: sozo build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - uses: ./.github/actions/setup-dojo
+
+      - name: Test
+        run: scarb test

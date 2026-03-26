@@ -19,12 +19,8 @@ const meta = {
     },
   },
   argTypes: {
-    isMainnet: {
-      control: "boolean",
-      description: "Whether the current chain is mainnet",
-    },
     balance: {
-      control: "text",
+      control: "number",
       description: "The balance value to display",
     },
     username: {
@@ -48,9 +44,8 @@ const meta = {
     },
   },
   args: {
-    balance: "100,200",
+    balance: 100200,
     username: undefined,
-    isMainnet: false,
     onConnect: () => {},
     onBalance: () => {},
   },
@@ -81,6 +76,5 @@ export const Connected: Story = {
 export const Mainnet: Story = {
   args: {
     username: "Username",
-    isMainnet: true,
   },
 };

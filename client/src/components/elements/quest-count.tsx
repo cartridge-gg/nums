@@ -10,7 +10,7 @@ export interface QuestCountProps
 }
 
 const questCountVariants = cva(
-  "flex items-center px-3 py-2.5 gap-2 bg-white-900 rounded-lg",
+  "flex items-center p-2.5 gap-2 bg-white-900 rounded-lg",
   {
     variants: {
       variant: {

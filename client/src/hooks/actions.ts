@@ -561,23 +561,25 @@ export const useActions = () => {
   }, [account, chain.id, capture]);
 
   const merkledropClaim = useCallback(
-    async (treeId: string, proofs: string[], data: string[]) => {
+    async (drops: { treeId: string; proofs: string[]; data: string[] }[]) => {
       try {
-        if (!account?.address) return false;
-        const gameAddress = getGameAddress(chain.id);
-        await account.execute([
-          {
+        if (!account?.address || drops.length === 0) return false;
+        const gameAddress = getSetupAddress(chain.id);
+        await account.execute(
+          drops.map((drop) => ({
             contractAddress: gameAddress,
             entrypoint: "merkledrop_claim",
             calldata: CallData.compile({
-              tree_id: treeId,
-              proofs,
-              data,
+              tree_id: drop.treeId,
+              proofs: drop.proofs,
+              data: drop.data,
               receiver: account.address,
             }),
-          },
-        ]);
-        capture("merkledrop_claimed", { tree_id: treeId });
+          })),
+        );
+        for (const drop of drops) {
+          capture("merkledrop_claimed", { tree_id: drop.treeId });
+        }
         return true;
       } catch (e) {
         console.log({ e });

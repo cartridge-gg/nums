@@ -15,7 +15,7 @@ const manifest = JSON.parse(
   readFileSync(join(ROOT, "manifest_sepolia.json"), "utf-8"),
 );
 const CONTRACT_ADDRESS = manifest.contracts.find(
-  (c) => c.tag === "NUMS-Play",
+  (c) => c.tag === "NUMS-Setup",
 ).address;
 
 function promptPassword() {
@@ -77,44 +77,53 @@ const account = new Account({
   signer: privateKey,
 });
 
+const CHUNK_SIZE = 900;
+const DELAY_MS = 5_000;
+
 const snapshot = JSON.parse(
-  readFileSync(join(__dirname, "snapshot.json"), "utf-8"),
+  readFileSync(join(__dirname, "snapshot-20260326.json"), "utf-8"),
 );
 
-const sorted = [...snapshot].sort((a, b) => {
-  const balA = BigInt(a.balance);
-  const balB = BigInt(b.balance);
-  if (balB > balA) return 1;
-  if (balB < balA) return -1;
-  return 0;
-});
+const data = snapshot.map((user) => [
+  user.account_address,
+  user.quantity.toString(),
+]);
 
-const data = sorted.map((user, i) => {
-  let count;
-  if (i < 50) count = 5;
-  else if (i < 100) count = 4;
-  else if (i < 150) count = 3;
-  else if (i < 200) count = 2;
-  else count = 1;
-  return [user.account_address, count.toString()];
-});
-
-const expiration = 1782856800;
-const calldata = CallData.compile([data, expiration]);
+const expiration = 1782864000;
+const chunks = [];
+for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+  chunks.push(data.slice(i, i + CHUNK_SIZE));
+}
 
 console.error(`Account: ${accountAddress}`);
-console.error(`Contract: ${CONTRACT_ADDRESS} (NUMS-Play)`);
+console.error(`Contract: ${CONTRACT_ADDRESS} (NUMS-Setup)`);
 console.error(`Users: ${data.length}`);
-console.error(`Sending merkledrop_register...`);
+console.error(`Chunks: ${chunks.length} x ${CHUNK_SIZE}`);
 
-const tx = await account.execute({
-  contractAddress: CONTRACT_ADDRESS,
-  entrypoint: "merkledrop_register",
-  calldata,
-});
+for (let i = 0; i < chunks.length; i++) {
+  const chunk = chunks[i];
+  const calldata = CallData.compile([chunk, expiration]);
 
-console.error(`Tx hash: ${tx.transaction_hash}`);
-console.error("Waiting for confirmation...");
+  console.error(
+    `\n[${i + 1}/${chunks.length}] Sending ${chunk.length} users...`,
+  );
 
-await provider.waitForTransaction(tx.transaction_hash);
-console.error("Confirmed!");
+  const tx = await account.execute({
+    contractAddress: CONTRACT_ADDRESS,
+    entrypoint: "merkledrop_register",
+    calldata,
+  });
+
+  console.error(`Tx hash: ${tx.transaction_hash}`);
+  console.error("Waiting for confirmation...");
+
+  await provider.waitForTransaction(tx.transaction_hash);
+  console.error("Confirmed!");
+
+  if (i < chunks.length - 1) {
+    console.error(`Waiting ${DELAY_MS / 1000}s before next batch...`);
+    await new Promise((r) => setTimeout(r, DELAY_MS));
+  }
+}
+
+console.error(`\nDone! ${chunks.length} batches registered.`);

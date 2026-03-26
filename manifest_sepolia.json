@@ -34,7 +34,7 @@
   "contracts": [
     {
       "address": "0x7750b25b8ee0858030fd2118bb3f5aed0b26fbf6ea6452158985ac08d3af1ff",
-      "class_hash": "0x1fd7ca8fb994dd4f68f537877ab49fa1f5d1f9a12e1eab5b99b400b63b2ed42",
+      "class_hash": "0x55b302fe1b46b5c9be3b2397036290bccc53be07cff78ba229c2644c439172",
       "init_calldata": [],
       "tag": "NUMS-Collection",
       "selector": "0x75774e3afbda16ca6441b3a77a17fe4a58b241e93d550e217feb69e43c70d16",
@@ -56,7 +56,7 @@
     },
     {
       "address": "0x637947a41fd075e7715b198fe55e876b78bc630a0efe0db9d1cc1b9a5786a9c",
-      "class_hash": "0x491ffcc13f14512297a3a758feacbb7f3048abb52bd9e917a04490a14b9eea8",
+      "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -101,7 +101,7 @@
     },
     {
       "address": "0x523487f7d5adc7b6b041593ecac5e90e38465f60b6d07cbf448305f9e02114b",
-      "class_hash": "0x1bb3c70f857f097ca5b2d16c67efa91de8133fe4226f906430e5b7e1999aa7d",
+      "class_hash": "0x5151cb7d3198a27c9116584d557c92ae49b5a68be83490dd0c03b13d0b869d4",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",

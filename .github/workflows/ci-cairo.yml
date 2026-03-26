@@ -40,12 +40,7 @@ jobs:
         with:
           scarb-version: ${{ env.SCARB_VERSION }}
 
-      - name: Install Dojo
-        run: |
-          curl -L "https://github.com/dojoengine/dojo/releases/download/sozo%2Fv${DOJO_VERSION}/sozo_v${DOJO_VERSION}_linux_amd64.tar.gz" -o /tmp/sozo.tar.gz
-          tar -xzf /tmp/sozo.tar.gz -C /usr/local/bin
-          chmod +x /usr/local/bin/sozo
-          sozo --version
+      - uses: ./.github/actions/setup-dojo
 
       - name: Build
         run: sozo build
@@ -60,12 +55,7 @@ jobs:
         with:
           scarb-version: ${{ env.SCARB_VERSION }}
 
-      - name: Install Dojo
-        run: |
-          curl -L "https://github.com/dojoengine/dojo/releases/download/sozo%2Fv${DOJO_VERSION}/sozo_v${DOJO_VERSION}_linux_amd64.tar.gz" -o /tmp/sozo.tar.gz
-          tar -xzf /tmp/sozo.tar.gz -C /usr/local/bin
-          chmod +x /usr/local/bin/sozo
-          sozo --version
+      - uses: ./.github/actions/setup-dojo
 
       - name: Test
         run: scarb test

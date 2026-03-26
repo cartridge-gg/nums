@@ -174,7 +174,7 @@ pub mod PlayableComponent {
 
             // [Interaction] Mint a game
             let collection = self.get_collection(world);
-            let game_id = collection.mint(player, false);
+            let game_id = collection.mint(player, true);
 
             // [Effect] Create game
             let config = store.config();

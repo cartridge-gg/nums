@@ -1,7 +1,7 @@
 import { HomeScene, LoadingScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePreserveSearchNavigate } from "@/lib/router";
-import { useGames } from "@/hooks/games";
+import { useGames } from "@/context/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";

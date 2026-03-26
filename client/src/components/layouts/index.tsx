@@ -9,6 +9,7 @@ import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
 import { StakingScene } from "@/components/scenes/staking";
+import { Airdrop } from "@/components/containers/airdrop";
 import { useHeader } from "@/hooks/header";
 import { useAccount, useDisconnect, useNetwork } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
@@ -21,7 +22,7 @@ import { useLeaderboard } from "@/hooks/leaderboard";
 import { useQuestScene } from "@/hooks/quests";
 import { useAchievementScene } from "@/hooks/achievements";
 import { usePrices } from "@/context/prices";
-import { useGames } from "@/hooks/games";
+import { useGames } from "@/context/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
@@ -37,7 +38,7 @@ import { useSound } from "@/context/sound";
 import { useTutorial } from "@/context/tutorial";
 import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
 import { useBundles } from "@/context/bundles";
-import { useMerkledrops } from "@/context/merkledrops";
+import { useAirdrop } from "@/hooks/airdrop";
 import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
 import { getSetupAddress } from "@/config";
@@ -56,7 +57,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
-  const { mint, merkledrop: merkledropActions } = useActions();
+  const { mint } = useActions();
   const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
@@ -72,6 +73,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
+  const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [bundleIndex, setBundleIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
@@ -143,11 +145,18 @@ export const Layout = ({ children }: LayoutProps) => {
     return `${window.location.origin}/?ref=${encodeURIComponent(username)}`;
   }, [username]);
 
-  const { merkledrops } = useMerkledrops();
-  const hasMerkledrop = useMemo(
-    () => merkledrops.some((m) => !m.claimed && !m.expired),
-    [merkledrops],
-  );
+  const {
+    hasMerkledrop,
+    count: airdropCount,
+    loading: airdropLoading,
+    claim: claimAirdrop,
+  } = useAirdrop();
+
+  useEffect(() => {
+    if (showAirdropModal && !airdropLoading && airdropCount === 0) {
+      setShowAirdropModal(false);
+    }
+  }, [airdropLoading, airdropCount, showAirdropModal]);
 
   const { vaultInfo, vaultClaimed } = useVault();
   const stakingLocked = vaultInfo ? !vaultInfo.open : false;
@@ -244,6 +253,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowStakingScene(false);
       setShowReferralScene(false);
       setShowSettingsScene(false);
+      setShowAirdropModal(false);
 
       const newestGame = games[0];
       if (!newestGame) return;
@@ -337,6 +347,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowStakingScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
+          setShowAirdropModal(false);
         }}
         onAchievements={() => {
           setShowAchievementScene(!showAchievementScene);
@@ -346,6 +357,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowStakingScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
+          setShowAirdropModal(false);
         }}
         onLeaderboard={() => {
           setShowLeaderboardScene(!showLeaderboardScene);
@@ -355,6 +367,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowStakingScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
+          setShowAirdropModal(false);
         }}
         onBalance={() => {
           if (!showStakingScene) refetchStaking();
@@ -365,6 +378,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowReferralScene(false);
           setShowSettingsScene(false);
+          setShowAirdropModal(false);
         }}
         onSettings={() => {
           setShowSettingsScene(!showSettingsScene);
@@ -374,15 +388,20 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowAirdropModal(false);
         }}
         faucetBalance={headerData.faucetBalance}
         onFaucet={() => mint()}
         hasMerkledrop={hasMerkledrop}
         onMerkledrop={() => {
-          const drop = merkledrops.find((m) => !m.claimed && !m.expired);
-          if (drop) {
-            merkledropActions.claim(drop.root, drop.proofs, drop.data);
-          }
+          setShowAirdropModal(!showAirdropModal);
+          setShowQuestScene(false);
+          setShowAchievementScene(false);
+          setShowLeaderboardScene(false);
+          setShowPurchaseScene(false);
+          setShowStakingScene(false);
+          setShowReferralScene(false);
+          setShowSettingsScene(false);
         }}
       />
       <div
@@ -402,6 +421,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowStakingScene(false);
             setShowReferralScene(false);
             setShowSettingsScene(false);
+            setShowAirdropModal(false);
             capture("purchase_modal_opened", {});
           }}
         >
@@ -515,6 +535,19 @@ export const Layout = ({ children }: LayoutProps) => {
                   notifications.clearReferralNotifications();
                 }}
                 className="h-full"
+              />
+            </div>
+          </div>
+        )}
+        {showAirdropModal && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
+              <Airdrop
+                count={airdropCount}
+                loading={airdropLoading}
+                onClaim={claimAirdrop}
+                onClose={() => setShowAirdropModal(false)}
+                className="w-full md:max-w-[416px]"
               />
             </div>
           </div>

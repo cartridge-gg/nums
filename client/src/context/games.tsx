@@ -1,5 +1,13 @@
+import type React from "react";
 import type { SubscriptionCallbackArgs } from "@dojoengine/sdk";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import type * as torii from "@dojoengine/torii-wasm";
 import { NAMESPACE } from "@/constants";
 import { Game as GameModel } from "@/models/game";
@@ -9,7 +17,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Game } from "@/api/torii/game";
 import type { RawGame } from "@/models";
 
-export const useGames = () => {
+interface GamesContextType {
+  playerGames: GameModel[];
+  loading: boolean;
+  refresh: () => Promise<unknown>;
+}
+
+const GamesContext = createContext<GamesContextType | undefined>(undefined);
+
+export function GamesProvider({ children }: { children: React.ReactNode }) {
   const { client } = useEntities();
   const { gameIds, isLoading: assetsLoading } = useAssets();
 
@@ -93,9 +109,29 @@ export const useGames = () => {
     return games.filter((game) => gameIds.includes(game.id));
   }, [games, gameIds]);
 
-  return {
+  const value: GamesContextType = {
     playerGames,
     loading: loading || assetsLoading,
     refresh,
   };
-};
+
+  return (
+    <GamesContext.Provider value={value}>{children}</GamesContext.Provider>
+  );
+}
+
+export function useGames() {
+  const context = useContext(GamesContext);
+  if (!context) {
+    throw new Error("useGames must be used within a GamesProvider");
+  }
+  return context;
+}
+
+export function useGame(gameId: number | null | undefined) {
+  const { playerGames } = useGames();
+  return useMemo(() => {
+    if (!gameId) return undefined;
+    return playerGames.find((g) => g.id === gameId);
+  }, [playerGames, gameId]);
+}

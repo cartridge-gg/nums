@@ -3,13 +3,14 @@ import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { Header } from "@/components/containers/header";
-import { MissionScene, type MissionTab } from "@/components/scenes/mission";
+import { QuestScene } from "@/components/scenes/quest";
+import { AchievementScene } from "@/components/scenes/achievement";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
 import { StakingScene } from "@/components/scenes/staking";
 import { useHeader } from "@/hooks/header";
-import { useAccount, useDisconnect } from "@starknet-react/core";
+import { useAccount, useDisconnect, useNetwork } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
@@ -39,6 +40,7 @@ import { useBundles } from "@/context/bundles";
 import { useMerkledrops } from "@/context/merkledrops";
 import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
+import { getSetupAddress } from "@/config";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -47,17 +49,14 @@ export interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const { chain } = useNetwork();
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
   const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account, connector } = useAccount();
   const { find, loading } = useControllers();
   const headerData = useHeader();
-  const {
-    mint,
-    bundle: bundleActions,
-    merkledrop: merkledropActions,
-  } = useActions();
+  const { mint, merkledrop: merkledropActions } = useActions();
   const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
@@ -66,9 +65,8 @@ export const Layout = ({ children }: LayoutProps) => {
   const { getNumsPrice } = usePrices();
   const { playerGames: games, loading: gamesLoading } = useGames();
   const navigate = usePreserveSearchNavigate();
-  const [showMissionScene, setShowMissionScene] = useState(false);
-  const [missionDefaultTab, setMissionDefaultTab] =
-    useState<MissionTab>("quests");
+  const [showQuestScene, setShowQuestScene] = useState(false);
+  const [showAchievementScene, setShowAchievementScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
@@ -93,10 +91,16 @@ export const Layout = ({ children }: LayoutProps) => {
       const controller = find(address);
       const refParam = new URLSearchParams(window.location.search).get("ref");
       identify(address, {
-        $set: { username: controller?.username, wallet_address: address },
-        $set_once: { referrer: refParam || undefined },
+        $set: {
+          username: controller?.username ?? null,
+          wallet_address: address,
+        },
+        $set_once: { referrer: refParam || null },
       });
-      capture("wallet_connected", { address, username: controller?.username });
+      capture("wallet_connected", {
+        address,
+        username: controller?.username ?? null,
+      });
     } else if (prev && !address) {
       capture("wallet_disconnected", {});
     }
@@ -190,23 +194,29 @@ export const Layout = ({ children }: LayoutProps) => {
   });
 
   const handlePurchase = useCallback(async () => {
-    if (bundle) {
-      const success = await bundleActions.issue(
-        bundle.id,
-        bundle.price,
-        bundle.payment_token,
-      );
-      if (success) {
-        setShowMissionScene(false);
-        setShowLeaderboardScene(false);
-        setShowPurchaseScene(false);
-        setShowStakingScene(false);
-        setShowReferralScene(false);
-        setShowSettingsScene(false);
-        navigate("/game");
-      }
-    }
-  }, [bundle, bundleActions, navigate]);
+    if (!bundle || !chain) return;
+    const onPurchaseComplete = () => {
+      setShowQuestScene(false);
+      setShowAchievementScene(false);
+      setShowLeaderboardScene(false);
+      setShowPurchaseScene(false);
+      setShowStakingScene(false);
+      setShowReferralScene(false);
+      setShowSettingsScene(false);
+      navigate("/game");
+    };
+
+    const socialClaimOptions = {
+      shareMessage: `Check out @numsgg!\n${referralLink}`,
+    };
+
+    const controller = connector as ControllerConnector;
+    const registry = getSetupAddress(chain.id);
+    await controller.controller.openBundle(bundle.id, registry, {
+      onPurchaseComplete,
+      socialClaimOptions: bundle.price === 0n ? socialClaimOptions : undefined,
+    });
+  }, [bundle, navigate, chain.id, referralLink]);
 
   // Detect new game and navigate to it
   useEffect(() => {
@@ -227,7 +237,8 @@ export const Layout = ({ children }: LayoutProps) => {
     // Only trigger when length increases (new game added)
     if (currentLength > previousLength) {
       // Close all modals
-      setShowMissionScene(false);
+      setShowQuestScene(false);
+      setShowAchievementScene(false);
       setShowLeaderboardScene(false);
       setShowPurchaseScene(false);
       setShowStakingScene(false);
@@ -315,11 +326,21 @@ export const Layout = ({ children }: LayoutProps) => {
         balance={headerData.balance}
         username={username}
         onConnect={headerData.handleConnect}
-        hasMissionNotification={notifications.hasMissionNotification}
+        hasQuestNotification={notifications.hasQuestNotification}
+        hasAchievementNotification={notifications.hasAchievementNotification}
         hasSettingsNotification={notifications.hasSettingsNotification}
-        onMissions={() => {
-          setMissionDefaultTab("quests");
-          setShowMissionScene(!showMissionScene);
+        onQuests={() => {
+          setShowQuestScene(!showQuestScene);
+          setShowAchievementScene(false);
+          setShowLeaderboardScene(false);
+          setShowPurchaseScene(false);
+          setShowStakingScene(false);
+          setShowReferralScene(false);
+          setShowSettingsScene(false);
+        }}
+        onAchievements={() => {
+          setShowAchievementScene(!showAchievementScene);
+          setShowQuestScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
@@ -328,7 +349,8 @@ export const Layout = ({ children }: LayoutProps) => {
         }}
         onLeaderboard={() => {
           setShowLeaderboardScene(!showLeaderboardScene);
-          setShowMissionScene(false);
+          setShowQuestScene(false);
+          setShowAchievementScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
@@ -337,7 +359,8 @@ export const Layout = ({ children }: LayoutProps) => {
         onBalance={() => {
           if (!showStakingScene) refetchStaking();
           setShowStakingScene(!showStakingScene);
-          setShowMissionScene(false);
+          setShowQuestScene(false);
+          setShowAchievementScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowReferralScene(false);
@@ -345,7 +368,8 @@ export const Layout = ({ children }: LayoutProps) => {
         }}
         onSettings={() => {
           setShowSettingsScene(!showSettingsScene);
-          setShowMissionScene(false);
+          setShowQuestScene(false);
+          setShowAchievementScene(false);
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowStakingScene(false);
@@ -372,7 +396,8 @@ export const Layout = ({ children }: LayoutProps) => {
         <PurchaseModalProvider
           openPurchaseScene={() => {
             setShowPurchaseScene(true);
-            setShowMissionScene(false);
+            setShowQuestScene(false);
+            setShowAchievementScene(false);
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
             setShowReferralScene(false);
@@ -382,22 +407,34 @@ export const Layout = ({ children }: LayoutProps) => {
         >
           {children}
         </PurchaseModalProvider>
-        {showMissionScene && (
+        {showQuestScene && (
           <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-              <MissionScene
-                questsProps={questsProps}
-                achievementsProps={achievementsProps}
-                defaultTab={missionDefaultTab}
-                hasQuestNotification={notifications.hasQuestNotification}
-                hasAchievementNotification={
-                  notifications.hasAchievementNotification
-                }
-                newQuestIds={notifications.newQuestIds}
-                newAchievementIds={notifications.newAchievementIds}
+              <QuestScene
+                questsProps={{
+                  ...questsProps,
+                  newQuestIds: notifications.newQuestIds,
+                }}
                 onClose={() => {
-                  setShowMissionScene(false);
-                  notifications.clearMissionNotifications();
+                  setShowQuestScene(false);
+                  notifications.clearQuestNotifications();
+                }}
+                className="h-full"
+              />
+            </div>
+          </div>
+        )}
+        {showAchievementScene && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <AchievementScene
+                achievementsProps={{
+                  ...achievementsProps,
+                  newAchievementIds: notifications.newAchievementIds,
+                }}
+                onClose={() => {
+                  setShowAchievementScene(false);
+                  notifications.clearAchievementNotifications();
                 }}
                 className="h-full"
               />
@@ -512,13 +549,11 @@ export const Layout = ({ children }: LayoutProps) => {
                 }}
                 onAchievements={() => {
                   setShowSettingsScene(false);
-                  setMissionDefaultTab("achievements");
-                  setShowMissionScene(true);
+                  setShowAchievementScene(true);
                 }}
                 onQuests={() => {
                   setShowSettingsScene(false);
-                  setMissionDefaultTab("quests");
-                  setShowMissionScene(true);
+                  setShowQuestScene(true);
                 }}
                 onStaking={() => {
                   setShowSettingsScene(false);

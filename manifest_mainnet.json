@@ -76,7 +76,7 @@
     },
     {
       "address": "0x2c937811acc87dcee1514641a2ac0735f2461ce0a2ce414797a9d74012ad5a5",
-      "class_hash": "0x4af13eaa8ea2815cf1af94399daf998a0e8d6b074a41667172d0b64a9e1759f",
+      "class_hash": "0x1a04ad3d4066d571d7fd4334b6acac70140fded7f55cfe4a7396ce77b9fe417",
       "init_calldata": [],
       "tag": "NUMS-Governor",
       "selector": "0x397194f3d41e280f3d5b2467cb3fdc0e46a0eca901bc5246b608da913bb655e",
@@ -101,7 +101,7 @@
     },
     {
       "address": "0x537c9884ecb2788bfb1e940cb97b6f3f15edeb9b3cca50bab6817a572dd16ba",
-      "class_hash": "0x134ee51c1237fcad9e603ac2a46f2a67c11d96df05e9df4aaaaa6247eeb58d6",
+      "class_hash": "0x5b2ebb013dabef0e7852373f38374d3b493908c292a6815be5b97113320da8f",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -120,7 +120,7 @@
     },
     {
       "address": "0x1c53584fdbebd996c163fa2d5d5ad37f4b2f06643ea2bb897c5bee578a2e715",
-      "class_hash": "0x7e65dfa3642fbd11768e3bc849b240482a1058ac2de3982a6ef6d8fe2825e13",
+      "class_hash": "0x70424bbececbaeb74f239262a546a39aad2fd5a6ce84cc060d9f9a0a6e0b4ca",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",

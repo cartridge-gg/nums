@@ -26,7 +26,6 @@ pub trait ISetup<T> {
         data: Span<felt252>,
         receiver: ContractAddress,
     );
-    fn fix(ref self: T);
 }
 
 const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
@@ -161,6 +160,7 @@ pub mod Setup {
         ref self: ContractState,
         vrf_address: Option<ContractAddress>,
         quote_address: Option<ContractAddress>,
+        team_address: ContractAddress,
         ekubo_router_address: ContractAddress,
         ekubo_positions_address: ContractAddress,
         entry_price: u128,
@@ -197,6 +197,7 @@ pub mod Setup {
             world_resource: WORLD_RESOURCE,
             vrf: vrf_address,
             quote: quote_address,
+            team_address: team_address,
             ekubo_router: ekubo_router_address,
             ekubo_positions: ekubo_positions_address,
             burn_percentage: burn_percentage,
@@ -430,13 +431,6 @@ pub mod Setup {
         ) {
             let world = self.world(@NAMESPACE());
             self.merkledrop.claim(world, tree_id, proofs, data, receiver)
-        }
-
-        fn fix(ref self: ContractState) {
-            // [Setup] World and Store
-            let mut world = self.world(@NAMESPACE());
-            // [Effect] Fix
-            self.purchase.fix(world);
         }
     }
 }

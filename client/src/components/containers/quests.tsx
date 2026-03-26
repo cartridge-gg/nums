@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { QuestRefresh } from "@/components/elements/quest-refresh";
 import {
   QuestCard,
   type QuestCardProps,
@@ -41,13 +40,6 @@ export const Quests = ({
 
   return (
     <div className={cn(questsVariants({ variant, className }))} {...props}>
-      {/* <div className="flex items-center gap-2 px-1 md:hidden">
-        <QuestCount count={completed.length} total={quests.length} />
-        {completed.length < quests.length && <QuestGift direction="left" />}
-      </div> */}
-
-      <QuestRefresh expiration={expiration} className="mx-1" />
-
       <div
         className="flex flex-col gap-4 flex-1 h-full overflow-y-auto px-1 pb-2"
         style={{ scrollbarWidth: "none" }}

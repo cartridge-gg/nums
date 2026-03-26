@@ -15,7 +15,7 @@ const meta = {
   },
   argTypes: {
     balance: {
-      control: "text",
+      control: "number",
       description: "The balance value to display",
     },
     variant: {
@@ -30,7 +30,7 @@ const meta = {
     },
   },
   args: {
-    balance: "100,200",
+    balance: 100200,
     onClick: fn(),
   },
 } satisfies Meta<typeof Balance>;
@@ -40,54 +40,54 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    balance: "100200",
+    balance: 100200,
   },
 };
 
 export const Empty: Story = {
   args: {
-    balance: "0",
+    balance: 0,
   },
 };
 
 export const Small: Story = {
   args: {
-    balance: "123",
+    balance: 123,
   },
 };
 
 export const Thousands: Story = {
   args: {
-    balance: "1234",
+    balance: 1234,
   },
 };
 
 export const TenThousands: Story = {
   args: {
-    balance: "12345",
+    balance: 12345,
   },
 };
 
 export const HundredThousands: Story = {
   args: {
-    balance: "123456",
+    balance: 123456,
   },
 };
 
 export const Millions: Story = {
   args: {
-    balance: "1234567",
+    balance: 1234567,
   },
 };
 
 export const Billions: Story = {
   args: {
-    balance: "1234567890",
+    balance: 1234567890,
   },
 };
 
 export const Negative: Story = {
   args: {
-    balance: "-100",
+    balance: -100,
   },
 };

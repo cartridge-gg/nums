@@ -8,9 +8,20 @@ import {
 } from "react";
 import PostHog from "posthog-js-lite";
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[];
+
 interface PostHogContextType {
-  capture: (event: string, properties?: Record<string, unknown>) => void;
-  identify: (distinctId: string, properties?: Record<string, unknown>) => void;
+  capture: (event: string, properties?: Record<string, JsonValue>) => void;
+  identify: (
+    distinctId: string,
+    properties?: Record<string, JsonValue>,
+  ) => void;
 }
 
 const noop = () => {};
@@ -50,14 +61,17 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
 
   const value = useMemo<PostHogContextType>(
     () => ({
-      capture: (event: string, properties?: Record<string, unknown>) => {
+      capture: (event: string, properties?: Record<string, JsonValue>) => {
         try {
           clientRef.current?.capture(event, properties);
         } catch (e) {
           console.error("[posthog] capture failed", e);
         }
       },
-      identify: (distinctId: string, properties?: Record<string, unknown>) => {
+      identify: (
+        distinctId: string,
+        properties?: Record<string, JsonValue>,
+      ) => {
         try {
           clientRef.current?.identify(distinctId, properties);
         } catch (e) {

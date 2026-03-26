@@ -34,8 +34,8 @@ disable_multicall = true
 
 [init_call_args]
 "NUMS-Vault" = [
-  "0x1", # open: true
-  "0x0", # fee: 500 basis points (10000 basis points = 100%)
+  "0x1",   # open: true
+  "0x1F4", # fee: 500 basis points (10000 basis points = 100%)
 ]
 "NUMS-Governor" = []
 "NUMS-Treasury" = [
@@ -54,6 +54,7 @@ disable_multicall = true
   "0x0",                                                                # Option::Some
   "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
   "0x1",                                                                # quote_address: None
+  "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # team_address
   "0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066", # ekubo router address
   "0x02e0af29598b407c8716b17f6d2795eca1b471413fa03fb145a5e33722184067", # ekubo positions address
   "0x1E8480",                                                           # entry_price: 2.000000 USDC

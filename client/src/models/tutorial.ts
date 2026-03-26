@@ -76,7 +76,7 @@ export class Tutorial {
       instruction: {
         title: "I am your LLM manager",
         content:
-          "My current task is to maximize you human potential as a number sorter.",
+          "My current task is to maximize your human potential as a number sorter.",
       },
       primaryLabel: "Next",
       foreground: true,

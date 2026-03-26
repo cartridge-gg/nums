@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    gameId: "1144",
+    gameId: 1144,
     score: 10,
     expiration: 1740614400,
     payout: "$100",
@@ -31,7 +31,7 @@ export const Default: Story = {
 export const New: Story = {
   args: {
     variant: "new",
-    gameId: "1144",
+    gameId: 1144,
     score: 10,
     expiration: 1740614400,
     payout: "$100",

@@ -236,6 +236,7 @@ export const Default: Story = {
   args: {
     gameId: 1144,
     games: { games: sampleGames, gameId: 1144, setGameId: fn() },
+    banners: [],
     allActivities: { activities: sampleActivities },
     playerActivities: { activities: sampleActivities },
     onPractice: fn(),
@@ -251,6 +252,7 @@ export const Empty: Story = {
       gameId: undefined,
       setGameId: fn(),
     },
+    banners: [],
     allActivities: {
       activities: [],
     },

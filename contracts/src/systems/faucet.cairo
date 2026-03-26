@@ -42,7 +42,7 @@ mod Faucet {
 
     fn dojo_init(ref self: ContractState, initial_supply: u128, recipient: ContractAddress) {
         // [Effect] Initialize ERC20
-        self.erc20.initializer("USDC (Circle)", "USDC");
+        self.erc20.initializer("USDC (Nums)", "USDC");
         // [Effect] Mint initial supply
         self.erc20.mint(recipient, initial_supply.into());
         // [Event] Emit a new registered contract for torii to index
@@ -64,7 +64,7 @@ mod Faucet {
     impl ERC20Metadata<ContractState> of IERC20Metadata<ContractState> {
         // IERC20Metadata
         fn name(self: @ContractState) -> felt252 {
-            'USDC (Circle)'
+            'USDC (Nums)'
         }
 
         fn symbol(self: @ContractState) -> felt252 {

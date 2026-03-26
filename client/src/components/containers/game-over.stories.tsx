@@ -60,8 +60,7 @@ export const Default: Story = {
     newGameId: 1,
     newGameCount: 5,
     shareProps: {
-      onCopyLink: fn(),
-      onShareOnX: fn(),
+      username: "player",
     },
     onClaim: fn(),
     onClose: fn(),

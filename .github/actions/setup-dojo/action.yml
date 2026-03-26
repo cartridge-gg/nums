@@ -1,0 +1,11 @@
+name: "Setup Dojo"
+description: "Install Dojo toolchain"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dojo
+      run: |
+        curl -L -o sozo-linux-x86_64.tar.gz "https://github.com/dojoengine/dojo/releases/download/sozo%2Fv${{ env.DOJO_VERSION }}/sozo_v${{ env.DOJO_VERSION }}_linux_amd64.tar.gz"
+        tar -xzf sozo-linux-x86_64.tar.gz
+        sudo mv sozo /usr/local/bin/
+      shell: bash

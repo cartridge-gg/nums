@@ -9,7 +9,6 @@ pub mod systems {
     pub mod governor;
     pub mod play;
     pub mod setup;
-    pub mod team;
     pub mod token;
     pub mod treasury;
     pub mod vault;

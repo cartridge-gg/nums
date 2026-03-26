@@ -31,6 +31,7 @@ function createTestGame(slots: number[]): Game {
     Array.from({ length: DEFAULT_SLOT_COUNT }, () => Trap.from(0)),
     slots,
     0n,
+    0n,
   );
 }
 

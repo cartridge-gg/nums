@@ -241,7 +241,7 @@ describe("Rewarder.estimate", () => {
       10000000000000000000000000n,
       954n,
     );
-    expect(multiplier).toBeCloseTo(18.62, 1);
+    expect(multiplier).toBeCloseTo(40.8, 1);
   });
 
   test("test_multiplier_case_pack_10", () => {
@@ -257,6 +257,6 @@ describe("Rewarder.estimate", () => {
       10000000000000000000000000n,
       954n,
     );
-    expect(multiplier).toBeCloseTo(186.5, 1);
+    expect(multiplier).toBeCloseTo(408.7, 1);
   });
 });

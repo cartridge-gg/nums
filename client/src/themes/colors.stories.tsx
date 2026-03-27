@@ -251,25 +251,6 @@ export const Blue: Story = {
   },
 };
 
-export const Brown: Story = {
-  args: {
-    children: (
-      <div className="flex gap-4 flex-wrap">
-        <Palette color="bg-brown" label="bg-brown" />
-        <Palette color="bg-brown-100" label="bg-brown-100" />
-        <Palette color="bg-brown-200" label="bg-brown-200" />
-        <Palette color="bg-brown-300" label="bg-brown-300" />
-        <Palette color="bg-brown-400" label="bg-brown-400" />
-        <Palette color="bg-brown-500" label="bg-brown-500" />
-        <Palette color="bg-brown-600" label="bg-brown-600" />
-        <Palette color="bg-brown-700" label="bg-brown-700" />
-        <Palette color="bg-brown-800" label="bg-brown-800" />
-        <Palette color="bg-brown-900" label="bg-brown-900" />
-      </div>
-    ),
-  },
-};
-
 export const Black: Story = {
   args: {
     children: (

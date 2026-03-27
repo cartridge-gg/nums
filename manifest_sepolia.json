@@ -120,7 +120,7 @@
     },
     {
       "address": "0x4494b8134a2540cdb91a8883f7b17b51f3647ec9f9ffa326fe32f7c39071e1b",
-      "class_hash": "0x75ddd4319641f993b23355150494d746bcb960ed8edf159c74c44d355caedaa",
+      "class_hash": "0x2403c1e34fc0cc7e06ea803183b8e103aef4807e2fb711a619e52d8bf61dc0d",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
@@ -1245,9 +1245,14 @@
           "name": "time",
           "type": "core::integer::u64",
           "key": false
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256",
+          "key": false
         }
       ],
-      "class_hash": "0x2fee405f8e2bf9a27ef6f0534ca73171ae015b22420e1208e27f350648b831",
+      "class_hash": "0xa9faecf91d67cddb57a5dbf826a855398ee7466f36600d14bf0f21adfb7c92",
       "tag": "NUMS-Purchased",
       "selector": "0x4548a97c0c84652297219dfcdf73a0a75f8c9e4f1d9e284a9db101ec63f1c96"
     },
@@ -4940,6 +4945,10 @@
         {
           "name": "time",
           "type": "core::integer::u64"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
         }
       ]
     },
@@ -4962,6 +4971,10 @@
         {
           "name": "time",
           "type": "core::integer::u64"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u256"
         }
       ]
     },

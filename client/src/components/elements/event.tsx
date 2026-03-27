@@ -20,6 +20,7 @@ export interface EventProps
   earning?: number;
   timestamp: number;
   id: string;
+  price?: bigint;
 }
 
 const getColor = (multiplier: number) => {

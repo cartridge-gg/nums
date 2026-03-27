@@ -100,6 +100,7 @@ export const useToasters = () => {
     if (BigInt(purchased.player_id) !== BigInt(address || "0x0")) return;
 
     const id = Purchased.getId(purchased);
+    const free = purchased.price === 0n;
     if (toastedRef.current.has(id)) return;
     toastedRef.current.add(id);
 
@@ -107,7 +108,7 @@ export const useToasters = () => {
     toast(
       <Toast
         titleProps={{
-          title: "Purchase Complete",
+          title: free ? "Claim Complete" : "Purchase Complete",
         }}
         descriptionProps={{
           reward: "Nums Game(s)",

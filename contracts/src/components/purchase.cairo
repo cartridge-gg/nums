@@ -120,7 +120,7 @@ pub mod PurchaseComponent {
             let nums_supply = asset.total_supply();
             if bundle.price == 0 {
                 // [Event] Emit purchase event
-                store.purchased(recipient.into(), bundle_id, quantity, MULTIPLIER_PRECISION);
+                store.purchased(recipient.into(), bundle_id, quantity, MULTIPLIER_PRECISION, 0);
 
                 // [Return] Result
                 return (recipient, MULTIPLIER_PRECISION, nums_supply, bundle.price, quantity);
@@ -204,6 +204,9 @@ pub mod PurchaseComponent {
                 avg_den.into(),
                 config.slot_count.into(),
             );
+
+            // [Event] Emit purchase event
+            store.purchased(recipient.into(), bundle_id, quantity, multiplier, bundle.price);
 
             // [Return] Result
             (recipient, multiplier, supply_per_game, bundle.price, quantity)

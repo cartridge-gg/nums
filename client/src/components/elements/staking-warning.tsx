@@ -20,14 +20,21 @@ export interface StakingWarningProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingWarningVariants> {
   message?: string;
+  fee?: number;
 }
 
 export const StakingWarning = ({
-  message = "Withdrawal fee of 5% when unstaking. Fees are redistributed to all stakers.",
+  message,
+  fee,
   variant,
   className,
   ...props
 }: StakingWarningProps) => {
+  const displayMessage =
+    message ??
+    (fee === 0
+      ? "Withdrawal fee is currently 0%. This may be subject to change through a governance vote."
+      : `Withdrawal fee of ${fee ?? 5}% when unstaking. Fees are redistributed to all stakers.`);
   return (
     <div
       className={cn(stakingWarningVariants({ variant, className }))}
@@ -36,7 +43,7 @@ export const StakingWarning = ({
       <div className="bg-white-900 rounded flex items-center justify-center w-5 h-5">
         <LockerIcon size="xs" />
       </div>
-      <span className="font-sans text-xs/[15px]">{message}</span>
+      <span className="font-sans text-xs/[15px]">{displayMessage}</span>
     </div>
   );
 };

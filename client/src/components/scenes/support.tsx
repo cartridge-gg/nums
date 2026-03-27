@@ -41,7 +41,7 @@ export const SupportScene = () => {
               Email:{" "}
               <a
                 href="mailto:support@cartridge.gg"
-                className="text-mauve-100 hover:text-mauve-300 underline"
+                className="text-primary-100 hover:text-primary-300 underline"
               >
                 support@cartridge.gg
               </a>
@@ -52,7 +52,7 @@ export const SupportScene = () => {
                 href="https://discord.gg/cartridge"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-mauve-100 hover:text-mauve-300 underline"
+                className="text-primary-100 hover:text-primary-300 underline"
               >
                 discord.gg/cartridge
               </a>
@@ -63,7 +63,7 @@ export const SupportScene = () => {
                 href="https://x.com/numsgg"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-mauve-100 hover:text-mauve-300 underline"
+                className="text-primary-100 hover:text-primary-300 underline"
               >
                 @numsgg
               </a>
@@ -76,7 +76,7 @@ export const SupportScene = () => {
             To request deletion of your account and associated data, email{" "}
             <a
               href="mailto:support@cartridge.gg"
-              className="text-mauve-100 hover:text-mauve-300 underline"
+              className="text-primary-100 hover:text-primary-300 underline"
             >
               support@cartridge.gg
             </a>{" "}
@@ -92,7 +92,7 @@ export const SupportScene = () => {
               href="https://cartridge.gg/legal/privacy-policy/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-mauve-100 hover:text-mauve-300 underline"
+              className="text-primary-100 hover:text-primary-300 underline"
             >
               cartridge.gg/legal/privacy-policy
             </a>

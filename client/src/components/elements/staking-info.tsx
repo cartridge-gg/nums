@@ -19,22 +19,28 @@ const stakingInfoVariants = cva(
 export interface StakingInfoProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof stakingInfoVariants> {
-  /** Info message */
   message?: string;
+  fee?: number;
 }
 
 export const StakingInfo = ({
-  message = "Withdrawal fee of 5% when unstaking. Fees are redistributed to all stakers.",
+  message,
+  fee,
   variant,
   className,
   ...props
 }: StakingInfoProps) => {
+  const displayMessage =
+    message ??
+    (fee === 0
+      ? "Withdrawal fee is currently 0%. This may be subject to change through a governance vote."
+      : `Withdrawal fee of ${fee ?? 5}% when unstaking. Fees are redistributed to all stakers.`);
   return (
     <div className={cn(stakingInfoVariants({ variant, className }))} {...props}>
       <div className="bg-white-900 rounded flex items-center justify-center w-5 h-5">
         <AsteriskIcon size="xs" />
       </div>
-      <span className="font-sans text-xs/[15px]">{message}</span>
+      <span className="font-sans text-xs/[15px]">{displayMessage}</span>
     </div>
   );
 };

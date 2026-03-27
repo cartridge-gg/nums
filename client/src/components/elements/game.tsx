@@ -130,7 +130,7 @@ const Content = ({
   return (
     <div className="flex-1 flex flex-col gap-2 h-10 overflow-hidden">
       <span
-        className="font-primary text-lg/3 tracking-wider align-middle text-mauve-100 translate-y-0.5 whitespace-nowrap"
+        className="font-primary text-lg/3 tracking-wider align-middle text-primary-100 translate-y-0.5 whitespace-nowrap"
         style={{
           textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
         }}

@@ -7,15 +7,15 @@ The game is a skill-based number placement game. Players place 18 numbers (betwe
 <div className="docs-flow">
   <div className="docs-flow__step">
     <span className="docs-flow__num">1</span>
-    <div className="docs-flow__content">The player pays an entry price according to one of several available options</div>
+    <div className="docs-flow__content">Players can select from several entry bundles, which offer a progressively lower cost per game when purchasing up to 10 entries at a time</div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__num">2</span>
-    <div className="docs-flow__content">The system draws 18 unique numbers between <strong>1</strong> and <strong>999</strong></div>
+    <div className="docs-flow__content">The system draws 18 unique numbers one at a time between <strong>1</strong> and <strong>999</strong></div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__num">3</span>
-    <div className="docs-flow__content">The player always sees the <strong>current number</strong> to place and the <strong>next number</strong> (peek)</div>
+    <div className="docs-flow__content">The player always sees the <strong>current number</strong> to place and the <strong>upcoming number</strong> (peek)</div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__num">4</span>
@@ -23,7 +23,7 @@ The game is a skill-based number placement game. Players place 18 numbers (betwe
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__num">5</span>
-    <div className="docs-flow__content">Once placed, a number cannot be moved. After filling a certain number of slots, the player unlocks <strong>power-ups</strong>; using them wisely at the right moment is a key part of the strategy</div>
+    <div className="docs-flow__content">Once placed, a number cannot be moved. Players unlock power-ups by successfully filling designated milestone slots on the board. These power-ups are banked for later use, and deciding exactly when to deploy them is a key part of the strategy</div>
   </div>
   <div className="docs-flow__step">
     <span className="docs-flow__num">6</span>
@@ -45,9 +45,5 @@ Even if the game ends before completion, you can earn **partial rewards** based 
 
 ## Lose conditions
 
-The game ends when a drawn number cannot be legally placed—no valid slot preserves ascending order—and there are no power-ups left to change the outcome.
-
-## Break-even
-
-The break-even point is the first level where the reward value exceeds the entry price. It is a key indicator for evaluating the potential profitability of a game.
+The game ends when the current number cannot be placed anywhere without breaking the ascending order, and you have no power-ups left to use.
 

@@ -26,7 +26,7 @@ const shareVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-black-800 hover:bg-black-700 hover:cursor-pointer transition-colors duration-150 text-mauve-100",
+          "bg-black-800 hover:bg-black-700 hover:cursor-pointer transition-colors duration-150 text-primary-100",
       },
       size: {
         md: "h-10 w-10 md:h-12 md:w-12",

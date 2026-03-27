@@ -16,7 +16,7 @@ const placeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-mauve-800",
+        default: "bg-primary-800",
       },
     },
     defaultVariants: {

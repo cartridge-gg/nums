@@ -61,6 +61,82 @@ export const Purple: Story = {
   },
 };
 
+export const Primary: Story = {
+  args: {
+    children: (
+      <div className="flex gap-4 flex-wrap">
+        <Palette color="bg-primary" label="bg-primary" />
+        <Palette color="bg-primary-100" label="bg-primary-100" />
+        <Palette color="bg-primary-200" label="bg-primary-200" />
+        <Palette color="bg-primary-300" label="bg-primary-300" />
+        <Palette color="bg-primary-400" label="bg-primary-400" />
+        <Palette color="bg-primary-500" label="bg-primary-500" />
+        <Palette color="bg-primary-600" label="bg-primary-600" />
+        <Palette color="bg-primary-700" label="bg-primary-700" />
+        <Palette color="bg-primary-800" label="bg-primary-800" />
+        <Palette color="bg-primary-900" label="bg-primary-900" />
+      </div>
+    ),
+  },
+};
+
+export const Secondary: Story = {
+  args: {
+    children: (
+      <div className="flex gap-4 flex-wrap">
+        <Palette color="bg-secondary" label="bg-secondary" />
+        <Palette color="bg-secondary-100" label="bg-secondary-100" />
+        <Palette color="bg-secondary-200" label="bg-secondary-200" />
+        <Palette color="bg-secondary-300" label="bg-secondary-300" />
+        <Palette color="bg-secondary-400" label="bg-secondary-400" />
+        <Palette color="bg-secondary-500" label="bg-secondary-500" />
+        <Palette color="bg-secondary-600" label="bg-secondary-600" />
+        <Palette color="bg-secondary-700" label="bg-secondary-700" />
+        <Palette color="bg-secondary-800" label="bg-secondary-800" />
+        <Palette color="bg-secondary-900" label="bg-secondary-900" />
+      </div>
+    ),
+  },
+};
+
+export const Crimson: Story = {
+  args: {
+    children: (
+      <div className="flex gap-4 flex-wrap">
+        <Palette color="bg-crimson" label="bg-crimson" />
+        <Palette color="bg-crimson-100" label="bg-crimson-100" />
+        <Palette color="bg-crimson-200" label="bg-crimson-200" />
+        <Palette color="bg-crimson-300" label="bg-crimson-300" />
+        <Palette color="bg-crimson-400" label="bg-crimson-400" />
+        <Palette color="bg-crimson-500" label="bg-crimson-500" />
+        <Palette color="bg-crimson-600" label="bg-crimson-600" />
+        <Palette color="bg-crimson-700" label="bg-crimson-700" />
+        <Palette color="bg-crimson-800" label="bg-crimson-800" />
+        <Palette color="bg-crimson-900" label="bg-crimson-900" />
+      </div>
+    ),
+  },
+};
+
+export const Blush: Story = {
+  args: {
+    children: (
+      <div className="flex gap-4 flex-wrap">
+        <Palette color="bg-blush" label="bg-blush" />
+        <Palette color="bg-blush-100" label="bg-blush-100" />
+        <Palette color="bg-blush-200" label="bg-blush-200" />
+        <Palette color="bg-blush-300" label="bg-blush-300" />
+        <Palette color="bg-blush-400" label="bg-blush-400" />
+        <Palette color="bg-blush-500" label="bg-blush-500" />
+        <Palette color="bg-blush-600" label="bg-blush-600" />
+        <Palette color="bg-blush-700" label="bg-blush-700" />
+        <Palette color="bg-blush-800" label="bg-blush-800" />
+        <Palette color="bg-blush-900" label="bg-blush-900" />
+      </div>
+    ),
+  },
+};
+
 export const Mauve: Story = {
   args: {
     children: (

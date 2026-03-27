@@ -80,7 +80,7 @@ const getStageState = (state: StageState): StageStateConfig => {
   if (completed) {
     return {
       className:
-        "bg-black-900 text-mauve-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
+        "bg-black-900 text-primary-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
       icon: <icons.CheckIcon size="sm" />,
     };
   }
@@ -141,7 +141,7 @@ const getOverState = (state: StageState): StageStateConfig => {
   }
   if (completed) {
     return {
-      className: "bg-black-900 text-mauve-100 border-white-900",
+      className: "bg-black-900 text-primary-100 border-white-900",
       icon: <icons.CheckIcon size="sm" />,
     };
   }

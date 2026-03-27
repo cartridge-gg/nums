@@ -91,7 +91,7 @@ export const GameScene = ({
           <div className="flex justify-between items-center h-full gap-3 md:gap-6">
             <Num id="tutorial-num" value={game.number} invalid={isOver} sound />
             <div className="flex flex-col justify-between items-start h-full gap-2">
-              <p className="text-mauve-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
+              <p className="text-primary-100 text-base xs:text-lg leading-4 xs:leading-5 md:leading-6 uppercase tracking-wider">
                 Up next
               </p>
               <Num

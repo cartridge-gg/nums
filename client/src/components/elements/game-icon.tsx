@@ -31,9 +31,9 @@ export const GameIcon = ({
   return (
     <div className={cn(gameIconVariants({ variant, className }))} {...props}>
       <div
-        className="h-4 w-4 rounded-full"
+        className="h-4 w-4 rounded-full text-primary-100"
         style={{
-          background: `conic-gradient(var(--mauve-100) ${angle}deg, transparent ${angle}deg)`,
+          background: `conic-gradient(currentColor ${angle}deg, transparent ${angle}deg)`,
         }}
       />
     </div>

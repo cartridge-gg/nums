@@ -386,6 +386,12 @@ export interface RawPurchased {
     value: string;
     key: boolean;
   };
+  price: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
 }
 
 export interface RawStarted {

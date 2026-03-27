@@ -7,6 +7,7 @@ pub struct Purchased {
     pub quantity: u32,
     pub multiplier: u128,
     pub time: u64,
+    pub price: u256,
 }
 
 #[derive(Copy, Drop, Serde)]

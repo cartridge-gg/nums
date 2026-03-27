@@ -13,12 +13,14 @@ export class Purchased {
     public quantity: number,
     public multiplier: number,
     public time: number,
+    public price: bigint,
   ) {
     this.player_id = player_id;
     this.starterpack_id = starterpack_id;
     this.quantity = quantity;
     this.multiplier = multiplier;
     this.time = time;
+    this.price = price;
   }
 
   static getModelName(): string {
@@ -35,6 +37,7 @@ export class Purchased {
       starterpack_id: Number(data.starterpack_id.value),
       quantity: Number(data.quantity.value),
       multiplier: Number(data.multiplier.value) / Number(MULTIPLIER_PRECISION),
+      price: BigInt(data?.price?.value || "0"),
       time: Number(data.time.value),
     };
     return new Purchased(
@@ -43,6 +46,7 @@ export class Purchased {
       props.quantity,
       props.multiplier,
       props.time,
+      props.price,
     );
   }
 
@@ -73,6 +77,7 @@ export class Purchased {
       earning: undefined,
       timestamp: this.time,
       id: Purchased.getId(this),
+      price: this.price,
     };
   }
 }

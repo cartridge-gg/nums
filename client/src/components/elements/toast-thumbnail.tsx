@@ -63,9 +63,9 @@ export const ToastThumbnail = ({
       ) : type === "purchase" ? (
         <AssetIcon size="lg" className="border-2 border-[#4017B5] rounded" />
       ) : type === "copy" ? (
-        <CopyIcon size="lg" className="text-mauve-100" />
+        <CopyIcon size="lg" className="text-primary-100" />
       ) : (
-        <div className="h-full w-full bg-gradient-to-br from-mauve-600 to-purple-600" />
+        <div className="h-full w-full bg-gradient-to-br from-primary-600 to-secondary-600" />
       )}
     </div>
   );

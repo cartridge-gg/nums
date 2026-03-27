@@ -24,7 +24,7 @@ const stakingAmountVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-mauve-800",
+        default: "bg-primary-800",
       },
       action: {
         stake: "text-[#D69CF4]",
@@ -84,7 +84,7 @@ export const StakingAmount = ({
       {...props}
     >
       {/* Input row */}
-      <div className="flex justify-between items-center border border-mauve-100 rounded-lg px-3 py-2.5 gap-3">
+      <div className="flex justify-between items-center border border-primary-100 rounded-lg px-3 py-2.5 gap-3">
         {/* Left: numeric input or spinner */}
         {loading ? (
           <SpinnerIcon

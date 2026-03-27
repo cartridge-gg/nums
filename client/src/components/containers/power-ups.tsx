@@ -38,7 +38,7 @@ export const PowerUps = ({
       className={cn(powerUpsVariants({ variant, size, className }))}
       {...props}
     >
-      <p className="w-full text-mauve-100 text-lg/3 md:text-lg/6 uppercase tracking-wider">
+      <p className="w-full text-primary-100 text-lg/3 md:text-lg/6 uppercase tracking-wider">
         Power Ups
       </p>
       <ul className="flex justify-center gap-3 w-full">

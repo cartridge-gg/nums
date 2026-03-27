@@ -1,6 +1,6 @@
 # NUMS — Documentation
 
-Welcome to the official documentation of **NUMS**, a fully onchain game built with [Dojo Engine](https://dojoengine.org) on [Starknet](https://starknet.io).
+Welcome to the official documentation of **NUMS**, a fully onchain game built with [Dojo Engine](https://dojoengine.org).
 
 ## About
 
@@ -9,7 +9,7 @@ Welcome to the official documentation of **NUMS**, a fully onchain game built wi
 ## Overview
 
 - **Number range**: Each number is between **1 and 999**
-- **Sequential placement**: You always see the current number and the next one; place each number into one of 18 slots as it becomes current
+- **Sequential placement**: You always see the current number and the upcoming one; place each number into one of 18 slots as it becomes current
 - **Ascending order**: All numbers must be placed in ascending order (equal numbers may be placed consecutively)
 - **No rearrangement**: Once placed, a number cannot be moved or swapped
 

@@ -151,6 +151,9 @@ pub mod Setup {
             let token = IERC20MixinDispatcher { contract_address: token_address };
             let supply = token.total_supply();
             play.create(receiver, MULTIPLIER_PRECISION, supply, 0, drop.quantity.into());
+            // [Event] Emit purchase event
+            let mut store = StoreImpl::new(world);
+            store.purchased(receiver.into(), 0, drop.quantity.into(), MULTIPLIER_PRECISION, 0);
         }
     }
 

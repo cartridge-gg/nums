@@ -47,7 +47,7 @@ export const GameInfo = ({
     >
       <ShadowEffect filterId={filterId} />
       <CircleInfoIcon
-        className="text-mauve-100 h-6 w-6 md:h-8 md:w-8"
+        className="text-primary-100 h-6 w-6 md:h-8 md:w-8"
         style={{ filter: `url(#${filterId})` }}
       />
     </Button>

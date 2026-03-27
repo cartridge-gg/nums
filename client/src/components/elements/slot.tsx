@@ -33,8 +33,8 @@ const slotVariants = cva(
     variants: {
       variant: {
         default: "bg-black-800 border border-black-700",
-        placeholder: "border-black-800 justify-center text-mauve-100",
-        locked: "border-black-700 bg-black-900 text-mauve-100",
+        placeholder: "border-black-800 justify-center text-primary-100",
+        locked: "border-black-700 bg-black-900 text-primary-100",
       },
       size: {
         md: "min-h-8 max-h-10 md:h-10 w-[100px] md:w-[120px]",
@@ -136,7 +136,7 @@ export const Slot = ({
         </div>
         <div className="h-6 w-2/3 border-l border-black-800 flex items-center justify-center">
           <p
-            className="text-[22px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px"
+            className="text-[22px] text-primary-100 font-secondary tracking-wide font-bold text-center translate-y-px"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)",
             }}
@@ -177,14 +177,14 @@ export const Slot = ({
       )}
       <div className="w-1/3">
         {!TrapIcon ? (
-          <p className="text-[22px]/[15px] text-mauve-100 font-secondary tracking-wide font-bold text-center translate-y-px">
+          <p className="text-[22px]/[15px] text-primary-100 font-secondary tracking-wide font-bold text-center translate-y-px">
             {label}
           </p>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="w-full h-full flex items-center justify-center">
-                {TrapIcon && <TrapIcon className="text-mauve-100" />}
+                {TrapIcon && <TrapIcon className="text-primary-100" />}
               </div>
             </TooltipTrigger>
             <TooltipContent
@@ -216,7 +216,7 @@ export const Slot = ({
         placeSound
         loading={loading}
         className={cn(
-          "py-0 h-full w-2/3 rounded-lg relative bg-mauve-500 hover:bg-mauve-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
+          "py-0 h-full w-2/3 rounded-lg relative bg-primary-500 hover:bg-primary-400 disabled:opacity-100 disabled:bg-white-900 disabled:text-white-500 disabled:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.04)]",
           !!value && isDisabled && "disabled:text-white-300",
           highlight && !!value && "disabled:bg-green-600",
           invalid && !!value && "disabled:bg-red-800 disabled:opacity-100",
@@ -269,7 +269,7 @@ const Wave = ({
     <div
       className={cn(
         "absolute inset-0 rounded-lg outline outline-1 pointer-events-none",
-        inactive || !trap ? "text-mauve-100" : trap.color(),
+        inactive || !trap ? "text-primary-100" : trap.color(),
         highlight && "text-green-100",
         invalid && "text-red-100",
         className,

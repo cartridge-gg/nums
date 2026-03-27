@@ -4,7 +4,7 @@ import { QuoteIcon } from "@/components/icons/exotics";
 import { StakingWarning } from "./staking-warning";
 
 const stakingVaultVariants = cva(
-  "select-none flex flex-col gap-4 rounded-xl bg-mauve-800 p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none flex flex-col gap-4 rounded-xl bg-primary-800 p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
   {
     variants: {
       variant: {

@@ -32,7 +32,7 @@ export const Stat = ({
   return (
     <div className={cn(statVariants({ variant, className }))} {...props}>
       {/* Title */}
-      <h3 className="text-lg/3 text-mauve-100 uppercase translate-y-0.5 tracking-wider">
+      <h3 className="text-lg/3 text-primary-100 uppercase translate-y-0.5 tracking-wider">
         {title}
       </h3>
 

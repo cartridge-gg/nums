@@ -192,7 +192,7 @@ const Count = ({
   return (
     <div
       className={cn(
-        "rounded-xl p-4 md:py-6 flex flex-col items-center gap-2 md:gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "rounded-xl p-4 md:py-6 flex flex-col items-center gap-2 md:gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         highlight && "gap-3",
         className,
       )}

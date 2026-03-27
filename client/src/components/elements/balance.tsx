@@ -17,7 +17,7 @@ const balanceVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-mauve-700 hover:bg-mauve-500",
+        default: "bg-primary-700 hover:bg-primary-500",
       },
       size: {
         md: "h-10 md:h-12 p-2 md:px-4 text-[22px] md:text-[28px] tracking-wide",

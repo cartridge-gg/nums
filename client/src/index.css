@@ -7,7 +7,7 @@
 
 @layer base {
   body {
-    @apply bg-purple-100;
+    @apply bg-secondary-100;
     font-family: "PixelGame", monospace;
     color: white;
     -webkit-user-select: none;

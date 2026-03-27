@@ -24,7 +24,7 @@ const achievementProgressVariants = cva("p-1 bg-white-900 rounded-lg", {
 const achievementProgressBarVariants = cva("h-2 rounded", {
   variants: {
     variant: {
-      default: "bg-mauve-100",
+      default: "bg-primary-100",
       complete: "bg-green-100",
     },
   },

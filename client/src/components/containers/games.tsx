@@ -143,7 +143,7 @@ export const Games = ({
             size="icon"
             onClick={scrollPrev}
             disabled={!canScrollPrev}
-            className="h-8 w-8 rounded-full bg-mauve-700 hover:bg-mauve-600"
+            className="h-8 w-8 rounded-full bg-primary-700 hover:bg-primary-600"
           >
             <ArrowLeftIcon size="md" style={{ filter: `url(#${filterId})` }} />
           </Button>
@@ -152,7 +152,7 @@ export const Games = ({
             size="icon"
             onClick={scrollNext}
             disabled={!canScrollNext}
-            className="h-8 w-8 rounded-full bg-mauve-700 hover:bg-mauve-600"
+            className="h-8 w-8 rounded-full bg-primary-700 hover:bg-primary-600"
           >
             <ArrowRightIcon size="md" style={{ filter: `url(#${filterId})` }} />
           </Button>

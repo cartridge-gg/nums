@@ -26,7 +26,7 @@ export interface EventProps
 const getColor = (multiplier: number) => {
   if (multiplier > 6) return "text-red-100";
   if (multiplier > 1) return "text-yellow-100";
-  return "text-mauve-100";
+  return "text-primary-100";
 };
 
 export const Event = ({
@@ -43,7 +43,7 @@ export const Event = ({
       <div className="flex items-center gap-2 p-1 bg-white-900 rounded">
         <span
           className={cn(
-            "text-mauve-100 text-lg/3 font-primary translate-y-px tracking-wider font-thin whitespace-nowrap",
+            "text-primary-100 text-lg/3 font-primary translate-y-px tracking-wider font-thin whitespace-nowrap",
             multiplier ? getColor(multiplier) : earning ? "text-green-100" : "",
           )}
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

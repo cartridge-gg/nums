@@ -40,7 +40,7 @@ export const Highlight = ({
       {...props}
     >
       <span
-        className="font-primary text-[22px]/[15px] md:text-[28px]/[19px] tracking-wider align-middle text-mauve-100 uppercase"
+        className="font-primary text-[22px]/[15px] md:text-[28px]/[19px] tracking-wider align-middle text-primary-100 uppercase"
         style={{
           textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
         }}

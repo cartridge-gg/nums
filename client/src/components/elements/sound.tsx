@@ -50,7 +50,7 @@ export const Sound = ({
   }, [isMuted, volume, onChange, onMute]);
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      <span className="font-primary text-[18px] leading-[12px] text-mauve-100 tracking-wider">
+      <span className="font-primary text-[18px] leading-[12px] text-primary-100 tracking-wider">
         {title}
       </span>
       <div className="flex items-center gap-6">

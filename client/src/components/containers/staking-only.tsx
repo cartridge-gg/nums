@@ -7,7 +7,7 @@ import { StakingInfo } from "@/components/elements/staking-info";
 import type { StakingProps } from "./staking";
 
 const stakingOnlyVariants = cva(
-  "select-none flex flex-col p-6 gap-4 rounded-xl bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  "select-none flex flex-col p-6 gap-4 rounded-xl bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
   {
     variants: {
       variant: {

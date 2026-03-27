@@ -25,7 +25,7 @@ const multiplierVariants = cva(
 export const getColor = (multiplier: number) => {
   if (multiplier > 6) return "text-red-100";
   if (multiplier > 2) return "text-yellow-100";
-  return "text-mauve-100";
+  return "text-primary-100";
 };
 
 export const Multiplier = ({

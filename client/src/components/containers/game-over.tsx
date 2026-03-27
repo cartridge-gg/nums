@@ -150,7 +150,7 @@ export const GameOver = ({
           {shareProps && (
             <Share
               {...shareProps}
-              className="h-12 min-w-[52px] px-2.5 bg-purple-100 rounded-lg hover:bg-purple-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
+              className="h-12 min-w-[52px] px-2.5 bg-secondary-100 rounded-lg hover:bg-secondary-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
             />
           )}
           {onPlayAgain ? (
@@ -203,7 +203,7 @@ const Header = ({
   return (
     <div
       className={cn(
-        "h-12 md:h-[88px] flex items-center justify-between gap-2 md:gap-2.5 px-5 md:px-8 bg-mauve-700 rounded-b-[20px] md:rounded-b-[32px] text-mauve-100",
+        "h-12 md:h-[88px] flex items-center justify-between gap-2 md:gap-2.5 px-5 md:px-8 bg-primary-700 rounded-b-[20px] md:rounded-b-[32px] text-primary-100",
         className,
       )}
     >
@@ -214,7 +214,7 @@ const Header = ({
         Game
       </strong>
       <CrownIcon
-        className="text-mauve-500"
+        className="text-primary-500"
         size="lg"
         style={{ filter: `url(#${filterId})` }}
       />
@@ -238,7 +238,7 @@ const Payout = ({
   return (
     <div
       className={cn(
-        "px-4 py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-4 py-6 flex flex-col items-center gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >
@@ -263,11 +263,11 @@ const Disclaimer = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        "px-12 py-3 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-12 py-3 flex flex-col items-center gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >
-      <p className="text-sm font-sans text-center text-mauve-200">
+      <p className="text-sm font-sans text-center text-primary-200">
         Play blitz mode to be eligible for real money rewards
       </p>
     </div>
@@ -284,7 +284,7 @@ const PayoutInfo = ({
   return (
     <div
       className={cn(
-        "px-4 py-3 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-4 py-3 flex flex-col items-center gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >
@@ -300,7 +300,7 @@ const Score = ({ score, className }: { score: number; className?: string }) => {
   return (
     <div
       className={cn(
-        "px-4 py-4 md:py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-4 py-4 md:py-6 flex flex-col items-center gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >
@@ -321,7 +321,7 @@ const Value = ({ value, className }: { value: number; className?: string }) => {
   return (
     <div
       className={cn(
-        "px-4 py-6 flex flex-col items-center gap-3 bg-mauve-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "px-4 py-6 flex flex-col items-center gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         className,
       )}
     >

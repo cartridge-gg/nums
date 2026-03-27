@@ -15,7 +15,7 @@ const tutorialInstructionVariants = cva("flex gap-3", {
   variants: {
     variant: {
       default:
-        "rounded-lg p-3 border-2 border-mauve-700 bg-mauve-800 backdrop-blur-[16px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
+        "rounded-lg p-3 border-2 border-primary-700 bg-primary-800 backdrop-blur-[16px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]",
       ghost: "",
     },
   },
@@ -64,7 +64,7 @@ export const TutorialInstruction = ({
       <div className="flex flex-col gap-3">
         <span
           className={cn(
-            "font-primary text-lg/5 translate-y-0.5 text-mauve-100 tracking-wider md:whitespace-nowrap",
+            "font-primary text-lg/5 translate-y-0.5 text-primary-100 tracking-wider md:whitespace-nowrap",
             variant === "ghost" && " text-[28px]/5",
           )}
         >

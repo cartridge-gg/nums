@@ -45,7 +45,7 @@ export const Toast = ({
   const titleColor = useMemo(() => {
     if (thumbnailProps?.type === "achievement") return "text-yellow-100";
     if (thumbnailProps?.type === "quest") return "text-green-100";
-    if (thumbnailProps?.type === "purchase") return "text-mauve-100";
+    if (thumbnailProps?.type === "purchase") return "text-primary-100";
     if (descriptionProps?.earning) return "text-green-100";
     if (descriptionProps?.multiplier)
       return getColor(descriptionProps.multiplier);
@@ -77,7 +77,7 @@ export const Toast = ({
       </div>
       <div className="bg-[#201248] h-1 relative">
         <div
-          className="absolute bottom-0 left-0 h-1 w-full bg-mauve-100 origin-left animate-toast-progress z-10"
+          className="absolute bottom-0 left-0 h-1 w-full bg-primary-100 origin-left animate-toast-progress z-10"
           style={{ animationDuration: `${duration ?? 4000}ms` }}
         />
       </div>

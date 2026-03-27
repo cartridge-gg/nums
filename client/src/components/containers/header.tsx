@@ -109,10 +109,24 @@ export const Header = ({
         </Button>
       </Link>
       <div className="flex items-center justify-start gap-2 md:gap-4">
+        {hasMerkledrop && onMerkledrop && (
+          <Button
+            variant="muted"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-green-700 hover:bg-green-500"
+            onClick={onMerkledrop}
+          >
+            <GiftIcon
+              size="md"
+              className="md:size-lg text-green-100"
+              style={{ filter: `url(#${lightId})` }}
+            />
+            <NotificationPing />
+          </Button>
+        )}
         {onLeaderboard && (
           <Button
             variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-primary-700 hover:bg-primary-500"
             onClick={onLeaderboard}
           >
             <TrophyIcon
@@ -126,7 +140,7 @@ export const Header = ({
         {onQuests && (
           <Button
             variant="muted"
-            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500 hidden md:flex"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-primary-700 hover:bg-primary-500 hidden md:flex"
             onClick={onQuests}
           >
             <QuestIcon
@@ -140,7 +154,7 @@ export const Header = ({
         {onAchievements && (
           <Button
             variant="muted"
-            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500 hidden md:flex"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-primary-700 hover:bg-primary-500 hidden md:flex"
             onClick={onAchievements}
           >
             <LaurelIcon
@@ -149,19 +163,6 @@ export const Header = ({
               style={{ filter: `url(#${lightId})` }}
             />
             {hasAchievementNotification && <NotificationPing />}
-          </Button>
-        )}
-        {hasMerkledrop && onMerkledrop && (
-          <Button
-            variant="muted"
-            className="h-10 w-10 md:h-12 md:w-14 p-0 bg-green-700 hover:bg-green-500"
-            onClick={onMerkledrop}
-          >
-            <GiftIcon
-              size="md"
-              className="md:size-lg text-green-100"
-              style={{ filter: `url(#${lightId})` }}
-            />
           </Button>
         )}
         {username && (
@@ -195,7 +196,7 @@ export const Header = ({
         {onSettings && (
           <Button
             variant="muted"
-            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-mauve-700 hover:bg-mauve-500"
+            className="relative h-10 w-10 md:h-12 md:w-14 p-0 bg-primary-700 hover:bg-primary-500"
             onClick={onSettings}
           >
             <ListIcon

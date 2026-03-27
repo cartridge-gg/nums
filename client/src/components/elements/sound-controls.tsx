@@ -25,7 +25,7 @@ function VolumeSlider({
       <button
         type="button"
         onClick={onToggleMute}
-        className="flex-shrink-0 p-1 rounded hover:bg-mauve-600 transition-colors"
+        className="flex-shrink-0 p-1 rounded hover:bg-primary-600 transition-colors"
         aria-label={isMuted ? `Unmute ${label}` : `Mute ${label}`}
       >
         <ShadowEffect filterId={filterId} />
@@ -72,7 +72,7 @@ function SoundToggleButton({
   return (
     <Button
       variant="muted"
-      className="select-none relative rounded-lg flex items-center justify-center bg-mauve-700 hover:bg-mauve-500 h-10 w-10 md:h-12 md:w-14 px-2 md:px-4 py-2"
+      className="select-none relative rounded-lg flex items-center justify-center bg-primary-700 hover:bg-primary-500 h-10 w-10 md:h-12 md:w-14 px-2 md:px-4 py-2"
       onClick={onClick}
     >
       <ShadowEffect filterId={filterId} />
@@ -137,7 +137,7 @@ export function SoundControls({ className }: { className?: string }) {
       <SoundToggleButton isMuted={isMuted} onClick={handleToggleOpen} />
       {open && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 min-w-[200px] p-3 rounded-lg bg-mauve-200 border border-mauve-600 shadow-lg flex flex-col gap-3"
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 min-w-[200px] p-3 rounded-lg bg-primary-200 border border-primary-600 shadow-lg flex flex-col gap-3"
           onClick={(e) => e.stopPropagation()}
         >
           <VolumeSlider

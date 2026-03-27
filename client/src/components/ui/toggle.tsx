@@ -10,7 +10,7 @@ const toggleVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-mauve-700 hover:bg-mauve-600 data-[state=on]:bg-mauve-500 data-[state=on]:hover:bg-mauve-500 data-[state=on]:hover:cursor-default data-[state=on]:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+          "bg-primary-700 hover:bg-primary-600 data-[state=on]:bg-primary-500 data-[state=on]:hover:bg-primary-500 data-[state=on]:hover:cursor-default data-[state=on]:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       },
       size: {
         default: "h-9 px-2 min-w-9",

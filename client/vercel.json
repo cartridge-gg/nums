@@ -23,11 +23,11 @@
       "destination": "/api/image?id=:id"
     },
     {
-      "source": "/((?!api/|_vercel|service-worker\\.js|workbox-|assets/|registerSW\\.js|manifest\\.webmanifest).*)",
+      "source": "/((?!api/|_vercel|assets/).*)",
       "destination": "/index.html"
     },
     {
-      "source": "/((?!api/|_vercel|service-worker\\.js|workbox-|assets/|registerSW\\.js|manifest\\.webmanifest).*)",
+      "source": "/((?!api/|_vercel|assets/).*)",
       "destination": "/"
     }
   ],
@@ -84,19 +84,6 @@
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://js.stripe.com https://*.stripe.com https://*.cartridge.gg https://cartridge.gg; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.stripe.com https://*.cartridge.gg https://cartridge.gg wss://* https://*; frame-src 'self' https://*.stripe.com https://*.cartridge.gg https://cartridge.gg;"
-        }
-      ]
-    },
-    {
-      "source": "/service-worker.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate, max-age=0"
-        },
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
         }
       ]
     },

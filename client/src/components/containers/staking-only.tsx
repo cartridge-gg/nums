@@ -22,12 +22,14 @@ const stakingOnlyVariants = cva(
 
 export const StakingOnly = ({
   depositProps,
+  infoProps,
   onStake,
   variant,
   className,
   ...props
 }: StakingProps) => {
   const hasAmount = (depositProps?.value ?? 0) > 0;
+  const fee = infoProps?.fee;
 
   return (
     <div className={cn(stakingOnlyVariants({ variant, className }))} {...props}>
@@ -35,7 +37,13 @@ export const StakingOnly = ({
 
       <div className="flex flex-col gap-4">
         <StakingWarning message="NUMS Tokens contributed to the pool will be locked for 3 months, or until the community event's goal is reached." />
-        <StakingInfo message="Withdrawal fee of 5% will apply when unstaking (after the community pool is unlocked)." />
+        <StakingInfo
+          message={
+            fee === 0
+              ? "Withdrawal fee is currently 0%. This may be subject to change through a governance vote."
+              : `Withdrawal fee of ${fee ?? 5}% will apply when unstaking (after the community pool is unlocked).`
+          }
+        />
 
         <Button
           variant={hasAmount ? "default" : "secondary"}

@@ -97,6 +97,11 @@ export const useStaking = ({
     };
   }, [vaultPosition, vaultInfo, vNumsBalance, totalShares, toChainAmount]);
 
+  const feePercent = useMemo(() => {
+    if (!vaultInfo) return undefined;
+    return vaultInfo.fee / 100;
+  }, [vaultInfo]);
+
   // Yield APR: placeholder until on-chain data is available
   const yieldValue = useMemo((): number | undefined => undefined, []);
 
@@ -218,6 +223,9 @@ export const useStaking = ({
           onValueChange: handleWithdrawChange,
           loading: withdrawLoading,
         },
+        infoProps: {
+          fee: feePercent,
+        },
         onStake: handleStake,
         onUnstake: handleUnstake,
       },
@@ -248,6 +256,7 @@ export const useStaking = ({
       },
     }),
     [
+      feePercent,
       numsBalance,
       vNumsBalance,
       numsPrice,

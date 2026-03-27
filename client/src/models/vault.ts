@@ -46,6 +46,12 @@ export interface RawVaultInfo {
     value: string;
     key: boolean;
   };
+  fee: {
+    type: "primitive";
+    type_name: "u16";
+    value: string;
+    key: boolean;
+  };
 }
 
 export interface RawVaultPosition {
@@ -92,6 +98,8 @@ export class VaultInfo {
     public open: boolean,
     /** Total accumulated rewards across all stakers (18 decimals) */
     public total_reward: bigint,
+    /** Withdrawal fee in basis points (0–10 000 → 0–100 %) */
+    public fee: number,
   ) {}
 
   static getModelName(): string {
@@ -103,6 +111,7 @@ export class VaultInfo {
       data.world_resource.value,
       data.open.value,
       BigInt(data.total_reward.value),
+      Number(data.fee.value),
     );
   }
 

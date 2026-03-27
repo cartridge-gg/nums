@@ -13,8 +13,11 @@ import {
   DiscordIcon,
   XIcon,
   BookIcon,
+  LogoIcon,
+  RebellionLogoIcon,
 } from "@/components/icons";
 import { Sound, Close, NotificationPing } from "@/components/elements";
+import type { Theme } from "@/context/theme";
 import { Link } from "@/lib/router";
 import { useId } from "react";
 
@@ -41,6 +44,8 @@ export interface SettingsProps
   hasReferralNotification?: boolean;
   username?: string;
   onProfile?: () => void;
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
 }
 
 const settingsVariants = cva(
@@ -79,6 +84,8 @@ export const Settings = ({
   hasReferralNotification,
   username,
   onProfile,
+  theme,
+  onThemeChange,
   variant,
   className,
   ...props
@@ -115,16 +122,19 @@ export const Settings = ({
 
       {/* Mobile content */}
       <div className="flex flex-col gap-6 h-full overflow-hidden md:hidden">
-        <Volumes
-          musicVolume={musicVolume}
-          musicMuted={musicMuted}
-          onMusicChange={onMusicChange}
-          onMusicMute={onMusicMute}
-          sfxVolume={sfxVolume}
-          sfxMuted={sfxMuted}
-          onSfxChange={onSfxChange}
-          onSfxMute={onSfxMute}
-        />
+        <div className="flex flex-col gap-6">
+          <Volumes
+            musicVolume={musicVolume}
+            musicMuted={musicMuted}
+            onMusicChange={onMusicChange}
+            onMusicMute={onMusicMute}
+            sfxVolume={sfxVolume}
+            sfxMuted={sfxMuted}
+            onSfxChange={onSfxChange}
+            onSfxMute={onSfxMute}
+          />
+          <Faction theme={theme} onThemeChange={onThemeChange} />
+        </div>
         <div className="flex flex-col gap-6 flex-1 justify-between overflow-hidden">
           <div
             className="flex flex-col gap-4 overflow-y-auto"
@@ -170,16 +180,19 @@ export const Settings = ({
           />
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
-          <Volumes
-            musicVolume={musicVolume}
-            musicMuted={musicMuted}
-            onMusicChange={onMusicChange}
-            onMusicMute={onMusicMute}
-            sfxVolume={sfxVolume}
-            sfxMuted={sfxMuted}
-            onSfxChange={onSfxChange}
-            onSfxMute={onSfxMute}
-          />
+          <div className="flex flex-col gap-6">
+            <Volumes
+              musicVolume={musicVolume}
+              musicMuted={musicMuted}
+              onMusicChange={onMusicChange}
+              onMusicMute={onMusicMute}
+              sfxVolume={sfxVolume}
+              sfxMuted={sfxMuted}
+              onSfxChange={onSfxChange}
+              onSfxMute={onSfxMute}
+            />
+            <Faction theme={theme} onThemeChange={onThemeChange} />
+          </div>
           <div className="flex flex-col gap-4">
             {username && onProfile ? (
               <div className="flex gap-4">
@@ -233,6 +246,41 @@ const Volumes = ({
     />
   </div>
 );
+
+const Faction = ({
+  theme,
+  onThemeChange,
+}: {
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
+}) => {
+  const isRebellion = theme === "rebellion";
+  return (
+    <div className="flex flex-col gap-4">
+      <span className="font-primary text-[18px] leading-[12px] text-primary-100 tracking-wider">
+        Themes
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isRebellion}
+        onClick={() => onThemeChange(isRebellion ? "compliant" : "rebellion")}
+        className="relative inline-flex h-10 w-[76px] shrink-0 cursor-pointer items-center rounded-full bg-primary-700"
+      >
+        <div className="absolute inset-0 flex items-center justify-between px-2.5 pointer-events-none">
+          <RebellionLogoIcon size="sm" />
+          <LogoIcon size="sm" />
+        </div>
+        <span
+          className={cn(
+            "pointer-events-none relative z-10 block h-8 w-8 rounded-full bg-secondary-100 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] transition-transform duration-200",
+            isRebellion ? "translate-x-[40px]" : "translate-x-1",
+          )}
+        />
+      </button>
+    </div>
+  );
+};
 
 const NavButtons = ({
   filterId,

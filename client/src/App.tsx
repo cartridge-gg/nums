@@ -14,6 +14,7 @@ import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
+import { ThemeProvider } from "./context/theme";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
 import { Game, Home, Support } from "./pages";
@@ -145,29 +146,31 @@ function AuthenticatedApp() {
                         <MerkledropsProvider>
                           <WelcomeProvider>
                             <LoadingProvider>
-                              <SoundProvider>
-                                <Layout>
-                                  <Routes>
-                                    <Route path="/" element={<Home />} />
-                                    <Route
-                                      path="/game/:id"
-                                      element={<Game />}
-                                    />
-                                    <Route
-                                      path="/game"
-                                      element={<LoadingScene />}
-                                    />
-                                    <Route
-                                      path="/practice"
-                                      element={<Game />}
-                                    />
-                                    <Route
-                                      path="/tutorial"
-                                      element={<Game />}
-                                    />
-                                  </Routes>
-                                </Layout>
-                              </SoundProvider>
+                              <ThemeProvider>
+                                <SoundProvider>
+                                  <Layout>
+                                    <Routes>
+                                      <Route path="/" element={<Home />} />
+                                      <Route
+                                        path="/game/:id"
+                                        element={<Game />}
+                                      />
+                                      <Route
+                                        path="/game"
+                                        element={<LoadingScene />}
+                                      />
+                                      <Route
+                                        path="/practice"
+                                        element={<Game />}
+                                      />
+                                      <Route
+                                        path="/tutorial"
+                                        element={<Game />}
+                                      />
+                                    </Routes>
+                                  </Layout>
+                                </SoundProvider>
+                              </ThemeProvider>
                             </LoadingProvider>
                           </WelcomeProvider>
                         </MerkledropsProvider>

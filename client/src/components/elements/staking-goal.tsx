@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { VTokenIcon } from "@/components/icons/exotics";
+import { TokenIcon } from "@/components/icons/exotics";
 
 const stakingGoalVariants = cva(
   "select-none flex flex-col gap-4 rounded-xl bg-primary-800 p-6 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
@@ -45,20 +45,20 @@ export const StakingGoal = ({
       <div className="flex flex-col gap-3">
         <div className="relative h-4 w-full overflow-hidden rounded-full bg-white-800 p-1">
           <div
-            className="h-full rounded-full bg-[#FFDE66] transition-all"
+            className="h-full rounded-full bg-primary-100 transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-6">
           <div className="flex items-center gap-2">
-            <VTokenIcon size="sm" />
-            <span className="text-[#FFDE66] font-primary text-[22px]/[15px] tracking-wider translate-y-px">
+            <TokenIcon size="sm" className="text-primary-100" />
+            <span className="text-primary-100 font-primary text-[22px]/[15px] tracking-wider translate-y-px">
               {token}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm/[18px]">
-            <span className="text-[#FFDE66]">
+            <span className="text-primary-100">
               {totalStaked.toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,

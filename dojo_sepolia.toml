@@ -22,7 +22,7 @@ order_inits = [
   "NUMS-Vault",
   "NUMS-Faucet",
 ]
-skip_contracts = ["NUMS-Vrf", "NUMS-Registry"]
+skip_contracts = ["NUMS-Vrf"]
 disable_multicall = true
 
 [writers]

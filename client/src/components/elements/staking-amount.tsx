@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { TokenIcon, VTokenIcon } from "@/components/icons/exotics";
+import { TokenIcon } from "@/components/icons/exotics";
 import { SpinnerIcon, WalletIcon } from "@/components/icons";
 
 export interface StakingAmountProps
@@ -74,8 +74,6 @@ export const StakingAmount = ({
     onValueChange?.(balance);
   };
 
-  const Icon = action === "unstake" ? VTokenIcon : TokenIcon;
-
   const isDisabled = !onValueChange;
 
   return (
@@ -103,8 +101,13 @@ export const StakingAmount = ({
           />
         )}
         {/* Right: Icon + label */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Icon size="sm" />
+        <div
+          className={cn(
+            "flex items-center gap-2 flex-shrink-0",
+            action === "unstake" ? "text-primary-100" : "text-yellow-100",
+          )}
+        >
+          <TokenIcon size="sm" />
           <span className="font-primary text-[22px]/[15px] tracking-wider translate-y-px">
             {action === "stake" ? "NUMS" : "vNUMS"}
           </span>

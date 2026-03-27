@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { VTokenIcon } from "@/components/icons/exotics";
+import { TokenIcon } from "@/components/icons/exotics";
 
 const stakingSupplyVariants = cva(
   "select-none flex items-center gap-2 rounded-lg p-3 bg-white-900",
@@ -38,8 +38,8 @@ export const StakingSupply = ({
       {...props}
     >
       <span className="font-sans text-sm/[18px] text-white-400">{title}</span>
-      <VTokenIcon size="sm" />
-      <span className="font-sans text-base/5 text-white-100">
+      <TokenIcon size="sm" className="text-primary-100" />
+      <span className="font-sans text-base/5 text-primary-100">
         {totalShares !== undefined
           ? totalShares.toLocaleString("en-US", {
               minimumFractionDigits: 0,

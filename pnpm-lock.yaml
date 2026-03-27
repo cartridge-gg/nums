@@ -502,9 +502,6 @@ importers:
       vite:
         specifier: ^5.4.21
         version: 5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1)
-      vite-plugin-pwa:
-        specifier: ^0.20.5
-        version: 0.20.5(vite@5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0)
       vite-plugin-vercel:
         specifier: ^9.0.8
         version: 9.0.8(rollup@4.53.3)(vite@5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1))
@@ -10655,18 +10652,6 @@ packages:
     engines: {node: '>=v16.7.0'}
     peerDependencies:
       vite: '>=3'
-
-  vite-plugin-pwa@0.20.5:
-    resolution: {integrity: sha512-aweuI/6G6n4C5Inn0vwHumElU/UEpNuO+9iZzwPZGTCH87TeZ6YFMrEY6ZUBQdIHHlhTsbMDryFARcSuOdsz9Q==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      '@vite-pwa/assets-generator': ^0.2.6
-      vite: ^3.1.0 || ^4.0.0 || ^5.0.0
-      workbox-build: ^7.1.0
-      workbox-window: ^7.1.0
-    peerDependenciesMeta:
-      '@vite-pwa/assets-generator':
-        optional: true
 
   vite-plugin-pwa@1.2.0:
     resolution: {integrity: sha512-a2xld+SJshT9Lgcv8Ji4+srFJL4k/1bVbd1x06JIkvecpQkwkvCncD1+gSzcdm3s+owWLpMJerG3aN5jupJEVw==}
@@ -24226,17 +24211,6 @@ snapshots:
       debug: 4.4.3
       picocolors: 1.1.1
       vite: 5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  vite-plugin-pwa@0.20.5(vite@5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0):
-    dependencies:
-      debug: 4.4.3
-      pretty-bytes: 6.1.1
-      tinyglobby: 0.2.15
-      vite: 5.4.21(@types/node@20.19.26)(lightningcss@1.30.2)(terser@5.44.1)
-      workbox-build: 7.4.0(@types/babel__core@7.20.5)
-      workbox-window: 7.4.0
     transitivePeerDependencies:
       - supports-color
 

@@ -25,8 +25,8 @@ const exoticIcons = [
   { name: "LogoMiniIcon", component: Icons.LogoMiniIcon },
   { name: "NumsIcon", component: Icons.NumsIcon },
   { name: "QuoteIcon", component: Icons.QuoteIcon },
+  { name: "RebellionLogoIcon", component: Icons.RebellionLogoIcon },
   { name: "TokenIcon", component: Icons.TokenIcon },
-  { name: "VTokenIcon", component: Icons.VTokenIcon },
 ] as const;
 
 export const Default: Story = {

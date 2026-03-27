@@ -109,12 +109,12 @@ export const Balance = ({
         <>
           <TokenIcon
             size="sm"
-            className="block md:hidden"
+            className="block md:hidden text-yellow-100"
             style={{ filter: `url(#${filterId})` }}
           />
           <TokenIcon
             size="md"
-            className="hidden md:block"
+            className="hidden md:block text-yellow-100"
             style={{ filter: `url(#${filterId})` }}
           />
         </>

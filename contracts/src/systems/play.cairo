@@ -21,7 +21,6 @@ pub trait IPlay<T> {
     fn claim(ref self: T, game_id: u64);
 }
 
-const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
 const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
 
 #[dojo::contract]
@@ -106,13 +105,8 @@ pub mod Play {
         // [Effect] Setup rights
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
-        self.accesscontrol._grant_role(ADMIN_ROLE, treasury_address);
         let setup_address = world.dns_address(@SETUP()).expect('Setup contract not found!');
         self.accesscontrol._grant_role(CREATOR_ROLE, setup_address);
-        // [Effect] FIXME: Extra rights for test purpose
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
-        self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
     }
 
     impl AchievementImpl of AchievementTrait<ContractState> {

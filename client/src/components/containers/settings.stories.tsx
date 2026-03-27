@@ -41,6 +41,8 @@ const meta = {
     onTutorial: fn(),
     onLogOut: fn(),
     onConnect: fn(),
+    theme: "compliant" as const,
+    onThemeChange: fn(),
     username: "Player123",
     onProfile: fn(),
   },
@@ -55,5 +57,11 @@ export const Disconnected: Story = {
   args: {
     username: undefined,
     onProfile: undefined,
+  },
+};
+
+export const Rebellion: Story = {
+  args: {
+    theme: "rebellion" as const,
   },
 };

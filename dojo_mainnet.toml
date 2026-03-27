@@ -20,17 +20,15 @@ order_inits = [
   "NUMS-Play",
   "NUMS-Collection",
   "NUMS-Vault",
-  "NUMS-Faucet",
-  "NUMS-Team",
 ]
-skip_contracts = ["NUMS-Vrf", "NUMS-Registry"]
+skip_contracts = ["NUMS-Vrf", "NUMS-Faucet"]
 disable_multicall = true
 
 [writers]
 "NUMS" = ["NUMS-Setup", "NUMS-Play"]
 
 [owners]
-"NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Faucet", "NUMS-Token"]
+"NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Token"]
 
 [init_call_args]
 "NUMS-Vault" = [
@@ -44,17 +42,14 @@ disable_multicall = true
 ]
 "NUMS-Token" = [
   "0xD3C21BCECCEDA1000000",                                             # initial_supply: 1.0M NUMS
-  "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # recipient
-]
-"NUMS-Faucet" = [
-  "0x2540BE400",                                                        # initial_supply: 10K USDC
-  "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # recipient
+  "0x03F7F4E5a23A712787F0C100f02934c4A88606B7F0C880c2FD43e817E6275d83", # recipient
 ]
 "NUMS-Setup" = [
   "0x0",                                                                # Option::Some
   "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f", # vrf_address
-  "0x1",                                                                # quote_address: None
-  "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # team_address
+  "0x0",                                                                # Option::Some
+  "0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb", # quote_address: USDC
+  "0x03F7F4E5a23A712787F0C100f02934c4A88606B7F0C880c2FD43e817E6275d83", # team_address
   "0x04505a9f06f2bd639b6601f37a4dc0908bb70e8e0e0c34b1220827d64f4fc066", # ekubo router address
   "0x02e0af29598b407c8716b17f6d2795eca1b471413fa03fb145a5e33722184067", # ekubo positions address
   "0x1E8480",                                                           # entry_price: 2.000000 USDC

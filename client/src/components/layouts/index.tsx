@@ -35,6 +35,7 @@ import { Events } from "../containers/events";
 import { WelcomeScene } from "@/components/scenes";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
+import { useTheme } from "@/context/theme";
 import { useTutorial } from "@/context/tutorial";
 import { Tutorial, TutorialAnchorPortal } from "@/components/containers";
 import { useBundles } from "@/context/bundles";
@@ -123,6 +124,7 @@ export const Layout = ({ children }: LayoutProps) => {
     setVolume: setSfxVolume,
     toggleMute: toggleSfxMute,
   } = useAudio();
+  const { theme, setTheme } = useTheme();
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
   const achievementsProps = useAchievementScene();
@@ -572,6 +574,8 @@ export const Layout = ({ children }: LayoutProps) => {
                 sfxMuted={sfxMuted}
                 onSfxChange={setSfxVolume}
                 onSfxMute={toggleSfxMute}
+                theme={theme}
+                onThemeChange={setTheme}
                 onLeaderboard={() => {
                   setShowSettingsScene(false);
                   setShowLeaderboardScene(true);

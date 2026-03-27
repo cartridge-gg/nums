@@ -88,7 +88,6 @@ export const StakingScene = ({
 }: StakingSceneProps) => {
   const filterId = useId();
   const [bypass, setBypass] = useState(false);
-  const effectiveLocked = locked && !bypass;
 
   return (
     <div
@@ -97,7 +96,7 @@ export const StakingScene = ({
     >
       <ShadowEffect filterId={filterId} />
 
-      {effectiveLocked ? (
+      {!bypass ? (
         <>
           {/* Mobile — Locked */}
           <div
@@ -105,7 +104,7 @@ export const StakingScene = ({
             style={{ scrollbarWidth: "none" }}
           >
             <div className="flex items-center justify-between w-full">
-              <Title content="Flip the Switch" />
+              <Title content="NUMS REBELLION" />
               <Close size="md" onClick={onClose} />
             </div>
 
@@ -138,7 +137,7 @@ export const StakingScene = ({
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between">
                 <div onClick={() => setBypass(!bypass)}>
-                  <Title content="Flip the Switch" />
+                  <Title content="NUMS REBELLION" />
                 </div>
                 <StakingSupply {...supplyProps} />
               </div>
@@ -254,9 +253,9 @@ const Subtitle = () => (
 
 const Disclaimer = () => (
   <p className="font-sans text-base/5 text-white-100">
-    Participate in the Flip the Switch event by staking NUMS, once the event
-    goal is met Cartridge will no longer be the majority contributor and a DAO
-    will be established.
+    Participate in the NUMS REBELLION event by staking NUMS, once the event goal
+    is met Cartridge will no longer be the majority contributor and a DAO will
+    be established.
   </p>
 );
 

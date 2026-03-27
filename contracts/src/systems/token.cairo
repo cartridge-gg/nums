@@ -74,9 +74,6 @@ mod Token {
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
-        // [Effect] Extra rights for test purpose
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         // [Effect] Mint initial supply
         self.erc20.mint(recipient, initial_supply.into());
         // [Event] Emit a new registered contract for torii to index

@@ -223,10 +223,6 @@ pub mod Setup {
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         self.accesscontrol._grant_role(ADMIN_ROLE, treasury_address);
-        // [Effect] FIXME: Extra rights for test purpose
-        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
-        self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
     }
 
     #[abi(embed_v0)]

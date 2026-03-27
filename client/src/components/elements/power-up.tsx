@@ -60,7 +60,7 @@ export const PowerUp = ({
         "px-3 py-2 md:px-4 md:py-4 disabled:opacity-100",
         loading && "disabled:text-white-400",
         power
-          ? "bg-mauve-700 hover:bg-mauve-500 disabled:bg-mauve-800 disabled:shadow-none"
+          ? "bg-primary-700 hover:bg-primary-500 disabled:bg-primary-800 disabled:shadow-none"
           : "bg-black-800 shadow-none",
       )}
       {...props}
@@ -69,19 +69,19 @@ export const PowerUp = ({
         <>
           <div
             className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none text-mauve-100",
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-0 pointer-events-none text-primary-100",
               className,
             )}
           />
           <div
             className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none text-mauve-100",
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-1 pointer-events-none text-primary-100",
               className,
             )}
           />
           <div
             className={cn(
-              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none text-mauve-100",
+              "absolute inset-0 rounded-lg outline outline-1 animate-pulse-border-2 pointer-events-none text-primary-100",
               className,
             )}
           />
@@ -95,7 +95,7 @@ export const PowerUp = ({
           )}
         />
       ) : (
-        <DiamondIcon className="text-mauve-100 h-6 w-6 md:h-9 md:w-9" />
+        <DiamondIcon className="text-primary-100 h-6 w-6 md:h-9 md:w-9" />
       )}
     </Button>
   );

@@ -17,11 +17,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Histogram: Story = {
-  render: () => <Covers.HistogramCover className="text-mauve-100" />,
+  render: () => <Covers.HistogramCover className="text-primary-100" />,
 };
 
 export const Tutorial: Story = {
-  render: () => <Covers.TutorialCover className="text-mauve-100" />,
+  render: () => <Covers.TutorialCover className="text-primary-100" />,
 };
 
 export const Glitchbomb: Story = {

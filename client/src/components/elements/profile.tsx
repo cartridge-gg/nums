@@ -15,7 +15,7 @@ const profileVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-mauve-700 hover:bg-mauve-500",
+        default: "bg-primary-700 hover:bg-primary-500",
       },
       size: {
         md: "h-10 md:h-12 w-10 md:w-auto md:max-w-48 p-2 md:px-4 tracking-wide",

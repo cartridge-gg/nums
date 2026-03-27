@@ -4,7 +4,7 @@ import { Footer } from "@/components/containers/footer";
 
 export const Support = () => {
   return (
-    <div className="relative min-h-screen flex flex-col bg-purple-100 overflow-auto">
+    <div className="relative min-h-screen flex flex-col bg-secondary-100 overflow-auto">
       <img
         src="/assets/tunnel-background.svg"
         alt=""

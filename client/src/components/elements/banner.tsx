@@ -72,7 +72,7 @@ const Social = ({
     <div
       className={cn(
         bannerVariants({ size, className }),
-        "bg-gradient-to-t from-transparent to-purple-300 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "bg-gradient-to-t from-transparent to-secondary-300 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       )}
       {...props}
     >
@@ -91,7 +91,7 @@ const Social = ({
       )}
       <div className="relative flex flex-col gap-2 uppercase">
         <span
-          className="text-lg/3 md:text-[22px]/[15px] text-mauve-100 tracking-wider translate-y-0.5"
+          className="text-lg/3 md:text-[22px]/[15px] text-primary-100 tracking-wider translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
         >
           Spread the word...
@@ -106,7 +106,7 @@ const Social = ({
       <Button
         disabled={disabled}
         variant="muted"
-        className="relative bg-mauve-100 hover:bg-mauve-200 px-3 py-1"
+        className="relative bg-primary-100 hover:bg-primary-200 px-3 py-1"
         onClick={onClick}
       >
         <p
@@ -138,7 +138,7 @@ const Tutorial = ({
     <div
       className={cn(
         bannerVariants({ size, className }),
-        "bg-gradient-to-t from-transparent to-purple-300 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+        "bg-gradient-to-t from-transparent to-secondary-300 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       )}
       {...props}
     >

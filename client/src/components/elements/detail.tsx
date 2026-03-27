@@ -43,7 +43,7 @@ export const Detail = ({
   return (
     <div className={cn(detailVariants({ variant, className }))} {...props}>
       <h3
-        className="text-mauve-100 text-[18px]/[12px] tracking-wider"
+        className="text-primary-100 text-[18px]/[12px] tracking-wider"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
         {title}

@@ -9,7 +9,7 @@ export interface CloseProps
     VariantProps<typeof closeVariants> {}
 
 const closeVariants = cva(
-  "flex items-center justify-center bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg text-white-100 p-0",
+  "flex items-center justify-center bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg text-white-100 p-0",
   {
     variants: {
       variant: {

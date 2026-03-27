@@ -197,7 +197,7 @@ export const Activities = ({
         {sections.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <p
-              className="text-mauve-100 text-[22px]/7 tracking-wider translate-y-0.5 text-center"
+              className="text-primary-100 text-[22px]/7 tracking-wider translate-y-0.5 text-center"
               style={{
                 textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
               }}
@@ -212,7 +212,7 @@ export const Activities = ({
             <div key={sectionIndex} className="flex flex-col gap-4">
               {section.title && (
                 <h3
-                  className="text-[22px]/[15px] tracking-wider text-mauve-100 translate-y-0.5"
+                  className="text-[22px]/[15px] tracking-wider text-primary-100 translate-y-0.5"
                   style={{
                     textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)",
                   }}

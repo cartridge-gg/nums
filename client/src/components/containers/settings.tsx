@@ -396,28 +396,28 @@ const Socials = () => (
     <Link
       to="https://docs.nums.gg//"
       target="_blank"
-      className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+      className="flex-1 bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >
       <BookIcon size="md" />
     </Link>
     <Link
       to="https://github.com/cartridge-gg/nums"
       target="_blank"
-      className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+      className="flex-1 bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >
       <GithubIcon size="md" />
     </Link>
     <Link
       to="https://discord.gg/rJGVUWQc25"
       target="_blank"
-      className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+      className="flex-1 bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >
       <DiscordIcon size="md" />
     </Link>
     <Link
       to="https://x.com/numsgg"
       target="_blank"
-      className="flex-1 bg-mauve-800 hover:bg-mauve-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
+      className="flex-1 bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >
       <XIcon size="md" />
     </Link>

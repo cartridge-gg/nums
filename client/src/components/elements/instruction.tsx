@@ -51,7 +51,7 @@ export const Instruction = ({
           !onClick
             ? "hidden"
             : variant !== "destructive"
-              ? "text-mauve-100"
+              ? "text-primary-100"
               : "text-red-100",
         )}
       />
@@ -61,7 +61,7 @@ export const Instruction = ({
           !onClick
             ? "hidden"
             : variant !== "destructive"
-              ? "text-mauve-100"
+              ? "text-primary-100"
               : "text-red-100",
         )}
       />
@@ -71,7 +71,7 @@ export const Instruction = ({
           !onClick
             ? "hidden"
             : variant !== "destructive"
-              ? "text-mauve-100"
+              ? "text-primary-100"
               : "text-red-100",
         )}
       />

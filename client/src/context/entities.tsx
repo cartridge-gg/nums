@@ -71,7 +71,7 @@ export function EntitiesProvider({
     "loading",
   );
 
-  // Initialize Torii client
+  // Initialize Torii clients
   useEffect(() => {
     let mounted = true;
     const getClient = async () => {

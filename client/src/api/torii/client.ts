@@ -1,4 +1,5 @@
 import * as torii from "@dojoengine/torii-wasm";
+import { ToriiGrpcClient } from "@dojoengine/grpc";
 import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
 
 let clientInstance: torii.ToriiClient | null = null;
@@ -20,4 +21,19 @@ export async function initToriiClient(): Promise<torii.ToriiClient> {
   })();
 
   return clientPromise;
+}
+
+let grpcInstance: ToriiGrpcClient | null = null;
+
+export function initGrpcClient(): ToriiGrpcClient {
+  if (grpcInstance) return grpcInstance;
+
+  const toriiUrl = dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl;
+
+  grpcInstance = new ToriiGrpcClient({
+    toriiUrl,
+    worldAddress: "0x0",
+  });
+
+  return grpcInstance;
 }

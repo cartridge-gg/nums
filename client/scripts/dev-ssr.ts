@@ -40,10 +40,6 @@ function serveFromDist(
   if (filePath === "index.html") {
     distPaths.push(path.join(base, "index.html"));
   }
-  if (filePath === "manifest.webmanifest") {
-    distPaths.push(path.join(base, "public", "site.webmanifest"));
-  }
-
   for (const p of distPaths) {
     try {
       const stat = fs.statSync(p);
@@ -55,7 +51,6 @@ function serveFromDist(
           ".js": "application/javascript",
           ".css": "text/css",
           ".json": "application/json",
-          ".webmanifest": "application/manifest+json",
         };
         res.setHeader("Content-Type", types[ext] || "application/octet-stream");
         res.writeHead(200);

@@ -1,4 +1,4 @@
-import { executeSql, getSqlUrl } from "./sql";
+import { initGrpcClient } from "./client";
 import { Packer } from "@/helpers/packer";
 import { DEFAULT_SLOT_COUNT } from "@/constants";
 
@@ -26,6 +26,7 @@ function parseHexScore(scoreHex: string): number {
 }
 
 async function fetch(limit: number, offset: number): Promise<ActivityRow[]> {
+  const client = initGrpcClient();
   const query = `SELECT
     c.username,
     g.slots,
@@ -41,7 +42,7 @@ ORDER BY timestamp DESC
 LIMIT ${limit}
 OFFSET ${offset};`;
 
-  const rows = await executeSql<Record<string, unknown>>(getSqlUrl(), query);
+  const rows = await client.executeSql(query);
 
   return rows.map((row) => {
     const gameId = Number(row.game_id) || 0;

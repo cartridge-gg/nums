@@ -1,5 +1,5 @@
 import { getChecksumAddress } from "starknet";
-import { getSqlUrl, executeSql } from "./sql";
+import { initGrpcClient } from "./client";
 
 export interface ReferralRow {
   username: string;
@@ -19,6 +19,7 @@ async function fetch(
   protocolFee: number,
   referralFee: number,
 ): Promise<ReferralRow[]> {
+  const client = initGrpcClient();
   const address = getChecksumAddress(BigInt(referrerAddress)).toLowerCase();
 
   if (!/^0x[a-fA-F0-9]+$/.test(address)) {
@@ -41,7 +42,7 @@ AND data->>'$.referrer.Some' = '${address}'
 AND data->>'$.bundle_id' IN (${starterpackIds.join(",")})
 LIMIT 1000;`;
 
-  const rows = await executeSql<Record<string, unknown>>(getSqlUrl(), query);
+  const rows = await client.executeSql(query);
 
   return rows.map((row) => ({
     username: String(row.username || ""),

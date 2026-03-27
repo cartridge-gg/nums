@@ -11,7 +11,7 @@ export * from "./merkledrop";
 export * from "./owner";
 export * from "./quest";
 export * from "./referral";
-export * from "./sql";
+
 export * from "./tokens";
 export * from "./vault";
 export { subscribeEntities, subscribeEvents } from "./subscribe";

@@ -1,9 +1,10 @@
 import { getChecksumAddress } from "starknet";
-import { executeSql, getSqlUrl } from "./sql";
+import { initGrpcClient } from "./client";
 
 const DECIMALS = 10n ** 18n;
 
 async function fetch(vaultAddress: string): Promise<number> {
+  const client = initGrpcClient();
   const contractAddress = getChecksumAddress(vaultAddress).toLowerCase();
 
   const query = `SELECT MAX(balance)
@@ -11,7 +12,7 @@ FROM token_balances
 WHERE contract_address = '${contractAddress}'
 LIMIT 1000;`;
 
-  const rows = await executeSql<Record<string, unknown>>(getSqlUrl(), query);
+  const rows = await client.executeSql(query);
 
   const raw = rows[0]?.["MAX(balance)"];
   if (!raw) return 0;

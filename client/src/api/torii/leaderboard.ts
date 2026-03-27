@@ -1,4 +1,4 @@
-import { executeSql, getSqlUrl } from "./sql";
+import { initGrpcClient } from "./client";
 
 export interface LeaderboardRow {
   username: string;
@@ -12,6 +12,7 @@ export interface LeaderboardRow {
 }
 
 async function fetch(): Promise<LeaderboardRow[]> {
+  const client = initGrpcClient();
   const query = `WITH RawData AS (
     SELECT 
         c.username,
@@ -44,7 +45,7 @@ FROM RawData
 GROUP BY player, username
 ORDER BY total_reward DESC;`;
 
-  const rows = await executeSql<Record<string, unknown>>(getSqlUrl(), query);
+  const rows = await client.executeSql(query);
 
   return rows.map((row) => ({
     username: String(row.username || ""),

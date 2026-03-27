@@ -35,6 +35,7 @@
     "@cartridge/presets": "catalog:",
     "@cartridge/ui": "catalog:",
     "@dojoengine/core": "catalog:",
+    "@dojoengine/grpc": "catalog:",
     "@dojoengine/sdk": "catalog:",
     "@dojoengine/torii-client": "catalog:",
     "@dojoengine/torii-wasm": "catalog:",

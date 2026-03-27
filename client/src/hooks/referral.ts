@@ -17,9 +17,7 @@ export const useReferral = () => {
   const query = useQuery<Referral[]>({
     queryKey: queryKeys.referrals(address, bundleIds),
     queryFn: () => {
-      if (!address) {
-        throw new Error("Account address is required");
-      }
+      if (!address) throw new Error("Account address is required");
       return ReferralApi.fetch(address, bundleIds, PROTOCOL_FEE, REFERRAL_FEE);
     },
     enabled: !!address && bundleIds.length > 0,

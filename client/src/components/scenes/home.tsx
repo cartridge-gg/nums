@@ -101,10 +101,7 @@ export const HomeScene = ({
         {!gameId ? (
           <NewGame filterId={filterId} onClick={onPurchase || (() => {})} />
         ) : (
-          <Button
-            variant="default"
-            className="h-12 w-full bg-green-100 hover:bg-green-200"
-          >
+          <Button variant="tertiary" className="h-12 w-full">
             <Link
               to={`/game/${gameId}`}
               className="w-full h-full flex items-center justify-center"

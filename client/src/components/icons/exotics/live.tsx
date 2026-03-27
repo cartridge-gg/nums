@@ -14,12 +14,12 @@ export const LiveIcon = memo(
         ref={forwardedRef}
         {...props}
       >
-        <circle cx="6" cy="6" r="4" fill="#48F095" />
+        <circle cx="6" cy="6" r="4" fill="currentColor" />
         <circle
           cx="6"
           cy="6"
           r="5"
-          stroke="#48F095"
+          stroke="currentColor"
           strokeOpacity="0.48"
           strokeWidth="2"
         />

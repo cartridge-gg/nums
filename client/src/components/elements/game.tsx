@@ -25,7 +25,7 @@ const gameVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-black-600 to-black-700 border-2 border-green-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+          "bg-gradient-to-r from-black-600 to-black-700 border-2 border-tertiary-100 shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         new: "bg-gradient-to-r from-black-600 to-black-700 border-2 border-yellow-100 border-dashed shadow-[1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       },
     },
@@ -72,7 +72,7 @@ export const Game = ({
         <ShadowEffect filterId={filterId} />
         <Icon
           className={cn(
-            variant === "new" ? "text-white-100" : "text-green-100",
+            variant === "new" ? "text-white-100" : "text-tertiary-100",
           )}
           size={variant === "new" ? "md" : "lg"}
           style={{ filter: `url(#${filterId})` }}
@@ -84,7 +84,7 @@ export const Game = ({
           <Content
             title="Game Id"
             value={gameId ? `#${gameId}` : undefined}
-            icon={!!gameId && !!score}
+            icon={variant !== "new"}
           />
         </div>
 
@@ -147,7 +147,7 @@ const Content = ({
         >
           <LiveIcon
             size="2xs"
-            className="animate-pulse"
+            className="animate-pulse text-tertiary-100"
             style={{ filter: `url(#${filterId})` }}
           />
         </div>

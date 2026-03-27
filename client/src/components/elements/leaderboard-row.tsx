@@ -19,7 +19,7 @@ const leaderboardRowVariants = cva(
         default:
           "bg-white-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
         primary:
-          "bg-yellow-900 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+          "bg-green-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
       },
     },
     defaultVariants: {
@@ -47,7 +47,7 @@ export const LeaderboardRow = ({
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",
-            variant === "primary" ? "text-yellow-100" : "text-white-100",
+            variant === "primary" ? "text-green-100" : "text-white-100",
           )}
           style={{ fontWeight: 450 }}
         >
@@ -60,7 +60,7 @@ export const LeaderboardRow = ({
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans truncate block",
-            variant === "primary" ? "text-yellow-100" : "text-white-100",
+            variant === "primary" ? "text-green-100" : "text-white-100",
           )}
         >
           {username}
@@ -72,7 +72,7 @@ export const LeaderboardRow = ({
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",
-            variant === "primary" ? "text-yellow-100" : "text-white-100",
+            variant === "primary" ? "text-green-100" : "text-white-100",
           )}
         >
           {total}
@@ -84,7 +84,7 @@ export const LeaderboardRow = ({
         <span
           className={cn(
             "text-base/5 tracking-normal align-middle font-sans",
-            variant === "primary" ? "text-yellow-100" : "text-white-100",
+            variant === "primary" ? "text-green-100" : "text-white-100",
           )}
         >
           <span className="hidden md:inline">

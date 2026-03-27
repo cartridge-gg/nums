@@ -16,6 +16,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Main: Story = {
+  render: () => <Covers.MainCover className="text-secondary-100" />,
+};
+
 export const Histogram: Story = {
   render: () => <Covers.HistogramCover className="text-primary-100" />,
 };

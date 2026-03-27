@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "../ui/button";
 import type { ControllerConfig } from "@cartridge/presets";
 import { Link } from "@/lib/router";
+import { MainCover } from "../covers";
 
 export interface BannerProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -60,14 +61,12 @@ export const Banner = (props: BannerProps) => {
 
 const Social = ({
   disabled,
-  config,
   position,
   size,
   className,
   onClick,
   ...props
 }: BannerProps) => {
-  const cover = resolveImageUrl(config?.theme?.optimizedCover, 768);
   return (
     <div
       className={cn(
@@ -76,19 +75,9 @@ const Social = ({
       )}
       {...props}
     >
-      {cover && (
-        <div className="absolute top-0 left-0 w-full h-full">
-          <img
-            src={cover}
-            alt=""
-            className="w-full h-full object-cover"
-            style={{
-              objectPosition:
-                position !== undefined ? `center ${position}%` : "center",
-            }}
-          />
-        </div>
-      )}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <MainCover fit="cover" className="text-secondary-100" />
+      </div>
       <div className="relative flex flex-col gap-2 uppercase">
         <span
           className="text-lg/3 md:text-[22px]/[15px] text-primary-100 tracking-wider translate-y-0.5"
@@ -126,14 +115,7 @@ const Social = ({
   );
 };
 
-const Tutorial = ({
-  config,
-  position,
-  size,
-  className,
-  ...props
-}: BannerProps) => {
-  const cover = resolveImageUrl(config?.theme?.optimizedCover, 768);
+const Tutorial = ({ position, size, className, ...props }: BannerProps) => {
   return (
     <div
       className={cn(
@@ -142,19 +124,9 @@ const Tutorial = ({
       )}
       {...props}
     >
-      {cover && (
-        <div className="absolute top-0 left-0 w-full h-full">
-          <img
-            src={cover}
-            alt=""
-            className="w-full h-full object-cover"
-            style={{
-              objectPosition:
-                position !== undefined ? `center ${position}%` : "center",
-            }}
-          />
-        </div>
-      )}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <MainCover fit="cover" className="text-secondary-100" />
+      </div>
       <strong
         className="text-[28px]/[19px] md:text-[36px]/6 text-white-100 tracking-wider translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}

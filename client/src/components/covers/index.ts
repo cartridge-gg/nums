@@ -17,4 +17,5 @@ export const coverVariants = cva(base, {
 export * from "./histogram";
 export * from "./tutorial";
 export * from "./glitchbomb";
+export * from "./main";
 export * from "./types";

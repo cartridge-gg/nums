@@ -6,17 +6,20 @@ import {
   ReferralIcon,
   LaurelIcon,
   LightbulbIcon,
-  StakingIcon,
   TrophyIcon,
   QuestIcon,
   GithubIcon,
   DiscordIcon,
   XIcon,
   BookIcon,
-  LogoIcon,
-  RebellionLogoIcon,
+  FistIcon,
 } from "@/components/icons";
-import { Sound, Close, NotificationPing } from "@/components/elements";
+import {
+  Sound,
+  Close,
+  NotificationPing,
+  SettingTheme,
+} from "@/components/elements";
 import type { Theme } from "@/context/theme";
 import { Link } from "@/lib/router";
 import { useId } from "react";
@@ -123,6 +126,7 @@ export const Settings = ({
       {/* Mobile content */}
       <div className="flex flex-col gap-6 h-full overflow-hidden md:hidden">
         <div className="flex flex-col gap-6">
+          <Faction theme={theme} onThemeChange={onThemeChange} />
           <Volumes
             musicVolume={musicVolume}
             musicMuted={musicMuted}
@@ -133,7 +137,6 @@ export const Settings = ({
             onSfxChange={onSfxChange}
             onSfxMute={onSfxMute}
           />
-          <Faction theme={theme} onThemeChange={onThemeChange} />
         </div>
         <div className="flex flex-col gap-6 flex-1 justify-between overflow-hidden">
           <div
@@ -181,6 +184,7 @@ export const Settings = ({
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
           <div className="flex flex-col gap-6">
+            <Faction theme={theme} onThemeChange={onThemeChange} />
             <Volumes
               musicVolume={musicVolume}
               musicMuted={musicMuted}
@@ -191,7 +195,6 @@ export const Settings = ({
               onSfxChange={onSfxChange}
               onSfxMute={onSfxMute}
             />
-            <Faction theme={theme} onThemeChange={onThemeChange} />
           </div>
           <div className="flex flex-col gap-4">
             {username && onProfile ? (
@@ -253,34 +256,25 @@ const Faction = ({
 }: {
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
-}) => {
-  const isRebellion = theme === "rebellion";
-  return (
-    <div className="flex flex-col gap-4">
-      <span className="font-primary text-[18px] leading-[12px] text-primary-100 tracking-wider">
-        Themes
-      </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isRebellion}
-        onClick={() => onThemeChange(isRebellion ? "compliant" : "rebellion")}
-        className="relative inline-flex h-10 w-[76px] shrink-0 cursor-pointer items-center rounded-full bg-primary-700"
-      >
-        <div className="absolute inset-0 flex items-center justify-between px-2.5 pointer-events-none">
-          <RebellionLogoIcon size="sm" />
-          <LogoIcon size="sm" />
-        </div>
-        <span
-          className={cn(
-            "pointer-events-none relative z-10 block h-8 w-8 rounded-full bg-secondary-100 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] transition-transform duration-200",
-            isRebellion ? "translate-x-[40px]" : "translate-x-1",
-          )}
-        />
-      </button>
+}) => (
+  <div className="flex flex-col gap-4">
+    <span className="font-primary text-[18px] leading-[12px] text-primary-100 tracking-wider">
+      Themes
+    </span>
+    <div className="flex items-center gap-2">
+      <SettingTheme
+        variant="compliant"
+        selected={theme === "compliant"}
+        onClick={() => onThemeChange("compliant")}
+      />
+      <SettingTheme
+        variant="rebellion"
+        selected={theme === "rebellion"}
+        onClick={() => onThemeChange("rebellion")}
+      />
     </div>
-  );
-};
+  </div>
+);
 
 const NavButtons = ({
   filterId,
@@ -365,15 +359,16 @@ const NavButtons = ({
     )}
     <Button
       variant="secondary"
-      className="h-10 min-h-10 gap-1 hidden"
+      className="h-10 min-h-10 gap-1"
       onClick={onStaking}
     >
-      <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} />
+      {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
+      <FistIcon size="md" style={{ filter: `url(#${filterId})` }} />
       <span
         className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
-        Staking
+        Rebellion
       </span>
     </Button>
     <Button

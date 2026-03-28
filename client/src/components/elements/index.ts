@@ -18,6 +18,7 @@ export * from "./info";
 export * from "./play";
 export * from "./game";
 export * from "./selection";
+export * from "./setting-theme";
 export * from "./place";
 export * from "./share";
 export * from "./stat";

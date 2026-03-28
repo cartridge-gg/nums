@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { TokenIcon } from "@/components/icons/exotics";
 
 const stakingSupplyVariants = cva(
-  "select-none flex items-center gap-2 rounded-lg p-3 bg-white-900",
+  "select-none flex justify-between items-center gap-2 rounded-lg p-3 bg-white-900",
   {
     variants: {
       variant: {
@@ -38,15 +38,17 @@ export const StakingSupply = ({
       {...props}
     >
       <span className="font-sans text-sm/[18px] text-white-400">{title}</span>
-      <TokenIcon size="sm" className="text-primary-100" />
-      <span className="font-sans text-base/5 text-primary-100">
-        {totalShares !== undefined
-          ? totalShares.toLocaleString("en-US", {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })
-          : "TBD"}
-      </span>
+      <div className="flex items-center gap-2">
+        <TokenIcon size="sm" variant="fist" className="text-primary-100" />
+        <span className="font-sans text-base/5 text-primary-100">
+          {totalShares !== undefined
+            ? totalShares.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })
+            : "TBD"}
+        </span>
+      </div>
     </div>
   );
 };

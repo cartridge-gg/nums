@@ -4,7 +4,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { ShadowEffect, ExternalLinkIcon } from "@/components/icons";
 import { Close } from "@/components/elements";
 import { Staking, type StakingProps } from "@/components/containers/staking";
-import { StakingOnly } from "@/components/containers/staking-only";
 import {
   StakingBalance,
   type StakingBalanceProps,
@@ -29,10 +28,7 @@ import {
   StakingGoal,
   type StakingGoalProps,
 } from "@/components/elements/staking-goal";
-import {
-  StakingVault,
-  type StakingVaultProps,
-} from "@/components/elements/staking-vault";
+import type { StakingVaultProps } from "@/components/elements/staking-vault";
 import {
   StakingSupply,
   type StakingSupplyProps,
@@ -113,16 +109,11 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Disclaimer />
-              <ReadMore to="https://docs.nums.gg//staking" />
-              <StakingSupply {...supplyProps} />
-              <StakingOnly {...stakingProps} />
-              <StakingBalance
-                {...balanceProps}
-                title="You have contributed"
-                token="NUMS"
-              />
+              <ReadMore to="https://docs.nums.gg/governance/staking" />
               <StakingGoal {...goalProps} />
-              <StakingVault {...vaultProps} />
+              <Staking {...stakingProps} />
+              <StakingSupply {...supplyProps} />
+              <StakingBalance {...balanceProps} title="Your Contribution" />
             </div>
           </div>
 
@@ -144,18 +135,13 @@ export const StakingScene = ({
 
               <div className="flex flex-row gap-6">
                 <div className="flex flex-col gap-6 flex-1">
-                  <StakingOnly {...stakingProps} />
-                  <StakingBalance
-                    {...balanceProps}
-                    title="You have contributed"
-                    token="NUMS"
-                  />
+                  <Staking {...stakingProps} />
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Disclaimer />
-                  <ReadMore to="https://docs.nums.gg//staking" />
+                  <ReadMore to="https://docs.nums.gg/governance/staking" />
                   <StakingGoal {...goalProps} />
-                  <StakingVault {...vaultProps} />
+                  <StakingBalance {...balanceProps} title="Your Contribution" />
                 </div>
               </div>
             </div>
@@ -178,7 +164,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Subtitle />
-              <ReadMore to="https://docs.nums.gg//staking" />
+              <ReadMore to="https://docs.nums.gg/governance/staking" />
               <div className="flex gap-3">
                 {!!ratioProps && (
                   <StakingRatio {...ratioProps} className="hidden md:block" />
@@ -219,7 +205,7 @@ export const StakingScene = ({
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Subtitle />
-                  <ReadMore to="https://docs.nums.gg//staking" />
+                  <ReadMore to="https://docs.nums.gg/governance/staking" />
                   <StakingBalance {...balanceProps} />
                   {!!claimedProps?.amount && (
                     <StakingClaimed {...claimedProps} />
@@ -266,7 +252,7 @@ const ReadMore = ({
 }) => {
   return (
     <Link to={to} target="_blank" className="flex">
-      <div className="px-1 flex items-center gap-0.5 h-6 bg-white-900 hover:bg-white-800 rounded transition-colors duration-150">
+      <div className="px-2 flex items-center gap-0.5 h-8 bg-white-900 hover:bg-white-800 rounded transition-colors duration-150">
         <p className="font-sans text-sm/5 text-white-100 px-0.5">Read More</p>
         <ExternalLinkIcon size="xs" />
       </div>

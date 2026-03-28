@@ -8,6 +8,7 @@ import { AchievementScene } from "@/components/scenes/achievement";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
+import { GovernanceScene } from "@/components/scenes/governance";
 import { StakingScene } from "@/components/scenes/staking";
 import { Airdrop } from "@/components/containers/airdrop";
 import { useHeader } from "@/hooks/header";
@@ -15,6 +16,7 @@ import { useAccount, useDisconnect, useNetwork } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
+import { useGovernance } from "@/hooks/governance";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
 import { useMultiplier } from "@/hooks/multiplier";
@@ -77,6 +79,7 @@ export const Main = ({ children }: MainProps) => {
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
+  const [showGovernanceScene, setShowGovernanceScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [bundleIndex, setBundleIndex] = useState<number>(1);
@@ -131,6 +134,7 @@ export const Main = ({ children }: MainProps) => {
   const { theme, setTheme } = useTheme();
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
+  const governanceData = useGovernance();
   const achievementsProps = useAchievementScene();
 
   // Get username from controllers if account is connected
@@ -217,6 +221,7 @@ export const Main = ({ children }: MainProps) => {
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
+      setShowGovernanceScene(false);
       setShowSettingsScene(false);
       navigate("/game");
     };
@@ -258,6 +263,7 @@ export const Main = ({ children }: MainProps) => {
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
+      setShowGovernanceScene(false);
       setShowSettingsScene(false);
       setShowAirdropModal(false);
 
@@ -352,6 +358,7 @@ export const Main = ({ children }: MainProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -362,6 +369,7 @@ export const Main = ({ children }: MainProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -372,6 +380,7 @@ export const Main = ({ children }: MainProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -383,6 +392,7 @@ export const Main = ({ children }: MainProps) => {
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -394,6 +404,7 @@ export const Main = ({ children }: MainProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowAirdropModal(false);
         }}
         faucetBalance={headerData.faucetBalance}
@@ -407,6 +418,7 @@ export const Main = ({ children }: MainProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
         }}
       />
@@ -426,6 +438,7 @@ export const Main = ({ children }: MainProps) => {
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
             setShowReferralScene(false);
+            setShowGovernanceScene(false);
             setShowSettingsScene(false);
             setShowAirdropModal(false);
             capture("purchase_modal_opened", {});
@@ -545,6 +558,19 @@ export const Main = ({ children }: MainProps) => {
             </div>
           </div>
         )}
+        {showGovernanceScene && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <GovernanceScene
+                proposals={governanceData.proposals}
+                results={governanceData.results}
+                votes={governanceData.votes}
+                onClose={() => setShowGovernanceScene(false)}
+                className="h-full"
+              />
+            </div>
+          </div>
+        )}
         {showAirdropModal && (
           <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
@@ -599,6 +625,10 @@ export const Main = ({ children }: MainProps) => {
                 onStaking={() => {
                   setShowSettingsScene(false);
                   setShowStakingScene(true);
+                }}
+                onGovernance={() => {
+                  setShowSettingsScene(false);
+                  setShowGovernanceScene(true);
                 }}
                 onTutorial={() => {
                   setShowSettingsScene(false);

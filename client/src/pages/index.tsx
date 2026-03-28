@@ -8,6 +8,7 @@ import { AchievementScene } from "@/components/scenes/achievement";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { ReferralScene } from "@/components/scenes/referral";
+import { GovernanceScene } from "@/components/scenes/governance";
 import { StakingScene } from "@/components/scenes/staking";
 import { Airdrop } from "@/components/containers/airdrop";
 import { useHeader } from "@/hooks/header";
@@ -15,6 +16,7 @@ import { useAccount, useDisconnect, useNetwork } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
+import { useGovernance } from "@/hooks/governance";
 import { useStaking } from "@/hooks/staking";
 import { useVault } from "@/context/vault";
 import { useMultiplier } from "@/hooks/multiplier";
@@ -31,7 +33,7 @@ import { useNotifications } from "@/hooks/notifications";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { Settings } from "@/components/containers/settings";
-import { Events } from "../containers/events";
+import { Events } from "@/components/containers/events";
 import { WelcomeScene } from "@/components/scenes";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
@@ -44,13 +46,17 @@ import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
 import { getSetupAddress } from "@/config";
 
+export { Game } from "./game";
+export { Home } from "./home";
+export { Support } from "./support";
+
 const background = "/assets/tunnel-background.svg";
 
-export interface LayoutProps {
+export interface MainProps {
   children: React.ReactNode;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Main = ({ children }: MainProps) => {
   const { chain } = useNetwork();
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
@@ -73,6 +79,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [showPurchaseScene, setShowPurchaseScene] = useState(false);
   const [showStakingScene, setShowStakingScene] = useState(false);
   const [showReferralScene, setShowReferralScene] = useState(false);
+  const [showGovernanceScene, setShowGovernanceScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [bundleIndex, setBundleIndex] = useState<number>(1);
@@ -127,6 +134,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { theme, setTheme } = useTheme();
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
+  const governanceData = useGovernance();
   const achievementsProps = useAchievementScene();
 
   // Get username from controllers if account is connected
@@ -213,6 +221,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
+      setShowGovernanceScene(false);
       setShowSettingsScene(false);
       navigate("/game");
     };
@@ -254,6 +263,7 @@ export const Layout = ({ children }: LayoutProps) => {
       setShowPurchaseScene(false);
       setShowStakingScene(false);
       setShowReferralScene(false);
+      setShowGovernanceScene(false);
       setShowSettingsScene(false);
       setShowAirdropModal(false);
 
@@ -348,6 +358,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -358,6 +369,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -368,6 +380,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -379,6 +392,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowLeaderboardScene(false);
           setShowPurchaseScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
@@ -390,6 +404,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowAirdropModal(false);
         }}
         faucetBalance={headerData.faucetBalance}
@@ -403,6 +418,7 @@ export const Layout = ({ children }: LayoutProps) => {
           setShowPurchaseScene(false);
           setShowStakingScene(false);
           setShowReferralScene(false);
+          setShowGovernanceScene(false);
           setShowSettingsScene(false);
         }}
       />
@@ -422,6 +438,7 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowLeaderboardScene(false);
             setShowStakingScene(false);
             setShowReferralScene(false);
+            setShowGovernanceScene(false);
             setShowSettingsScene(false);
             setShowAirdropModal(false);
             capture("purchase_modal_opened", {});
@@ -541,6 +558,19 @@ export const Layout = ({ children }: LayoutProps) => {
             </div>
           </div>
         )}
+        {showGovernanceScene && (
+          <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <GovernanceScene
+                proposals={governanceData.proposals}
+                results={governanceData.results}
+                votes={governanceData.votes}
+                onClose={() => setShowGovernanceScene(false)}
+                className="h-full"
+              />
+            </div>
+          </div>
+        )}
         {showAirdropModal && (
           <div className="absolute inset-0 z-50 flex-1 bg-black-700 backdrop-blur-[4px]">
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1 flex items-center justify-center">
@@ -595,6 +625,10 @@ export const Layout = ({ children }: LayoutProps) => {
                 onStaking={() => {
                   setShowSettingsScene(false);
                   setShowStakingScene(true);
+                }}
+                onGovernance={() => {
+                  setShowSettingsScene(false);
+                  setShowGovernanceScene(true);
                 }}
                 onTutorial={() => {
                   setShowSettingsScene(false);

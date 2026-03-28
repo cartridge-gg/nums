@@ -75,7 +75,7 @@ export const Toast = ({
         </div>
         {actionProps && <ToastAction {...actionProps} />}
       </div>
-      <div className="bg-[#201248] h-1 relative">
+      <div className="bg-gray-100 h-1 relative">
         <div
           className="absolute bottom-0 left-0 h-1 w-full bg-primary-100 origin-left animate-toast-progress z-10"
           style={{ animationDuration: `${duration ?? 4000}ms` }}

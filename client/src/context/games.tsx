@@ -129,9 +129,63 @@ export function useGames() {
 }
 
 export function useGame(gameId: number | null | undefined) {
-  const { playerGames } = useGames();
-  return useMemo(() => {
-    if (!gameId) return undefined;
-    return playerGames.find((g) => g.id === gameId);
-  }, [playerGames, gameId]);
+  const { client } = useEntities();
+  const queryClient = useQueryClient();
+  const queryKey = Game.keys.byId(gameId ?? 0);
+  const subscriptionRef = useRef<torii.Subscription | null>(null);
+
+  const { data: game } = useQuery<GameModel | undefined>({
+    queryKey,
+    queryFn: async () => {
+      if (!client || !gameId || gameId <= 0) return undefined;
+      const result = await client.getEntities(Game.byIdQuery(gameId).build());
+      return Game.parseOne(result.items, gameId);
+    },
+    enabled: !!client && !!gameId && gameId > 0,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  });
+
+  const onSubscriptionUpdate = useCallback(
+    (data: SubscriptionCallbackArgs<torii.Entity[], Error>) => {
+      if (!data || data.error || !gameId) return;
+      (data.data || [data] || []).forEach((entity) => {
+        const key = `${NAMESPACE}-${GameModel.getModelName()}`;
+        if (entity.models[key]) {
+          const parsed = GameModel.parse(
+            entity.models[key] as unknown as RawGame,
+          );
+          if (parsed && parsed.id === gameId) {
+            queryClient.setQueryData<GameModel | undefined>(queryKey, parsed);
+          }
+        }
+      });
+    },
+    [queryClient, queryKey, gameId],
+  );
+
+  useEffect(() => {
+    if (!client || !gameId || gameId <= 0) return;
+
+    const query = Game.byIdQuery(gameId);
+
+    client
+      .onEntityUpdated(query.build().clause, [], onSubscriptionUpdate)
+      .then((sub) => {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.cancel();
+        }
+        subscriptionRef.current = sub;
+      });
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.cancel();
+        subscriptionRef.current = null;
+      }
+    };
+  }, [client, gameId, onSubscriptionUpdate]);
+
+  return game;
 }

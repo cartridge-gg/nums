@@ -38,6 +38,7 @@ const meta = {
     onAchievements: fn(),
     onQuests: fn(),
     onStaking: fn(),
+    onGovernance: fn(),
     onTutorial: fn(),
     onLogOut: fn(),
     onConnect: fn(),

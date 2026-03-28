@@ -1,5 +1,6 @@
 import { Link } from "@/lib/router";
-import { LogoIcon, QuoteIcon } from "@/components/icons/exotics";
+import { FistIcon, LogoIcon, QuoteIcon } from "@/components/icons/exotics";
+import { useTheme } from "@/context/theme";
 import {
   ListIcon,
   GiftIcon,
@@ -68,6 +69,7 @@ export const Header = ({
   className,
   ...props
 }: HeaderProps) => {
+  const { theme } = useTheme();
   const darkId = useId();
   const lightId = useId();
 
@@ -96,10 +98,17 @@ export const Header = ({
         draggable={false}
       >
         <Button variant="ghost" className="p-0">
-          <LogoIcon
-            className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] text-white"
-            aria-hidden="true"
-          />
+          {theme === "rebellion" ? (
+            <FistIcon
+              className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] text-white"
+              aria-hidden="true"
+            />
+          ) : (
+            <LogoIcon
+              className="drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] text-white"
+              aria-hidden="true"
+            />
+          )}
           <h1
             className="text-[64px] leading-[48px] uppercase text-white translate-y-1 hidden md:block"
             style={{ textShadow: "3px 3px 0px rgba(0, 0, 0, 0.25)" }}

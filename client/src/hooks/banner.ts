@@ -34,21 +34,21 @@ export interface BannerConfig {
 const BANNERS: GameBanner[] = [
   { preset: "nums", name: "social", bundle: 0 },
   { preset: "nums", name: "tutorial" },
-  { preset: "loot-survivor", name: "loot-survivor", position: 64 },
-  { preset: "dope-wars", name: "dope-wars", position: 16 },
-  {
-    preset: "jokers-of-neon",
-    name: "jokers-of-neon",
-    origin: "https://play.jokersofneon.com/",
-  },
-  {
-    preset: "eternum",
-    name: "eternum",
-    position: 16,
-    origin: "https://blitz.realms.world/",
-  },
+  // { preset: "loot-survivor", name: "loot-survivor", position: 64 },
+  // { preset: "dope-wars", name: "dope-wars", position: 16 },
+  // {
+  //   preset: "jokers-of-neon",
+  //   name: "jokers-of-neon",
+  //   origin: "https://play.jokersofneon.com/",
+  // },
+  // {
+  //   preset: "eternum",
+  //   name: "eternum",
+  //   position: 16,
+  //   origin: "https://blitz.realms.world/",
+  // },
   // { preset: "glitch-bomb", name: "glitch-bomb", position: 0 },
-  { preset: "savage-summit", name: "savage-summit", position: 0 },
+  // { preset: "savage-summit", name: "savage-summit", position: 0 },
 ];
 
 export const useBanners = () => {

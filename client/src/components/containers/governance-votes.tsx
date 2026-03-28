@@ -52,7 +52,7 @@ export const GovernanceVotes = ({
         </span>
       </div>
       {votes.length === 0 ? (
-        <div className="h-full flex items-center justify-center py-8 border-2 md:border-none border-white-800 bg-white-900 md:bg-transparent rounded-xl md:rounded-none">
+        <div className="h-full flex items-center justify-center py-8 mb-4">
           <p className="text-primary-100 text-[22px]/[20px] tracking-wider translate-y-0.5 text-center">
             No votes yet
           </p>

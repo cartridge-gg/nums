@@ -17,13 +17,12 @@ import { SoundProvider } from "./context/sound";
 import { ThemeProvider } from "./context/theme";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
-import { Game, Home, Support } from "./pages";
+import { Game, Home, Main, Support } from "./pages";
 import { LoadingScene, WelcomeScene } from "./components/scenes";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { LoadingProvider } from "./context/loading";
 import { WelcomeProvider } from "./context/welcome";
-import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
 import { TutorialProvider } from "./context/tutorial";
 import { VaultProvider } from "./context/vault";
@@ -148,7 +147,7 @@ function AuthenticatedApp() {
                             <LoadingProvider>
                               <ThemeProvider>
                                 <SoundProvider>
-                                  <Layout>
+                                  <Main>
                                     <Routes>
                                       <Route path="/" element={<Home />} />
                                       <Route
@@ -168,7 +167,7 @@ function AuthenticatedApp() {
                                         element={<Game />}
                                       />
                                     </Routes>
-                                  </Layout>
+                                  </Main>
                                 </SoundProvider>
                               </ThemeProvider>
                             </LoadingProvider>

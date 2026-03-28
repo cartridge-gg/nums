@@ -31,7 +31,7 @@ import { useNotifications } from "@/hooks/notifications";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { Settings } from "@/components/containers/settings";
-import { Events } from "../containers/events";
+import { Events } from "@/components/containers/events";
 import { WelcomeScene } from "@/components/scenes";
 import { useAudio } from "@/context/audio";
 import { useSound } from "@/context/sound";
@@ -44,13 +44,17 @@ import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
 import { getSetupAddress } from "@/config";
 
+export { Game } from "./game";
+export { Home } from "./home";
+export { Support } from "./support";
+
 const background = "/assets/tunnel-background.svg";
 
-export interface LayoutProps {
+export interface MainProps {
   children: React.ReactNode;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Main = ({ children }: MainProps) => {
   const { chain } = useNetwork();
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);

@@ -65,12 +65,17 @@ export const GovernanceScene = ({
         </div>
 
         <div
-          className="flex-1 flex flex-col gap-6 overflow-y-auto"
+          className="flex-1 flex flex-col gap-6 overflow-hidden"
           style={{ scrollbarWidth: "none" }}
         >
           <GovernanceProposals proposals={proposals} />
-          <GovernanceResults {...results} />
-          <GovernanceVotes votes={votes} />
+          <div
+            className="flex-1 flex flex-col gap-6 overflow-y-auto"
+            style={{ scrollbarWidth: "none" }}
+          >
+            <GovernanceResults {...results} />
+            <GovernanceVotes votes={votes} />
+          </div>
         </div>
       </div>
 

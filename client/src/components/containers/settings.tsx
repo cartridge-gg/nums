@@ -364,20 +364,22 @@ const NavButtons = ({
         {hasReferralNotification && <NotificationPing />}
       </Button>
     )}
-    <Button
-      variant="secondary"
-      className="h-10 min-h-10 gap-1"
-      onClick={onStaking}
-    >
-      {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
-      <FistIcon size="md" style={{ filter: `url(#${filterId})` }} />
-      <span
-        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
-        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+    {connected && (
+      <Button
+        variant="secondary"
+        className="h-10 min-h-10 gap-1"
+        onClick={onStaking}
       >
-        Rebellion
-      </span>
-    </Button>
+        {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
+        <FistIcon size="md" style={{ filter: `url(#${filterId})` }} />
+        <span
+          className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+        >
+          Rebellion
+        </span>
+      </Button>
+    )}
     <Button
       variant="secondary"
       className="h-10 min-h-10 gap-1"

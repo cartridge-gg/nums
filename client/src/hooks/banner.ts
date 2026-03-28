@@ -47,7 +47,7 @@ const BANNERS: GameBanner[] = [
     position: 16,
     origin: "https://blitz.realms.world/",
   },
-  { preset: "glitch-bomb", name: "glitch-bomb", position: 0 },
+  // { preset: "glitch-bomb", name: "glitch-bomb", position: 0 },
   { preset: "savage-summit", name: "savage-summit", position: 0 },
 ];
 

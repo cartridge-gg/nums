@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react";
 import { iconVariants, type IconProps } from "..";
 
-export const RebellionLogoIcon = memo(
+export const FistIcon = memo(
   forwardRef<SVGSVGElement, IconProps>(
     ({ className, size, ...props }, _forwardedRef) => (
       <svg
@@ -28,4 +28,4 @@ export const RebellionLogoIcon = memo(
   ),
 );
 
-RebellionLogoIcon.displayName = "RebellionLogoIcon";
+FistIcon.displayName = "FistIcon";

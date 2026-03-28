@@ -6,13 +6,13 @@ import {
   ReferralIcon,
   LaurelIcon,
   LightbulbIcon,
-  StakingIcon,
   TrophyIcon,
   QuestIcon,
   GithubIcon,
   DiscordIcon,
   XIcon,
   BookIcon,
+  FistIcon,
 } from "@/components/icons";
 import {
   Sound,
@@ -126,6 +126,7 @@ export const Settings = ({
       {/* Mobile content */}
       <div className="flex flex-col gap-6 h-full overflow-hidden md:hidden">
         <div className="flex flex-col gap-6">
+          <Faction theme={theme} onThemeChange={onThemeChange} />
           <Volumes
             musicVolume={musicVolume}
             musicMuted={musicMuted}
@@ -136,7 +137,6 @@ export const Settings = ({
             onSfxChange={onSfxChange}
             onSfxMute={onSfxMute}
           />
-          <Faction theme={theme} onThemeChange={onThemeChange} />
         </div>
         <div className="flex flex-col gap-6 flex-1 justify-between overflow-hidden">
           <div
@@ -184,6 +184,7 @@ export const Settings = ({
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
           <div className="flex flex-col gap-6">
+            <Faction theme={theme} onThemeChange={onThemeChange} />
             <Volumes
               musicVolume={musicVolume}
               musicMuted={musicMuted}
@@ -194,7 +195,6 @@ export const Settings = ({
               onSfxChange={onSfxChange}
               onSfxMute={onSfxMute}
             />
-            <Faction theme={theme} onThemeChange={onThemeChange} />
           </div>
           <div className="flex flex-col gap-4">
             {username && onProfile ? (
@@ -359,15 +359,16 @@ const NavButtons = ({
     )}
     <Button
       variant="secondary"
-      className="h-10 min-h-10 gap-1 hidden"
+      className="h-10 min-h-10 gap-1"
       onClick={onStaking}
     >
-      <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} />
+      {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
+      <FistIcon size="md" style={{ filter: `url(#${filterId})` }} />
       <span
         className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
-        Staking
+        Rebellion
       </span>
     </Button>
     <Button

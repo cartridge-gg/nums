@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/button";
 
 const settingThemeVariants = cva(
-  "h-8 w-8 p-1 rounded-full bg-white-800 cursor-pointer transition-colors data-[selected=true]:bg-white-100",
+  "h-8 w-8 p-1 rounded-full bg-white-800 cursor-pointer transition-colors data-[selected=true]:bg-white-100 data-[selected=true]:pointer-events-none",
   {
     variants: {
       variant: {
@@ -25,12 +26,12 @@ export const SettingTheme = ({
   className,
   ...props
 }: SettingThemeProps) => (
-  <button
-    type="button"
+  <Button
+    variant="ghost"
     data-selected={selected}
     className={cn(settingThemeVariants({ variant, className }))}
     {...props}
   >
     <div className="h-6 w-6 rounded-full bg-current" />
-  </button>
+  </Button>
 );

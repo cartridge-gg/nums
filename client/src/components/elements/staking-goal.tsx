@@ -25,7 +25,7 @@ export interface StakingGoalProps
 }
 
 export const StakingGoal = ({
-  token = "NUMS",
+  token = "vNUMS",
   totalStaked = 0,
   totalShares = 0,
   variant,
@@ -50,22 +50,22 @@ export const StakingGoal = ({
           />
         </div>
 
-        <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-6">
+        <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-3">
           <div className="flex items-center gap-2">
-            <TokenIcon size="sm" className="text-primary-100" />
+            <TokenIcon size="sm" variant="fist" className="text-primary-100" />
             <span className="text-primary-100 font-primary text-[22px]/[15px] tracking-wider translate-y-px">
               {token}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm/[18px]">
-            <span className="text-primary-100">
+          <div className="flex items-center gap-1 text-base/5">
+            <span className="text-primary-100 whitespace-nowrap">
               {totalStaked.toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               })}
             </span>
-            <span className="text-white-400">
-              /{" "}
+            <span className="text-white-400">/</span>
+            <span className="text-white-400 whitespace-nowrap">
               {totalShares.toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,

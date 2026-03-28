@@ -73,14 +73,17 @@ export const QuestGift = ({
             height: 0,
             borderTop: "8px solid transparent",
             borderBottom: "8px solid transparent",
-            borderRight: "8px solid #0D1831",
+            borderRight: "8px solid var(--green-700)",
           }}
         />
       )}
       {direction === "left" ? (
         <div className="relative" style={{ width: 40, height: 40 }}>
           <motion.div
-            className="absolute top-0 right-0 z-10 flex items-center justify-center h-10 rounded-lg overflow-hidden bg-[#0D1831]"
+            className={cn(
+              "absolute top-0 right-0 z-10 flex items-center justify-center h-10 rounded-lg overflow-hidden bg-green-700 ",
+              expanded && "bg-[#0D1831] md:bg-green-700",
+            )}
             initial={false}
             animate={{ width: expanded ? 160 : 40 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -90,7 +93,10 @@ export const QuestGift = ({
         </div>
       ) : (
         <motion.div
-          className="flex items-center justify-center h-10 rounded-lg overflow-hidden bg-[#0D1831]"
+          className={cn(
+            "flex items-center justify-center h-10 rounded-lg overflow-hidden bg-green-700 ",
+            expanded && "bg-[#0D1831] md:bg-green-700",
+          )}
           initial={false}
           animate={{ width: expanded ? 160 : 40 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -105,7 +111,7 @@ export const QuestGift = ({
             height: 0,
             borderTop: "8px solid transparent",
             borderBottom: "8px solid transparent",
-            borderLeft: "8px solid #0D1831",
+            borderLeft: "8px solid var(--green-700)",
           }}
         />
       )}

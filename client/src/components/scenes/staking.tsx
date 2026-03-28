@@ -1,8 +1,8 @@
 import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { ShadowEffect, ExternalLinkIcon } from "@/components/icons";
-import { Close } from "@/components/elements";
+import { ShadowEffect } from "@/components/icons";
+import { Close, External } from "@/components/elements";
 import { Staking, type StakingProps } from "@/components/containers/staking";
 import {
   StakingBalance,
@@ -33,7 +33,6 @@ import {
   StakingSupply,
   type StakingSupplyProps,
 } from "@/components/elements/staking-supply";
-import { Link } from "@/lib/router";
 
 const stakingSceneVariants = cva(
   "select-none flex flex-col md:flex-row gap-6 md:gap-10 p-6",
@@ -109,7 +108,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Disclaimer />
-              <ReadMore to="https://docs.nums.gg/governance/staking" />
+              <External to="https://docs.nums.gg/governance/staking" />
               <StakingGoal {...goalProps} />
               <Staking {...stakingProps} />
               <StakingSupply {...supplyProps} />
@@ -139,7 +138,7 @@ export const StakingScene = ({
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Disclaimer />
-                  <ReadMore to="https://docs.nums.gg/governance/staking" />
+                  <External to="https://docs.nums.gg/governance/staking" />
                   <StakingGoal {...goalProps} />
                   <StakingBalance {...balanceProps} title="Your Contribution" />
                 </div>
@@ -164,7 +163,7 @@ export const StakingScene = ({
               style={{ scrollbarWidth: "none" }}
             >
               <Subtitle />
-              <ReadMore to="https://docs.nums.gg/governance/staking" />
+              <External to="https://docs.nums.gg/governance/staking" />
               <div className="flex gap-3">
                 {!!ratioProps && (
                   <StakingRatio {...ratioProps} className="hidden md:block" />
@@ -205,7 +204,7 @@ export const StakingScene = ({
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   <Subtitle />
-                  <ReadMore to="https://docs.nums.gg/governance/staking" />
+                  <External to="https://docs.nums.gg/governance/staking" />
                   <StakingBalance {...balanceProps} />
                   {!!claimedProps?.amount && (
                     <StakingClaimed {...claimedProps} />
@@ -244,18 +243,3 @@ const Disclaimer = () => (
     be established.
   </p>
 );
-
-const ReadMore = ({
-  to = "https://www.cartridge.gg/flip-the-switch",
-}: {
-  to?: string;
-}) => {
-  return (
-    <Link to={to} target="_blank" className="flex">
-      <div className="px-2 flex items-center gap-0.5 h-8 bg-white-900 hover:bg-white-800 rounded transition-colors duration-150">
-        <p className="font-sans text-sm/5 text-white-100 px-0.5">Read More</p>
-        <ExternalLinkIcon size="xs" />
-      </div>
-    </Link>
-  );
-};

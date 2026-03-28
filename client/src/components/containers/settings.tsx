@@ -8,6 +8,7 @@ import {
   LightbulbIcon,
   TrophyIcon,
   QuestIcon,
+  CrownIcon,
   GithubIcon,
   DiscordIcon,
   XIcon,
@@ -41,6 +42,7 @@ export interface SettingsProps
   onAchievements: () => void;
   onQuests: () => void;
   onStaking: () => void;
+  onGovernance: () => void;
   onTutorial: () => void;
   onLogOut: () => void;
   onConnect: () => void;
@@ -81,6 +83,7 @@ export const Settings = ({
   onAchievements,
   onQuests,
   onStaking,
+  onGovernance,
   onTutorial,
   onLogOut,
   onConnect,
@@ -150,6 +153,7 @@ export const Settings = ({
               onQuests={onQuests}
               onLeaderboard={onLeaderboard}
               onStaking={onStaking}
+              onGovernance={onGovernance}
               onTutorial={onTutorial}
               connected={!!username}
               hasReferralNotification={hasReferralNotification}
@@ -177,6 +181,7 @@ export const Settings = ({
             onQuests={onQuests}
             onLeaderboard={onLeaderboard}
             onStaking={onStaking}
+            onGovernance={onGovernance}
             onTutorial={onTutorial}
             connected={!!username}
             hasReferralNotification={hasReferralNotification}
@@ -283,6 +288,7 @@ const NavButtons = ({
   onAchievements,
   onReferrals,
   onStaking,
+  onGovernance,
   onTutorial,
   connected,
   hasReferralNotification,
@@ -293,6 +299,7 @@ const NavButtons = ({
   onAchievements: () => void;
   onReferrals: () => void;
   onStaking: () => void;
+  onGovernance: () => void;
   onTutorial: () => void;
   connected: boolean;
   hasReferralNotification?: boolean;
@@ -369,6 +376,19 @@ const NavButtons = ({
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
       >
         Rebellion
+      </span>
+    </Button>
+    <Button
+      variant="secondary"
+      className="h-10 min-h-10 gap-1"
+      onClick={onGovernance}
+    >
+      <CrownIcon size="md" style={{ filter: `url(#${filterId})` }} />
+      <span
+        className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
+        style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
+      >
+        Governance
       </span>
     </Button>
     <Button

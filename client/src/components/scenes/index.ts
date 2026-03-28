@@ -8,4 +8,5 @@ export * from "./loading";
 export * from "./welcome";
 export * from "./support";
 export * from "./referral";
+export * from "./governance";
 export * from "./achievement";

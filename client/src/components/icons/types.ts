@@ -11,3 +11,8 @@ export type StateIconProps = Omit<
   SVGProps<SVGSVGElement> & VariantProps<typeof iconVariants>,
   "variant"
 > & { variant: "solid" | "line" };
+
+export type ThemeIconProps = Omit<
+  SVGProps<SVGSVGElement> & VariantProps<typeof iconVariants>,
+  "variant"
+> & { variant?: "default" | "fist" };

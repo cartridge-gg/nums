@@ -58,7 +58,7 @@ export const Toast = ({
 
   return (
     <div className={cn(toastVariants({ variant, className }))} {...props}>
-      <div className="bg-[#180840] flex justify-between items-center p-3 gap-2">
+      <div className="bg-black-100 flex justify-between items-center p-3 gap-2">
         <div className="flex items-center justify-start gap-3">
           {thumbnailProps && <ToastThumbnail {...thumbnailProps} />}
           <div

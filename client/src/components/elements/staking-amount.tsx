@@ -107,7 +107,10 @@ export const StakingAmount = ({
             action === "unstake" ? "text-primary-100" : "text-yellow-100",
           )}
         >
-          <TokenIcon size="sm" />
+          <TokenIcon
+            size="sm"
+            variant={action === "unstake" ? "fist" : "default"}
+          />
           <span className="font-primary text-[22px]/[15px] tracking-wider translate-y-px">
             {action === "stake" ? "NUMS" : "vNUMS"}
           </span>

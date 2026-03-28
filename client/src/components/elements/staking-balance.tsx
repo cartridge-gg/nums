@@ -55,22 +55,22 @@ export const StakingBalance = ({
           </span>
         </div>
 
-        <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-6">
+        <div className="flex justify-between items-center font-sans text-base/5 text-white-100 gap-3">
           <div className="flex items-center gap-2">
-            <TokenIcon size="sm" className="text-primary-100" />
+            <TokenIcon size="sm" variant="fist" className="text-primary-100" />
             <span className="text-primary-100 font-primary text-[22px]/[15px] tracking-wider translate-y-px">
               {token}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span>
+          <div className="flex items-center gap-1">
+            <span className="whitespace-nowrap">
               {stakedAmount.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </span>
-            <span className="text-white-400">
-              /{" "}
+            <span className="text-white-400">/</span>
+            <span className="text-white-400 whitespace-nowrap">
               {totalShare.toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,

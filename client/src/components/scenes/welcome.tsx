@@ -9,6 +9,7 @@ import { CartridgeIcon, DojoIcon, StarknetIcon } from "@/components/icons";
 export interface WelcomeSceneProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof welcomeSceneVariants> {
+  content?: string;
   isDismissing?: boolean;
   close: () => void;
 }
@@ -34,6 +35,7 @@ const welcomeSceneVariants = cva(
 export const WelcomeScene = ({
   variant,
   className,
+  content = "Start Sorting",
   isDismissing = false,
   close,
   ...props
@@ -163,7 +165,7 @@ export const WelcomeScene = ({
             phase >= 2 ? "opacity-100" : "opacity-0",
           )}
         >
-          Start Sorting
+          {content}
         </p>
       </div>
       <div

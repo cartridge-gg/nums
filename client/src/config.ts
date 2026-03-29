@@ -1,7 +1,7 @@
 import { createDojoConfig } from "@dojoengine/core";
 import { mainnet, sepolia } from "@starknet-react/chains";
 import { shortString } from "starknet";
-import manifestMainnet from "../../manifest_mainnet.json"; // todo: update when deployed
+import manifestMainnet from "../../manifest_mainnet.json";
 import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
 

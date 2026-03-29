@@ -13,7 +13,7 @@ import {
   DiscordIcon,
   XIcon,
   BookIcon,
-  FistIcon,
+  UnionIcon,
 } from "@/components/icons";
 import {
   Sound,
@@ -371,7 +371,7 @@ const NavButtons = ({
         onClick={onStaking}
       >
         {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
-        <FistIcon size="md" style={{ filter: `url(#${filterId})` }} />
+        <UnionIcon size="md" style={{ filter: `url(#${filterId})` }} />
         <span
           className="px-1 text-[22px]/[15px] tracking-wide translate-y-0.5"
           style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}

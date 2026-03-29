@@ -35,6 +35,7 @@ const regularIcons = [
   { name: "CheckboxUncheckedIcon", component: Icons.CheckboxUncheckedIcon },
   { name: "CircleInfoIcon", component: Icons.CircleInfoIcon },
   { name: "CircleQuestionIcon", component: Icons.CircleQuestionIcon },
+  { name: "ClockIcon", component: Icons.ClockIcon },
   { name: "ControllerIcon", component: Icons.ControllerIcon },
   { name: "CopyIcon", component: Icons.CopyIcon },
   { name: "CrossIcon", component: Icons.CrossIcon },
@@ -73,6 +74,7 @@ const regularIcons = [
   { name: "StarIcon", component: Icons.StarIcon },
   { name: "TimerIcon", component: Icons.TimerIcon },
   { name: "TrophyUsedIcon", component: Icons.TrophyUsedIcon },
+  { name: "UnionIcon", component: Icons.UnionIcon },
   { name: "WalletIcon", component: Icons.WalletIcon },
   { name: "XIcon", component: Icons.XIcon },
 ] as const;

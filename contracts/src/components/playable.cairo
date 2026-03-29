@@ -347,7 +347,7 @@ pub mod PlayableComponent {
             let mut game = store.game(game_id);
             game.assert_does_exist();
             game.assert_has_started();
-            game.assert_not_over();
+            game.assert_is_over();
             game.assert_not_expired();
 
             // [Effect] Claim game

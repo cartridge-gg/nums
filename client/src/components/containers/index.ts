@@ -26,3 +26,4 @@ export * from "./tutorial";
 export * from "./tutorial-anchor-portal";
 export * from "./achievements";
 export * from "./airdrop";
+export * from "./tos";

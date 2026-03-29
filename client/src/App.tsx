@@ -89,6 +89,7 @@ function DeployGate() {
       <div className="h-screen w-screen">
         <WelcomeScene
           close={() => {}}
+          content="Coming soon"
           className="absolute inset-0 z-[100] w-full h-full"
         />
       </div>

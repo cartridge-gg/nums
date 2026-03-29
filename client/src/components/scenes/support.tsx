@@ -13,21 +13,23 @@ export const SupportScene = () => {
       <div className="flex flex-col gap-8">
         <Section title="How to Play">
           <p>
-            You receive 20 numbers (1–1000) one at a time. Place each into one
-            of 20 slots in strict ascending order. Once placed, a number cannot
-            be moved. Fill all 20 slots for a perfect game.
+            You receive 18 numbers (1–999) one at a time. Place each into one of
+            18 slots in ascending order—equal numbers may be placed
+            consecutively. Once placed, a number cannot be moved. Fill all 18
+            slots for a perfect game.
           </p>
           <p>
-            Use power-ups like Reroll, Mirror, Swap, High, Low, Double Up, and
-            Halve to gain a strategic edge. Watch out for hidden traps.
+            Use power-ups like Reroll, Double Up, Halve, Boost High, Boost Low,
+            Mirror, and Swap to gain a strategic edge. Traps are visible from
+            the start—plan your placements to trigger or avoid them.
           </p>
         </Section>
 
         <Section title="Practice Mode">
           <p>
             Jump into practice mode from the home screen to test strategies with
-            zero cost. Practice uses live on-chain data for realistic
-            simulation.
+            zero cost. Practice is completely off-chain—no gas, no transactions,
+            no tokens. Play as many times as you want.
           </p>
         </Section>
 

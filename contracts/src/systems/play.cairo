@@ -184,8 +184,6 @@ pub mod Play {
             // [Check] Caller is allowed
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = ICollectionDispatcher { contract_address: collection_address };
-            // [Interaction] Mint a game
-            let game_id = collection.mint(player, true);
             // [Effect] Create games
             let world = self.world(@NAMESPACE());
             let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
@@ -193,6 +191,9 @@ pub mod Play {
             let supply = asset.total_supply();
             let multiplier = MULTIPLIER_PRECISION;
             while quantity > 0 {
+                // [Interaction] Mint a game
+                let game_id = collection.mint(player, true);
+                // [Effect] Create game
                 self.playable.create(world, player, game_id, multiplier, supply, 0);
                 quantity -= 1;
             }
@@ -213,11 +214,12 @@ pub mod Play {
             // [Check] Caller is allowed
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = ICollectionDispatcher { contract_address: collection_address };
-            // [Interaction] Mint a game
-            let game_id = collection.mint(player, true);
             // [Effect] Create games
             let world = self.world(@NAMESPACE());
             while quantity > 0 {
+                // [Interaction] Mint a game
+                let game_id = collection.mint(player, true);
+                // [Effect] Create game
                 self.playable.create(world, player, game_id, multiplier, supply, price);
                 quantity -= 1;
             }

@@ -101,17 +101,17 @@
     },
     {
       "address": "0x329371ae36153ea617954776160ed5bd43fe3c460a5547ea742ad9b17218bb7",
-      "class_hash": "0x519300e6110452dc4fa98f3be7045c42ae3fa6b44aaacfb1cc8484b7f83784d",
+      "class_hash": "0x7d88527c1b7d33b1080a3ea09dcf54b286891085b3acd48f841e623f68370ea",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
       "systems": [
         "dojo_init",
+        "mint",
         "create",
         "set",
         "select",
         "apply",
-        "claim",
         "upgrade",
         "grant_role",
         "revoke_role",
@@ -120,7 +120,7 @@
     },
     {
       "address": "0x4494b8134a2540cdb91a8883f7b17b51f3647ec9f9ffa326fe32f7c39071e1b",
-      "class_hash": "0x2403c1e34fc0cc7e06ea803183b8e103aef4807e2fb711a619e52d8bf61dc0d",
+      "class_hash": "0x79af786d21d8a34eb3fb31926720a8b7f60b91a322188a1aa006cf5d141c099",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
@@ -164,7 +164,7 @@
     },
     {
       "address": "0x23a6cadf991e75e3809b7e87337ea91fd1325eaf7427f0f586eccab95b54485",
-      "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
+      "class_hash": "0x752f6a12f7e905c9059652bd8217d5de3fd8e0278443e880aa8658853c64134",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
         "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
@@ -5804,6 +5804,22 @@
       "items": [
         {
           "type": "function",
+          "name": "mint",
+          "inputs": [
+            {
+              "name": "player",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "quantity",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
           "name": "create",
           "inputs": [
             {
@@ -5843,11 +5859,7 @@
               "type": "core::integer::u8"
             }
           ],
-          "outputs": [
-            {
-              "type": "core::integer::u16"
-            }
-          ],
+          "outputs": [],
           "state_mutability": "external"
         },
         {
@@ -5877,22 +5889,6 @@
             {
               "name": "index",
               "type": "core::integer::u8"
-            }
-          ],
-          "outputs": [
-            {
-              "type": "core::integer::u16"
-            }
-          ],
-          "state_mutability": "external"
-        },
-        {
-          "type": "function",
-          "name": "claim",
-          "inputs": [
-            {
-              "name": "game_id",
-              "type": "core::integer::u64"
             }
           ],
           "outputs": [],

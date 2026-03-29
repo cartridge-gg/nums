@@ -7,6 +7,7 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait IPlay<T> {
+    fn mint(ref self: T, player: ContractAddress, quantity: u32);
     fn create(
         ref self: T,
         player: ContractAddress,
@@ -15,10 +16,9 @@ pub trait IPlay<T> {
         price: u256,
         quantity: u32,
     );
-    fn set(ref self: T, game_id: u64, index: u8) -> u16;
+    fn set(ref self: T, game_id: u64, index: u8);
     fn select(ref self: T, game_id: u64, index: u8);
-    fn apply(ref self: T, game_id: u64, index: u8) -> u16;
-    fn claim(ref self: T, game_id: u64);
+    fn apply(ref self: T, game_id: u64, index: u8);
 }
 
 const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
@@ -30,13 +30,20 @@ pub mod Play {
     use dojo::world::WorldStorageTrait;
     use leaderboard::components::rankable::RankableComponent;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component;
     use quest::component::Component as QuestComponent;
     use quest::component::Component::QuestTrait;
     use starknet::ContractAddress;
     use crate::components::playable::PlayableComponent;
-    use crate::constants::NAMESPACE;
+    use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE};
+    use crate::elements::quests::finisher;
+    use crate::elements::quests::index::{IQuest, QuestType};
+    use crate::systems::collection::{
+        ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
+    };
     use crate::systems::setup::NAME as SETUP;
+    use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
     use super::*;
 
@@ -56,7 +63,6 @@ pub mod Play {
     impl RankableInternalImpl = RankableComponent::InternalImpl<ContractState>;
     component!(path: PlayableComponent, storage: playable, event: PlayableEvent);
     impl PlayableInternalImpl = PlayableComponent::InternalImpl<ContractState>;
-    impl PlayableQuestRewarderImpl = PlayableComponent::QuestRewarderImpl<ContractState>;
 
     // Storage
 
@@ -107,6 +113,8 @@ pub mod Play {
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         let setup_address = world.dns_address(@SETUP()).expect('Setup contract not found!');
         self.accesscontrol._grant_role(CREATOR_ROLE, setup_address);
+        let this = starknet::get_contract_address();
+        self.accesscontrol._grant_role(CREATOR_ROLE, this);
     }
 
     impl AchievementImpl of AchievementTrait<ContractState> {
@@ -135,9 +143,19 @@ pub mod Play {
             quest_id: felt252,
             interval_id: u64,
         ) {
+            // [Effect] Update daily quest completions
             let mut contract_state = self.get_contract_mut();
             let world = contract_state.world(@NAMESPACE());
-            contract_state.playable.on_quest_complete(world, player_id, quest_id, interval_id)
+            contract_state
+                .quest
+                .progress(world, player_id, finisher::DailyFinisher::identifier(), 1, true);
+
+            // [Effect] Autoclaim quest if reward is enabled
+            let quest: QuestType = quest_id.into();
+            if !quest.reward() {
+                return;
+            }
+            contract_state.quest.claim(world, player_id, quest_id, interval_id);
         }
         fn on_quest_claim(
             ref self: QuestComponent::ComponentState<ContractState>,
@@ -145,14 +163,41 @@ pub mod Play {
             quest_id: felt252,
             interval_id: u64,
         ) {
+            // [Interaction] Reward player with Games
+            let quest: QuestType = quest_id.into();
+            if !quest.reward() {
+                return;
+            }
+            // [Effect] Create game
             let mut contract_state = self.get_contract_mut();
-            let world = contract_state.world(@NAMESPACE());
-            contract_state.playable.on_quest_claim(world, player_id, quest_id, interval_id)
+            contract_state.mint(player_id.try_into().unwrap(), 1)
         }
     }
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
+        fn mint(ref self: ContractState, player: ContractAddress, mut quantity: u32) {
+            // [Check] Caller is allowed
+            self.accesscontrol.assert_only_role(CREATOR_ROLE);
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            // [Interaction] Mint a game
+            let game_id = collection.mint(player, true);
+            // [Effect] Create games
+            let world = self.world(@NAMESPACE());
+            let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
+            let asset = IERC20MixinDispatcher { contract_address: token_address };
+            let supply = asset.total_supply();
+            let multiplier = MULTIPLIER_PRECISION;
+            while quantity > 0 {
+                self.playable.create(world, player, game_id, multiplier, supply, 0);
+                quantity -= 1;
+            }
+        }
+
         fn create(
             ref self: ContractState,
             player: ContractAddress,
@@ -163,40 +208,58 @@ pub mod Play {
         ) {
             // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(CREATOR_ROLE);
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            // [Interaction] Mint a game
+            let game_id = collection.mint(player, true);
             // [Effect] Create games
             let world = self.world(@NAMESPACE());
             while quantity > 0 {
-                self.playable.create(world, player, multiplier, supply, price);
+                self.playable.create(world, player, game_id, multiplier, supply, price);
                 quantity -= 1;
             }
         }
 
-        fn set(ref self: ContractState, game_id: u64, index: u8) -> u16 {
+        fn set(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
             // [Effect] Set slot
-            self.playable.set(world, game_id, index)
+            self.playable.set(world, game_id, index);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
         }
 
         fn select(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
             // [Effect] Select power
-            self.playable.select(world, game_id, index)
+            self.playable.select(world, game_id, index);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
         }
 
-        fn apply(ref self: ContractState, game_id: u64, index: u8) -> u16 {
+        fn apply(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
+            // [Check] Caller is allowed
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            collection.assert_is_owner(starknet::get_caller_address(), game_id.into());
             // [Effect] Apply power
-            self.playable.apply(world, game_id, index)
-        }
-
-        fn claim(ref self: ContractState, game_id: u64) {
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Effect] Claim game
-            self.playable.claim(world, game_id)
+            self.playable.apply(world, game_id, index);
+            // [Interaction] Update token metadata
+            collection.update(game_id.into());
         }
     }
 }

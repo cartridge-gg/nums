@@ -98,14 +98,14 @@ pub impl Verifier of VerifierTrait {
     #[inline]
     fn is_valid(slots: @Array<u16>) -> bool {
         let len = slots.len();
-        let mut idx = 0;
-        while idx < (len - 1) {
+        let mut previous = 0;
+        for idx in 0..len {
             let current = *slots.at(idx);
-            let next = *slots.at(idx + 1);
-            if next != 0 && current > next {
+            if current != 0 && current < previous {
                 return false;
+            } else if current != 0 {
+                previous = current;
             }
-            idx += 1;
         }
         true
     }
@@ -389,5 +389,35 @@ mod tests {
     fn test_streak_empty_array() {
         let slots = array![0, 0, 0, 0, 0];
         assert_eq!(VerifierTrait::streak(@slots), 0, "Empty array should have streak of 0");
+    }
+
+    #[test]
+    fn test_is_valid_empty_corrent() {
+        let slots = array![0, 0, 0, 0, 0];
+        assert_eq!(VerifierTrait::is_valid(@slots), true);
+    }
+
+    #[test]
+    fn test_is_valid_full_corrent() {
+        let slots = array![1, 2, 3, 4, 5];
+        assert_eq!(VerifierTrait::is_valid(@slots), true);
+    }
+
+    #[test]
+    fn test_is_valid_alternate_corrent() {
+        let slots = array![0, 1, 0, 2, 0];
+        assert_eq!(VerifierTrait::is_valid(@slots), true);
+    }
+
+    #[test]
+    fn test_is_valid_full_incorrent() {
+        let slots = array![1, 2, 3, 5, 4];
+        assert_eq!(VerifierTrait::is_valid(@slots), false);
+    }
+
+    #[test]
+    fn test_is_valid_alternate_incorrent() {
+        let slots = array![0, 2, 0, 1, 0];
+        assert_eq!(VerifierTrait::is_valid(@slots), false);
     }
 }

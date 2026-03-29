@@ -51,6 +51,7 @@ export interface SettingsProps
   onProfile?: () => void;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  hasVnums?: boolean;
 }
 
 const settingsVariants = cva(
@@ -92,6 +93,7 @@ export const Settings = ({
   onProfile,
   theme,
   onThemeChange,
+  hasVnums,
   variant,
   className,
   ...props
@@ -129,7 +131,7 @@ export const Settings = ({
       {/* Mobile content */}
       <div className="flex flex-col gap-6 h-full overflow-hidden md:hidden">
         <div className="flex flex-col gap-6">
-          <Faction theme={theme} onThemeChange={onThemeChange} />
+          {hasVnums && <Faction theme={theme} onThemeChange={onThemeChange} />}
           <Volumes
             musicVolume={musicVolume}
             musicMuted={musicMuted}
@@ -189,7 +191,9 @@ export const Settings = ({
         </div>
         <div className="flex flex-col justify-between gap-4 flex-1 min-w-0">
           <div className="flex flex-col gap-6">
-            <Faction theme={theme} onThemeChange={onThemeChange} />
+            {hasVnums && (
+              <Faction theme={theme} onThemeChange={onThemeChange} />
+            )}
             <Volumes
               musicVolume={musicVolume}
               musicMuted={musicMuted}

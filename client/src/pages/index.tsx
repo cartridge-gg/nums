@@ -134,7 +134,11 @@ export const Main = ({ children }: MainProps) => {
     setVolume: setSfxVolume,
     toggleMute: toggleSfxMute,
   } = useAudio();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, setHasVnums, hasVnums } = useTheme();
+
+  useEffect(() => {
+    setHasVnums(headerData.shares > 0);
+  }, [headerData.shares, setHasVnums]);
 
   const { data: referralData, refetch: refetchReferral } = useReferral();
   const governanceData = useGovernance();
@@ -609,6 +613,7 @@ export const Main = ({ children }: MainProps) => {
                 onSfxMute={toggleSfxMute}
                 theme={theme}
                 onThemeChange={setTheme}
+                hasVnums={hasVnums}
                 onLeaderboard={() => {
                   setShowSettingsScene(false);
                   setShowLeaderboardScene(true);

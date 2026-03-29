@@ -30,7 +30,7 @@ export function GamesProvider({ children }: { children: React.ReactNode }) {
   const { gameIds, isLoading: assetsLoading } = useAssets();
 
   const queryClient = useQueryClient();
-  const queryKey = Game.keys.all();
+  const queryKey = useMemo(() => Game.keys.all(), []);
   const subscriptionRef = useRef<torii.Subscription | null>(null);
 
   const {
@@ -131,7 +131,7 @@ export function useGames() {
 export function useGame(gameId: number | null | undefined) {
   const { client } = useEntities();
   const queryClient = useQueryClient();
-  const queryKey = Game.keys.byId(gameId ?? 0);
+  const queryKey = useMemo(() => Game.keys.byId(gameId ?? 0), [gameId]);
   const subscriptionRef = useRef<torii.Subscription | null>(null);
 
   const { data: game } = useQuery<GameModel | undefined>({

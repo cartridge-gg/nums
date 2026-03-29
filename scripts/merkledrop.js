@@ -9,10 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..");
 
-const RPC_URL = "https://api.cartridge.gg/x/starknet/sepolia";
+const NETWORK = "sepolia";
+const RPC_URL = `https://api.cartridge.gg/x/starknet/${NETWORK}`;
 
 const manifest = JSON.parse(
-  readFileSync(join(ROOT, "manifest_sepolia.json"), "utf-8"),
+  readFileSync(join(ROOT, `manifest_${NETWORK}.json`), "utf-8"),
 );
 const CONTRACT_ADDRESS = manifest.contracts.find(
   (c) => c.tag === "NUMS-Setup",
@@ -60,13 +61,13 @@ function decryptKeystore(keystorePath, password) {
 }
 
 const accountData = JSON.parse(
-  readFileSync(join(ROOT, "account_sepolia.json"), "utf-8"),
+  readFileSync(join(ROOT, `account_${NETWORK}.json`), "utf-8"),
 );
 const accountAddress = accountData.deployment.address;
 
 const password = await promptPassword();
 const privateKey = decryptKeystore(
-  join(ROOT, "keystore_sepolia.json"),
+  join(ROOT, `keystore_${NETWORK}.json`),
   password,
 );
 

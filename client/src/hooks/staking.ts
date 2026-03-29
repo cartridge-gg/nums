@@ -17,6 +17,7 @@ export interface UseStakingParams {
   totalShares: bigint;
   totalAssets: bigint;
   numsPrice: number;
+  refetchBalances: () => void;
 }
 
 export const useStaking = ({
@@ -25,6 +26,7 @@ export const useStaking = ({
   totalShares,
   totalAssets,
   numsPrice,
+  refetchBalances,
 }: UseStakingParams) => {
   const { vault } = useActions();
   const calls = useCalls();
@@ -178,16 +180,18 @@ export const useStaking = ({
       await vault.deposit(toChainAmount(depositValue));
       setDepositValue(0);
       setMintValue(0);
+      refetchBalances();
     }
-  }, [vault, depositValue, toChainAmount]);
+  }, [vault, depositValue, toChainAmount, refetchBalances]);
 
   const handleUnstake = useCallback(async () => {
     if (redeemValue > 0) {
       await vault.redeem(toChainAmount(redeemValue));
       setRedeemValue(0);
       setWithdrawValue(0);
+      refetchBalances();
     }
-  }, [vault, redeemValue, toChainAmount]);
+  }, [vault, redeemValue, toChainAmount, refetchBalances]);
 
   const refetch = useCallback(() => {
     refetchMaxShareQuery();

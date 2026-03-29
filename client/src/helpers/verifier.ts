@@ -68,11 +68,13 @@ export class Verifier {
    */
   static isValid(slots: number[]): boolean {
     const len = slots.length;
-    for (let idx = 0; idx < len - 1; idx++) {
+    let previous = 0;
+    for (let idx = 0; idx < len; idx++) {
       const current = slots[idx];
-      const next = slots[idx + 1];
-      if (next !== 0 && current > next) {
+      if (current !== 0 && current < previous) {
         return false;
+      } else if (current !== 0) {
+        previous = current;
       }
     }
     return true;

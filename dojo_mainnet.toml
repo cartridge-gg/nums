@@ -1,6 +1,6 @@
 [world]
 name = "Nums"
-seed = "nums-v1.0.17"
+seed = "nums-v1.0.18"
 description = "On chain version of the Number Challenge or Blind Number Challenge game."
 website = "https://nums.gg"
 
@@ -10,8 +10,8 @@ default = "NUMS"
 [env]
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
 # world_address = "0x06bba2fea5c315483d0a698e21c29aa2c305e53aae4da39f16e8215845dc0848"
-account_address = "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b"
-keystore_path = "./keystore_sepolia.json"
+account_address = "0x07bf136d158c29265d8ca4841438d69fab039e907fbba7e44718f979f36f3573"
+keystore_path = "./keystore_mainnet.json"
 
 [migration]
 order_inits = [
@@ -32,17 +32,17 @@ disable_multicall = true
 
 [init_call_args]
 "NUMS-Vault" = [
-  "0x1",   # open: true
-  "0x1F4", # fee: 500 basis points (10000 basis points = 100%)
+  "0x1", # open: true
+  "0x0", # fee: 500 basis points (10000 basis points = 100%)
 ]
 "NUMS-Governor" = []
 "NUMS-Treasury" = [
   "0xe10",                                                              # min_delay: 1 hour
-  "0x041aad5a7493b75f240f418cb5f052d1a68981af21e813ed0a35e96d3e83123b", # Admin address
+  "0x0000000000000000000000000000000000000000000000000000000000000000", # Admin address
 ]
 "NUMS-Token" = [
   "0xD3C21BCECCEDA1000000",                                             # initial_supply: 1.0M NUMS
-  "0x03F7F4E5a23A712787F0C100f02934c4A88606B7F0C880c2FD43e817E6275d83", # recipient
+  "0x018C51FE096b48D6e8a797825194d86935cB883576bB086001Ee4d49FA951719", # recipient
 ]
 "NUMS-Setup" = [
   "0x0",                                                                # Option::Some

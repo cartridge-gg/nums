@@ -39,7 +39,6 @@ pub mod Setup {
     use merkledrop::component::Component as MerkledropComponent;
     use merkledrop::component::Component::MerkledropTrait;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
-    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use crate::StoreImpl;
@@ -147,10 +146,7 @@ pub mod Setup {
             let world = contract_state.world(@NAMESPACE());
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             let play = IPlayDispatcher { contract_address: play_address };
-            let token_address = world.dns_address(@TOKEN()).expect('Token contract not found!');
-            let token = IERC20MixinDispatcher { contract_address: token_address };
-            let supply = token.total_supply();
-            play.create(receiver, MULTIPLIER_PRECISION, supply, 0, drop.quantity.into());
+            play.mint(receiver, drop.quantity.into());
             // [Event] Emit purchase event
             let mut store = StoreImpl::new(world);
             store.purchased(receiver.into(), 0, drop.quantity.into(), MULTIPLIER_PRECISION, 0);

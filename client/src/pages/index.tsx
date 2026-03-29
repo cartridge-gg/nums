@@ -170,10 +170,10 @@ export const Main = ({ children }: MainProps) => {
   } = useAirdrop();
 
   useEffect(() => {
-    if (showAirdropModal && !airdropLoading && airdropCount === 0) {
+    if (showAirdropModal && airdropCount === 0) {
       setShowAirdropModal(false);
     }
-  }, [airdropLoading, airdropCount, showAirdropModal]);
+  }, [airdropCount, showAirdropModal]);
 
   const { vaultInfo, vaultClaimed } = useVault();
   const stakingLocked = vaultInfo ? !vaultInfo.open : false;

@@ -184,6 +184,7 @@ export const Main = ({ children }: MainProps) => {
     totalShares: headerData.total,
     totalAssets: headerData.assets,
     numsPrice,
+    refetchBalances: headerData.refetchBalances,
   });
 
   const bundle = useMemo(() => {

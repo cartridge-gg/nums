@@ -19,7 +19,11 @@ export const useHeader = () => {
   const vaultAddress = getVaultAddress(chain.id);
   const faucetAddress = getFaucetAddress(chain.id);
 
-  const { tokenContracts, tokenBalances } = useTokens({
+  const {
+    tokenContracts,
+    tokenBalances,
+    refetch: refetchBalances,
+  } = useTokens({
     accountAddresses: account?.address
       ? [addAddressPadding(account.address), addAddressPadding(vaultAddress)]
       : [],
@@ -141,5 +145,6 @@ export const useHeader = () => {
     isMainnet,
     handleConnect,
     handleOpenProfile,
+    refetchBalances,
   };
 };

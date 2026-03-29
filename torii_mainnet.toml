@@ -1,4 +1,4 @@
-world_address = "0x079ddb00f5186905686fe3c5e5cf8aa7f904fa294a3b9415fccdf3016fc219a4"
+world_address = "0x01c26a4ee3ef91d19e768afcacae51ea5240b2e9a7f861249dcc19af6cc038f2"
 rpc = "https://api.cartridge.gg/x/starknet/mainnet"
 
 [server]

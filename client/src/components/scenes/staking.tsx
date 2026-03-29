@@ -82,7 +82,7 @@ export const StakingScene = ({
   ...props
 }: StakingSceneProps) => {
   const filterId = useId();
-  const [bypass, setBypass] = useState(false);
+  const [bypass, _setBypass] = useState(false);
 
   return (
     <div
@@ -126,9 +126,7 @@ export const StakingScene = ({
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between">
-                <div onClick={() => setBypass(!bypass)}>
-                  <Title content="NUMS REBELLION" />
-                </div>
+              <Title content="NUMS REBELLION" />
                 <StakingSupply {...supplyProps} />
               </div>
 
@@ -189,9 +187,7 @@ export const StakingScene = ({
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between gap-6">
-                <div onClick={() => setBypass(!bypass)}>
-                  <Title content="Staking" />
-                </div>
+              <Title content="Staking" />
                 <div className="flex gap-3 shrink-0">
                   {!!ratioProps && <StakingRatio {...ratioProps} />}
                   <StakingYield {...yieldProps} />

@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0x19d44cee87d8266ea7e026e44c8b5031449cb4ffd2fec139e4c50054b00c333",
-    "seed": "nums-v1.0.58",
+    "address": "0xa71ca11a93851d12746627c16a07f52d3324e8d8d36b04da6c959fd5e932d7",
+    "seed": "nums-v1.0.60",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x574beb9eddbaff52c51f6485dbe59418b2652d230195cfa28d542825fa49f99",
+      "address": "0x71fcde577c1a25ff962d04c42d9f69c8be04c767f5bbdae8631b225adcd891f",
       "class_hash": "0x55b302fe1b46b5c9be3b2397036290bccc53be07cff78ba229c2644c439172",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "address": "0x2dd479882239d9ca37dc3b2d5cad7a4ef8758e10188de6dcacd7a26280eb8a",
+      "address": "0x3fe24861802b97024fed7e125bd24a05434c53ac1661bd90b56f3df14ed8a74",
       "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
@@ -75,7 +75,7 @@
       ]
     },
     {
-      "address": "0x25580b079b2d1c629dea6751af9425885e8e83c22217e3078c53722df5134c5",
+      "address": "0x649dca2432abb128b4f1cbe97a85d273bb2e03def9aca7b614b4851adedfe56",
       "class_hash": "0x1a04ad3d4066d571d7fd4334b6acac70140fded7f55cfe4a7396ce77b9fe417",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -100,7 +100,7 @@
       ]
     },
     {
-      "address": "0x329371ae36153ea617954776160ed5bd43fe3c460a5547ea742ad9b17218bb7",
+      "address": "0x105dc0e5838d4893fa058ceb40b79f5e4c87d05c5d4a6c6a7f92ec4b0216c48",
       "class_hash": "0x7d88527c1b7d33b1080a3ea09dcf54b286891085b3acd48f841e623f68370ea",
       "init_calldata": [],
       "tag": "NUMS-Play",
@@ -119,7 +119,7 @@
       ]
     },
     {
-      "address": "0x4494b8134a2540cdb91a8883f7b17b51f3647ec9f9ffa326fe32f7c39071e1b",
+      "address": "0x3110295929fc665972ae2ea4b99d5fa57547aa56d140dc73a7e85ddcaf5eaf1",
       "class_hash": "0x79af786d21d8a34eb3fb31926720a8b7f60b91a322188a1aa006cf5d141c099",
       "init_calldata": [
         "0x0",
@@ -163,7 +163,7 @@
       ]
     },
     {
-      "address": "0x23a6cadf991e75e3809b7e87337ea91fd1325eaf7427f0f586eccab95b54485",
+      "address": "0x1b3f3ca84ad919ad8453709890ff0a7babd7556de583e5252545e678ca0ce42",
       "class_hash": "0x752f6a12f7e905c9059652bd8217d5de3fd8e0278443e880aa8658853c64134",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
@@ -186,11 +186,11 @@
       ]
     },
     {
-      "address": "0x320f124e3363f0560f4d70daf2532e97bf481ada86a19e285dea0548713ef58",
+      "address": "0x3541ddd6105684ca6d70e08d2399005450bac871aed97da5d2764919e22f110",
       "class_hash": "0x108c043199db093d66dc239f259a9dd0821f6e9f83ed1b667647ff8bfe6cb0",
       "init_calldata": [
         "0xe10",
-        "0x059b1a0c489b635d7c7f43594d187362ddd2dcea6c82db4eef2579fd185b3753"
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
       ],
       "tag": "NUMS-Treasury",
       "selector": "0x4830c7127b47657b7b187f2acba1b9cddd78525c01aa5c89d9bf2696e07c1af",
@@ -214,7 +214,7 @@
       ]
     },
     {
-      "address": "0x75fb58b25b51c146a45a436c5873449cdf65c4ea972688f7058ac575d00a458",
+      "address": "0x21f1a25951d5679e029bbe49ef6db1cbb7a61ac8404c6e20c61f0bcc6f69561",
       "class_hash": "0x5215217394313d8961a7b192d0fc2d2bbcd09e6adde61fec57b8e9128681b43",
       "init_calldata": [
         "0x1",

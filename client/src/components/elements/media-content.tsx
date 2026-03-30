@@ -19,8 +19,7 @@ import { Play, Pause, RotateCcw } from "lucide-react";
 type PlaybackState = "playing" | "paused" | "ended";
 
 export interface MediaContentProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof mediaContentVariants> {
   videos: string[];
   title?: string;

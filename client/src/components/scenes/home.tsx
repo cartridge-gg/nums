@@ -15,8 +15,7 @@ import type { ActivityFilter } from "../containers";
 import type { BannerProps } from "../elements";
 
 export interface HomeSceneProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
   games: GamesProps;

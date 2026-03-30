@@ -52,9 +52,7 @@ export { Game } from "./game";
 export { Home } from "./home";
 export { Support } from "./support";
 
-const VIDEOS: string[] = [
-  "/videos/sorting-soon.mp4",
-];
+const VIDEOS: string[] = ["/videos/sorting-soon.mp4"];
 
 const background = "/assets/tunnel-background.svg";
 

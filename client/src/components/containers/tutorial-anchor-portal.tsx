@@ -131,7 +131,7 @@ export const TutorialAnchorPortal = () => {
           left: rect.left - 4,
           width: rect.width + 8,
           height: rect.height + 8,
-          zIndex: 9999,
+          zIndex: 9998,
         }}
         xmlns="http://www.w3.org/2000/svg"
       >

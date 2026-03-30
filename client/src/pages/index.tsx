@@ -31,7 +31,7 @@ import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useNotifications } from "@/hooks/notifications";
 import { useWelcome } from "@/context/welcome";
-import { Toaster } from "@/components/elements";
+import { MediaButton, MediaContent, Toaster } from "@/components/elements";
 import { Settings } from "@/components/containers/settings";
 import { Tos } from "@/components/containers/tos";
 import { useTos } from "@/hooks/tos";
@@ -51,6 +51,8 @@ import { getSetupAddress } from "@/config";
 export { Game } from "./game";
 export { Home } from "./home";
 export { Support } from "./support";
+
+const VIDEOS: string[] = ["/videos/sorting-soon.mp4"];
 
 const background = "/assets/tunnel-background.svg";
 
@@ -85,6 +87,7 @@ export const Main = ({ children }: MainProps) => {
   const [showGovernanceScene, setShowGovernanceScene] = useState(false);
   const [showSettingsScene, setShowSettingsScene] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
   const [bundleIndex, setBundleIndex] = useState<number>(1);
   const previousGamesLengthRef = useRef<number | null>(null);
 
@@ -688,6 +691,18 @@ export const Main = ({ children }: MainProps) => {
           </div>
         )}
       </div>
+      {pathname === "/" && (
+        <div className="hidden md:flex absolute bottom-8 left-8 flex-col gap-6 items-start z-50">
+          {mediaOpen && (
+            <MediaContent
+              videos={VIDEOS}
+              onClose={() => setMediaOpen(false)}
+              className="min-w-[390px] max-w-[390px]"
+            />
+          )}
+          <MediaButton onClick={() => setMediaOpen((prev) => !prev)} />
+        </div>
+      )}
       <TutorialAnchorPortal />
       <Toaster expand />
     </div>

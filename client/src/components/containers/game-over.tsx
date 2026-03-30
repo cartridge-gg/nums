@@ -268,7 +268,7 @@ const Disclaimer = ({ className }: { className?: string }) => {
       )}
     >
       <p className="text-sm font-sans text-center text-primary-200">
-        Play blitz mode to be eligible for real money rewards
+        Play with an entry fee to to win real money rewards
       </p>
     </div>
   );

@@ -238,7 +238,7 @@ export const Main = ({ children }: MainProps) => {
     };
 
     const socialClaimOptions = {
-      shareMessage: `Check out @numsgg!\n${referralLink}`,
+      shareMessage: `My application was accepted!\nHave you checked yours?\n🔢 @numsgg\n${referralLink}`,
     };
 
     const controller = connector as ControllerConnector;

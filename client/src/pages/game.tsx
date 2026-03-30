@@ -171,7 +171,7 @@ export const Game = () => {
       (_, index) => {
         const stageLevel = index + 1;
         const isCompleted = stageLevel <= game.level;
-        const isBreakeven = stageLevel >= breakEven;
+        const isBreakeven = stageLevel >= breakEven && !isPracticeMode;
 
         // Determine if stage has gem (simplified logic - can be enhanced)
         const hasGem = stageLevel % 4 === 0 && stageLevel <= 15;
@@ -317,6 +317,7 @@ export const Game = () => {
     purchaseProps,
     showGameOver,
     showSelectionModal,
+    isPracticeMode,
     set,
     setShowPlacesModal,
     setSelectedSlotIndex,
@@ -538,8 +539,10 @@ export const Game = () => {
         key={game.id}
         game={game}
         multiplier={
-          starterpacks.find((sp) => sp.price === game.price)?.multiplier ??
-          game.multiplier
+          isPracticeMode
+            ? 0
+            : (starterpacks.find((sp) => sp.price === game.price)?.multiplier ??
+              game.multiplier)
         }
         powers={gameProps.powers}
         slots={gameProps.slots}

@@ -28,6 +28,8 @@ const defaultStates: Array<StageState> = [
   { completed: true, breakeven: true, gem: true },
   { crown: true },
   { crown: true, completed: true },
+  { breakeven: true, crown: true },
+  { breakeven: true, crown: true, completed: true },
 ];
 
 export const Default: Story = {

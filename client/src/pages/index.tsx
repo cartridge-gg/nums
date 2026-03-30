@@ -392,18 +392,18 @@ export const Main = ({ children }: MainProps) => {
           setShowSettingsScene(false);
           setShowAirdropModal(false);
         }}
-        onBalance={() => {
-          if (!showStakingScene) refetchStaking();
-          setShowStakingScene(!showStakingScene);
-          setShowQuestScene(false);
-          setShowAchievementScene(false);
-          setShowLeaderboardScene(false);
-          setShowPurchaseScene(false);
-          setShowReferralScene(false);
-          setShowGovernanceScene(false);
-          setShowSettingsScene(false);
-          setShowAirdropModal(false);
-        }}
+        // onBalance={() => {
+        //   if (!showStakingScene) refetchStaking();
+        //   setShowStakingScene(!showStakingScene);
+        //   setShowQuestScene(false);
+        //   setShowAchievementScene(false);
+        //   setShowLeaderboardScene(false);
+        //   setShowPurchaseScene(false);
+        //   setShowReferralScene(false);
+        //   setShowGovernanceScene(false);
+        //   setShowSettingsScene(false);
+        //   setShowAirdropModal(false);
+        // }}
         onSettings={() => {
           setShowSettingsScene(!showSettingsScene);
           setShowQuestScene(false);

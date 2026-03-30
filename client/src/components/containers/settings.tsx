@@ -371,7 +371,7 @@ const NavButtons = ({
     {connected && (
       <Button
         variant="secondary"
-        className="h-10 min-h-10 gap-1"
+        className="h-10 min-h-10 gap-1 hidden"
         onClick={onStaking}
       >
         {/* <StakingIcon size="md" style={{ filter: `url(#${filterId})` }} /> */}
@@ -386,7 +386,7 @@ const NavButtons = ({
     )}
     <Button
       variant="secondary"
-      className="h-10 min-h-10 gap-1"
+      className="h-10 min-h-10 gap-1 hidden"
       onClick={onGovernance}
     >
       <CrownIcon size="md" style={{ filter: `url(#${filterId})` }} />

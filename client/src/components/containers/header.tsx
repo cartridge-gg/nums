@@ -197,7 +197,7 @@ export const Header = ({
                 }
               />
             )}
-            {balance !== undefined && !!onBalance && (
+            {balance !== undefined && (
               <Balance balance={balance} onClick={onBalance} />
             )}
           </>

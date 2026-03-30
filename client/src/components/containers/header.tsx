@@ -198,7 +198,11 @@ export const Header = ({
               />
             )}
             {balance !== undefined && (
-              <Balance balance={balance} onClick={onBalance} />
+              <Balance
+                balance={balance}
+                onClick={onBalance}
+                className="pointer-events-none"
+              />
             )}
           </>
         )}

@@ -26,7 +26,7 @@ pub impl VaultImpl of VaultTrait {
 
     fn set_fee(ref self: VaultInfo, fee: u16) {
         // [Check] Fee range
-        assert(fee >= 0 && fee <= 10_000, errors::VAULT_INVALID_FEE);
+        assert(fee <= 10_000, errors::VAULT_INVALID_FEE);
         self.fee = fee;
     }
 }

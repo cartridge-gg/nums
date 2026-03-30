@@ -416,7 +416,7 @@ export const Main = ({ children }: MainProps) => {
           setShowAirdropModal(false);
         }}
         faucetBalance={headerData.faucetBalance}
-        onFaucet={() => mint()}
+        onFaucet={headerData.isMainnet ? undefined : () => mint()}
         hasMerkledrop={hasMerkledrop}
         onMerkledrop={() => {
           setShowAirdropModal(!showAirdropModal);

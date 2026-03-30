@@ -10,6 +10,8 @@ export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
   import.meta.env.VITE_DEFAULT_CHAIN,
 );
 
+export const USDC_ADDRESS =
+  "0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb";
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
 
@@ -76,15 +78,15 @@ export const getVrfAddress = (chainId: bigint) => {
 };
 
 export const getTokenAddress = (chainId: bigint) => {
-  const decodedChainId = shortString.decodeShortString(
-    `0x${chainId.toString(16)}`,
-  );
-  const fromEnv = import.meta.env[`VITE_${decodedChainId}_NUMS_ERC20`];
-  if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "Token");
 };
 
 export const getFaucetAddress = (chainId: bigint) => {
+  const decodedChainId = shortString.decodeShortString(
+    `0x${chainId.toString(16)}`,
+  );
+  const fromEnv = import.meta.env[`VITE_${decodedChainId}_QUOTE`];
+  if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "Faucet");
 };
 

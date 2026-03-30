@@ -163,9 +163,10 @@ pub mod RewardableComponent {
             let store = StoreImpl::new(world);
             // [Effect] Compute claimable amount
             let mut position = store.position(user);
-            let amount = position.claimable(shares, store.vault().total_reward) / TEN_POW_36.into();
+            let total_reward = store.vault().total_reward;
+            let amount = position.claimable(shares, total_reward) / TEN_POW_36.into();
             // [Effect] Claim rewards
-            position.claim(store.vault().total_reward);
+            position.claim(total_reward);
             store.set_position(@position);
             // [Return] Claimable amount
             amount

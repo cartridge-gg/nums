@@ -27,11 +27,16 @@ export const useHeader = () => {
     accountAddresses: account?.address
       ? [addAddressPadding(account.address), addAddressPadding(vaultAddress)]
       : [],
-    contractAddresses: [
-      addAddressPadding(num.toHex64(numsAddress)),
-      addAddressPadding(num.toHex64(vaultAddress)),
-      addAddressPadding(num.toHex64(faucetAddress)),
-    ],
+    contractAddresses: faucetAddress
+      ? [
+          addAddressPadding(num.toHex64(numsAddress)),
+          addAddressPadding(num.toHex64(vaultAddress)),
+          addAddressPadding(num.toHex64(faucetAddress)),
+        ]
+      : [
+          addAddressPadding(num.toHex64(numsAddress)),
+          addAddressPadding(num.toHex64(vaultAddress)),
+        ],
   });
 
   const token = useMemo(() => {
@@ -47,6 +52,7 @@ export const useHeader = () => {
   }, [tokenContracts, vaultAddress]);
 
   const faucet = useMemo(() => {
+    if (!faucetAddress) return undefined;
     return tokenContracts.find(
       (i) => BigInt(i.contract_address) === BigInt(faucetAddress),
     );
@@ -103,7 +109,7 @@ export const useHeader = () => {
   }, [tokenBalances, vault, numsAddress, vaultAddress]);
 
   const faucetBalance = useMemo(() => {
-    if (!account || !faucet) return 0;
+    if (!account || !faucet || !faucetAddress) return 0;
     const tokenBalance = tokenBalances.find(
       (b) =>
         BigInt(b.contract_address) === BigInt(faucetAddress) &&

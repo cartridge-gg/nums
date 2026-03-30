@@ -169,8 +169,8 @@ pub mod Play {
                 return;
             }
             // [Effect] Create game
-            let mut contract_state = self.get_contract_mut();
-            contract_state.mint(player_id.try_into().unwrap(), 1)
+            let play = IPlayDispatcher { contract_address: starknet::get_contract_address() };
+            play.mint(player_id.try_into().unwrap(), 1);
         }
     }
 

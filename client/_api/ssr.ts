@@ -3,7 +3,7 @@ import path from "node:path";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const BASE_URL = "https://nums.gg";
-const TORII_URL = "https://api.cartridge.gg/x/nums-main/torii";
+const TORII_URL = "https://api.cartridge.gg/x/nums-mainnet/torii";
 const SLOT_SIZE = 12n;
 
 interface GraphQLResponse<T> {

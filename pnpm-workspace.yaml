@@ -2,8 +2,8 @@ packages:
   - "client"
   - "contracts/tokens"
 catalog:
-  "@cartridge/connector": "0.13.11-alpha.1"
-  "@cartridge/controller": "0.13.11-alpha.1"
+  "@cartridge/connector": "0.13.11-alpha.2"
+  "@cartridge/controller": "0.13.11-alpha.2"
   "@cartridge/presets": "github:cartridge-gg/presets#ea96a62"
   "@cartridge/ui": "github:cartridge-gg/ui#a823aea"
   "@dojoengine/core": "1.8.8"

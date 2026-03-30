@@ -63,4 +63,6 @@ export * from "./achievement-count";
 export * from "./achievement-item";
 export * from "./achievement-card";
 export * from "./close";
+export * from "./media-button";
+export * from "./media-content";
 export * from "./notification-ping";

@@ -21,17 +21,31 @@ const getStageState = (state: StageState): StageStateConfig => {
     gem = false,
     crown = false,
   } = state;
-  if (completed && crown) {
+  if (breakeven && completed && crown) {
     return {
       className:
         "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
-  if (crown) {
+  if (completed && crown) {
+    return {
+      className:
+        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
+      icon: <icons.KingUsedIcon size="sm" />,
+    };
+  }
+  if (breakeven && crown) {
     return {
       className:
         "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
+      icon: <icons.KingIcon size="sm" />,
+    };
+  }
+  if (crown) {
+    return {
+      className:
+        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
       icon: <icons.KingIcon size="sm" />,
     };
   }
@@ -98,17 +112,23 @@ const getOverState = (state: StageState): StageStateConfig => {
     gem = false,
     crown = false,
   } = state;
-  if (completed && crown) {
+  if (breakeven && completed && crown) {
     return {
       className:
         "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--white-900)_50%)]",
       icon: <icons.KingUsedIcon size="sm" />,
     };
   }
+  if (completed && crown) {
+    return {
+      className: "bg-black-800 text-yellow-100 border-white-900",
+      icon: <icons.KingUsedIcon size="sm" />,
+    };
+  }
   if (crown) {
     return {
       className:
-        "bg-red-800 text-red-100 border border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
+        "bg-red-800 text-red-100 border-[color-mix(in_srgb,var(--red-800)_50%,var(--white-900)_50%)]",
       icon: <icons.KingIcon size="sm" />,
     };
   }

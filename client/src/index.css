@@ -16,6 +16,18 @@
   .theme {
     --animate-shiny-text: shiny-text 8s infinite;
   }
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-transitioning *::before,
+  .theme-transitioning *::after {
+    transition:
+      color 500ms ease,
+      background-color 500ms ease,
+      border-color 500ms ease,
+      fill 500ms ease,
+      stroke 500ms ease,
+      box-shadow 500ms ease !important;
+  }
 }
 
 #root {

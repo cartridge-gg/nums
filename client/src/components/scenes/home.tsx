@@ -66,7 +66,6 @@ export const HomeScene = ({
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>(
     playerActivities.activities.length > 0 ? "mine" : "all",
   );
-
   const activities =
     activityFilter === "all" ? allActivities : playerActivities;
 

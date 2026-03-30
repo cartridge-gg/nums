@@ -12,10 +12,16 @@ import {
 import { Toast } from "./toast";
 import { toast } from "sonner";
 import { useMediaQuery } from "usehooks-ts";
+import { Tweet } from "@/helpers";
 
 export interface ShareProps
-  extends React.HTMLAttributes<HTMLButtonElement>,
+  extends
+    React.HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof shareVariants> {
+  gameId?: number;
+  score?: number;
+  slots?: number[];
+  number?: number;
   username?: string | null;
   disabled?: boolean;
 }
@@ -43,6 +49,10 @@ export const Share = ({
   variant,
   size,
   className,
+  gameId,
+  score,
+  slots,
+  number,
   username,
   disabled,
   ...props
@@ -58,13 +68,13 @@ export const Share = ({
     const linkToShare = username
       ? `${baseUrl}?ref=${encodeURIComponent(username)}`
       : baseUrl;
-    const text = `Numbers have been sorted.\nCheck and play now on Nums\n${linkToShare}`;
+    const text = Tweet.gen(gameId, score, slots, number, linkToShare);
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
       "_blank",
       "noopener,noreferrer",
     );
-  }, [username]);
+  }, [score, username]);
 
   const handleCopyLink = useCallback(async () => {
     if (!username) return;

@@ -401,6 +401,7 @@ export const useActions = () => {
       try {
         if (!account?.address) return false;
         const faucetAddress = getFaucetAddress(chain.id);
+        if (!faucetAddress) return false;
         await account.execute([
           {
             contractAddress: faucetAddress,

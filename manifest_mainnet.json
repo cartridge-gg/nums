@@ -81,7 +81,7 @@
     },
     {
       "address": "0x575bd762ac42b1386a8da0d07f646ac631786eab359f3f39f1b53208208ab9c",
-      "class_hash": "0x626c81747485d92e66f68821b8644ce7741fbad9e49bfe1282afbfdf11f45e5",
+      "class_hash": "0x3302623278148a92625bfc3bf944cbbc6eaff25fd3dd78d8519a5b5e43eec72",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -196,7 +196,7 @@
     },
     {
       "address": "0x6622cf22b64731ed444dbb07f4041268c503fa9573649571bfdfabe90c6ec2",
-      "class_hash": "0x5215217394313d8961a7b192d0fc2d2bbcd09e6adde61fec57b8e9128681b43",
+      "class_hash": "0x15ae3ba4ebfc7a35f6c45e2e65ac5815bfd37cdcba1db69ae2f8969934609d8",
       "init_calldata": [
         "0x1",
         "0x0"

@@ -85,6 +85,7 @@ export const getTokenAddress = (chainId: bigint) => {
 };
 
 export const getFaucetAddress = (chainId: bigint) => {
+  if (chainId === BigInt(MAINNET_CHAIN_ID)) return undefined;
   return getContractAddress(chainId, NAMESPACE, "Faucet");
 };
 

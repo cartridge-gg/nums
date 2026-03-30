@@ -126,7 +126,7 @@ export const StakingScene = ({
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between">
-              <Title content="NUMS REBELLION" />
+                <Title content="NUMS REBELLION" />
                 <StakingSupply {...supplyProps} />
               </div>
 
@@ -187,7 +187,7 @@ export const StakingScene = ({
 
             <div className="h-full w-full max-w-[856px] self-center overflow-hidden flex flex-col justify-center gap-6">
               <div className="flex items-center justify-between gap-6">
-              <Title content="Staking" />
+                <Title content="Staking" />
                 <div className="flex gap-3 shrink-0">
                   {!!ratioProps && <StakingRatio {...ratioProps} />}
                   <StakingYield {...yieldProps} />

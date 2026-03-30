@@ -176,7 +176,7 @@ export const Header = ({
         )}
         {username && (
           <>
-            {faucetBalance !== undefined && (
+            {faucetBalance !== undefined && !!onFaucet && (
               <Balance
                 balance={faucetBalance}
                 loading={faucetLoading}

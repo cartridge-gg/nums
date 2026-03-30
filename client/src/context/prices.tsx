@@ -57,12 +57,12 @@ export const usePrices = () => {
   const tokenAddresses = useMemo(() => [numsAddress], [numsAddress]);
 
   const query = useQuery({
-    queryKey: queryKeys.prices(tokenAddresses.join(","), quoteAddress),
-    queryFn: () => fetchAllPrices(chain.id, tokenAddresses, quoteAddress),
+    queryKey: queryKeys.prices(tokenAddresses.join(","), quoteAddress ?? ""),
+    queryFn: () => fetchAllPrices(chain.id, tokenAddresses, quoteAddress!),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
-    enabled: tokenAddresses.length > 0,
+    enabled: tokenAddresses.length > 0 && !!quoteAddress,
   });
 
   const getTokenPrice = useMemo(() => {

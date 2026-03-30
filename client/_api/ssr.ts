@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const BASE_URL = "https://sepolia.nums.gg";
+const BASE_URL = "https://nums.gg";
 const TORII_URL = "https://api.cartridge.gg/x/nums-sepolia/torii";
 const SLOT_SIZE = 12n;
 
@@ -233,7 +233,7 @@ async function loadBaseHtml(host: string): Promise<string> {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const requestPath = req.url || "/";
-  const host = req.headers.host || "sepolia.nums.gg";
+  const host = req.headers.host || "nums.gg";
   const baseUrl =
     host.includes("localhost") || host.includes("127.0.0.1")
       ? `http://${host}`
@@ -273,7 +273,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const metaTags = await buildMetaTags(
         "Nums",
         "The numbers must be sorted",
-        `${baseUrl || "https://sepolia.nums.gg"}/api/image`,
+        `${baseUrl || "https://nums.gg"}/api/image`,
         requestPath || "/",
       );
       const fallback = FALLBACK_HTML.replace(

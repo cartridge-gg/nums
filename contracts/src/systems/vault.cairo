@@ -186,7 +186,7 @@ pub mod Vault {
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
-            'Nums'
+            'vNUMS'
         }
         fn version() -> felt252 {
             '1.0.0'
@@ -206,10 +206,6 @@ pub mod Vault {
             // [Check] Contract is not paused
             let mut contract_state = self.get_contract_mut();
             contract_state.pausable.assert_not_paused();
-            // [Effect] Update user position
-            let world = contract_state.world(@NAMESPACE());
-            let balance = contract_state.erc20.balance_of(receiver);
-            contract_state.rewardable.stake(world, receiver.into(), balance);
         }
 
         fn before_withdraw(
@@ -227,9 +223,6 @@ pub mod Vault {
             // [Check] Vault is open
             let world = contract_state.world(@NAMESPACE());
             contract_state.rewardable.assert_is_open(world);
-            // [Check] Update user position
-            let balance = contract_state.erc20.balance_of(owner);
-            contract_state.rewardable.unstake(world, owner.into(), balance);
             // [Interaction] Transfer fees
             // - Assets: leave the assets in the contract to distribute to share holders
             // - Shares: burn the shares
@@ -254,13 +247,17 @@ pub mod Vault {
             recipient: ContractAddress,
             amount: u256,
         ) {
-            // [Effect] Update user positions
+            // [Effect] Update user positions (skip zero address for mint/burn)
             let mut contract_state = self.get_contract_mut();
             let world = contract_state.world(@NAMESPACE());
-            let balance = contract_state.erc20.balance_of(from);
-            contract_state.rewardable.unstake(world, from.into(), balance);
-            let balance = contract_state.erc20.balance_of(recipient);
-            contract_state.rewardable.stake(world, recipient.into(), balance);
+            if from.is_non_zero() {
+                let balance = contract_state.erc20.balance_of(from);
+                contract_state.rewardable.unstake(world, from.into(), balance);
+            }
+            if recipient.is_non_zero() {
+                let balance = contract_state.erc20.balance_of(recipient);
+                contract_state.rewardable.stake(world, recipient.into(), balance);
+            }
         }
 
         fn after_update(
@@ -309,10 +306,12 @@ pub mod Vault {
             // [Check] Vault is open
             let world = self.world(@NAMESPACE());
             self.rewardable.assert_is_open(world);
-            // [Effet] Claim rewards
+            // [Effect] Claim rewards
             let caller = get_caller_address();
             let balance = self.erc20.balance_of(caller);
             let amount = self.rewardable.claim(world, caller.into(), balance);
+            // [Check] Amount is not zero
+            assert(amount > 0, 'Vault: nothing to claim');
             // [Interaction] Transfer rewards
             let reward_token = IERC20Dispatcher { contract_address: self.reward_address() };
             reward_token.transfer(caller, amount);
@@ -346,10 +345,12 @@ pub mod Vault {
             // [Check] Address is not an account
             let src5_dispatcher = ISRC5Dispatcher { contract_address: address };
             assert(!src5_dispatcher.supports_interface(ISRC6_ID), 'Vault: address is an account');
-            // [Effet] Claim rewards
+            // [Effect] Claim rewards
             let world = self.world(@NAMESPACE());
             let balance = self.erc20.balance_of(address);
             let amount = self.rewardable.claim(world, address.into(), balance);
+            // [Check] Amount is not zero
+            assert(amount > 0, 'Vault: nothing to claim');
             // [Interaction] Transfer rewards
             let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
             let reward_token = IERC20Dispatcher { contract_address: self.reward_address() };

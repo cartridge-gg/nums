@@ -59,7 +59,7 @@ disable_multicall = true
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
   "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
   "0x46",                                                               # burn_percentage: 70%,
-  "0x0",                                                                # vault_percentage: 0%,
+  "0x32",                                                               # vault_percentage: 50%,
   "0xA",                                                                # average_score: 10,
   "0xccccccccccccccccccccccccccccccc",                                  # pool_fee,
   "0x56a4c",                                                            # pool_tick_spacing,

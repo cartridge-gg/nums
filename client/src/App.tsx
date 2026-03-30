@@ -10,7 +10,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { chains, DEFAULT_CHAIN_ID, getTokenAddress } from "@/config";
+import { chains, DEFAULT_CHAIN_ID } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
@@ -56,14 +56,6 @@ const buildChains = () => {
   }
 };
 
-const buildTokens = () => {
-  const chain = chains[DEFAULT_CHAIN_ID];
-  const numsAddress = getTokenAddress(chain.id);
-  return {
-    erc20: [numsAddress],
-  };
-};
-
 const slot = import.meta.env[
   `VITE_${import.meta.env.VITE_DEFAULT_CHAIN}_TORII_URL`
 ]
@@ -76,7 +68,6 @@ const options: ControllerOptions = {
   preset: "nums",
   namespace: "NUMS",
   slot: slot,
-  tokens: buildTokens(),
 };
 
 const connectors = [new ControllerConnector(options) as never as Connector];

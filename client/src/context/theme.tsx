@@ -24,6 +24,7 @@ const LEVELS = [100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
 function applyTheme(theme: Theme) {
   const colors = THEME_COLORS[theme];
   const root = document.documentElement;
+  root.classList.add("theme-transitioning");
   for (const [semantic, base] of Object.entries(colors)) {
     for (const level of LEVELS) {
       root.style.setProperty(
@@ -32,6 +33,7 @@ function applyTheme(theme: Theme) {
       );
     }
   }
+  setTimeout(() => root.classList.remove("theme-transitioning"), 500);
 }
 
 const THEME_STORAGE_KEY = "theme";

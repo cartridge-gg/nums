@@ -27,11 +27,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     title: "Human Resources",
-    items: [
-      <div key="1" className="h-full w-full bg-purple-800" />,
-      <div key="2" className="h-full w-full bg-mauve-800" />,
-      <div key="3" className="h-full w-full bg-green-800" />,
+    videos: [
+      "/videos/application-accepted.mp4",
+      "/videos/sorting-late.mp4",
+      "/videos/weclome-back-party.mp4",
+      "/videos/welcome-back-balloon.mp4",
     ],
+    className: "max-w-[390px]",
     onClose: fn(),
   },
 };

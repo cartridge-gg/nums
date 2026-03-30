@@ -12,14 +12,17 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { Play, Pause, RotateCcw } from "lucide-react";
+
+type PlaybackState = "playing" | "paused" | "ended";
 
 export interface MediaContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof mediaContentVariants> {
   title: string;
-  items: React.ReactNode[];
+  videos: string[];
   onClose?: () => void;
 }
 
@@ -38,9 +41,15 @@ const mediaContentVariants = cva(
   },
 );
 
+const OverlayIcon = ({ state }: { state: PlaybackState }) => {
+  if (state === "ended") return <RotateCcw className="h-8 w-8" />;
+  if (state === "paused") return <Play className="h-8 w-8" />;
+  return <Pause className="h-8 w-8" />;
+};
+
 export const MediaContent = ({
   title,
-  items,
+  videos,
   onClose,
   variant,
   className,
@@ -48,6 +57,64 @@ export const MediaContent = ({
 }: MediaContentProps) => {
   const filterId = useId();
   const [api, setApi] = useState<CarouselApi>();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [playbackState, setPlaybackState] = useState<PlaybackState>("playing");
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  const syncPlayback = useCallback((index: number) => {
+    videoRefs.current.forEach((video, i) => {
+      if (!video) return;
+      if (i === index) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+    setPlaybackState("playing");
+  }, []);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      const index = api.selectedScrollSnap();
+      setActiveIndex(index);
+      syncPlayback(index);
+    };
+
+    onSelect();
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api, syncPlayback]);
+
+  useEffect(() => {
+    const video = videoRefs.current[activeIndex];
+    if (!video) return;
+
+    const onEnded = () => setPlaybackState("ended");
+    video.addEventListener("ended", onEnded);
+    return () => video.removeEventListener("ended", onEnded);
+  }, [activeIndex]);
+
+  const handleOverlayClick = useCallback(() => {
+    const video = videoRefs.current[activeIndex];
+    if (!video) return;
+
+    if (playbackState === "ended") {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+      setPlaybackState("playing");
+    } else if (playbackState === "paused") {
+      video.play().catch(() => {});
+      setPlaybackState("playing");
+    } else {
+      video.pause();
+      setPlaybackState("paused");
+    }
+  }, [activeIndex, playbackState]);
 
   return (
     <div
@@ -66,10 +133,46 @@ export const MediaContent = ({
 
       <Carousel setApi={setApi} opts={{ loop: true }} className="w-full">
         <CarouselContent>
-          {items.map((item, index) => (
-            <CarouselItem key={index}>
-              <div className="h-[200px] w-full rounded-lg overflow-hidden">
-                {item}
+          {videos.map((src, index) => (
+            <CarouselItem key={src}>
+              <div className="relative h-[200px] w-full">
+                <video
+                  ref={(el) => {
+                    videoRefs.current[index] = el;
+                  }}
+                  src={src}
+                  playsInline
+                  preload={index === activeIndex ? "auto" : "none"}
+                  className="h-full w-full rounded-lg object-contain overflow-hidden"
+                >
+                  <track kind="captions" />
+                </video>
+                {index === activeIndex && (
+                  <button
+                    type="button"
+                    className="group absolute inset-0 flex items-center justify-center rounded-lg cursor-pointer"
+                    onClick={handleOverlayClick}
+                  >
+                    <div
+                      className={cn(
+                        "absolute inset-0 rounded-lg bg-black-800 transition-[opacity,backdrop-filter] duration-200",
+                        playbackState === "playing"
+                          ? "opacity-0 backdrop-blur-none group-hover:opacity-100 group-hover:backdrop-blur-sm"
+                          : "opacity-100 backdrop-blur-sm",
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "relative flex items-center justify-center h-12 w-12 rounded-full bg-black/60 text-white-100 transition-opacity duration-200",
+                        playbackState === "playing"
+                          ? "opacity-0 group-hover:opacity-100"
+                          : "opacity-100",
+                      )}
+                    >
+                      <OverlayIcon state={playbackState} />
+                    </div>
+                  </button>
+                )}
               </div>
             </CarouselItem>
           ))}

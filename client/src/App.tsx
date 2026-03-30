@@ -68,7 +68,31 @@ const options: ControllerOptions = {
   preset: "nums",
   namespace: "NUMS",
   slot: slot,
-};
+  locationGate: {
+    blocked: [
+      "US-HI",
+      "US-TN",
+      "US-ID",
+      "US-AR",
+      "US-LA",
+      "US-CT",
+      "US-MT",
+      "US-NV",
+      "US-WA",
+      "US-SD",
+      "CA-ON",
+      "CA-AB",
+      "FR",
+      "NL",
+      "AU",
+      "AT",
+      "GB",
+      "ES",
+      "SG",
+      "CN",
+    ],
+  },
+} as ControllerOptions;
 
 const connectors = [new ControllerConnector(options) as never as Connector];
 

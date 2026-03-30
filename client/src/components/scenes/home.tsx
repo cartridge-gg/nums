@@ -15,7 +15,8 @@ import type { ActivityFilter } from "../containers";
 import type { BannerProps } from "../elements";
 
 export interface HomeSceneProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof homeSceneVariants> {
   gameId?: number;
   games: GamesProps;
@@ -66,7 +67,6 @@ export const HomeScene = ({
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>(
     playerActivities.activities.length > 0 ? "mine" : "all",
   );
-
   const activities =
     activityFilter === "all" ? allActivities : playerActivities;
 

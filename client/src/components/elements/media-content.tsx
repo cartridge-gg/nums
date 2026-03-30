@@ -19,10 +19,11 @@ import { Play, Pause, RotateCcw } from "lucide-react";
 type PlaybackState = "playing" | "paused" | "ended";
 
 export interface MediaContentProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof mediaContentVariants> {
-  title: string;
   videos: string[];
+  title?: string;
   onClose?: () => void;
 }
 
@@ -48,7 +49,7 @@ const OverlayIcon = ({ state }: { state: PlaybackState }) => {
 };
 
 export const MediaContent = ({
-  title,
+  title = "Human resources",
   videos,
   onClose,
   variant,
@@ -183,6 +184,7 @@ export const MediaContent = ({
       <div className="flex justify-between gap-3 px-2">
         <Button
           variant="ghost"
+          disabled={videos.length <= 1}
           className="flex flex-1 items-center justify-center h-8 p-2 rounded-lg bg-white-700 hover:bg-white-600 text-white-100 cursor-pointer shadow-[1px_1px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_rgba(255,255,255,0.12)]"
           onClick={() => api?.scrollPrev()}
         >
@@ -190,6 +192,7 @@ export const MediaContent = ({
         </Button>
         <Button
           variant="ghost"
+          disabled={videos.length <= 1}
           className="flex flex-1 items-center justify-center h-8 p-2 rounded-lg bg-white-700 hover:bg-white-600 text-white-100 cursor-pointer shadow-[1px_1px_0px_rgba(0,0,0,0.12),inset_1px_1px_0px_rgba(255,255,255,0.12)]"
           onClick={() => api?.scrollNext()}
         >

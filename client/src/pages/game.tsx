@@ -544,7 +544,17 @@ export const Game = () => {
         powers={gameProps.powers}
         slots={gameProps.slots}
         stages={gameProps.stages}
-        share={blockchainGame ? { username } : undefined}
+        share={
+          blockchainGame
+            ? {
+                gameId: game.id,
+                score: game.level,
+                slots: game.slots,
+                number: game.number,
+                username,
+              }
+            : undefined
+        }
         onGameInfo={blockchainGame ? gameProps.onGameInfo : undefined}
         onInstruction={gameProps.onInstruction}
         className="md:max-h-[588px] p-4 md:px-0 md:py-0"
@@ -613,7 +623,17 @@ export const Game = () => {
               score={gameOverData.score}
               newGameId={gameOverData.newGameId}
               newGameCount={gameOverData.newGameCount}
-              shareProps={blockchainGame ? { username } : undefined}
+              shareProps={
+                blockchainGame
+                  ? {
+                      gameId: game.id,
+                      score: game.level,
+                      slots: game.slots,
+                      number: game.number,
+                      username,
+                    }
+                  : undefined
+              }
               onClose={() => setShowGameOver(false)}
               onPurchase={() => openPurchaseScene()}
               onClaim={

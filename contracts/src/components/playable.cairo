@@ -145,7 +145,7 @@ pub mod PlayableComponent {
             game.assert_is_valid();
 
             // [Effect] Update game
-            game.update(ref rand, store.config().target_supply);
+            game.update(ref rand);
             store.set_game(@game);
 
             // [Effect] Update quest progression for the player

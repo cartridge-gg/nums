@@ -303,7 +303,7 @@ pub impl GameImpl of GameTrait {
 
     /// Updates the game state.
     #[inline]
-    fn update(ref self: Game, ref rand: Random, target: u256) {
+    fn update(ref self: Game, ref rand: Random) {
         // [Check] Power is not selectable
         self.assert_not_selectable();
         // [Effect] Level up
@@ -692,8 +692,25 @@ mod tests {
         game.force(array![1, 0, 0, 0, 11, 83, 234, 0, 0, 0, 0, 0, 0, 0, 0, 780, 0, 0, 0, 999]);
         let mut random = RandomImpl::new(0);
         starknet::testing::set_block_timestamp(1);
-        game.update(ref random, 1);
+        game.update(ref random);
         assert(game.over != 0, 'Game: not over');
+    }
+
+    #[test]
+    fn test_game_chain_reaction() {
+        let mut game = create();
+        game.disabled_traps = 2048;
+        game.enabled_powers = 0b10;
+        game.level = 8;
+        game.number = 882;
+        game.next_number = 686;
+        game.selected_powers = 37;
+        game.traps = 0x00000000000000043005200000001000;
+        game.force(array![0, 120, 0, 0, 356, 0, 416, 0, 480, 499, 609, 866, 0, 0, 0, 0, 0, 999]);
+        let mut random = RandomImpl::new(0);
+        let mut traps = array![];
+        game.place(game.number, 15, ref random, ref traps);
+        game.update(ref random);
     }
 }
 

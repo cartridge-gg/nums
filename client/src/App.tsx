@@ -18,7 +18,7 @@ import { ThemeProvider } from "./context/theme";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
 import { Game, Home, Main, Support } from "./pages";
-import { LoadingScene } from "./components/scenes";
+import { LoadingScene, WelcomeScene } from "./components/scenes";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { LoadingProvider } from "./context/loading";
@@ -97,6 +97,20 @@ const options: ControllerOptions = {
 const connectors = [new ControllerConnector(options) as never as Connector];
 
 function DeployGate() {
+  const bypass = new URLSearchParams(window.location.search).has("bypass");
+
+  if (!bypass) {
+    return (
+      <div className="h-screen w-screen">
+        <WelcomeScene
+          close={() => {}}
+          content="Coming soon"
+          className="absolute inset-0 z-[100] w-full h-full"
+        />
+      </div>
+    );
+  }
+
   return (
     <Router
       future={{

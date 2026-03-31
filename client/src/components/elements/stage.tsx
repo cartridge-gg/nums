@@ -7,6 +7,7 @@ export interface StageState {
   breakeven?: boolean;
   gem?: boolean;
   crown?: boolean;
+  unlocked?: boolean;
 }
 
 interface StageStateConfig {
@@ -20,88 +21,56 @@ const getStageState = (state: StageState): StageStateConfig => {
     breakeven = false,
     gem = false,
     crown = false,
+    unlocked = false,
   } = state;
-  if (breakeven && completed && crown) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <icons.KingUsedIcon size="sm" />,
-    };
-  }
-  if (completed && crown) {
-    return {
-      className:
-        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
-      icon: <icons.KingUsedIcon size="sm" />,
-    };
-  }
-  if (breakeven && crown) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <icons.KingIcon size="sm" />,
-    };
-  }
+
+  const border = breakeven
+    ? completed
+      ? "border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]"
+      : "border border-green-100"
+    : completed
+      ? "border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]"
+      : "border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]";
+
+  const bg = completed
+    ? breakeven
+      ? "bg-green-600"
+      : "bg-black-900"
+    : "bg-black-800";
+
+  const text =
+    completed && breakeven && unlocked
+      ? "text-green-100"
+      : (completed && breakeven) || gem || crown
+        ? "text-yellow-100"
+        : completed
+          ? "text-primary-100"
+          : "";
+
+  let icon: React.ReactNode;
   if (crown) {
-    return {
-      className:
-        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
-      icon: <icons.KingIcon size="sm" />,
-    };
+    icon = unlocked ? (
+      <icons.KingUsedIcon size="sm" />
+    ) : (
+      <icons.KingIcon size="sm" />
+    );
+  } else if (gem) {
+    icon = unlocked ? (
+      <icons.GemUsedIcon size="sm" />
+    ) : (
+      <icons.GemIcon size="sm" />
+    );
+  } else {
+    icon = unlocked ? (
+      <icons.CheckIcon size="sm" />
+    ) : (
+      <div className="h-4 w-4" />
+    );
   }
-  if (breakeven && completed && gem) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <icons.GemUsedIcon size="sm" />,
-    };
-  }
-  if (breakeven && completed) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <icons.CheckIcon size="sm" />,
-    };
-  }
-  if (breakeven && gem) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <icons.GemIcon size="sm" />,
-    };
-  }
-  if (breakeven) {
-    return {
-      className:
-        "bg-green-600 text-green-100 border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]",
-      icon: <div className="h-4 w-4" />,
-    };
-  }
-  if (completed && gem) {
-    return {
-      className:
-        "bg-black-900 text-yellow-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
-      icon: <icons.GemUsedIcon size="sm" />,
-    };
-  }
-  if (gem) {
-    return {
-      className:
-        "bg-black-800 text-yellow-100 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
-      icon: <icons.GemIcon size="sm" />,
-    };
-  }
-  if (completed) {
-    return {
-      className:
-        "bg-black-900 text-primary-100 border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]",
-      icon: <icons.CheckIcon size="sm" />,
-    };
-  }
+
   return {
-    className:
-      "bg-black-800 border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]",
-    icon: <div className="h-4 w-4" />,
+    className: `${bg} ${text} ${border}`,
+    icon,
   };
 };
 
@@ -111,6 +80,7 @@ const getOverState = (state: StageState): StageStateConfig => {
     breakeven = false,
     gem = false,
     crown = false,
+    unlocked: _unlocked = true,
   } = state;
   if (breakeven && completed && crown) {
     return {

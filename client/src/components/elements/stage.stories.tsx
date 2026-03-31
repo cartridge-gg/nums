@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Stage, type StageState } from "./stage";
+import { Stage } from "./stage";
 
 const meta = {
   title: "Elements/Stage",
@@ -17,83 +17,107 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const defaultStates: Array<StageState> = [
-  {},
-  { completed: true },
-  { gem: true },
-  { completed: true, gem: true },
-  { breakeven: true },
-  { breakeven: true, gem: true },
-  { completed: true, breakeven: true },
-  { completed: true, breakeven: true, gem: true },
-  { crown: true },
-  { crown: true, completed: true },
-  { breakeven: true, crown: true },
-  { breakeven: true, crown: true, completed: true },
-];
+const types = [
+  { label: "plain", state: {} },
+  { label: "gem", state: { gem: true } },
+  { label: "crown", state: { crown: true } },
+] as const;
+
+const flags = [
+  { label: "default", state: {} },
+  { label: "completed", state: { completed: true } },
+  {
+    label: "completed + unlocked",
+    state: { completed: true, unlocked: true },
+  },
+] as const;
+
+const Matrix = ({ variant }: { variant: "default" | "over" }) => (
+  <table className="border-collapse text-xs text-white-100">
+    <thead>
+      <tr>
+        <th />
+        {types.map((t) => (
+          <th key={t.label} className="px-3 py-1 font-medium">
+            {t.label}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {[false, true].map((breakeven) =>
+        flags.map((f) => (
+          <tr key={`${breakeven}-${f.label}`}>
+            <td className="whitespace-nowrap pr-4 py-1 text-right opacity-60">
+              {breakeven
+                ? f.label === "default"
+                  ? "break even"
+                  : `breakeven + ${f.label}`
+                : f.label}
+            </td>
+            {types.map((t) => (
+              <td key={t.label} className="px-3 py-1">
+                <Stage
+                  state={{
+                    ...t.state,
+                    ...f.state,
+                    ...(breakeven ? { breakeven: true } : {}),
+                  }}
+                  className={variant === "over" ? "w-7" : "w-16"}
+                  variant={variant}
+                />
+              </td>
+            ))}
+          </tr>
+        )),
+      )}
+    </tbody>
+  </table>
+);
 
 export const Default: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2">
-      {defaultStates.map((state) => (
-        <Stage
-          key={JSON.stringify(state)}
-          state={state}
-          className="w-16"
-          variant="default"
-        />
-      ))}
-    </div>
-  ),
+  render: () => <Matrix variant="default" />,
 };
 
 export const Over: Story = {
-  render: () => (
-    <div className="flex flex-col gap-2">
-      {defaultStates.map((state) => (
-        <Stage
-          key={JSON.stringify(state)}
-          state={state}
-          className="w-7"
-          variant="over"
-        />
-      ))}
-    </div>
-  ),
+  render: () => <Matrix variant="over" />,
 };
 
-const interactiveArgTypes = {
-  completed: {
-    control: "boolean",
-    description: "Whether the stage is completed",
-  },
-  breakeven: {
-    control: "boolean",
-    description: "Whether the stage is at breakeven",
-  },
-  gem: {
-    control: "boolean",
-    description: "Whether the stage has a gem",
-  },
-  crown: {
-    control: "boolean",
-    description: "Whether the stage has a crown",
-  },
-} as any;
-
 export const Interactive: Story = {
-  argTypes: interactiveArgTypes,
+  argTypes: {
+    completed: {
+      control: "boolean",
+      description: "Whether the stage is completed",
+    },
+    breakeven: {
+      control: "boolean",
+      description: "Whether the stage is at breakeven",
+    },
+    gem: {
+      control: "boolean",
+      description: "Whether the stage has a gem",
+    },
+    crown: {
+      control: "boolean",
+      description: "Whether the stage has a crown",
+    },
+    unlocked: {
+      control: "boolean",
+      description: "Whether the stage is unlocked",
+    },
+  } as any,
   args: {
     completed: false,
     breakeven: false,
     gem: false,
     crown: false,
+    unlocked: false,
   } as any,
   render: (args: any) => {
-    const { completed, breakeven, gem, crown, ...rest } = args;
+    const { completed, breakeven, gem, crown, unlocked, ...rest } = args;
     return (
       <Stage
-        state={{ completed, breakeven, gem, crown }}
+        state={{ completed, breakeven, gem, crown, unlocked }}
         className="w-16"
         {...rest}
       />

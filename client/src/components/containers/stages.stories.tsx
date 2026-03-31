@@ -54,13 +54,21 @@ export const Over: Story = {
 
 export const Completed: Story = {
   args: {
-    states: states.map((state) => ({ ...state, completed: true })),
+    states: states.map((state) => ({
+      ...state,
+      completed: true,
+      unlocked: true,
+    })),
   },
 };
 
 export const OverCompleted: Story = {
   args: {
-    states: states.map((state) => ({ ...state, completed: true })),
+    states: states.map((state) => ({
+      ...state,
+      completed: true,
+      unlocked: true,
+    })),
     variant: "over",
   },
 };

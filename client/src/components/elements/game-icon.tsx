@@ -24,8 +24,8 @@ export const GameIcon = ({
   className,
   ...props
 }: GameIconProps) => {
-  const total = cells.length;
   const filled = cells.filter((cell) => cell === true).length;
+  const total = cells.filter((cell) => cell === true || cell === false).length;
   const angle = total > 0 ? (filled / total) * 360 : 0;
 
   return (

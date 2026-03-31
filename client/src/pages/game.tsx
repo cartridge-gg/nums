@@ -165,25 +165,28 @@ export const Game = () => {
 
     const breakEven = game.getBreakEven(purchaseProps.numsPrice);
 
-    // Calculate stages based on level and rewards
+    let powerIndex = 0;
     const stages: StageState[] = Array.from(
       { length: game.slot_count },
       (_, index) => {
         const stageLevel = index + 1;
         const isCompleted = stageLevel <= game.level;
         const isBreakeven = stageLevel >= breakEven && !isPracticeMode;
-
-        // Determine if stage has gem (simplified logic - can be enhanced)
         const hasGem = stageLevel % 4 === 0 && stageLevel <= 15;
-
-        // Determine if stage has crown (last stage)
         const hasCrown = stageLevel === game.slot_count;
+
+        let isUnlocked = isCompleted;
+        if (hasGem) {
+          isUnlocked = isCompleted && !!game.selected_powers[powerIndex];
+          powerIndex++;
+        }
 
         return {
           completed: isCompleted,
           breakeven: isBreakeven,
           gem: hasGem,
           crown: hasCrown,
+          unlocked: isUnlocked,
         };
       },
     );

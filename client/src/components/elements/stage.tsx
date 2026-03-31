@@ -27,7 +27,7 @@ const getStageState = (state: StageState): StageStateConfig => {
   const border = breakeven
     ? completed
       ? "border border-[color-mix(in_srgb,var(--green-600)_50%,var(--black-900)_50%)]"
-      : "border border-green-100"
+      : "border border-green-400"
     : completed
       ? "border border-[color-mix(in_srgb,var(--black-900)_50%,var(--black-900)_50%)]"
       : "border border-[color-mix(in_srgb,var(--black-800)_50%,var(--black-900)_50%)]";

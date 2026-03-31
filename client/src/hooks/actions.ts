@@ -80,7 +80,7 @@ export const useActions = () => {
               entrypoint: "request_random",
               calldata: CallData.compile({
                 caller: gameAddress,
-                source: { type: 0, address: gameAddress },
+                source: { type: 0, address: account.address },
               }),
             },
             {
@@ -231,7 +231,7 @@ export const useActions = () => {
               entrypoint: "request_random",
               calldata: CallData.compile({
                 caller: gameAddress,
-                source: { type: 0, address: gameAddress },
+                source: { type: 0, address: account.address },
               }),
             },
             {

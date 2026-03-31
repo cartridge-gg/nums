@@ -211,6 +211,34 @@ pub mod PurchaseComponent {
             // [Return] Result
             (recipient, multiplier, supply_per_game, bundle.price, quantity)
         }
+
+        fn fix_metadata(ref self: ComponentState<TContractState>, world: WorldStorage) {
+            // [Setup] Store
+            let mut store = StoreImpl::new(world);
+            let nums_address = world.dns_address(@TOKEN()).expect('Token not found!');
+            let payment_token = store.quote_disp().contract_address;
+            // [Effect] Register and store all starterpacks
+            let payment_tokens = array![payment_token, nums_address].span();
+            let bundle_component = get_dep_component!(@self, Bundle);
+            // [Effect] Register free social bundle
+            let conditions = Twitter::new("numsgg", "1884657985219403776").span();
+            bundle_component
+                .update_metadata(
+                    world: world,
+                    bundle_id: 0,
+                    metadata: Metadata::bundle(payment_tokens, conditions),
+                );
+            let conditions = array![].span();
+            for index in 0..BUNDLE_COUNT {
+                let bundle_id = (index + 1).into();
+                bundle_component
+                    .update_metadata(
+                        world: world,
+                        bundle_id: bundle_id,
+                        metadata: Metadata::bundle(payment_tokens, conditions),
+                    );
+            }
+        }
     }
 
     #[generate_trait]

@@ -477,7 +477,7 @@ const Socials = () => (
       <GithubIcon size="md" />
     </Link>
     <Link
-      to="https://discord.gg/rJGVUWQc25"
+      to="https://discord.gg/cartridge"
       target="_blank"
       className="flex-1 bg-primary-800 hover:bg-primary-700 cursor-pointer rounded-lg p-2 text-white-100 flex items-center justify-center"
     >

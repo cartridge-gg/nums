@@ -101,7 +101,7 @@
     },
     {
       "address": "0x105dc0e5838d4893fa058ceb40b79f5e4c87d05c5d4a6c6a7f92ec4b0216c48",
-      "class_hash": "0x4f1983a73e66e9c185a3e08ffd67ffcd606b1bbb39b4e2bb4b71a16bbac1b51",
+      "class_hash": "0x3302623278148a92625bfc3bf944cbbc6eaff25fd3dd78d8519a5b5e43eec72",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -120,7 +120,7 @@
     },
     {
       "address": "0x3110295929fc665972ae2ea4b99d5fa57547aa56d140dc73a7e85ddcaf5eaf1",
-      "class_hash": "0x79af786d21d8a34eb3fb31926720a8b7f60b91a322188a1aa006cf5d141c099",
+      "class_hash": "0x3b5f5d859e12e7d30d7eedd7dfd8e3fbec3a57cb6c59e727ca2850e064d3c6a",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
@@ -156,6 +156,7 @@
         "set_base_price",
         "merkledrop_register",
         "merkledrop_claim",
+        "fix",
         "upgrade",
         "grant_role",
         "revoke_role",
@@ -6120,6 +6121,13 @@
               "type": "core::starknet::contract_address::ContractAddress"
             }
           ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "fix",
+          "inputs": [],
           "outputs": [],
           "state_mutability": "external"
         }

@@ -38,12 +38,10 @@ pub impl Metadata of MetadataTrait {
     fn bundle(
         payment_tokens: Span<starknet::ContractAddress>, conditions: Span<ByteArray>,
     ) -> ByteArray {
-        let item = BundleItemTrait::new(
-            name: "Game", description: "A standard game playable on nums.gg", image_uri: IMAGE(),
-        );
+        let item = BundleItemTrait::new(name: "Nums Game", description: "Nums", image_uri: IMAGE());
         let metadata = BundleMetadataTrait::new(
-            name: "Nums Starterpack",
-            description: "This starterpack contains Nums games",
+            name: "Nums Games",
+            description: "Nums games can be played on nums.gg",
             image_uri: IMAGE(),
             items: array![item].span(),
             tokens: payment_tokens,

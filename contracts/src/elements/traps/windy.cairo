@@ -4,9 +4,8 @@ pub impl Windy of TrapTrait {
     #[inline]
     fn apply(ref game: Game, slot_index: u8, ref rand: Random, ref traps: Array<Trap>) {
         // [Effect] Push the nearest numbers away from slot_index
-        let slots = game.slots();
-
         // [Compute] Find the nearest number to the left
+        let slots = game.slots();
         let mut index: u32 = slot_index.into();
         while index > 1 {
             index -= 1;
@@ -21,6 +20,7 @@ pub impl Windy of TrapTrait {
         }
 
         // [Compute] Find the nearest number to the right
+        let slots = game.slots();
         let mut index = slot_index.into();
         let max = slots.len() - 2;
         while index < max {

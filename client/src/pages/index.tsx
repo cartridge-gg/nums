@@ -298,6 +298,33 @@ export const Main = ({ children }: MainProps) => {
     previousGamesLengthRef.current = currentLength;
   }, [games.length, games, gamesLoading, navigate, pathname]);
 
+  // Close media when any modal opens
+  useEffect(() => {
+    if (
+      showQuestScene ||
+      showAchievementScene ||
+      showLeaderboardScene ||
+      showPurchaseScene ||
+      showStakingScene ||
+      showReferralScene ||
+      showGovernanceScene ||
+      showSettingsScene ||
+      showAirdropModal
+    ) {
+      setMediaOpen(false);
+    }
+  }, [
+    showQuestScene,
+    showAchievementScene,
+    showLeaderboardScene,
+    showPurchaseScene,
+    showStakingScene,
+    showReferralScene,
+    showGovernanceScene,
+    showSettingsScene,
+    showAirdropModal,
+  ]);
+
   useEffect(() => {
     setBundleIndex(1);
   }, [showPurchaseScene]);
@@ -695,7 +722,7 @@ export const Main = ({ children }: MainProps) => {
         )}
       </div>
       {pathname === "/" && (
-        <div className="hidden md:flex absolute bottom-8 left-8 flex-col gap-6 items-start z-50">
+        <div className="hidden md:flex absolute bottom-8 left-8 flex-col gap-6 items-start">
           {mediaOpen && (
             <MediaContent
               videos={VIDEOS}

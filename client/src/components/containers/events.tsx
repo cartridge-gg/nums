@@ -13,7 +13,7 @@ import Autoplay from "embla-carousel-autoplay";
 const eventsVariants = cva("relative overflow-hidden bg-black-300 py-1.5", {
   variants: {
     variant: {
-      default: "h-8",
+      default: "min-h-8",
     },
   },
   defaultVariants: {

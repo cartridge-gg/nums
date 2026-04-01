@@ -11,7 +11,7 @@ export interface ReferralRow {
 }
 
 const MODEL_ID =
-  "0x06589c9fb6a4908f84ba48c1fee0258dbc39e00245de7add36c04b47638652b1:0x027fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7";
+  "0x01c26a4ee3ef91d19e768afcacae51ea5240b2e9a7f861249dcc19af6cc038f2:0x027fb20c50c1bc8220c8d7643d495f921c67c7c69ffe3cb6b5d5a81dd1564fd7";
 
 async function fetch(
   referrerAddress: string,
@@ -43,6 +43,8 @@ AND data->>'$.bundle_id' IN (${starterpackIds.join(",")})
 LIMIT 1000;`;
 
   const rows = await client.executeSql(query);
+
+  console.log(rows);
 
   return rows.map((row) => ({
     username: String(row.username || ""),

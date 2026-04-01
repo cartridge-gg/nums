@@ -279,7 +279,8 @@ const Title = () => {
       className="text-[36px]/6 md:text-[64px]/[44px] text-white-100 uppercase tracking-wider translate-y-0.5"
       style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
     >
-      Game Details
+      <span className="inline-block md:hidden">Cash in/out</span>
+      <span className="hidden md:inline-block">Cash in, Cash out</span>
     </h2>
   );
 };

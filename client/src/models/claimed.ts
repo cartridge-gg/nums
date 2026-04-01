@@ -52,7 +52,7 @@ export class Claimed {
     );
   }
 
-  static getId(claimed: Claimed): string {
+  static getKey(claimed: Claimed): string {
     return `${claimed.player_id}-${claimed.game_id}-${claimed.time}`;
   }
 
@@ -63,11 +63,12 @@ export class Claimed {
 
   getEvent(): EventProps {
     return {
+      key: Claimed.getKey(this),
       username: this.player_id,
       multiplier: undefined,
       earning: this.reward,
       timestamp: this.time,
-      id: Claimed.getId(this),
+      id: String(this.game_id),
     };
   }
 }

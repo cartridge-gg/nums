@@ -64,7 +64,7 @@ export const Events = ({
         <CarouselContent className="-ml-0 items-center gap-4">
           {events.map((event, index) => (
             <CarouselItem
-              key={event.id}
+              key={event.key}
               className={cn(
                 "basis-auto px-2",
                 "before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-white-100 before:absolute before:left-[-10px] before:top-1/2 before:-translate-y-1/2 relative",

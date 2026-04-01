@@ -54,7 +54,7 @@ export const Event = ({
 
       {/* Description - similar to ToastDescription */}
       {multiplier !== undefined && (
-        <div className="flex gap-1 items-center text-xl/[10px] text-white-100 font-secondary font-bold tracking-wide">
+        <div className="flex gap-1 items-center text-xl/5 text-white-100 font-secondary font-bold tracking-wide">
           <p className="whitespace-nowrap translate-y-px">is playing a</p>
           <div className="mx-1 flex items-center justify-center p-1 bg-white-900 rounded">
             <strong
@@ -69,7 +69,7 @@ export const Event = ({
       )}
 
       {earning !== undefined && (
-        <div className="flex gap-1 items-center text-xl/[10px] text-white-100 font-secondary font-bold tracking-wide">
+        <div className="flex gap-1 items-center text-xl/5 text-white-100 font-secondary font-bold tracking-wide">
           <p className="whitespace-nowrap translate-y-px">earned</p>
           <div className="mx-1 flex items-center justify-center p-1 bg-white-900 rounded">
             <strong className="text-lg/3 font-primary translate-y-px text-green-100 tracking-wider font-thin whitespace-nowrap">

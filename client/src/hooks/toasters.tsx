@@ -43,7 +43,7 @@ export const useToasters = () => {
     if (started.hasExpired()) return;
     if (BigInt(started.player_id) === BigInt(address || "0x0")) return;
 
-    const id = Started.getId(started);
+    const id = Started.getKey(started);
     if (toastedRef.current.has(id)) return;
     toastedRef.current.add(id);
 
@@ -71,7 +71,7 @@ export const useToasters = () => {
     if (claimed.hasExpired()) return;
     if (BigInt(claimed.player_id) === BigInt(address || "0x0")) return;
 
-    const id = Claimed.getId(claimed);
+    const id = Claimed.getKey(claimed);
     if (toastedRef.current.has(id)) return;
     toastedRef.current.add(id);
 
@@ -99,7 +99,7 @@ export const useToasters = () => {
     if (purchased.hasExpired()) return;
     if (BigInt(purchased.player_id) !== BigInt(address || "0x0")) return;
 
-    const id = Purchased.getId(purchased);
+    const id = Purchased.getKey(purchased);
     const free = purchased.price === 0n;
     if (toastedRef.current.has(id)) return;
     toastedRef.current.add(id);

@@ -38,18 +38,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Multiplier: Story = {
   args: {
+    key: "bal7hazar-1001",
     username: "Bal7hazar",
     multiplier: 2,
     timestamp: 0,
-    id: "multiplier",
+    id: "1001",
   },
 };
 
 export const Earning: Story = {
   args: {
+    key: "bal7hazar-1002",
     username: "Bal7hazar",
     earning: 286810,
     timestamp: 0,
-    id: "earning",
+    id: "1002",
   },
 };

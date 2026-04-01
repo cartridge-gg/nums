@@ -53,7 +53,7 @@ export class Started {
     );
   }
 
-  static getId(started: Started): string {
+  static getKey(started: Started): string {
     return `${started.player_id}-${started.game_id}`;
   }
 
@@ -64,11 +64,12 @@ export class Started {
 
   getEvent(): EventProps {
     return {
+      key: Started.getKey(this),
       username: this.player_id,
       multiplier: this.multiplier,
       earning: undefined,
       timestamp: this.time,
-      id: Started.getId(this),
+      id: String(this.game_id),
     };
   }
 }

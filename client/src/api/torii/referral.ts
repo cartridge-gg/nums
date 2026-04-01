@@ -44,8 +44,6 @@ LIMIT 1000;`;
 
   const rows = await client.executeSql(query);
 
-  console.log(rows);
-
   return rows.map((row) => ({
     username: String(row.username || ""),
     recipient: String(row.recipient || ""),

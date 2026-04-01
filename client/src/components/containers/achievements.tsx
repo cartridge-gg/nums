@@ -34,6 +34,22 @@ const achievementsVariants = cva(
   },
 );
 
+const renderGridPadding = (count: number) => {
+  const mobilePad = (2 - (count % 2)) % 2;
+  const desktopPad = (4 - (count % 4)) % 4;
+  const desktopOnly = desktopPad - mobilePad;
+  return (
+    <>
+      {Array.from({ length: mobilePad }, (_, i) => (
+        <AchievementItem key={`pad-${i}`} />
+      ))}
+      {Array.from({ length: desktopOnly }, (_, i) => (
+        <AchievementItem key={`pad-d-${i}`} className="hidden md:flex" />
+      ))}
+    </>
+  );
+};
+
 export const Achievements = ({
   achievements,
   newAchievementIds,
@@ -102,7 +118,7 @@ export const Achievements = ({
                   />
                 );
               })}
-              {earned.length % 2 !== 0 && <AchievementItem />}
+              {renderGridPadding(earned.length)}
             </AchievementSection>
           )}
 
@@ -123,7 +139,7 @@ export const Achievements = ({
                   />
                 );
               })}
-              {remaining.length % 2 !== 0 && <AchievementItem />}
+              {renderGridPadding(remaining.length)}
             </AchievementSection>
           )}
         </TooltipProvider>

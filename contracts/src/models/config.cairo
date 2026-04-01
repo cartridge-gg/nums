@@ -56,7 +56,7 @@ pub impl ConfigImpl of ConfigTrait {
         (*self.average_score, (*self.average_weigth).into() * constants::EMA_SCORE_PRECISION)
     }
 
-    fn push(ref self: Config, score: u32, min_score: u32) {
+    fn push(ref self: Config, score: u32, weight: u16, min_score: u32) {
         // [Check] Score is above the minimum score
         if score < min_score {
             return;
@@ -70,11 +70,17 @@ pub impl ConfigImpl of ConfigTrait {
         self
             .average_score =
                 if self.average_weigth < constants::EMA_MAX_WEIGTH {
-                    self.average_weigth += 1;
-                    self.average_score + score * constants::EMA_SCORE_PRECISION
+                    let cropped_weight = core::cmp::min(
+                        weight, constants::EMA_MAX_WEIGTH - self.average_weigth,
+                    );
+                    self.average_weigth += cropped_weight;
+                    self.average_score
+                        + score * cropped_weight.into() * constants::EMA_SCORE_PRECISION
                 } else {
                     let average = self.average_score / self.average_weigth.into();
-                    self.average_score + score * constants::EMA_SCORE_PRECISION - average
+                    self.average_score
+                        + score * constants::EMA_SCORE_PRECISION * weight.into()
+                        - average * weight.into()
                 };
     }
 }
@@ -107,7 +113,7 @@ mod tests {
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
             set_block_timestamp(i.into() * constants::EMA_MIN_TIME);
-            config.push(final_score, 0);
+            config.push(final_score, 1, 0);
         }
         let (avg_num, avg_den) = config.average_score();
         assert_eq!(config.average_weigth, constants::EMA_MAX_WEIGTH);
@@ -138,7 +144,7 @@ mod tests {
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
             set_block_timestamp(i.into() * constants::EMA_MIN_TIME);
-            config.push(final_score, 0);
+            config.push(final_score, 1, 0);
         }
         let (avg_num, avg_den) = config.average_score();
         assert_eq!(config.average_weigth, constants::EMA_MAX_WEIGTH);

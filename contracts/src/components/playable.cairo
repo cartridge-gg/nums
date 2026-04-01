@@ -357,7 +357,10 @@ pub mod PlayableComponent {
 
             // [Effect] Update average score
             let mut config = store.config();
-            config.push(game.level.into(), constants::EMA_MIN_SCORE.into());
+            let weight: u16 = (game.multiplier / constants::MULTIPLIER_PRECISION)
+                .try_into()
+                .unwrap();
+            config.push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
             store.set_config(config);
 
             // [Effect] Update leaderboard score

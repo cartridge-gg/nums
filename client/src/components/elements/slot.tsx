@@ -136,7 +136,7 @@ export const Slot = ({
         </div>
         <div className="h-6 w-2/3 border-l border-black-800 flex items-center justify-center">
           <p
-            className="text-[22px] text-primary-100 font-secondary tracking-wide font-bold text-center translate-y-px"
+            className="text-xl text-primary-100 font-secondary tracking-wide text-center font-medium"
             style={{
               textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)",
             }}
@@ -177,7 +177,7 @@ export const Slot = ({
       )}
       <div className="w-1/3">
         {!TrapIcon ? (
-          <p className="text-[22px]/[15px] text-primary-100 font-secondary tracking-wide font-bold text-center translate-y-px">
+          <p className="text-lg/5 text-primary-100 font-secondary tracking-wide text-center">
             {label}
           </p>
         ) : (
@@ -203,7 +203,7 @@ export const Slot = ({
                 <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
                   {trap?.name()}
                 </h3>
-                <p className="text-2xl/[18px] font-secondary tracking-wider">
+                <p className="text-lg/5 font-secondary tracking-wider">
                   {trap?.description()}
                 </p>
               </div>
@@ -229,13 +229,12 @@ export const Slot = ({
         <div
           ref={slotCounterRef}
           className={cn(
-            "text-2xl/[18px] font-secondary tracking-wide font-bold",
+            "text-lg/5 font-secondary tracking-wide font-medium",
             highlight && !invalid && !!value && "text-green-100",
             invalid && !!value && "text-red-100",
           )}
           style={{
             textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)",
-            transform: "translateY(2px)",
           }}
         >
           <SlotCounter

@@ -55,7 +55,7 @@ export const Selection = ({
           <h3 className="font-primary text-[36px]/6 tracking-wider text-white-100 uppercase">
             {power.name()}
           </h3>
-          <p className="text-2xl/[18px] font-secondary tracking-wider">
+          <p className="text-lg/5 font-secondary tracking-wider">
             {power.description()}
           </p>
         </div>

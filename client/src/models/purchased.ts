@@ -61,7 +61,7 @@ export class Purchased {
     );
   }
 
-  static getKey(purchased: Purchased): string {
+  static getUuid(purchased: Purchased): string {
     return `${purchased.player_id}-${purchased.starterpack_id}-${purchased.time}`;
   }
 
@@ -72,7 +72,7 @@ export class Purchased {
 
   getEvent(): EventProps {
     return {
-      key: Purchased.getKey(this),
+      uuid: Purchased.getUuid(this),
       username: this.player_id,
       multiplier: this.multiplier,
       earning: undefined,

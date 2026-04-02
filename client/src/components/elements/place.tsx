@@ -55,7 +55,7 @@ export const Place = ({
           </h3>
 
           {/* Description */}
-          <p className="text-2xl/[18px] font-secondary tracking-wider">
+          <p className="text-lg/5 font-secondary tracking-wider">
             {trap.description()}
           </p>
         </div>

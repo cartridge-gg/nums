@@ -18,6 +18,7 @@ pub trait ISetup<T> {
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
     fn set_pool_sqrt(ref self: T, pool_sqrt: u256);
     fn set_base_price(ref self: T, base_price: u256);
+    fn set_average_score(ref self: T, average_score: u32, average_weigth: u16);
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
     fn merkledrop_claim(
         ref self: T,
@@ -404,6 +405,19 @@ pub mod Setup {
             // [Effect] Update config
             let mut config = store.config();
             config.base_price = base_price;
+            store.set_config(config);
+        }
+
+        fn set_average_score(ref self: ContractState, average_score: u32, average_weigth: u16) {
+            // [Setup] World and Store
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            // [Check] Caller is allowed
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
+            // [Effect] Update config
+            let mut config = store.config();
+            config.average_score = average_score;
+            config.average_weigth = average_weigth;
             store.set_config(config);
         }
 

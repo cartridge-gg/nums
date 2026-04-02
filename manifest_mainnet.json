@@ -81,7 +81,7 @@
     },
     {
       "address": "0x575bd762ac42b1386a8da0d07f646ac631786eab359f3f39f1b53208208ab9c",
-      "class_hash": "0x266ced4475f492c93df31940b8e748afa1ccad39271fe07a0b7660dc1241eb7",
+      "class_hash": "0xf1988f17f8a54de0ef9000779ebe992c8dbdc4d25adaeb76eb6a97c368f081",
       "init_calldata": [],
       "tag": "NUMS-Play",
       "selector": "0x233dcec2c076248704b3dfda04e697ed4bc600be123cefd04283739df495e3f",
@@ -100,7 +100,7 @@
     },
     {
       "address": "0x1a8516498b484f209aefbbf5af67765a2b1e3889fd00902811f18576a4616b0",
-      "class_hash": "0x132ebd1625ee1a863a88726b052268b4021ca7c92ad9afd227757b2930d1d6b",
+      "class_hash": "0x45aed9e05eb7d73459e0198e22b472034a7aef939a589acdff8be856893afdd",
       "init_calldata": [
         "0x0",
         "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f",
@@ -135,6 +135,7 @@
         "set_pool_extension",
         "set_pool_sqrt",
         "set_base_price",
+        "set_average_score",
         "merkledrop_register",
         "merkledrop_claim",
         "upgrade",
@@ -5999,6 +6000,22 @@
             {
               "name": "base_price",
               "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_average_score",
+          "inputs": [
+            {
+              "name": "average_score",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "average_weigth",
+              "type": "core::integer::u16"
             }
           ],
           "outputs": [],

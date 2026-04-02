@@ -52,15 +52,15 @@ export const Activity = ({
             <div className="flex-shrink-0 flex items-center justify-center">
               <GameIcon cells={cells} />
             </div>
-            <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-white-100 translate-y-0.5 truncate font-thin">
+            <span className="font-secondary text-base/3 leading-normal tracking-wider text-white-100 truncate font-thin">
               {gameId}
             </span>
           </div>
         </div>
 
         {/* Payout column */}
-        <div className="ml-auto text-right translate-y-0.5 pr-3">
-          <span className="font-secondary text-2xl/3 leading-normal tracking-wider text-green-100 whitespace-nowrap font-thin">
+        <div className="ml-auto text-right pr-3">
+          <span className="font-secondary text-base/3 leading-normal tracking-wider text-green-100 whitespace-nowrap font-thin">
             {payout}
           </span>
         </div>

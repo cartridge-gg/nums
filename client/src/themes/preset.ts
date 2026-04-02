@@ -426,12 +426,11 @@ export const preset: Partial<Config> = {
       fontFamily: {
         body: ["PixelGame", "sans"],
         primary: ["PixelGame", "sans"],
-        secondary: ["PPNeueBit", "sans"],
+        secondary: ["Circular-LL", "sans"],
         tertiary: ["DMMono-Regular", "monospace"],
         circular: ["Circular-LL", "sans"],
         sans: ["Circular-LL-Book", ...defaultTheme.fontFamily.sans],
         mono: ["IBM Plex Mono", ...defaultTheme.fontFamily.mono],
-        ppneuebit: ["PPNeueBit", "sans"],
         dmmono: ["DMMono-Regular", "monospace"],
       },
       fontSize: {

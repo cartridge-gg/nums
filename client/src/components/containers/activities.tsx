@@ -208,8 +208,11 @@ export const Activities = ({
             </p>
           </div>
         ) : (
-          sections.map((section) => (
-            <div key={section.title} className="flex flex-col gap-4">
+          sections.map((section, sectionIndex) => (
+            <div
+              key={section.title ?? `section-${sectionIndex}`}
+              className="flex flex-col gap-4"
+            >
               {section.title && (
                 <h3
                   className="text-[22px]/[15px] tracking-wider text-primary-100 translate-y-0.5"

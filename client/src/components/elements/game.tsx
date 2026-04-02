@@ -153,7 +153,7 @@ const Content = ({
         </div>
         <span
           className={cn(
-            "font-secondary text-2xl/[20px] tracking-wider translate-y-0.5 whitespace-nowrap",
+            "font-secondary text-base/5 tracking-wider translate-y-0.5 whitespace-nowrap",
             value ? "text-white-100" : "text-white-700",
           )}
         >

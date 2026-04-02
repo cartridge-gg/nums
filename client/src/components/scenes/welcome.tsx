@@ -161,7 +161,7 @@ export const WelcomeScene = ({
         </div>
         <p
           className={cn(
-            "font-secondary text-[24px] md:text-[32px] tracking-wider text-center animate-shimmer-reflect transition-opacity duration-1000",
+            "font-secondary text-lg md:text-xl tracking-wider text-center animate-shimmer-reflect transition-opacity duration-1000",
             phase >= 2 ? "opacity-100" : "opacity-0",
           )}
         >
@@ -175,7 +175,7 @@ export const WelcomeScene = ({
             "radial-gradient(50% 50% at 50% 50%, #4F1CDF 44%, rgba(79, 28, 223, 0) 100%)",
         }}
       >
-        <p className="text-[24px]/3 md:text-[28px]/[14px] tracking-wider font-secondary whitespace-nowrap">
+        <p className="text-lg/3 md:text-xl/4 tracking-wider font-secondary whitespace-nowrap">
           Powered by
         </p>
         <div className="flex gap-2 items-center">

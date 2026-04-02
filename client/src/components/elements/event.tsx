@@ -65,8 +65,8 @@ export const Event = ({
 
       {/* Description - similar to ToastDescription */}
       {multiplier !== undefined && (
-        <div className="flex gap-1 items-center text-xl/5 text-white-100 group-hover:text-white-200 font-secondary font-bold tracking-wide">
-          <p className="whitespace-nowrap translate-y-px">is playing a</p>
+        <div className="flex gap-1 items-center text-sm/5 text-white-100 group-hover:text-white-200 font-secondary font-bold tracking-wide">
+          <p className="whitespace-nowrap">is playing a</p>
           <div className="mx-1 flex items-center justify-center p-1 bg-white-900 rounded">
             <strong
               className={cn(
@@ -75,19 +75,19 @@ export const Event = ({
               )}
             >{`${multiplier.toFixed(2)}x`}</strong>
           </div>
-          <p className="whitespace-nowrap translate-y-px">game</p>
+          <p className="whitespace-nowrap">game</p>
         </div>
       )}
 
       {earning !== undefined && (
-        <div className="flex gap-1 items-center text-xl/5 text-white-100 group-hover:text-white-200 font-secondary font-bold tracking-wide">
-          <p className="whitespace-nowrap translate-y-px">earned</p>
+        <div className="flex gap-1 items-center text-sm/5 text-white-100 group-hover:text-white-200 font-secondary font-bold tracking-wide">
+          <p className="whitespace-nowrap">earned</p>
           <div className="mx-1 flex items-center justify-center p-1 bg-white-900 rounded">
             <strong className="text-lg/3 font-primary translate-y-px text-green-100 group-hover:text-green-200 tracking-wider font-thin whitespace-nowrap">
               {earning.toLocaleString()}
             </strong>
           </div>
-          <p className="whitespace-nowrap translate-y-0.5">NUMS</p>
+          <p className="whitespace-nowrap">NUMS</p>
         </div>
       )}
     </Link>

@@ -2,7 +2,7 @@ export const SupportScene = () => {
   return (
     <div className="select-text flex flex-col gap-8 w-full max-w-[720px]">
       <div className="flex flex-col gap-2">
-        <h1 className="font-ppneuebit text-5xl md:text-6xl text-white">
+        <h1 className="font-secondary text-base md:text-6xl text-white">
           Support
         </h1>
         <p className="font-sans text-base text-white/60">

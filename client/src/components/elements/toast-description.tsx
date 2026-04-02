@@ -6,7 +6,7 @@ const toastDescriptionVariants = cva("flex gap-1 items-center", {
   variants: {
     variant: {
       default:
-        "text-[24px]/5 text-white-100 font-secondary font-bold tracking-wide",
+        "text-base/5 text-white-100 font-secondary font-bold tracking-wide",
     },
   },
   defaultVariants: {

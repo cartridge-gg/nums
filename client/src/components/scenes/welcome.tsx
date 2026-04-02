@@ -41,6 +41,19 @@ export const WelcomeScene = ({
   ...props
 }: WelcomeSceneProps) => {
   const [phase, setPhase] = useState(0);
+  const [slotValue, setSlotValue] = useState("\u2800".repeat(7));
+
+  useEffect(() => {
+    let cancelled = false;
+    document.fonts.ready.then(() => {
+      if (!cancelled) {
+        setSlotValue("NUMS.GG");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 3000);
@@ -100,9 +113,7 @@ export const WelcomeScene = ({
             style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.24)" }}
           >
             <SlotCounter
-              value="NUMS.GG"
-              startValue="       "
-              startValueOnce
+              value={slotValue}
               duration={3}
               dummyCharacters={[
                 "N",

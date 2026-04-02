@@ -75,10 +75,16 @@ export function EntitiesProvider({
   useEffect(() => {
     let mounted = true;
     const getClient = async () => {
-      const client = await initToriiClient();
-      if (!mounted) return;
-      setClient(client);
-      setToriiClient(client);
+      try {
+        const client = await initToriiClient();
+        if (!mounted) return;
+        setClient(client);
+        setToriiClient(client);
+      } catch (error) {
+        console.error("failed to initialize torii client:", error);
+        if (!mounted) return;
+        setStatus("error");
+      }
     };
     getClient();
     return () => {
@@ -162,16 +168,18 @@ export function EntitiesProvider({
     const entityQuery = ConfigApi.query();
     const eventQuery = Event.query();
 
-    await Promise.all([
-      client
-        .getEntities(entityQuery.build())
-        .then((result) => handleEntityUpdate(result.items)),
-    ]);
-    await Promise.all([
-      client
-        .getEventMessages(eventQuery.build())
-        .then((result) => handleEventUpdate(result.items)),
-    ]);
+    await client
+      .getEntities(entityQuery.build())
+      .then((result) => handleEntityUpdate(result.items));
+
+    // Event messages may fail on some browsers (e.g. Safari/WebKit gRPC
+    // incompatibility).  Catch individually so the app remains usable.
+    await client
+      .getEventMessages(eventQuery.build())
+      .then((result) => handleEventUpdate(result.items))
+      .catch((error: unknown) => {
+        console.error("failed to get event_messages:", error);
+      });
   }, [client, handleEntityUpdate, handleEventUpdate]);
 
   const setupSubscriptions = useCallback(async () => {
@@ -204,12 +212,16 @@ export function EntitiesProvider({
       if (eventsSubscriptionRef.current) {
         eventsSubscriptionRef.current.cancel();
       }
-      eventsSubscriptionRef.current = await subscribeEvents(
-        client,
-        eventClause,
-        handleEventUpdate,
-      );
-      eventsSubscriptionKeyRef.current = eventKey;
+      try {
+        eventsSubscriptionRef.current = await subscribeEvents(
+          client,
+          eventClause,
+          handleEventUpdate,
+        );
+        eventsSubscriptionKeyRef.current = eventKey;
+      } catch (error) {
+        console.error("failed to subscribe to events:", error);
+      }
     }
   }, [client, handleEntityUpdate, handleEventUpdate]);
 

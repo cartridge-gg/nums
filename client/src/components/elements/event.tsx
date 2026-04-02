@@ -16,7 +16,7 @@ const eventVariants = cva("select-none flex gap-1", {
 export interface EventProps
   extends React.HTMLAttributes<HTMLAnchorElement>,
     VariantProps<typeof eventVariants> {
-  key: string;
+  uuid: string;
   username: string;
   multiplier?: number;
   earning?: number;
@@ -32,10 +32,13 @@ const getColor = (multiplier: number) => {
 };
 
 export const Event = ({
+  uuid: _uuid,
   username,
   multiplier,
   earning,
+  timestamp: _timestamp,
   id,
+  price: _price,
   variant,
   className,
   ...props

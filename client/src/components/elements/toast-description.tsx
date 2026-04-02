@@ -48,7 +48,7 @@ export const ToastDescription = ({
         {...props}
       >
         <p>is playing a</p>
-        <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded -translate-y-0.5">
+        <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded">
           <strong
             className={cn(
               "text-[22px]/[15px] font-primary translate-y-0.5",
@@ -67,7 +67,7 @@ export const ToastDescription = ({
         {...props}
       >
         <p>earned</p>
-        <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded -translate-y-0.5">
+        <div className="mx-1 flex items-center justify-center px-1 py-[3px] bg-white-900 rounded">
           <strong className="text-[22px]/[15px] font-primary translate-y-0.5 text-green-100">
             {earning.toLocaleString()}
           </strong>
@@ -83,7 +83,7 @@ export const ToastDescription = ({
         {...props}
       >
         <SparklesIcon size="xs" />
-        <p className="text-xl/4 translate-y-0.5">{points}</p>
+        <p className="text-xl/4">{points}</p>
       </div>
     );
   }

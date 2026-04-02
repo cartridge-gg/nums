@@ -6,6 +6,7 @@ export const Countup = memo(
   forwardRef<HTMLImageElement, AnimationProps>(
     ({ className, size, ...props }, forwardedRef) => (
       <img
+        draggable={false}
         src="/assets/animations/countup.svg"
         alt="Countup animation"
         className={cn(animationVariants({ size, className }))}

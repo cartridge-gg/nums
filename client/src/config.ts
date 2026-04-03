@@ -12,7 +12,7 @@ export const USDC_ADDRESS =
 export const MAINNET_CHAIN_ID = DEFAULT_CHAIN_ID;
 
 export const RPC_URL = "https://api.cartridge.gg/x/starknet/mainnet";
-export const TORII_URL = "https://api.cartridge.gg/x/nums-main/torii";
+export const TORII_URL = "https://api.cartridge.gg/x/nums-mainnet/torii";
 
 export const chainName = {
   [DEFAULT_CHAIN_ID]: "Starknet Mainnet",

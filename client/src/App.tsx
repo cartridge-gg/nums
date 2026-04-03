@@ -1,18 +1,18 @@
 import ControllerConnector from "@cartridge/connector/controller";
 import type { ControllerOptions } from "@cartridge/controller";
-import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
 import {
   type Connector,
   jsonRpcProvider,
   StarknetConfig,
   voyager,
 } from "@starknet-react/core";
+import { mainnet } from "@starknet-react/chains";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { NativeNotificationBridge } from "@/components/containers/native-notification-bridge";
 import { NotificationEvents } from "@/components/containers/notification-events";
-import { chains, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@/config";
+import { DEFAULT_CHAIN_ID, RPC_URL, TORII_URL } from "@/config";
 import { Navigate } from "@/lib/router";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
@@ -30,42 +30,13 @@ import { GamesProvider } from "./context/games";
 import { PostHogProvider } from "./context/posthog";
 
 const provider = jsonRpcProvider({
-  rpc: (chain: Chain) => {
-    switch (chain) {
-      case mainnet:
-        return { nodeUrl: MAINNET_RPC };
-      case sepolia:
-        return { nodeUrl: SEPOLIA_RPC };
-      default:
-        throw new Error(`Unsupported chain: ${chain.network}`);
-    }
-  },
+  rpc: () => ({ nodeUrl: RPC_URL }),
 });
 
-const MAINNET_RPC =
-  import.meta.env.VITE_SN_MAIN_RPC_URL ||
-  "https://api.cartridge.gg/x/starknet/mainnet";
-const SEPOLIA_RPC =
-  import.meta.env.VITE_SN_SEPOLIA_RPC_URL ||
-  "https://api.cartridge.gg/x/starknet/sepolia";
-
-const buildChains = () => {
-  const chain = chains[DEFAULT_CHAIN_ID];
-  switch (chain) {
-    case mainnet:
-      return [{ rpcUrl: MAINNET_RPC }];
-    case sepolia:
-      return [{ rpcUrl: SEPOLIA_RPC }];
-    default:
-      throw new Error(`Unsupported chain: ${chain.network}`);
-  }
-};
-
-const toriiUrl = import.meta.env[`VITE_${DEFAULT_CHAIN}_TORII_URL`] || "";
-const slot = toriiUrl.split("/").slice(-2, -1)[0];
+const slot = TORII_URL.split("/").slice(-2, -1)[0];
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
-  chains: buildChains(),
+  chains: [{ rpcUrl: RPC_URL }],
   preset: "nums",
   namespace: "NUMS",
   slot: slot,
@@ -80,7 +51,7 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <StarknetConfig
             autoConnect
-            chains={[chains[DEFAULT_CHAIN_ID]]}
+            chains={[mainnet]}
             connectors={connectors}
             explorer={voyager}
             provider={provider}
@@ -90,18 +61,18 @@ function App() {
               <EntitiesProvider>
                 <GamesProvider>
                   <PracticeProvider>
-                    <TutorialProvider>
-                      <QuestsProvider>
-                        <AchievementsProvider>
-                          <WelcomeProvider>
-                            <LoadingProvider>
-                              <Router
-                                future={{
-                                  v7_startTransition: true,
-                                  v7_relativeSplatPath: true,
-                                }}
-                              >
-                                <NotificationEvents />
+                    <QuestsProvider>
+                      <AchievementsProvider>
+                        <WelcomeProvider>
+                          <LoadingProvider>
+                            <Router
+                              future={{
+                                v7_startTransition: true,
+                                v7_relativeSplatPath: true,
+                              }}
+                            >
+                              <NotificationEvents />
+                              <TutorialProvider>
                                 <SoundProvider>
                                   <Layout>
                                     <Routes>
@@ -121,12 +92,12 @@ function App() {
                                     </Routes>
                                   </Layout>
                                 </SoundProvider>
-                              </Router>
-                            </LoadingProvider>
-                          </WelcomeProvider>
-                        </AchievementsProvider>
-                      </QuestsProvider>
-                    </TutorialProvider>
+                              </TutorialProvider>
+                            </Router>
+                          </LoadingProvider>
+                        </WelcomeProvider>
+                      </AchievementsProvider>
+                    </QuestsProvider>
                   </PracticeProvider>
                 </GamesProvider>
               </EntitiesProvider>

@@ -16,6 +16,8 @@ export enum TutorialPhase {
   TrapIntroduction,
   TrapSet,
   TrapResult,
+  RecoverSlot,
+  KeepSorting,
   PowerIntroduction,
   PowerUnlock,
   PowerSelection,
@@ -212,6 +214,24 @@ export class Tutorial {
       direction: "left",
       anchor: { type: "slot", index: 3 },
     },
+    [TutorialPhase.RecoverSlot]: {
+      instruction: {
+        title: "Spot freed up",
+        content:
+          "The wind blew your number away but opened up a new slot. Quick, place your number here before anything else happens.",
+      },
+      direction: "right",
+      anchor: { type: "slot", index: 2 },
+    },
+    [TutorialPhase.KeepSorting]: {
+      instruction: {
+        title: "Keep sorting",
+        content:
+          "Excellent work. My algorithms predict you have a promising future in number sorting. Place this one here.",
+      },
+      direction: "left",
+      anchor: { type: "slot", index: 10 },
+    },
     [TutorialPhase.PowerIntroduction]: {
       instruction: {
         title: "Power ups",
@@ -220,15 +240,15 @@ export class Tutorial {
       },
       primaryLabel: "Next",
       direction: "left",
-      anchor: { type: "stage", index: 3 },
+      anchor: { type: "stage", index: 5 },
     },
     [TutorialPhase.PowerUnlock]: {
       instruction: {
         title: "Next Number here",
         content: "You know the drill...",
       },
-      direction: "right",
-      anchor: { type: "slot", index: 2 },
+      direction: "left",
+      anchor: { type: "slot", index: 15 },
     },
     [TutorialPhase.PowerSelection]: {
       instruction: {
@@ -294,7 +314,9 @@ export class Tutorial {
     [TutorialPhase.Reward]: TutorialPhase.TrapIntroduction,
     [TutorialPhase.TrapIntroduction]: TutorialPhase.TrapSet,
     [TutorialPhase.TrapSet]: TutorialPhase.TrapResult,
-    [TutorialPhase.TrapResult]: TutorialPhase.PowerIntroduction,
+    [TutorialPhase.TrapResult]: TutorialPhase.RecoverSlot,
+    [TutorialPhase.RecoverSlot]: TutorialPhase.KeepSorting,
+    [TutorialPhase.KeepSorting]: TutorialPhase.PowerIntroduction,
     [TutorialPhase.PowerIntroduction]: TutorialPhase.PowerUnlock,
     [TutorialPhase.PowerUnlock]: TutorialPhase.PowerSelection,
     [TutorialPhase.PowerSelection]: TutorialPhase.PowerUp,

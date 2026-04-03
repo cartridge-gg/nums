@@ -165,7 +165,7 @@ export class Game {
   }
 
   static tutorial(): Game {
-    const drawSequence = [162, 679, 81, 149, 376, 934];
+    const drawSequence = [162, 679, 81, 149, 504, 823, 376, 934];
 
     const traps: Trap[] = Array(DEFAULT_SLOT_COUNT)
       .fill(0)
@@ -173,7 +173,7 @@ export class Game {
         switch (i) {
           case 1:
             return Trap.from(5); // Windy
-          case 10:
+          case 12:
             return Trap.from(1); // Bomb
           case 7:
             return Trap.from(3); // Magnet

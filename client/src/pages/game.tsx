@@ -22,7 +22,11 @@ import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
 import type { PowerUpProps } from "@/components/elements/power-up";
 import { Game as GameModel } from "@/models/game";
-import { DEFAULT_POWER_COUNT } from "@/constants";
+import {
+  DEFAULT_DRAW_STAGE,
+  DEFAULT_MAX_DRAW,
+  DEFAULT_POWER_COUNT,
+} from "@/constants";
 import { Verifier } from "@/helpers";
 import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
@@ -154,7 +158,10 @@ export const Game = () => {
   const gameProps = useMemo(() => {
     if (!game || !purchaseProps) {
       return {
-        powers: Array.from({ length: 3 }, () => ({})) as PowerUpProps[],
+        powers: Array.from(
+          { length: DEFAULT_POWER_COUNT },
+          () => ({}),
+        ) as PowerUpProps[],
         slots: Array.from({ length: 18 }, () => ({
           value: 0,
           onSlotClick: () => {},
@@ -172,7 +179,9 @@ export const Game = () => {
         const stageLevel = index + 1;
         const isCompleted = stageLevel <= game.level;
         const isBreakeven = stageLevel >= breakEven && !isPracticeMode;
-        const hasGem = stageLevel % 4 === 0 && stageLevel <= 15;
+        const hasGem =
+          stageLevel % DEFAULT_DRAW_STAGE === 0 &&
+          stageLevel <= DEFAULT_MAX_DRAW;
         const hasCrown = stageLevel === game.slot_count;
 
         let isUnlocked = isCompleted;

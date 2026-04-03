@@ -5,10 +5,8 @@ import manifestMainnet from "../../manifest_mainnet.json";
 import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
 
-export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN;
-export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
-  import.meta.env.VITE_DEFAULT_CHAIN,
-);
+export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN || "SN_MAIN";
+export const DEFAULT_CHAIN_ID = shortString.encodeShortString(DEFAULT_CHAIN);
 
 export const USDC_ADDRESS =
   "0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb";

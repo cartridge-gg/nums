@@ -12,7 +12,7 @@ import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { NativeNotificationBridge } from "@/components/containers/native-notification-bridge";
 import { NotificationEvents } from "@/components/containers/notification-events";
-import { chains, DEFAULT_CHAIN_ID } from "@/config";
+import { chains, DEFAULT_CHAIN, DEFAULT_CHAIN_ID } from "@/config";
 import { Navigate } from "@/lib/router";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
@@ -54,11 +54,8 @@ const buildChains = () => {
   }
 };
 
-const slot = import.meta.env[
-  `VITE_${import.meta.env.VITE_DEFAULT_CHAIN}_TORII_URL`
-]
-  .split("/")
-  .slice(-2, -1)[0];
+const toriiUrl = import.meta.env[`VITE_${DEFAULT_CHAIN}_TORII_URL`] || "";
+const slot = toriiUrl.split("/").slice(-2, -1)[0];
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),

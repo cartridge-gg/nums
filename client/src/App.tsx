@@ -10,25 +10,21 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate } from "@/lib/router";
 import { chains, DEFAULT_CHAIN_ID } from "@/config";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
-import { ThemeProvider } from "./context/theme";
 import { EntitiesProvider } from "./context/entities";
 import { PracticeProvider } from "./context/practice";
-import { Game, Home, Main, Support } from "./pages";
-import { LoadingScene } from "./components/scenes";
+import { Game, Home } from "./pages";
 import { queryClient } from "./queries";
 import { QuestsProvider } from "./context/quests";
 import { LoadingProvider } from "./context/loading";
 import { WelcomeProvider } from "./context/welcome";
+import { Layout } from "./components/layouts";
 import { AchievementsProvider } from "./context/achievements";
 import { TutorialProvider } from "./context/tutorial";
-import { VaultProvider } from "./context/vault";
-import { BundlesProvider } from "./context/bundles";
 import { GamesProvider } from "./context/games";
-import { MerkledropsProvider } from "./context/merkledrops";
 import { PostHogProvider } from "./context/posthog";
 
 const provider = jsonRpcProvider({
@@ -64,58 +60,17 @@ const slot = import.meta.env[
 const options: ControllerOptions = {
   defaultChainId: DEFAULT_CHAIN_ID,
   chains: buildChains(),
-  // policies: buildPolicies(),
   preset: "nums",
   namespace: "NUMS",
   slot: slot,
-  locationGate: {
-    blocked: [
-      "US-HI",
-      "US-TN",
-      "US-ID",
-      "US-AR",
-      "US-LA",
-      "US-CT",
-      "US-MT",
-      "US-NV",
-      "US-WA",
-      "US-SD",
-      "CA-ON",
-      "CA-AB",
-      "FR",
-      "NL",
-      "AU",
-      "AT",
-      "GB",
-      "ES",
-      "SG",
-      "CN",
-    ],
-  },
-} as ControllerOptions;
+};
 
 const connectors = [new ControllerConnector(options) as never as Connector];
-
-function DeployGate() {
-  return (
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <Routes>
-        <Route path="/support" element={<Support />} />
-        <Route path="/*" element={<AuthenticatedApp />} />
-      </Routes>
-    </Router>
-  );
-}
 
 function App() {
   return (
     <JotaiProvider>
-      <TooltipProvider delayDuration={300}>
+      <PostHogProvider>
         <QueryClientProvider client={queryClient}>
           <StarknetConfig
             autoConnect
@@ -124,32 +79,23 @@ function App() {
             explorer={voyager}
             provider={provider}
           >
-            <DeployGate />
-          </StarknetConfig>
-        </QueryClientProvider>
-      </TooltipProvider>
-    </JotaiProvider>
-  );
-}
-
-function AuthenticatedApp() {
-  return (
-    <PostHogProvider>
-      <AudioProvider>
-        <EntitiesProvider>
-          <BundlesProvider>
-            <GamesProvider>
-              <PracticeProvider>
-                <TutorialProvider>
-                  <QuestsProvider>
-                    <VaultProvider>
-                      <AchievementsProvider>
-                        <MerkledropsProvider>
+            <AudioProvider>
+              <EntitiesProvider>
+                <GamesProvider>
+                  <PracticeProvider>
+                    <TutorialProvider>
+                      <QuestsProvider>
+                        <AchievementsProvider>
                           <WelcomeProvider>
                             <LoadingProvider>
-                              <ThemeProvider>
+                              <Router
+                                future={{
+                                  v7_startTransition: true,
+                                  v7_relativeSplatPath: true,
+                                }}
+                              >
                                 <SoundProvider>
-                                  <Main>
+                                  <Layout>
                                     <Routes>
                                       <Route path="/" element={<Home />} />
                                       <Route
@@ -158,33 +104,29 @@ function AuthenticatedApp() {
                                       />
                                       <Route
                                         path="/game"
-                                        element={<LoadingScene />}
+                                        element={<Navigate to="/" replace />}
                                       />
                                       <Route
                                         path="/practice"
                                         element={<Game />}
                                       />
-                                      <Route
-                                        path="/tutorial"
-                                        element={<Game />}
-                                      />
                                     </Routes>
-                                  </Main>
+                                  </Layout>
                                 </SoundProvider>
-                              </ThemeProvider>
+                              </Router>
                             </LoadingProvider>
                           </WelcomeProvider>
-                        </MerkledropsProvider>
-                      </AchievementsProvider>
-                    </VaultProvider>
-                  </QuestsProvider>
-                </TutorialProvider>
-              </PracticeProvider>
-            </GamesProvider>
-          </BundlesProvider>
-        </EntitiesProvider>
-      </AudioProvider>
-    </PostHogProvider>
+                        </AchievementsProvider>
+                      </QuestsProvider>
+                    </TutorialProvider>
+                  </PracticeProvider>
+                </GamesProvider>
+              </EntitiesProvider>
+            </AudioProvider>
+          </StarknetConfig>
+        </QueryClientProvider>
+      </PostHogProvider>
+    </JotaiProvider>
   );
 }
 

@@ -27,7 +27,12 @@ export const Home = () => {
     refetch: refetchActivities,
   } = useActivities();
   const { openPurchaseScene } = usePurchaseModal();
-  const { clearGame, start: startPractice } = usePractice();
+  const {
+    clearGame,
+    start: startPractice,
+    games: practiceGames,
+    continueGame,
+  } = usePractice();
   const { propose } = useTutorial();
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
@@ -121,30 +126,55 @@ export const Home = () => {
         };
       });
 
+    // Active practice games
+    const practiceGameData = practiceGames
+      .filter((game) => game.over === 0)
+      .map((game) => ({
+        gameId: game.id,
+        score: game.level === 0 ? undefined : game.level,
+        expiration: game.expiration,
+        payout: "Practice",
+      }));
+
     const newGame = {
       breakEven: chartAbscissa.toString(),
       payout: `$${chartData.maxPayout.toFixed(2)}`,
     };
 
     return {
-      games: [...gameData, newGame],
+      games: [...gameData, ...practiceGameData, newGame],
       gameId,
       setGameId,
     };
-  }, [games, config, numsPrice, chartData, chartAbscissa, gameId, setGameId]);
+  }, [
+    games,
+    practiceGames,
+    config,
+    numsPrice,
+    chartData,
+    chartAbscissa,
+    gameId,
+    setGameId,
+  ]);
 
   // Set initial gameId to the first active game if available
   useEffect(() => {
     const now = Date.now();
-    if (games.length > 0 && gameId === undefined) {
-      const firstActiveGame = games.find(
-        (g) => !g.over && g.expiration * 1000 > now,
-      );
-      if (firstActiveGame) {
-        setGameId(firstActiveGame.id);
-      }
+    if (gameId !== undefined) return;
+
+    const firstBlockchainGame = games.find(
+      (g) => !g.over && g.expiration * 1000 > now,
+    );
+    if (firstBlockchainGame) {
+      setGameId(firstBlockchainGame.id);
+      return;
     }
-  }, [games, gameId]);
+
+    const firstPracticeGame = practiceGames.find((g) => g.over === 0);
+    if (firstPracticeGame) {
+      setGameId(firstPracticeGame.id);
+    }
+  }, [games, practiceGames, gameId]);
 
   const handlePurchaseClick = useCallback(() => {
     propose(() => {
@@ -170,6 +200,23 @@ export const Home = () => {
     activeStarterpack?.price,
   ]);
 
+  const handleContinueClick = useCallback(() => {
+    if (!gameId) return;
+
+    // Check if it's a practice game
+    const practiceGame = practiceGames.find(
+      (g) => g.id === gameId && g.over === 0,
+    );
+    if (practiceGame) {
+      continueGame(gameId);
+      navigate("/practice");
+      return;
+    }
+
+    // Otherwise it's a blockchain game
+    navigate(`/game/${gameId}`);
+  }, [gameId, practiceGames, continueGame, navigate]);
+
   useEffect(() => {
     setTimeout(() => {
       setDefaultLoading(false);
@@ -194,6 +241,7 @@ export const Home = () => {
       onRefreshActivities={refetchActivities}
       onPurchase={handlePurchaseClick}
       onPractice={handlePracticeClick}
+      onContinue={handleContinueClick}
     />
   );
 };

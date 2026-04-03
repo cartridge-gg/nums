@@ -31,22 +31,29 @@ const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
     switch (chain) {
       case mainnet:
-        return { nodeUrl: import.meta.env.VITE_SN_MAIN_RPC_URL };
+        return { nodeUrl: MAINNET_RPC };
       case sepolia:
-        return { nodeUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL };
+        return { nodeUrl: SEPOLIA_RPC };
       default:
         throw new Error(`Unsupported chain: ${chain.network}`);
     }
   },
 });
 
+const MAINNET_RPC =
+  import.meta.env.VITE_SN_MAIN_RPC_URL ||
+  "https://api.cartridge.gg/x/starknet/mainnet";
+const SEPOLIA_RPC =
+  import.meta.env.VITE_SN_SEPOLIA_RPC_URL ||
+  "https://api.cartridge.gg/x/starknet/sepolia";
+
 const buildChains = () => {
   const chain = chains[DEFAULT_CHAIN_ID];
   switch (chain) {
     case mainnet:
-      return [{ rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL }];
+      return [{ rpcUrl: MAINNET_RPC }];
     case sepolia:
-      return [{ rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL }];
+      return [{ rpcUrl: SEPOLIA_RPC }];
     default:
       throw new Error(`Unsupported chain: ${chain.network}`);
   }

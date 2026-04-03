@@ -1,48 +1,39 @@
 import { createDojoConfig } from "@dojoengine/core";
-import { mainnet, sepolia } from "@starknet-react/chains";
+import { mainnet } from "@starknet-react/chains";
 import { shortString } from "starknet";
 import manifestMainnet from "../../manifest_mainnet.json";
-import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
 
-export const DEFAULT_CHAIN = import.meta.env.VITE_DEFAULT_CHAIN || "SN_MAIN";
-export const DEFAULT_CHAIN_ID = shortString.encodeShortString(DEFAULT_CHAIN);
+export const DEFAULT_CHAIN = "SN_MAIN";
+export const DEFAULT_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
 
 export const USDC_ADDRESS =
   "0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb";
-export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
-export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
+export const MAINNET_CHAIN_ID = DEFAULT_CHAIN_ID;
+
+export const RPC_URL = "https://api.cartridge.gg/x/starknet/mainnet";
+export const TORII_URL = "https://api.cartridge.gg/x/nums-main/torii";
 
 export const chainName = {
-  [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
-  [MAINNET_CHAIN_ID]: "Starknet Mainnet",
+  [DEFAULT_CHAIN_ID]: "Starknet Mainnet",
 };
 
 export const manifests = {
-  [SEPOLIA_CHAIN_ID]: manifestSepolia,
-  [MAINNET_CHAIN_ID]: manifestMainnet,
+  [DEFAULT_CHAIN_ID]: manifestMainnet,
 };
 
 export const chains = {
-  [SEPOLIA_CHAIN_ID]: sepolia,
-  [MAINNET_CHAIN_ID]: mainnet,
+  [DEFAULT_CHAIN_ID]: mainnet,
 };
 
-const dojoConfigSepolia = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SN_SEPOLIA_TORII_URL,
-  manifest: manifestSepolia,
-});
-
-const dojoConfigMainnet = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SN_MAIN_TORII_URL,
+const dojoConfig = createDojoConfig({
+  rpcUrl: RPC_URL,
+  toriiUrl: TORII_URL,
   manifest: manifestMainnet,
 });
 
 export const dojoConfigs = {
-  [SEPOLIA_CHAIN_ID]: dojoConfigSepolia,
-  [MAINNET_CHAIN_ID]: dojoConfigMainnet,
+  [DEFAULT_CHAIN_ID]: dojoConfig,
 };
 
 export const getEkuboUrl = (chainId: bigint) => {
@@ -57,22 +48,16 @@ export const getContractAddress = (
   const chainIdHex = `0x${chainId.toString(16)}`;
 
   const manifest = manifests[chainIdHex];
+  if (!manifest) return "0x0";
   const contract = manifest.contracts.find(
     (i) => i.tag === `${namespace}-${contractName}`,
   );
-  if (!contract && contractName === "MockNumsToken") {
-    return "0x6d97c1eb0ad331837882af3a7a0cd49b4a8f24603f9ca42dfdcdf6ece0ac56d";
-  }
-  return contract!.address;
+  if (!contract) return "0x0";
+  return contract.address;
 };
 
-export const getVrfAddress = (chainId: bigint) => {
-  const decodedChainId = shortString.decodeShortString(
-    `0x${chainId.toString(16)}`,
-  );
-  const fromEnv = import.meta.env[`VITE_${decodedChainId}_VRF`];
-  if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
-  return getContractAddress(chainId, NAMESPACE, "MockVRF");
+export const getVrfAddress = (_chainId: bigint) => {
+  return "0x051fea4450da9d6aee758bdeba88b2f665bcbf549d2c61421aa724e9ac0ced8f";
 };
 
 export const getTokenAddress = (chainId: bigint) => {
@@ -80,11 +65,6 @@ export const getTokenAddress = (chainId: bigint) => {
 };
 
 export const getFaucetAddress = (chainId: bigint) => {
-  const decodedChainId = shortString.decodeShortString(
-    `0x${chainId.toString(16)}`,
-  );
-  const fromEnv = import.meta.env[`VITE_${decodedChainId}_QUOTE`];
-  if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "Faucet");
 };
 

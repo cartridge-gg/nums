@@ -24,6 +24,7 @@ export interface HomeSceneProps
   playerActivities: ActivitiesProps;
   onPractice?: () => void;
   onPurchase?: () => void;
+  onContinue?: () => void;
   onLoadMoreActivities?: () => void;
   hasMoreActivities?: boolean;
   onRefreshActivities?: () => void;
@@ -55,6 +56,7 @@ export const HomeScene = ({
   playerActivities,
   onPractice,
   onPurchase,
+  onContinue,
   onLoadMoreActivities,
   hasMoreActivities,
   onRefreshActivities,
@@ -99,6 +101,16 @@ export const HomeScene = ({
         </Button>
         {!gameId ? (
           <NewGame filterId={filterId} onClick={onPurchase || (() => {})} />
+        ) : onContinue ? (
+          <Button
+            variant="tertiary"
+            className="h-12 w-full"
+            onClick={onContinue}
+          >
+            <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
+              Continue
+            </span>
+          </Button>
         ) : (
           <Button variant="tertiary" className="h-12 w-full">
             <Link

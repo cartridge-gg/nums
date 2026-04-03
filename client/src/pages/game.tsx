@@ -108,13 +108,7 @@ export const Game = () => {
       return;
     }
 
-    if (
-      isPracticeMode &&
-      !practiceInitializedRef.current &&
-      !practiceGame &&
-      currentSupply !== undefined &&
-      currentSupply > 0n
-    ) {
+    if (isPracticeMode && !practiceInitializedRef.current && !practiceGame) {
       startPractice(currentSupply, multiplier, activeStarterpack?.price);
       practiceInitializedRef.current = true;
     } else if (isPracticeMode && practiceGame) {

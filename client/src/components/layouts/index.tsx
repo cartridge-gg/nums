@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
@@ -11,12 +10,10 @@ import { useQuestScene } from "@/hooks/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
-import { useWelcome } from "@/context/welcome";
 import { useTutorial } from "@/context/tutorial";
 import { Toaster } from "@/components/elements";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Events, Tutorial, TutorialAnchorPortal } from "../containers";
-import { WelcomeScene } from "@/components/scenes";
+import { Tutorial, TutorialAnchorPortal } from "../containers";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -25,13 +22,6 @@ export interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
-  const { pathname } = useLocation();
-  const [initialPathname] = useState(() => pathname);
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(max-width: 767px)").matches;
-  });
-  const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account } = useAccount();
   const headerData = useHeader();
   const { mint } = useActions();
@@ -50,40 +40,15 @@ export const Layout = ({ children }: LayoutProps) => {
   // Toaster hook to display toast notifications for social and player events
   useToasters();
 
-  // Refetch leaderboard data when modal opens
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
-
-    updateIsMobile();
-    mediaQuery.addEventListener("change", updateIsMobile);
-    return () => mediaQuery.removeEventListener("change", updateIsMobile);
-  }, []);
-
   useEffect(() => {
     if (showLeaderboardScene) {
       refetchLeaderboard();
     }
   }, [showLeaderboardScene, refetchLeaderboard]);
 
-  const showWelcomeOverlay =
-    !isMobile &&
-    pathname === "/" &&
-    initialPathname === "/" &&
-    (!isDismissed || isDismissing);
-
   return (
     <TooltipProvider delayDuration={0}>
       <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-        {showWelcomeOverlay && (
-          <WelcomeScene
-            close={dismiss}
-            isDismissing={isDismissing}
-            className="absolute inset-0 z-[100] w-full h-full"
-          />
-        )}
         <img
           src={background}
           alt="Background"
@@ -104,7 +69,6 @@ export const Layout = ({ children }: LayoutProps) => {
           faucetBalance={headerData.faucetBalance}
           onFaucet={headerData.isMainnet ? undefined : () => mint()}
         />
-        <Events events={[]} />
         <div
           className="relative flex-1 min-h-0 flex items-center justify-center"
           style={{

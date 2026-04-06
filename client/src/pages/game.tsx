@@ -29,7 +29,6 @@ import {
   DEFAULT_POWER_COUNT,
 } from "@/constants";
 import { Verifier } from "@/helpers";
-import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
 import { usePostHog } from "@/context/posthog";
 export const Game = () => {
@@ -577,7 +576,7 @@ export const Game = () => {
   }, []);
 
   // Show loading state if game is not loaded
-  if (!game) return <LoadingScene />;
+  if (!game) return null;
 
   return (
     <div className="flex items-center justify-center h-full">

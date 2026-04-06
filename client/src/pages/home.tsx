@@ -1,4 +1,4 @@
-import { HomeScene, LoadingScene } from "@/components/scenes";
+import { HomeScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { useGames } from "@/context/games";
@@ -236,7 +236,7 @@ export const Home = () => {
   }, [gameId, practiceGames, continueGame, navigate, username, handleConnect]);
 
   // Show loading state if the page is still loading
-  if (loading) return <LoadingScene />;
+  if (loading) return null;
 
   return (
     <HomeScene

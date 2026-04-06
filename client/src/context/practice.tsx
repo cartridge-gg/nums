@@ -4,12 +4,10 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { Game } from "@/models/game";
 import { Random } from "@/helpers/random";
-import { useHeader } from "@/hooks/header";
 import { Trap } from "@/types/trap";
 import { Power } from "@/types/power";
 
@@ -131,11 +129,8 @@ const PracticeContext = createContext<PracticeContextType>({
 export const usePractice = () => useContext(PracticeContext);
 
 export function PracticeProvider({ children }: { children: React.ReactNode }) {
-  const { supply: currentSupply } = useHeader();
   const [game, setGameState] = useState<Game | null>(null);
   const [storedGames, setStoredGames] = useState<Game[]>(loadGames);
-  const gameRef = useRef<Game | null>(null);
-  gameRef.current = game;
 
   // Persist games to localStorage whenever stored games change
   useEffect(() => {
@@ -153,18 +148,15 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
 
   const start = useCallback(
     (supply?: bigint, multiplier?: number, price?: bigint) => {
-      const supplyToUse = supply !== undefined ? supply : currentSupply;
       const effectiveSupply =
-        supplyToUse !== undefined && supplyToUse > 0n
-          ? supplyToUse
-          : DEFAULT_SUPPLY;
+        supply !== undefined && supply > 0n ? supply : DEFAULT_SUPPLY;
       const newGame = Game.create(effectiveSupply, multiplier, price);
       const rand = new Random(BigInt(newGame.id));
       newGame.start(rand);
       setGameState(newGame);
       return newGame;
     },
-    [currentSupply],
+    [],
   );
 
   const setGame = useCallback((newGame: Game | null) => {

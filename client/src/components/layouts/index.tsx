@@ -1,16 +1,14 @@
 import { cn } from "@/lib/utils";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { useHeader } from "@/hooks/header";
 import { useAccount } from "@starknet-react/core";
-import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useQuestScene } from "@/hooks/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
-import { useEntities } from "@/context/entities";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
@@ -19,7 +17,6 @@ import { Toaster } from "@/components/elements";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Events, Tutorial, TutorialAnchorPortal } from "../containers";
 import { WelcomeScene } from "@/components/scenes";
-import { shortAddress } from "@/helpers";
 
 const background = "/assets/tunnel-background.svg";
 
@@ -36,13 +33,11 @@ export const Layout = ({ children }: LayoutProps) => {
   });
   const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account } = useAccount();
-  const { find, loading } = useControllers();
   const headerData = useHeader();
   const { mint } = useActions();
   const questsProps = useQuestScene();
   const { data: leaderboardData, refetch: refetchLeaderboard } =
     useLeaderboard();
-  const { claimeds, starteds } = useEntities();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
   const {
@@ -54,13 +49,6 @@ export const Layout = ({ children }: LayoutProps) => {
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
-
-  // Get username from controllers if account is connected
-  const username = useMemo(() => {
-    if (!account?.address) return undefined;
-    const controller = find(account.address);
-    return controller?.username;
-  }, [account?.address, find]);
 
   // Refetch leaderboard data when modal opens
   useEffect(() => {
@@ -79,21 +67,6 @@ export const Layout = ({ children }: LayoutProps) => {
       refetchLeaderboard();
     }
   }, [showLeaderboardScene, refetchLeaderboard]);
-
-  const events = useMemo(() => {
-    if (loading) return [];
-    return [
-      ...claimeds.map((claimed) => claimed.getEvent()),
-      ...starteds.map((started) => started.getEvent()),
-    ]
-      .map((event) => ({
-        ...event,
-        username:
-          find(event.username)?.username || shortAddress(event.username),
-      }))
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 10);
-  }, [claimeds, starteds, find, loading]);
 
   const showWelcomeOverlay =
     !isMobile &&
@@ -118,7 +91,7 @@ export const Layout = ({ children }: LayoutProps) => {
         />
         <Header
           balance={headerData.balance}
-          username={username}
+          username={headerData.username ?? undefined}
           onConnect={headerData.handleConnect}
           onQuests={() => {
             setShowQuestScene(!showQuestScene);
@@ -131,7 +104,7 @@ export const Layout = ({ children }: LayoutProps) => {
           faucetBalance={headerData.faucetBalance}
           onFaucet={headerData.isMainnet ? undefined : () => mint()}
         />
-        <Events events={events} />
+        <Events events={[]} />
         <div
           className="relative flex-1 min-h-0 flex items-center justify-center"
           style={{

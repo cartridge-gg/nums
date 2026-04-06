@@ -10,14 +10,11 @@ import { GameOver } from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
 import { usePractice } from "@/context/practice";
 import { useGame } from "@/context/games";
-import { usePrices } from "@/context/prices";
 import { usePurchaseModal } from "@/context/purchase-modal";
-import { useGames } from "@/context/games";
 import { useEntities } from "@/context/entities";
 import { useAudio } from "@/context/audio";
 import { useLoading } from "@/context/loading";
 import { useHeader } from "@/hooks/header";
-import { useMultiplier } from "@/hooks/multiplier";
 import type { StageState } from "@/components/elements/stage";
 import type { SelectionProps } from "@/components/elements/selection";
 import type { PlaceProps } from "@/components/elements/place";
@@ -28,9 +25,14 @@ import {
   DEFAULT_MAX_DRAW,
   DEFAULT_POWER_COUNT,
 } from "@/constants";
+import {
+  OFFLINE_CURRENT_SUPPLY,
+  OFFLINE_NUMS_PRICE,
+} from "@/constants/offline";
 import { Verifier } from "@/helpers";
 import { useTutorial } from "@/context/tutorial";
 import { usePostHog } from "@/context/posthog";
+
 export const Game = () => {
   const navigate = usePreserveSearchNavigate();
   const { pathname } = useLocation();
@@ -47,28 +49,15 @@ export const Game = () => {
 
   const {
     game: practiceGame,
+    games: practiceGames,
     start: startPractice,
     continueGame,
   } = usePractice();
-  const { supply: currentSupply, username } = useHeader();
-  const { getNumsPrice } = usePrices();
+  const { username } = useHeader();
   const { openPurchaseScene } = usePurchaseModal();
-  const { playerGames: games } = useGames();
   const { config, starterpacks } = useEntities();
 
   const activeStarterpack = useMemo(() => starterpacks[0], [starterpacks]);
-
-  const { multiplier } = useMultiplier({
-    basePrice: config?.base_price ?? 0n,
-    packMultiplier: BigInt(activeStarterpack?.multiplier ?? 1),
-    burnPercentage: BigInt(config?.burn_percentage ?? 0),
-    slotCount: BigInt(config?.slot_count ?? 18),
-    averageScore: BigInt(config?.average_score ?? 0),
-    averageWeight: BigInt(config?.average_weigth ?? 0),
-    currentSupply,
-    targetSupply: config?.target_supply ?? 0n,
-    quoteAddress: config?.quote ?? "",
-  });
   const { playPositive, playPower } = useAudio();
   const { isLoading, resetAll } = useLoading();
   const { id: idParam } = useParams<{ id: string }>();
@@ -158,13 +147,9 @@ export const Game = () => {
     resetAll("select");
   }, [game, resetAll]);
 
-  const basePrice = useMemo(() => {
-    return Number(2000000n) / 10 ** 6;
-  }, [config]);
-
   const numsPrice = useMemo(() => {
-    return parseFloat(getNumsPrice() || "0.0");
-  }, [getNumsPrice]);
+    return OFFLINE_NUMS_PRICE;
+  }, []);
 
   // Calculate PurchaseScene props from game data
   const purchaseProps = useMemo(() => {
@@ -180,7 +165,7 @@ export const Game = () => {
       targetSupply: config.target_supply || 0n,
       currentSupply: game.supply,
     };
-  }, [game, config, basePrice, numsPrice]);
+  }, [game, config, numsPrice]);
 
   // Transform game data for Game
   const gameProps = useMemo(() => {
@@ -468,12 +453,10 @@ export const Game = () => {
   const gameOverData = useMemo(() => {
     if (!game) return null;
 
-    const numsPrice = getNumsPrice();
-    const price = numsPrice ? parseFloat(numsPrice) : 0.0; // Default fallback
     const payout = game.reward;
-    const value = payout * price;
+    const value = payout * OFFLINE_NUMS_PRICE;
     const score = game.level;
-    const newGames = GameModel.deduplicate([game, ...games])
+    const newGames = GameModel.deduplicate([game, ...practiceGames])
       .filter((g) => !g.over && !g.isExpired())
       .sort((a, b) => b.id - a.id);
     const newGameId = newGames[0]?.id || 0;
@@ -486,7 +469,7 @@ export const Game = () => {
       newGameId,
       newGameCount,
     };
-  }, [game, getNumsPrice, games]);
+  }, [game, practiceGames]);
 
   const handleClaim = useCallback(() => {
     if (!game || game.claimed) return;
@@ -496,8 +479,8 @@ export const Game = () => {
   const handlePlayAgain = useCallback(() => {
     if (isPracticeMode) {
       const nextPracticeGame = startPractice(
-        currentSupply,
-        multiplier,
+        OFFLINE_CURRENT_SUPPLY,
+        activeStarterpack?.multiplier,
         activeStarterpack?.price,
       );
       navigate(`/practice/${nextPracticeGame.id}`, { replace: true });
@@ -506,8 +489,7 @@ export const Game = () => {
   }, [
     isPracticeMode,
     startPractice,
-    currentSupply,
-    multiplier,
+    activeStarterpack?.multiplier,
     activeStarterpack?.price,
     navigate,
   ]);

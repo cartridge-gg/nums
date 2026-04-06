@@ -1,33 +1,22 @@
 import { HomeScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePreserveSearchNavigate } from "@/lib/router";
-import { useGames } from "@/context/games";
-import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
 import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
-import { useMultiplier } from "@/hooks/multiplier";
-import { useActivities } from "@/hooks/activities";
+import { Rewarder } from "@/helpers/rewarder";
+import {
+  OFFLINE_CURRENT_SUPPLY,
+  OFFLINE_NUMS_PRICE,
+  OFFLINE_NUMS_PRICE_MICRO,
+} from "@/constants/offline";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { config, starterpacks } = useEntities();
-  const { getNumsPrice } = usePrices();
-  const {
-    supply: currentSupply,
-    username,
-    handleConnect,
-  } = useHeader();
-  const { playerGames: games, loading } = useGames();
-  const {
-    activities: sqlActivities,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    refetch: refetchActivities,
-  } = useActivities();
+  const { username, handleConnect } = useHeader();
   const {
     start: startPractice,
     games: practiceGames,
@@ -36,10 +25,6 @@ export const Home = () => {
   const { propose } = useTutorial();
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
-  const numsPrice = useMemo(() => {
-    return parseFloat(getNumsPrice() || "0.0");
-  }, [getNumsPrice]);
-
   // Active starterpack (first available)
   const activeStarterpack = useMemo(() => starterpacks[0], [starterpacks]);
 
@@ -47,84 +32,51 @@ export const Home = () => {
     return Number(activeStarterpack?.price || 2_000_000n) / 10 ** 6;
   }, [activeStarterpack]);
 
-  // Estimate multiplier from on-chain formula via real Ekubo quote
-  const { multiplier } = useMultiplier({
-    basePrice: config?.base_price ?? 0n,
-    packMultiplier: BigInt(activeStarterpack?.multiplier ?? 1),
-    burnPercentage: BigInt(config?.burn_percentage ?? 0),
-    slotCount: BigInt(config?.slot_count ?? 18),
-    averageScore: BigInt(config?.average_score ?? 0),
-    averageWeight: BigInt(config?.average_weigth ?? 0),
-    currentSupply,
-    targetSupply: config?.target_supply ?? 0n,
-    quoteAddress: config?.quote ?? "",
-  });
+  const multiplier = useMemo(() => {
+    if (!config || !activeStarterpack) return 1;
+    return Rewarder.estimate(
+      config.base_price,
+      BigInt(activeStarterpack.multiplier),
+      BigInt(config.burn_percentage),
+      BigInt(config.slot_count),
+      BigInt(config.average_score),
+      BigInt(config.average_weigth),
+      OFFLINE_CURRENT_SUPPLY,
+      config.target_supply,
+      OFFLINE_NUMS_PRICE_MICRO,
+    );
+  }, [activeStarterpack, config]);
 
   // Chart data - calculate rewards for each level based on current supply
   const chartData = useMemo(() => {
     return ChartHelper.calculate({
       slotCount: config?.slot_count || 18,
-      currentSupply,
+      currentSupply: OFFLINE_CURRENT_SUPPLY,
       targetSupply: config?.target_supply || 0n,
-      numsPrice,
+      numsPrice: OFFLINE_NUMS_PRICE,
       playPrice,
       multiplier,
     });
-  }, [config, currentSupply, numsPrice, playPrice, multiplier]);
+  }, [config, playPrice, multiplier]);
 
   const { chartAbscissa } = chartData;
 
-  const playerActivities = useMemo(() => {
-    return games
+  const practiceActivities = useMemo(() => {
+    return practiceGames
       .filter((game) => !!game.over)
       .map((game) => ({
         gameId: `#${game.id}`,
         breakEven: chartAbscissa.toString(),
-        payout: `$${(game.reward * numsPrice).toFixed(2)}`,
-        to: `/game/${game.id}`,
+        payout: "Practice",
+        to: `/practice/${game.id}`,
         timestamp: game.over,
-        claimed: game.claimed,
+        claimed: true,
         cells: [null, ...game.slots.map((slot) => slot !== 0), null],
       }));
-  }, [games, numsPrice]);
-
-  const allActivities = useMemo(() => {
-    return sqlActivities.map((row) => ({
-      gameId: row.username,
-      breakEven: chartAbscissa.toString(),
-      payout: `$${(row.reward * numsPrice).toFixed(2)}`,
-      to: row.to,
-      timestamp: row.timestamp,
-      claimed: true,
-      cells: row.cells,
-    }));
-  }, [sqlActivities, chartAbscissa, numsPrice]);
+  }, [practiceGames, chartAbscissa]);
 
   // Transform games for Games component (only non-over games)
   const gamesProps = useMemo(() => {
-    // Existing game details
-    const now = Date.now();
-    const gameData = games
-      .filter((game) => !game.over && game.expiration * 1000 > now)
-      .map((game) => {
-        const gamePlayPrice = Number(game.price) / 10 ** 6;
-        const { maxPayout } = ChartHelper.calculate({
-          slotCount: game.slot_count,
-          currentSupply: game.supply,
-          targetSupply: config?.target_supply || 0n,
-          numsPrice,
-          playPrice: gamePlayPrice,
-          multiplier: game.multiplier,
-        });
-        return {
-          gameId: game.id,
-          score: game.level === 0 ? undefined : game.level,
-          expiration: game.expiration,
-          payout: `$${maxPayout.toFixed(2)}`,
-        };
-      });
-
-    // Active practice games
     const practiceGameData = practiceGames
       .filter((game) => game.over === 0)
       .map((game) => ({
@@ -140,15 +92,12 @@ export const Home = () => {
     };
 
     return {
-      games: [...gameData, ...practiceGameData, newGame],
+      games: [...practiceGameData, newGame],
       gameId,
       setGameId,
     };
   }, [
-    games,
     practiceGames,
-    config,
-    numsPrice,
     chartData,
     chartAbscissa,
     gameId,
@@ -157,22 +106,13 @@ export const Home = () => {
 
   // Set initial gameId to the first active game if available
   useEffect(() => {
-    const now = Date.now();
     if (gameId !== undefined) return;
-
-    const firstBlockchainGame = games.find(
-      (g) => !g.over && g.expiration * 1000 > now,
-    );
-    if (firstBlockchainGame) {
-      setGameId(firstBlockchainGame.id);
-      return;
-    }
 
     const firstPracticeGame = practiceGames.find((g) => g.over === 0);
     if (firstPracticeGame) {
       setGameId(firstPracticeGame.id);
     }
-  }, [games, practiceGames, gameId]);
+  }, [practiceGames, gameId]);
 
   const handlePracticeClick = useCallback(() => {
     if (!username) {
@@ -181,18 +121,8 @@ export const Home = () => {
     }
 
     propose(() => {
-      if (currentSupply !== undefined && currentSupply > 0n) {
-        const practiceGame = startPractice(
-          currentSupply,
-          multiplier,
-          activeStarterpack?.price,
-        );
-        navigate(`/practice/${practiceGame.id}`);
-        return;
-      }
-
       const practiceGame = startPractice(
-        undefined,
+        OFFLINE_CURRENT_SUPPLY,
         multiplier,
         activeStarterpack?.price,
       );
@@ -202,7 +132,6 @@ export const Home = () => {
     propose,
     navigate,
     startPractice,
-    currentSupply,
     multiplier,
     activeStarterpack?.price,
     username,
@@ -228,15 +157,8 @@ export const Home = () => {
     if (practiceGame) {
       continueGame(gameId);
       navigate(`/practice/${gameId}`);
-      return;
     }
-
-    // Otherwise it's a blockchain game
-    navigate(`/game/${gameId}`);
   }, [gameId, practiceGames, continueGame, navigate, username, handleConnect]);
-
-  // Show loading state if the page is still loading
-  if (loading) return null;
 
   return (
     <HomeScene
@@ -244,13 +166,8 @@ export const Home = () => {
       gameId={gameId}
       games={gamesProps}
       banners={[]}
-      allActivities={{ activities: allActivities }}
-      playerActivities={{ activities: playerActivities }}
-      onLoadMoreActivities={() => {
-        if (!isFetchingNextPage) fetchNextPage();
-      }}
-      hasMoreActivities={hasNextPage}
-      onRefreshActivities={refetchActivities}
+      allActivities={{ activities: practiceActivities }}
+      playerActivities={{ activities: practiceActivities }}
       onStartGame={handleStartGameClick}
       onContinue={handleContinueClick}
     />

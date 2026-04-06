@@ -34,7 +34,6 @@ export const Home = () => {
     continueGame,
   } = usePractice();
   const { propose } = useTutorial();
-  const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
   const numsPrice = useMemo(() => {
@@ -236,14 +235,8 @@ export const Home = () => {
     navigate(`/game/${gameId}`);
   }, [gameId, practiceGames, continueGame, navigate, username, handleConnect]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setDefaultLoading(false);
-    }, 3000);
-  }, []);
-
   // Show loading state if the page is still loading
-  if (loading || defaultLoading) return <LoadingScene />;
+  if (loading) return <LoadingScene />;
 
   return (
     <HomeScene

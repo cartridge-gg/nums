@@ -66,6 +66,9 @@ export const Layout = ({ children }: LayoutProps) => {
             setShowLeaderboardScene(!showLeaderboardScene);
             setShowQuestScene(false);
           }}
+          onSettings={
+            headerData.username ? headerData.handleOpenProfile : undefined
+          }
           faucetBalance={headerData.faucetBalance}
           onFaucet={headerData.isMainnet ? undefined : () => mint()}
         />

@@ -112,19 +112,20 @@ function saveGames(games: Game[]) {
 interface PracticeContextType {
   game: Game | null;
   games: Game[];
-  start: (supply?: bigint, multiplier?: number, price?: bigint) => void;
+  start: (supply?: bigint, multiplier?: number, price?: bigint) => Game;
   setGame: (game: Game | null) => void;
   clearGame: () => void;
-  continueGame: (gameId: number) => void;
+  continueGame: (gameId: number) => Game | null;
 }
 
 const PracticeContext = createContext<PracticeContextType>({
   game: null,
   games: [],
-  start: (_supply?: bigint, _multiplier?: number, _price?: bigint) => {},
+  start: (_supply?: bigint, _multiplier?: number, _price?: bigint) =>
+    Game.create(DEFAULT_SUPPLY),
   setGame: () => {},
   clearGame: () => {},
-  continueGame: () => {},
+  continueGame: () => null,
 });
 
 export const usePractice = () => useContext(PracticeContext);
@@ -150,15 +151,6 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [game]);
 
-  // Load the most recent active game on mount
-  useEffect(() => {
-    if (game) return;
-    const activeGame = storedGames.find((g) => g.over === 0);
-    if (activeGame) {
-      setGameState(activeGame);
-    }
-  }, []); // Only on mount
-
   const start = useCallback(
     (supply?: bigint, multiplier?: number, price?: bigint) => {
       const supplyToUse = supply !== undefined ? supply : currentSupply;
@@ -170,6 +162,7 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       const rand = new Random(BigInt(newGame.id));
       newGame.start(rand);
       setGameState(newGame);
+      return newGame;
     },
     [currentSupply],
   );
@@ -187,7 +180,9 @@ export function PracticeProvider({ children }: { children: React.ReactNode }) {
       const found = storedGames.find((g) => g.id === gameId);
       if (found) {
         setGameState(found);
+        return found;
       }
+      return null;
     },
     [storedGames],
   );

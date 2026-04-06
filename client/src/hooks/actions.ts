@@ -26,13 +26,14 @@ export const useActions = () => {
 
   const isPracticeMode = useMemo(
     () =>
-      location.pathname === "/practice" || location.pathname === "/tutorial",
+      location.pathname.startsWith("/practice") ||
+      location.pathname === "/tutorial",
     [location.pathname],
   );
 
   const mode = useMemo(() => {
     if (location.pathname === "/tutorial") return "tutorial";
-    if (location.pathname === "/practice") return "practice";
+    if (location.pathname.startsWith("/practice")) return "practice";
     return "real";
   }, [location.pathname]);
 

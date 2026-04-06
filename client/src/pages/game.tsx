@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { usePreserveSearchNavigate } from "@/lib/router";
 import { GameScene } from "@/components/scenes/game";
 import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
@@ -32,6 +33,7 @@ import { LoadingScene } from "@/components/scenes";
 import { useTutorial } from "@/context/tutorial";
 import { usePostHog } from "@/context/posthog";
 export const Game = () => {
+  const navigate = usePreserveSearchNavigate();
   const {
     data: tutorialData,
     isActive: tutorialActive,
@@ -43,7 +45,11 @@ export const Game = () => {
   const gameOverFiredRef = useRef<number | null>(null);
   const gameStartedFiredRef = useRef<number | null>(null);
 
-  const { game: practiceGame, start: startPractice } = usePractice();
+  const {
+    game: practiceGame,
+    start: startPractice,
+    continueGame,
+  } = usePractice();
   const { supply: currentSupply, username } = useHeader();
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
@@ -79,6 +85,13 @@ export const Game = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(!isPracticeMode);
 
+  const practiceRouteId = useMemo(() => {
+    if (!isPracticeMode) return null;
+    return idParam && !Number.isNaN(Number.parseInt(idParam, 10))
+      ? Number.parseInt(idParam, 10)
+      : null;
+  }, [idParam, isPracticeMode]);
+
   // Get game ID from path params (only in blockchain mode)
   const gameId = useMemo(() => {
     if (isPracticeMode) return null;
@@ -92,30 +105,34 @@ export const Game = () => {
 
   const game = isPracticeMode ? practiceGame : blockchainGame;
 
-  // Track if we've initialized practice game for this practice mode session
-  const practiceInitializedRef = useRef(false);
-
   // Track previous game.over to detect transition false → true (for GameOver)
   const prevOverRef = useRef<number>(0);
   const prevGameIdRef = useRef<number | null>(null);
 
-  // Create a new practice game if none exists when entering practice mode
-  // (Game is already cleared and created in home when clicking Practice button)
+  // Sync the active practice game from the route.
   useEffect(() => {
     if (!isPracticeMode) {
-      // Reset flag when leaving practice mode
-      practiceInitializedRef.current = false;
       return;
     }
 
-    if (isPracticeMode && !practiceInitializedRef.current && !practiceGame) {
-      startPractice(currentSupply, multiplier, activeStarterpack?.price);
-      practiceInitializedRef.current = true;
-    } else if (isPracticeMode && practiceGame) {
-      // Mark as initialized if game already exists
-      practiceInitializedRef.current = true;
+    if (practiceRouteId === null) {
+      navigate("/", { replace: true });
+      return;
     }
-  }, [isPracticeMode, practiceGame, currentSupply, startPractice, multiplier]);
+
+    if (practiceGame?.id !== practiceRouteId) {
+      const found = continueGame(practiceRouteId);
+      if (!found) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [
+    isPracticeMode,
+    practiceRouteId,
+    practiceGame?.id,
+    continueGame,
+    navigate,
+  ]);
 
   // Track game_started when a game first becomes available
   useEffect(() => {
@@ -478,11 +495,22 @@ export const Game = () => {
 
   const handlePlayAgain = useCallback(() => {
     if (isPracticeMode) {
-      // Start a new practice game
-      startPractice(currentSupply, multiplier, activeStarterpack?.price);
+      const nextPracticeGame = startPractice(
+        currentSupply,
+        multiplier,
+        activeStarterpack?.price,
+      );
+      navigate(`/practice/${nextPracticeGame.id}`, { replace: true });
       setShowGameOver(false);
     }
-  }, [isPracticeMode, startPractice, currentSupply, multiplier]);
+  }, [
+    isPracticeMode,
+    startPractice,
+    currentSupply,
+    multiplier,
+    activeStarterpack?.price,
+    navigate,
+  ]);
 
   // Create place props for the modal (only the trap on the selected slot)
   const place = useMemo<PlaceProps | null>(() => {

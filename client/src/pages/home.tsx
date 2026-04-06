@@ -2,7 +2,6 @@ import { HomeScene, LoadingScene } from "@/components/scenes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { useGames } from "@/context/games";
-import { usePurchaseModal } from "@/context/purchase-modal";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
@@ -25,9 +24,7 @@ export const Home = () => {
     isFetchingNextPage,
     refetch: refetchActivities,
   } = useActivities();
-  const { openPurchaseScene } = usePurchaseModal();
   const {
-    clearGame,
     start: startPractice,
     games: practiceGames,
     continueGame,
@@ -174,24 +171,28 @@ export const Home = () => {
     }
   }, [games, practiceGames, gameId]);
 
-  const handlePurchaseClick = useCallback(() => {
-    propose(() => {
-      openPurchaseScene();
-    });
-  }, [propose, openPurchaseScene]);
-
   const handlePracticeClick = useCallback(() => {
     propose(() => {
       if (currentSupply !== undefined && currentSupply > 0n) {
-        clearGame();
-        startPractice(currentSupply, multiplier, activeStarterpack?.price);
+        const practiceGame = startPractice(
+          currentSupply,
+          multiplier,
+          activeStarterpack?.price,
+        );
+        navigate(`/practice/${practiceGame.id}`);
+        return;
       }
-      navigate("/practice");
+
+      const practiceGame = startPractice(
+        undefined,
+        multiplier,
+        activeStarterpack?.price,
+      );
+      navigate(`/practice/${practiceGame.id}`);
     });
   }, [
     propose,
     navigate,
-    clearGame,
     startPractice,
     currentSupply,
     multiplier,
@@ -199,17 +200,8 @@ export const Home = () => {
   ]);
 
   const handleStartGameClick = useCallback(() => {
-    const isMobile =
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 767px)").matches;
-
-    if (isMobile) {
-      handlePracticeClick();
-      return;
-    }
-
-    handlePurchaseClick();
-  }, [handlePracticeClick, handlePurchaseClick]);
+    handlePracticeClick();
+  }, [handlePracticeClick]);
 
   const handleContinueClick = useCallback(() => {
     if (!gameId) return;
@@ -220,7 +212,7 @@ export const Home = () => {
     );
     if (practiceGame) {
       continueGame(gameId);
-      navigate("/practice");
+      navigate(`/practice/${gameId}`);
       return;
     }
 

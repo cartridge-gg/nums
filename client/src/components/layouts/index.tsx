@@ -14,6 +14,7 @@ import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Events } from "../containers/events";
 import { WelcomeScene } from "@/components/scenes";
 import { shortAddress } from "@/helpers";
@@ -77,66 +78,68 @@ export const Layout = ({ children }: LayoutProps) => {
     (!isDismissed || isDismissing);
 
   return (
-    <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
-      {showWelcomeOverlay && (
-        <WelcomeScene
-          close={dismiss}
-          isDismissing={isDismissing}
-          className="absolute inset-0 z-[100] w-full h-full"
+    <TooltipProvider delayDuration={0}>
+      <div className="relative h-full w-screen flex flex-col overflow-hidden items-stretch">
+        {showWelcomeOverlay && (
+          <WelcomeScene
+            close={dismiss}
+            isDismissing={isDismissing}
+            className="absolute inset-0 z-[100] w-full h-full"
+          />
+        )}
+        <img
+          src={background}
+          alt="Background"
+          className="absolute inset-0 w-full h-full object-cover z-[-1]"
         />
-      )}
-      <img
-        src={background}
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover z-[-1]"
-      />
-      <Header
-        balance={headerData.balance}
-        username={username}
-        onConnect={headerData.handleConnect}
-        onQuests={() => {
-          setShowQuestScene(!showQuestScene);
-          setShowLeaderboardScene(false);
-        }}
-        onLeaderboard={() => {
-          setShowLeaderboardScene(!showLeaderboardScene);
-          setShowQuestScene(false);
-        }}
-        faucetBalance={headerData.faucetBalance}
-        onFaucet={headerData.isMainnet ? undefined : () => mint()}
-      />
-      <Events events={events} />
-      <div
-        className="relative flex-1 min-h-0 flex items-center justify-center"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
-        }}
-      >
-        <PurchaseModalProvider openPurchaseScene={() => {}}>
-          {children}
-        </PurchaseModalProvider>
-        {showQuestScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <QuestScene
-              questsProps={questsProps}
-              onClose={() => setShowQuestScene(false)}
-              className="h-full"
-            />
-          </div>
-        )}
-        {showLeaderboardScene && (
-          <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
-            <LeaderboardScene
-              rows={leaderboardData ?? []}
-              currentUserAddress={account?.address}
-              onClose={() => setShowLeaderboardScene(false)}
-              className="h-full"
-            />
-          </div>
-        )}
+        <Header
+          balance={headerData.balance}
+          username={username}
+          onConnect={headerData.handleConnect}
+          onQuests={() => {
+            setShowQuestScene(!showQuestScene);
+            setShowLeaderboardScene(false);
+          }}
+          onLeaderboard={() => {
+            setShowLeaderboardScene(!showLeaderboardScene);
+            setShowQuestScene(false);
+          }}
+          faucetBalance={headerData.faucetBalance}
+          onFaucet={headerData.isMainnet ? undefined : () => mint()}
+        />
+        <Events events={events} />
+        <div
+          className="relative flex-1 min-h-0 flex items-center justify-center"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%)",
+          }}
+        >
+          <PurchaseModalProvider openPurchaseScene={() => {}}>
+            {children}
+          </PurchaseModalProvider>
+          {showQuestScene && (
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <QuestScene
+                questsProps={questsProps}
+                onClose={() => setShowQuestScene(false)}
+                className="h-full"
+              />
+            </div>
+          )}
+          {showLeaderboardScene && (
+            <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
+              <LeaderboardScene
+                rows={leaderboardData ?? []}
+                currentUserAddress={account?.address}
+                onClose={() => setShowLeaderboardScene(false)}
+                className="h-full"
+              />
+            </div>
+          )}
+        </div>
+        <Toaster expand />
       </div>
-      <Toaster expand />
-    </div>
+    </TooltipProvider>
   );
 };

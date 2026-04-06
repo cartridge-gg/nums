@@ -30,7 +30,10 @@ export interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 767px)").matches;
+  });
   const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account } = useAccount();
   const { find, loading } = useControllers();

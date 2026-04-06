@@ -15,7 +15,7 @@ import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
 import { Toaster } from "@/components/elements";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Events } from "../containers/events";
+import { Events, TutorialAnchorPortal } from "../containers";
 import { WelcomeScene } from "@/components/scenes";
 import { shortAddress } from "@/helpers";
 
@@ -118,6 +118,7 @@ export const Layout = ({ children }: LayoutProps) => {
           <PurchaseModalProvider openPurchaseScene={() => {}}>
             {children}
           </PurchaseModalProvider>
+          <TutorialAnchorPortal />
           {showQuestScene && (
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
               <QuestScene

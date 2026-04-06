@@ -82,7 +82,24 @@ export const TutorialAnchorPortal = () => {
     };
   }, [isActive, isPaused, data?.anchor]);
 
-  if (!isActive || isPaused || !data?.anchor || !rect) return null;
+  if (!isActive || isPaused || !data) return null;
+
+  if (!data.anchor || !rect) {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black-900/80 backdrop-blur-[4px]">
+        <Tutorial
+          title={data.title}
+          instruction={data.instruction}
+          primaryLabel={data.primaryLabel}
+          secondaryLabel={data.secondaryLabel}
+          onPrimary={next}
+          onSecondary={data.secondaryLabel ? skip : undefined}
+          className="w-full shadow-xl"
+        />
+      </div>,
+      document.body,
+    );
+  }
 
   const panelWidth = Math.min(
     PANEL_MAX_WIDTH,

@@ -6,6 +6,7 @@ import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
+import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
 import { useActivities } from "@/hooks/activities";
@@ -14,7 +15,11 @@ export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { config, starterpacks } = useEntities();
   const { getNumsPrice } = usePrices();
-  const { supply: currentSupply } = useHeader();
+  const {
+    supply: currentSupply,
+    username,
+    handleConnect,
+  } = useHeader();
   const { playerGames: games, loading } = useGames();
   const {
     activities: sqlActivities,
@@ -28,6 +33,7 @@ export const Home = () => {
     games: practiceGames,
     continueGame,
   } = usePractice();
+  const { propose } = useTutorial();
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
@@ -170,28 +176,38 @@ export const Home = () => {
   }, [games, practiceGames, gameId]);
 
   const handlePracticeClick = useCallback(() => {
-    if (currentSupply !== undefined && currentSupply > 0n) {
+    if (!username) {
+      handleConnect();
+      return;
+    }
+
+    propose(() => {
+      if (currentSupply !== undefined && currentSupply > 0n) {
+        const practiceGame = startPractice(
+          currentSupply,
+          multiplier,
+          activeStarterpack?.price,
+        );
+        navigate(`/practice/${practiceGame.id}`);
+        return;
+      }
+
       const practiceGame = startPractice(
-        currentSupply,
+        undefined,
         multiplier,
         activeStarterpack?.price,
       );
       navigate(`/practice/${practiceGame.id}`);
-      return;
-    }
-
-    const practiceGame = startPractice(
-      undefined,
-      multiplier,
-      activeStarterpack?.price,
-    );
-    navigate(`/practice/${practiceGame.id}`);
+    });
   }, [
+    propose,
     navigate,
     startPractice,
     currentSupply,
     multiplier,
     activeStarterpack?.price,
+    username,
+    handleConnect,
   ]);
 
   const handleStartGameClick = useCallback(() => {
@@ -199,6 +215,11 @@ export const Home = () => {
   }, [handlePracticeClick]);
 
   const handleContinueClick = useCallback(() => {
+    if (!username) {
+      handleConnect();
+      return;
+    }
+
     if (!gameId) return;
 
     // Check if it's a practice game
@@ -213,7 +234,7 @@ export const Home = () => {
 
     // Otherwise it's a blockchain game
     navigate(`/game/${gameId}`);
-  }, [gameId, practiceGames, continueGame, navigate]);
+  }, [gameId, practiceGames, continueGame, navigate, username, handleConnect]);
 
   useEffect(() => {
     setTimeout(() => {

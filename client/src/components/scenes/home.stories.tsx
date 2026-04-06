@@ -239,8 +239,7 @@ export const Default: Story = {
     banners: [],
     allActivities: { activities: sampleActivities },
     playerActivities: { activities: sampleActivities },
-    onPractice: fn(),
-    onPurchase: fn(),
+    onStartGame: fn(),
   },
 };
 

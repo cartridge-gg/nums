@@ -198,6 +198,19 @@ export const Home = () => {
     activeStarterpack?.price,
   ]);
 
+  const handleStartGameClick = useCallback(() => {
+    const isMobile =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 767px)").matches;
+
+    if (isMobile) {
+      handlePracticeClick();
+      return;
+    }
+
+    handlePurchaseClick();
+  }, [handlePracticeClick, handlePurchaseClick]);
+
   const handleContinueClick = useCallback(() => {
     if (!gameId) return;
 
@@ -237,8 +250,7 @@ export const Home = () => {
       }}
       hasMoreActivities={hasNextPage}
       onRefreshActivities={refetchActivities}
-      onPurchase={handlePurchaseClick}
-      onPractice={handlePracticeClick}
+      onStartGame={handleStartGameClick}
       onContinue={handleContinueClick}
     />
   );

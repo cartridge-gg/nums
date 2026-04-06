@@ -22,8 +22,7 @@ export interface HomeSceneProps
   banners: BannerProps[];
   allActivities: ActivitiesProps;
   playerActivities: ActivitiesProps;
-  onPractice?: () => void;
-  onPurchase?: () => void;
+  onStartGame?: () => void;
   onContinue?: () => void;
   onLoadMoreActivities?: () => void;
   hasMoreActivities?: boolean;
@@ -54,8 +53,7 @@ export const HomeScene = ({
   banners,
   allActivities,
   playerActivities,
-  onPractice,
-  onPurchase,
+  onStartGame,
   onContinue,
   onLoadMoreActivities,
   hasMoreActivities,
@@ -90,17 +88,8 @@ export const HomeScene = ({
         className="grow overflow-hidden px-2"
       />
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 px-2">
-        <Button
-          variant="secondary"
-          className="h-12 w-full"
-          onClick={onPractice}
-        >
-          <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-            Practice
-          </span>
-        </Button>
         {!gameId ? (
-          <NewGame filterId={filterId} onClick={onPurchase || (() => {})} />
+          <NewGame filterId={filterId} onClick={onStartGame || (() => {})} />
         ) : onContinue ? (
           <Button
             variant="tertiary"
@@ -108,7 +97,7 @@ export const HomeScene = ({
             onClick={onContinue}
           >
             <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-              Continue
+              CONTINUE
             </span>
           </Button>
         ) : (
@@ -118,7 +107,7 @@ export const HomeScene = ({
               className="w-full h-full flex items-center justify-center"
             >
               <span className="text-[28px]/[19px] tracking-wider translate-y-0.5">
-                Continue
+                CONTINUE
               </span>
             </Link>
           </Button>
@@ -148,7 +137,7 @@ export const NewGame = ({
         className="px-1 text-[28px]/[19px] tracking-wide translate-y-0.5"
         style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
       >
-        New Game
+        NEW GAME
       </p>
     </Button>
   );

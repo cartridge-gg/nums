@@ -30,6 +30,7 @@ export interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
+  const [isMobile, setIsMobile] = useState(false);
   const { isDismissed, isDismissing, dismiss } = useWelcome();
   const { account } = useAccount();
   const { find, loading } = useControllers();
@@ -60,6 +61,17 @@ export const Layout = ({ children }: LayoutProps) => {
 
   // Refetch leaderboard data when modal opens
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+
+    updateIsMobile();
+    mediaQuery.addEventListener("change", updateIsMobile);
+    return () => mediaQuery.removeEventListener("change", updateIsMobile);
+  }, []);
+
+  useEffect(() => {
     if (showLeaderboardScene) {
       refetchLeaderboard();
     }
@@ -81,6 +93,7 @@ export const Layout = ({ children }: LayoutProps) => {
   }, [claimeds, starteds, find, loading]);
 
   const showWelcomeOverlay =
+    !isMobile &&
     pathname === "/" &&
     initialPathname === "/" &&
     (!isDismissed || isDismissing);

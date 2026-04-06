@@ -6,7 +6,6 @@ import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
 import { usePractice } from "@/context/practice";
-import { useTutorial } from "@/context/tutorial";
 import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
 import { useActivities } from "@/hooks/activities";
@@ -29,7 +28,6 @@ export const Home = () => {
     games: practiceGames,
     continueGame,
   } = usePractice();
-  const { propose } = useTutorial();
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
 
@@ -172,26 +170,23 @@ export const Home = () => {
   }, [games, practiceGames, gameId]);
 
   const handlePracticeClick = useCallback(() => {
-    propose(() => {
-      if (currentSupply !== undefined && currentSupply > 0n) {
-        const practiceGame = startPractice(
-          currentSupply,
-          multiplier,
-          activeStarterpack?.price,
-        );
-        navigate(`/practice/${practiceGame.id}`);
-        return;
-      }
-
+    if (currentSupply !== undefined && currentSupply > 0n) {
       const practiceGame = startPractice(
-        undefined,
+        currentSupply,
         multiplier,
         activeStarterpack?.price,
       );
       navigate(`/practice/${practiceGame.id}`);
-    });
+      return;
+    }
+
+    const practiceGame = startPractice(
+      undefined,
+      multiplier,
+      activeStarterpack?.price,
+    );
+    navigate(`/practice/${practiceGame.id}`);
   }, [
-    propose,
     navigate,
     startPractice,
     currentSupply,

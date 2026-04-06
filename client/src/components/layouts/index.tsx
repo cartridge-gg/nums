@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Header } from "@/components/containers/header";
@@ -13,9 +14,10 @@ import { useEntities } from "@/context/entities";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
 import { useToasters } from "@/hooks/toasters";
 import { useWelcome } from "@/context/welcome";
+import { useTutorial } from "@/context/tutorial";
 import { Toaster } from "@/components/elements";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Events, TutorialAnchorPortal } from "../containers";
+import { Events, Tutorial, TutorialAnchorPortal } from "../containers";
 import { WelcomeScene } from "@/components/scenes";
 import { shortAddress } from "@/helpers";
 
@@ -39,6 +41,12 @@ export const Layout = ({ children }: LayoutProps) => {
   const { claimeds, starteds } = useEntities();
   const [showQuestScene, setShowQuestScene] = useState(false);
   const [showLeaderboardScene, setShowLeaderboardScene] = useState(false);
+  const {
+    data: tutorialData,
+    isActive: tutorialActive,
+    next: tutorialNext,
+    skip: tutorialSkip,
+  } = useTutorial();
 
   // Toaster hook to display toast notifications for social and player events
   useToasters();
@@ -118,6 +126,32 @@ export const Layout = ({ children }: LayoutProps) => {
           <PurchaseModalProvider openPurchaseScene={() => {}}>
             {children}
           </PurchaseModalProvider>
+          {tutorialActive && tutorialData && !tutorialData.anchor && (
+            <div
+              className={cn(
+                "absolute inset-0 z-50 flex items-end md:items-center justify-center p-4",
+                tutorialData.foreground && "bg-black-700 backdrop-blur-[4px]",
+                !tutorialData.foreground && "pointer-events-none",
+              )}
+            >
+              <Tutorial
+                title={tutorialData.title}
+                instruction={tutorialData.instruction}
+                primaryLabel={tutorialData.primaryLabel}
+                secondaryLabel={tutorialData.secondaryLabel}
+                direction={tutorialData.direction}
+                onPrimary={tutorialNext}
+                onSecondary={
+                  tutorialData.secondaryLabel ? tutorialSkip : undefined
+                }
+                onClose={tutorialData.secondaryLabel ? tutorialSkip : undefined}
+                className={cn(
+                  "w-full md:max-w-[424px]",
+                  !tutorialData.foreground && "pointer-events-auto",
+                )}
+              />
+            </div>
+          )}
           <TutorialAnchorPortal />
           {showQuestScene && (
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">

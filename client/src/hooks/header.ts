@@ -26,7 +26,7 @@ export const useHeader = () => {
   };
 
   const handleOpenProfile = async () => {
-    (connector as ControllerConnector)?.controller.openProfile("inventory");
+    (connector as ControllerConnector)?.controller.openSettings();
   };
 
   return {

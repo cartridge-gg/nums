@@ -25,7 +25,7 @@ export const useHeader = () => {
       const refreshId = ++refreshIdRef.current;
       const activeConnector = targetConnector ?? controllerConnector;
 
-      if (!address || !activeConnector) {
+      if (!activeConnector) {
         setUsername(null);
         return null;
       }
@@ -43,7 +43,7 @@ export const useHeader = () => {
         return null;
       }
     },
-    [address, controllerConnector],
+    [controllerConnector],
   );
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export const useHeader = () => {
     total: 0n,
     username,
     address,
-    isConnected: Boolean(address),
+    isConnected: Boolean(address || username),
     isMainnet,
     handleConnect,
     handleLogout,

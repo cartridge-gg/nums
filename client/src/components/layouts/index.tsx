@@ -4,7 +4,7 @@ import { Header } from "@/components/containers/header";
 import { QuestScene } from "@/components/scenes/quest";
 import { LeaderboardScene } from "@/components/scenes/leaderboard";
 import { useHeader } from "@/hooks/header";
-import { useAccount, useDisconnect } from "@starknet-react/core";
+import { useAccount } from "@starknet-react/core";
 import { useActions } from "@/hooks/actions";
 import { useQuestScene } from "@/hooks/quests";
 import { useLeaderboard } from "@/hooks/leaderboard";
@@ -26,7 +26,6 @@ export interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const { account } = useAccount();
-  const { disconnect } = useDisconnect();
   const headerData = useHeader();
   const { mint } = useActions();
   const questsProps = useQuestScene();
@@ -186,7 +185,7 @@ export const Layout = ({ children }: LayoutProps) => {
                   }}
                   onLogOut={() => {
                     setShowSettingsScene(false);
-                    disconnect();
+                    void headerData.handleLogout();
                   }}
                   className="md:max-w-[768px]"
                 />

@@ -48,6 +48,7 @@ export interface SettingsProps
   onConnect: () => void;
   hasReferralNotification?: boolean;
   username?: string;
+  connected?: boolean;
   onProfile?: () => void;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
@@ -90,6 +91,7 @@ export const Settings = ({
   onConnect,
   hasReferralNotification,
   username,
+  connected = Boolean(username),
   onProfile,
   theme,
   onThemeChange,
@@ -157,12 +159,14 @@ export const Settings = ({
               onStaking={onStaking}
               onGovernance={onGovernance}
               onTutorial={onTutorial}
-              connected={!!username}
+              connected={connected}
               hasReferralNotification={hasReferralNotification}
             />
-            {username && onProfile ? (
+            {connected ? (
               <>
-                <ProfileButton username={username} onProfile={onProfile} />
+                {username && onProfile ? (
+                  <ProfileButton username={username} onProfile={onProfile} />
+                ) : null}
                 <LogOutButton onLogOut={onLogOut} />
               </>
             ) : (
@@ -185,7 +189,7 @@ export const Settings = ({
             onStaking={onStaking}
             onGovernance={onGovernance}
             onTutorial={onTutorial}
-            connected={!!username}
+            connected={connected}
             hasReferralNotification={hasReferralNotification}
           />
         </div>
@@ -206,9 +210,11 @@ export const Settings = ({
             />
           </div>
           <div className="flex flex-col gap-4">
-            {username && onProfile ? (
+            {connected ? (
               <div className="flex gap-4">
-                <ProfileButton username={username} onProfile={onProfile} />
+                {username && onProfile ? (
+                  <ProfileButton username={username} onProfile={onProfile} />
+                ) : null}
                 <LogOutButton onLogOut={onLogOut} />
               </div>
             ) : (

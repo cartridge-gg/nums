@@ -23,6 +23,7 @@ export interface HeaderProps
   onBalance?: () => void;
   onFaucet?: () => void;
   username?: string;
+  connected?: boolean;
   onConnect: () => void;
   onQuests?: () => void;
   onAchievements?: () => void;
@@ -53,6 +54,7 @@ export const Header = ({
   balance,
   onBalance,
   username,
+  connected = Boolean(username),
   onConnect,
   onQuests,
   onAchievements,
@@ -220,7 +222,7 @@ export const Header = ({
             {hasSettingsNotification && <NotificationPing />}
           </Button>
         )}
-        {!username && <Connect onClick={onConnect} />}
+        {!connected && <Connect onClick={onConnect} />}
       </div>
     </div>
   );

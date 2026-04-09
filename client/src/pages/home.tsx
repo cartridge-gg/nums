@@ -16,7 +16,7 @@ import {
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
   const { config, starterpacks } = useEntities();
-  const { username, handleConnect } = useHeader();
+  const { isConnected, handleConnect } = useHeader();
   const {
     start: startPractice,
     games: practiceGames,
@@ -115,7 +115,7 @@ export const Home = () => {
   }, [practiceGames, gameId]);
 
   const handlePracticeClick = useCallback(() => {
-    if (!username) {
+    if (!isConnected) {
       handleConnect();
       return;
     }
@@ -134,7 +134,7 @@ export const Home = () => {
     startPractice,
     multiplier,
     activeStarterpack?.price,
-    username,
+    isConnected,
     handleConnect,
   ]);
 
@@ -143,7 +143,7 @@ export const Home = () => {
   }, [handlePracticeClick]);
 
   const handleContinueClick = useCallback(() => {
-    if (!username) {
+    if (!isConnected) {
       handleConnect();
       return;
     }
@@ -158,7 +158,7 @@ export const Home = () => {
       continueGame(gameId);
       navigate(`/practice/${gameId}`);
     }
-  }, [gameId, practiceGames, continueGame, navigate, username, handleConnect]);
+  }, [gameId, practiceGames, continueGame, navigate, isConnected, handleConnect]);
 
   return (
     <HomeScene

@@ -34,6 +34,7 @@ export default defineConfig({
   ],
   define: {
     __COMMIT_SHA__: JSON.stringify(COMMIT_SHA),
+    __APP_VERSION__: JSON.stringify(COMMIT_SHA),
   },
   server: {
     port: process.env.NODE_ENV === "development" ? 3003 : undefined,

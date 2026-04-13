@@ -90,13 +90,18 @@ const networkFirstDocument = async (request) => {
 };
 
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches
       .open(DOCUMENT_CACHE)
       .then((cache) => cache.add(new Request(APP_SHELL_PATH, { cache: "reload" })))
       .catch(() => undefined),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {

@@ -11,6 +11,8 @@ export * from "./uses";
 export * from "./game-over";
 export * from "./banners";
 export * from "./games";
+export * from "./native-notification-bridge";
+export * from "./notification-events";
 export * from "./governance-results";
 export * from "./governance-proposals";
 export * from "./governance-votes";

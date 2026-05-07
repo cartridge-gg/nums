@@ -143,6 +143,7 @@ export const Layout = ({ children }: LayoutProps) => {
             <div className="absolute inset-0 z-50 m-2 md:m-6 flex-1">
               <LeaderboardScene
                 rows={leaderboardData ?? []}
+                referralRows={[]}
                 currentUserAddress={account?.address}
                 onClose={() => setShowLeaderboardScene(false)}
                 className="h-full"

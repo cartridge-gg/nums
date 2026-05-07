@@ -64,6 +64,23 @@ describe("attribution", () => {
     expect(latest?.setOnceProperties.$initial_utm_campaign).toBe("alpha");
   });
 
+  it("derives Meta fbc from fbclid using the landing timestamp", () => {
+    const attribution = resolveAttribution({
+      location: createLocation("https://nums.gg/?fbclid=meta-click"),
+      referrer: "https://www.facebook.com/",
+      storage: createStorage(),
+      now: Date.UTC(2026, 4, 1),
+    });
+
+    expect(attribution?.eventProperties.fbclid).toBe("meta-click");
+    expect(attribution?.eventProperties.fbc).toBe(
+      `fb.1.${Date.UTC(2026, 4, 1)}.meta-click`,
+    );
+    expect(attribution?.setOnceProperties.$initial_fbc).toBe(
+      `fb.1.${Date.UTC(2026, 4, 1)}.meta-click`,
+    );
+  });
+
   it("reuses unexpired stored attribution when the URL has no ad params", () => {
     const storage = createStorage();
     resolveAttribution({

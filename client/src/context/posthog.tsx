@@ -8,7 +8,7 @@ import {
 } from "react";
 import PostHog from "posthog-js-lite";
 import { resolveAttribution } from "@/lib/attribution";
-import { loadTikTokPixel } from "@/lib/tiktok-pixel";
+import { loadTikTokPixel, NUMS_TIKTOK_PIXEL_ID } from "@/lib/tiktok-pixel";
 
 type JsonValue =
   | string
@@ -45,7 +45,8 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
     const isLocalhost =
       typeof window !== "undefined" &&
       window.location.hostname.includes("localhost");
-    const pixelId = import.meta.env.VITE_TIKTOK_PIXEL_ID;
+    const pixelId =
+      import.meta.env.VITE_TIKTOK_PIXEL_ID || NUMS_TIKTOK_PIXEL_ID;
     if (!isLocalhost && pixelId) {
       loadTikTokPixel(pixelId);
     }

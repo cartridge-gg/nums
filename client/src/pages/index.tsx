@@ -50,6 +50,10 @@ import { useAirdrop } from "@/hooks/airdrop";
 import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
 import { getSetupAddress } from "@/config";
+import {
+  bundleStarterpackEventProperties,
+  createAnalyticsEventId,
+} from "@/lib/analytics";
 
 export { Game } from "./game";
 export { Home } from "./home";
@@ -107,6 +111,7 @@ export const Main = ({ children }: MainProps) => {
   // PostHog analytics
   const { capture, identify } = usePostHog();
   const prevAddressRef = useRef<string | undefined>(undefined);
+  const checkoutEventIdRef = useRef<string | null>(null);
 
   // Track wallet connect/disconnect and identify user
   useEffect(() => {
@@ -235,7 +240,33 @@ export const Main = ({ children }: MainProps) => {
 
   const handlePurchase = useCallback(async () => {
     if (!bundle || !chain) return;
+    const checkoutEventId = createAnalyticsEventId("starterpack_checkout");
+    checkoutEventIdRef.current = checkoutEventId;
+    capture(
+      "starterpack_checkout_started",
+      bundleStarterpackEventProperties({
+        eventId: checkoutEventId,
+        bundle,
+        numsPriceUsd: numsPrice,
+      }),
+    );
+
     const onPurchaseComplete = () => {
+      const purchaseEventId =
+        checkoutEventIdRef.current ??
+        createAnalyticsEventId("starterpack_purchase");
+      capture(
+        "starterpack_purchased",
+        bundleStarterpackEventProperties({
+          eventId: purchaseEventId.replace(
+            "starterpack_checkout",
+            "starterpack_purchase",
+          ),
+          bundle,
+          numsPriceUsd: numsPrice,
+        }),
+      );
+      checkoutEventIdRef.current = null;
       setShowQuestScene(false);
       setShowAchievementScene(false);
       setShowLeaderboardScene(false);
@@ -257,7 +288,7 @@ export const Main = ({ children }: MainProps) => {
       onPurchaseComplete,
       socialClaimOptions: bundle.price === 0n ? socialClaimOptions : undefined,
     });
-  }, [bundle, navigate, chain.id, referralLink]);
+  }, [bundle, navigate, chain, referralLink, capture, numsPrice]);
 
   // Detect new game and navigate to it
   useEffect(() => {
@@ -490,7 +521,18 @@ export const Main = ({ children }: MainProps) => {
             setShowGovernanceScene(false);
             setShowSettingsScene(false);
             setShowAirdropModal(false);
-            capture("purchase_modal_opened", {});
+            if (bundle) {
+              capture(
+                "purchase_modal_opened",
+                bundleStarterpackEventProperties({
+                  eventId: createAnalyticsEventId("purchase_modal_opened"),
+                  bundle,
+                  numsPriceUsd: numsPrice,
+                }),
+              );
+            } else {
+              capture("purchase_modal_opened", {});
+            }
           }}
         >
           {children}

@@ -1,8 +1,9 @@
 import { HomeScene, LoadingScene } from "@/components/scenes";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { useGames } from "@/context/games";
 import { usePurchaseModal } from "@/context/purchase-modal";
+import { usePostHog } from "@/context/posthog";
 import { usePrices } from "@/context/prices";
 import { useEntities } from "@/context/entities";
 import { useHeader } from "@/hooks/header";
@@ -12,6 +13,10 @@ import { ChartHelper } from "@/helpers/chart";
 import { useMultiplier } from "@/hooks/multiplier";
 import { useActivities } from "@/hooks/activities";
 import { useBanners } from "@/hooks/banner";
+import {
+  createAnalyticsEventId,
+  starterpackEventProperties,
+} from "@/lib/analytics";
 
 export const Home = () => {
   const navigate = usePreserveSearchNavigate();
@@ -32,6 +37,8 @@ export const Home = () => {
   const [defaultLoading, setDefaultLoading] = useState(true);
   const [gameId, setGameId] = useState<number | undefined>(undefined);
   const { banners } = useBanners();
+  const { capture } = usePostHog();
+  const viewedStarterpackIdsRef = useRef<Set<number>>(new Set());
 
   const numsPrice = useMemo(() => {
     return parseFloat(getNumsPrice() || "0.0");
@@ -43,6 +50,22 @@ export const Home = () => {
   const playPrice = useMemo(() => {
     return Number(activeStarterpack?.price || 2_000_000n) / 10 ** 6;
   }, [activeStarterpack]);
+
+  useEffect(() => {
+    if (loading || defaultLoading) return;
+    if (!activeStarterpack) return;
+    if (viewedStarterpackIdsRef.current.has(activeStarterpack.id)) return;
+
+    viewedStarterpackIdsRef.current.add(activeStarterpack.id);
+    capture(
+      "starterpack_viewed",
+      starterpackEventProperties({
+        eventId: createAnalyticsEventId("starterpack_view"),
+        starterpack: activeStarterpack,
+        numsPriceUsd: numsPrice,
+      }),
+    );
+  }, [activeStarterpack, capture, defaultLoading, loading, numsPrice]);
 
   // Estimate multiplier from on-chain formula via real Ekubo quote
   const { multiplier } = useMultiplier({

@@ -7,6 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import PostHog from "posthog-js-lite";
+import { resolveAttribution } from "@/lib/attribution";
+import { loadTikTokPixel, NUMS_TIKTOK_PIXEL_ID } from "@/lib/tiktok-pixel";
 
 type JsonValue =
   | string
@@ -37,22 +39,43 @@ interface PostHogProviderProps {
 
 export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   const clientRef = useRef<PostHog | null>(null);
+  const attributionRef = useRef<ReturnType<typeof resolveAttribution>>(null);
 
   useEffect(() => {
+    const isLocalhost =
+      typeof window !== "undefined" &&
+      window.location.hostname.includes("localhost");
+    const pixelId =
+      import.meta.env.VITE_TIKTOK_PIXEL_ID || NUMS_TIKTOK_PIXEL_ID;
+    if (!isLocalhost && pixelId) {
+      loadTikTokPixel(pixelId);
+    }
+
     const key = import.meta.env.VITE_POSTHOG_KEY;
-    if (
-      !key ||
-      (typeof window !== "undefined" &&
-        window.location.hostname.includes("localhost"))
-    ) {
+    if (!key || isLocalhost) {
       return;
     }
 
     const host = import.meta.env.VITE_POSTHOG_HOST || "/ingest";
-    clientRef.current = new PostHog(key, {
+    const client = new PostHog(key, {
       host,
       persistence: "localStorage",
+      captureHistoryEvents: true,
     });
+    clientRef.current = client;
+
+    try {
+      attributionRef.current = resolveAttribution({
+        location: window.location,
+        referrer: window.document.referrer,
+        storage: window.localStorage,
+      });
+      if (attributionRef.current) {
+        client.register(attributionRef.current.eventProperties);
+      }
+    } catch (e) {
+      console.error("[posthog] attribution setup failed", e);
+    }
 
     return () => {
       clientRef.current = null;
@@ -73,7 +96,32 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
         properties?: Record<string, JsonValue>,
       ) => {
         try {
-          clientRef.current?.identify(distinctId, properties);
+          const attribution = attributionRef.current;
+          const existingSet = properties?.$set as
+            | Record<string, JsonValue>
+            | undefined;
+          const plainSet = Object.fromEntries(
+            Object.entries(properties ?? {}).filter(
+              ([key]) => !key.startsWith("$"),
+            ),
+          ) as Record<string, JsonValue>;
+          clientRef.current?.identify(
+            distinctId,
+            attribution
+              ? {
+                  ...properties,
+                  $set: {
+                    ...(existingSet ?? plainSet),
+                    ...attribution.setProperties,
+                  },
+                  $set_once: {
+                    ...((properties?.$set_once as Record<string, JsonValue>) ??
+                      {}),
+                    ...attribution.setOnceProperties,
+                  },
+                }
+              : properties,
+          );
         } catch (e) {
           console.error("[posthog] identify failed", e);
         }

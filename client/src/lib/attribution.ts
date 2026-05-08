@@ -98,6 +98,9 @@ export const buildAttributionSnapshot = (
   now: number,
 ): AttributionSnapshot | null => {
   const fields = parseAttributionFields(location.search);
+  if (fields.fbclid) {
+    fields.fbc = `fb.1.${now}.${fields.fbclid}`;
+  }
   if (Object.keys(fields).length === 0) return null;
 
   return {

@@ -11,21 +11,22 @@
 # DO NOT commit a fully-rendered `dojo_e2eappchain.toml`; the file is
 # .gitignore'd. Only this template is checked in.
 #
-# Migration notes:
-#   - The appchain world is fresh (no fork). Setup is deployed with
-#     bridge_settler=0, usdc_bridge=<dev account 1 placeholder>, materializer=0.
-#     The harness then patches bridge_settler/materializer via
-#     Setup.set_bridge_settler / Setup.set_materializer after the settlement
-#     world's Settler is migrated and the appchain Materializer is UDC-deployed.
-#   - Faucet acts as the appchain's quote token (mock USDC). The harness
-#     does NOT need real forked USDC on the appchain — only USDC on the
-#     settlement layer (where Settler.settle pulls from its reserve).
-#   - team_address, recipient and bundle_allower all point at the genesis
-#     account.
+# Migration notes (new architecture):
+#   - The appchain world is fresh (no fork). Setup is deployed with all
+#     bridge config fields zero. The harness then patches mainnet_setup
+#     (the only one actually read by appchain gameplay) and
+#     bridge_messaging (Piltover address on appchain side) via setters
+#     after the settlement-side Setup deploys and the appchain Piltover
+#     address is known.
+#   - Faucet acts as the appchain's quote token (mock USDC); not actually
+#     used in bridge mode since purchase happens on mainnet.
+#   - The appchain DOES NOT need: Settler, BridgeComponent, USDC reserves.
+#     Just Play, Playable, Materializer (UDC-deployed separately), and the
+#     supporting model registry.
 
 [world]
 name = "Nums"
-seed = "nums-e2e-appchain-v1"
+seed = "nums-e2e-appchain-v2"
 description = "Nums appchain e2e test world"
 website = "https://nums.gg"
 
@@ -47,9 +48,8 @@ order_inits = [
   "NUMS-Vault",
   "NUMS-Treasury",
 ]
-# Settler is settlement-only; skipped on the appchain world.
-# Vrf mock is no-init; skipped here and Setup gets a placeholder VRF address.
-skip_contracts = ["NUMS-Settler", "NUMS-Vrf"]
+# Vrf mock is no-init; Setup stores a placeholder VRF address.
+skip_contracts = ["NUMS-Vrf"]
 disable_multicall = true
 
 [writers]
@@ -69,7 +69,7 @@ disable_multicall = true
   "{ACCOUNT_ADDRESS}",  # admin = genesis account
 ]
 "NUMS-Token" = [
-  "0xD3C21BCECCEDA1000000", # initial_supply: 1M NUMS
+  "0xD3C21BCECCEDA1000000", # initial_supply: 1M NUMS (gameplay-locally; bridge mode does NOT mint here)
   "{ACCOUNT_ADDRESS}",      # recipient = genesis account
 ]
 "NUMS-Faucet" = [
@@ -78,22 +78,27 @@ disable_multicall = true
 ]
 "NUMS-Setup" = [
   "0x0",                                                                # vrf_address: Option::Some prefix
-  "{ACCOUNT_ADDRESS}",                                                  # vrf_address (placeholder — VRF skipped in this profile; Setup only stores it)
-  "0x1",                                                                # quote_address: Option::None — fall back to Faucet via DNS
+  "{ACCOUNT_ADDRESS}",                                                  # vrf_address (placeholder)
+  "0x1",                                                                # quote_address: Option::None — Faucet via DNS
   "{ACCOUNT_ADDRESS}",                                                  # team_address
   "0x0",                                                                # ekubo_router_address — unused on appchain
-  "0x0",                                                                # ekubo_positions_address — unused on appchain
+  "0x0",                                                                # ekubo_positions_address — unused
   "0x1E8480",                                                           # entry_price: 2.000000 USDC
   "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
-  "0x0",                                                                # burn_percentage: 0% — payload[7] flows to Settler; settlement has no Ekubo (config.ekubo_router=0) so we MUST agree on 0 here to take Settler's burn==0 short-circuit. Production should be 70.
+  "0x46",                                                               # burn_percentage: 70% (informational; gameplay doesn't burn)
   "0x32",                                                               # vault_percentage: 50%
-  "0xA",                                                                # average_score: 10
+  "0xA",                                                                # average_score: 10 (initial; updates not consumed locally in bridge mode)
   "0x0",                                                                # pool_fee — unused
   "0x0",                                                                # pool_tick_spacing — unused
   "0x0",                                                                # pool_extension — unused
-  "{ACCOUNT_ADDRESS}",                                                  # bundle_allower (genesis account; bundle.issue uses voucher signatures)
-  "0x0",                                                                # bridge_settler — patched post-migration via setter
-  "0x13d9ee239f33fea4f8785b9e3870ade909e20a9599ae7cd62c1c292b73af1b7", # usdc_bridge — placeholder (any non-zero non-self address; harness pre-funds this)
-  "0x0",                                                                # bridge_messaging — appchain side does not use this; settlement side reads piltover_messaging directly
-  "0x0",                                                                # materializer — patched post-migration via setter
+  "{ACCOUNT_ADDRESS}",                                                  # bundle_allower (free-bundle path; bridge mode has no paid purchase here)
+  # Bridge config — appchain-side. Only mainnet_setup is consumed by
+  # gameplay (Playable.claim reads it to decide bridge vs local mode).
+  # bridge_messaging is the Piltover contract on appchain side; reserved
+  # for parity but not currently used in send_message_to_l1_syscall path.
+  # All zero at deploy; the harness patches mainnet_setup via setter.
+  "0x0",                                                                # appchain_materializer — irrelevant on appchain side
+  "0x0",                                                                # bridge_messaging — patched
+  "0x0",                                                                # appchain_play — irrelevant on appchain side
+  "0x0",                                                                # mainnet_setup — patched (THIS toggles bridge mode for appchain claim)
 ]

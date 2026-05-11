@@ -9,11 +9,23 @@
 //!
 //! See `tests/e2e/README.md` for prerequisites and known limitations.
 
-pub mod constants;
+// Lane C STATUS: harness is currently stubbed — see harness.rs module docs.
+// The sibling modules (katana, messaging, rollup, sozo) are PR #197-vintage
+// infrastructure that still compiles but has dangling references to the
+// deleted Settler/BridgeComponent surface inside their helper code. They
+// remain in-tree as scaffolding for the Lane C rewrite. To reactivate the
+// harness, restore TestEnv::start with the new bridge wiring and remove
+// the stubs in harness.rs.
+
 pub mod harness;
-pub mod katana;
-pub mod messaging;
-pub mod rollup;
-pub mod sozo;
+
+// Module exports kept in tree but unused until Lane C rebuild. Comment
+// these out individually if you need to re-publish them for a partial
+// migration.
+// pub mod constants;
+// pub mod katana;
+// pub mod messaging;
+// pub mod rollup;
+// pub mod sozo;
 
 pub use harness::{PendingStatus, PurchaseHandle, TestEnv};

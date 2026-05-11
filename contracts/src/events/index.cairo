@@ -50,33 +50,30 @@ pub struct VaultClaimed {
     pub time: u64,
 }
 
+/// Emitted by Setup.issue (bridge mode) when a purchase is paid for on
+/// mainnet and a game-mint Piltover message has been queued for the appchain.
 #[derive(Copy, Drop, Serde)]
 #[dojo::event]
 pub struct PurchaseInitiated {
     #[key]
-    pub message_id: felt252,
-    pub nonce: u64,
+    pub purchase_id: u64,
     pub recipient: starknet::ContractAddress,
     pub bundle_id: u32,
     pub quantity: u32,
     pub time: u64,
 }
 
+/// Emitted by Setup.apply_game_claim_batch when a claim message from the
+/// appchain has been consumed: EMA updated, NUMS minted to player,
+/// PendingPurchase marked Materialized.
 #[derive(Copy, Drop, Serde)]
 #[dojo::event]
-pub struct PurchaseSettled {
+pub struct GameClaimApplied {
     #[key]
-    pub message_id: felt252,
-    pub multiplier: u128,
-    pub price: u256,
-    pub time: u64,
-}
-
-#[derive(Copy, Drop, Serde)]
-#[dojo::event]
-pub struct PurchaseCancelled {
-    #[key]
-    pub message_id: felt252,
-    pub multiplier_used: u128,
+    pub purchase_id: u64,
+    pub player: starknet::ContractAddress,
+    pub level: u32,
+    pub weight: u16,
+    pub reward_amount: u128,
     pub time: u64,
 }

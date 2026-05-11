@@ -37,6 +37,8 @@ pub mod errors {
 #[generate_trait]
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
+    /// `purchase_id` links the appchain Game to mainnet PendingPurchase in
+    /// bridge mode; zero for free games and pure-Starknet mode.
     #[inline]
     fn new(
         id: u64,
@@ -46,6 +48,7 @@ pub impl GameImpl of GameTrait {
         slot_max: u16,
         supply: u256,
         price: u256,
+        purchase_id: u64,
     ) -> Game {
         // [Return] Game
         Game {
@@ -69,6 +72,7 @@ pub impl GameImpl of GameTrait {
             slots: 0,
             supply: supply.try_into().unwrap(),
             price: price.try_into().unwrap(),
+            purchase_id: purchase_id,
         }
     }
 
@@ -465,6 +469,7 @@ mod tests {
             DEFAULT_SLOT_MAX,
             SUPPLY,
             DEFAULT_PRICE,
+            0,
         );
         let mut rand = RandomImpl::new(1);
         game.start(ref rand);
@@ -481,6 +486,7 @@ mod tests {
             DEFAULT_SLOT_MAX,
             SUPPLY,
             DEFAULT_PRICE,
+            0,
         );
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');

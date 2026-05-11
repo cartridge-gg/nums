@@ -65,4 +65,8 @@ disable_multicall = true
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x073ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971", # pool_extension,
   "0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab", # bundle_allower
+  "0x0",                                                                # appchain_materializer
+  "0x0",                                                                # bridge_messaging
+  "0x0",                                                                # appchain_play
+  "0x0",                                                                # mainnet_setup
 ]

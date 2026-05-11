@@ -93,6 +93,8 @@ pub mod PlayableComponent {
         }
 
         /// Create a new game. It ensures the game is valid and not already created.
+        /// `purchase_id` links the appchain Game back to the mainnet PendingPurchase
+        /// when running in bridge mode. Zero in pure-Starknet mode.
         fn create(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -101,6 +103,7 @@ pub mod PlayableComponent {
             multiplier: u128,
             supply: u256,
             price: u256,
+            purchase_id: u64,
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -115,6 +118,7 @@ pub mod PlayableComponent {
                 slot_max: config.slot_max,
                 supply: supply,
                 price: price,
+                purchase_id: purchase_id,
             );
             // [Effect] Start game
             let mut rand = RandomImpl::new(game_id.into());

@@ -9,7 +9,6 @@ pub mod systems {
     pub mod governor;
     pub mod materializer;
     pub mod play;
-    pub mod settler;
     pub mod setup;
     pub mod token;
     pub mod treasury;
@@ -17,7 +16,6 @@ pub mod systems {
 }
 
 pub mod components {
-    pub mod bridge;
     pub mod playable;
     pub mod purchase;
     pub mod rewardable;
@@ -145,9 +143,6 @@ pub mod mocks {
 #[cfg(test)]
 pub mod tests {
     pub mod setup;
-    pub mod test_bridge;
-    pub mod test_materializer;
-    pub mod test_settler;
     pub mod test_setup;
     pub mod test_transfer_isolation;
 }

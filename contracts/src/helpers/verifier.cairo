@@ -183,6 +183,7 @@ mod tests {
             DEFAULT_SLOT_MAX,
             SUPPLY,
             DEFAULT_PRICE,
+            0,
         )
     }
 

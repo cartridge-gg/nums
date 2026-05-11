@@ -20,35 +20,30 @@ order_inits = [
   "NUMS-Play",
   "NUMS-Collection",
   "NUMS-Vault",
-  "NUMS-Settler",
 ]
 skip_contracts = ["NUMS-Vrf", "NUMS-Faucet"]
 disable_multicall = true
 
 [writers]
-"NUMS" = ["NUMS-Setup", "NUMS-Play", "NUMS-Settler"]
+"NUMS" = ["NUMS-Setup", "NUMS-Play"]
 
 [owners]
 "NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Token"]
 
 # -----------------------------------------------------------------------------
-# Post-migration role grants (manual, NOT automated by `sozo migrate`)
+# Post-migration role grants — only needed when activating bridge mode
 # -----------------------------------------------------------------------------
-# After `NUMS-Settler` is deployed, the operator MUST grant the following so
-# Settler.settle can run swap+burn+vault.pay:
+# Pure-Starknet deployments (appchain_materializer == 0): no extra grants needed.
 #
-#   1. Vault PROVIDER_ROLE → NUMS-Settler
-#        Required by `IVault.pay` (vault.cairo:289).
-#        Treasury holds DEFAULT_ADMIN_ROLE on Vault and can grant via timelock.
+# Bridge mode (appchain_materializer != 0): after Setup is deployed, the operator
+# MUST grant MINTER_ROLE on the Token contract to `NUMS-Setup` so
+# `apply_game_claim_batch` can mint NUMS rewards. Today Token grants MINTER_ROLE
+# to `NUMS-Play` at deploy time (token.cairo:76). For bridge-mode deploys, also
+# grant it to `NUMS-Setup`:
 #
-#   2. Token burn authorization → NUMS-Settler
-#        Required by `IToken.burn` (token.cairo:125-128).
-#        Today only the Setup contract can burn. Add Settler as an authorized
-#        burner (either lift the open burn-anyone-with-role pattern or grant a
-#        new role); coordinate with Lane B / token.cairo refactor.
+#   sozo execute NUMS-Token grant_role <MINTER_ROLE_SELECTOR> <NUMS-Setup-address>
 #
-# Both grants happen via Treasury timelock proposals (production-correct) or
-# admin direct calls during initial bring-up.
+# Treasury holds DEFAULT_ADMIN_ROLE on Token and can grant via timelock.
 # -----------------------------------------------------------------------------
 
 [init_call_args]
@@ -82,9 +77,8 @@ disable_multicall = true
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x043e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc", # pool_extension,
   "0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab", # bundle_allower
-]
-"NUMS-Settler" = [
-  "0x0", # piltover_messaging — Piltover messaging contract on Starknet (filled after Katana deploy)
-  "0x0", # katana_setup        — Katana Setup contract address (filled after Katana deploy)
-  "0x0", # materializer        — Katana Materializer contract address (filled after Katana deploy)
+  "0x0",                                                                # appchain_materializer — zero = pure-Starknet mode (today's behavior)
+  "0x0",                                                                # bridge_messaging
+  "0x0",                                                                # appchain_play
+  "0x0",                                                                # mainnet_setup — zero on mainnet (irrelevant; appchain reads it)
 ]

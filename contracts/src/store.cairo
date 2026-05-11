@@ -8,13 +8,15 @@ use ekubo::interfaces::positions::IPositionsDispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use starknet::ContractAddress;
 use crate::constants::WORLD_RESOURCE;
-use crate::events::bridge::{PurchaseCancelledTrait, PurchaseInitiatedTrait, PurchaseSettledTrait};
+use crate::events::bridge::{GameClaimAppliedTrait, PurchaseInitiatedTrait};
 use crate::events::claimed::ClaimedTrait;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{BridgeNonce, Config, Game, PendingPurchase, VaultInfo, VaultPosition};
+use crate::models::index::{
+    Config, Game, PendingPurchase, PurchaseNonce, VaultInfo, VaultPosition,
+};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
 use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
 
@@ -126,31 +128,32 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(position)
     }
 
-    // PendingPurchase
+    // PendingPurchase (bridge mode only; keyed by mainnet-assigned purchase_id)
 
-    fn pending_purchase(self: @Store, message_id: felt252) -> PendingPurchase {
-        self.world.read_model(message_id)
+    fn pending_purchase(self: @Store, purchase_id: u64) -> PendingPurchase {
+        self.world.read_model(purchase_id)
     }
 
     fn set_pending_purchase(mut self: Store, pending: @PendingPurchase) {
         self.world.write_model(pending)
     }
 
-    // BridgeNonce
+    // PurchaseNonce — monotonic counter for per-purchase ids in bridge mode.
+    // Singleton keyed by WORLD_RESOURCE.
 
-    fn bridge_nonce(self: @Store) -> BridgeNonce {
+    fn purchase_nonce(self: @Store) -> PurchaseNonce {
         self.world.read_model(WORLD_RESOURCE)
     }
 
-    fn set_bridge_nonce(mut self: Store, nonce: @BridgeNonce) {
+    fn set_purchase_nonce(mut self: Store, nonce: @PurchaseNonce) {
         self.world.write_model(nonce)
     }
 
-    fn next_bridge_nonce(mut self: Store) -> u64 {
-        let mut nonce = self.bridge_nonce();
+    /// RMW: bump and return the next purchase id (1-indexed; 0 means "unset").
+    fn next_purchase_nonce(mut self: Store) -> u64 {
+        let mut nonce = self.purchase_nonce();
         nonce.next += 1;
         let new_value = nonce.next;
-        // Ensure singleton key
         nonce.world_resource = WORLD_RESOURCE;
         self.world.write_model(@nonce);
         new_value
@@ -192,23 +195,26 @@ pub impl StoreImpl of StoreTrait {
 
     fn purchase_initiated(
         mut self: Store,
-        message_id: felt252,
-        nonce: u64,
+        purchase_id: u64,
         recipient: ContractAddress,
         bundle_id: u32,
         quantity: u32,
     ) {
-        let event = PurchaseInitiatedTrait::new(message_id, nonce, recipient, bundle_id, quantity);
+        let event = PurchaseInitiatedTrait::new(purchase_id, recipient, bundle_id, quantity);
         self.world.emit_event(@event);
     }
 
-    fn purchase_settled(mut self: Store, message_id: felt252, multiplier: u128, price: u256) {
-        let event = PurchaseSettledTrait::new(message_id, multiplier, price);
-        self.world.emit_event(@event);
-    }
-
-    fn purchase_cancelled(mut self: Store, message_id: felt252, multiplier_used: u128) {
-        let event = PurchaseCancelledTrait::new(message_id, multiplier_used);
+    fn game_claim_applied(
+        mut self: Store,
+        purchase_id: u64,
+        player: ContractAddress,
+        level: u32,
+        weight: u16,
+        reward_amount: u128,
+    ) {
+        let event = GameClaimAppliedTrait::new(
+            purchase_id, player, level, weight, reward_amount,
+        );
         self.world.emit_event(@event);
     }
 }

@@ -44,10 +44,9 @@ build-external-contracts = [
   "bundle::events::index::e_BundleUpdated",
   "bundle::events::index::e_BundleIssued",
   "nums::models::index::m_PendingPurchase",
-  "nums::models::index::m_BridgeNonce",
+  "nums::models::index::m_PurchaseNonce",
   "nums::events::index::e_PurchaseInitiated",
-  "nums::events::index::e_PurchaseSettled",
-  "nums::events::index::e_PurchaseCancelled",
+  "nums::events::index::e_GameClaimApplied",
   "nums::systems::materializer::Materializer",
 ]
 

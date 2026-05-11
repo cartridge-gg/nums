@@ -1,40 +1,36 @@
 use starknet::ContractAddress;
-pub use crate::events::index::{PurchaseCancelled, PurchaseInitiated, PurchaseSettled};
+pub use crate::events::index::{GameClaimApplied, PurchaseInitiated};
 
 #[generate_trait]
 pub impl PurchaseInitiatedImpl of PurchaseInitiatedTrait {
     fn new(
-        message_id: felt252, nonce: u64, recipient: ContractAddress, bundle_id: u32, quantity: u32,
+        purchase_id: u64, recipient: ContractAddress, bundle_id: u32, quantity: u32,
     ) -> PurchaseInitiated {
         PurchaseInitiated {
-            message_id: message_id,
-            nonce: nonce,
-            recipient: recipient,
-            bundle_id: bundle_id,
-            quantity: quantity,
+            purchase_id,
+            recipient,
+            bundle_id,
+            quantity,
             time: starknet::get_block_timestamp(),
         }
     }
 }
 
 #[generate_trait]
-pub impl PurchaseSettledImpl of PurchaseSettledTrait {
-    fn new(message_id: felt252, multiplier: u128, price: u256) -> PurchaseSettled {
-        PurchaseSettled {
-            message_id: message_id,
-            multiplier: multiplier,
-            price: price,
-            time: starknet::get_block_timestamp(),
-        }
-    }
-}
-
-#[generate_trait]
-pub impl PurchaseCancelledImpl of PurchaseCancelledTrait {
-    fn new(message_id: felt252, multiplier_used: u128) -> PurchaseCancelled {
-        PurchaseCancelled {
-            message_id: message_id,
-            multiplier_used: multiplier_used,
+pub impl GameClaimAppliedImpl of GameClaimAppliedTrait {
+    fn new(
+        purchase_id: u64,
+        player: ContractAddress,
+        level: u32,
+        weight: u16,
+        reward_amount: u128,
+    ) -> GameClaimApplied {
+        GameClaimApplied {
+            purchase_id,
+            player,
+            level,
+            weight,
+            reward_amount,
             time: starknet::get_block_timestamp(),
         }
     }

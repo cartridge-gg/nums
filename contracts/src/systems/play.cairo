@@ -15,6 +15,7 @@ pub trait IPlay<T> {
         supply: u256,
         price: u256,
         quantity: u32,
+        purchase_id: u64,
     );
     fn set(ref self: T, game_id: u64, index: u8);
     fn select(ref self: T, game_id: u64, index: u8);
@@ -193,8 +194,8 @@ pub mod Play {
             while quantity > 0 {
                 // [Interaction] Mint a game
                 let game_id = collection.mint(player, true);
-                // [Effect] Create game
-                self.playable.create(world, player, game_id, multiplier, supply, 0);
+                // [Effect] Create game — mint path has no purchase_id (free/airdropped)
+                self.playable.create(world, player, game_id, multiplier, supply, 0, 0);
                 quantity -= 1;
             }
         }
@@ -206,6 +207,7 @@ pub mod Play {
             supply: u256,
             price: u256,
             mut quantity: u32,
+            purchase_id: u64,
         ) {
             // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(CREATOR_ROLE);
@@ -219,8 +221,8 @@ pub mod Play {
             while quantity > 0 {
                 // [Interaction] Mint a game
                 let game_id = collection.mint(player, true);
-                // [Effect] Create game
-                self.playable.create(world, player, game_id, multiplier, supply, price);
+                // [Effect] Create game (purchase_id links Game→mainnet PendingPurchase in bridge mode; 0 in local mode)
+                self.playable.create(world, player, game_id, multiplier, supply, price, purchase_id);
                 quantity -= 1;
             }
         }

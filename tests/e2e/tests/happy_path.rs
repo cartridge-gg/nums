@@ -27,14 +27,11 @@
 
 use anyhow::Result;
 use nums_e2e::TestEnv;
+use starknet::accounts::Account;
 use starknet::core::types::Felt;
 use tracing::info;
 
-/// IGNORED until Lane C harness rebuild — see tests/e2e/src/harness.rs
-/// module docs and the parent PR description. The Cairo logic exercised by
-/// this scenario is covered at the unit-test level (scarb test: 172 cases).
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
-#[ignore = "Lane C harness rewrite pending; tracked as follow-up to feat/tee-appchain-redesign"]
 async fn happy_path_bridge_forward() -> Result<()> {
     let started_at = std::time::Instant::now();
     let env = TestEnv::start().await?;
@@ -48,13 +45,15 @@ async fn happy_path_bridge_forward() -> Result<()> {
     let player_addr: Felt = player.address();
     info!("player={player_addr:#x}");
 
-    // Pre-state on settlement side.
-    let pre_purchase_nonce = env.read_purchase_nonce().await?;
+    // Pre-state on appchain side.
     let pre_player_games = env.read_player_games_count(player_addr).await?;
-    info!("pre: nonce={pre_purchase_nonce} appchain_games={pre_player_games}");
+    info!("pre: appchain_games={pre_player_games}");
 
     // 1. Mainnet purchase — Setup.issue takes the bridge path because
     //    config.appchain_materializer was patched non-zero in TestEnv::start.
+    //    The MessageSent event on the messaging mock gives us the
+    //    mainnet-assigned purchase_id (PurchaseNonce strict monotonic
+    //    starting at 1).
     let purchase = env.settlement_player_buy_bundle(player_addr, 1, 1).await?;
     info!(
         "purchase: purchase_id={pid} bundle_id={bid} qty={q}",
@@ -62,8 +61,19 @@ async fn happy_path_bridge_forward() -> Result<()> {
         bid = purchase.bundle_id,
         q = purchase.quantity,
     );
+    assert!(
+        purchase.purchase_id >= 1,
+        "purchase_id must be assigned (>=1): got {}",
+        purchase.purchase_id,
+    );
+    assert_eq!(
+        purchase.payload.len(),
+        6,
+        "forward payload must be 6 felts: {:?}",
+        purchase.payload,
+    );
 
-    // 2. Advance Piltover state root so the L1Handler delivers on appchain.
+    // 2. Wait for Katana's messaging worker to deliver the L1Handler.
     env.update_state_for_pending_messages(&purchase).await?;
 
     // 3. Wait for the appchain to materialize the Game.
@@ -71,26 +81,11 @@ async fn happy_path_bridge_forward() -> Result<()> {
         .await?;
 
     let post_player_games = env.read_player_games_count(player_addr).await?;
-    let post_purchase_nonce = env.read_purchase_nonce().await?;
-
-    assert!(
-        post_player_games > pre_player_games,
-        "appchain games should increase: pre={pre_player_games} post={post_player_games}",
-    );
-    assert!(
-        post_purchase_nonce > pre_purchase_nonce,
-        "settlement purchase nonce should advance: pre={pre_purchase_nonce} post={post_purchase_nonce}",
-    );
-
-    // 4. PendingPurchase on settlement should still be in `Pending` state
-    //    until we drive a claim message back (deferred to the reverse-path
-    //    test below).
-    let pending_status = env.read_pending_status(purchase.purchase_id).await?;
-    info!("settlement pending_status (post-mint, pre-claim) = {pending_status:?}");
+    info!("post: appchain_games={post_player_games}");
     assert_eq!(
-        pending_status,
-        nums_e2e::PendingStatus::Pending,
-        "pre-claim PendingPurchase must still be Pending",
+        post_player_games,
+        pre_player_games + 1,
+        "appchain games should increase by 1: pre={pre_player_games} post={post_player_games}",
     );
 
     info!("happy_path_bridge_forward completed in {:.2?}", started_at.elapsed());

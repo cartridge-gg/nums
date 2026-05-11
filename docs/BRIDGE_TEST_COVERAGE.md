@@ -17,23 +17,43 @@ Last updated: `feat/tee-appchain-redesign` branch.
 | Cairo unit | Materializer constructor sentinels | `test_constructor_rejects_zero_mainnet_setup`, `test_constructor_rejects_zero_play` | ✓ |
 | Cairo unit | Materializer admin access control | `test_admin_can_set_mainnet_setup`, `test_non_admin_cannot_set_mainnet_setup`, `test_admin_can_set_play`, `test_non_admin_cannot_set_play` | ✓ |
 | Cairo unit | Pre-existing game/trap/helper tests | (160 cases from existing suite) | ✓ unchanged by bridge work |
-| | | **172 / 172 passing** | |
+| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_bridge_forward` | **✓ Green** (~10 min wall-clock against real two-Katana stack) |
+| | | **172 / 172 unit + 1 / 1 e2e passing** | |
 
-## Coverage gaps (Lane C follow-up)
+## E2E coverage — forward path GREEN
 
-The e2e harness from PR #197 was tied to the deleted Settler /
-BridgeComponent surface. It's stubbed out in this branch (see
-`tests/e2e/README.md`). The following round-trip scenarios are unverified
-end-to-end:
+`happy_path_bridge_forward` exercises against two real Katana nodes:
+
+1. Spawn settlement Katana (`--dev`) + appchain Katana (rollup chain spec
+   via `katana init rollup`).
+2. UDC-deploy Piltover Appchain core, upgrade to `messaging_test` class.
+3. sozo migrate both worlds in parallel (~5 min wall-clock).
+4. UDC-deploy Materializer with (mainnet_setup, play) on appchain.
+5. Wire bridge config via setters on both Setup contracts.
+6. Grant Token MINTER_ROLE to settlement Setup; grant Play CREATOR_ROLE
+   to appchain Materializer.
+7. Seed settlement Vault with NUMS shares.
+8. **Player calls settlement Setup.issue → purchase_id assigned →
+   PurchaseInitiated event → MessageSent event captured from Piltover
+   messaging mock.**
+9. **Katana messaging worker auto-delivers the L1Handler →
+   Materializer.materialize → Play.create.**
+10. **Assertion: appchain Collection.balance_of(player) == 1.**
+
+Total wall-clock: ~10 min per iteration.
+
+## Coverage gaps (still deferred to follow-up PRs)
+
+The reverse direction (appchain claim → mainnet) is unit-tested but not
+end-to-end. The following scenarios are unverified e2e:
 
 | Scenario | What it verifies | Why it matters |
 |---|---|---|
-| Mainnet purchase → forward Piltover delivery → appchain Materializer → Play.create | The full forward path. Critical because player money has moved. | Highest priority for Lane C. |
-| Materializer replay (same purchase_id delivered twice) | `processed_ids` guard fires | Locked-in defense-in-depth that's worth empirically validating. |
-| Materializer auth (wrong from_address) | `'Invalid sender'` revert path | Unit tests can't drive L1Handler entries; only e2e can. |
-| Appchain claim → reverse Piltover delivery → mainnet apply_game_claim_batch → Token.reward mint | The full reverse path. Reward delivery to player. | Equal priority — value-bearing message direction. |
+| Appchain claim → reverse Piltover delivery → mainnet apply_game_claim_batch → Token.reward mint | The full reverse path. Reward delivery to player. | High priority. Adding actually requires the `messaging_test` backdoor on the reverse direction (the harness has this scaffolding but the test scenario must drive `Play.claim` after real gameplay). |
 | EMA actually updates on mainnet from real claim | End-to-end EMA feedback loop | Validates the only non-locked-in design assumption (operator-mediated). |
 | PendingPurchase{Pending → Materialized} state transition end-to-end | State machine on real Dojo storage | Today only verified via direct store writes in unit test. |
+| Materializer replay (same purchase_id delivered twice) | `processed_ids` guard fires | Locked-in defense-in-depth that's worth empirically validating. |
+| Materializer auth (wrong from_address) | `'Invalid sender'` revert path | Cairo unit tests can't drive L1Handler entries; only e2e can. |
 | Identity invariant (controller address consistency) | Mainnet recipient == appchain Play owner == claim player == mint recipient | Controller infra responsibility, but worth e2e proof. |
 | Bridge mode misconfig (mixed zero/nonzero) at dojo_init | Sentinel reverts deploy | Currently verified only at the model layer. |
 | MINTER_ROLE grant to Setup post-migration | Cross-chain mint authorization | Operational migration concern; ops should script this. |

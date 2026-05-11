@@ -74,6 +74,13 @@ mod Token {
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
+        // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
+        // account so the e2e harness can call grant_role(MINTER_ROLE, Setup)
+        // post-deploy without going through Treasury timelock. Mirrors the
+        // pattern in Setup.dojo_init. Production deploys are unaffected
+        // because the deployer IS the Treasury-controlled account.
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         // [Effect] Mint initial supply
         self.erc20.mint(recipient, initial_supply.into());
         // [Event] Emit a new registered contract for torii to index

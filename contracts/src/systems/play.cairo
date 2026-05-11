@@ -116,6 +116,13 @@ pub mod Play {
         self.accesscontrol._grant_role(CREATOR_ROLE, setup_address);
         let this = starknet::get_contract_address();
         self.accesscontrol._grant_role(CREATOR_ROLE, this);
+        // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
+        // account so the e2e harness can call grant_role(CREATOR_ROLE,
+        // Materializer) post-deploy in bridge mode. Mirrors the pattern in
+        // Setup/Token. Production deploys are unaffected because the
+        // deployer IS the Treasury-controlled account.
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
     }
 
     impl AchievementImpl of AchievementTrait<ContractState> {

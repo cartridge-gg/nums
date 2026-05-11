@@ -4,13 +4,14 @@ pub mod PlayableComponent {
     use achievement::component::Component as AchievementComponent;
     use achievement::component::Component::InternalImpl as AchievementInternalImpl;
     use constants::TEN_POW_18;
+    use core::num::traits::Zero;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::component::Component as QuestableComponent;
     use quest::component::Component::InternalImpl as QuestableInternalImpl;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, SyscallResultTrait};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, AchievementType, IAchievement};
     use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
@@ -354,18 +355,10 @@ pub mod PlayableComponent {
             game.assert_is_over();
             game.assert_not_expired();
 
-            // [Effect] Claim game
+            // [Effect] Claim game (computes reward into game.reward, sets claimed=true)
             let reward: u128 = game.claim();
             let base_reward: u128 = reward / TEN_POW_18;
             store.set_game(@game);
-
-            // [Effect] Update average score
-            let mut config = store.config();
-            let weight: u16 = (game.multiplier / constants::MULTIPLIER_PRECISION)
-                .try_into()
-                .unwrap();
-            config.push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
-            store.set_config(config);
 
             // [Effect] Update leaderboard score
             let player = self.owner(world, game_id);
@@ -387,10 +380,49 @@ pub mod PlayableComponent {
             let task = Task::Claimer;
             achievement.progress(world, player.into(), task.identifier(), base_reward, true);
 
-            // [Interaction] Pay user reward
-            store.nums_disp().reward(player, reward.into());
+            // [Branch] Reward distribution: local mint vs cross-chain message.
+            //
+            // Bridge mode (config.mainnet_setup != 0): the Token contract lives
+            // on mainnet, not here. Send a combined claim message carrying
+            // (purchase_id, player, level, weight, reward, game_id) to mainnet
+            // Setup.apply_game_claim_batch which will push the EMA and mint
+            // NUMS reward. Local config.average_score is NOT mutated — nothing
+            // on the appchain reads it (audit: purchase.cairo:198 is the only
+            // production reader and it lives on mainnet).
+            //
+            // Local mode (mainnet_setup == 0): preserve today's pure-Starknet
+            // behavior bit-identically — update local EMA, mint NUMS locally.
+            let weight: u16 = (game.multiplier / constants::MULTIPLIER_PRECISION)
+                .try_into()
+                .unwrap();
+            let config = store.config();
+            if config.mainnet_setup.is_zero() {
+                // Local path — today's behavior unchanged.
+                let mut config_mut = store.config();
+                config_mut
+                    .push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
+                store.set_config(config_mut);
+                store.nums_disp().reward(player, reward.into());
+            } else {
+                // Bridge path — queue claim message for mainnet.
+                let payload: Array<felt252> = array![
+                    game.purchase_id.into(),
+                    player.into(),
+                    game.level.into(),
+                    weight.into(),
+                    reward.into(),
+                    game.id.into(),
+                ];
+                // Cairo native syscall: queues into L2→L1 messages array,
+                // settled by Piltover state-root commitment on mainnet.
+                // Piltover has no send-side dispatcher in this direction.
+                starknet::syscalls::send_message_to_l1_syscall(
+                    config.mainnet_setup.into(), payload.span(),
+                )
+                    .unwrap_syscall();
+            }
 
-            // [Event] Emit claimed event
+            // [Event] Emit claimed event (analytics — emitted in both modes)
             store.claimed(player.into(), game_id, base_reward);
         }
     }

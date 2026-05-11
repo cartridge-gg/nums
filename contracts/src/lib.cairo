@@ -143,6 +143,8 @@ pub mod mocks {
 #[cfg(test)]
 pub mod tests {
     pub mod setup;
+    pub mod test_bridge_mainnet;
+    pub mod test_materializer;
     pub mod test_setup;
     pub mod test_transfer_isolation;
 }

@@ -53,11 +53,7 @@ fn test_pending_purchase_round_trip() {
     let player: starknet::ContractAddress = 'PLAYER_X'.try_into().unwrap();
     let purchase_id: u64 = 42;
     let pending = PendingPurchase {
-        purchase_id,
-        recipient: player,
-        bundle_id: 3,
-        quantity: 5,
-        status: PendingStatus::Pending,
+        purchase_id, recipient: player, bundle_id: 3, quantity: 5, status: PendingStatus::Pending,
     };
     store.set_pending_purchase(@pending);
     let read = store.pending_purchase(purchase_id);

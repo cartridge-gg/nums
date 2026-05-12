@@ -399,19 +399,14 @@ pub mod PlayableComponent {
             if config.mainnet_setup.is_zero() {
                 // Local path — today's behavior unchanged.
                 let mut config_mut = store.config();
-                config_mut
-                    .push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
+                config_mut.push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
                 store.set_config(config_mut);
                 store.nums_disp().reward(player, reward.into());
             } else {
                 // Bridge path — queue claim message for mainnet.
                 let payload: Array<felt252> = array![
-                    game.purchase_id.into(),
-                    player.into(),
-                    game.level.into(),
-                    weight.into(),
-                    reward.into(),
-                    game.id.into(),
+                    game.purchase_id.into(), player.into(), game.level.into(), weight.into(),
+                    reward.into(), game.id.into(),
                 ];
                 // Cairo native syscall: queues into L2→L1 messages array,
                 // settled by Piltover state-root commitment on mainnet.

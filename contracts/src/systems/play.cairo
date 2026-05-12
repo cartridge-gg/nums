@@ -228,8 +228,11 @@ pub mod Play {
             while quantity > 0 {
                 // [Interaction] Mint a game
                 let game_id = collection.mint(player, true);
-                // [Effect] Create game (purchase_id links Game→mainnet PendingPurchase in bridge mode; 0 in local mode)
-                self.playable.create(world, player, game_id, multiplier, supply, price, purchase_id);
+                // [Effect] Create game (purchase_id links Game→mainnet PendingPurchase in bridge
+                // mode; 0 in local mode)
+                self
+                    .playable
+                    .create(world, player, game_id, multiplier, supply, price, purchase_id);
                 quantity -= 1;
             }
         }

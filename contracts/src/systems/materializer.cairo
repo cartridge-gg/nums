@@ -27,10 +27,10 @@ pub trait IPlayCreate<T> {
 /// then calls into the appchain Play contract to create the games.
 #[starknet::contract]
 pub mod Materializer {
-    use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::{
         Map, StoragePathEntry, StoragePointerReadAccess, StoragePointerWriteAccess,
     };
+    use starknet::{ContractAddress, get_caller_address};
     use super::{IPlayCreateDispatcher, IPlayCreateDispatcherTrait};
 
     #[storage]
@@ -50,9 +50,7 @@ pub mod Materializer {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState, mainnet_setup: ContractAddress, play: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, mainnet_setup: ContractAddress, play: ContractAddress) {
         // Sentinel: neither address may be zero at construction time. (Test
         // harness uses set_mainnet_setup/set_play to patch post-deploy if
         // needed, but the initial deploy must provide non-zero addresses.)

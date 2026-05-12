@@ -7,11 +7,7 @@ pub impl PurchaseInitiatedImpl of PurchaseInitiatedTrait {
         purchase_id: u64, recipient: ContractAddress, bundle_id: u32, quantity: u32,
     ) -> PurchaseInitiated {
         PurchaseInitiated {
-            purchase_id,
-            recipient,
-            bundle_id,
-            quantity,
-            time: starknet::get_block_timestamp(),
+            purchase_id, recipient, bundle_id, quantity, time: starknet::get_block_timestamp(),
         }
     }
 }
@@ -19,11 +15,7 @@ pub impl PurchaseInitiatedImpl of PurchaseInitiatedTrait {
 #[generate_trait]
 pub impl GameClaimAppliedImpl of GameClaimAppliedTrait {
     fn new(
-        purchase_id: u64,
-        player: ContractAddress,
-        level: u32,
-        weight: u16,
-        reward_amount: u128,
+        purchase_id: u64, player: ContractAddress, level: u32, weight: u16, reward_amount: u128,
     ) -> GameClaimApplied {
         GameClaimApplied {
             purchase_id,

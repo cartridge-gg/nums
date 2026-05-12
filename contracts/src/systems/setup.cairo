@@ -162,24 +162,17 @@ pub mod Setup {
                     );
 
                 let payload = array![
-                    purchase_id.into(),
-                    recipient.into(),
-                    multiplier.into(),
-                    price.low.into(),
-                    price.high.into(),
-                    quantity.into(),
+                    purchase_id.into(), recipient.into(), multiplier.into(), price.low.into(),
+                    price.high.into(), quantity.into(),
                 ];
 
-                let messaging = IMessagingDispatcher {
-                    contract_address: config.bridge_messaging,
-                };
+                let messaging = IMessagingDispatcher { contract_address: config.bridge_messaging };
                 messaging
                     .send_message_to_appchain(
                         config.appchain_materializer, MATERIALIZE_SELECTOR, payload.span(),
                     );
 
-                store_mut
-                    .purchase_initiated(purchase_id, recipient, bundle_id, quantity);
+                store_mut.purchase_initiated(purchase_id, recipient, bundle_id, quantity);
             }
         }
         fn supply(
@@ -559,9 +552,7 @@ pub mod Setup {
             assert(!config.bridge_messaging.is_zero(), 'Setup: bridge not configured');
             assert(!config.appchain_play.is_zero(), 'Setup: appchain_play unset');
 
-            let messaging = IMessagingDispatcher {
-                contract_address: config.bridge_messaging,
-            };
+            let messaging = IMessagingDispatcher { contract_address: config.bridge_messaging };
             let token = ITokenDispatcher {
                 contract_address: world.dns_address(@TOKEN()).expect('Token not found!'),
             };
@@ -579,25 +570,16 @@ pub mod Setup {
                 // Authenticate via Piltover. Reverts if no matching message.
                 messaging.consume_message_from_appchain(config.appchain_play, payload);
 
-                let purchase_id: u64 = (*payload.at(0))
-                    .try_into()
-                    .expect('Setup: bad purchase_id');
+                let purchase_id: u64 = (*payload.at(0)).try_into().expect('Setup: bad purchase_id');
                 let player_felt: felt252 = *payload.at(1);
-                let player: ContractAddress = player_felt
-                    .try_into()
-                    .expect('Setup: bad player');
+                let player: ContractAddress = player_felt.try_into().expect('Setup: bad player');
                 let level: u32 = (*payload.at(2)).try_into().expect('Setup: bad level');
                 let weight: u16 = (*payload.at(3)).try_into().expect('Setup: bad weight');
-                let reward_amount: u128 = (*payload.at(4))
-                    .try_into()
-                    .expect('Setup: bad reward');
-                let _game_id: u64 = (*payload.at(5))
-                    .try_into()
-                    .expect('Setup: bad game_id');
+                let reward_amount: u128 = (*payload.at(4)).try_into().expect('Setup: bad reward');
+                let _game_id: u64 = (*payload.at(5)).try_into().expect('Setup: bad game_id');
 
                 // EMA push (rolling difficulty feedback).
-                config_mut
-                    .push(level, weight, crate::constants::EMA_MIN_SCORE.into());
+                config_mut.push(level, weight, crate::constants::EMA_MIN_SCORE.into());
 
                 // Mint NUMS reward.
                 token.reward(player, reward_amount.into());
@@ -605,20 +587,14 @@ pub mod Setup {
                 // Flip PendingPurchase status. Defensive: only allow Pending →
                 // Materialized so a replay would revert.
                 let mut pending = store.pending_purchase(purchase_id);
-                assert(
-                    pending.status == PendingStatus::Pending,
-                    'Setup: pending not Pending',
-                );
+                assert(pending.status == PendingStatus::Pending, 'Setup: pending not Pending');
                 pending.status = PendingStatus::Materialized;
                 store.set_pending_purchase(@pending);
 
-                store
-                    .game_claim_applied(
-                        purchase_id, player, level, weight, reward_amount,
-                    );
+                store.game_claim_applied(purchase_id, player, level, weight, reward_amount);
 
                 i += 1;
-            };
+            }
 
             store.set_config(config_mut);
         }
@@ -633,7 +609,7 @@ pub mod Setup {
         while i < n {
             buf.append(*payloads.at(i));
             i += 1;
-        };
+        }
         // In-place insertion sort over the Array.
         let mut sorted: Array<Span<felt252>> = ArrayTrait::new();
         let mut remaining = buf;
@@ -649,7 +625,7 @@ pub mod Setup {
                     min_idx = k;
                 }
                 k += 1;
-            };
+            }
             // Pop min from remaining, push to sorted, copy rest back
             let mut rest: Array<Span<felt252>> = ArrayTrait::new();
             let mut j: u32 = 0;
@@ -660,9 +636,9 @@ pub mod Setup {
                     rest.append(*remaining.at(j));
                 }
                 j += 1;
-            };
+            }
             remaining = rest;
-        };
+        }
         sorted.span()
     }
 }

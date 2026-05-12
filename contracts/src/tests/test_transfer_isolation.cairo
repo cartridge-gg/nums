@@ -29,9 +29,7 @@ pub trait ITransferRelay<TState> {
 /// move tokens from its own balance to a recipient.
 #[starknet::contract]
 pub mod TransferRelay {
-    use openzeppelin::interfaces::token::erc20::{
-        IERC20MixinDispatcher, IERC20MixinDispatcherTrait,
-    };
+    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use starknet::ContractAddress;
     use super::ITransferRelay;
 
@@ -55,9 +53,7 @@ pub mod TransferRelay {
 mod tests {
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use dojo_cairo_test::{NamespaceDef, TestResource, spawn_test_world};
-    use openzeppelin::interfaces::token::erc20::{
-        IERC20MixinDispatcher, IERC20MixinDispatcherTrait,
-    };
+    use openzeppelin::interfaces::token::erc20::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
     use starknet::ContractAddress;
     use starknet::syscalls::deploy_syscall;
     use starknet::testing::{set_account_contract_address, set_contract_address};
@@ -91,9 +87,7 @@ mod tests {
                 .span(),
         };
 
-        let world = spawn_test_world(
-            dojo::world::world::TEST_CLASS_HASH, [namespace_def].span(),
-        );
+        let world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [namespace_def].span());
         let (faucet_addr, _) = world.dns(@FAUCET()).expect('Faucet not found');
         (world, faucet_addr)
     }
@@ -126,10 +120,7 @@ mod tests {
 
         // Deploy TransferRelay via deploy_syscall.
         let (relay, _) = deploy_syscall(
-            TransferRelay::TEST_CLASS_HASH.try_into().unwrap(),
-            0,
-            [].span(),
-            false,
+            TransferRelay::TEST_CLASS_HASH.try_into().unwrap(), 0, [].span(), false,
         )
             .expect('relay deploy failed');
 

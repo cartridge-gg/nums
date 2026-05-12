@@ -59,7 +59,7 @@ mod tests {
             assert(next == prev + 1, 'nonce not consecutive');
             prev = next;
             i += 1;
-        };
+        }
         // Final value should be 11 (1 initial + 10 in loop).
         assert(prev == 11, 'final nonce mismatch');
     }
@@ -107,11 +107,17 @@ mod tests {
         let mut store = StoreImpl::new(world);
 
         let p1 = PendingPurchase {
-            purchase_id: 1, recipient: ALICE(), bundle_id: 1, quantity: 1,
+            purchase_id: 1,
+            recipient: ALICE(),
+            bundle_id: 1,
+            quantity: 1,
             status: PendingStatus::Pending,
         };
         let p2 = PendingPurchase {
-            purchase_id: 2, recipient: BOB(), bundle_id: 5, quantity: 2,
+            purchase_id: 2,
+            recipient: BOB(),
+            bundle_id: 5,
+            quantity: 2,
             status: PendingStatus::Materialized,
         };
         store.set_pending_purchase(@p1);

@@ -14,9 +14,7 @@ use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{
-    Config, Game, PendingPurchase, PurchaseNonce, VaultInfo, VaultPosition,
-};
+use crate::models::index::{Config, Game, PendingPurchase, PurchaseNonce, VaultInfo, VaultPosition};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
 use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
 
@@ -212,9 +210,7 @@ pub impl StoreImpl of StoreTrait {
         weight: u16,
         reward_amount: u128,
     ) {
-        let event = GameClaimAppliedTrait::new(
-            purchase_id, player, level, weight, reward_amount,
-        );
+        let event = GameClaimAppliedTrait::new(purchase_id, player, level, weight, reward_amount);
         self.world.emit_event(@event);
     }
 }

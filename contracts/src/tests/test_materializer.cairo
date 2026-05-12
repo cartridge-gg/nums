@@ -17,9 +17,9 @@
 
 #[cfg(test)]
 mod tests {
-    use starknet::{ContractAddress, SyscallResultTrait};
     use starknet::syscalls::deploy_syscall;
     use starknet::testing::set_contract_address;
+    use starknet::{ContractAddress, SyscallResultTrait};
     use crate::systems::materializer::Materializer;
 
     fn ADMIN() -> ContractAddress {
@@ -84,9 +84,9 @@ mod tests {
     fn test_deploy_persists_view_addresses() {
         let _addr = deploy_ok();
         // No external view ABI exposed for mainnet_setup / play in the current
-        // Materializer surface (intentional — Materializer's only externally
-        // callable methods are the admin setters and the L1Handler). The fact
-        // that we deployed without panicking confirms constructor wiring.
+    // Materializer surface (intentional — Materializer's only externally
+    // callable methods are the admin setters and the L1Handler). The fact
+    // that we deployed without panicking confirms constructor wiring.
     }
 
     /// Admin (deployer) can update mainnet_setup; non-admin cannot.

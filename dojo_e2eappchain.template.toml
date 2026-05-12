@@ -25,7 +25,12 @@
 
 [world]
 name = "Nums"
-seed = "nums-e2e-appchain-v2"
+# SHARED seed across both e2e profiles. MUST match
+# `dojo_e2esettlement.toml`'s seed — Dojo derives the world address from
+# (class_hash, seed), and the bridge's address-equality invariant
+# (mainnet Play addr == appchain Play addr) requires both worlds to land
+# at the same address. See `tests/e2e/src/harness.rs` module docs.
+seed = "nums-e2e-shared-v1"
 description = "Nums appchain e2e test world"
 website = "https://nums.gg"
 

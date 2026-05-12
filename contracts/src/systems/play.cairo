@@ -123,10 +123,18 @@ pub mod Play {
         let this = starknet::get_contract_address();
         self.accesscontrol._grant_role(CREATOR_ROLE, this);
         // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
-        // account so the e2e harness can drive admin-only operations
-        // post-deploy. Mirrors the pattern in Setup/Token. Production deploys
-        // are unaffected because the deployer IS the Treasury-controlled
-        // account.
+        // account. Mirrors the pattern in Setup.dojo_init / Token.dojo_init.
+        //
+        // Why: Play's `create` L1Handler runs `Collection.mint` (which
+        // requires Collection's MINTER_ROLE, granted to Play at deploy) but
+        // the harness also needs to grant CREATOR_ROLE to other callers in
+        // bridge mode (historically: the deleted Materializer contract). The
+        // deployer-admin grant is what enables harness-driven role mutation
+        // without going through Treasury timelock.
+        //
+        // Production safety: the deployer account on real chains IS the
+        // Treasury-controlled account, so this grant is idempotent with the
+        // Treasury grant above.
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
     }
@@ -200,27 +208,58 @@ pub mod Play {
         }
     }
 
-    // [Info] Designed to be called on Appchain
+    // [Info] L1Handler — runs on the Appchain when the forward Piltover
+    // message from mainnet `Play.mint` is delivered by Katana's messaging
+    // worker.
+    //
+    // ## Critical invariants
+    //
+    // 1. **Parameter order MUST match the `Payload` struct field order**
+    //    in `events/index.cairo` (game_id → player → multiplier → supply →
+    //    price → level → reward). Mismatching the order causes Cairo's
+    //    strict L1Handler deserialization to fail (typically observed as
+    //    `'Failed to deserialize param #N'`).
+    //
+    // 2. **Full 7-field Payload accepted**, even though `_level` and
+    //    `_reward` are always zero on the forward direction. Cairo's L1Handler
+    //    rejects extra calldata, so we must accept every felt in the payload.
+    //    The forward `Play.mint` calls `PayloadTrait::new(...)` with zeros
+    //    for these two fields and then `.span()` serializes the whole struct
+    //    (9 felts) into the message.
+    //
+    // 3. **`from_address == this`** is the address-equality bridge invariant.
+    //    The forward call sends `send_message_to_appchain(this, ...)` where
+    //    `this` is mainnet Play. Katana delivers the L1Handler on the
+    //    appchain to the contract at the SAME address. The assertion
+    //    therefore verifies both that the message came from the legit
+    //    sender (mainnet Play) and that we're at the expected address on
+    //    the appchain.
     #[l1_handler]
     fn create(
         ref self: ContractState,
         from_address: felt252,
-        player: ContractAddress,
         game_id: u64,
+        player: ContractAddress,
         multiplier: u128,
         supply: u256,
         price: u256,
+        _level: u8,
+        _reward: u128,
     ) {
         // [Setup] World and Store
         let world = self.world(@NAMESPACE());
-        // [Check] Sender is allowed
+        // [Check] Sender is allowed — address-equality invariant.
         let this = starknet::get_contract_address();
         assert(from_address == this.into(), 'Play: invalid sender');
-        // [Interaction] Mint the game asset
+        // [Interaction] Mirror the mainnet-assigned game_id by minting the
+        // same NFT id on the appchain Collection. ERC-721 uniqueness in
+        // `Collection.mint(to, game_id, soulbound)` is the replay guard
+        // for this forward path — a duplicate L1Handler delivery would
+        // revert here.
         let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
         let collection = ICollectionDispatcher { contract_address: collection_address };
         let game_id = collection.mint(player, game_id, true);
-        // [Effect] Create the game
+        // [Effect] Start gameplay on the appchain.
         self.playable.create(world, player, game_id, multiplier, supply, price);
     }
 

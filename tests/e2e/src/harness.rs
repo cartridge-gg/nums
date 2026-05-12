@@ -12,18 +12,58 @@
 //! `Play` contract directly. See `docs/BRIDGE_ARCHITECTURE.md` for the
 //! full flow.
 //!
-//! Deployment order:
-//!   1. Migrate both worlds with the bridge messaging address zero
-//!      (`dojo_init` is invoked by `sozo migrate`; here the test harness
-//!      skips the assert by passing the messaging address through
-//!      `Setup.set_bridge` post-migrate instead).
-//!   2. Call `Setup.set_bridge(messaging_mock)` on both Setup contracts
-//!      to point them at the Piltover messaging mock.
+//! ## Load-bearing invariants enforced by this harness
+//!
+//! 1. **Address equality:** mainnet `Play` contract address must equal
+//!    appchain `Play` contract address. Both forward and reverse
+//!    directions assert this (`from_address == this` in `Play.create`,
+//!    `consume_message_from_appchain(this, ...)` in `Play.claim`).
+//!    Satisfied by:
+//!    a. Same `seed` in both dojo profiles (`nums-e2e-shared-v1`) so
+//!       both worlds compute the same address.
+//!    b. `force_play_artifacts_match` copies the settlement `Play` class
+//!       artifact to the appchain profile, working around a Sierra-level
+//!       non-determinism in sozo's per-profile builds (only `Play`
+//!       diverges; all other contracts match across profiles).
+//!
+//! 2. **Bridge address symmetry:** both Setup contracts hold the same
+//!    Piltover messaging contract address. Set via `Setup.set_bridge`
+//!    post-migrate (production deploys pass `bridge_messaging` directly
+//!    to `dojo_init`).
+//!
+//! 3. **Cairo `Payload` Serde field order:** `Payload` struct field
+//!    declaration order in `events/index.cairo` is `(game_id, player,
+//!    multiplier, supply, price, level, reward)`. Both the L1Handler
+//!    `Play.create` signature and the harness's reverse-payload builder
+//!    must match this order exactly (Cairo's strict L1Handler
+//!    deserialization rejects mismatches).
+//!
+//! ## Test-driven contract additions
+//!
+//! Three Cairo contracts include test-driven deployer-admin grants
+//! (`Token`, `Play`, `Setup`) that let the harness mutate access-control
+//! state without going through Treasury timelock. Marked clearly in each
+//! contract; production-safe because the deployer IS the
+//! Treasury-controlled account on real chains.
+//!
+//! ## Deployment order
+//!
+//!   1. `init_rollup` declares + deploys the Piltover Appchain core on
+//!      settlement, writes chain config for the appchain Katana.
+//!   2. Upgrade Appchain core to the `messaging_test` class so we can
+//!      inject Appchain→Settlement message hashes manually for the
+//!      reverse direction.
+//!   3. Build both dojo profiles serially. Copy `Play` artifacts across
+//!      profiles to force class-hash equality.
+//!   4. Migrate both worlds in parallel.
+//!   5. Wire bridge addresses via `Setup.set_bridge` on both chains.
+//!   6. Seed Vault shares (non-zero `total_shares` required by
+//!      `Rewardable::pay`).
 //!
 //! Production deploys pass `bridge_messaging` directly to `dojo_init`,
 //! so the post-deploy `set_bridge` call is dev-only.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -36,13 +76,13 @@ use starknet::macros::selector;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
 use starknet::signers::LocalWallet;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 use crate::constants::{
     APPCHAIN_CHAIN_ID_STR, DEV_ACCOUNT_0_ADDRESS, DEV_ACCOUNT_0_PRIVKEY,
 };
 use crate::katana::{assert_dev_account_matches, KatanaNode};
-use crate::messaging::{build_account, wait_for_tx_success};
+use crate::messaging::{add_messages_hashes_from_appchain, build_account, wait_for_tx_success};
 use crate::rollup::{
     assert_test_backdoor_present, init_rollup, upgrade_appchain_to_test_class,
     write_appchain_profile_toml,
@@ -227,6 +267,18 @@ impl TestEnv {
             .await
             .context("build e2esettlement")?;
 
+        // Force identical Play class hashes on both chains so the
+        // address-equality invariant holds (mainnet Play addr ==
+        // appchain Play addr). Sozo's per-profile Sierra output is
+        // non-deterministic for Play specifically (only Play; Setup /
+        // Token / Vault / Collection all match across profiles), likely
+        // from one of the achievement / quest / leaderboard / collection
+        // dependencies. Until upstream determinism is fixed, copy the
+        // settlement-profile Play artifacts over the appchain-profile
+        // ones so both `sozo migrate` calls declare the same class hash.
+        force_play_artifacts_match(&repo_root)
+            .context("force Play artifact equality across profiles")?;
+
         // 7. Migrate both worlds in parallel.
         info!("sozo migrate (parallel: appchain + settlement) ...");
         let repo_root_a = repo_root.clone();
@@ -389,9 +441,19 @@ impl TestEnv {
     }
 
     /// Deposit a small amount of NUMS into the settlement Vault so its
-    /// total_shares is non-zero (Rewardable::pay asserts vault is not
-    /// empty). The Token mint at migrate time gives dev account 0 1M
-    /// NUMS, more than enough.
+    /// `total_shares` is non-zero before any `vault.pay` call.
+    ///
+    /// Failure mode without this: `Setup.issue → purchase.execute →
+    /// vault.pay(...)` calls into `RewardableComponent` which asserts
+    /// `total_shares != 0` (panic message: 'Rewardable: vault is empty').
+    /// On a fresh test world there are no stakers yet, so `total_shares`
+    /// is 0 by default.
+    ///
+    /// The Token mint at migrate time gives dev account 0 1M NUMS (per
+    /// `dojo_e2esettlement.toml`); we deposit 1 NUMS (18-decimal) into
+    /// the vault here. The amount doesn't matter — anything > 0 satisfies
+    /// the assert. We don't bother with reward-share accounting because
+    /// the test only exercises the bridge path, not vault-yield claims.
     async fn seed_vault_shares(&self, nums_amount_low: u128) -> Result<()> {
         let token = self.settlement_world.contract("NUMS-Token")?;
         let vault = self.settlement_world.contract("NUMS-Vault")?;
@@ -546,12 +608,29 @@ impl TestEnv {
         };
 
         // Find Piltover's MessageSent event emitted by messaging_mock during
-        // send_message_to_appchain. piltover/messaging/component.cairo
-        // defines MessageSent as { #[key] message_hash, #[key] from,
-        // #[key] to, selector, nonce, payload: Span<felt252> }.
-        // Starknet event layout:
+        // send_message_to_appchain. Why a tx event rather than the receipt's
+        // `messages_sent` field: Piltover's `send_message_to_appchain` is a
+        // CONTRACT METHOD that stores the message in messaging_mock storage
+        // and emits MessageSent. It is NOT a Cairo `send_message_to_l1`
+        // syscall, so the receipt's `messages_sent` array is empty for the
+        // forward direction. (The reverse direction is the other way around
+        // — `Playable.finish` uses `send_message_to_l1_syscall` and the
+        // receipt's `messages_sent` is the source of truth.)
+        //
+        // piltover/messaging/component.cairo defines MessageSent as:
+        //   { #[key] message_hash, #[key] from, #[key] to,
+        //     selector: felt252, nonce: u64, payload: Span<felt252> }
+        // Starknet event layout (auto-derive groups #[key] fields into keys,
+        // non-key fields into data; Span<T> serializes as [len, items...]):
         //   keys = [selector("MessageSent"), message_hash, from, to]
         //   data = [selector_arg, nonce, payload_len, payload...]
+        //
+        // The payload offset of 3 below (data[3..3+len]) skips the selector
+        // (data[0]), the nonce (data[1]), and the Span length prefix
+        // (data[2]). Getting this offset wrong was Run 5 of the Lane C
+        // debugging — symptoms were spurious "missing field" / "wrong felt"
+        // errors because the parser thought the player address was the
+        // game_id.
         let ms_sel = get_selector_from_name("MessageSent")
             .map_err(|e| anyhow!("compute MessageSent selector: {e}"))?;
         let ms_event = events
@@ -586,15 +665,20 @@ impl TestEnv {
             .copied()
             .ok_or_else(|| anyhow!("MessageSent missing message_hash key"))?;
 
-        // In the new `Payload` Serde layout, payload[0] = player
-        // (ContractAddress) and payload[1] = game_id (u64). We reuse
-        // game_id as the legacy "purchase_id" on `PurchaseHandle` for
-        // backwards compatibility with the previous harness API.
+        // Payload struct field order (Cairo Serde, matches the
+        // declaration order in `events/index.cairo`):
+        //   [0]: game_id u64        ← #[key]
+        //   [1]: player ContractAddress (felt252)  ← #[key]
+        //   [2]: multiplier u128
+        //   [3,4]: supply.low/high
+        //   [5,6]: price.low/high
+        //   [7]: level u8 (zero on forward)
+        //   [8]: reward u128 (zero on forward)
         let purchase_id: u64 = payload
-            .get(1)
+            .first()
             .map(|f| felt_to_u64(*f))
             .transpose()?
-            .ok_or_else(|| anyhow!("game_id (payload[1]) missing from payload"))?;
+            .ok_or_else(|| anyhow!("game_id (payload[0]) missing from payload"))?;
 
         debug!(
             "settlement_player_buy_bundle: game_id={purchase_id}, payload_len={plen}, msg_hash={mh:#x}",
@@ -666,6 +750,166 @@ impl TestEnv {
             }
             tokio::time::sleep(Duration::from_millis(500)).await;
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Scenario primitives — reverse path (appchain → mainnet)
+    // ------------------------------------------------------------------
+
+    /// Build a synthetic reverse `Payload` as it would be emitted by the
+    /// appchain `Playable.finish` when a game ends. Captures the typical
+    /// fields a real game would have at game-over: `level` reached,
+    /// `reward` owed (denominated in NUMS, 18-decimal).
+    ///
+    /// Serialized to match Cairo's `Serde` derive for `Payload`. Field
+    /// order matches the struct declaration in `events/index.cairo`:
+    ///   game_id: u64             → 1 felt   #[key]
+    ///   player: ContractAddress  → 1 felt   #[key]
+    ///   multiplier: u128         → 1 felt
+    ///   supply: u256             → 2 felts (low, high)
+    ///   price: u256              → 2 felts (low, high)
+    ///   level: u8                → 1 felt
+    ///   reward: u128             → 1 felt
+    /// Total: 9 felts.
+    pub fn build_reverse_payload(
+        &self,
+        player: Felt,
+        game_id: u64,
+        multiplier: u128,
+        supply_low: u128,
+        price_low: u128,
+        level: u8,
+        reward: u128,
+    ) -> Vec<Felt> {
+        vec![
+            Felt::from(game_id),     // payload[0]: game_id u64
+            player,                   // payload[1]: player ContractAddress
+            Felt::from(multiplier),  // payload[2]: multiplier u128
+            Felt::from(supply_low),  // payload[3]: supply.low
+            Felt::ZERO,              // payload[4]: supply.high
+            Felt::from(price_low),   // payload[5]: price.low
+            Felt::ZERO,              // payload[6]: price.high
+            Felt::from(level),       // payload[7]: level u8
+            Felt::from(reward),      // payload[8]: reward u128
+        ]
+    }
+
+    /// Inject a reverse Piltover message into the settlement-side
+    /// messaging mock, mimicking what would arrive after the appchain's
+    /// `Playable.finish → send_message_to_l1_syscall(this, payload)` was
+    /// settled by a Piltover state-root commit.
+    ///
+    /// ## Why a backdoor injection rather than driving real gameplay
+    ///
+    /// The real reverse flow requires playing a game to completion on the
+    /// appchain (set/select/apply through to game-over). This is
+    /// RNG-dependent and hard to script deterministically in an
+    /// integration test — the test would have to make placements that
+    /// happen to land in the right slot order given whatever sequence of
+    /// random numbers the VRF mock produces.
+    ///
+    /// Instead, the test exercises the cross-chain PLUMBING end-to-end:
+    /// Piltover hash computation, `consume_message_from_appchain`
+    /// ref-counting, Cairo `Serde` round-trip of the `Payload` struct,
+    /// NUMS mint via `Token.reward`, EMA push in `config.push`. The
+    /// gameplay logic itself is covered by unit tests.
+    ///
+    /// ## Address-equality enforcement
+    ///
+    /// The Piltover appchain→starknet hash is computed over
+    /// `(from_address, to_address, payload)` with NO nonce. Per the
+    /// address-equality invariant (see `force_play_artifacts_match` and
+    /// the architecture doc), `from = to = mainnet_play_address` for
+    /// reverse messages. The pre-check below catches a broken invariant
+    /// before the harness misleadingly times out on materialization.
+    pub async fn inject_reverse_message(&self, payload: &[Felt]) -> Result<Felt> {
+        let mainnet_play = self.settlement_world.contract("NUMS-Play")?;
+        // appc->sn hash uses (from, to, payload). Address equality means
+        // from = to = mainnet_play. Verify by reading appchain Play addr
+        // as a defense against the invariant breaking silently.
+        let appchain_play = self.appchain_world.contract("NUMS-Play")?;
+        if appchain_play != mainnet_play {
+            bail!(
+                "address-equality invariant broken: mainnet_play={mainnet_play:#x} \
+                 appchain_play={appchain_play:#x}. Both directions of the bridge \
+                 expect these to match.",
+            );
+        }
+        let hash = compute_appc_to_sn_message_hash(mainnet_play, mainnet_play, payload);
+        debug!(
+            "inject_reverse_message: hash={hash:#x}, payload_len={plen}",
+            plen = payload.len(),
+        );
+        let acct = self.settlement_account()?;
+        add_messages_hashes_from_appchain(&acct, self.messaging_mock, &[hash])
+            .await
+            .context("add_messages_hashes_from_appchain")?;
+        Ok(hash)
+    }
+
+    /// Player calls mainnet `Play.claim(payload)`. Consumes the injected
+    /// reverse Piltover message and mints NUMS reward + updates EMA.
+    ///
+    /// In production this is what a real player calls after the appchain
+    /// `Playable.finish` queues a reverse message and the state-root
+    /// commit settles. The player retrieves the payload bytes
+    /// (off-chain — typically from a Torii event index) and submits this
+    /// call. Ownership of the NFT corresponding to `payload.game_id` is
+    /// checked via `Collection.assert_is_owner` inside `Play.claim`, so
+    /// only the rightful owner can collect the reward.
+    pub async fn settlement_player_claim(&self, payload: &[Felt]) -> Result<()> {
+        let play = self.settlement_world.contract("NUMS-Play")?;
+        let acct = self.settlement_account()?;
+        // `Play.claim` takes `payload: Span<felt252>` as its argument.
+        // Cairo Serde for Span<T> serializes as [len, items...], so the
+        // calldata is prefixed with the felt count.
+        let mut calldata = vec![Felt::from(payload.len() as u64)];
+        calldata.extend_from_slice(payload);
+        let call = Call {
+            to: play,
+            selector: selector!("claim"),
+            calldata,
+        };
+        let tx = acct
+            .execute_v3(vec![call])
+            .gas_estimate_multiplier(2.0)
+            .send()
+            .await
+            .context("Play.claim tx")?;
+        wait_for_tx_success(acct.provider(), tx.transaction_hash).await?;
+        info!("Play.claim consumed reverse message");
+        Ok(())
+    }
+
+    /// Read the settlement-side NUMS balance for `player`. Used to assert
+    /// the reward mint after `Play.claim` settles.
+    ///
+    /// Why u128: NUMS supply caps at 1M * 1e18 = `0xD3C21BCECCEDA1000000`
+    /// which fits comfortably in u128. The on-chain ERC-20 `balance_of`
+    /// returns a u256 (two felts: low + high) but the high felt is always
+    /// zero in practice, so we read only the low felt and reinterpret as
+    /// u128 for ergonomics.
+    pub async fn read_player_nums_balance(&self, player: Felt) -> Result<u128> {
+        let token = self.settlement_world.contract("NUMS-Token")?;
+        let provider = Self::provider(&self.settlement.rpc_url())?;
+        let res = provider
+            .call(
+                FunctionCall {
+                    contract_address: token,
+                    entry_point_selector: selector!("balance_of"),
+                    calldata: vec![player],
+                },
+                BlockId::Tag(BlockTag::PreConfirmed),
+            )
+            .await
+            .context("token.balance_of")?;
+        // balance_of returns u256 (lo, hi). NUMS rewards fit comfortably
+        // in u128 for any practical test scenario.
+        let lo = res.first().ok_or_else(|| anyhow!("empty balance_of result"))?;
+        let bytes = lo.to_bytes_be();
+        let mut buf = [0u8; 16];
+        buf.copy_from_slice(&bytes[16..32]);
+        Ok(u128::from_be_bytes(buf))
     }
 
     /// Dump recent L1Handler tx receipts on the appchain — diagnostic
@@ -742,6 +986,88 @@ impl TestEnv {
 // ---------------------------------------------------------------------
 // Local helpers
 // ---------------------------------------------------------------------
+
+/// Copy the settlement-profile `Play` artifacts over the appchain-profile
+/// ones so both `sozo migrate` declarations use the same class hash.
+///
+/// ## Why this is necessary
+///
+/// The new bridge architecture rests on an **address-equality invariant**:
+/// the mainnet `Play` contract must be deployed at the same address as
+/// the appchain `Play` contract. Both directions of the cross-chain
+/// message flow depend on it:
+///
+///   * Forward: mainnet `Play.mint` sends `send_message_to_appchain(this, ...)`
+///     where `this` is the mainnet Play address. The appchain L1Handler
+///     `Play.create` asserts `from_address == this` (appchain Play
+///     address). Same address → match.
+///   * Reverse: appchain `Playable.finish` queues `send_message_to_l1_syscall(this, ...)`
+///     where `this` is the appchain Play address. Mainnet `Play.claim`
+///     calls `consume_message_from_appchain(this, payload)` where
+///     `this` is the mainnet Play address. Same address → match.
+///
+/// Dojo contract addresses are deterministic on
+/// `(world_address, class_hash, namespace, contract_name)`. With both
+/// profiles using the same `seed`, the world addresses match. With
+/// identical Cairo source, `Setup`, `Token`, `Vault`, and `Collection`
+/// all produce the same class hash on both chains. **But `Play` alone**
+/// produces a different `sierra_program` between the two `sozo build
+/// --profile X` invocations even though the source is identical (the
+/// `abi` and `entry_points_by_type` JSON keys remain bit-identical).
+///
+/// Plausible cause: one of `achievement`, `quest`, `leaderboard`, or
+/// `collection` Dojo deps that Play uses produces non-deterministic
+/// Sierra output across profile builds. Setup et al. don't use those
+/// deps, hence why only Play diverges.
+///
+/// ## Workaround
+///
+/// After both per-profile sozo builds complete, this helper overwrites
+/// the appchain's Play artifact with the settlement's. Both `sozo migrate`
+/// passes then declare the SAME class hash for `NUMS-Play`, giving the
+/// same contract address on both chains.
+///
+/// ## Properties
+///
+/// - Safe to call when the source files don't exist (skips with a warn).
+/// - Idempotent — calling twice is a no-op on the second run.
+/// - Should be removed when upstream Dojo determinism is fixed; the
+///   `target/<profile>/nums_Play.contract_class.json` files would then
+///   be bit-identical without this copy step.
+fn force_play_artifacts_match(repo_root: &Path) -> Result<()> {
+    let target = repo_root.join("target");
+    let src_dir = target.join("e2esettlement");
+    let dst_dir = target.join("e2eappchain");
+    let files = [
+        "nums_Play.contract_class.json",
+        "nums_Play.compiled_contract_class.json",
+    ];
+    for name in files {
+        let src = src_dir.join(name);
+        let dst = dst_dir.join(name);
+        if !src.exists() {
+            warn!(
+                "force_play_artifacts_match: source missing at {}, skipping",
+                src.display(),
+            );
+            continue;
+        }
+        std::fs::copy(&src, &dst).with_context(|| {
+            format!(
+                "copy {} -> {} (Play artifact equality)",
+                src.display(),
+                dst.display()
+            )
+        })?;
+        debug!(
+            "copied {} -> {} (Play artifact equality)",
+            src.display(),
+            dst.display(),
+        );
+    }
+    info!("Play artifacts equalized across profiles (force_play_artifacts_match)");
+    Ok(())
+}
 
 fn artifact_path(name: &str) -> PathBuf {
     let here = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

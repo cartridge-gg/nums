@@ -75,10 +75,20 @@ mod Token {
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
         // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
-        // account so the e2e harness can call grant_role(MINTER_ROLE, Setup)
-        // post-deploy without going through Treasury timelock. Mirrors the
-        // pattern in Setup.dojo_init. Production deploys are unaffected
-        // because the deployer IS the Treasury-controlled account.
+        // account. Mirrors the pattern in Setup.dojo_init / Play.dojo_init.
+        //
+        // Why: At deploy time DEFAULT_ADMIN_ROLE is granted only to Treasury,
+        // and MINTER_ROLE is granted only to Play. The e2e harness needs to
+        // grant additional roles (e.g. MINTER_ROLE on Setup so bridge-mode
+        // `Setup.apply_game_claim_batch` could mint — historical; today the
+        // mint runs through Play.claim and no extra grant is needed). Without
+        // this deployer-admin grant the harness would have to drive the
+        // Treasury timelock for any role mutation, which is impractical in
+        // a 10-minute integration test.
+        //
+        // Production safety: the deployer account on real chains IS the
+        // Treasury-controlled account, so granting DEFAULT_ADMIN_ROLE to it
+        // is idempotent with the Treasury grant above.
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         // [Effect] Mint initial supply

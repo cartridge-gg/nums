@@ -22,7 +22,15 @@
 
 [world]
 name = "Nums"
-seed = "nums-e2e-settlement-v2"
+# SHARED seed across both e2e profiles (e2esettlement + e2eappchain).
+# Dojo computes the world address deterministically from (class_hash,
+# seed). Both chains must derive the SAME world address so that the
+# bridge's address-equality invariant — mainnet Play addr == appchain
+# Play addr — has any chance of holding. See
+# `tests/e2e/src/harness.rs::force_play_artifacts_match` for the rest of
+# the address-equality story (the seed gets us the same world; the
+# artifact copy gets us the same Play class).
+seed = "nums-e2e-shared-v1"
 description = "Nums settlement-layer e2e test world"
 website = "https://nums.gg"
 

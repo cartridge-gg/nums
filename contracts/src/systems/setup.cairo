@@ -120,10 +120,7 @@ pub mod Setup {
                 .execute(world, recipient, bundle_id, quantity);
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             let play = IPlayDispatcher { contract_address: play_address };
-            play
-                .mint(
-                    recipient, Some(multiplier), Some(supply), Some(price), Some(false), quantity,
-                );
+            play.mint(recipient, Some(multiplier), Some(supply), Some(price), Some(true), quantity);
         }
         fn supply(
             self: @BundleComponent::ComponentState<ContractState>, bundle_id: u32,

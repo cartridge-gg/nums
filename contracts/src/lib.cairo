@@ -32,9 +32,11 @@ pub mod models {
 pub mod events {
     pub mod claimed;
     pub mod index;
+    pub mod payload;
     pub mod purchased;
     pub mod started;
     pub mod vault;
+    pub mod voucher;
 }
 
 pub mod svg {
@@ -66,7 +68,6 @@ pub mod assets {
 pub mod types {
     pub mod drop;
     pub mod metadata;
-    pub mod payload;
     pub mod power;
     pub mod svg;
     pub mod trap;

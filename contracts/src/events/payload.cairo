@@ -1,18 +1,8 @@
 use starknet::ContractAddress;
+pub use crate::events::index::Payload;
 
-mod Errors {
-    pub const INVALID_PAYLOAD: felt252 = 'Invalid payload';
-}
-
-#[derive(Drop, Copy, Serde)]
-pub struct Payload {
-    pub player: ContractAddress,
-    pub game_id: u64,
-    pub multiplier: u128,
-    pub supply: u256,
-    pub price: u256,
-    pub level: u8,
-    pub reward: u128,
+pub mod errors {
+    pub const INVALID_SERIALIZED: felt252 = 'Payload: invalid serialized';
 }
 
 #[generate_trait]
@@ -31,8 +21,8 @@ pub impl PayloadImpl of PayloadTrait {
     }
 
     #[inline]
-    fn from(ref span: Span<felt252>) -> Payload {
-        Serde::deserialize(ref span).expect(Errors::INVALID_PAYLOAD)
+    fn from(ref serialized: Span<felt252>) -> Payload {
+        Serde::deserialize(ref serialized).expect(errors::INVALID_SERIALIZED)
     }
 
     #[inline]

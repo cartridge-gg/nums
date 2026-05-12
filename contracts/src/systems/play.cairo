@@ -20,6 +20,7 @@ pub trait IPlay<T> {
     fn select(ref self: T, game_id: u64, index: u8);
     fn apply(ref self: T, game_id: u64, index: u8);
     fn claim(ref self: T, payload: Span<felt252>);
+    fn redeem(ref self: T, payload: Span<felt252>);
 }
 
 const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
@@ -28,6 +29,7 @@ const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
 pub mod Play {
     use achievement::component::Component as AchievementComponent;
     use achievement::component::Component::AchievementTrait;
+    use core::panic_with_felt252;
     use dojo::world::WorldStorageTrait;
     use leaderboard::components::rankable::RankableComponent;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
@@ -35,11 +37,13 @@ pub mod Play {
     use openzeppelin::introspection::src5::SRC5Component;
     use quest::component::Component as QuestComponent;
     use quest::component::Component::QuestTrait;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, syscalls};
     use crate::components::playable::PlayableComponent;
     use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE};
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
+    use crate::events::payload::PayloadTrait;
+    use crate::events::voucher::VoucherTrait;
     use crate::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
     use crate::store::StoreTrait;
     use crate::systems::collection::{
@@ -48,7 +52,6 @@ pub mod Play {
     use crate::systems::setup::NAME as SETUP;
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
-    use crate::types::payload::PayloadTrait;
     use super::*;
 
     // Components
@@ -179,10 +182,21 @@ pub mod Play {
             if !quest.reward() {
                 return;
             }
-            // [Effect] Create game
-            let play = IPlayDispatcher { contract_address: starknet::get_contract_address() };
-            // play.mint(player_id.try_into().unwrap(), None, None, None, None, 1);
-        // TODO: send message to L1
+
+            // [Messaging] Message to mainnet
+            let voucher = VoucherTrait::new(
+                player: player_id.try_into().unwrap(), multiplier: None, supply: None, price: None,
+            );
+            let to_address = starknet::get_contract_address();
+            match syscalls::send_message_to_l1_syscall(to_address.into(), voucher.span()) {
+                Ok(_) => (),
+                Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
+            }
+
+            // [Event] Emit the voucher
+            let world = self.get_contract().world(@NAMESPACE());
+            let store = StoreTrait::new(world);
+            store.voucher(voucher);
         }
     }
 
@@ -230,12 +244,11 @@ pub mod Play {
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = ICollectionDispatcher { contract_address: collection_address };
             // [Effect] Create games
-            let world = self.world(@NAMESPACE());
             let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
             let asset = IERC20MixinDispatcher { contract_address: token_address };
             let supply = supply.unwrap_or(asset.total_supply());
             let multiplier = multiplier.unwrap_or(MULTIPLIER_PRECISION);
-            let soulbound = true; // FIXME: cannot manage transfers on both networks yet
+            let soulbound = soulbound.unwrap_or(true);
             let price = price.unwrap_or(0);
             let bridge = store.bridge();
             let messaging = IMessagingDispatcher { contract_address: bridge.address };
@@ -247,6 +260,8 @@ pub mod Play {
                 let payload = PayloadTrait::new(player, game_id, multiplier, supply, price, 0, 0);
                 let this = starknet::get_contract_address();
                 messaging.send_message_to_appchain(this, selector!("create"), payload.span());
+                // [Event] Emit the payload
+                store.payload(payload);
             }
         }
 
@@ -311,6 +326,33 @@ pub mod Play {
             self.playable.claim(world, payload);
             // [Interaction] Update token metadata
             collection.update(payload.game_id.into());
+        }
+
+        // [Info] Designed to be called on Mainnet
+        fn redeem(ref self: ContractState, mut payload: Span<felt252>) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Verify message from Appchain
+            let store = StoreTrait::new(world);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
+            let this = starknet::get_contract_address();
+            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Caller is allowed
+            let voucher = VoucherTrait::from(ref payload);
+            let caller = starknet::get_caller_address();
+            assert(caller == voucher.player, 'Play: invalid caller');
+            // [Effect] Claim reward, we use the dispatcher to ensure caller will be `this`
+            let play = IPlayDispatcher { contract_address: this };
+            play
+                .mint(
+                    player: voucher.player,
+                    multiplier: voucher.multiplier,
+                    supply: voucher.supply,
+                    price: voucher.price,
+                    soulbound: None,
+                    quantity: 1,
+                );
         }
     }
 }

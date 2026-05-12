@@ -8,9 +8,11 @@ use ekubo::interfaces::positions::IPositionsDispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
 use crate::events::claimed::ClaimedTrait;
+use crate::events::payload::Payload;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
+use crate::events::voucher::Voucher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{Bridge, Config, Game, VaultInfo, VaultPosition};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
@@ -153,6 +155,14 @@ pub impl StoreImpl of StoreTrait {
 
     fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u128) {
         let event = StartedTrait::new(player_id, game_id, multiplier);
+        self.world.emit_event(@event);
+    }
+
+    fn payload(mut self: Store, event: Payload) {
+        self.world.emit_event(@event);
+    }
+
+    fn voucher(mut self: Store, event: Voucher) {
         self.world.emit_event(@event);
     }
 

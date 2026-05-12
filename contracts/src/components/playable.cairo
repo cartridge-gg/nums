@@ -15,13 +15,13 @@ pub mod PlayableComponent {
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, AchievementType, IAchievement};
     use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
+    use crate::events::payload::{Payload, PayloadTrait};
     use crate::helpers::random::RandomImpl;
     use crate::helpers::rewarder::Rewarder;
     use crate::models::config::ConfigTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::systems::collection::NAME as COLLECTION;
     use crate::systems::token::ITokenDispatcherTrait;
-    use crate::types::payload::{Payload, PayloadTrait};
     use crate::{StoreImpl, StoreTrait, constants};
 
     // Constants
@@ -386,6 +386,9 @@ pub mod PlayableComponent {
                 Ok(_) => (),
                 Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
             }
+
+            // [Event] Emit payload event
+            store.payload(payload);
         }
 
         fn claim(ref self: ComponentState<TContractState>, world: WorldStorage, payload: Payload) {

@@ -323,7 +323,115 @@ impl TestEnv {
         //    `Play.create` on the appchain `Play` contract directly,
         //    so no separate contract deployment is required.
 
-        // 8b. Spawn saya-tee in `--mock-prove` mode. Saya polls the
+        // 8b. Probe the appchain Katana's TEE RPC AND extract the
+        //     `katana_tee_config_hash` from its first quote. The hash is
+        //     a versioned commitment over (KatanaTeeConfig1, chain_id,
+        //     fee_token_address) and pins the off-chain Katana node into
+        //     Piltover. Two reasons we need it now:
+        //       (a) confirms `--tee mock` actually wired the RPC, before
+        //           Saya silently spins on "Method not found" and
+        //           `wait_for_state_root_commit` times out unhelpfully;
+        //       (b) we feed it into `set_program_info(KatanaTee { hash })`
+        //           on the settlement Piltover core in step 8c, so
+        //           Saya's `update_state` clears the mode check
+        //           `MODE_MISMATCH_TEE_REQUIRES_KATANA_TEE` in
+        //           `piltover/src/input/component.cairo`.
+        let katana_tee_config_hash = {
+            let url = appchain.rpc_url();
+            let req = serde_json::json!({
+                "jsonrpc": "2.0",
+                "method": "tee_generateQuote",
+                "params": [serde_json::Value::Null, 0u64],
+                "id": 1u64,
+            });
+            let resp = reqwest::Client::new()
+                .post(&url)
+                .json(&req)
+                .send()
+                .await
+                .context("probe appchain tee_generateQuote")?;
+            let body: serde_json::Value = resp
+                .json()
+                .await
+                .context("decode tee_generateQuote response")?;
+            if let Some(err) = body.get("error") {
+                bail!(
+                    "appchain tee_generateQuote NOT reachable: {err}. \
+                     Confirm Katana was started with `--tee mock` and that the \
+                     rollup-mode RPC server merges the TEE module (see \
+                     `katana_sequencer_node::lib.rs::TeeApiServer::into_rpc`).",
+                );
+            }
+            let hash_hex = body
+                .get("result")
+                .and_then(|r| r.get("katanaTeeConfigHash"))
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| {
+                    anyhow!(
+                        "tee_generateQuote response missing `katanaTeeConfigHash`: {body}",
+                    )
+                })?
+                .to_string();
+            let hash = Felt::from_hex(&hash_hex)
+                .map_err(|e| anyhow!("parse katanaTeeConfigHash {hash_hex:?}: {e}"))?;
+            info!("appchain tee_generateQuote OK; katana_tee_config_hash={hash:#x}");
+            hash
+        };
+
+        // 8c. Configure the settlement Piltover core's `ProgramInfo`
+        //     AND `facts_registry`:
+        //
+        //     - `set_program_info(KatanaTee { katana_tee_config_hash })`
+        //       — without this, `update_state` reverts with
+        //       `'mode: tee needs KatanaTee cfg'` (the freshly deployed
+        //       Piltover defaults to `StarknetOs(zeros)`).
+        //
+        //     - `set_facts_registry(tee_registry_mock)` — `katana init
+        //       rollup` plumbs `--settlement-facts-registry 0x1` as a
+        //       placeholder. In TEE mode, `validate_input` dispatches
+        //       to that address to call `verify_sp1_proof`, so leaving
+        //       it pointed at `0x1` causes `ContractNotFound` errors on
+        //       every `update_state` estimate_fee. Point it at the
+        //       permissive AMD TEE registry mock from step 3 so the
+        //       stub journal from `saya-tee --mock-prove` passes
+        //       verification.
+        //
+        //     The Cairo enum `ProgramInfo` Serde-encodes as
+        //     `[variant_index, ...inner_fields]`; variant 1 = KatanaTee
+        //     with a single felt inner field.
+        {
+            let acct = build_account(
+                Self::provider(&settlement.rpc_url())?,
+                settlement_chain_id,
+                settlement_account_addr,
+                settlement_account_priv,
+            );
+            let calls = vec![
+                Call {
+                    to: messaging_mock,
+                    selector: selector!("set_program_info"),
+                    calldata: vec![Felt::ONE, katana_tee_config_hash],
+                },
+                Call {
+                    to: messaging_mock,
+                    selector: selector!("set_facts_registry"),
+                    calldata: vec![tee_registry_mock],
+                },
+            ];
+            let tx = acct
+                .execute_v3(calls)
+                .gas_estimate_multiplier(2.0)
+                .send()
+                .await
+                .context("set_program_info(KatanaTee) + set_facts_registry tx")?;
+            wait_for_tx_success(acct.provider(), tx.transaction_hash).await?;
+            info!(
+                "Piltover configured: KatanaTee({:#x}) + facts_registry={:#x}",
+                katana_tee_config_hash, tee_registry_mock,
+            );
+        }
+
+        // 8c. Spawn saya-tee in `--mock-prove` mode. Saya polls the
         //     appchain RPC for finalized blocks, batches them, builds a
         //     stub TEE attestation (verified against the mock TEE
         //     registry from step 3), then calls `update_state` on the

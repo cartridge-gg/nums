@@ -52,6 +52,7 @@ impl KatanaNode {
             fork,
             messaging_config_path,
             None,
+            false,
         )
         .await
     }
@@ -64,6 +65,7 @@ impl KatanaNode {
             false,
             messaging_config_path,
             None,
+            false,
         )
         .await
     }
@@ -88,6 +90,7 @@ impl KatanaNode {
             false,
             None,
             Some(chain_config_dir),
+            true, // tee_mock — Saya's attestor needs `tee_generateQuote` RPC
         )
         .await
     }
@@ -99,6 +102,7 @@ impl KatanaNode {
         fork_mainnet: bool,
         messaging_config_path: Option<&PathBuf>,
         chain_config_dir: Option<&PathBuf>,
+        tee_mock: bool,
     ) -> Result<Self> {
         let data_dir = tempfile::tempdir().context("create katana data dir")?;
         let bin = Self::binary();
@@ -149,6 +153,19 @@ impl KatanaNode {
             cmd.arg("--chain").arg(dir);
         } else if let Some(p) = messaging_config_path {
             cmd.arg("--messaging").arg(p);
+        }
+
+        if tee_mock {
+            // Enables the `tee_generateQuote` JSON-RPC method that
+            // `saya-tee`'s attestor calls each block batch — even in
+            // `--mock-prove` mode, Saya still needs Katana to surface
+            // batch-level state roots / messages commitments via that
+            // RPC. The `mock` provider is software-only (no SEV-SNP
+            // hardware) and is the appchain-side counterpart to
+            // `saya-tee --mock-prove`. Real production uses
+            // `--tee sev-snp` on the appchain + Saya proving against the
+            // real AMD TEE registry.
+            cmd.arg("--tee").arg("mock");
         }
 
         // Capture both stdout and stderr to a per-node log file under the

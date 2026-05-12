@@ -27,6 +27,11 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 url = "2.5"
 hex = "0.4"
 
+# For the harness-internal tee_generateQuote probe — `starknet-rs` does
+# not expose a generic-method JSON-RPC client, so we hand-roll the
+# single non-Starknet call we need.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
 # Pinned to versions that work with Katana 1.7.x JSON-RPC v0.9.
 starknet = "0.17"
 starknet-crypto = "0.8"

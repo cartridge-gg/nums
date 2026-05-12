@@ -140,7 +140,12 @@ async fn happy_path_full_saya_round_trip() -> Result<()> {
     // 4. Wait for saya-tee --mock-prove to commit the appchain state
     //    root carrying our reverse message. With batch_size=1 + 5s
     //    idle_timeout this normally settles in <30s on dev hardware.
-    env.wait_for_state_root_commit(&reverse_payload, 180)
+    // Generous timeout: Saya commits state roots one appchain block at a
+    // time at ~0.5 blocks/sec under `--mock-prove`, and the message
+    // block sits near the end of the migrate-+-gameplay block sequence
+    // (~120–140). 180s reliably came up short; 600s gives a comfortable
+    // margin even on a busy dev machine.
+    env.wait_for_state_root_commit(&reverse_payload, 600)
         .await?;
 
     // 5. Player consumes the now-ready message + mints NUMS reward.

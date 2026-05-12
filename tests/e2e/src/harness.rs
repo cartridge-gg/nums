@@ -876,9 +876,19 @@ impl TestEnv {
                 Err(e) => {
                     // Simulation revert: invalid placement (slot full,
                     // number out of order, etc). Try a different index.
-                    debug!(
-                        "Play.set(game_id={game_id}, index={next_index}) simulation revert: {e}",
-                    );
+                    // The FIRST failure on each turn is logged at warn so
+                    // a stuck-game investigation always has a concrete
+                    // revert reason in the test output; subsequent ones
+                    // stay at debug to keep the log readable.
+                    if tried_this_turn.is_empty() {
+                        warn!(
+                            "Play.set(game_id={game_id}, index={next_index}) simulation revert: {e}",
+                        );
+                    } else {
+                        debug!(
+                            "Play.set(game_id={game_id}, index={next_index}) simulation revert: {e}",
+                        );
+                    }
                     tried_this_turn.insert(next_index);
                     continue;
                 }

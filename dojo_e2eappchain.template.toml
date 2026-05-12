@@ -52,8 +52,12 @@ order_inits = [
   "NUMS-Vault",
   "NUMS-Treasury",
 ]
-# Vrf mock is no-init; Setup stores a placeholder VRF address.
-skip_contracts = ["NUMS-Vrf"]
+# NUMS-Vrf has no `dojo_init`, but it MUST be deployed on the appchain
+# (real gameplay paths — `Play.set`/`select`/`apply` via
+# `Playable.set` — go through `store.vrf_disp().consume_random(...)`).
+# Don't include it in `skip_contracts`. The harness relies on Setup's
+# DNS-lookup fallback (vrf_address = Option::None below) to wire the
+# deployed Vrf address into Config.
 disable_multicall = true
 
 [writers]
@@ -81,8 +85,7 @@ disable_multicall = true
   "{ACCOUNT_ADDRESS}", # recipient = genesis account
 ]
 "NUMS-Setup" = [
-  "0x0",                                                                # vrf_address: Option::Some prefix
-  "{ACCOUNT_ADDRESS}",                                                  # vrf_address (placeholder)
+  "0x1",                                                                # vrf_address: Option::None → Setup.dojo_init does DNS lookup of `NUMS-Vrf` (the mock deployed by sozo migrate). Bridge-mode gameplay (Play.set on appchain) calls `consume_random` on this address.
   "0x1",                                                                # quote_address: Option::None — Faucet via DNS
   "{ACCOUNT_ADDRESS}",                                                  # team_address
   "0x0",                                                                # ekubo_router_address — unused on appchain

@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
-# One-time prerequisites for `bin/integration-test`.
+# One-time prerequisites for `bin/integration-test` (real-Saya flow).
 #
 #   1. Verifies the Katana binary is on PATH (or at the expected location).
 #   2. Verifies / builds sozo from the local Dojo repo.
-#   3. Builds the Piltover `messaging_mock` Cairo artifact with the
-#      `messaging_test` feature flag enabled and copies it into
-#      `tests/e2e/artifacts/`.
+#   3. Verifies / builds `saya-tee` and `saya-ops` from the local Saya repo.
 #
-# Re-run this whenever you bump the Katana / Piltover source tree.
+# Re-run this whenever you bump Katana / Saya source trees.
+#
+# Environment overrides:
+#   KATANA_REPO  — defaults to ~/Projects/dojoengine/katana
+#   DOJO_REPO    — defaults to ~/Projects/dojoengine/dojo
+#   SAYA_REPO    — defaults to ~/Projects/dojoengine/saya
+#   SAYA_TEE_BIN — explicit saya-tee path; skips the build step
+#   SAYA_OPS_BIN — explicit saya-ops path; skips the build step
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ARTIFACTS="${REPO_ROOT}/tests/e2e/artifacts"
-mkdir -p "${ARTIFACTS}"
 
 DOJO_REPO="${DOJO_REPO:-${HOME}/Projects/dojoengine/dojo}"
 KATANA_REPO="${KATANA_REPO:-${HOME}/Projects/dojoengine/katana}"
-PILTOVER_DIR="${KATANA_REPO}/crates/contracts/contracts/piltover"
+SAYA_REPO="${SAYA_REPO:-${HOME}/Projects/dojoengine/saya}"
 
 # 1. Katana binary.
 if ! command -v katana >/dev/null 2>&1; then
@@ -43,41 +46,52 @@ if ! command -v sozo >/dev/null 2>&1; then
   fi
 fi
 
-# 3. Piltover messaging_mock with messaging_test feature.
-if [[ ! -d "${PILTOVER_DIR}" ]]; then
-  echo "Piltover sources not found at ${PILTOVER_DIR}"
-  echo "Set KATANA_REPO env var to your local clone of dojoengine/katana."
+# 3. saya-tee + saya-ops binaries.
+#
+# Each binary lives in its own workspace under saya/bin/ (separate
+# Cargo.toml files, NOT a single workspace), so they have to be built
+# from their respective directories.
+SAYA_TEE_DEFAULT="${SAYA_REPO}/bin/persistent-tee/target/release/saya-tee"
+SAYA_OPS_DEFAULT="${SAYA_REPO}/bin/ops/target/release/saya-ops"
+
+SAYA_TEE_BIN_RESOLVED="${SAYA_TEE_BIN:-${SAYA_TEE_DEFAULT}}"
+SAYA_OPS_BIN_RESOLVED="${SAYA_OPS_BIN:-${SAYA_OPS_DEFAULT}}"
+
+if [[ ! -x "${SAYA_TEE_BIN_RESOLVED}" ]]; then
+  if [[ ! -d "${SAYA_REPO}/bin/persistent-tee" ]]; then
+    echo "Saya sources not found at ${SAYA_REPO}/bin/persistent-tee"
+    echo "Set SAYA_REPO env var to your local clone of dojoengine/saya,"
+    echo "or set SAYA_TEE_BIN to point at a prebuilt saya-tee binary."
+    exit 1
+  fi
+  echo "Building saya-tee from ${SAYA_REPO}/bin/persistent-tee ..."
+  (cd "${SAYA_REPO}/bin/persistent-tee" && cargo build --release --bin saya-tee)
+fi
+if [[ ! -x "${SAYA_TEE_BIN_RESOLVED}" ]]; then
+  echo "ERROR: saya-tee build did not produce ${SAYA_TEE_BIN_RESOLVED}"
   exit 1
 fi
-echo "Building Piltover with messaging_test feature ..."
-(cd "${PILTOVER_DIR}" && scarb build --features messaging_test)
+echo "saya-tee: ${SAYA_TEE_BIN_RESOLVED}"
 
-cp "${PILTOVER_DIR}/target/dev/piltover_messaging_mock.contract_class.json" "${ARTIFACTS}/"
-cp "${PILTOVER_DIR}/target/dev/piltover_messaging_mock.compiled_contract_class.json" "${ARTIFACTS}/"
-
-# Sanity: confirm the messaging_test backdoor is in the artifact.
-if ! grep -q "add_messages_hashes_from_appchain" "${ARTIFACTS}/piltover_messaging_mock.contract_class.json"; then
-  echo "ERROR: messaging_mock was built WITHOUT the messaging_test feature."
-  echo "       Rebuild with: scarb build --features messaging_test"
+if [[ ! -x "${SAYA_OPS_BIN_RESOLVED}" ]]; then
+  if [[ ! -d "${SAYA_REPO}/bin/ops" ]]; then
+    echo "Saya sources not found at ${SAYA_REPO}/bin/ops"
+    echo "Set SAYA_OPS_BIN to point at a prebuilt saya-ops binary, or"
+    echo "ensure SAYA_REPO points at a clone of dojoengine/saya."
+    exit 1
+  fi
+  echo "Building saya-ops from ${SAYA_REPO}/bin/ops ..."
+  (cd "${SAYA_REPO}/bin/ops" && cargo build --release --bin saya-ops)
+fi
+if [[ ! -x "${SAYA_OPS_BIN_RESOLVED}" ]]; then
+  echo "ERROR: saya-ops build did not produce ${SAYA_OPS_BIN_RESOLVED}"
   exit 1
 fi
+echo "saya-ops: ${SAYA_OPS_BIN_RESOLVED}"
 
-# Strip the piltover_ prefix so the harness can look up by short name.
-mv "${ARTIFACTS}/piltover_messaging_mock.contract_class.json" "${ARTIFACTS}/messaging_mock.contract_class.json"
-mv "${ARTIFACTS}/piltover_messaging_mock.compiled_contract_class.json" "${ARTIFACTS}/messaging_mock.compiled_contract_class.json"
-
-# 4. Piltover Appchain with messaging_test feature. The same `scarb build`
-#    above produces this artifact too — it sits alongside the messaging_mock
-#    in target/dev. Used by the harness to upgrade the auto-deployed core
-#    contract from `katana init rollup` (which is the standard Appchain
-#    without the test backdoor) to one that exposes
-#    `add_messages_hashes_from_appchain` for manual hash injection.
-cp "${PILTOVER_DIR}/target/dev/piltover_appchain.contract_class.json" "${ARTIFACTS}/appchain_with_test.contract_class.json"
-cp "${PILTOVER_DIR}/target/dev/piltover_appchain.compiled_contract_class.json" "${ARTIFACTS}/appchain_with_test.compiled_contract_class.json"
-
-if ! grep -q "add_messages_hashes_from_appchain" "${ARTIFACTS}/appchain_with_test.contract_class.json"; then
-  echo "ERROR: appchain_with_test was built WITHOUT the messaging_test feature."
-  exit 1
-fi
-
+echo
 echo "Setup complete. Run: bin/integration-test"
+echo
+echo "If your binaries are not at the default paths, export:"
+echo "    export SAYA_TEE_BIN=${SAYA_TEE_BIN_RESOLVED}"
+echo "    export SAYA_OPS_BIN=${SAYA_OPS_BIN_RESOLVED}"

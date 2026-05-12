@@ -154,25 +154,35 @@ pub async fn wait_for_tx_success(
     provider: &JsonRpcClient<HttpTransport>,
     tx_hash: Felt,
 ) -> Result<TransactionReceiptWithBlockInfo> {
+    let receipt = wait_for_receipt(provider, tx_hash).await?;
+    use starknet::core::types::ExecutionResult;
+    let exec = match &receipt.receipt {
+        TransactionReceipt::Invoke(r) => &r.execution_result,
+        TransactionReceipt::Declare(r) => &r.execution_result,
+        TransactionReceipt::Deploy(r) => &r.execution_result,
+        TransactionReceipt::DeployAccount(r) => &r.execution_result,
+        TransactionReceipt::L1Handler(r) => &r.execution_result,
+    };
+    match exec {
+        ExecutionResult::Succeeded => Ok(receipt),
+        ExecutionResult::Reverted { reason } => {
+            Err(anyhow!("tx {tx_hash:#x} reverted: {reason}"))
+        }
+    }
+}
+
+/// Like `wait_for_tx_success` but returns the receipt regardless of
+/// execution result. Useful when the caller needs to inspect a
+/// reverted receipt (e.g. `play_until_finish` treats reverts as a
+/// "try another slot" signal rather than a fatal error).
+pub async fn wait_for_receipt(
+    provider: &JsonRpcClient<HttpTransport>,
+    tx_hash: Felt,
+) -> Result<TransactionReceiptWithBlockInfo> {
     let deadline = std::time::Instant::now() + Duration::from_secs(60);
     loop {
         match provider.get_transaction_receipt(tx_hash).await {
-            Ok(receipt) => {
-                use starknet::core::types::ExecutionResult;
-                let exec = match &receipt.receipt {
-                    TransactionReceipt::Invoke(r) => &r.execution_result,
-                    TransactionReceipt::Declare(r) => &r.execution_result,
-                    TransactionReceipt::Deploy(r) => &r.execution_result,
-                    TransactionReceipt::DeployAccount(r) => &r.execution_result,
-                    TransactionReceipt::L1Handler(r) => &r.execution_result,
-                };
-                match exec {
-                    ExecutionResult::Succeeded => return Ok(receipt),
-                    ExecutionResult::Reverted { reason } => {
-                        return Err(anyhow!("tx {tx_hash:#x} reverted: {reason}"));
-                    }
-                }
-            }
+            Ok(receipt) => return Ok(receipt),
             Err(_) if std::time::Instant::now() < deadline => {
                 tokio::time::sleep(Duration::from_millis(200)).await;
             }

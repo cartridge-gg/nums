@@ -79,14 +79,16 @@ use starknet::signers::LocalWallet;
 use tracing::{debug, info, warn};
 
 use crate::constants::{
-    APPCHAIN_CHAIN_ID_STR, DEV_ACCOUNT_0_ADDRESS, DEV_ACCOUNT_0_PRIVKEY,
+    APPCHAIN_CHAIN_ID_STR, DEV_ACCOUNT_0_ADDRESS, DEV_ACCOUNT_0_PRIVKEY, DEV_ACCOUNT_1_PRIVKEY,
+    SETTLEMENT_CHAIN_ID_STR,
 };
 use crate::katana::{assert_dev_account_matches, KatanaNode};
-use crate::messaging::{add_messages_hashes_from_appchain, build_account, wait_for_tx_success};
+use crate::messaging::{build_account, wait_for_receipt, wait_for_tx_success};
 use crate::rollup::{
-    assert_test_backdoor_present, init_rollup, upgrade_appchain_to_test_class,
-    write_appchain_profile_toml,
+    init_rollup, write_appchain_profile_toml,
 };
+use crate::saya::{SayaTeeArgs, SayaTeeProcess};
+use crate::saya_ops::{declare_and_deploy_tee_registry_mock, SettlementCreds};
 use crate::sozo::{
     assert_sozo_runnable, build as sozo_build, migrate as sozo_migrate, read_manifest,
     DeployedWorld,
@@ -143,12 +145,26 @@ pub struct PurchaseHandle {
 pub struct TestEnv {
     pub settlement: KatanaNode,
     pub appchain: KatanaNode,
+    /// Piltover Appchain core contract address on the settlement chain.
+    /// Used by mainnet `Play.mint` (send_message_to_appchain) and
+    /// mainnet `Play.claim` (consume_message_from_appchain).
     pub messaging_mock: Felt,
+    /// AMD TEE registry mock deployed on settlement. Saya-tee
+    /// `--mock-prove` synthesizes stub attestations that pass
+    /// verification only against this permissive registry.
+    pub tee_registry_mock: Felt,
     pub temp: tempfile::TempDir,
     pub repo_root: PathBuf,
 
     pub settlement_world: DeployedWorld,
     pub appchain_world: DeployedWorld,
+
+    /// Live `saya-tee tee start` child process. Kept alive for the
+    /// duration of the test; killed on Drop. The harness never reads
+    /// this field directly — its job is to bind the child's lifetime
+    /// to `TestEnv`.
+    #[allow(dead_code)]
+    saya: SayaTeeProcess,
 
     settlement_account_addr: Felt,
     settlement_account_priv: Felt,
@@ -217,29 +233,28 @@ impl TestEnv {
 
         // 3. Upgrade Appchain core to the `messaging_test` class so we can
         //    inject Appchain→Settlement message hashes manually.
-        let provider = Self::provider(&settlement.rpc_url())?;
-        let settlement_acct = build_account(
-            provider,
-            settlement_chain_id,
-            settlement_account_addr,
-            settlement_account_priv,
-        );
-        let appchain_with_test_artifact = artifact_path("appchain_with_test.contract_class.json");
-        if !appchain_with_test_artifact.exists() {
-            bail!(
-                "missing artifact at {} — run bin/integration-test-setup",
-                appchain_with_test_artifact.display()
-            );
-        }
-        upgrade_appchain_to_test_class(
-            &settlement_acct,
-            &appchain_with_test_artifact,
-            messaging_mock,
+        // 3. Deploy the permissive AMD TEE registry mock on settlement.
+        //    `saya-tee --mock-prove` synthesizes stub TEE attestations;
+        //    they pass verification only against this mock registry
+        //    (a real SEV-SNP machine + real Piltover TEE registry would
+        //    be the production setup). See `saya/bin/persistent-tee/`
+        //    for the --mock-prove flag's docs.
+        let creds = SettlementCreds {
+            rpc_url: settlement.rpc_url(),
+            account_address: settlement_account_addr,
+            private_key: settlement_account_priv,
+            // saya-ops needs the settlement chain id (NUMS_SETTLE, not the
+            // appchain chain id) because it talks to the settlement RPC.
+            chain_id: SETTLEMENT_CHAIN_ID_STR.to_string(),
+        };
+        let tee_registry_mock = declare_and_deploy_tee_registry_mock(
+            &creds,
+            // Deterministic salt — same per test run, easy to grep in logs.
+            Felt::from_hex("0x5454454552454759").unwrap(),
         )
         .await
-        .context("upgrade Piltover Appchain to messaging_test class")?;
-        assert_test_backdoor_present(settlement_acct.provider(), messaging_mock).await?;
-        info!("messaging_test back-door confirmed on core_contract={messaging_mock:#x}");
+        .context("deploy TEE registry mock via saya-ops")?;
+        info!("AMD TEE registry mock at {tee_registry_mock:#x}");
 
         // 4. Render the appchain dojo profile from its template.
         write_appchain_profile_toml(
@@ -308,14 +323,36 @@ impl TestEnv {
         //    `Play.create` on the appchain `Play` contract directly,
         //    so no separate contract deployment is required.
 
+        // 8b. Spawn saya-tee in `--mock-prove` mode. Saya polls the
+        //     appchain RPC for finalized blocks, batches them, builds a
+        //     stub TEE attestation (verified against the mock TEE
+        //     registry from step 3), then calls `update_state` on the
+        //     Piltover core to commit the state root.
+        //     `--prover-private-key` is DEV_ACCOUNT_1 so Saya's
+        //     submissions don't conflict with our test's main account.
+        let saya = SayaTeeProcess::start(SayaTeeArgs {
+            rollup_rpc: appchain.rpc_url(),
+            settlement_rpc: settlement.rpc_url(),
+            settlement_piltover_address: messaging_mock,
+            settlement_account_address: settlement_account_addr,
+            settlement_account_private_key: settlement_account_priv,
+            tee_registry_address: tee_registry_mock,
+            prover_private_key: DEV_ACCOUNT_1_PRIVKEY,
+            bin_override: None,
+        })
+        .await
+        .context("spawn saya-tee")?;
+
         let env = Self {
             settlement,
             appchain,
             messaging_mock,
+            tee_registry_mock,
             temp,
             repo_root: repo_root.clone(),
             settlement_world,
             appchain_world,
+            saya,
             settlement_account_addr,
             settlement_account_priv,
             settlement_chain_id,
@@ -756,110 +793,229 @@ impl TestEnv {
     // Scenario primitives — reverse path (appchain → mainnet)
     // ------------------------------------------------------------------
 
-    /// Build a synthetic reverse `Payload` as it would be emitted by the
-    /// appchain `Playable.finish` when a game ends. Captures the typical
-    /// fields a real game would have at game-over: `level` reached,
-    /// `reward` owed (denominated in NUMS, 18-decimal).
+    /// Drive the appchain game `game_id` to completion by repeatedly
+    /// calling `Play.set(game_id, index)` with rotating slot indices.
+    /// Returns the L2→L1 payload emitted by `Playable.finish` once
+    /// `game.over != 0` triggers it.
     ///
-    /// Serialized to match Cairo's `Serde` derive for `Payload`. Field
-    /// order matches the struct declaration in `events/index.cairo`:
-    ///   game_id: u64             → 1 felt   #[key]
-    ///   player: ContractAddress  → 1 felt   #[key]
-    ///   multiplier: u128         → 1 felt
-    ///   supply: u256             → 2 felts (low, high)
-    ///   price: u256              → 2 felts (low, high)
-    ///   level: u8                → 1 felt
-    ///   reward: u128             → 1 felt
-    /// Total: 9 felts.
-    pub fn build_reverse_payload(
+    /// ## Why brute-force iteration
+    ///
+    /// `Play.set` enforces:
+    ///   - `slot[index] == 0` (slot not already filled), and
+    ///   - the resulting slots array stays in ascending order
+    ///     (via `assert_is_valid`).
+    /// The VRF mock returns `tx_info().transaction_hash` as the "random"
+    /// number, so the next number is predictable per tx but we don't
+    /// need to predict — we just try each empty slot until one is valid.
+    /// Worst case ~`slot_count^2` txs (18×18 = 324), but typical runs
+    /// converge in 18–30 txs because the random distribution forces the
+    /// game to fill slots quickly or terminate.
+    ///
+    /// The `player_acct` must own the NFT for `game_id` on the appchain
+    /// (`Play.set` calls `collection.assert_is_owner(caller, game_id)`).
+    /// In the e2e flow that means the same address `Play.mint` minted to
+    /// during the forward path — typically the appchain rollup genesis
+    /// account when the test routes the purchase through it.
+    ///
+    /// ## Capturing the reverse payload
+    ///
+    /// The tx that triggers `Playable.finish` is detected by checking
+    /// `receipt.messages_sent`. `send_message_to_l1_syscall` in
+    /// `Playable.finish` adds an entry to that array; before that tx the
+    /// array is empty for every `Play.set` call.
+    pub async fn play_until_finish(
         &self,
-        player: Felt,
+        player_acct: &SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>,
         game_id: u64,
-        multiplier: u128,
-        supply_low: u128,
-        price_low: u128,
-        level: u8,
-        reward: u128,
-    ) -> Vec<Felt> {
-        vec![
-            Felt::from(game_id),     // payload[0]: game_id u64
-            player,                   // payload[1]: player ContractAddress
-            Felt::from(multiplier),  // payload[2]: multiplier u128
-            Felt::from(supply_low),  // payload[3]: supply.low
-            Felt::ZERO,              // payload[4]: supply.high
-            Felt::from(price_low),   // payload[5]: price.low
-            Felt::ZERO,              // payload[6]: price.high
-            Felt::from(level),       // payload[7]: level u8
-            Felt::from(reward),      // payload[8]: reward u128
-        ]
+    ) -> Result<Vec<Felt>> {
+        use starknet::core::types::ExecutionResult;
+
+        let play = self.appchain_world.contract("NUMS-Play")?;
+        // DEFAULT_SLOT_COUNT in contracts/src/constants.cairo. Hard-coded
+        // here so the harness doesn't need to read game state — we just
+        // sweep the full range, retrying invalid indices.
+        const SLOT_COUNT: u8 = 18;
+        // Cap total attempts so a broken game state (e.g. all txs
+        // reverting) can't loop forever. 18 slots × 4 sweeps is enough
+        // headroom for the worst plausible VRF sequence.
+        const MAX_ATTEMPTS: usize = 4 * SLOT_COUNT as usize;
+
+        let mut tried_this_turn: std::collections::HashSet<u8> = std::collections::HashSet::new();
+        let mut attempts = 0usize;
+
+        loop {
+            if attempts >= MAX_ATTEMPTS {
+                bail!(
+                    "play_until_finish: exhausted {MAX_ATTEMPTS} attempts on game_id={game_id} \
+                     without observing game-over",
+                );
+            }
+            // Pick the lowest index we haven't tried yet on this "turn"
+            // (a turn = same game.number, before any successful set).
+            let next_index = (0..SLOT_COUNT)
+                .find(|i| !tried_this_turn.contains(i))
+                .ok_or_else(|| anyhow!(
+                    "play_until_finish: tried every slot {SLOT_COUNT} without progress \
+                     on game_id={game_id}; game may be stuck",
+                ))?;
+            attempts += 1;
+
+            let call = Call {
+                to: play,
+                selector: selector!("set"),
+                calldata: vec![Felt::from(game_id), Felt::from(next_index)],
+            };
+            let send_res = player_acct
+                .execute_v3(vec![call])
+                .gas_estimate_multiplier(2.0)
+                .send()
+                .await;
+
+            let tx_hash = match send_res {
+                Ok(tx) => tx.transaction_hash,
+                Err(e) => {
+                    // Simulation revert: invalid placement (slot full,
+                    // number out of order, etc). Try a different index.
+                    debug!(
+                        "Play.set(game_id={game_id}, index={next_index}) simulation revert: {e}",
+                    );
+                    tried_this_turn.insert(next_index);
+                    continue;
+                }
+            };
+
+            // Tx submitted; wait for the receipt without bailing on a
+            // reverted execution (that's just a "try a different index"
+            // signal here, not a fatal harness error).
+            let receipt = wait_for_receipt(player_acct.provider(), tx_hash).await?;
+            let (exec_result, messages_sent) = match &receipt.receipt {
+                TransactionReceipt::Invoke(r) => (&r.execution_result, &r.messages_sent),
+                _ => bail!("Play.set tx had unexpected receipt variant"),
+            };
+            match exec_result {
+                ExecutionResult::Reverted { reason } => {
+                    debug!(
+                        "Play.set(game_id={game_id}, index={next_index}) reverted on-chain: {reason}",
+                    );
+                    tried_this_turn.insert(next_index);
+                    continue;
+                }
+                ExecutionResult::Succeeded => {
+                    // Placement succeeded → game advanced one level.
+                    // Reset the per-turn skip set since `game.number`
+                    // changed (a previously invalid index may now be
+                    // valid, and vice versa).
+                    tried_this_turn.clear();
+                    if !messages_sent.is_empty() {
+                        // Playable.finish ran. The L2->L1 syscall enqueues
+                        // (from = appchain Play, to = mainnet Play, payload).
+                        // Per the address-equality invariant from = to,
+                        // and the payload here is the canonical reverse
+                        // payload we hand back to mainnet `Play.claim`.
+                        let msg = &messages_sent[0];
+                        info!(
+                            "play_until_finish: game_id={game_id} finished after {attempts} attempts; \
+                             reverse payload {} felts",
+                            msg.payload.len(),
+                        );
+                        return Ok(msg.payload.clone());
+                    }
+                    debug!(
+                        "Play.set(game_id={game_id}, index={next_index}) ok; \
+                         game still running ({attempts} attempts so far)",
+                    );
+                }
+            }
+        }
     }
 
-    /// Inject a reverse Piltover message into the settlement-side
-    /// messaging mock, mimicking what would arrive after the appchain's
-    /// `Playable.finish → send_message_to_l1_syscall(this, payload)` was
-    /// settled by a Piltover state-root commit.
+    /// Wait until `saya-tee` commits an appchain state root containing
+    /// the reverse `payload`'s L2→L1 message. Polls the settlement-side
+    /// Piltover storage view `appchain_to_sn_messages(hash)` until it
+    /// transitions from `NothingToConsume` to `ReadyToConsume(count>=1)`.
     ///
-    /// ## Why a backdoor injection rather than driving real gameplay
+    /// Returns the Piltover message hash once it's consumable. Address
+    /// equality means the hash is computed over
+    /// `(mainnet_play, mainnet_play, payload)` (Saya rewrites
+    /// `from = appchain Play addr` to its mainnet counterpart on commit;
+    /// in our setup the two are the same address by construction).
     ///
-    /// The real reverse flow requires playing a game to completion on the
-    /// appchain (set/select/apply through to game-over). This is
-    /// RNG-dependent and hard to script deterministically in an
-    /// integration test — the test would have to make placements that
-    /// happen to land in the right slot order given whatever sequence of
-    /// random numbers the VRF mock produces.
-    ///
-    /// Instead, the test exercises the cross-chain PLUMBING end-to-end:
-    /// Piltover hash computation, `consume_message_from_appchain`
-    /// ref-counting, Cairo `Serde` round-trip of the `Payload` struct,
-    /// NUMS mint via `Token.reward`, EMA push in `config.push`. The
-    /// gameplay logic itself is covered by unit tests.
-    ///
-    /// ## Address-equality enforcement
-    ///
-    /// The Piltover appchain→starknet hash is computed over
-    /// `(from_address, to_address, payload)` with NO nonce. Per the
-    /// address-equality invariant (see `force_play_artifacts_match` and
-    /// the architecture doc), `from = to = mainnet_play_address` for
-    /// reverse messages. The pre-check below catches a broken invariant
-    /// before the harness misleadingly times out on materialization.
-    pub async fn inject_reverse_message(&self, payload: &[Felt]) -> Result<Felt> {
+    /// With `saya-tee --mock-prove --batch-size 1`, a single appchain
+    /// block triggers a TEE batch immediately; expect commit latency in
+    /// seconds, not the multi-minute Atlantic cycle.
+    pub async fn wait_for_state_root_commit(
+        &self,
+        payload: &[Felt],
+        timeout_secs: u64,
+    ) -> Result<Felt> {
+        use crate::messaging::appchain_to_sn_message_count;
+
         let mainnet_play = self.settlement_world.contract("NUMS-Play")?;
-        // appc->sn hash uses (from, to, payload). Address equality means
-        // from = to = mainnet_play. Verify by reading appchain Play addr
-        // as a defense against the invariant breaking silently.
+        // Address-equality invariant guard: if this trips, all later
+        // hashes are wrong and the poll loop would silently time out.
         let appchain_play = self.appchain_world.contract("NUMS-Play")?;
         if appchain_play != mainnet_play {
             bail!(
                 "address-equality invariant broken: mainnet_play={mainnet_play:#x} \
-                 appchain_play={appchain_play:#x}. Both directions of the bridge \
-                 expect these to match.",
+                 appchain_play={appchain_play:#x}; reverse hash would not match Saya's commit.",
             );
         }
         let hash = compute_appc_to_sn_message_hash(mainnet_play, mainnet_play, payload);
-        debug!(
-            "inject_reverse_message: hash={hash:#x}, payload_len={plen}",
-            plen = payload.len(),
+        info!(
+            "wait_for_state_root_commit: target hash={hash:#x} (payload {} felts), timeout={timeout_secs}s",
+            payload.len(),
         );
-        let acct = self.settlement_account()?;
-        add_messages_hashes_from_appchain(&acct, self.messaging_mock, &[hash])
-            .await
-            .context("add_messages_hashes_from_appchain")?;
-        Ok(hash)
+
+        let provider = Self::provider(&self.settlement.rpc_url())?;
+        let start = std::time::Instant::now();
+        let deadline = Duration::from_secs(timeout_secs);
+        loop {
+            match appchain_to_sn_message_count(&provider, self.messaging_mock, hash).await {
+                Ok(n) if n >= 1 => {
+                    info!(
+                        "wait_for_state_root_commit: hash={hash:#x} ready_to_consume count={n} \
+                         after {:.2?}",
+                        start.elapsed(),
+                    );
+                    return Ok(hash);
+                }
+                Ok(n) => debug!("wait_for_state_root_commit: {n}/1 (poll)"),
+                Err(e) => debug!("appchain_to_sn_message_count err: {e:#}"),
+            }
+            if start.elapsed() > deadline {
+                // Surface the saya-tee tail for triage — failures here
+                // typically point at Saya not seeing the appchain block
+                // or hitting an attestation rejection.
+                if let Some(tail) = crate::saya::tail_log(80) {
+                    warn!("saya-tee log tail (last 80 lines):\n{tail}");
+                }
+                bail!(
+                    "wait_for_state_root_commit timeout: hash={hash:#x} not ready_to_consume \
+                     after {timeout_secs}s",
+                );
+            }
+            tokio::time::sleep(Duration::from_millis(500)).await;
+        }
     }
 
-    /// Player calls mainnet `Play.claim(payload)`. Consumes the injected
-    /// reverse Piltover message and mints NUMS reward + updates EMA.
+    /// Player calls mainnet `Play.claim(payload)`. Consumes the
+    /// `ReadyToConsume` reverse Piltover message (committed by Saya in
+    /// the previous step) and mints NUMS reward + updates EMA.
     ///
     /// In production this is what a real player calls after the appchain
     /// `Playable.finish` queues a reverse message and the state-root
-    /// commit settles. The player retrieves the payload bytes
-    /// (off-chain — typically from a Torii event index) and submits this
-    /// call. Ownership of the NFT corresponding to `payload.game_id` is
+    /// commit settles. The player retrieves the payload bytes (off-chain
+    /// — typically from a Torii event index) and submits this call.
+    /// Ownership of the NFT corresponding to `payload.game_id` is
     /// checked via `Collection.assert_is_owner` inside `Play.claim`, so
-    /// only the rightful owner can collect the reward.
-    pub async fn settlement_player_claim(&self, payload: &[Felt]) -> Result<()> {
+    /// `player_acct` MUST be the same address `Play.mint` originally
+    /// minted to during the forward path.
+    pub async fn settlement_player_claim(
+        &self,
+        player_acct: &SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>,
+        payload: &[Felt],
+    ) -> Result<()> {
         let play = self.settlement_world.contract("NUMS-Play")?;
-        let acct = self.settlement_account()?;
         // `Play.claim` takes `payload: Span<felt252>` as its argument.
         // Cairo Serde for Span<T> serializes as [len, items...], so the
         // calldata is prefixed with the felt count.
@@ -870,15 +1026,33 @@ impl TestEnv {
             selector: selector!("claim"),
             calldata,
         };
-        let tx = acct
+        let tx = player_acct
             .execute_v3(vec![call])
             .gas_estimate_multiplier(2.0)
             .send()
             .await
             .context("Play.claim tx")?;
-        wait_for_tx_success(acct.provider(), tx.transaction_hash).await?;
+        wait_for_tx_success(player_acct.provider(), tx.transaction_hash).await?;
         info!("Play.claim consumed reverse message");
         Ok(())
+    }
+
+    /// Build a `SingleOwnerAccount` for the appchain rollup genesis
+    /// account, signing for the settlement chain. Useful when the
+    /// player on the bridge is the rollup account (since that account
+    /// is the one pre-deployed and signable on the appchain), but
+    /// needs to send mainnet txs like `Play.claim`. Katana's
+    /// `--dev.no-account-validation` lets us submit settlement txs
+    /// from an address whose account contract isn't deployed there.
+    pub fn appchain_player_on_settlement(
+        &self,
+    ) -> Result<SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>> {
+        Ok(build_account(
+            Self::provider(&self.settlement.rpc_url())?,
+            self.settlement_chain_id,
+            self.appchain_account_addr,
+            self.appchain_account_priv,
+        ))
     }
 
     /// Read the settlement-side NUMS balance for `player`. Used to assert

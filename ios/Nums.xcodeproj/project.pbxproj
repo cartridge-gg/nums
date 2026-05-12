@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C7A200000000000000000001 /* CartridgeIOSKit in Frameworks */ = {isa = PBXBuildFile; productRef = C7A200000000000000000003 /* CartridgeIOSKit */; };
 		25A54F9B2F5F471B009E93CA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 25A54F9A2F5F471B009E93CA /* PrivacyInfo.xcprivacy */; };
 		AA0000012F5F471B009E93CA /* countup.svg in Resources */ = {isa = PBXBuildFile; fileRef = AA0000022F5F471B009E93CA /* countup.svg */; };
 		595F23A525CEFBFE0053416C /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 595F239A25CEFBFD0053416C /* Settings.swift */; };
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7A200000000000000000001 /* CartridgeIOSKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,9 @@
 			dependencies = (
 			);
 			name = Nums;
+			packageProductDependencies = (
+				C7A200000000000000000003 /* CartridgeIOSKit */,
+			);
 			productName = Nums;
 			productReference = 59333BAA25CFF706003392A4 /* Nums.app */;
 			productType = "com.apple.product-type.application";
@@ -116,6 +121,9 @@
 				Base,
 			);
 			mainGroup = CD89F880237E9D9200C436A1;
+			packageReferences = (
+				C7A200000000000000000002 /* XCRemoteSwiftPackageReference "cartridge-ios-kit" */,
+			);
 			productRefGroup = CD89F880237E9D9200C436A1;
 			projectDirPath = "";
 			projectRoot = "";
@@ -175,6 +183,25 @@
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C7A200000000000000000002 /* XCRemoteSwiftPackageReference "cartridge-ios-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cartridge-gg/cartridge-ios-kit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C7A200000000000000000003 /* CartridgeIOSKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7A200000000000000000002 /* XCRemoteSwiftPackageReference "cartridge-ios-kit" */;
+			productName = CartridgeIOSKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CD89F89B237E9D9300C436A1 /* Debug */ = {

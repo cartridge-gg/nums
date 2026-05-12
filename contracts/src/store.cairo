@@ -1,4 +1,5 @@
 use bundle::models::index::Bundle;
+use cartridge_vrf::IVrfProviderDispatcher;
 use dojo::event::EventStorage;
 use dojo::model::ModelStorage;
 use dojo::world::{WorldStorage, WorldStorageTrait};
@@ -11,7 +12,6 @@ use crate::events::claimed::ClaimedTrait;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
-use crate::interfaces::vrf::IVrfProviderDispatcher;
 use crate::models::index::{Config, Game, VaultInfo, VaultPosition};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
 use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};

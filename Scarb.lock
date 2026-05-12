@@ -83,6 +83,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cartridge_vrf"
+version = "0.1.0"
+source = "git+https://github.com/cartridge-gg/vrf?rev=050ca97#050ca9759dc887d97ac84c18d93fbd6b4bf90405"
+dependencies = [
+ "openzeppelin",
+ "stark_vrf",
+]
+
+[[package]]
 name = "collection"
 version = "0.0.0"
 source = "git+https://github.com/cartridge-gg/arcade?rev=fc2e81c#fc2e81c8d4cee706bb26cb2396d941fd0657c277"
@@ -159,6 +168,7 @@ dependencies = [
  "achievement",
  "alexandria_encoding",
  "bundle",
+ "cartridge_vrf",
  "collection",
  "dojo",
  "dojo_cairo_macros",
@@ -169,6 +179,7 @@ dependencies = [
  "merkledrop",
  "openzeppelin",
  "quest",
+ "stark_vrf",
  "starterpack",
 ]
 
@@ -328,6 +339,12 @@ dependencies = [
  "dojo",
  "graffiti",
 ]
+
+[[package]]
+name = "stark_vrf"
+version = "0.1.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:5345a2ec33f50f7e372b74179b0421da022775b72b9de3c51cb15b7530482475"
 
 [[package]]
 name = "starterpack"

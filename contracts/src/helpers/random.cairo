@@ -1,6 +1,6 @@
+use cartridge_vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 use core::poseidon::poseidon_hash_span;
 use starknet::get_caller_address;
-use crate::interfaces::vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, Source};
 
 
 #[derive(Copy, Drop, Serde)]

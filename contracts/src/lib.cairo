@@ -73,7 +73,6 @@ pub mod types {
 pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
-    pub mod vrf;
 }
 
 pub mod elements {
@@ -141,5 +140,6 @@ pub mod mocks {
 pub mod tests {
     pub mod setup;
     pub mod test_setup;
+    pub mod test_vrf_integration;
 }
 

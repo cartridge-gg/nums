@@ -3,6 +3,7 @@ pub mod setup {
 
     use achievement::events::index as achievement_events;
     use achievement::models::index as achievement_models;
+    use cartridge_vrf::IVrfProviderDispatcher;
     use dojo::world::{WorldStorage, WorldStorageTrait, world};
     use dojo_cairo_test::{ContractDef, NamespaceDef, TestResource, spawn_test_world};
     use quest::events::index as quest_events;
@@ -13,7 +14,6 @@ pub mod setup {
     use crate::constants::NAMESPACE;
     use crate::events::index as events;
     use crate::interfaces::erc20::IERC20Dispatcher;
-    use crate::interfaces::vrf::IVrfProviderDispatcher;
     use crate::mocks::vrf::{NAME as VRF, Vrf};
     use crate::models::index as models;
     use crate::systems::collection::{Collection, ICollectionDispatcher, NAME as COLLECTION_NAME};

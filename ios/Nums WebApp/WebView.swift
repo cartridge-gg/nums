@@ -6,102 +6,6 @@ import SafariServices
 let iframeStorageSnapshotKeyPrefix = "__iframeStorageSnapshot__:"
 let iframeStorageTargetHost = "x.cartridge.gg"
 
-func triggerNotificationRegistrationCheck(in webView: WKWebView) {
-    let script = """
-    (function() {
-      var targetHost = "\(iframeStorageTargetHost)";
-      var keyPrefix = "\(iframeStorageSnapshotKeyPrefix)";
-      var hasOwn = function(obj, key) {
-        return Object.prototype.hasOwnProperty.call(obj, key);
-      };
-      var safeJsonParse = function(value) {
-        if (typeof value !== "string" || value.length === 0) return null;
-        try {
-          return JSON.parse(value);
-        } catch (_) {
-          return null;
-        }
-      };
-      var parseSessionExpirySeconds = function(rawSessionValue) {
-        var parsed = safeJsonParse(rawSessionValue);
-        var expiresAt = parsed &&
-          parsed.Session &&
-          parsed.Session.session &&
-          parsed.Session.session.inner &&
-          parsed.Session.session.inner.expires_at;
-        if (typeof expiresAt !== "string" || expiresAt.length === 0) return null;
-        var value = /^0x[0-9a-f]+$/i.test(expiresAt) ? parseInt(expiresAt, 16) : parseInt(expiresAt, 10);
-        return Number.isFinite(value) ? value : null;
-      };
-      var hasValidActiveSession = function(snapshot) {
-        var activeKey = "@cartridge/active";
-        if (!snapshot || typeof snapshot !== "object" || !hasOwn(snapshot, activeKey)) return false;
-
-        var parsedActive = safeJsonParse(snapshot[activeKey]);
-        var activeData = parsedActive && parsedActive.Active ? parsedActive.Active : null;
-        var activeAddress = activeData && typeof activeData.address === "string" ? activeData.address.toLowerCase() : "";
-        var activeChainId = activeData && typeof activeData.chain_id === "string" ? activeData.chain_id.toLowerCase() : "";
-        if (!activeAddress || !activeChainId) return false;
-
-        var accountKey = "@cartridge/account/" + activeAddress + "/" + activeChainId;
-        var sessionKey = "@cartridge/session/" + activeAddress + "/" + activeChainId;
-        if (!hasOwn(snapshot, accountKey) || !hasOwn(snapshot, sessionKey)) return false;
-
-        var expiresAt = parseSessionExpirySeconds(snapshot[sessionKey]);
-        return !(typeof expiresAt === "number" && expiresAt <= Math.floor(Date.now() / 1000));
-      };
-      var isManagedTopStorageKey = function(key) {
-        return typeof key === "string" &&
-          (key.indexOf("@cartridge/") === 0 || key === "needs_session_creation" || key === "last_pending_block_tx");
-      };
-      var readTopStorageSnapshot = function() {
-        var snapshot = {};
-        try {
-          for (var i = 0; i < localStorage.length; i += 1) {
-            var key = localStorage.key(i);
-            if (!isManagedTopStorageKey(key)) continue;
-            var value = localStorage.getItem(key);
-            if (typeof value === "string") {
-              snapshot[key] = value;
-            }
-          }
-        } catch (_) {}
-        return snapshot;
-      };
-      var readStoredSnapshot = function() {
-        try {
-          var raw = localStorage.getItem(keyPrefix + targetHost);
-          var parsed = raw ? JSON.parse(raw) : null;
-          return parsed && typeof parsed === "object" ? parsed : {};
-        } catch (_) {
-          return {};
-        }
-      };
-      var authenticated = hasValidActiveSession(readTopStorageSnapshot()) || hasValidActiveSession(readStoredSnapshot());
-      if (authenticated) {
-        try {
-          var handlers = window.webkit && window.webkit.messageHandlers;
-          var handler = handlers && handlers["notification-session-ready"];
-          if (handler && typeof handler.postMessage === "function") {
-            handler.postMessage({ source: "native-session-check" });
-          }
-        } catch (_) {}
-      }
-      return authenticated;
-    })();
-    """
-
-    webView.evaluateJavaScript(script) { result, error in
-        if let error = error {
-            print("Notification session check failed: \(error.localizedDescription)")
-            return
-        }
-        if let authenticated = result as? Bool {
-            print("Notification session check authenticated: \(authenticated)")
-        }
-    }
-}
-
 func createWebView(container: UIView, WKSMH: WKScriptMessageHandler, WKND: WKNavigationDelegate) -> WKWebView{
 
     let config = WKWebViewConfiguration()
@@ -110,11 +14,7 @@ func createWebView(container: UIView, WKSMH: WKScriptMessageHandler, WKND: WKNav
     config.processPool = WebViewProcessPool.shared
 
     userContentController.add(WKSMH, name: "print")
-    userContentController.add(WKSMH, name: "push-subscribe")
-    userContentController.add(WKSMH, name: "push-permission-request")
-    userContentController.add(WKSMH, name: "push-permission-state")
-    userContentController.add(WKSMH, name: "push-token")
-    userContentController.add(WKSMH, name: "notification-session-ready")
+    registerNotificationScriptMessageHandlers(on: userContentController, handler: WKSMH)
     if enableCartridgeIframeStorageRelay {
         userContentController.add(WKSMH, name: "cartridge-logout-cleanup")
     }

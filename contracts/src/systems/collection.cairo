@@ -1,6 +1,9 @@
 #[starknet::interface]
 pub trait ICollection<TContractState> {
-    fn mint(ref self: TContractState, to: starknet::ContractAddress, souldbound: bool) -> u64;
+    fn new(ref self: TContractState, to: starknet::ContractAddress, soulbound: bool) -> u64;
+    fn mint(
+        ref self: TContractState, to: starknet::ContractAddress, game_id: u64, soulbound: bool,
+    ) -> u64;
     fn burn(ref self: TContractState, token_id: u256);
     fn update(ref self: TContractState, token_id: u256);
     fn assert_is_owner(ref self: TContractState, owner: starknet::ContractAddress, token_id: u256);
@@ -241,15 +244,22 @@ pub mod Collection {
 
     #[abi(embed_v0)]
     impl CollectionImpl of ICollection<ContractState> {
-        fn mint(ref self: ContractState, to: ContractAddress, souldbound: bool) -> u64 {
-            // [Check] Only minter can mint
-            self.accesscontrol.assert_only_role(MINTER_ROLE);
+        fn new(ref self: ContractState, to: ContractAddress, soulbound: bool) -> u64 {
             // [Effect] Mint token
             let game_id = self.game_id.read() + 1;
             self.game_id.write(game_id);
+            self.mint(to, game_id, soulbound)
+        }
+
+        fn mint(
+            ref self: ContractState, to: ContractAddress, game_id: u64, soulbound: bool,
+        ) -> u64 {
+            // [Check] Only minter can mint
+            self.accesscontrol.assert_only_role(MINTER_ROLE);
+            // [Effect] Mint token
             self.erc721.mint(to, game_id.into());
             // [Effect] Set soulbound
-            self.soulbound.entry(game_id.into()).write(souldbound);
+            self.soulbound.entry(game_id.into()).write(soulbound);
             // [Return] Game ID
             game_id
         }

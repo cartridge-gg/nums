@@ -11,18 +11,17 @@
 # DO NOT commit a fully-rendered `dojo_e2eappchain.toml`; the file is
 # .gitignore'd. Only this template is checked in.
 #
-# Migration notes (new architecture):
-#   - The appchain world is fresh (no fork). Setup is deployed with all
-#     bridge config fields zero. The harness then patches mainnet_setup
-#     (the only one actually read by appchain gameplay) and
-#     bridge_messaging (Piltover address on appchain side) via setters
-#     after the settlement-side Setup deploys and the appchain Piltover
-#     address is known.
+# Migration notes (current architecture):
+#   - The appchain world is fresh (no fork). `Setup.dojo_init`'s
+#     `bridge_messaging` arg is the Piltover messaging address; it must
+#     be non-zero (`BridgeTrait::new` asserts). A placeholder `0x1` is
+#     used at migrate time and the harness patches it via
+#     `Setup.set_bridge(<messaging_mock>)`.
 #   - Faucet acts as the appchain's quote token (mock USDC); not actually
 #     used in bridge mode since purchase happens on mainnet.
-#   - The appchain DOES NOT need: Settler, BridgeComponent, USDC reserves.
-#     Just Play, Playable, Materializer (UDC-deployed separately), and the
-#     supporting model registry.
+#   - The appchain DOES NOT need: Settler, BridgeComponent, Materializer,
+#     USDC reserves. Just Play, Playable, Collection, and the supporting
+#     model registry.
 
 [world]
 name = "Nums"
@@ -92,13 +91,5 @@ disable_multicall = true
   "0x0",                                                                # pool_tick_spacing — unused
   "0x0",                                                                # pool_extension — unused
   "{ACCOUNT_ADDRESS}",                                                  # bundle_allower (free-bundle path; bridge mode has no paid purchase here)
-  # Bridge config — appchain-side. Only mainnet_setup is consumed by
-  # gameplay (Playable.claim reads it to decide bridge vs local mode).
-  # bridge_messaging is the Piltover contract on appchain side; reserved
-  # for parity but not currently used in send_message_to_l1_syscall path.
-  # All zero at deploy; the harness patches mainnet_setup via setter.
-  "0x0",                                                                # appchain_materializer — irrelevant on appchain side
-  "0x0",                                                                # bridge_messaging — patched
-  "0x0",                                                                # appchain_play — irrelevant on appchain side
-  "0x0",                                                                # mainnet_setup — patched (THIS toggles bridge mode for appchain claim)
+  "0x1",                                                                # bridge_messaging — placeholder, patched by Setup.set_bridge
 ]

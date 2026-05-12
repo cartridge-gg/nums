@@ -1,27 +1,30 @@
 # Contract deployment map — Nums cross-chain bridge
 
-Companion to `BRIDGE_ARCHITECTURE.md`. Where each contract lives, what it
-does on each chain, and which messages flow between them.
+Companion to `BRIDGE_ARCHITECTURE.md`. Where each contract lives, what
+it does on each chain, and which messages flow between them.
 
 ## Two-chain split
 
 Each contract is registered as a Dojo resource on both chains' worlds
 (Dojo worlds are monolithic, so the model schema must be uniform). The
 table below shows where each one is **actively used** vs
-**deployed-but-inert** in bridge mode.
+**deployed-but-inert**.
 
 | Contract | Mainnet (settlement) | Appchain (TEE gameplay) | Notes |
 |---|---|---|---|
-| **Setup** (`systems/setup.cairo`) | ✅ Active. `Setup.issue` is the player's entry point. Runs `purchase.execute` (swap + burn + vault.pay + team.transfer), records `PendingPurchase{Pending}`, queues forward Piltover message. Also hosts `apply_game_claim_batch` (consumes reverse claim messages and mints NUMS rewards). | ⚠️ Deployed-but-mostly-inert. Only `Playable.claim` reads `config.mainnet_setup` to take the bridge path. `Setup.issue` is never called here. | Same code, both chains. Bridge mode is toggled by `config.appchain_materializer != 0` on mainnet and `config.mainnet_setup != 0` on appchain. |
-| **Play** (`systems/play.cairo`) | ⚠️ Deployed-but-inert in bridge mode. In pure-Starknet mode (`appchain_materializer == 0`), `Setup.issue` calls `play.create` locally. | ✅ Active. The Materializer calls `play.create` after a forward message arrives. Players call `play.move`/`set`/`apply`/`claim` here. | |
-| **Materializer** (`systems/materializer.cairo`) | ❌ NOT deployed on mainnet. Has no purpose there. | ✅ Active. Plain Starknet contract (not Dojo), UDC-deployed post-migration. `#[l1_handler] materialize` receives forward messages and calls `Play.create`. Owns `processed_ids` replay guard keyed by `purchase_id`. | Bridge-only contract. Only on appchain. |
-| **Token** (NUMS ERC20, `systems/token.cairo`) | ✅ Active. The canonical NUMS. Burned by `purchase.execute`. Minted by `apply_game_claim_batch` via `Token.reward(player, amount)` for per-game claims. | ⚠️ Deployed-but-inert in bridge mode. In bridge mode, gameplay claims don't mint locally — they send a reverse message. The local Token instance has its own supply but isn't read or written by bridge-mode gameplay. | The "NUMS lives on mainnet only" invariant from the plan is enforced functionally, even though the model is deployed on both Dojo worlds. |
-| **Vault** (`systems/vault.cairo`) | ✅ Active. ERC-4626 over USDC; `vault.pay` distributes NUMS dividends from purchases. Player calls `vault.claim` here to redeem accrued NUMS. | ⚠️ Deployed-but-inert. `vault.pay` isn't called on appchain in bridge mode (purchase happens on mainnet). | |
-| **Collection** (game NFT, `systems/collection.cairo`) | ⚠️ Deployed-but-inert in bridge mode (no `Play.create` runs here). | ✅ Active. ERC-721 — each game minted to `recipient` is an NFT. `read_player_games_count` in the harness queries this. | |
+| **Setup** (`systems/setup.cairo`) | ✅ Active. `Setup.issue` is the player's entry point. Runs `purchase.execute` (swap + burn + vault.pay + team.transfer), then forwards to `Play.mint`. Owns the `Bridge` model setter (`set_bridge`). | ⚠️ Deployed-but-mostly-inert. Hosts the appchain `Bridge` and `Config` models. `Setup.issue` is never called here. | Same code on both chains. The `Bridge` model carries a single field, `address`, pointing at the Piltover messaging contract; non-zero is required (`BridgeTrait::new` asserts). |
+| **Play** (`systems/play.cairo`) | ✅ Active. `Setup.issue` delegates to `Play.mint`, which queues the forward Piltover message via `send_message_to_appchain`. Also exposes `Play.claim(payload)` which consumes the reverse appchain message and pays the NUMS reward via `Playable.claim`. | ✅ Active. Owns the forward `#[l1_handler] create` that receives the Piltover message and starts the game via `playable.create`. Also hosts `Play.set` / `Play.select` / `Play.apply` for gameplay; the implicit reverse-message send is inside `Playable.finish`. | Symmetric on both chains. The forward `from_address` check and the reverse `consume_message_from_appchain(this, payload)` both rely on the **mainnet Play addr == appchain Play addr** invariant — see `BRIDGE_ARCHITECTURE.md`. |
+| **Collection** (game NFT, `systems/collection.cairo`) | ✅ Active. `Play.mint` calls `Collection.new(player, soulbound=true)` to assign a fresh `game_id` and mint the NFT on mainnet. `Play.claim` later asserts ownership of the same `game_id` here before paying the reward. | ✅ Active. `Play.create` calls `Collection.mint(player, game_id, true)` to re-mint the NFT with the same id minted on mainnet. Players interact with these NFTs throughout gameplay. | Two-chain mint; same `game_id` on both. ERC-721 uniqueness is the forward replay guard. |
+| **Token** (NUMS ERC-20, `systems/token.cairo`) | ✅ Active. The canonical NUMS. Burned by `purchase.execute`. Minted by `Play.claim` (via `Playable.claim → nums_disp.reward`) for per-game claim rewards. | ⚠️ Deployed-but-inert. Gameplay claims don't mint locally — they queue a reverse message that mints on mainnet. The local Token instance has its own supply but isn't read or written by bridge-mode gameplay. | The "NUMS lives on mainnet only" invariant is enforced functionally. |
+| **Vault** (`systems/vault.cairo`) | ✅ Active. ERC-4626 over USDC; `vault.pay` distributes NUMS dividends from purchases. Player calls `vault.claim` here to redeem accrued NUMS. | ⚠️ Deployed-but-inert. `vault.pay` isn't called on appchain. | |
 | **Treasury** (`systems/treasury.cairo`) | ✅ Active. Holds `DEFAULT_ADMIN_ROLE` on Setup, Vault, Token. Production role grants flow through Treasury timelock. | ✅ Active in mirror role. Same admin pattern, scoped to appchain world. | Per-chain admin. The two are independent. |
 | **Faucet** (`systems/faucet.cairo`) | ⚠️ Test/dev only — mainnet uses real USDC. The e2e profile uses Faucet as a mock quote token. Production `dojo_mainnet.toml` skips it. | Test/dev only — same role. | Never deployed on real mainnet. |
 | **Governor** (`systems/governor.cairo`) | Deployed but not actively exercised yet. | Same. | Reserved for future on-chain governance — not load-bearing for the bridge. |
 | **VRF** mock (`mocks/vrf.cairo`) | Skipped on real mainnet (real VRF provider used). | Skipped likewise. | Test scaffold only. |
+
+The standalone `Materializer` contract from the previous redesign was
+removed — its role (forward L1Handler) is now served by `Play.create`
+directly.
 
 ## Components (not standalone contracts)
 
@@ -30,8 +33,8 @@ They don't deploy independently.
 
 | Component | Used by | Per-chain behavior |
 |---|---|---|
-| **Purchase** (`components/purchase.cairo`) | Setup | Active on mainnet (called inside `Setup.issue`). Inert on appchain — `Setup.issue` isn't called there in bridge mode. |
-| **Playable** (`components/playable.cairo`) | Play | Active on appchain — runs gameplay (start, move, select_power, apply, claim). `claim` branches on `config.mainnet_setup`: bridge mode queues a reverse message; local mode mints NUMS locally + updates EMA locally. Active on mainnet only in pure-Starknet mode. |
+| **Purchase** (`components/purchase.cairo`) | Setup | Active on mainnet (called inside `Setup.issue`). Inert on appchain. |
+| **Playable** (`components/playable.cairo`) | Play | Active on appchain (gameplay: `create`, `set`, `select`, `apply`, `finish`). `finish` builds the reverse `Payload` and calls `send_message_to_l1_syscall`. Active on mainnet too — `Play.claim` calls `playable.claim(world, payload)` which contains the EMA push + `Token.reward` mint. |
 | **Rewardable** (`components/rewardable.cairo`) | Vault | Active on mainnet (`vault.pay` calls into it). Inert on appchain. |
 
 ## Bridge message flow + which chain each contract participates in
@@ -40,19 +43,31 @@ They don't deploy independently.
 Player on mainnet:
   └─> Setup.issue (Setup, Token, Vault, Treasury all on mainnet)
         ├─ purchase.execute → Ekubo swap, NUMS burn, Vault.pay, USDC.transfer to team
-        └─ send_message_to_appchain → ─────────────┐
-                                                   ▼
-                                          Materializer.materialize (appchain)
-                                                   └─> Play.create (appchain, mints NFT in Collection)
+        └─> Play.mint(recipient, multiplier, supply, price, soulbound, qty)
+              ├─ Collection.new(player, soulbound=true)   — mint NFT, get game_id
+              └─ send_message_to_appchain( <mainnet Play>,
+                                            selector!("create"),
+                                            Payload{player, game_id, ..., 0, 0} )
+                                                       │
+                                                       ▼  (state-root commit, async)
+                                          appchain Play.create (l1_handler)
+                                              ├─ assert from_address == this (peer Play)
+                                              ├─ Collection.mint(player, game_id, true)
+                                              └─ playable.create(world, player, game_id, ...)
 
 Player on appchain:
-  └─> Play.move / Play.set / ... (Play + Playable on appchain)
-  └─> Play.claim
-        └─ send_message_to_l1 (Cairo syscall) ─────┐
-                                                   ▼
-                                          Setup.apply_game_claim_batch (mainnet)
-                                                   ├─ config.push (EMA on mainnet Config)
-                                                   └─ Token.reward(player, amount) ← Token on mainnet
+  └─> Play.set / Play.select / Play.apply (Play + Playable on appchain)
+        └─ on game-over inside Playable.finish:
+              └─ send_message_to_l1_syscall( <appchain Play>,
+                                              Payload{player, game_id, ..., level, reward} )
+                                                       │
+                                                       ▼  (appchain state-root settles)
+                                          mainnet Play.claim(payload)
+                                              ├─ consume_message_from_appchain(this, payload)
+                                              ├─ Collection.assert_is_owner(caller, payload.game_id)
+                                              └─ playable.claim(world, payload)
+                                                    ├─ config.push(level, weight, EMA_MIN_SCORE)
+                                                    └─ Token.reward(payload.player, payload.reward)
 
 Player on mainnet (later):
   └─> Vault.claim (Vault + Token on mainnet)
@@ -60,63 +75,72 @@ Player on mainnet (later):
 
 ## Bridge config toggle summary
 
-| Field | Set on mainnet? | Set on appchain? | What it toggles |
-|---|---|---|---|
-| `appchain_materializer` | ✅ → appchain Materializer address | zero | Activates bridge mode in `Setup.issue`. Zero means today's pure-Starknet flow. |
-| `bridge_messaging` | ✅ → mainnet Piltover messaging | unused | Used by `send_message_to_appchain` (forward) + `consume_message_from_appchain` (reverse). |
-| `appchain_play` | ✅ → appchain Play address | unused | Authorizes inbound claim messages in `apply_game_claim_batch`. |
-| `mainnet_setup` | unused (zero) | ✅ → mainnet Setup address | Activates bridge mode in `Playable.claim`. Zero means claim mints locally. |
+The bridge address lives in a dedicated `Bridge` model. A single
+field carries the Piltover messaging contract used for both
+directions:
 
-## Sentinels (Setup.dojo_init)
-
-- `appchain_materializer`, `bridge_messaging`, `appchain_play` must be
-  **all-zero (local mode)** OR **all-non-zero (bridge mode)** —
-  partial misconfig fails deploy.
-- `appchain_materializer != self_contract_address` — defends against
-  obvious misconfig where the bridge would loop on itself.
-
-## Net new contracts in this PR vs PR #197
-
-|  | PR #197 | This redesign |
+| Field | Mainnet | Appchain |
 |---|---|---|
-| Mainnet-only contracts added | `Settler` (554 LOC) | None — Setup grew ~180 LOC |
-| Appchain-only contracts added | `Materializer` + `BridgeComponent` | `Materializer` only (BridgeComponent deleted) |
-| Two-chain-but-different-role contracts | All of Token/Vault/Play/Setup | Same |
-| New cross-chain messages | 2 (SettlementRequest + MaterializationResult) | 2 (GameMint + GameClaim) |
-| Total new Cairo LOC | ~1,200 | ~260 |
+| `address` | Mainnet Piltover messaging contract. Used by `Play.mint` (`send_message_to_appchain`) and by `Play.claim` (`consume_message_from_appchain`). | Appchain Piltover messaging contract. Reserved for future symmetric use; today the appchain side queues the reverse message via the native Cairo `send_message_to_l1_syscall`, so the appchain bridge address is only read for diagnostic purposes. |
+
+Setters: `Setup.dojo_init` writes the bridge on deploy.
+`Setup.set_bridge(bridge_messaging)` (admin-only) rotates the
+messaging contract post-deploy. Both paths enforce a non-zero
+address (`BridgeTrait::new` → `BridgeAssert::assert_is_valid`).
+
+## Net new contracts compared to PR #197 and the prior redesign
+
+|  | PR #197 | Previous redesign | Current architecture |
+|---|---|---|---|
+| Mainnet-only contracts added | `Settler` (554 LOC) | None — Setup grew ~180 LOC | None — Setup is leaner; `Play.mint`/`Play.claim` host the bridge logic. |
+| Appchain-only contracts added | `Materializer` + `BridgeComponent` | `Materializer` only | None — `Materializer` removed; `Play.create` is the l1_handler directly. |
+| New models | several | `PendingPurchase`, `PurchaseNonce`, `Bridge` (4 fields) | `Bridge` (1 field: `address`); `Payload` value type. `PendingPurchase`/`PurchaseNonce` removed. |
+| Cross-chain messages | 2 bespoke layouts | 2 bespoke 6-felt layouts | 1 reusable `Payload` struct (Cairo `Serde`). |
 
 ## Cleanest interpretation
 
 - **Mainnet is the economic chain.** Setup (the bridge orchestrator),
-  Token, Vault, and Treasury are the load-bearing contracts. Per-game
-  NUMS rewards mint here.
-- **Appchain is the gameplay chain.** Play, Playable, Materializer, and
-  Collection are load-bearing. No USDC, no real NUMS minting at
+  Play (sender + receiver), Token, Vault, and Treasury are the
+  load-bearing contracts. Per-game NUMS rewards mint here.
+- **Appchain is the gameplay chain.** Play (l1_handler + gameplay)
+  and Collection are load-bearing. No USDC, no real NUMS minting at
   game-claim time.
 - **The shared-Dojo-world monolith** forces Token/Vault/Setup to be
-  present on the appchain too, but they're functionally dead weight in
-  bridge mode. The actual cross-chain wiring is just two thin Piltover
-  messages plus four config addresses.
+  present on the appchain too, but they're functionally dead weight
+  in bridge mode. The actual cross-chain wiring is just two thin
+  Piltover messages plus a single config address on the `Bridge`
+  model.
 
 ## Operational notes
 
 - **Role grants per chain.** Treasury holds `DEFAULT_ADMIN_ROLE` on
-  Setup, Vault, Token on each chain independently. Bridge mode
-  additionally requires `MINTER_ROLE` on **mainnet** Token to be granted
-  to **mainnet** Setup so `apply_game_claim_batch` can mint rewards.
-  Default deploy grants `MINTER_ROLE` only to Play.
-- **Identity invariant.** Player's controller address must match across
-  both chains. Mainnet `Setup.issue` records `recipient`, which flows
-  into appchain `Play.create` (as game owner), then back to mainnet via
-  the claim message's `player` field, then to mainnet `Token.reward`.
-  If those diverge anywhere, rewards land in the wrong place. Cartridge
-  controller infra is responsible for enforcing this.
-- **Why Setup is on the appchain at all.** Two reasons: (1) `Playable`
-  reads `config.mainnet_setup` from the appchain world's Setup Config
-  to decide bridge vs local mode at claim time; (2) Dojo worlds are
-  monolithic — every model schema must have a writer somewhere in the
-  world, and Setup is the natural owner of the Config model.
+  Setup, Vault, Token on each chain independently.
+- **Reward minting authorization.** Mainnet `Play` already holds
+  `MINTER_ROLE` on `Token` from the default deploy, which is enough
+  for `Play.claim → Playable.claim → Token.reward` to work. No
+  extra post-migration role grant is needed.
+- **Identity invariant.** Player's controller address must match
+  across both chains. Mainnet `Setup.issue → Play.mint` records
+  `recipient`, which flows into the forward `Payload.player` (which
+  becomes the appchain `Collection` owner via `Play.create`), then
+  back to mainnet via the reverse `Payload.player`, then to mainnet
+  `Token.reward`. If those diverge anywhere, rewards land in the
+  wrong place. Cartridge controller infra is responsible for
+  enforcing this.
+- **Address-equality invariant.** The forward L1Handler authenticates
+  the sender by comparing `from_address` against the appchain Play's
+  own address (`starknet::get_contract_address()`), and the reverse
+  mainnet `Play.claim` consumes the message with
+  `consume_message_from_appchain(this, payload)`. Both rely on the
+  **mainnet Play addr == appchain Play addr** assumption. If a real
+  two-world deploy fails this, the `Bridge` model must be extended
+  with a peer Play address and the auth checks must be updated to
+  use it.
+- **Why Setup is on the appchain at all.** Because Dojo worlds are
+  monolithic — every model schema must have a writer somewhere in
+  the world, and Setup is the natural owner of the `Config` and
+  `Bridge` models. The `Setup.issue` entry point is never called on
+  the appchain in bridge mode.
 - **Why Token is on the appchain at all.** Same Dojo-world-monolith
   reason. In bridge mode the appchain Token's storage state is never
-  read or written. It's harmless dead weight that could be removed in
-  a future cleanup if Dojo gains support for per-chain resource subsets.
+  read or written.

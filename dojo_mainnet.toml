@@ -31,19 +31,19 @@ disable_multicall = true
 "NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Token"]
 
 # -----------------------------------------------------------------------------
-# Post-migration role grants — only needed when activating bridge mode
+# Bridge configuration
 # -----------------------------------------------------------------------------
-# Pure-Starknet deployments (appchain_materializer == 0): no extra grants needed.
+# Nums runs in appchain bridge mode by default. `Setup.dojo_init`'s
+# `bridge_messaging` arg points at the Piltover messaging contract and
+# must be non-zero (`BridgeTrait::new` asserts). The value below must
+# be the real Piltover address on mainnet before launch — the
+# placeholder must be replaced or `Setup.set_bridge` must be called
+# right after migrate to swap it for the real address.
 #
-# Bridge mode (appchain_materializer != 0): after Setup is deployed, the operator
-# MUST grant MINTER_ROLE on the Token contract to `NUMS-Setup` so
-# `apply_game_claim_batch` can mint NUMS rewards. Today Token grants MINTER_ROLE
-# to `NUMS-Play` at deploy time (token.cairo:76). For bridge-mode deploys, also
-# grant it to `NUMS-Setup`:
-#
-#   sozo execute NUMS-Token grant_role <MINTER_ROLE_SELECTOR> <NUMS-Setup-address>
-#
-# Treasury holds DEFAULT_ADMIN_ROLE on Token and can grant via timelock.
+# Reward minting authorization is handled by the default deploy:
+# `NUMS-Play` holds `MINTER_ROLE` on `NUMS-Token`, which is what
+# `Play.claim → Playable.claim → Token.reward` needs. No extra
+# post-migration role grant is required.
 # -----------------------------------------------------------------------------
 
 [init_call_args]
@@ -77,8 +77,5 @@ disable_multicall = true
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x043e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc", # pool_extension,
   "0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab", # bundle_allower
-  "0x0",                                                                # appchain_materializer — zero = pure-Starknet mode (today's behavior)
-  "0x0",                                                                # bridge_messaging
-  "0x0",                                                                # appchain_play
-  "0x0",                                                                # mainnet_setup — zero on mainnet (irrelevant; appchain reads it)
+  "0x1",                                                                # bridge_messaging — placeholder (REPLACE with real Piltover address before launch, or patch via Setup.set_bridge)
 ]

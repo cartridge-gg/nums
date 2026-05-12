@@ -5,7 +5,7 @@ import { Random } from "@/helpers/random";
 import { Power } from "@/types/power";
 import { Trap } from "@/types/trap";
 
-const DEFAULT_SLOT_COUNT = 20;
+const DEFAULT_SLOT_COUNT = 18;
 const DEFAULT_MULTIPLIER = 100;
 const DEFAULT_SLOT_MIN = 1;
 const DEFAULT_SLOT_MAX = 999;
@@ -39,77 +39,77 @@ describe("Bomb", () => {
   test("test_bomb_large_range", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      1, 0, 0, 0, 250, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 250, 0, 0, 0, 0, 500, 0, 0, 0, 750, 0, 0, 0, 999,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      1, 0, 0, 0, 120, 0, 0, 0, 0, 500, 0, 0, 0, 0, 503, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 120, 0, 0, 0, 0, 500, 0, 0, 0, 503, 0, 0, 0, 999,
     ]);
   });
 
   test("test_bomb_small_range", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      1, 0, 0, 0, 0, 0, 0, 100, 250, 500, 750, 900, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 100, 250, 500, 750, 900, 0, 0, 0, 0, 0, 999,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      1, 0, 0, 0, 0, 0, 0, 100, 200, 500, 846, 900, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 100, 200, 500, 846, 900, 0, 0, 0, 0, 0, 999,
     ]);
   });
 
   test("test_bomb_at_boundary", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 999,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      120, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 503,
+      120, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 503,
     ]);
   });
 
   test("test_bomb_even", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 999,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 999,
     ]);
   });
 
   test("test_bomb_almost_even", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      1, 0, 0, 0, 0, 0, 0, 499, 499, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 499, 499, 500, 501, 501, 0, 0, 0, 0, 0, 999,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      1, 0, 0, 0, 0, 0, 0, 499, 500, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999,
+      1, 0, 0, 0, 0, 0, 0, 499, 500, 500, 501, 501, 0, 0, 0, 0, 0, 999,
     ]);
   });
 
   test("test_bomb_left_only", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      0, 0, 0, 0, 0, 0, 0, 250, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 250, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      0, 0, 0, 0, 0, 0, 0, 120, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 120, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
   });
 
   test("test_bomb_right_only", () => {
     const random = new Random(0n);
     const game = createTestGame([
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 750, 0, 0, 0, 0,
     ]);
     new Bomb().apply(game, 9, random);
     expect(game.slots).toEqual([
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 619, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 619, 0, 0, 0, 0,
     ]);
   });
 });

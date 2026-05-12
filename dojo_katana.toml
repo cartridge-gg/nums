@@ -71,21 +71,5 @@ disable_multicall = true
   "0x0",                                                                # pool_tick_spacing — unused
   "0x0",                                                                # pool_extension — unused
   "0x0",                                                                # bundle_allower (TODO)
-  "0x0",                                                                # bridge_settler (TODO: mainnet Settler address)
-  "0x0",                                                                # usdc_bridge (TODO: Katana-side USDC holding contract)
-  "0x0",                                                                # bridge_messaging (TODO: Piltover messaging on Katana)
-  "0x0",                                                                # materializer (TODO: filled after Materializer deploy below)
-]
-
-# Materializer is a plain Starknet contract (not Dojo). Deploy it via raw
-# declare/deploy after the Setup migration completes, then run
-# `Setup.set_materializer(<materializer_address>)` so the Materializer is
-# authorized to call back into Setup.materialize_pending.
-#
-# Constructor args: [bridge_settler, setup_address]
-[deployments.NUMS-Materializer]
-class_name = "nums::systems::materializer::Materializer"
-constructor_args = [
-  "0x0", # bridge_settler (TODO: mainnet Settler address)
-  "0x0", # setup_address  (TODO: Katana Setup address — filled post-deploy)
+  "0x1",                                                                # bridge_messaging — placeholder (TODO: Piltover messaging on Katana, or patch via Setup.set_bridge)
 ]

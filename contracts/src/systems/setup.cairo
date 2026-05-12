@@ -20,10 +20,7 @@ pub trait ISetup<T> {
     fn set_base_price(ref self: T, base_price: u256);
     fn set_average_score(ref self: T, average_score: u32, average_weigth: u16);
     // Cross-chain bridge config setters (admin only).
-    fn set_appchain_materializer(ref self: T, addr: ContractAddress);
-    fn set_bridge_messaging(ref self: T, addr: ContractAddress);
-    fn set_appchain_play(ref self: T, addr: ContractAddress);
-    fn set_mainnet_setup(ref self: T, addr: ContractAddress);
+    fn set_bridge(ref self: T, bridge_messaging: ContractAddress);
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
     fn merkledrop_claim(
         ref self: T,
@@ -32,12 +29,6 @@ pub trait ISetup<T> {
         data: Span<felt252>,
         receiver: ContractAddress,
     );
-    /// Apply a batch of game-claim messages from the appchain. For each payload:
-    /// authenticates origin via Piltover, updates EMA, mints NUMS reward, and
-    /// flips PendingPurchase status to Materialized. Public; anyone can call.
-    /// Payloads are sorted by purchase_id internally for deterministic execution
-    /// (config.push is non-commutative).
-    fn apply_game_claim_batch(ref self: T, payloads: Span<Span<felt252>>);
 }
 
 const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
@@ -47,7 +38,6 @@ pub mod Setup {
     use bundle::component::Component as BundleComponent;
     use bundle::component::Component::{BundleQuote, BundleTrait};
     use bundle::interface::IBundle;
-    use core::num::traits::Zero;
     use dojo::world::WorldStorageTrait;
     use merkledrop::component::Component as MerkledropComponent;
     use merkledrop::component::Component::MerkledropTrait;
@@ -56,14 +46,13 @@ pub mod Setup {
     use starknet::ContractAddress;
     use crate::StoreImpl;
     use crate::components::purchase::PurchaseComponent;
-    use crate::constants::{MATERIALIZE_SELECTOR, MULTIPLIER_PRECISION, NAMESPACE, WORLD_RESOURCE};
-    use crate::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE, WORLD_RESOURCE};
     use crate::mocks::vrf::NAME as VRF;
+    use crate::models::bridge::BridgeTrait;
     use crate::models::config::ConfigTrait;
-    use crate::models::index::{PendingPurchase, PendingStatus};
     use crate::systems::faucet::NAME as FAUCET;
     use crate::systems::play::{IPlayDispatcher, IPlayDispatcherTrait, NAME as PLAY};
-    use crate::systems::token::{ITokenDispatcher, ITokenDispatcherTrait, NAME as TOKEN};
+    use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
     use crate::types::drop::MerkleDrop;
     use super::{ADMIN_ROLE, ISetup};
@@ -126,54 +115,15 @@ pub mod Setup {
         ) {
             let mut contract_state = self.get_contract_mut();
             let world = contract_state.world(@NAMESPACE());
-            let store = StoreImpl::new(world);
-            let config = store.config();
-            let bundle = store.bundle(bundle_id);
-
-            // Run swap+burn+vault.pay+team.transfer on mainnet. Returns the
-            // resolved values used downstream (multiplier from the EMA-fed
-            // Rewarder formula, supply snapshot, etc.).
             let (recipient, multiplier, supply, price, quantity) = contract_state
                 .purchase
                 .execute(world, recipient, bundle_id, quantity);
-
-            // Free bundles always materialize locally (no payment to bridge,
-            // gives the player games immediately even in bridge mode).
-            if bundle.price == 0 || config.appchain_materializer.is_zero() {
-                // Pure-Starknet path — bit-identical to today's behavior.
-                let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
-                let play = IPlayDispatcher { contract_address: play_address };
-                play.create(recipient, multiplier, supply, price, quantity, 0);
-            } else {
-                // Bridge mode — record PendingPurchase and queue a Piltover
-                // game-mint message to the appchain Materializer. Game creation
-                // happens on the appchain once the L1Handler delivers.
-                let mut store_mut = StoreImpl::new(world);
-                let purchase_id = store_mut.next_purchase_nonce();
-                store_mut
-                    .set_pending_purchase(
-                        @PendingPurchase {
-                            purchase_id,
-                            recipient,
-                            bundle_id,
-                            quantity,
-                            status: PendingStatus::Pending,
-                        },
-                    );
-
-                let payload = array![
-                    purchase_id.into(), recipient.into(), multiplier.into(), price.low.into(),
-                    price.high.into(), quantity.into(),
-                ];
-
-                let messaging = IMessagingDispatcher { contract_address: config.bridge_messaging };
-                messaging
-                    .send_message_to_appchain(
-                        config.appchain_materializer, MATERIALIZE_SELECTOR, payload.span(),
-                    );
-
-                store_mut.purchase_initiated(purchase_id, recipient, bundle_id, quantity);
-            }
+            let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
+            let play = IPlayDispatcher { contract_address: play_address };
+            play
+                .mint(
+                    recipient, Some(multiplier), Some(supply), Some(price), Some(false), quantity,
+                );
         }
         fn supply(
             self: @BundleComponent::ComponentState<ContractState>, bundle_id: u32,
@@ -203,7 +153,7 @@ pub mod Setup {
             let world = contract_state.world(@NAMESPACE());
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             let play = IPlayDispatcher { contract_address: play_address };
-            play.mint(receiver, drop.quantity.into());
+            play.mint(receiver, None, None, None, None, drop.quantity.into());
             // [Event] Emit purchase event
             let mut store = StoreImpl::new(world);
             store.purchased(receiver.into(), 0, drop.quantity.into(), MULTIPLIER_PRECISION, 0);
@@ -228,15 +178,11 @@ pub mod Setup {
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
         bundle_allower: ContractAddress,
-        // Cross-chain bridge config. All zero = pure-Starknet mode (today's
-        // behavior). Non-zero appchain_materializer activates the bridge path
-        // in BundleImpl::on_issue and is paired with bridge_messaging +
-        // appchain_play. `mainnet_setup` is only read on the appchain side
-        // (irrelevant on mainnet but kept symmetric for shared model).
-        appchain_materializer: ContractAddress,
+        // Piltover messaging contract. Required (non-zero) — Nums always
+        // runs in appchain mode now. Used for both directions:
+        //   * mainnet `Play.mint` → `send_message_to_appchain` (forward)
+        //   * mainnet `Play.claim` → `consume_message_from_appchain` (reverse)
         bridge_messaging: ContractAddress,
-        appchain_play: ContractAddress,
-        mainnet_setup: ContractAddress,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -259,18 +205,7 @@ pub mod Setup {
             u256 { low: 0x1000003f7f1380b75, high: 0x0 }
         };
 
-        // [Sentinel] Bridge mode consistency: appchain_materializer, bridge_messaging,
-        // and appchain_play must either all be zero (local mode) or all non-zero
-        // (bridge mode). Self-referencing materializer is also rejected.
-        let self_addr = starknet::get_contract_address();
-        let mat_zero = appchain_materializer.is_zero();
-        let msg_zero = bridge_messaging.is_zero();
-        let play_zero = appchain_play.is_zero();
-        let all_zero = mat_zero && msg_zero && play_zero;
-        let all_set = !mat_zero && !msg_zero && !play_zero;
-        assert(all_zero || all_set, 'Setup: bridge config mixed');
-        assert(appchain_materializer != self_addr, 'Setup: materializer is self');
-
+        // [Effect] Setup config
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
             vrf: vrf_address,
@@ -287,12 +222,12 @@ pub mod Setup {
             pool_extension: pool_extension,
             pool_sqrt: pool_sqrt,
             base_price: entry_price.into(),
-            appchain_materializer: appchain_materializer,
-            bridge_messaging: bridge_messaging,
-            appchain_play: appchain_play,
-            mainnet_setup: mainnet_setup,
         );
         store.set_config(config);
+
+        // [Effect] Setup bridge
+        let bridge = BridgeTrait::new(world_resource: WORLD_RESOURCE, address: bridge_messaging);
+        store.set_bridge(bridge);
 
         // [Effect] Initialize starterpack
         self.purchase.initialize(world, entry_price.into(), bundle_allower);
@@ -302,8 +237,8 @@ pub mod Setup {
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         self.accesscontrol._grant_role(ADMIN_ROLE, treasury_address);
-        // [Effect] Test-driven: grant admin to deployer so e2e harness can call
-        // post-deploy setters (set_appchain_materializer etc.). Mirrors Vault.
+        // [Effect] Test-driven: grant admin to deployer so the e2e harness
+        // can call post-deploy setters (e.g. `set_bridge`). Mirrors Vault.
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
@@ -472,41 +407,14 @@ pub mod Setup {
             store.set_config(config);
         }
 
-        fn set_appchain_materializer(ref self: ContractState, addr: ContractAddress) {
+        fn set_bridge(ref self: ContractState, bridge_messaging: ContractAddress) {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            assert(addr != starknet::get_contract_address(), 'Setup: materializer is self');
-            let mut config = store.config();
-            config.appchain_materializer = addr;
-            store.set_config(config);
-        }
-
-        fn set_bridge_messaging(ref self: ContractState, addr: ContractAddress) {
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            let mut config = store.config();
-            config.bridge_messaging = addr;
-            store.set_config(config);
-        }
-
-        fn set_appchain_play(ref self: ContractState, addr: ContractAddress) {
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            let mut config = store.config();
-            config.appchain_play = addr;
-            store.set_config(config);
-        }
-
-        fn set_mainnet_setup(ref self: ContractState, addr: ContractAddress) {
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            let mut config = store.config();
-            config.mainnet_setup = addr;
-            store.set_config(config);
+            let bridge = BridgeTrait::new(
+                world_resource: WORLD_RESOURCE, address: bridge_messaging,
+            );
+            store.set_bridge(bridge);
         }
 
         fn merkledrop_register(
@@ -527,118 +435,5 @@ pub mod Setup {
             let world = self.world(@NAMESPACE());
             self.merkledrop.claim(world, tree_id, proofs, data, receiver)
         }
-
-        // Public; anyone can call. Caller supplies pending claim payloads they
-        // discovered from the appchain (off-chain via Torii). For each payload:
-        //
-        // 1. Sort by purchase_id (deterministic ordering; config.push is NOT
-        //    commutative — verified by test_ema_push_commutative).
-        // 2. consume_message_from_appchain(appchain_play, payload) authenticates
-        //    the origin and reverts if no matching Piltover message exists.
-        // 3. Update EMA via config.push (level, weight).
-        // 4. Mint NUMS reward to player via Token.reward (Setup holds
-        //    MINTER_ROLE; granted post-migration).
-        // 5. Flip PendingPurchase{purchase_id}.status to Materialized.
-        //
-        // Partial-failure behavior: one bad payload reverts the whole batch.
-        // Caller must remove the offending payload and retry. Operator-trust
-        // model: well-formed payloads are the operator's responsibility.
-        fn apply_game_claim_batch(ref self: ContractState, payloads: Span<Span<felt252>>) {
-            let mut world = self.world(@NAMESPACE());
-            let mut store = StoreImpl::new(world);
-            let config = store.config();
-
-            // Sentinel: bridge mode must be active.
-            assert(!config.bridge_messaging.is_zero(), 'Setup: bridge not configured');
-            assert(!config.appchain_play.is_zero(), 'Setup: appchain_play unset');
-
-            let messaging = IMessagingDispatcher { contract_address: config.bridge_messaging };
-            let token = ITokenDispatcher {
-                contract_address: world.dns_address(@TOKEN()).expect('Token not found!'),
-            };
-
-            // Sort payloads by purchase_id (first felt) for deterministic
-            // EMA application. Caller can replicate sort offline.
-            let sorted = sort_by_purchase_id(payloads);
-
-            let mut config_mut = store.config();
-            let mut i = 0;
-            while i < sorted.len() {
-                let payload = *sorted.at(i);
-                assert(payload.len() == 6, 'Setup: bad payload len');
-
-                // Authenticate via Piltover. Reverts if no matching message.
-                messaging.consume_message_from_appchain(config.appchain_play, payload);
-
-                let purchase_id: u64 = (*payload.at(0)).try_into().expect('Setup: bad purchase_id');
-                let player_felt: felt252 = *payload.at(1);
-                let player: ContractAddress = player_felt.try_into().expect('Setup: bad player');
-                let level: u32 = (*payload.at(2)).try_into().expect('Setup: bad level');
-                let weight: u16 = (*payload.at(3)).try_into().expect('Setup: bad weight');
-                let reward_amount: u128 = (*payload.at(4)).try_into().expect('Setup: bad reward');
-                let _game_id: u64 = (*payload.at(5)).try_into().expect('Setup: bad game_id');
-
-                // EMA push (rolling difficulty feedback).
-                config_mut.push(level, weight, crate::constants::EMA_MIN_SCORE.into());
-
-                // Mint NUMS reward.
-                token.reward(player, reward_amount.into());
-
-                // Flip PendingPurchase status. Defensive: only allow Pending →
-                // Materialized so a replay would revert.
-                let mut pending = store.pending_purchase(purchase_id);
-                assert(pending.status == PendingStatus::Pending, 'Setup: pending not Pending');
-                pending.status = PendingStatus::Materialized;
-                store.set_pending_purchase(@pending);
-
-                store.game_claim_applied(purchase_id, player, level, weight, reward_amount);
-
-                i += 1;
-            }
-
-            store.set_config(config_mut);
-        }
-    }
-
-    /// Sort payloads in ascending order of purchase_id (first felt).
-    /// Insertion sort — N is small (caller's gas budget bounds the batch).
-    fn sort_by_purchase_id(payloads: Span<Span<felt252>>) -> Span<Span<felt252>> {
-        let n = payloads.len();
-        let mut buf: Array<Span<felt252>> = ArrayTrait::new();
-        let mut i = 0;
-        while i < n {
-            buf.append(*payloads.at(i));
-            i += 1;
-        }
-        // In-place insertion sort over the Array.
-        let mut sorted: Array<Span<felt252>> = ArrayTrait::new();
-        let mut remaining = buf;
-        while remaining.len() > 0 {
-            // Find min in remaining
-            let mut min_idx: u32 = 0;
-            let mut min_pid: u64 = (*remaining.at(0).at(0)).try_into().unwrap_or(0_u64);
-            let mut k: u32 = 1;
-            while k < remaining.len() {
-                let pid: u64 = (*remaining.at(k).at(0)).try_into().unwrap_or(0_u64);
-                if pid < min_pid {
-                    min_pid = pid;
-                    min_idx = k;
-                }
-                k += 1;
-            }
-            // Pop min from remaining, push to sorted, copy rest back
-            let mut rest: Array<Span<felt252>> = ArrayTrait::new();
-            let mut j: u32 = 0;
-            while j < remaining.len() {
-                if j == min_idx {
-                    sorted.append(*remaining.at(j));
-                } else {
-                    rest.append(*remaining.at(j));
-                }
-                j += 1;
-            }
-            remaining = rest;
-        }
-        sorted.span()
     }
 }

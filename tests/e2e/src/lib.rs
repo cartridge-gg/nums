@@ -5,7 +5,9 @@
 //! manually register Appchain→Starknet message hashes without running
 //! saya-tee), wires Katana's `--messaging` polling so Settlement→Appchain
 //! L1Handler delivery flows automatically, and then exercises the full
-//! Settler → Materializer → Setup loop.
+//! `Setup.issue → Play.mint → Play.create → playable.create` forward
+//! loop. The reverse loop (`playable.claim → Play.claim → Token.reward`)
+//! is described but not yet driven end-to-end (see README).
 //!
 //! See `tests/e2e/README.md` for prerequisites and known limitations.
 

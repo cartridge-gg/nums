@@ -1,7 +1,7 @@
 use core::array::ArrayTrait;
 use crate::constants::{
-    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW, POWER_SIZE,
-    SLOT_SIZE, TRAP_SIZE,
+    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW,
+    DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE, SLOT_SIZE, TRAP_SIZE,
 };
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
@@ -37,28 +37,17 @@ pub mod errors {
 #[generate_trait]
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
-    /// `purchase_id` links the appchain Game to mainnet PendingPurchase in
-    /// bridge mode; zero for free games and pure-Starknet mode.
     #[inline]
-    fn new(
-        id: u64,
-        multiplier: u128,
-        slot_count: u8,
-        slot_min: u16,
-        slot_max: u16,
-        supply: u256,
-        price: u256,
-        purchase_id: u64,
-    ) -> Game {
+    fn new(id: u64, multiplier: u128, supply: u256, price: u256) -> Game {
         // [Return] Game
         Game {
             id: id,
             claimed: false,
             multiplier: multiplier,
             level: 0,
-            slot_count: slot_count,
-            slot_min: slot_min,
-            slot_max: slot_max,
+            slot_count: DEFAULT_SLOT_COUNT,
+            slot_min: DEFAULT_SLOT_MIN,
+            slot_max: DEFAULT_SLOT_MAX,
             number: 0,
             next_number: 0,
             selectable_powers: 0,
@@ -72,7 +61,6 @@ pub impl GameImpl of GameTrait {
             slots: 0,
             supply: supply.try_into().unwrap(),
             price: price.try_into().unwrap(),
-            purchase_id: purchase_id,
         }
     }
 
@@ -448,10 +436,7 @@ pub impl GameAssert of AssertTrait {
 #[cfg(test)]
 mod tests {
     use core::num::traits::Pow;
-    use crate::constants::{
-        DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
-        SLOT_SIZE,
-    };
+    use crate::constants::{DEFAULT_DRAW_COUNT, POWER_SIZE, SLOT_SIZE};
     use crate::helpers::packer::Packer;
     use super::{DEFAULT_DRAW_STAGE, Game, GameAssert, GameTrait, RandomImpl};
 
@@ -461,16 +446,7 @@ mod tests {
 
     /// Helper function to create a test game instance
     fn create() -> Game {
-        let mut game = GameTrait::new(
-            1,
-            DEFAULT_MULTIPLIER,
-            DEFAULT_SLOT_COUNT,
-            DEFAULT_SLOT_MIN,
-            DEFAULT_SLOT_MAX,
-            SUPPLY,
-            DEFAULT_PRICE,
-            0,
-        );
+        let mut game = GameTrait::new(1, DEFAULT_MULTIPLIER, SUPPLY, DEFAULT_PRICE);
         let mut rand = RandomImpl::new(1);
         game.start(ref rand);
         game
@@ -478,16 +454,7 @@ mod tests {
 
     #[test]
     fn test_new_game_creation() {
-        let game = GameTrait::new(
-            1,
-            DEFAULT_MULTIPLIER,
-            DEFAULT_SLOT_COUNT,
-            DEFAULT_SLOT_MIN,
-            DEFAULT_SLOT_MAX,
-            SUPPLY,
-            DEFAULT_PRICE,
-            0,
-        );
+        let game = GameTrait::new(1, DEFAULT_MULTIPLIER, SUPPLY, DEFAULT_PRICE);
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
@@ -719,4 +686,3 @@ mod tests {
         game.update(ref random);
     }
 }
-

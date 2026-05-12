@@ -1,73 +1,82 @@
 # Nums cross-chain bridge — end-to-end integration test
 
-## Status: STUB — pending Lane C harness rebuild
+## Status: harness compiles against the new flow, e2e test still `#[ignore]`
 
-This crate housed the PR #197 (v1 cross-chain bridge) e2e harness against
-the Settler-mediated message flow. The new bridge architecture
-(mainnet-economics + appchain-gameplay, no value-bearing transfer; see
-the parent PR `feat/tee-appchain-redesign`) deletes the Settler and
-BridgeComponent contracts that this harness was built around.
+This crate hosts the e2e harness for the bridge architecture described
+in `docs/BRIDGE_ARCHITECTURE.md`. The harness has been retargeted for
+the current flow (no standalone `Materializer` contract, single-field
+`Bridge` model, `Payload` Serde layout, mainnet `Play.mint` /
+mainnet `Play.claim` as the bridge entry points), but
+`happy_path_bridge_forward` is kept `#[ignore]` until the next Lane C
+iteration confirms the end-to-end run is green on real Katanas.
 
 What you'll find here right now:
-- **`src/harness.rs`** — slim stub. `TestEnv::start` is `unimplemented!`.
-  Returns `Err("stub: pending Lane C")` from every method. The pure
-  utility functions `compute_appc_to_sn_message_hash` and
-  `bytearray_hash` still work.
-- **`src/{constants,katana,messaging,rollup,sozo}.rs`** — left in tree as
-  scaffolding for the Lane C rewrite. **Not included** in the lib via
-  `pub mod` currently; reactivate per-module as you port them.
-- **`tests/happy_path.rs`** — describes the target flow against the new
-  harness API. Marked `#[ignore]`. Compiles but does not run.
+- **`src/harness.rs`** — full `TestEnv::start` implementation against
+  the new flow: spins up two Katanas, migrates both worlds with
+  placeholder bridge address (`0x1`), patches both Setups with
+  `Setup.set_bridge(<messaging_mock>)`, seeds the settlement Vault
+  with NUMS shares. No `Materializer` deploy step, no extra role
+  grants needed (default `dojo_init` grants are sufficient).
+  `PendingStatus` / `read_pending_status` / `read_purchase_nonce`
+  are kept as legacy no-op shims for source-compatibility.
+- **`src/{constants,katana,messaging,rollup,sozo}.rs`** — supporting
+  scaffolding (Katana orchestration, sozo driver, Piltover messaging
+  helpers). Largely unchanged from the previous architecture.
+- **`tests/happy_path.rs`** — describes the target flow against the
+  retargeted harness API. Marked `#[ignore]` pending Lane C
+  end-to-end validation.
 
-Cairo contract logic is comprehensively covered at the unit level — see
-`scarb test` (172 cases passing in this branch including bridge-mode
-regression, EMA commutativity baseline, Materializer constructor
-sentinels, and admin access control).
+Cairo contract logic is comprehensively covered at the unit level —
+see `sozo test` (160 cases passing on this branch, including the
+`Bridge`-default-zero baseline and the EMA-commutativity baseline).
 
-## What needs to be ported (Lane C follow-up)
+## What this PR ports
 
-Most useful infrastructure that survives:
-- Two-Katana orchestration (settlement on :5071, appchain on :5072 with
-  `katana init rollup` for the L3-mode flag)
-- sozo migrate driver
-- Piltover messaging_mock backdoor for state-root commits
-- DEV_ACCOUNT_0_ADDRESS/PRIVKEY constants and dev account helpers
+Forward direction (mainnet → appchain) is wired against the new flow:
+- `TestEnv::start` no longer UDC-deploys a standalone `Materializer`
+  contract — the forward L1Handler is `Play.create` on the appchain
+  `Play` contract directly.
+- `wire_cross_chain_addresses` calls `Setup.set_bridge(<messaging_mock>)`
+  on both Setups (the `Bridge` model has a single `address` field).
+- `grant_materializer_creator_role` and `grant_setup_minter_role`
+  are removed: the new flow uses access control already configured
+  by `dojo_init`.
+- `settlement_player_buy_bundle` extracts `game_id` (the second felt
+  of the serialized `Payload`) as the legacy
+  `PurchaseHandle.purchase_id` for backwards-compatible test code.
 
-What needs rewriting:
-- `TestEnv::start` post-migrate wiring:
-  - Remove all `NUMS-Settler` references (contract deleted)
-  - Remove `grant_settler_provider_role`, `seed_settler_reserve`,
-    `seed_vault_shares` (Settler reserve concept gone)
-  - On settlement Setup: call new setters `set_appchain_materializer`,
-    `set_bridge_messaging`, `set_appchain_play` after the appchain
-    Materializer UDC-deploys
-  - On appchain Setup: call new setter `set_mainnet_setup` so
-    Playable.claim takes the bridge path
-  - Grant Token MINTER_ROLE to settlement Setup so
-    apply_game_claim_batch can mint NUMS rewards
-- `settlement_player_buy_bundle`: calls mainnet Setup.issue (was on
-  appchain in PR #197). Listens for PurchaseInitiated event to capture
-  the mainnet-assigned `purchase_id: u64` (was felt252 message_id).
-- `update_state_for_pending_messages`: forward direction (mainnet →
-  appchain) so the L1Handler delivers Materializer.materialize.
-- `wait_for_appchain_materialization`: poll appchain Play for the
-  player's game count to increase.
-- `read_pending_status`: query mainnet PendingPurchase{purchase_id} model
-  and return PendingStatus::{Pending,Materialized,Cancelled}.
-- For the reverse direction: synthesize a claim payload
-  `[purchase_id, player, level, weight, reward, game_id]` and feed it
-  to settlement Setup.apply_game_claim_batch. (Driving an actual
-  Playable.claim from the appchain into a real Piltover hash requires
-  the rollup chain spec + the messaging_test backdoor; reuse the
-  PR #197 plumbing from rollup.rs / messaging.rs.)
-- Update profile tomls: `dojo_e2esettlement.toml` and
-  `dojo_e2eappchain.template.toml` are already updated for the new init
-  args; verify the rendered settlement seed differs from PR #197's seed
-  to avoid world collisions on shared Katana state.
+Forward direction delivery is unchanged from the previous design:
+Katana's messaging worker automatically dispatches the L1Handler on
+the appchain when the rollup chain spec is wired correctly. Tests
+poll `Collection.balance_of(player)` on the appchain to observe the
+materialization.
+
+## What still needs work for the next Lane C iteration
+
+- **Run the test end-to-end.** Confirm the L1Handler dispatch on the
+  appchain succeeds. The bridge config baseline tests already pass
+  at the Cairo unit level, but the on-chain delivery against real
+  Katanas has not been re-verified in this branch.
+- **Validate the address-equality invariant.** The forward
+  `from_address` check (`Play.create`) and the reverse
+  `consume_message_from_appchain(this, payload)` call (`Play.claim`)
+  both depend on `mainnet Play addr == appchain Play addr`. If a
+  real two-world deploy fails this invariant, the harness needs to
+  carry the peer Play address explicitly and the on-chain checks
+  need to be updated accordingly (see `docs/BRIDGE_ARCHITECTURE.md`
+  follow-ups).
+- **Reverse direction coverage.** Drive a real claim by playing
+  through to game-over on the appchain via
+  `Play.set`/`select`/`apply`. This requires VRF setup and is the
+  most expensive part of the harness rewrite. When `Playable.finish`
+  queues a Piltover message, capture it via the `messaging_test`
+  backdoor, then call mainnet `Play.claim(payload)` and assert
+  `Token.balance_of(player)` increased by the expected reward
+  amount.
 
 ## Running the e2e tests
 
-When the harness is rebuilt, run via:
+When the harness rebuild is validated end-to-end, run via:
 
 ```sh
 cargo test --manifest-path tests/e2e/Cargo.toml --release -- --nocapture --include-ignored
@@ -79,18 +88,6 @@ Or via the convenience script:
 bin/integration-test happy_path -- --nocapture --include-ignored
 ```
 
-Both currently exit early on `TestEnv::start` returning `Err("stub")`.
-
-## Why this PR ships without working e2e
-
-The architectural change (PR #197 → this redesign) is a large, focused
-diff with comprehensive Cairo unit-test coverage. The e2e harness
-rewrite is real but distinct work: ~3K LOC of Rust orchestration that
-must be retargeted to the new contract surface, and each iteration is
-~5-8 minutes of wall-clock time per attempt. Coupling the architectural
-change to the e2e harness rebuild would either delay the architectural
-review or risk a sprawling PR.
-
-The honest trade-off: ship the architectural redesign with 172 unit
-tests, document the harness debt clearly, restore e2e coverage in a
-follow-up PR before any production deployment.
+`happy_path_bridge_forward` is currently marked `#[ignore]` to keep
+CI green; flip the `#[ignore]` and confirm the test passes once the
+real two-world deploy has been validated.

@@ -55,8 +55,7 @@ pub mod setup {
             resources: [
                 TestResource::Model(models::m_Game::TEST_CLASS_HASH),
                 TestResource::Model(models::m_Config::TEST_CLASS_HASH),
-                TestResource::Model(models::m_PendingPurchase::TEST_CLASS_HASH),
-                TestResource::Model(models::m_PurchaseNonce::TEST_CLASS_HASH),
+                TestResource::Model(models::m_Bridge::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementDefinition::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementAdvancement::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementAssociation::TEST_CLASS_HASH),
@@ -69,8 +68,6 @@ pub mod setup {
                 TestResource::Event(events::e_Claimed::TEST_CLASS_HASH),
                 TestResource::Event(events::e_Purchased::TEST_CLASS_HASH),
                 TestResource::Event(events::e_Started::TEST_CLASS_HASH),
-                TestResource::Event(events::e_PurchaseInitiated::TEST_CLASS_HASH),
-                TestResource::Event(events::e_GameClaimApplied::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_TrophyCreation::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_TrophyProgression::TEST_CLASS_HASH),
                 TestResource::Event(achievement_events::e_AchievementCompleted::TEST_CLASS_HASH),

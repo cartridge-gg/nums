@@ -4,14 +4,14 @@ pub mod PlayableComponent {
     use achievement::component::Component as AchievementComponent;
     use achievement::component::Component::InternalImpl as AchievementInternalImpl;
     use constants::TEN_POW_18;
-    use core::num::traits::Zero;
+    use core::panic_with_felt252;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::component::Component as QuestableComponent;
     use quest::component::Component::InternalImpl as QuestableInternalImpl;
-    use starknet::{ContractAddress, SyscallResultTrait};
+    use starknet::{ContractAddress, syscalls};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, AchievementType, IAchievement};
     use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
@@ -21,6 +21,7 @@ pub mod PlayableComponent {
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::systems::collection::NAME as COLLECTION;
     use crate::systems::token::ITokenDispatcherTrait;
+    use crate::types::payload::{Payload, PayloadTrait};
     use crate::{StoreImpl, StoreTrait, constants};
 
     // Constants
@@ -94,8 +95,6 @@ pub mod PlayableComponent {
         }
 
         /// Create a new game. It ensures the game is valid and not already created.
-        /// `purchase_id` links the appchain Game back to the mainnet PendingPurchase
-        /// when running in bridge mode. Zero in pure-Starknet mode.
         fn create(
             ref self: ComponentState<TContractState>,
             world: WorldStorage,
@@ -104,22 +103,13 @@ pub mod PlayableComponent {
             multiplier: u128,
             supply: u256,
             price: u256,
-            purchase_id: u64,
         ) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
 
             // [Effect] Create game
-            let config = store.config();
             let mut game = GameTrait::new(
-                id: game_id,
-                multiplier: multiplier,
-                slot_count: config.slot_count,
-                slot_min: config.slot_min,
-                slot_max: config.slot_max,
-                supply: supply,
-                price: price,
-                purchase_id: purchase_id,
+                id: game_id, multiplier: multiplier, supply: supply, price: price,
             );
             // [Effect] Start game
             let mut rand = RandomImpl::new(game_id.into());
@@ -354,8 +344,9 @@ pub mod PlayableComponent {
             game.assert_has_started();
             game.assert_is_over();
             game.assert_not_expired();
+            game.assert_not_claimed();
 
-            // [Effect] Claim game (computes reward into game.reward, sets claimed=true)
+            // [Effect] Claim game, so it cannot be called anymore
             let reward: u128 = game.claim();
             let base_reward: u128 = reward / TEN_POW_18;
             store.set_game(@game);
@@ -380,44 +371,45 @@ pub mod PlayableComponent {
             let task = Task::Claimer;
             achievement.progress(world, player.into(), task.identifier(), base_reward, true);
 
-            // [Branch] Reward distribution: local mint vs cross-chain message.
-            //
-            // Bridge mode (config.mainnet_setup != 0): the Token contract lives
-            // on mainnet, not here. Send a combined claim message carrying
-            // (purchase_id, player, level, weight, reward, game_id) to mainnet
-            // Setup.apply_game_claim_batch which will push the EMA and mint
-            // NUMS reward. Local config.average_score is NOT mutated — nothing
-            // on the appchain reads it (audit: purchase.cairo:198 is the only
-            // production reader and it lives on mainnet).
-            //
-            // Local mode (mainnet_setup == 0): preserve today's pure-Starknet
-            // behavior bit-identically — update local EMA, mint NUMS locally.
-            let weight: u16 = (game.multiplier / constants::MULTIPLIER_PRECISION)
-                .try_into()
-                .unwrap();
-            let config = store.config();
-            if config.mainnet_setup.is_zero() {
-                // Local path — today's behavior unchanged.
-                let mut config_mut = store.config();
-                config_mut.push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
-                store.set_config(config_mut);
-                store.nums_disp().reward(player, reward.into());
-            } else {
-                // Bridge path — queue claim message for mainnet.
-                let payload: Array<felt252> = array![
-                    game.purchase_id.into(), player.into(), game.level.into(), weight.into(),
-                    reward.into(), game.id.into(),
-                ];
-                // Cairo native syscall: queues into L2→L1 messages array,
-                // settled by Piltover state-root commitment on mainnet.
-                // Piltover has no send-side dispatcher in this direction.
-                starknet::syscalls::send_message_to_l1_syscall(
-                    config.mainnet_setup.into(), payload.span(),
-                )
-                    .unwrap_syscall();
+            // [Messaging] Message to mainnet
+            let payload = PayloadTrait::new(
+                player,
+                game_id,
+                game.multiplier,
+                game.supply.into(),
+                game.price.into(),
+                game.level,
+                reward,
+            );
+            let to_address = starknet::get_contract_address();
+            match syscalls::send_message_to_l1_syscall(to_address.into(), payload.span()) {
+                Ok(_) => (),
+                Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
             }
+        }
 
-            // [Event] Emit claimed event (analytics — emitted in both modes)
+        fn claim(ref self: ComponentState<TContractState>, world: WorldStorage, payload: Payload) {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+
+            // [Messaging] Consume Appchain message
+            let player: ContractAddress = payload.player;
+            let game_id: u64 = payload.game_id;
+            let reward: u128 = payload.reward;
+            let multiplier: u128 = payload.multiplier;
+            let level: u8 = payload.level;
+
+            // [Effect] Update average score
+            let mut config = store.config();
+            let weight: u16 = (multiplier / constants::MULTIPLIER_PRECISION).try_into().unwrap();
+            config.push(level.into(), weight, constants::EMA_MIN_SCORE.into());
+            store.set_config(config);
+
+            // [Interaction] Pay user reward
+            store.nums_disp().reward(player, reward.into());
+
+            // [Event] Emit claimed event
+            let base_reward: u128 = reward / TEN_POW_18;
             store.claimed(player.into(), game_id, base_reward);
         }
     }

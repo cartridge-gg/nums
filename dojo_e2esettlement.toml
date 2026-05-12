@@ -5,19 +5,20 @@
 # contracts could be reachable; the bridge-mode happy path doesn't need them
 # (the bridge work is value-free).
 #
-# Migration notes:
-#   - dojo_init's last 4 args (appchain_materializer, bridge_messaging,
-#     appchain_play, mainnet_setup) are zero at deploy; the harness patches
-#     them via Setup.set_appchain_materializer / set_bridge_messaging /
-#     set_appchain_play after the appchain Materializer + appchain Setup are
-#     known. This resolves the circular dependency between the two chains'
-#     contracts.
-#   - mainnet_setup is unused on the settlement side (it's a config field
-#     used by the appchain to know where to send claim messages). Kept zero.
-#   - Vault.pay's PROVIDER_ROLE is granted to Setup at deploy time. Token's
-#     MINTER_ROLE is granted to Play at deploy time and ALSO to Setup
-#     post-migration so apply_game_claim_batch can mint NUMS rewards on
-#     incoming claim messages from the appchain.
+# Migration notes (current architecture):
+#   - `dojo_init`'s last argument, `bridge_messaging`, points at the
+#     Piltover messaging contract. `BridgeTrait::new` rejects zero, so a
+#     placeholder non-zero value (0x1) is passed at migrate time. The
+#     harness then calls `Setup.set_bridge(<messaging_mock>)` after the
+#     real Piltover address is known.
+#   - The previous `appchain_materializer`, `appchain_play`,
+#     `mainnet_setup` args were removed when the `Bridge` model was
+#     collapsed to a single `address` field. See
+#     `docs/BRIDGE_ARCHITECTURE.md`.
+#   - Vault.pay's PROVIDER_ROLE is granted to Setup at deploy time.
+#     `Play` already holds `MINTER_ROLE` on Token, which is what
+#     `Play.claim → Playable.claim → Token.reward` needs — no extra
+#     post-migration role grant is required.
 
 [world]
 name = "Nums"
@@ -86,9 +87,5 @@ disable_multicall = true
   "0x0",                                                                # pool_tick_spacing
   "0x0",                                                                # pool_extension
   "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # bundle_allower
-  # Bridge config (zero at deploy; patched by harness via setters):
-  "0x0",                                                                # appchain_materializer — patched
-  "0x0",                                                                # bridge_messaging      — patched (Piltover address)
-  "0x0",                                                                # appchain_play         — patched
-  "0x0",                                                                # mainnet_setup         — unused on settlement side
+  "0x1",                                                                # bridge_messaging — placeholder, patched by Setup.set_bridge
 ]

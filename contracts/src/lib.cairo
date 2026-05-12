@@ -7,7 +7,6 @@ pub mod systems {
     pub mod collection;
     pub mod faucet;
     pub mod governor;
-    pub mod materializer;
     pub mod play;
     pub mod setup;
     pub mod token;
@@ -22,6 +21,7 @@ pub mod components {
 }
 
 pub mod models {
+    pub mod bridge;
     pub mod config;
     pub mod game;
     pub mod index;
@@ -30,7 +30,6 @@ pub mod models {
 }
 
 pub mod events {
-    pub mod bridge;
     pub mod claimed;
     pub mod index;
     pub mod purchased;
@@ -67,6 +66,7 @@ pub mod assets {
 pub mod types {
     pub mod drop;
     pub mod metadata;
+    pub mod payload;
     pub mod power;
     pub mod svg;
     pub mod trap;
@@ -144,7 +144,6 @@ pub mod mocks {
 pub mod tests {
     pub mod setup;
     pub mod test_bridge_mainnet;
-    pub mod test_materializer;
     pub mod test_setup;
     pub mod test_transfer_isolation;
 }

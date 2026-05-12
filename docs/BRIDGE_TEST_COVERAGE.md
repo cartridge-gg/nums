@@ -1,7 +1,7 @@
 # Nums cross-chain bridge — test coverage & verification gaps
 
-Companion to `BRIDGE_ARCHITECTURE.md`. This doc tracks what's actually
-verified vs what's deferred to follow-up.
+Companion to `BRIDGE_ARCHITECTURE.md`. Tracks what is verified vs what
+is deferred to follow-up.
 
 Last updated: `feat/tee-appchain-redesign` branch.
 
@@ -9,110 +9,158 @@ Last updated: `feat/tee-appchain-redesign` branch.
 
 | Layer | Surface | Tests | Status |
 |---|---|---|---|
-| Cairo unit | Setup local-path (regression) | `test_setup_local_path` | ✓ Bit-identical preservation |
-| Cairo unit | Setup bridge-path branch trigger | `test_local_path_bridge_config_zero_defaults` | ✓ |
-| Cairo unit | PurchaseNonce monotonicity | `test_purchase_nonce_strict_monotonic_across_many_calls` | ✓ |
-| Cairo unit | PendingPurchase state machine | `test_pending_purchase_pending_to_materialized`, `test_pending_purchase_distinct_keys_independent`, `test_pending_purchase_round_trip` | ✓ |
-| Cairo unit | EMA commutativity baseline | `test_ema_push_is_non_commutative` | ✓ (sort-by-purchase_id is load-bearing) |
-| Cairo unit | Materializer constructor sentinels | `test_constructor_rejects_zero_mainnet_setup`, `test_constructor_rejects_zero_play` | ✓ |
-| Cairo unit | Materializer admin access control | `test_admin_can_set_mainnet_setup`, `test_non_admin_cannot_set_mainnet_setup`, `test_admin_can_set_play`, `test_non_admin_cannot_set_play` | ✓ |
-| Cairo unit | Pre-existing game/trap/helper tests | (160 cases from existing suite) | ✓ unchanged by bridge work |
-| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_bridge_forward` | **✓ Green** (~10 min wall-clock against real two-Katana stack) |
-| | | **172 / 172 unit + 1 / 1 e2e passing** | |
+| Cairo unit | Game model invariants | Existing suite, unchanged by bridge work | ✓ |
+| Cairo unit | Slot count migration (20 → 18) | `bomb`, `lucky`, `magnet`, `ufo`, `windy`, `slots` trap tests | ✓ All trap tests updated to the 18-slot layout |
+| Cairo unit | `Bridge` model default-zero in test world | `test_local_path_bridge_config_zero_defaults`, `test_bridge_config_fields_zero_by_default` | ✓ Anchors the test environment in a known state |
+| Cairo unit | EMA push baseline | `test_ema_push_is_non_commutative` | ✓ Locked-in design assumption |
+| Cairo unit | Pre-existing game/trap/helper tests | (legacy suite) | ✓ Unchanged by the bridge refactor |
+| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_bridge_forward` | **🟡 Marked `#[ignore]`** — pending Lane C validation against the new flow |
+| | | **160 / 160 unit + 0 / 1 e2e** | |
 
-## E2E coverage — forward path GREEN
+## What the refactor changed
 
-`happy_path_bridge_forward` exercises against two real Katana nodes:
+The previous design used a standalone `Materializer` contract on the
+appchain as the L1Handler endpoint, plus `Setup.apply_game_claim_batch`
+on mainnet for the reverse direction. The current design collapses
+this into two `Play` endpoints:
 
-1. Spawn settlement Katana (`--dev`) + appchain Katana (rollup chain spec
-   via `katana init rollup`).
-2. UDC-deploy Piltover Appchain core, upgrade to `messaging_test` class.
-3. sozo migrate both worlds in parallel (~5 min wall-clock).
-4. UDC-deploy Materializer with (mainnet_setup, play) on appchain.
-5. Wire bridge config via setters on both Setup contracts.
-6. Grant Token MINTER_ROLE to settlement Setup; grant Play CREATOR_ROLE
-   to appchain Materializer.
-7. Seed settlement Vault with NUMS shares.
-8. **Player calls settlement Setup.issue → purchase_id assigned →
-   PurchaseInitiated event → MessageSent event captured from Piltover
-   messaging mock.**
-9. **Katana messaging worker auto-delivers the L1Handler →
-   Materializer.materialize → Play.create.**
-10. **Assertion: appchain Collection.balance_of(player) == 1.**
+- forward: `Play.create` `#[l1_handler]` on the appchain `Play`
+  contract directly,
+- reverse: `Play.claim(payload)` on mainnet `Play` (consumes the
+  appchain message and mints the reward inline via `Playable.claim`).
 
-Total wall-clock: ~10 min per iteration.
+The `Materializer` contract, its tests, the `PendingPurchase` /
+`PurchaseNonce` models, and the bridge events
+(`e_PurchaseInitiated`, `e_GameClaimApplied`) were removed. The
+`Bridge` model was simplified to a single `address` field (the
+Piltover messaging contract used for both directions).
 
-## Coverage gaps (still deferred to follow-up PRs)
+## E2E coverage — needs Lane C end-to-end validation
 
-The reverse direction (appchain claim → mainnet) is unit-tested but not
-end-to-end. The following scenarios are unverified e2e:
+`happy_path_bridge_forward` is wired against the new flow but kept
+`#[ignore]` until Lane C confirms a green end-to-end run on two
+real Katanas. The expected flow:
+
+1. `Setup.issue` calls `Play.mint(recipient, multiplier, supply,
+   price, soulbound, qty)` on mainnet.
+2. For each unit, mainnet `Play.mint`:
+   - mints a `Collection` NFT (gets a fresh `game_id`),
+   - sends a Piltover message via `send_message_to_appchain` carrying
+     a serialized `Payload`.
+3. Katana's messaging worker delivers the L1Handler to appchain
+   `Play.create(from_address, player, game_id, multiplier, supply,
+   price)`.
+4. Appchain `Play.create`:
+   - asserts `from_address == this` (the address-equality assumption,
+     see `BRIDGE_ARCHITECTURE.md`),
+   - re-mints the `Collection` NFT on the appchain with the same
+     `game_id`,
+   - calls `playable.create(...)` to start the game.
+
+Harness assertions that still apply:
+
+- `read_player_games_count(player)` on the **appchain** `Collection`
+  increases by `qty` after delivery.
+- The same player has at least `qty` `Collection` NFTs on **mainnet**
+  too (mint happens before the message is queued).
+- The L1Handler receipt on the appchain is `SUCCEEDED`.
+
+## Coverage gaps (deferred to follow-up PRs)
 
 | Scenario | What it verifies | Why it matters |
 |---|---|---|
-| Appchain claim → reverse Piltover delivery → mainnet apply_game_claim_batch → Token.reward mint | The full reverse path. Reward delivery to player. | High priority. Adding actually requires the `messaging_test` backdoor on the reverse direction (the harness has this scaffolding but the test scenario must drive `Play.claim` after real gameplay). |
-| EMA actually updates on mainnet from real claim | End-to-end EMA feedback loop | Validates the only non-locked-in design assumption (operator-mediated). |
-| PendingPurchase{Pending → Materialized} state transition end-to-end | State machine on real Dojo storage | Today only verified via direct store writes in unit test. |
-| Materializer replay (same purchase_id delivered twice) | `processed_ids` guard fires | Locked-in defense-in-depth that's worth empirically validating. |
-| Materializer auth (wrong from_address) | `'Invalid sender'` revert path | Cairo unit tests can't drive L1Handler entries; only e2e can. |
-| Identity invariant (controller address consistency) | Mainnet recipient == appchain Play owner == claim player == mint recipient | Controller infra responsibility, but worth e2e proof. |
-| Bridge mode misconfig (mixed zero/nonzero) at dojo_init | Sentinel reverts deploy | Currently verified only at the model layer. |
-| MINTER_ROLE grant to Setup post-migration | Cross-chain mint authorization | Operational migration concern; ops should script this. |
+| Forward path end-to-end on the new flow | Two-chain mint + L1Handler success | High priority. Required before any production deployment. |
+| Address-equality invariant (mainnet Play addr == appchain Play addr) | The `from_address` check in `Play.create` and the `consume_message_from_appchain(this, payload)` call in `Play.claim` both rely on it | Critical. If a real two-world deploy fails this invariant, both directions break. |
+| Appchain finish → reverse Piltover delivery → mainnet `Play.claim` → `Token.reward` mint | The full reverse path. Reward delivery to the player. | High priority. Drives a real claim by playing through to game-over on the appchain, captures the queued Piltover message via the `messaging_test` backdoor, then calls mainnet `Play.claim`. |
+| EMA actually updates on mainnet from a real claim | End-to-end EMA feedback loop | Validates the operator-mediated assumption. |
+| Duplicate forward delivery | ERC-721 token-id uniqueness on appchain `Collection.mint` reverts a second `create` for the same `game_id` | Replay defense (no explicit `processed_ids` map anymore). |
+| Forward auth (wrong `from_address`) | Appchain `Play.create` reverts with `'Play: invalid sender'` | Cairo unit tests can't drive L1Handler entries; only e2e can. |
+| Reverse auth (wrong sender) | Mainnet `Play.claim` reverts via `consume_message_from_appchain` mismatch | Same — e2e only. |
+| Mainnet `Play.claim` ownership check | `Collection.assert_is_owner` reverts when the caller is not the current owner of `payload.game_id` | Locked-in defense against reward redirection. |
+| Identity invariant (controller address consistency) | Mainnet `recipient` == appchain `Play` owner == reverse `Payload.player` == mainnet `Token.reward` recipient | Controller infra responsibility, but worth e2e proof. |
+| Bridge misconfig (zero messaging address at `dojo_init`) | `BridgeTrait::new` reverts deploy | Locked-in by the `assert_is_valid` check. |
 
 ## Known limitations carried over
 
 ### Operator-trusted EMA / reward integrity
 
 Mainnet contracts don't verify the appchain's TEE attestation. A
-malicious operator (or compromised TEE) could fabricate claim messages
-to manipulate the EMA or over-mint NUMS rewards. Mitigation is
-monitoring (alert on per-purchase reward exceeding expected ranges),
-not on-chain enforcement.
-
-Tracked in plan; explicit user-locked decision during eng review.
+malicious operator (or compromised TEE) could fabricate claim
+messages to manipulate the EMA or over-mint NUMS rewards. Mitigation
+is monitoring (alert on per-purchase reward exceeding expected
+ranges), not on-chain enforcement.
 
 ### Stuck reverse messages
 
-If Piltover halts after an appchain claim succeeds, the player has
-already collected their game-claim locally on the appchain. The reverse
-message that mints their NUMS reward on mainnet is queued in Piltover's
-appchain→starknet messages array, but won't deliver until Piltover
+If Piltover halts after `Playable.finish` queues the reverse message
+but before mainnet `Play.claim` is callable, the player has already
+finished the game locally on the appchain. The reverse message that
+mints their NUMS reward on mainnet is queued in Piltover's
+appchain→mainnet messages array, but won't deliver until Piltover
 resumes.
 
-Worst case: the reward is owed but unminted indefinitely. Documented as
-ops procedure: admin can manually mint via Token.reward with off-chain
-proof of the appchain claim event.
+Worst case: the reward is owed but unminted indefinitely. Documented
+as ops procedure: admin can manually mint via `Token.reward` with
+off-chain proof of the appchain finish event.
 
 ### Identity divergence
 
-If a player uses different controller addresses on mainnet vs appchain,
-the forward `recipient` ≠ appchain `play` owner ≠ claim `player`. The
-contracts have no defense — rewards land at whatever address the claim
-payload carries. Controller infra is responsible for enforcing identity
-parity across chains.
+If a player uses different controller addresses on mainnet vs
+appchain, the forward `Payload.player` ≠ appchain `Play` owner ≠
+reverse `Payload.player`. The contracts have no defense — the
+appchain mints the NFT to whatever `player` address the forward
+payload carries, and the mainnet `Play.claim` mints the reward to
+whatever `payload.player` carries. Controller infra is responsible
+for enforcing identity parity across chains.
 
-## What's been deleted from PR #197's gap list
+## What's been deleted from earlier gap lists
 
-The following gaps from PR #197 are obsolete in the new architecture:
+The following gaps from PR #197 and the previous redesigns are
+obsolete:
 
-- ~~Ekubo swap+burn verification (forked NUMS/USDC pool)~~ — bridge no longer touches Ekubo.
-- ~~Settler reserve management~~ — no reserve.
+- ~~Ekubo swap+burn verification (forked NUMS/USDC pool)~~ — bridge
+  no longer touches Ekubo.
+- ~~Settler reserve management~~ — no reserve, no Settler.
 - ~~Vault PROVIDER_ROLE grant to Settler~~ — Settler doesn't exist.
 - ~~USDC bridge holding contract setup~~ — no value bridge.
-- ~~admin_settle escape hatch verification~~ — no stuck-message escape hatch in v1.
+- ~~`admin_settle` escape hatch verification~~ — no stuck-message
+  escape hatch in v1.
+- ~~`apply_game_claim_batch` batch sort + per-batch cap~~ — replaced
+  by one-shot `Play.claim`.
+- ~~`Materializer.processed_ids` replay guard~~ — replaced by
+  ERC-721 token-id uniqueness in `Collection.mint`.
+- ~~`PendingPurchase`/`PurchaseNonce` state machine~~ — removed
+  entirely; the mainnet `Collection` NFT ownership is the source of
+  truth.
 
 ## Standard pre-merge checks
 
-- `scarb build` — clean
-- `scarb test` — 172 passed
-- `scarb fmt --check` — TODO before merge
-- `cargo check --tests --manifest-path tests/e2e/Cargo.toml` — passes (stubs compile)
-- `pnpm run type:check`, `pnpm run lint:check` — to run; client TS unaffected by this PR
+- `sozo build` — clean (two pre-existing warnings on `treasury.cairo`'s
+  `__validate__`/`__execute__` ABI generation; unrelated to bridge
+  work).
+- `sozo test` — 160 passed.
+- `scarb fmt --check` — clean.
+- `cargo check --tests --manifest-path tests/e2e/Cargo.toml` — passes
+  on the retargeted harness.
+- `pnpm run type:check`, `pnpm run lint:check`, `pnpm run test` — pass;
+  client TS unaffected by this refactor except for the slot-count
+  20→18 trap test updates (102 / 102 passing).
 
 ## Next coverage milestone
 
 Lane C follow-up PR objectives:
-1. Rebuild `tests/e2e/src/harness.rs` against the new contract surface
-2. Restore `happy_path_bridge_forward` to running and passing
-3. Add `happy_path_full_round_trip` covering claim → mainnet mint
-4. Add `replay_protection` test for Materializer's `processed_ids`
+
+1. Run the retargeted `happy_path_bridge_forward` end-to-end and flip
+   the `#[ignore]` once green.
+2. Empirically validate `mainnet Play addr == appchain Play addr` on
+   a real two-world `sozo migrate`. If it fails, extend the `Bridge`
+   model with a `peer_play` field and update the auth checks.
+3. Add `happy_path_full_round_trip` covering: forward mint → real
+   appchain gameplay until game-over → reverse claim message →
+   mainnet `Play.claim` → `Token.reward` mints.
+4. Add `replay_protection` test for ERC-721 token-id uniqueness on
+   appchain `Collection.mint` (synthesize a duplicate L1Handler
+   dispatch via the messaging backdoor).
 5. Add `unauthorized_sender` test for both directions
+   (`Play.create` rejects wrong `from_address`; `Play.claim` rejects
+   payloads not authenticated by `consume_message_from_appchain`).

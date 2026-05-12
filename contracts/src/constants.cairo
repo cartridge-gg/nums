@@ -70,5 +70,3 @@ pub const BASE_MULTIPLIER: u8 = 100;
 pub const MULTIPLIER_PRECISION: u128 = 1_000_000;
 
 pub const VAULT_LOCKUP_DURATION: u64 = 0;
-
-pub const MATERIALIZE_SELECTOR: felt252 = selector!("materialize");

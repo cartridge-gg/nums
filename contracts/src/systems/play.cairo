@@ -7,19 +7,19 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait IPlay<T> {
-    fn mint(ref self: T, player: ContractAddress, quantity: u32);
-    fn create(
+    fn mint(
         ref self: T,
         player: ContractAddress,
-        multiplier: u128,
-        supply: u256,
-        price: u256,
+        multiplier: Option<u128>,
+        supply: Option<u256>,
+        price: Option<u256>,
+        soulbound: Option<bool>,
         quantity: u32,
-        purchase_id: u64,
     );
     fn set(ref self: T, game_id: u64, index: u8);
     fn select(ref self: T, game_id: u64, index: u8);
     fn apply(ref self: T, game_id: u64, index: u8);
+    fn claim(ref self: T, payload: Span<felt252>);
 }
 
 const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
@@ -40,12 +40,15 @@ pub mod Play {
     use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE};
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
+    use crate::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use crate::store::StoreTrait;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
     use crate::systems::setup::NAME as SETUP;
     use crate::systems::token::NAME as TOKEN;
     use crate::systems::treasury::NAME as TREASURY;
+    use crate::types::payload::PayloadTrait;
     use super::*;
 
     // Components
@@ -117,10 +120,10 @@ pub mod Play {
         let this = starknet::get_contract_address();
         self.accesscontrol._grant_role(CREATOR_ROLE, this);
         // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
-        // account so the e2e harness can call grant_role(CREATOR_ROLE,
-        // Materializer) post-deploy in bridge mode. Mirrors the pattern in
-        // Setup/Token. Production deploys are unaffected because the
-        // deployer IS the Treasury-controlled account.
+        // account so the e2e harness can drive admin-only operations
+        // post-deploy. Mirrors the pattern in Setup/Token. Production deploys
+        // are unaffected because the deployer IS the Treasury-controlled
+        // account.
         let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
     }
@@ -178,65 +181,76 @@ pub mod Play {
             }
             // [Effect] Create game
             let play = IPlayDispatcher { contract_address: starknet::get_contract_address() };
-            play.mint(player_id.try_into().unwrap(), 1);
+            // play.mint(player_id.try_into().unwrap(), None, None, None, None, 1);
+        // TODO: send message to L1
         }
+    }
+
+    // [Info] Designed to be called on Appchain
+    #[l1_handler]
+    fn create(
+        ref self: ContractState,
+        from_address: felt252,
+        player: ContractAddress,
+        game_id: u64,
+        multiplier: u128,
+        supply: u256,
+        price: u256,
+    ) {
+        // [Setup] World and Store
+        let world = self.world(@NAMESPACE());
+        // [Check] Sender is allowed
+        let this = starknet::get_contract_address();
+        assert(from_address == this.into(), 'Play: invalid sender');
+        // [Interaction] Mint the game asset
+        let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+        let collection = ICollectionDispatcher { contract_address: collection_address };
+        let game_id = collection.mint(player, game_id, true);
+        // [Effect] Create the game
+        self.playable.create(world, player, game_id, multiplier, supply, price);
     }
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
-        fn mint(ref self: ContractState, player: ContractAddress, mut quantity: u32) {
+        // [Info] Designed to be called on Mainnet
+        fn mint(
+            ref self: ContractState,
+            player: ContractAddress,
+            multiplier: Option<u128>,
+            supply: Option<u256>,
+            price: Option<u256>,
+            soulbound: Option<bool>,
+            mut quantity: u32,
+        ) {
             // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(CREATOR_ROLE);
-            // [Setup] World
+            // [Setup] World, Store and Dispatchers
             let world = self.world(@NAMESPACE());
-            // [Check] Caller is allowed
+            let store = StoreTrait::new(world);
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = ICollectionDispatcher { contract_address: collection_address };
             // [Effect] Create games
             let world = self.world(@NAMESPACE());
             let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
             let asset = IERC20MixinDispatcher { contract_address: token_address };
-            let supply = asset.total_supply();
-            let multiplier = MULTIPLIER_PRECISION;
+            let supply = supply.unwrap_or(asset.total_supply());
+            let multiplier = multiplier.unwrap_or(MULTIPLIER_PRECISION);
+            let soulbound = true; // FIXME: cannot manage transfers on both networks yet
+            let price = price.unwrap_or(0);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
             while quantity > 0 {
-                // [Interaction] Mint a game
-                let game_id = collection.mint(player, true);
-                // [Effect] Create game — mint path has no purchase_id (free/airdropped)
-                self.playable.create(world, player, game_id, multiplier, supply, 0, 0);
                 quantity -= 1;
+                // [Interaction] Mint a new game asset
+                let game_id = collection.new(player, soulbound);
+                // [Message] Bridge game information
+                let payload = PayloadTrait::new(player, game_id, multiplier, supply, price, 0, 0);
+                let this = starknet::get_contract_address();
+                messaging.send_message_to_appchain(this, selector!("create"), payload.span());
             }
         }
 
-        fn create(
-            ref self: ContractState,
-            player: ContractAddress,
-            multiplier: u128,
-            supply: u256,
-            price: u256,
-            mut quantity: u32,
-            purchase_id: u64,
-        ) {
-            // [Check] Caller is allowed
-            self.accesscontrol.assert_only_role(CREATOR_ROLE);
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Check] Caller is allowed
-            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
-            let collection = ICollectionDispatcher { contract_address: collection_address };
-            // [Effect] Create games
-            let world = self.world(@NAMESPACE());
-            while quantity > 0 {
-                // [Interaction] Mint a game
-                let game_id = collection.mint(player, true);
-                // [Effect] Create game (purchase_id links Game→mainnet PendingPurchase in bridge
-                // mode; 0 in local mode)
-                self
-                    .playable
-                    .create(world, player, game_id, multiplier, supply, price, purchase_id);
-                quantity -= 1;
-            }
-        }
-
+        // [Info] Designed to be called on Appchain
         fn set(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -250,6 +264,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
+        // [Info] Designed to be called on Appchain
         fn select(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -263,6 +278,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
+        // [Info] Designed to be called on Appchain
         fn apply(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -274,6 +290,27 @@ pub mod Play {
             self.playable.apply(world, game_id, index);
             // [Interaction] Update token metadata
             collection.update(game_id.into());
+        }
+
+        // [Info] Designed to be called on Mainnet
+        fn claim(ref self: ContractState, mut payload: Span<felt252>) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Verify message from Appchain
+            let store = StoreTrait::new(world);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
+            let this = starknet::get_contract_address();
+            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Caller is allowed
+            let payload = PayloadTrait::from(ref payload);
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            collection.assert_is_owner(starknet::get_caller_address(), payload.game_id.into());
+            // [Effect] Claim reward
+            self.playable.claim(world, payload);
+            // [Interaction] Update token metadata
+            collection.update(payload.game_id.into());
         }
     }
 }

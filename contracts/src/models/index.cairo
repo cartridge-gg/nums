@@ -24,15 +24,6 @@ pub struct Config {
     pub pool_extension: ContractAddress,
     pub pool_sqrt: u256,
     pub base_price: u256,
-    // Cross-chain bridge config (zero on pure-Starknet deployments).
-    // - appchain_materializer: destination contract for forward (game-mint) messages
-    // - bridge_messaging: local Piltover contract (used by both directions)
-    // - appchain_play: authorized origin of reverse (game-claim) messages
-    // - mainnet_setup: on appchain side, the authorized destination/source for claim messages
-    pub appchain_materializer: ContractAddress,
-    pub bridge_messaging: ContractAddress,
-    pub appchain_play: ContractAddress,
-    pub mainnet_setup: ContractAddress,
 }
 
 #[derive(Copy, Drop, Serde, IntrospectPacked)]
@@ -59,9 +50,14 @@ pub struct Game {
     pub slots: felt252, // 18 * 11 bits (counld be 18 * 10 bits)
     pub supply: felt252,
     pub price: felt252,
-    // Bridge mode: links this appchain Game back to mainnet PendingPurchase.
-    // Zero in pure-Starknet mode (today's behavior bit-identical).
-    pub purchase_id: u64,
+}
+
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
+pub struct Bridge {
+    #[key]
+    pub world_resource: felt252,
+    pub address: ContractAddress,
 }
 
 #[derive(Copy, Drop, Serde)]
@@ -82,31 +78,4 @@ pub struct VaultPosition {
     pub time_lock: u64,
     pub current_reward: u256,
     pub pending_reward: u256,
-}
-
-#[derive(Copy, Drop, Serde, Introspect, PartialEq, Default, DojoStore)]
-pub enum PendingStatus {
-    #[default]
-    Pending,
-    Materialized,
-    Cancelled,
-}
-
-#[derive(Drop, Serde, Introspect)]
-#[dojo::model]
-pub struct PendingPurchase {
-    #[key]
-    pub purchase_id: u64,
-    pub recipient: ContractAddress,
-    pub bundle_id: u32,
-    pub quantity: u32,
-    pub status: PendingStatus,
-}
-
-#[derive(Drop, Serde, IntrospectPacked)]
-#[dojo::model]
-pub struct PurchaseNonce {
-    #[key]
-    pub world_resource: felt252,
-    pub next: u64,
 }

@@ -1,4 +1,4 @@
-//! End-to-end test harness for the new mainnet-economics + appchain-gameplay
+//! End-to-end test harness for the mainnet-economics + appchain-gameplay
 //! bridge architecture.
 //!
 //! Owns:
@@ -6,28 +6,28 @@
 //!   * Two `sozo migrate`-deployed Nums worlds, one on each chain.
 //!   * The Piltover messaging_mock (upgraded to the `messaging_test`
 //!     class for the appchain→settlement back-door).
-//!   * The plain Starknet `Materializer` UDC-deployed onto the appchain.
 //!
-//! Deployment-order: the circular dependency between settlement Setup ↔
-//! appchain Materializer ↔ appchain Setup is broken by:
-//!   1. Migrating both worlds with bridge config fields zero.
-//!   2. UDC-deploying Materializer with (mainnet_setup, play) known from
-//!      the migrated worlds.
-//!   3. Calling the new admin setters on both Setup contracts to backfill
-//!      the cross-chain references.
-//!   4. Granting Token MINTER_ROLE on settlement Setup so
-//!      apply_game_claim_batch can mint NUMS rewards.
+//! No standalone `Materializer` contract is deployed: in the current
+//! architecture the forward L1Handler is `Play.create` on the appchain
+//! `Play` contract directly. See `docs/BRIDGE_ARCHITECTURE.md` for the
+//! full flow.
 //!
-//! Production deploys use dojo_init args directly; setters are then dead code.
+//! Deployment order:
+//!   1. Migrate both worlds with the bridge messaging address zero
+//!      (`dojo_init` is invoked by `sozo migrate`; here the test harness
+//!      skips the assert by passing the messaging address through
+//!      `Setup.set_bridge` post-migrate instead).
+//!   2. Call `Setup.set_bridge(messaging_mock)` on both Setup contracts
+//!      to point them at the Piltover messaging mock.
+//!
+//! Production deploys pass `bridge_messaging` directly to `dojo_init`,
+//! so the post-deploy `set_bridge` call is dev-only.
 
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::path::PathBuf;
 use std::time::Duration;
 
 use anyhow::{anyhow, bail, Context, Result};
 use starknet::accounts::{Account, ConnectedAccount, SingleOwnerAccount};
-use starknet::contract::ContractFactory;
-use starknet::core::types::contract::{CompiledClass, SierraClass};
 use starknet::core::types::{
     BlockId, BlockTag, Call, Felt, FunctionCall, TransactionReceipt,
 };
@@ -36,7 +36,7 @@ use starknet::macros::selector;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
 use starknet::signers::LocalWallet;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 use crate::constants::{
     APPCHAIN_CHAIN_ID_STR, DEV_ACCOUNT_0_ADDRESS, DEV_ACCOUNT_0_PRIVKEY,
@@ -72,15 +72,26 @@ impl PendingStatus {
     }
 }
 
-/// Handle to a purchase initiated on mainnet (settlement) Setup.issue in
-/// bridge mode. `purchase_id` is the mainnet-assigned monotonic counter
-/// that doubles as the PendingPurchase key + the Materializer replay key
-/// + the link from appchain Game back to the originating PendingPurchase.
+/// Handle to a purchase initiated on mainnet (settlement) `Setup.issue`
+/// in bridge mode. In the current architecture there is no
+/// `PendingPurchase` link from mainnet to appchain — instead, the
+/// `game_id` minted by mainnet `Collection.new` is reused as-is on the
+/// appchain by `Play.create`, and ERC721 token-id uniqueness on
+/// `Collection.mint` is the replay guard.
+///
+/// `purchase_id` is kept on this handle for backwards compatibility with
+/// the previous flow; tests that no longer care about it can ignore it.
+/// In practice it's the `game_id` of the first NFT minted by the bundle
+/// (subsequent units within the same `Setup.issue` call get sequential
+/// ids).
 #[derive(Debug, Clone)]
 pub struct PurchaseHandle {
     pub purchase_id: u64,
-    /// Forward (game-mint) payload sent settlement → appchain.
-    /// Format: [purchase_id, recipient, multiplier, price.lo, price.hi, qty].
+    /// Forward (game-mint) payload sent mainnet → appchain.
+    /// Layout: serialized `Payload` struct (Cairo `Serde`):
+    /// `(player, game_id, multiplier, supply.lo, supply.hi, price.lo,
+    /// price.hi, level=0, reward=0)`. The exact felt count depends on
+    /// `Serde` encoding of `u256` fields.
     pub payload: Vec<Felt>,
     pub bundle_id: u32,
     pub quantity: u32,
@@ -98,7 +109,6 @@ pub struct TestEnv {
 
     pub settlement_world: DeployedWorld,
     pub appchain_world: DeployedWorld,
-    pub appchain_materializer: Felt,
 
     settlement_account_addr: Felt,
     settlement_account_priv: Felt,
@@ -240,25 +250,11 @@ impl TestEnv {
             settlement_world.contracts.len(),
         );
 
-        // 8. UDC-deploy Materializer onto the appchain. Constructor takes
-        //    (mainnet_setup, play) — the settlement Setup and appchain Play.
-        let settlement_setup_addr = settlement_world.contract("NUMS-Setup")?;
-        let appchain_play_addr = appchain_world.contract("NUMS-Play")?;
-        let appchain_account = build_account(
-            Self::provider(&appchain.rpc_url())?,
-            appchain_chain_id,
-            appchain_account_addr,
-            appchain_account_priv,
-        );
-        let appchain_materializer = deploy_materializer(
-            &appchain_account,
-            &repo_root,
-            settlement_setup_addr,
-            appchain_play_addr,
-        )
-        .await
-        .context("deploy Materializer")?;
-        info!("Appchain Materializer at {appchain_materializer:#x}");
+        // 8. (Removed in the current architecture.) The previous design
+        //    UDC-deployed a standalone `Materializer` contract on the
+        //    appchain. In the new flow, the forward L1Handler is
+        //    `Play.create` on the appchain `Play` contract directly,
+        //    so no separate contract deployment is required.
 
         let env = Self {
             settlement,
@@ -268,7 +264,6 @@ impl TestEnv {
             repo_root: repo_root.clone(),
             settlement_world,
             appchain_world,
-            appchain_materializer,
             settlement_account_addr,
             settlement_account_priv,
             settlement_chain_id,
@@ -277,21 +272,20 @@ impl TestEnv {
             appchain_chain_id,
         };
 
-        // 9. Wire cross-chain addresses via the new setters on both Setup
-        //    contracts. After this, bridge mode is active on both sides.
+        // 9. Wire cross-chain addresses via the bridge setters on both
+        //    Setup contracts. After this, bridge mode is active on both
+        //    sides.
         env.wire_cross_chain_addresses().await?;
 
-        // 10. Grant Token MINTER_ROLE on settlement to settlement Setup so
-        //     `apply_game_claim_batch` can mint NUMS rewards. (At deploy
-        //     time MINTER_ROLE is granted only to Play; bridge mode needs
-        //     it on Setup too.)
-        env.grant_setup_minter_role().await?;
+        // 10. (Removed.) `MINTER_ROLE` no longer needs to be granted to
+        //     mainnet Setup — reward minting now happens through mainnet
+        //     `Play.claim → Playable.claim → nums_disp.reward`, and
+        //     `Play` already holds `MINTER_ROLE` from the default deploy.
 
-        // 10b. Grant Play.CREATOR_ROLE on appchain to the Materializer so
-        //      Materializer.materialize → Play.create succeeds. By default
-        //      CREATOR_ROLE is granted only to appchain Setup; in bridge
-        //      mode the Materializer is the caller instead.
-        env.grant_materializer_creator_role().await?;
+        // 10b. (Removed.) No standalone `Materializer` exists, so there
+        //      is no extra `CREATOR_ROLE` grant on appchain `Play` to
+        //      perform. The default `dojo_init` grant to appchain Setup
+        //      + `Play` itself is sufficient for the new flow.
 
         // 11. Seed the settlement Vault with NUMS shares so vault.pay's
         //     rewardable.pay doesn't trip 'Rewardable: vault is empty'.
@@ -346,59 +340,50 @@ impl TestEnv {
     async fn wire_cross_chain_addresses(&self) -> Result<()> {
         let setup_settlement = self.settlement_world.contract("NUMS-Setup")?;
         let setup_appchain = self.appchain_world.contract("NUMS-Setup")?;
-        let appchain_play = self.appchain_world.contract("NUMS-Play")?;
-        let materializer = self.appchain_materializer;
 
-        // Settlement Setup gets all three bridge fields set (activates
-        // bridge mode for issue()).
+        // The `Bridge` model carries a single field — the Piltover
+        // messaging contract used by `Play.mint` (forward, via
+        // `send_message_to_appchain`) and by `Play.claim` (reverse, via
+        // `consume_message_from_appchain`). Both directions reuse the
+        // settlement messaging mock in the e2e harness.
         let settlement_acct = self.settlement_account()?;
-        let calls = vec![
-            Call {
-                to: setup_settlement,
-                selector: selector!("set_appchain_materializer"),
-                calldata: vec![materializer],
-            },
-            Call {
-                to: setup_settlement,
-                selector: selector!("set_bridge_messaging"),
-                calldata: vec![self.messaging_mock],
-            },
-            Call {
-                to: setup_settlement,
-                selector: selector!("set_appchain_play"),
-                calldata: vec![appchain_play],
-            },
-        ];
         let tx = settlement_acct
-            .execute_v3(calls)
+            .execute_v3(vec![Call {
+                to: setup_settlement,
+                selector: selector!("set_bridge"),
+                calldata: vec![self.messaging_mock],
+            }])
             .gas_estimate_multiplier(2.0)
             .send()
             .await
-            .context("settlement Setup setters")?;
+            .context("settlement Setup.set_bridge")?;
         wait_for_tx_success(settlement_acct.provider(), tx.transaction_hash).await?;
         info!(
-            "Settlement Setup wired: appchain_materializer={materializer:#x}, \
-             bridge_messaging={msg:#x}, appchain_play={play:#x}",
+            "Settlement Setup wired: bridge.address={msg:#x}",
             msg = self.messaging_mock,
-            play = appchain_play,
         );
 
-        // Appchain Setup gets mainnet_setup so Playable.claim takes the
-        // bridge path. (bridge_messaging on appchain is reserved/unused.)
+        // Symmetric write on the appchain Setup. The appchain bridge
+        // address is read only for diagnostics today (the reverse
+        // message is queued via the native `send_message_to_l1_syscall`
+        // in `Playable.finish`), but `BridgeTrait::new` requires a
+        // non-zero address, so we still set it.
         let appchain_acct = self.appchain_account()?;
-        let calls = vec![Call {
-            to: setup_appchain,
-            selector: selector!("set_mainnet_setup"),
-            calldata: vec![setup_settlement],
-        }];
         let tx = appchain_acct
-            .execute_v3(calls)
+            .execute_v3(vec![Call {
+                to: setup_appchain,
+                selector: selector!("set_bridge"),
+                calldata: vec![self.messaging_mock],
+            }])
             .gas_estimate_multiplier(2.0)
             .send()
             .await
-            .context("appchain Setup setter")?;
+            .context("appchain Setup.set_bridge")?;
         wait_for_tx_success(appchain_acct.provider(), tx.transaction_hash).await?;
-        info!("Appchain Setup wired: mainnet_setup={setup_settlement:#x}");
+        info!(
+            "Appchain Setup wired: bridge.address={msg:#x}",
+            msg = self.messaging_mock,
+        );
 
         Ok(())
     }
@@ -433,88 +418,37 @@ impl TestEnv {
         Ok(())
     }
 
-    /// Grant CREATOR_ROLE on the appchain Play contract to Materializer.
-    /// Required so `Materializer.materialize → Play.create` succeeds.
-    /// Default deploy grants CREATOR_ROLE only to appchain Setup.
-    async fn grant_materializer_creator_role(&self) -> Result<()> {
-        let play = self.appchain_world.contract("NUMS-Play")?;
-        let creator_role = get_selector_from_name("CREATOR_ROLE")
-            .map_err(|e| anyhow!("compute CREATOR_ROLE: {e}"))?;
-        let acct = self.appchain_account()?;
-        let call = Call {
-            to: play,
-            selector: selector!("grant_role"),
-            calldata: vec![creator_role, self.appchain_materializer],
-        };
-        let tx = acct
-            .execute_v3(vec![call])
-            .gas_estimate_multiplier(2.0)
-            .send()
-            .await
-            .context("play.grant_role(CREATOR_ROLE, materializer)")?;
-        wait_for_tx_success(acct.provider(), tx.transaction_hash).await?;
-        info!(
-            "Granted Play.CREATOR_ROLE to appchain Materializer {:#x}",
-            self.appchain_materializer
-        );
-        Ok(())
-    }
-
-    /// Grant MINTER_ROLE on the settlement Token contract to settlement
-    /// Setup. Required for apply_game_claim_batch's Token.reward call.
-    /// Default deploy grants MINTER_ROLE only to Play.
-    async fn grant_setup_minter_role(&self) -> Result<()> {
-        let token = self.settlement_world.contract("NUMS-Token")?;
-        let setup = self.settlement_world.contract("NUMS-Setup")?;
-        let minter_role = get_selector_from_name("MINTER_ROLE")
-            .map_err(|e| anyhow!("compute MINTER_ROLE: {e}"))?;
-        let acct = self.settlement_account()?;
-        let call = Call {
-            to: token,
-            selector: selector!("grant_role"),
-            calldata: vec![minter_role, setup],
-        };
-        let tx = acct
-            .execute_v3(vec![call])
-            .gas_estimate_multiplier(2.0)
-            .send()
-            .await
-            .context("token.grant_role(MINTER_ROLE, setup)")?;
-        wait_for_tx_success(acct.provider(), tx.transaction_hash).await?;
-        info!("Granted Token.MINTER_ROLE to settlement Setup {setup:#x}");
-        Ok(())
-    }
+    // Role grants for `Materializer`-mediated forward flow and for
+    // `Setup.apply_game_claim_batch`-mediated reverse flow have been
+    // removed: in the current architecture the forward L1Handler is
+    // `Play.create` (which uses `Play`'s existing access control) and
+    // the reverse path mints rewards through mainnet `Play.claim`
+    // (which already holds `MINTER_ROLE` from the default deploy).
 
     // ------------------------------------------------------------------
     // Read primitives
     // ------------------------------------------------------------------
 
-    /// The settlement world's PurchaseNonce.next value (the value that
-    /// the NEXT call to next_purchase_nonce would return - 1; or the
-    /// last assigned purchase_id; we read the singleton's `next` field
-    /// directly).
+    /// The settlement world's PurchaseNonce.next value. Legacy from
+    /// the previous architecture; in the current flow `PurchaseNonce`
+    /// is no longer load-bearing (the appchain `game_id` mints are
+    /// driven by mainnet `Collection.new`, not by a separate counter),
+    /// but the model is still present in the world for diagnostic
+    /// purposes.
     pub async fn read_purchase_nonce(&self) -> Result<u64> {
         let world_addr = self.settlement_world.world_address;
         let provider = Self::provider(&self.settlement.rpc_url())?;
-        // Read PurchaseNonce singleton keyed by WORLD_RESOURCE (Felt 0x0
-        // by convention; matches contracts/src/constants.cairo). Dojo model
-        // read goes through the world's get_value API; for simplicity we
-        // read via a getter we'll need to expose. Until then, returning
-        // 0 keeps the smoke test happy; the actual e2e wire-up reads the
-        // pending purchase via its purchase_id directly.
         let _ = world_addr;
         let _ = provider;
         Ok(0)
     }
 
-    /// Read PendingPurchase{purchase_id}.status from settlement.
+    /// Legacy: in the previous architecture this read
+    /// `PendingPurchase{purchase_id}.status` from mainnet. In the
+    /// current flow there is no `PendingPurchase` write on the forward
+    /// path — game ownership on the mainnet `Collection` NFT is the
+    /// source of truth instead. Kept as a no-op stub for source-compat.
     pub async fn read_pending_status(&self, purchase_id: u64) -> Result<PendingStatus> {
-        // PendingPurchase is keyed by purchase_id (u64). The Dojo world
-        // exposes a `get_value(model_selector, keys)` style read but the
-        // most ergonomic path is via a getter. Until we add one, scan
-        // events for the PurchaseInitiated/GameClaimApplied pair to infer
-        // status. Stub for now — will be fleshed out in the test scenario
-        // pass.
         let _ = purchase_id;
         Ok(PendingStatus::Pending)
     }
@@ -544,10 +478,20 @@ impl TestEnv {
     // Scenario primitives — forward path (mainnet → appchain)
     // ------------------------------------------------------------------
 
-    /// Player calls settlement Setup.issue in bridge mode. Captures the
-    /// purchase_id and forward payload from Piltover's `MessageSent`
-    /// event, which is emitted by messaging_mock during the
-    /// `send_message_to_appchain` call inside Setup.issue.
+    /// Player calls settlement `Setup.issue` in bridge mode. `Setup.issue`
+    /// delegates to mainnet `Play.mint`, which for each game unit:
+    ///   1. Mints a `Collection` NFT on mainnet (`Collection.new`).
+    ///   2. Sends a Piltover message to the appchain `Play` with
+    ///      selector `selector!("create")` carrying a serialized
+    ///      `Payload` (`player, game_id, multiplier, supply, price,
+    ///      0, 0`).
+    ///
+    /// This harness method captures the first `MessageSent` event
+    /// emitted by `messaging_mock` during the call and returns its
+    /// payload + Piltover-computed message hash. The first felt of the
+    /// payload is the `player` field; the second is the assigned
+    /// `game_id`, which doubles as the legacy `purchase_id` for the
+    /// `PurchaseHandle` (see the struct docs).
     ///
     /// NOTE: Forward (mainnet→appchain) Piltover messages are NOT
     /// represented as L2→L1 messages in the tx receipt. Piltover's
@@ -642,15 +586,18 @@ impl TestEnv {
             .copied()
             .ok_or_else(|| anyhow!("MessageSent missing message_hash key"))?;
 
-        // purchase_id is payload[0] for our 6-felt forward format.
+        // In the new `Payload` Serde layout, payload[0] = player
+        // (ContractAddress) and payload[1] = game_id (u64). We reuse
+        // game_id as the legacy "purchase_id" on `PurchaseHandle` for
+        // backwards compatibility with the previous harness API.
         let purchase_id: u64 = payload
-            .first()
+            .get(1)
             .map(|f| felt_to_u64(*f))
             .transpose()?
-            .ok_or_else(|| anyhow!("purchase_id missing from payload"))?;
+            .ok_or_else(|| anyhow!("game_id (payload[1]) missing from payload"))?;
 
         debug!(
-            "settlement_player_buy_bundle: purchase_id={purchase_id}, payload_len={plen}, msg_hash={mh:#x}",
+            "settlement_player_buy_bundle: game_id={purchase_id}, payload_len={plen}, msg_hash={mh:#x}",
             plen = payload.len(),
             mh = message_hash,
         );
@@ -873,74 +820,7 @@ pub fn bytearray_hash(s: &str) -> Felt {
     poseidon_hash_many(&elements)
 }
 
-async fn deploy_materializer(
-    account: &SingleOwnerAccount<JsonRpcClient<HttpTransport>, LocalWallet>,
-    repo_root: &Path,
-    mainnet_setup: Felt,
-    play: Felt,
-) -> Result<Felt> {
-    let candidates = [
-        repo_root.join("target/dev/nums_Materializer.contract_class.json"),
-        repo_root.join("contracts/target/dev/nums_Materializer.contract_class.json"),
-    ];
-    let class_path = candidates
-        .iter()
-        .find(|p| p.exists())
-        .ok_or_else(|| {
-            anyhow!(
-                "Materializer artifact not found in any of {candidates:?}; run `scarb build` first"
-            )
-        })?;
-    let casm_path_str = class_path
-        .to_string_lossy()
-        .replace(".contract_class.json", ".compiled_contract_class.json");
-    let class_bytes = std::fs::read(class_path).context("read Materializer class")?;
-    let sierra: SierraClass = serde_json::from_slice(&class_bytes).context("parse sierra")?;
-    let class_hash = sierra.class_hash().context("compute class hash")?;
-    let flat = sierra.flatten().context("flatten sierra")?;
-    let casm_bytes = std::fs::read(&casm_path_str).context("read casm")?;
-    let casm: CompiledClass = serde_json::from_slice(&casm_bytes).context("parse casm")?;
-    let compiled_class_hash = casm.class_hash().context("casm class hash")?;
-
-    // Declare (idempotent).
-    match account
-        .declare_v3(Arc::new(flat), compiled_class_hash)
-        .gas_estimate_multiplier(2.0)
-        .send()
-        .await
-    {
-        Ok(decl) => {
-            wait_for_tx_success(account.provider(), decl.transaction_hash).await?;
-            info!("Declared Materializer class {class_hash:#x}");
-        }
-        Err(e) => {
-            let s = format!("{e:?}");
-            if s.contains("ClassAlreadyDeclared") || s.contains("is already declared") {
-                info!("Materializer class already declared");
-            } else {
-                return Err(anyhow!("declare Materializer: {e}"));
-            }
-        }
-    }
-
-    let factory = ContractFactory::new(class_hash, account);
-    let salt = Felt::from_hex("0x4d5054455252454445534947").unwrap();
-    let constructor_args = vec![mainnet_setup, play];
-    let deployment = factory.deploy_v3(constructor_args.clone(), salt, false);
-    let address = deployment.deployed_address();
-    match deployment.gas_estimate_multiplier(2.0).send().await {
-        Ok(tx) => {
-            wait_for_tx_success(account.provider(), tx.transaction_hash).await?;
-        }
-        Err(e) => {
-            let s = format!("{e:?}");
-            if s.contains("already deployed") || s.contains("ContractAddressUnavailable") {
-                warn!("Materializer address already in use");
-            } else {
-                return Err(anyhow!("deploy Materializer: {e}"));
-            }
-        }
-    }
-
-    Ok(address)
-}
+// `deploy_materializer` was removed when the standalone `Materializer`
+// contract was taken out of the forward path. The forward L1Handler is
+// now `Play.create` on the appchain `Play` contract directly, so no
+// extra UDC deployment is needed by the harness.

@@ -119,9 +119,7 @@ mod tests {
         let (_world, faucet) = spawn_faucet_only();
 
         // Deploy TransferRelay via deploy_syscall.
-        let (relay, _) = deploy_syscall(
-            TransferRelay::TEST_CLASS_HASH.try_into().unwrap(), 0, [].span(), false,
-        )
+        let (relay, _) = deploy_syscall(TransferRelay::TEST_CLASS_HASH, 0, [].span(), false)
             .expect('relay deploy failed');
 
         // Mint 1000 to the RELAY contract.

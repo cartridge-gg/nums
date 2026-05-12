@@ -25,10 +25,6 @@ pub impl ConfigImpl of ConfigTrait {
         pool_extension: ContractAddress,
         pool_sqrt: u256,
         base_price: u256,
-        appchain_materializer: ContractAddress,
-        bridge_messaging: ContractAddress,
-        appchain_play: ContractAddress,
-        mainnet_setup: ContractAddress,
     ) -> Config {
         Config {
             world_resource: world_resource,
@@ -53,10 +49,6 @@ pub impl ConfigImpl of ConfigTrait {
             pool_extension: pool_extension,
             pool_sqrt: pool_sqrt,
             base_price: base_price,
-            appchain_materializer: appchain_materializer,
-            bridge_messaging: bridge_messaging,
-            appchain_play: appchain_play,
-            mainnet_setup: mainnet_setup,
         }
     }
 
@@ -118,10 +110,6 @@ mod tests {
             pool_extension: 0.try_into().unwrap(),
             pool_sqrt: 0,
             base_price: 0,
-            appchain_materializer: 0.try_into().unwrap(),
-            bridge_messaging: 0.try_into().unwrap(),
-            appchain_play: 0.try_into().unwrap(),
-            mainnet_setup: 0.try_into().unwrap(),
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
             set_block_timestamp(i.into() * constants::EMA_MIN_TIME);
@@ -153,10 +141,6 @@ mod tests {
             pool_extension: 0.try_into().unwrap(),
             pool_sqrt: 0,
             base_price: 0,
-            appchain_materializer: 0.try_into().unwrap(),
-            bridge_messaging: 0.try_into().unwrap(),
-            appchain_play: 0.try_into().unwrap(),
-            mainnet_setup: 0.try_into().unwrap(),
         );
         for i in 0..constants::EMA_MAX_WEIGTH {
             set_block_timestamp(i.into() * constants::EMA_MIN_TIME);

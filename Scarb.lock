@@ -85,7 +85,7 @@ dependencies = [
 [[package]]
 name = "cartridge_vrf"
 version = "0.1.0"
-source = "git+https://github.com/cartridge-gg/vrf?rev=050ca97#050ca9759dc887d97ac84c18d93fbd6b4bf90405"
+source = "git+https://github.com/cartridge-gg/vrf?rev=cc00aa6#cc00aa61fa5157100cde134fac3148f318448e18"
 dependencies = [
  "openzeppelin",
  "stark_vrf",

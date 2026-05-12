@@ -21,7 +21,7 @@ dojo = "1.8.0"
 dojo_cairo_macros = "1.8.0"
 dojo_cairo_test = "1.8.0"
 openzeppelin = "3.0.0"
-cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf", rev = "050ca97" }
+cartridge_vrf = { git = "https://github.com/cartridge-gg/vrf", rev = "cc00aa6" }
 stark_vrf = "0.1.1"
 alexandria_encoding = "0.7.0"
 starknet = "2.13.1"

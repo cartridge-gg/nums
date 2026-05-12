@@ -1,0 +1,15 @@
+{
+  "originHash" : "7959d0ddc23fde2ace81f63c9d2e8c56078c70f620bc33e732619c42ecedc06e",
+  "pins" : [
+    {
+      "identity" : "cartridge-ios-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cartridge-gg/cartridge-ios-kit",
+      "state" : {
+        "revision" : "002d241b1c936e9a4020f4faa555cc1b33d3aa55",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}

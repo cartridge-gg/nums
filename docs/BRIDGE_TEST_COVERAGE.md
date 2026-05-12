@@ -3,7 +3,8 @@
 Companion to `BRIDGE_ARCHITECTURE.md`. Tracks what is verified vs what
 is deferred to follow-up.
 
-Last updated: `feat/tee-appchain-redesign` branch.
+Last updated: `feat/tee-appchain-saya` branch (stacked on
+`feat/tee-appchain-redesign`).
 
 ## Coverage at a glance
 
@@ -14,8 +15,10 @@ Last updated: `feat/tee-appchain-redesign` branch.
 | Cairo unit | `Bridge` model default-zero in test world | `test_local_path_bridge_config_zero_defaults`, `test_bridge_config_fields_zero_by_default` | ✓ Anchors the test environment in a known state |
 | Cairo unit | EMA push baseline | `test_ema_push_is_non_commutative` | ✓ Locked-in design assumption |
 | Cairo unit | Pre-existing game/trap/helper tests | (legacy suite) | ✓ Unchanged by the bridge refactor |
-| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_bridge_forward` | **🟡 Marked `#[ignore]`** — pending Lane C validation against the new flow |
-| | | **160 / 160 unit + 0 / 1 e2e** | |
+| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_full_saya_round_trip` (forward half) | ✓ Auto-delivery via Katana messaging worker |
+| **E2E** | **Reverse bridge path (appchain → mainnet) — real Saya** | `happy_path_full_saya_round_trip` (reverse half) | ✓ Real gameplay loop → `send_message_to_l1_syscall` → `saya-tee --mock-prove` state-root commit → mainnet `Play.claim` |
+| **E2E** | Piltover `appc_to_sn` hash formula sanity | `message_hash_matches_piltover_formula` | ✓ Locks in the off-chain hash impl |
+| | | **160 / 160 unit + 2 / 2 e2e** | |
 
 ## What the refactor changed
 
@@ -35,11 +38,11 @@ The `Materializer` contract, its tests, the `PendingPurchase` /
 `Bridge` model was simplified to a single `address` field (the
 Piltover messaging contract used for both directions).
 
-## E2E coverage — needs Lane C end-to-end validation
+## E2E coverage — real Saya round-trip
 
-`happy_path_bridge_forward` is wired against the new flow but kept
-`#[ignore]` until Lane C confirms a green end-to-end run on two
-real Katanas. The expected flow:
+`happy_path_full_saya_round_trip` runs the full bridge loop against
+two real Katanas plus a real `saya-tee --mock-prove` child process.
+The flow:
 
 1. `Setup.issue` calls `Play.mint(recipient, multiplier, supply,
    price, soulbound, qty)` on mainnet.
@@ -57,22 +60,38 @@ real Katanas. The expected flow:
      `game_id`,
    - calls `playable.create(...)` to start the game.
 
-Harness assertions that still apply:
+5. Player drives the appchain game to completion via repeated
+   `Play.set(game_id, index)` calls. When `game.over != 0`, the
+   terminating tx triggers `Playable.finish`, which builds the
+   reverse `Payload` and enqueues it via
+   `send_message_to_l1_syscall(this, payload)`.
+6. `saya-tee` polls the appchain, batches the block, generates a
+   stub TEE attestation (verified against the
+   `piltover_mock_amd_tee_registry` deployed by the harness), and
+   calls `update_state(...)` on the settlement Piltover core.
+7. Player calls mainnet `Play.claim(payload)`:
+   `consume_message_from_appchain` accepts the now-`ReadyToConsume`
+   message, `Collection.assert_is_owner` enforces NFT ownership, and
+   `Playable.claim` mints NUMS + pushes the EMA.
+
+Harness assertions:
 
 - `read_player_games_count(player)` on the **appchain** `Collection`
-  increases by `qty` after delivery.
-- The same player has at least `qty` `Collection` NFTs on **mainnet**
-  too (mint happens before the message is queued).
-- The L1Handler receipt on the appchain is `SUCCEEDED`.
+  increases by `qty` after the forward delivery.
+- The reverse payload extracted from `receipt.messages_sent` has the
+  expected 9-felt Cairo Serde layout (game_id, player, multiplier,
+  supply.lo/hi, price.lo/hi, level, reward).
+- The Piltover storage view `appchain_to_sn_messages(hash)` transitions
+  from `NothingToConsume` to `ReadyToConsume(>=1)` after the Saya
+  commit.
+- Mainnet `Token.balance_of(player)` increases by `payload.reward`
+  after `Play.claim`.
 
 ## Coverage gaps (deferred to follow-up PRs)
 
 | Scenario | What it verifies | Why it matters |
 |---|---|---|
-| Forward path end-to-end on the new flow | Two-chain mint + L1Handler success | High priority. Required before any production deployment. |
-| Address-equality invariant (mainnet Play addr == appchain Play addr) | The `from_address` check in `Play.create` and the `consume_message_from_appchain(this, payload)` call in `Play.claim` both rely on it | Critical. If a real two-world deploy fails this invariant, both directions break. |
-| Appchain finish → reverse Piltover delivery → mainnet `Play.claim` → `Token.reward` mint | The full reverse path. Reward delivery to the player. | High priority. Drives a real claim by playing through to game-over on the appchain, captures the queued Piltover message via the `messaging_test` backdoor, then calls mainnet `Play.claim`. |
-| EMA actually updates on mainnet from a real claim | End-to-end EMA feedback loop | Validates the operator-mediated assumption. |
+| Real TEE attestation | Production setup runs `saya-tee` on AMD SEV-SNP hardware with the real Piltover TEE registry, not the `--mock-prove` + mock-registry shortcut | Required before mainnet ship. The e2e here proves the plumbing; the cryptography is upstream's responsibility. |
 | Duplicate forward delivery | ERC-721 token-id uniqueness on appchain `Collection.mint` reverts a second `create` for the same `game_id` | Replay defense (no explicit `processed_ids` map anymore). |
 | Forward auth (wrong `from_address`) | Appchain `Play.create` reverts with `'Play: invalid sender'` | Cairo unit tests can't drive L1Handler entries; only e2e can. |
 | Reverse auth (wrong sender) | Mainnet `Play.claim` reverts via `consume_message_from_appchain` mismatch | Same — e2e only. |
@@ -148,19 +167,16 @@ obsolete:
 
 ## Next coverage milestone
 
-Lane C follow-up PR objectives:
+Follow-up PR objectives (not in this stack):
 
-1. Run the retargeted `happy_path_bridge_forward` end-to-end and flip
-   the `#[ignore]` once green.
-2. Empirically validate `mainnet Play addr == appchain Play addr` on
-   a real two-world `sozo migrate`. If it fails, extend the `Bridge`
-   model with a `peer_play` field and update the auth checks.
-3. Add `happy_path_full_round_trip` covering: forward mint → real
-   appchain gameplay until game-over → reverse claim message →
-   mainnet `Play.claim` → `Token.reward` mints.
-4. Add `replay_protection` test for ERC-721 token-id uniqueness on
+1. Run `happy_path_full_saya_round_trip` against real AMD SEV-SNP
+   hardware (drop `--mock-prove` and the mock TEE registry).
+2. Add `replay_protection` test for ERC-721 token-id uniqueness on
    appchain `Collection.mint` (synthesize a duplicate L1Handler
-   dispatch via the messaging backdoor).
-5. Add `unauthorized_sender` test for both directions
+   dispatch via Katana's messaging backdoor).
+3. Add `unauthorized_sender` test for both directions
    (`Play.create` rejects wrong `from_address`; `Play.claim` rejects
    payloads not authenticated by `consume_message_from_appchain`).
+4. Add `identity_divergence` test demonstrating the failure mode when
+   mainnet and appchain controller addresses diverge for the same
+   player.

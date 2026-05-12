@@ -1,3 +1,13 @@
+//! # Treasury (deployed on BOTH chains; per-chain admin)
+//!
+//! OpenZeppelin TimelockController + AccessControl wrapper. Each chain
+//! has its own independent Treasury holding `DEFAULT_ADMIN_ROLE` over
+//! local `Setup`, `Vault`, `Token`, and `Collection`. Role grants flow
+//! through Treasury timelock proposals in production.
+//!
+//! `collect_fees` is **mainnet-only** in practice (Ekubo positions live
+//! on mainnet); the appchain Treasury exists for admin symmetry.
+
 use ekubo::types::bounds::Bounds;
 use ekubo::types::keys::PoolKey;
 
@@ -7,6 +17,8 @@ pub fn NAME() -> ByteArray {
 
 #[starknet::interface]
 pub trait ICollector<TContractState> {
+    /// [mainnet] Collect Ekubo LP fees for a given position.
+    /// Appchain has no Ekubo, so this is effectively mainnet-only.
     fn collect_fees(self: @TContractState, id: u64, pool_key: PoolKey, bounds: Bounds);
 }
 

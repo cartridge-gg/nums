@@ -1,11 +1,34 @@
 // SPDX-License-Identifier: MITuse use crate::interfaces::erc20::IERC20Dispatcher;
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+//! # Token (NUMS ERC-20)
+//!
+//! Deployed on **both chains** for Dojo-world-monolith reasons, but
+//! functionally **mainnet-only** in the bridge architecture:
+//!
+//! - **mainnet** is the canonical NUMS supply. `purchase.execute` burns
+//!   NUMS during the swap; `Play.claim → playable.claim` mints NUMS
+//!   rewards via `Token.reward`.
+//! - **appchain** Token instance is deployed-but-dead. Bridge-mode
+//!   gameplay never reads or writes it. Removable in a future cleanup
+//!   if Dojo supports per-chain resource subsets.
+//!
+//! `MINTER_ROLE` is granted to mainnet `Play` at deploy time, which is
+//! what enables `playable.claim → store.nums_disp().reward(...)`.
+
 use starknet::ContractAddress;
 
+/// All methods live on **mainnet**. The appchain Token deployment is
+/// inert; in bridge mode no rewards are minted there.
 #[starknet::interface]
 pub trait IToken<TContractState> {
+    /// [mainnet] Mint NUMS reward to a player. Called by mainnet
+    /// `Play.claim → playable.claim` after consuming a reverse
+    /// Piltover message.
     fn reward(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+    /// [mainnet] Burn caller's NUMS balance. Called by mainnet
+    /// `purchase.execute` after the Ekubo swap so the bought NUMS is
+    /// destroyed (the buy-and-burn loop).
     fn burn(ref self: TContractState, amount: u256);
 }
 

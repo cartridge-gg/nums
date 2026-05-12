@@ -1,11 +1,39 @@
+//! # Collection (deployed on BOTH chains; per-chain ERC-721)
+//!
+//! Each chain runs its own `Collection` instance. The forward bridge flow
+//! mirrors NFTs across chains by reusing the mainnet-assigned `game_id`:
+//!
+//! - **mainnet** `Collection.new(player, soulbound)` auto-increments
+//!   `game_id` — origin of truth, called by mainnet `Play.mint`.
+//! - **appchain** `Collection.mint(player, game_id, soulbound)` mints
+//!   the same `game_id` (no auto-increment) — called by the appchain
+//!   `Play.create` L1Handler. ERC-721 token-id uniqueness on this path
+//!   is the bridge's **replay guard**: a duplicate L1Handler delivery
+//!   reverts here.
+//!
+//! `MINTER_ROLE` is granted to the local `Play` contract at deploy time
+//! on each chain, so only `Play` can call `new` / `mint` / `update`.
+//! ERC-721 `transfer*` is gated by the `soulbound` flag; bridge-minted
+//! NFTs are always soulbound to preserve cross-chain identity.
+
 #[starknet::interface]
 pub trait ICollection<TContractState> {
+    /// [mainnet] Auto-increment + mint. Origin of `game_id`.
     fn new(ref self: TContractState, to: starknet::ContractAddress, soulbound: bool) -> u64;
+    /// [appchain] Explicit-id mint. Mirrors mainnet-assigned game_id;
+    /// ERC-721 uniqueness here is the bridge replay guard.
     fn mint(
         ref self: TContractState, to: starknet::ContractAddress, game_id: u64, soulbound: bool,
     ) -> u64;
+    /// [either] Burn an NFT (owner-only).
     fn burn(ref self: TContractState, token_id: u256);
+    /// [either] Emit ERC-4906 metadata-updated. Called by `Play.set`
+    /// /`select`/`apply` (appchain) and `Play.claim` (mainnet) after
+    /// state changes.
     fn update(ref self: TContractState, token_id: u256);
+    /// [either] Ownership assertion used inside `Play.set`/`select`/
+    /// `apply` (appchain) and `Play.claim` (mainnet) to gate
+    /// caller-driven mutations.
     fn assert_is_owner(ref self: TContractState, owner: starknet::ContractAddress, token_id: u256);
 }
 

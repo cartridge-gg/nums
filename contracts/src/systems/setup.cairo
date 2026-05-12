@@ -1,3 +1,24 @@
+//! # Setup (deployed on BOTH chains, primarily mainnet)
+//!
+//! Owns the `Config` and `Bridge` models, exposes admin setters for both,
+//! and is the player-facing entry point for paid game issuance.
+//!
+//! | Method | Chain | Role |
+//! |---|---|---|
+//! | `issue` (via `IBundle`) | **mainnet** | Player entry point: runs `purchase.execute` then
+//! `Play.mint` |
+//! | `set_*` (Ekubo, percentages, pool, EMA, etc.) | **mainnet** | Admin tuning of the economic
+//! config |
+//! | `set_bridge` | **both** | Admin rotation of the Piltover messaging contract address |
+//! | `merkledrop_register` / `_claim` | **both** | Free-bundle airdrops (chain-agnostic) |
+//!
+//! Setup is deployed on both chains because the Dojo world's `Config` and
+//! `Bridge` models need a writer on each side, but `Setup.issue` is only
+//! exercised on mainnet — the appchain receives games via Piltover
+//! L1Handler (`Play.create`), not via local purchase. The `set_bridge`
+//! setter is meaningful on both chains: each chain points its `Bridge`
+//! model at its own local Piltover messaging contract.
+
 use starknet::ContractAddress;
 
 #[inline]
@@ -5,23 +26,43 @@ pub fn NAME() -> ByteArray {
     "Setup"
 }
 
+/// Public interface for `Setup`. Each setter is admin-only.
+/// Per-method chain context is annotated at the impl below.
 #[starknet::interface]
 pub trait ISetup<T> {
+    /// [mainnet] Tuning: target NUMS supply driving the supply-side multiplier.
     fn set_target_supply(ref self: T, supply: u256);
+    /// [mainnet] Tuning: USDC / quote token address.
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
+    /// [mainnet] Tuning: Ekubo router (swap path).
     fn set_ekubo_router_address(ref self: T, ekubo_router_address: ContractAddress);
+    /// [mainnet] Tuning: Ekubo positions.
     fn set_ekubo_positions_address(ref self: T, ekubo_positions_address: ContractAddress);
+    /// [mainnet] Tuning: % of bundle price burned via Ekubo swap.
     fn set_burn_percentage(ref self: T, burn_percentage: u8);
+    /// [mainnet] Tuning: % of bundle price routed to Vault dividends.
     fn set_vault_percentage(ref self: T, vault_percentage: u8);
+    /// [mainnet] Tuning: Ekubo pool fee.
     fn set_pool_fee(ref self: T, pool_fee: u128);
+    /// [mainnet] Tuning: Ekubo pool tick spacing.
     fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
+    /// [mainnet] Tuning: Ekubo pool extension.
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
+    /// [mainnet] Tuning: Ekubo pool sqrt-ratio limit for swaps.
     fn set_pool_sqrt(ref self: T, pool_sqrt: u256);
+    /// [mainnet] Tuning: bundle entry price.
     fn set_base_price(ref self: T, base_price: u256);
+    /// [mainnet] Tuning: EMA state (admin recalibration of average score).
     fn set_average_score(ref self: T, average_score: u32, average_weigth: u16);
-    // Cross-chain bridge config setters (admin only).
+    /// [both] Rotates the per-chain Piltover messaging contract address.
+    /// Used on mainnet (forward send + reverse consume) and on the appchain
+    /// (informational; the reverse send path uses the native Cairo
+    /// `send_message_to_l1_syscall`).
     fn set_bridge(ref self: T, bridge_messaging: ContractAddress);
+    /// [both] Register a merkle-drop tree (free-bundle airdrop).
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
+    /// [both] Claim a free bundle via merkle proof. Calls `Play.mint` with
+    /// `multiplier=None` and `soulbound=None` so defaults apply.
     fn merkledrop_claim(
         ref self: T,
         tree_id: felt252,

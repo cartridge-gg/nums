@@ -1,3 +1,25 @@
+//! # Play (deployed on BOTH chains)
+//!
+//! The cross-chain bridge orchestrator. Same contract code on both chains,
+//! but different methods are intended for different chains:
+//!
+//! | Method | Chain | Role |
+//! |---|---|---|
+//! | `mint` | **mainnet** | Forward sender: mints `Collection` NFT, queues Piltover message |
+//! | `create` (#[l1_handler]) | **appchain** | Forward receiver: mirrors NFT on appchain, kicks off
+//! gameplay |
+//! | `set` / `select` / `apply` | **appchain** | Gameplay primitives |
+//! | `claim` | **mainnet** | Reverse receiver: consumes Piltover msg, mints NUMS reward |
+//! | `redeem` | **mainnet** | Voucher-based reward redemption (see method docs) |
+//!
+//! ## Critical invariant — address equality
+//!
+//! Mainnet `Play` contract address MUST equal appchain `Play` contract
+//! address. Both directions rely on it (`from_address == this` in `create`,
+//! `consume_message_from_appchain(this, ...)` in `claim`). Achieved by
+//! deploying both chains' Dojo worlds with the same `seed` and the same
+//! `Play` class hash. See `docs/CONTRACT_DEPLOYMENT_MAP.md`.
+
 use starknet::ContractAddress;
 
 #[inline]
@@ -5,8 +27,11 @@ pub fn NAME() -> ByteArray {
     "Play"
 }
 
+/// Public interface for `Play`. Each method's intended chain is annotated
+/// at the implementation site below.
 #[starknet::interface]
 pub trait IPlay<T> {
+    /// [mainnet] Mints `Collection` NFTs and queues forward Piltover messages.
     fn mint(
         ref self: T,
         player: ContractAddress,
@@ -16,10 +41,17 @@ pub trait IPlay<T> {
         soulbound: Option<bool>,
         quantity: u32,
     );
+    /// [appchain] Places a number into a game slot.
     fn set(ref self: T, game_id: u64, index: u8);
+    /// [appchain] Selects a power (preparing it to be applied).
     fn select(ref self: T, game_id: u64, index: u8);
+    /// [appchain] Applies a previously-selected power to a slot.
     fn apply(ref self: T, game_id: u64, index: u8);
+    /// [mainnet] Consumes a reverse Piltover message from the appchain
+    /// and mints the NUMS reward to the player.
     fn claim(ref self: T, payload: Span<felt252>);
+    /// [mainnet] Voucher-driven reward redemption (parallel reverse path
+    /// for quest-style rewards).
     fn redeem(ref self: T, payload: Span<felt252>);
 }
 
@@ -208,9 +240,8 @@ pub mod Play {
         }
     }
 
-    // [Info] L1Handler — runs on the Appchain when the forward Piltover
-    // message from mainnet `Play.mint` is delivered by Katana's messaging
-    // worker.
+    // [Chain] appchain — L1Handler invoked by Katana's messaging worker when
+    // the forward Piltover message from mainnet `Play.mint` is delivered.
     //
     // ## Critical invariants
     //
@@ -265,7 +296,7 @@ pub mod Play {
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
-        // [Info] Designed to be called on Mainnet
+        // [Chain] mainnet
         fn mint(
             ref self: ContractState,
             player: ContractAddress,
@@ -304,7 +335,7 @@ pub mod Play {
             }
         }
 
-        // [Info] Designed to be called on Appchain
+        // [Chain] appchain
         fn set(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -318,7 +349,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
-        // [Info] Designed to be called on Appchain
+        // [Chain] appchain
         fn select(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -332,7 +363,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
-        // [Info] Designed to be called on Appchain
+        // [Chain] appchain
         fn apply(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -346,7 +377,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
-        // [Info] Designed to be called on Mainnet
+        // [Chain] mainnet
         fn claim(ref self: ContractState, mut payload: Span<felt252>) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -367,7 +398,7 @@ pub mod Play {
             collection.update(payload.game_id.into());
         }
 
-        // [Info] Designed to be called on Mainnet
+        // [Chain] mainnet
         fn redeem(ref self: ContractState, mut payload: Span<felt252>) {
             // [Setup] World
             let world = self.world(@NAMESPACE());

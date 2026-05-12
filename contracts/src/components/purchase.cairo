@@ -1,3 +1,19 @@
+//! # PurchaseComponent — **MAINNET ONLY**
+//!
+//! Mixed into `Setup`. Owns the swap+burn+vault.pay+team.transfer flow
+//! executed by `Setup.issue`. Inert on the appchain side (Setup.issue
+//! is never called there in bridge mode).
+//!
+//! - Talks to Ekubo router / clearer for the USDC→NUMS swap (mainnet pool)
+//! - Burns the resulting NUMS via `Token.burn`
+//! - Routes `vault_percentage` of the residual to the mainnet Vault via
+//!   `vault.pay(player, amount)`
+//! - Sends the remainder to the team address via `quote.transfer`
+//!
+//! The `if amount > 0` guard around the swap-and-clear block is the
+//! sole concession to test profiles where `burn_percentage = 0` and
+//! `ekubo_router = 0` — production has `burn_percentage > 0` and the
+//! guard becomes a no-op.
 #[starknet::component]
 pub mod PurchaseComponent {
     // Imports

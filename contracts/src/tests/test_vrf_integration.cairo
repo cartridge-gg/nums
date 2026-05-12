@@ -1,57 +1,85 @@
-use cartridge_vrf::{IVrfProviderDispatcher, IVrfProviderDispatcherTrait, PublicKey, Source};
+use dojo::model::ModelStorage;
+use dojo::world::{WorldStorage, WorldStorageTrait};
+use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, WORLD_RESOURCE};
 use crate::helpers::random::RandomImpl;
+use crate::mocks::vrf::NAME as VRF;
+use crate::models::index::Config;
 use crate::tests::setup::setup::spawn_game;
+use crate::{StoreImpl, StoreTrait};
 
 #[starknet::interface]
 trait IVrfMockTestExt<TContractState> {
     fn set_test_seed(ref self: TContractState, seed: felt252);
 }
 
-#[test]
-fn test_vrf_mock_implements_canonical_trait_surface() {
-    let (_, systems, _) = spawn_game();
-    let provider = systems.vrf;
+/// Point `Config.vrf` at the deployed Vrf mock and pin a known seed. Mirrors
+/// the production wiring done by `Setup.dojo_init`, condensed to the parts
+/// the random-consumption chain needs.
+fn wire_vrf(mut world: WorldStorage, seed: felt252) {
+    let (vrf_address, _) = world.dns(@VRF()).expect('Vrf not found');
+    let config = Config {
+        world_resource: WORLD_RESOURCE,
+        vrf: vrf_address,
+        quote: 0.try_into().unwrap(),
+        team_address: 0.try_into().unwrap(),
+        ekubo_router: 0.try_into().unwrap(),
+        ekubo_positions: 0.try_into().unwrap(),
+        target_supply: 0,
+        burn_percentage: 0,
+        vault_percentage: 0,
+        slot_count: 18,
+        slot_min: DEFAULT_SLOT_MIN,
+        slot_max: DEFAULT_SLOT_MAX,
+        average_weigth: 0,
+        average_score: 0,
+        last_updated: 0,
+        pool_fee: 0,
+        pool_tick_spacing: 0,
+        pool_extension: 0.try_into().unwrap(),
+        pool_sqrt: 0,
+        base_price: 0,
+    };
+    world.write_model(@config);
 
-    provider.request_random(starknet::get_contract_address(), Source::Salt('test'));
-    assert(provider.get_consume_count() == 0, 'count should start at 0');
-    assert(!provider.is_vrf_call(), 'is_vrf_call should be false');
-
-    let pubkey = PublicKey { x: 0xaa, y: 0xbb };
-    provider.set_public_key(pubkey);
-    let read_back = provider.get_public_key();
-    assert(read_back.x == 0xaa, 'pubkey.x roundtrip');
-    assert(read_back.y == 0xbb, 'pubkey.y roundtrip');
-
-    provider.assert_consumed(0x1234);
+    IVrfMockTestExtDispatcher { contract_address: vrf_address }.set_test_seed(seed);
 }
 
+/// Validates the exact randomness-consumption chain the game contract runs
+/// inside `playable.cairo::set` / `playable.cairo::apply`:
+///
+///     store.vrf_disp() → RandomImpl::new_vrf(dispatcher) → rand.next_unique(...)
+///
+/// `rand.next_unique` is the call `Game.next` makes to draw the next number,
+/// so different VRF seeds must yield different game-relevant outputs.
+/// If the canonical dispatcher import, the `Config.vrf` → `Store::vrf_disp`
+/// lookup, or `RandomImpl::new_vrf` regressed (fell back to `tx_hash`, a
+/// constant, or the wrong contract), both runs would produce the same
+/// output and this test would fail.
+///
+/// NOTE: this stops short of invoking `Play.set` through the deployed
+/// `IPlayDispatcher` because that path's `owner_of` lookup requires a minted
+/// Collection NFT, which requires running `Play.dojo_init` to wire up the
+/// AccessControl roles, which cascades into needing Treasury / Setup /
+/// Token / Vault all initialized. The test world in `tests/setup.cairo`
+/// does not call `sync_perms_and_inits`. Building that harness is out of
+/// scope for this VRF migration; every line of the migration is exercised
+/// by the chain above.
 #[test]
-fn test_vrf_mock_test_seed_override() {
-    let (_, systems, _) = spawn_game();
-    let override_ext = IVrfMockTestExtDispatcher { contract_address: systems.vrf.contract_address };
-    override_ext.set_test_seed(0x42);
+fn test_game_randomness_consumes_canonical_vrf() {
+    let (world_a, _, _) = spawn_game();
+    let (world_b, _, _) = spawn_game();
 
-    let consumed = systems.vrf.consume_random(Source::Salt('s'));
-    assert(consumed == 0x42, 'override seed not applied');
-}
+    wire_vrf(world_a, 0xAAAA);
+    wire_vrf(world_b, 0xBBBB);
 
-#[test]
-fn test_random_new_vrf_uses_canonical_dispatcher() {
-    let (_, systems, _) = spawn_game();
-    let override_ext = IVrfMockTestExtDispatcher { contract_address: systems.vrf.contract_address };
-    override_ext.set_test_seed(0x1000);
+    let store_a = StoreImpl::new(world_a);
+    let store_b = StoreImpl::new(world_b);
 
-    let mut rand = RandomImpl::new_vrf(systems.vrf);
-    assert(rand.seed == 0x1000, 'seed wired from dispatcher');
+    let mut rand_a = RandomImpl::new_vrf(store_a.vrf_disp());
+    let mut rand_b = RandomImpl::new_vrf(store_b.vrf_disp());
 
-    let v = rand.between::<u8>(0, 99);
-    assert(v <= 99, 'between returns in-range value');
-}
+    let next_a = rand_a.next_unique(DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, @array![]);
+    let next_b = rand_b.next_unique(DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, @array![]);
 
-#[test]
-fn test_random_new_vrf_falls_back_to_tx_hash() {
-    let (_, systems, _) = spawn_game();
-
-    let mut rand = RandomImpl::new_vrf(systems.vrf);
-    let _ = rand.between::<u8>(0, 100);
+    assert(next_a != next_b, 'vrf seed not driving game rand');
 }

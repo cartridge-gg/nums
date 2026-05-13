@@ -138,17 +138,20 @@ log "both migrates green"
 
 # ----- 6. Stash manifests for inspection ----------------------------------
 #
-# Dojo writes manifests under `manifest_<profile>/release/manifest.json`
-# by default. Copy to /state so operators can inspect addresses without
-# entering the migrate container.
+# Dojo writes a flat `manifest_<profile>.json` at the repo root (NOT a
+# nested `manifest_<profile>/release/manifest.json` — that older layout
+# was retired). Mirror them under /state so operators can `cat` the
+# addresses without entering the migrate container.
 
 mkdir -p "${STATE_DIR}/manifests"
 for profile in settlement appchain; do
-    src="${REPO_ROOT}/manifest_${profile}/release/manifest.json"
+    src="${REPO_ROOT}/manifest_${profile}.json"
     dst="${STATE_DIR}/manifests/${profile}.json"
     if [[ -f "${src}" ]]; then
         cp -f "${src}" "${dst}"
         log "stashed manifest: ${dst}"
+    else
+        die "missing manifest at ${src} — did \`sozo migrate --profile ${profile}\` finish?"
     fi
 done
 
@@ -175,22 +178,28 @@ sozo execute --profile appchain NUMS-Setup set_bridge "${PILTOVER_ADDRESS}"
 # 18-decimal units) so the first reward mint via `Play.claim` doesn't
 # trip the assert. Same logic as `harness.rs::seed_vault_shares`.
 #
-# 1 NUMS = 1e18 = 0xde0b6b3a7640000. sozo's `u256:<hex>` calldata helper
-# (`dojo/crates/dojo/world/src/config/calldata_decoder.rs:219`) expands
-# this into the two felts (low, high) at invoke time. `/` separates
-# multicall entries.
+# Note: `sozo execute` only tag-resolves the CALL TARGET, not calldata
+# args. We have to read the Vault address out of the settlement
+# manifest and pass it as a literal hex felt to `Token.approve(spender,
+# amount)`. The deposit's target IS the Vault, so we still pass
+# `NUMS-Vault` as the second call's target tag.
 #
-# We need the Vault address as the spender on the approve call —
-# `world` resolves the Dojo World contract; for a Dojo system tag like
-# `NUMS-Vault`, sozo resolves to its deployed address from the
-# settlement profile's manifest. Use the `--diff` flag to force a
-# manifest re-read if the chain state ever drifts from disk.
+# 1 NUMS = 1e18 = 0xde0b6b3a7640000. sozo's `u256:<hex>` calldata
+# helper (`dojo/crates/dojo/world/src/config/calldata_decoder.rs:219`)
+# expands this into the (low, high) felt pair at invoke time. `/`
+# separates multicall entries.
+
+vault_address=$(jq -r '.contracts[] | select(.tag == "NUMS-Vault") | .address' \
+    "${STATE_DIR}/manifests/settlement.json")
+[[ -n "${vault_address}" && "${vault_address}" != "null" ]] \
+    || die "could not find NUMS-Vault address in settlement manifest"
+vault_address="$(normalize_felt "${vault_address}")"
 
 NUMS_ONE_U256="u256:0xde0b6b3a7640000"
 
-log "seeding settlement Vault with 1 NUMS (approve + deposit from deployer)"
-sozo execute --profile settlement --diff \
-    NUMS-Token approve NUMS-Vault "${NUMS_ONE_U256}" \
+log "seeding settlement Vault (${vault_address}) with 1 NUMS"
+sozo execute --profile settlement \
+    NUMS-Token approve "${vault_address}" "${NUMS_ONE_U256}" \
     / \
     NUMS-Vault deposit "${NUMS_ONE_U256}" "${SEPOLIA_DEPLOYER_ADDRESS}"
 

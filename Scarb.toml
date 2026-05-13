@@ -36,6 +36,13 @@ sort-module-level-items = true
 # tests/e2e/README.md and dojo_e2eappchain.toml / dojo_e2esettlement.toml.
 [profile.e2eappchain]
 [profile.e2esettlement]
+# Docker-compose deployment profiles (deploy/). `appchain` targets the
+# Katana service inside the compose network; `settlement` targets
+# Starknet Sepolia. Both rendered at deploy time from
+# deploy/templates/dojo_{appchain,settlement}.template.toml. See
+# deploy/README.md.
+[profile.appchain]
+[profile.settlement]
 
 [tool.scarb]
 allow-prebuilt-plugins = ["dojo_cairo_macros"]

@@ -101,3 +101,10 @@ bootstrap-settlement   one-shot  Stage A
 - **Sepolia gas spikes**: bursty migrate txs sometimes hit the
   free-RPC rate limit. If you see `429`s in `migrate` logs, retry —
   the script is restart-safe (Dojo's manifests are append-only).
+- **Saya version**: `Dockerfile.saya` + `Dockerfile.tools` pull
+  `saya-tee`/`saya-ops` binaries from `ghcr.io/dojoengine/saya:v0.4.0`
+  (pinned via `SAYA_VERSION` build-arg). If a future
+  `saya-tee` regresses `compute_l1_to_l2_msg_hash` and you see
+  `'tee: invalid messages'` from Piltover on message-carrying blocks,
+  pin `SAYA_VERSION` to a known-good build and apply
+  `deploy/patches/saya-l1-handler-hash.patch` via a custom build stage.

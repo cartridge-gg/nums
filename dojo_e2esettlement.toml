@@ -1,0 +1,99 @@
+# dojo_e2e_settlement.toml — settlement (mainnet) Nums world for e2e tests.
+#
+# Targeted at the settlement Katana spawned by tests/e2e/src/harness.rs
+# (port 5071). Optional fork of Cartridge mainnet so real USDC / Ekubo router
+# contracts could be reachable; the bridge-mode happy path doesn't need them
+# (the bridge work is value-free).
+#
+# Migration notes (current architecture):
+#   - `dojo_init`'s last argument, `bridge_messaging`, points at the
+#     Piltover messaging contract. `BridgeTrait::new` rejects zero, so a
+#     placeholder non-zero value (0x1) is passed at migrate time. The
+#     harness then calls `Setup.set_bridge(<messaging_mock>)` after the
+#     real Piltover address is known.
+#   - The previous `appchain_materializer`, `appchain_play`,
+#     `mainnet_setup` args were removed when the `Bridge` model was
+#     collapsed to a single `address` field. See
+#     `docs/BRIDGE_ARCHITECTURE.md`.
+#   - Vault.pay's PROVIDER_ROLE is granted to Setup at deploy time.
+#     `Play` already holds `MINTER_ROLE` on Token, which is what
+#     `Play.claim → Playable.claim → Token.reward` needs — no extra
+#     post-migration role grant is required.
+
+[world]
+name = "Nums"
+# SHARED seed across both e2e profiles (e2esettlement + e2eappchain).
+# Dojo computes the world address deterministically from (class_hash,
+# seed). Both chains must derive the SAME world address so that the
+# bridge's address-equality invariant — mainnet Play addr == appchain
+# Play addr — has any chance of holding. See
+# `tests/e2e/src/harness.rs::force_play_artifacts_match` for the rest of
+# the address-equality story (the seed gets us the same world; the
+# artifact copy gets us the same Play class).
+seed = "nums-e2e-shared-v1"
+description = "Nums settlement-layer e2e test world"
+website = "https://nums.gg"
+
+[namespace]
+default = "NUMS"
+
+[env]
+rpc_url = "http://127.0.0.1:5071"
+account_address = "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec"
+private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
+
+[migration]
+order_inits = [
+  "NUMS-Token",
+  "NUMS-Faucet",
+  "NUMS-Setup",
+  "NUMS-Play",
+  "NUMS-Collection",
+  "NUMS-Vault",
+  "NUMS-Treasury",
+]
+skip_contracts = ["NUMS-Vrf"]
+disable_multicall = true
+
+[writers]
+"NUMS" = ["NUMS-Setup", "NUMS-Play"]
+
+[owners]
+"NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Faucet", "NUMS-Token", "NUMS-Treasury"]
+
+[init_call_args]
+"NUMS-Vault" = [
+  "0x1", # open: true
+  "0x0", # fee: 0 basis points
+]
+"NUMS-Governor" = []
+"NUMS-Treasury" = [
+  "0xe10",                                                              # min_delay: 1 hour
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # admin = dev account 0
+]
+"NUMS-Token" = [
+  "0xD3C21BCECCEDA1000000",                                             # initial_supply: 1M NUMS
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # recipient = dev account 0
+]
+"NUMS-Faucet" = [
+  "0x2540BE400",                                                        # initial_supply: 10K USDC
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # recipient = dev account 0
+]
+"NUMS-Setup" = [
+  "0x0",                                                                # vrf_address: Option::Some prefix
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # vrf_address (placeholder)
+  "0x1",                                                                # quote_address: Option::None — fall back to Faucet via DNS
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # team_address (dev account 0)
+  "0x0",                                                                # ekubo_router_address — not used in burn=0 e2e
+  "0x0",                                                                # ekubo_positions_address
+  "0x1E8480",                                                           # entry_price: 2.000000 USDC
+  "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
+  "0x0",                                                                # burn_percentage: 0% (skip Ekubo path)
+  "0x32",                                                               # vault_percentage: 50%
+  "0xA",                                                                # average_score: 10
+  "0x0",                                                                # pool_fee
+  "0x0",                                                                # pool_tick_spacing
+  "0x0",                                                                # pool_extension
+  "0x127fd5f1fe78a71f8bcd1fec63e3fe2f0486b6ecd5c86a0466c3a21fa5cfcec", # bundle_allower
+  "0x1",                                                                # bridge_messaging — placeholder, patched by Setup.set_bridge
+]

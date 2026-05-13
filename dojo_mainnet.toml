@@ -30,6 +30,22 @@ disable_multicall = true
 [owners]
 "NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Token"]
 
+# -----------------------------------------------------------------------------
+# Bridge configuration
+# -----------------------------------------------------------------------------
+# Nums runs in appchain bridge mode by default. `Setup.dojo_init`'s
+# `bridge_messaging` arg points at the Piltover messaging contract and
+# must be non-zero (`BridgeTrait::new` asserts). The value below must
+# be the real Piltover address on mainnet before launch — the
+# placeholder must be replaced or `Setup.set_bridge` must be called
+# right after migrate to swap it for the real address.
+#
+# Reward minting authorization is handled by the default deploy:
+# `NUMS-Play` holds `MINTER_ROLE` on `NUMS-Token`, which is what
+# `Play.claim → Playable.claim → Token.reward` needs. No extra
+# post-migration role grant is required.
+# -----------------------------------------------------------------------------
+
 [init_call_args]
 "NUMS-Vault" = [
   "0x1", # open: true
@@ -61,4 +77,5 @@ disable_multicall = true
   "0x56a4c",                                                            # pool_tick_spacing,
   "0x043e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc", # pool_extension,
   "0x005974abf73ca39b2c71a5e9459590f50649e53b296e747d2fc414bbd8839aab", # bundle_allower
+  "0x1",                                                                # bridge_messaging — placeholder (REPLACE with real Piltover address before launch, or patch via Setup.set_bridge)
 ]

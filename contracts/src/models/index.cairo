@@ -54,6 +54,14 @@ pub struct Game {
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
+pub struct Bridge {
+    #[key]
+    pub world_resource: felt252,
+    pub address: ContractAddress,
+}
+
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 pub struct VaultInfo {
     #[key]
     pub world_resource: felt252,

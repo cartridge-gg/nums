@@ -21,6 +21,7 @@ pub mod components {
 }
 
 pub mod models {
+    pub mod bridge;
     pub mod config;
     pub mod game;
     pub mod index;
@@ -31,9 +32,11 @@ pub mod models {
 pub mod events {
     pub mod claimed;
     pub mod index;
+    pub mod payload;
     pub mod purchased;
     pub mod started;
     pub mod vault;
+    pub mod voucher;
 }
 
 pub mod svg {
@@ -73,6 +76,7 @@ pub mod types {
 pub mod interfaces {
     pub mod erc20;
     pub mod erc721;
+    pub mod messaging;
     pub mod vrf;
 }
 
@@ -140,6 +144,8 @@ pub mod mocks {
 #[cfg(test)]
 pub mod tests {
     pub mod setup;
+    pub mod test_bridge_mainnet;
     pub mod test_setup;
+    pub mod test_transfer_isolation;
 }
 

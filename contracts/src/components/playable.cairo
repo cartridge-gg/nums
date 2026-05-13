@@ -1,19 +1,44 @@
+//! # PlayableComponent (mixed into `Play`; split across BOTH chains)
+//!
+//! Houses the gameplay state-machine and the reverse-message dispatcher.
+//! Different methods run on different chains:
+//!
+//! | Method | Chain | Role |
+//! |---|---|---|
+//! | `create(world, player, game_id, ...)` | **appchain** | Called by `Play.create` L1Handler after
+//! the mainnet game-mint message arrives. Starts the game's slot/trap state. |
+//! | `set(game_id, index)` | **appchain** | Player places a number into a slot. Internally triggers
+//! `finish` when the board state hits game-over. |
+//! | `select(game_id, index)` | **appchain** | Player selects a power. Same auto-finish trigger. |
+//! | `apply(game_id, index)` | **appchain** | Player applies a previously-selected power. Same
+//! auto-finish trigger. |
+//! | `finish(world, game_id)` | **appchain** | Internal: builds the reverse Piltover payload and
+//! calls `send_message_to_l1_syscall(this, payload)`. Address-equality invariant: `this` = appchain
+//! Play = mainnet Play. |
+//! | `claim(world, payload)` | **mainnet** | Called by `Play.claim` after
+//! `consume_message_from_appchain` validates the message. Pushes EMA via `config.push`, mints
+//! reward via `Token.reward(player, reward_amount)`. |
+//!
+//! There is NO local-only gameplay path in bridge mode — `finish` always
+//! emits a cross-chain message; `claim` always runs on mainnet.
 #[starknet::component]
 pub mod PlayableComponent {
     // Imports
     use achievement::component::Component as AchievementComponent;
     use achievement::component::Component::InternalImpl as AchievementInternalImpl;
     use constants::TEN_POW_18;
+    use core::panic_with_felt252;
     use dojo::world::{WorldStorage, WorldStorageTrait};
     use leaderboard::components::rankable::RankableComponent;
     use leaderboard::components::rankable::RankableComponent::InternalImpl as RankableInternalImpl;
     use openzeppelin::interfaces::token::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use quest::component::Component as QuestableComponent;
     use quest::component::Component::InternalImpl as QuestableInternalImpl;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, syscalls};
     use crate::elements::achievements::index::{ACHIEVEMENT_COUNT, AchievementType, IAchievement};
     use crate::elements::quests::index::{IQuest, QUEST_COUNT, QuestProps, QuestType};
     use crate::elements::tasks::index::{Task, TaskTrait};
+    use crate::events::payload::{Payload, PayloadTrait};
     use crate::helpers::random::RandomImpl;
     use crate::helpers::rewarder::Rewarder;
     use crate::models::config::ConfigTrait;
@@ -92,6 +117,7 @@ pub mod PlayableComponent {
             };
         }
 
+        /// [Chain] appchain — called by `Play.create` L1Handler.
         /// Create a new game. It ensures the game is valid and not already created.
         fn create(
             ref self: ComponentState<TContractState>,
@@ -106,15 +132,8 @@ pub mod PlayableComponent {
             let mut store = StoreImpl::new(world);
 
             // [Effect] Create game
-            let config = store.config();
             let mut game = GameTrait::new(
-                id: game_id,
-                multiplier: multiplier,
-                slot_count: config.slot_count,
-                slot_min: config.slot_min,
-                slot_max: config.slot_max,
-                supply: supply,
-                price: price,
+                id: game_id, multiplier: multiplier, supply: supply, price: price,
             );
             // [Effect] Start game
             let mut rand = RandomImpl::new(game_id.into());
@@ -123,6 +142,7 @@ pub mod PlayableComponent {
         }
 
 
+        /// [Chain] appchain — called by `Play.set` (gameplay).
         /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
         fn set(
             ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
@@ -245,6 +265,7 @@ pub mod PlayableComponent {
             self.finish(world, game_id);
         }
 
+        /// [Chain] appchain — called by `Play.select` (gameplay).
         /// Selects a power for a game. It ensures the power is valid and not already selected.
         fn select(
             ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
@@ -274,7 +295,8 @@ pub mod PlayableComponent {
             self.finish(world, game_id);
         }
 
-        /// Sets a number in the specified slot for a game. It ensures the slot is valid and not
+        /// [Chain] appchain — called by `Play.apply` (gameplay).
+        /// Applies a previously-selected power to a slot.
         fn apply(
             ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64, index: u8,
         ) {
@@ -339,6 +361,10 @@ pub mod PlayableComponent {
             }
         }
 
+        /// [Chain] appchain — internal trigger called by `set`/`select`/`apply`
+        /// once the game state reaches game-over. Builds the reverse
+        /// `Payload` and emits it via `send_message_to_l1_syscall` for
+        /// mainnet `Play.claim` to consume.
         fn finish(ref self: ComponentState<TContractState>, world: WorldStorage, game_id: u64) {
             // [Setup] Store
             let mut store = StoreImpl::new(world);
@@ -349,19 +375,12 @@ pub mod PlayableComponent {
             game.assert_has_started();
             game.assert_is_over();
             game.assert_not_expired();
+            game.assert_not_claimed();
 
-            // [Effect] Claim game
+            // [Effect] Claim game, so it cannot be called anymore
             let reward: u128 = game.claim();
             let base_reward: u128 = reward / TEN_POW_18;
             store.set_game(@game);
-
-            // [Effect] Update average score
-            let mut config = store.config();
-            let weight: u16 = (game.multiplier / constants::MULTIPLIER_PRECISION)
-                .try_into()
-                .unwrap();
-            config.push(game.level.into(), weight, constants::EMA_MIN_SCORE.into());
-            store.set_config(config);
 
             // [Effect] Update leaderboard score
             let player = self.owner(world, game_id);
@@ -383,10 +402,53 @@ pub mod PlayableComponent {
             let task = Task::Claimer;
             achievement.progress(world, player.into(), task.identifier(), base_reward, true);
 
+            // [Messaging] Message to mainnet
+            let payload = PayloadTrait::new(
+                player,
+                game_id,
+                game.multiplier,
+                game.supply.into(),
+                game.price.into(),
+                game.level,
+                reward,
+            );
+            let to_address = starknet::get_contract_address();
+            match syscalls::send_message_to_l1_syscall(to_address.into(), payload.span()) {
+                Ok(_) => (),
+                Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
+            }
+
+            // [Event] Emit payload event
+            store.payload(payload);
+        }
+
+        /// [Chain] mainnet — called by `Play.claim` after
+        /// `consume_message_from_appchain` validates the reverse Piltover
+        /// message and `Collection.assert_is_owner` confirms the caller
+        /// still owns the NFT. Pushes the EMA via `config.push` and
+        /// mints the reward via `Token.reward(player, reward_amount)`.
+        fn claim(ref self: ComponentState<TContractState>, world: WorldStorage, payload: Payload) {
+            // [Setup] Store
+            let store = StoreImpl::new(world);
+
+            // [Messaging] Consume Appchain message
+            let player: ContractAddress = payload.player;
+            let game_id: u64 = payload.game_id;
+            let reward: u128 = payload.reward;
+            let multiplier: u128 = payload.multiplier;
+            let level: u8 = payload.level;
+
+            // [Effect] Update average score
+            let mut config = store.config();
+            let weight: u16 = (multiplier / constants::MULTIPLIER_PRECISION).try_into().unwrap();
+            config.push(level.into(), weight, constants::EMA_MIN_SCORE.into());
+            store.set_config(config);
+
             // [Interaction] Pay user reward
             store.nums_disp().reward(player, reward.into());
 
             // [Event] Emit claimed event
+            let base_reward: u128 = reward / TEN_POW_18;
             store.claimed(player.into(), game_id, base_reward);
         }
     }

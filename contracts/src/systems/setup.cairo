@@ -1,3 +1,24 @@
+//! # Setup (deployed on BOTH chains, primarily mainnet)
+//!
+//! Owns the `Config` and `Bridge` models, exposes admin setters for both,
+//! and is the player-facing entry point for paid game issuance.
+//!
+//! | Method | Chain | Role |
+//! |---|---|---|
+//! | `issue` (via `IBundle`) | **mainnet** | Player entry point: runs `purchase.execute` then
+//! `Play.mint` |
+//! | `set_*` (Ekubo, percentages, pool, EMA, etc.) | **mainnet** | Admin tuning of the economic
+//! config |
+//! | `set_bridge` | **both** | Admin rotation of the Piltover messaging contract address |
+//! | `merkledrop_register` / `_claim` | **both** | Free-bundle airdrops (chain-agnostic) |
+//!
+//! Setup is deployed on both chains because the Dojo world's `Config` and
+//! `Bridge` models need a writer on each side, but `Setup.issue` is only
+//! exercised on mainnet — the appchain receives games via Piltover
+//! L1Handler (`Play.create`), not via local purchase. The `set_bridge`
+//! setter is meaningful on both chains: each chain points its `Bridge`
+//! model at its own local Piltover messaging contract.
+
 use starknet::ContractAddress;
 
 #[inline]
@@ -5,21 +26,43 @@ pub fn NAME() -> ByteArray {
     "Setup"
 }
 
+/// Public interface for `Setup`. Each setter is admin-only.
+/// Per-method chain context is annotated at the impl below.
 #[starknet::interface]
 pub trait ISetup<T> {
+    /// [mainnet] Tuning: target NUMS supply driving the supply-side multiplier.
     fn set_target_supply(ref self: T, supply: u256);
+    /// [mainnet] Tuning: USDC / quote token address.
     fn set_quote_address(ref self: T, quote_address: ContractAddress);
+    /// [mainnet] Tuning: Ekubo router (swap path).
     fn set_ekubo_router_address(ref self: T, ekubo_router_address: ContractAddress);
+    /// [mainnet] Tuning: Ekubo positions.
     fn set_ekubo_positions_address(ref self: T, ekubo_positions_address: ContractAddress);
+    /// [mainnet] Tuning: % of bundle price burned via Ekubo swap.
     fn set_burn_percentage(ref self: T, burn_percentage: u8);
+    /// [mainnet] Tuning: % of bundle price routed to Vault dividends.
     fn set_vault_percentage(ref self: T, vault_percentage: u8);
+    /// [mainnet] Tuning: Ekubo pool fee.
     fn set_pool_fee(ref self: T, pool_fee: u128);
+    /// [mainnet] Tuning: Ekubo pool tick spacing.
     fn set_pool_tick_spacing(ref self: T, pool_tick_spacing: u128);
+    /// [mainnet] Tuning: Ekubo pool extension.
     fn set_pool_extension(ref self: T, pool_extension: ContractAddress);
+    /// [mainnet] Tuning: Ekubo pool sqrt-ratio limit for swaps.
     fn set_pool_sqrt(ref self: T, pool_sqrt: u256);
+    /// [mainnet] Tuning: bundle entry price.
     fn set_base_price(ref self: T, base_price: u256);
+    /// [mainnet] Tuning: EMA state (admin recalibration of average score).
     fn set_average_score(ref self: T, average_score: u32, average_weigth: u16);
+    /// [both] Rotates the per-chain Piltover messaging contract address.
+    /// Used on mainnet (forward send + reverse consume) and on the appchain
+    /// (informational; the reverse send path uses the native Cairo
+    /// `send_message_to_l1_syscall`).
+    fn set_bridge(ref self: T, bridge_messaging: ContractAddress);
+    /// [both] Register a merkle-drop tree (free-bundle airdrop).
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
+    /// [both] Claim a free bundle via merkle proof. Calls `Play.mint` with
+    /// `multiplier=None` and `soulbound=None` so defaults apply.
     fn merkledrop_claim(
         ref self: T,
         tree_id: felt252,
@@ -46,6 +89,7 @@ pub mod Setup {
     use crate::components::purchase::PurchaseComponent;
     use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE, WORLD_RESOURCE};
     use crate::mocks::vrf::NAME as VRF;
+    use crate::models::bridge::BridgeTrait;
     use crate::models::config::ConfigTrait;
     use crate::systems::faucet::NAME as FAUCET;
     use crate::systems::play::{IPlayDispatcher, IPlayDispatcherTrait, NAME as PLAY};
@@ -117,7 +161,7 @@ pub mod Setup {
                 .execute(world, recipient, bundle_id, quantity);
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             let play = IPlayDispatcher { contract_address: play_address };
-            play.create(recipient, multiplier, supply, price, quantity);
+            play.mint(recipient, Some(multiplier), Some(supply), Some(price), Some(true), quantity);
         }
         fn supply(
             self: @BundleComponent::ComponentState<ContractState>, bundle_id: u32,
@@ -147,7 +191,7 @@ pub mod Setup {
             let world = contract_state.world(@NAMESPACE());
             let play_address = world.dns_address(@PLAY()).expect('Play contract not found!');
             let play = IPlayDispatcher { contract_address: play_address };
-            play.mint(receiver, drop.quantity.into());
+            play.mint(receiver, None, None, None, None, drop.quantity.into());
             // [Event] Emit purchase event
             let mut store = StoreImpl::new(world);
             store.purchased(receiver.into(), 0, drop.quantity.into(), MULTIPLIER_PRECISION, 0);
@@ -172,6 +216,11 @@ pub mod Setup {
         pool_tick_spacing: u128,
         pool_extension: ContractAddress,
         bundle_allower: ContractAddress,
+        // Piltover messaging contract. Required (non-zero) — Nums always
+        // runs in appchain mode now. Used for both directions:
+        //   * mainnet `Play.mint` → `send_message_to_appchain` (forward)
+        //   * mainnet `Play.claim` → `consume_message_from_appchain` (reverse)
+        bridge_messaging: ContractAddress,
     ) {
         // [Setup] World and Store
         let mut world = self.world(@NAMESPACE());
@@ -193,6 +242,8 @@ pub mod Setup {
         } else {
             u256 { low: 0x1000003f7f1380b75, high: 0x0 }
         };
+
+        // [Effect] Setup config
         let config = ConfigTrait::new(
             world_resource: WORLD_RESOURCE,
             vrf: vrf_address,
@@ -212,6 +263,10 @@ pub mod Setup {
         );
         store.set_config(config);
 
+        // [Effect] Setup bridge
+        let bridge = BridgeTrait::new(world_resource: WORLD_RESOURCE, address: bridge_messaging);
+        store.set_bridge(bridge);
+
         // [Effect] Initialize starterpack
         self.purchase.initialize(world, entry_price.into(), bundle_allower);
 
@@ -220,6 +275,11 @@ pub mod Setup {
         let treasury_address = world.dns_address(@TREASURY()).expect('Treasury not found!');
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         self.accesscontrol._grant_role(ADMIN_ROLE, treasury_address);
+        // [Effect] Test-driven: grant admin to deployer so the e2e harness
+        // can call post-deploy setters (e.g. `set_bridge`). Mirrors Vault.
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
+        self.accesscontrol._grant_role(ADMIN_ROLE, deployer_account);
     }
 
     #[abi(embed_v0)]
@@ -273,24 +333,18 @@ pub mod Setup {
     #[abi(embed_v0)]
     impl SetupImpl of ISetup<ContractState> {
         fn set_target_supply(ref self: ContractState, supply: u256) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.target_supply = supply;
             store.set_config(config);
         }
 
         fn set_quote_address(ref self: ContractState, quote_address: ContractAddress) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.quote = quote_address;
             store.set_config(config);
@@ -299,12 +353,9 @@ pub mod Setup {
         fn set_ekubo_router_address(
             ref self: ContractState, ekubo_router_address: ContractAddress,
         ) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.ekubo_router = ekubo_router_address;
             store.set_config(config);
@@ -313,120 +364,101 @@ pub mod Setup {
         fn set_ekubo_positions_address(
             ref self: ContractState, ekubo_positions_address: ContractAddress,
         ) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.ekubo_positions = ekubo_positions_address;
             store.set_config(config);
         }
 
         fn set_burn_percentage(ref self: ContractState, burn_percentage: u8) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.burn_percentage = burn_percentage;
             store.set_config(config);
         }
 
         fn set_vault_percentage(ref self: ContractState, vault_percentage: u8) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.vault_percentage = vault_percentage;
             store.set_config(config);
         }
 
         fn set_pool_fee(ref self: ContractState, pool_fee: u128) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.pool_fee = pool_fee;
             store.set_config(config);
         }
 
         fn set_pool_tick_spacing(ref self: ContractState, pool_tick_spacing: u128) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.pool_tick_spacing = pool_tick_spacing;
             store.set_config(config);
         }
 
         fn set_pool_extension(ref self: ContractState, pool_extension: ContractAddress) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.pool_extension = pool_extension;
             store.set_config(config);
         }
 
         fn set_pool_sqrt(ref self: ContractState, pool_sqrt: u256) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.pool_sqrt = pool_sqrt;
             store.set_config(config);
         }
 
         fn set_base_price(ref self: ContractState, base_price: u256) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.base_price = base_price;
             store.set_config(config);
         }
 
         fn set_average_score(ref self: ContractState, average_score: u32, average_weigth: u16) {
-            // [Setup] World and Store
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
-            // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Update config
             let mut config = store.config();
             config.average_score = average_score;
             config.average_weigth = average_weigth;
             store.set_config(config);
         }
 
+        fn set_bridge(ref self: ContractState, bridge_messaging: ContractAddress) {
+            let mut world = self.world(@NAMESPACE());
+            let mut store = StoreImpl::new(world);
+            self.accesscontrol.assert_only_role(ADMIN_ROLE);
+            let bridge = BridgeTrait::new(
+                world_resource: WORLD_RESOURCE, address: bridge_messaging,
+            );
+            store.set_bridge(bridge);
+        }
+
         fn merkledrop_register(
             ref self: ContractState, data: Span<Span<felt252>>, expiration: u64,
         ) -> felt252 {
-            // [Check] Only admin can register
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
-            // [Effect] Register merkledrop
             let world = self.world(@NAMESPACE());
             self.merkledrop.register(world, data, expiration)
         }

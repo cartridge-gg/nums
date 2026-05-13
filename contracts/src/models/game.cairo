@@ -1,7 +1,7 @@
 use core::array::ArrayTrait;
 use crate::constants::{
-    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW, POWER_SIZE,
-    SLOT_SIZE, TRAP_SIZE,
+    DEFAULT_DRAW_COUNT, DEFAULT_DRAW_STAGE, DEFAULT_EXPIRATION, DEFAULT_MAX_DRAW,
+    DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE, SLOT_SIZE, TRAP_SIZE,
 };
 pub use crate::helpers::bitmap::Bitmap;
 use crate::helpers::packer::Packer;
@@ -38,24 +38,16 @@ pub mod errors {
 pub impl GameImpl of GameTrait {
     /// Creates a new game instance with the specified parameters.
     #[inline]
-    fn new(
-        id: u64,
-        multiplier: u128,
-        slot_count: u8,
-        slot_min: u16,
-        slot_max: u16,
-        supply: u256,
-        price: u256,
-    ) -> Game {
+    fn new(id: u64, multiplier: u128, supply: u256, price: u256) -> Game {
         // [Return] Game
         Game {
             id: id,
             claimed: false,
             multiplier: multiplier,
             level: 0,
-            slot_count: slot_count,
-            slot_min: slot_min,
-            slot_max: slot_max,
+            slot_count: DEFAULT_SLOT_COUNT,
+            slot_min: DEFAULT_SLOT_MIN,
+            slot_max: DEFAULT_SLOT_MAX,
             number: 0,
             next_number: 0,
             selectable_powers: 0,
@@ -444,10 +436,7 @@ pub impl GameAssert of AssertTrait {
 #[cfg(test)]
 mod tests {
     use core::num::traits::Pow;
-    use crate::constants::{
-        DEFAULT_DRAW_COUNT, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN, POWER_SIZE,
-        SLOT_SIZE,
-    };
+    use crate::constants::{DEFAULT_DRAW_COUNT, POWER_SIZE, SLOT_SIZE};
     use crate::helpers::packer::Packer;
     use super::{DEFAULT_DRAW_STAGE, Game, GameAssert, GameTrait, RandomImpl};
 
@@ -457,15 +446,7 @@ mod tests {
 
     /// Helper function to create a test game instance
     fn create() -> Game {
-        let mut game = GameTrait::new(
-            1,
-            DEFAULT_MULTIPLIER,
-            DEFAULT_SLOT_COUNT,
-            DEFAULT_SLOT_MIN,
-            DEFAULT_SLOT_MAX,
-            SUPPLY,
-            DEFAULT_PRICE,
-        );
+        let mut game = GameTrait::new(1, DEFAULT_MULTIPLIER, SUPPLY, DEFAULT_PRICE);
         let mut rand = RandomImpl::new(1);
         game.start(ref rand);
         game
@@ -473,15 +454,7 @@ mod tests {
 
     #[test]
     fn test_new_game_creation() {
-        let game = GameTrait::new(
-            1,
-            DEFAULT_MULTIPLIER,
-            DEFAULT_SLOT_COUNT,
-            DEFAULT_SLOT_MIN,
-            DEFAULT_SLOT_MAX,
-            SUPPLY,
-            DEFAULT_PRICE,
-        );
+        let game = GameTrait::new(1, DEFAULT_MULTIPLIER, SUPPLY, DEFAULT_PRICE);
         assert(game.id == 1, 'Game ID should be 1');
         assert(game.level == 0, 'Initial level should be 0');
         assert(game.number == 0, 'Next number should match input');
@@ -713,4 +686,3 @@ mod tests {
         game.update(ref random);
     }
 }
-

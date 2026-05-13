@@ -1,0 +1,100 @@
+# dojo_e2eappchain.template.toml — template rendered at test runtime.
+#
+# This profile is targeted at the appchain Katana spawned by the
+# tests/e2e/ harness, port 5072. The appchain runs as `ChainSpec::Rollup`
+# (started via `katana --chain <dir>`), which generates a NEW pre-funded
+# account address every test run via `katana init rollup`. We can't ship
+# a static profile with that address, so the harness reads the generated
+# `address` and `private_key` out of `genesis.json` and renders this
+# template into `dojo_e2eappchain.toml` at startup.
+#
+# DO NOT commit a fully-rendered `dojo_e2eappchain.toml`; the file is
+# .gitignore'd. Only this template is checked in.
+#
+# Migration notes (current architecture):
+#   - The appchain world is fresh (no fork). `Setup.dojo_init`'s
+#     `bridge_messaging` arg is the Piltover messaging address; it must
+#     be non-zero (`BridgeTrait::new` asserts). A placeholder `0x1` is
+#     used at migrate time and the harness patches it via
+#     `Setup.set_bridge(<messaging_mock>)`.
+#   - Faucet acts as the appchain's quote token (mock USDC); not actually
+#     used in bridge mode since purchase happens on mainnet.
+#   - The appchain DOES NOT need: Settler, BridgeComponent, Materializer,
+#     USDC reserves. Just Play, Playable, Collection, and the supporting
+#     model registry.
+
+[world]
+name = "Nums"
+# SHARED seed across both e2e profiles. MUST match
+# `dojo_e2esettlement.toml`'s seed — Dojo derives the world address from
+# (class_hash, seed), and the bridge's address-equality invariant
+# (mainnet Play addr == appchain Play addr) requires both worlds to land
+# at the same address. See `tests/e2e/src/harness.rs` module docs.
+seed = "nums-e2e-shared-v1"
+description = "Nums appchain e2e test world"
+website = "https://nums.gg"
+
+[namespace]
+default = "NUMS"
+
+[env]
+rpc_url = "http://127.0.0.1:5072"
+account_address = "{ACCOUNT_ADDRESS}"
+private_key = "{PRIVATE_KEY}"
+
+[migration]
+order_inits = [
+  "NUMS-Token",
+  "NUMS-Faucet",
+  "NUMS-Setup",
+  "NUMS-Play",
+  "NUMS-Collection",
+  "NUMS-Vault",
+  "NUMS-Treasury",
+]
+# Vrf mock is no-init; Setup stores a placeholder VRF address.
+skip_contracts = ["NUMS-Vrf"]
+disable_multicall = true
+
+[writers]
+"NUMS" = ["NUMS-Setup", "NUMS-Play"]
+
+[owners]
+"NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Faucet", "NUMS-Token", "NUMS-Treasury"]
+
+[init_call_args]
+"NUMS-Vault" = [
+  "0x1", # open: true
+  "0x0", # fee: 0 basis points
+]
+"NUMS-Governor" = []
+"NUMS-Treasury" = [
+  "0xe10",              # min_delay: 1 hour
+  "{ACCOUNT_ADDRESS}",  # admin = genesis account
+]
+"NUMS-Token" = [
+  "0xD3C21BCECCEDA1000000", # initial_supply: 1M NUMS (gameplay-locally; bridge mode does NOT mint here)
+  "{ACCOUNT_ADDRESS}",      # recipient = genesis account
+]
+"NUMS-Faucet" = [
+  "0x2540BE400",       # initial_supply: 10K USDC
+  "{ACCOUNT_ADDRESS}", # recipient = genesis account
+]
+"NUMS-Setup" = [
+  "0x0",                                                                # vrf_address: Option::Some prefix
+  "{ACCOUNT_ADDRESS}",                                                  # vrf_address (placeholder)
+  "0x1",                                                                # quote_address: Option::None — Faucet via DNS
+  "{ACCOUNT_ADDRESS}",                                                  # team_address
+  "0x0",                                                                # ekubo_router_address — unused on appchain
+  "0x0",                                                                # ekubo_positions_address — unused
+  "0x1E8480",                                                           # entry_price: 2.000000 USDC
+  "0xD3C21BCECCEDA1000000",                                             # target_supply: 1M NUMS
+  "0x46",                                                               # burn_percentage: 70% (informational; gameplay doesn't burn)
+  "0x32",                                                               # vault_percentage: 50%
+  "0xA",                                                                # average_score: 10 (initial; updates not consumed locally in bridge mode)
+  "0x0",                                                                # pool_fee — unused
+  "0x0",                                                                # pool_tick_spacing — unused
+  "0x0",                                                                # pool_extension — unused
+  "{ACCOUNT_ADDRESS}",                                                  # bundle_allower (free-bundle path; bridge mode has no paid purchase here)
+  "0x1",                                                                # bridge_messaging — placeholder, patched by Setup.set_bridge
+]

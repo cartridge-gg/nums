@@ -1,24 +1,53 @@
+//! # Vault (ERC-4626 over USDC with NUMS rewards)
+//!
+//! Deployed on **both chains** for Dojo-world-monolith reasons but
+//! functionally **mainnet-only**:
+//!
+//! - **mainnet** is the only Vault that's actually exercised.
+//!   `purchase.execute` calls `vault.pay(player, vault_amount)` per
+//!   purchase to credit dividends. Stakers later call `vault.claim` to
+//!   redeem accrued NUMS rewards.
+//! - **appchain** Vault is deployed-but-dead. Bridge-mode gameplay
+//!   never calls `pay` or `claim` on the appchain side; purchase only
+//!   runs on mainnet.
+//!
+//! Roles: `PROVIDER_ROLE` is granted to `Setup` (so `purchase.execute`
+//! → `vault.pay` works). `PAUSER`, `KEEPER`, `COLLECTOR` are admin
+//! roles for operational control.
+
 use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait IPauser<TContractState> {
+    /// [mainnet] Admin pause.
     fn pause(ref self: TContractState);
+    /// [mainnet] Admin unpause.
     fn unpause(ref self: TContractState);
 }
 
 #[starknet::interface]
 pub trait IKeeper<TContractState> {
+    /// [mainnet] Admin opens the vault for new stakes.
     fn open(ref self: TContractState);
+    /// [mainnet] Admin closes new stakes (existing positions still claim).
     fn close(ref self: TContractState);
 }
 
+/// All Vault methods are **mainnet-only** in practice.
 #[starknet::interface]
 pub trait IVault<TContractState> {
+    /// [mainnet] Read the per-account time-lock expiration.
     fn time_lock_of(self: @TContractState, account: ContractAddress) -> u64;
+    /// [mainnet] Read how much NUMS reward an account can claim.
     fn claimable_of(self: @TContractState, account: ContractAddress) -> u256;
+    /// [mainnet] Provider-only: credit `amount` USDC dividends to
+    /// `player_id`. Called by `purchase.execute` inside `Setup.issue`.
     fn pay(ref self: TContractState, player_id: felt252, amount: u256);
+    /// [mainnet] Player-facing: redeem accrued NUMS rewards.
     fn claim(ref self: TContractState);
+    /// [mainnet] Collector-only: drain another address's claimable rewards.
     fn collect(ref self: TContractState, address: ContractAddress);
+    /// [mainnet] Admin: update the vault fee in basis points.
     fn set_fee(ref self: TContractState, fee: u16);
 }
 

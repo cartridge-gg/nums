@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# One-time prerequisites for `bin/integration-test`.
+#
+#   1. Verifies the Katana binary is on PATH (or at the expected location).
+#   2. Verifies / builds sozo from the local Dojo repo.
+#   3. Builds the Piltover `messaging_mock` Cairo artifact with the
+#      `messaging_test` feature flag enabled and copies it into
+#      `tests/e2e/artifacts/`.
+#
+# Re-run this whenever you bump the Katana / Piltover source tree.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ARTIFACTS="${REPO_ROOT}/tests/e2e/artifacts"
+mkdir -p "${ARTIFACTS}"
+
+DOJO_REPO="${DOJO_REPO:-${HOME}/Projects/dojoengine/dojo}"
+KATANA_REPO="${KATANA_REPO:-${HOME}/Projects/dojoengine/katana}"
+PILTOVER_DIR="${KATANA_REPO}/crates/contracts/contracts/piltover"
+
+# 1. Katana binary.
+if ! command -v katana >/dev/null 2>&1; then
+  if [[ -x "${HOME}/.cargo/bin/katana" ]]; then
+    echo "katana found at ${HOME}/.cargo/bin/katana (ensure it's on PATH)"
+  else
+    echo "katana binary not found. Build it via:"
+    echo "    cd ${KATANA_REPO} && cargo build --release -p katana --bin katana"
+    exit 1
+  fi
+fi
+echo "katana: $(command -v katana 2>/dev/null || echo "${HOME}/.cargo/bin/katana")"
+
+# 2. sozo.
+if ! command -v sozo >/dev/null 2>&1; then
+  CANDIDATE="${DOJO_REPO}/target/release/sozo"
+  if [[ -x "${CANDIDATE}" ]]; then
+    echo "sozo: ${CANDIDATE} (ensure it's on PATH or set SOZO_BIN env var)"
+  else
+    echo "Building sozo from ${DOJO_REPO} ..."
+    (cd "${DOJO_REPO}" && cargo build --release --bin sozo)
+    echo "sozo built: ${CANDIDATE}"
+  fi
+fi
+
+# 3. Piltover messaging_mock with messaging_test feature.
+if [[ ! -d "${PILTOVER_DIR}" ]]; then
+  echo "Piltover sources not found at ${PILTOVER_DIR}"
+  echo "Set KATANA_REPO env var to your local clone of dojoengine/katana."
+  exit 1
+fi
+echo "Building Piltover with messaging_test feature ..."
+(cd "${PILTOVER_DIR}" && scarb build --features messaging_test)
+
+cp "${PILTOVER_DIR}/target/dev/piltover_messaging_mock.contract_class.json" "${ARTIFACTS}/"
+cp "${PILTOVER_DIR}/target/dev/piltover_messaging_mock.compiled_contract_class.json" "${ARTIFACTS}/"
+
+# Sanity: confirm the messaging_test backdoor is in the artifact.
+if ! grep -q "add_messages_hashes_from_appchain" "${ARTIFACTS}/piltover_messaging_mock.contract_class.json"; then
+  echo "ERROR: messaging_mock was built WITHOUT the messaging_test feature."
+  echo "       Rebuild with: scarb build --features messaging_test"
+  exit 1
+fi
+
+# Strip the piltover_ prefix so the harness can look up by short name.
+mv "${ARTIFACTS}/piltover_messaging_mock.contract_class.json" "${ARTIFACTS}/messaging_mock.contract_class.json"
+mv "${ARTIFACTS}/piltover_messaging_mock.compiled_contract_class.json" "${ARTIFACTS}/messaging_mock.compiled_contract_class.json"
+
+# 4. Piltover Appchain with messaging_test feature. The same `scarb build`
+#    above produces this artifact too — it sits alongside the messaging_mock
+#    in target/dev. Used by the harness to upgrade the auto-deployed core
+#    contract from `katana init rollup` (which is the standard Appchain
+#    without the test backdoor) to one that exposes
+#    `add_messages_hashes_from_appchain` for manual hash injection.
+cp "${PILTOVER_DIR}/target/dev/piltover_appchain.contract_class.json" "${ARTIFACTS}/appchain_with_test.contract_class.json"
+cp "${PILTOVER_DIR}/target/dev/piltover_appchain.compiled_contract_class.json" "${ARTIFACTS}/appchain_with_test.compiled_contract_class.json"
+
+if ! grep -q "add_messages_hashes_from_appchain" "${ARTIFACTS}/appchain_with_test.contract_class.json"; then
+  echo "ERROR: appchain_with_test was built WITHOUT the messaging_test feature."
+  exit 1
+fi
+
+echo "Setup complete. Run: bin/integration-test"

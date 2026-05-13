@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# End-to-end integration test runner.
+#
+# Spins up two Katana nodes (settlement + appchain), deploys the Piltover
+# `messaging_mock` contract on settlement, wires the appchain's --messaging
+# config to point at it, and runs the cross-chain bridge scenario.
+#
+# Prerequisites: see tests/e2e/README.md and run bin/integration-test-setup
+# first.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+cd "${REPO_ROOT}"
+
+# Default sozo and katana locations on this dev machine; override via env.
+: "${KATANA_BIN:=$(command -v katana || true)}"
+: "${SOZO_BIN:=$(command -v sozo || true)}"
+
+if [[ -z "${KATANA_BIN}" ]] || [[ ! -x "${KATANA_BIN}" ]]; then
+  if [[ -x "${HOME}/.cargo/bin/katana" ]]; then
+    export KATANA_BIN="${HOME}/.cargo/bin/katana"
+  else
+    echo "ERROR: katana binary not found. Build it from /Users/kerry/Projects/dojoengine/katana"
+    echo "       or set KATANA_BIN env var."
+    exit 1
+  fi
+fi
+
+if [[ -z "${SOZO_BIN}" ]] || [[ ! -x "${SOZO_BIN}" ]]; then
+  CANDIDATE="${HOME}/Projects/dojoengine/dojo/target/release/sozo"
+  if [[ -x "${CANDIDATE}" ]]; then
+    export SOZO_BIN="${CANDIDATE}"
+  else
+    echo "ERROR: sozo binary not found. Run bin/integration-test-setup or set SOZO_BIN."
+    exit 1
+  fi
+fi
+
+echo "katana: ${KATANA_BIN}"
+echo "sozo:   ${SOZO_BIN}"
+
+# Forward extra args (e.g. test-name filter) to cargo test.
+cargo test \
+  --manifest-path tests/e2e/Cargo.toml \
+  --release \
+  -- --nocapture "$@"

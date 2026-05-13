@@ -1,3 +1,19 @@
+//! # PurchaseComponent — **MAINNET ONLY**
+//!
+//! Mixed into `Setup`. Owns the swap+burn+vault.pay+team.transfer flow
+//! executed by `Setup.issue`. Inert on the appchain side (Setup.issue
+//! is never called there in bridge mode).
+//!
+//! - Talks to Ekubo router / clearer for the USDC→NUMS swap (mainnet pool)
+//! - Burns the resulting NUMS via `Token.burn`
+//! - Routes `vault_percentage` of the residual to the mainnet Vault via
+//!   `vault.pay(player, amount)`
+//! - Sends the remainder to the team address via `quote.transfer`
+//!
+//! The `if amount > 0` guard around the swap-and-clear block is the
+//! sole concession to test profiles where `burn_percentage = 0` and
+//! `ekubo_router = 0` — production has `burn_percentage > 0` and the
+//! guard becomes a no-op.
 #[starknet::component]
 pub mod PurchaseComponent {
     // Imports
@@ -135,37 +151,51 @@ pub mod PurchaseComponent {
                 * config.burn_percentage.into()
                 / 100_u256;
             let quote = IERC20MixinDispatcher { contract_address: bundle.payment_token };
-            let router = store.ekubo_router();
-            quote.transfer(router.contract_address, amount);
-
-            // [Interaction] Swap Quote token for Nums
-            let (token0, token1) = if quote.contract_address < nums_address {
-                (quote.contract_address, nums_address)
-            } else {
-                (nums_address, quote.contract_address)
-            };
-            let pool_key = PoolKey {
-                token0: token0,
-                token1: token1,
-                fee: config.pool_fee, // 0x28f5c28f5c28f5c28f5c28f5c28f5c2
-                tick_spacing: config.pool_tick_spacing, // 0x56a4c,
-                // Mainnet: 0x43e4f09c32d13d43a880e85f69f7de93ceda62d6cf2581a582c6db635548fdc
-                // Sepolia: 0x73ec792c33b52d5f96940c2860d512b3884f2127d25e023eb9d44a678e4b971
-                extension: config.pool_extension,
-            };
-            let route_node = RouteNode {
-                pool_key: pool_key, sqrt_ratio_limit: config.pool_sqrt, skip_ahead: 0,
-            };
             let quote_address = quote.contract_address;
-            let token_amount = TokenAmount {
-                token: quote_address, amount: i129 { mag: amount.low, sign: false },
-            };
-            router.swap(route_node, token_amount);
+            // Guard the swap-and-clear sequence with `if amount > 0`.
+            //
+            // Failure mode: when `burn_percentage` is 0 (e.g. e2e profile
+            // exercising the bridge without spinning up an Ekubo pool),
+            // `amount` evaluates to 0 AND `config.ekubo_router` is typically
+            // zero in test profiles. Without the guard, `quote.transfer(0, 0)`
+            // reverts on OpenZeppelin ERC-20's zero-recipient check
+            // ('ERC20: transfer to 0') even though the amount is zero —
+            // OZ checks the recipient first.
+            //
+            // Production safety: real deployments have `burn_percentage` > 0
+            // (mainnet uses 70%) and a real `ekubo_router`, so `amount > 0`
+            // is always true on the mainnet hot path. The guard adds zero
+            // overhead in that case.
+            if amount > 0 {
+                let router = store.ekubo_router();
+                quote.transfer(router.contract_address, amount);
 
-            // [Interaction] Clear minimum
-            let clearer = store.ekubo_clearer();
-            clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
-            clearer.clear(IERC20Dispatcher { contract_address: quote_address });
+                // [Interaction] Swap Quote token for Nums
+                let (token0, token1) = if quote.contract_address < nums_address {
+                    (quote.contract_address, nums_address)
+                } else {
+                    (nums_address, quote.contract_address)
+                };
+                let pool_key = PoolKey {
+                    token0: token0,
+                    token1: token1,
+                    fee: config.pool_fee,
+                    tick_spacing: config.pool_tick_spacing,
+                    extension: config.pool_extension,
+                };
+                let route_node = RouteNode {
+                    pool_key: pool_key, sqrt_ratio_limit: config.pool_sqrt, skip_ahead: 0,
+                };
+                let token_amount = TokenAmount {
+                    token: quote_address, amount: i129 { mag: amount.low, sign: false },
+                };
+                router.swap(route_node, token_amount);
+
+                // [Interaction] Clear minimum
+                let clearer = store.ekubo_clearer();
+                clearer.clear_minimum(IERC20Dispatcher { contract_address: nums_address }, 0);
+                clearer.clear(IERC20Dispatcher { contract_address: quote_address });
+            }
 
             // [Interaction] Burn the corresponding amount of Nums
             let this = starknet::get_contract_address();

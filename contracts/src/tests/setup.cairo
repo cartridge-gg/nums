@@ -55,6 +55,7 @@ pub mod setup {
             resources: [
                 TestResource::Model(models::m_Game::TEST_CLASS_HASH),
                 TestResource::Model(models::m_Config::TEST_CLASS_HASH),
+                TestResource::Model(models::m_Bridge::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementDefinition::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementAdvancement::TEST_CLASS_HASH),
                 TestResource::Model(achievement_models::m_AchievementAssociation::TEST_CLASS_HASH),

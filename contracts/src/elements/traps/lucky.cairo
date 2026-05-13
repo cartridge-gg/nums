@@ -9,47 +9,32 @@ pub impl Lucky of TrapTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::random::RandomImpl;
     use super::*;
 
-    const DEFAULT_SLOT_COUNT: u8 = 20;
+    const DEFAULT_SLOT_COUNT: u8 = 18;
     const DEFAULT_MULTIPLIER: u128 = 1;
 
     #[test]
     fn test_lucky_single() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0]);
         Lucky::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 738, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 738, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn test_lucky_full_large() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game
-            .force(
-                array![
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 500, 990, 991, 992, 993, 994, 995, 996, 997, 998,
-                    999,
-                ],
-            );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 2, 3, 4, 5, 6, 7, 8, 9, 500, 990, 991, 992, 993, 994, 995, 996, 999]);
         Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
-            array![
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 814, 990, 991, 992, 993, 994, 995, 996, 997, 998, 999,
-            ],
+            array![1, 2, 3, 4, 5, 6, 7, 8, 9, 814, 990, 991, 992, 993, 994, 995, 996, 999],
         );
     }
 
@@ -57,22 +42,20 @@ mod tests {
     fn test_lucky_full_tight() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
         game
             .force(
                 array![
-                    491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506,
-                    507, 508, 509, 510,
+                    493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508,
+                    509, 510,
                 ],
             );
         Lucky::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
             game.slots(),
             array![
-                491, 492, 493, 494, 495, 496, 497, 498, 499, 501, 501, 502, 503, 504, 505, 506, 507,
-                508, 509, 510,
+                493, 494, 495, 496, 497, 498, 499, 500, 501, 503, 503, 504, 505, 506, 507, 508, 509,
+                510,
             ],
         );
     }
@@ -81,14 +64,12 @@ mod tests {
     fn test_lucky_full_even() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
         game
             .force(
                 array![
                     500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
-                    500, 500, 500, 500,
+                    500, 500,
                 ],
             );
         Lucky::apply(ref game, 9, ref random, ref traps);
@@ -96,7 +77,7 @@ mod tests {
             game.slots(),
             array![
                 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
-                500, 500, 500,
+                500,
             ],
         );
     }

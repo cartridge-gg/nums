@@ -34,6 +34,32 @@ pub struct Claimed {
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::event]
+pub struct Voucher {
+    #[key]
+    pub player: starknet::ContractAddress,
+    #[key]
+    pub time: u64,
+    pub multiplier: Option<u128>,
+    pub supply: Option<u256>,
+    pub price: Option<u256>,
+}
+
+#[derive(Copy, Drop, Serde)]
+#[dojo::event]
+pub struct Payload {
+    #[key]
+    pub game_id: u64,
+    #[key]
+    pub player: starknet::ContractAddress,
+    pub multiplier: u128,
+    pub supply: u256,
+    pub price: u256,
+    pub level: u8,
+    pub reward: u128,
+}
+
+#[derive(Copy, Drop, Serde)]
+#[dojo::event]
 pub struct VaultPaid {
     #[key]
     pub player_id: felt252,

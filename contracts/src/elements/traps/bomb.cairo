@@ -57,25 +57,21 @@ pub impl Bomb of TrapTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::random::RandomImpl;
     use super::*;
 
-    const DEFAULT_SLOT_COUNT: u8 = 20;
+    const DEFAULT_SLOT_COUNT: u8 = 18;
     const DEFAULT_MULTIPLIER: u128 = 1;
 
     #[test]
     fn test_bomb_large_range() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![1, 0, 0, 0, 250, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 999]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 0, 0, 0, 250, 0, 0, 0, 0, 500, 0, 0, 0, 750, 0, 0, 0, 999]);
         Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
-            game.slots(),
-            array![1, 0, 0, 0, 120, 0, 0, 0, 0, 500, 0, 0, 0, 0, 503, 0, 0, 0, 0, 999],
+            game.slots(), array![1, 0, 0, 0, 120, 0, 0, 0, 0, 500, 0, 0, 0, 503, 0, 0, 0, 999],
         );
     }
 
@@ -83,14 +79,11 @@ mod tests {
     fn test_bomb_small_range() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![1, 0, 0, 0, 0, 0, 0, 100, 250, 500, 750, 900, 0, 0, 0, 0, 0, 0, 0, 999]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 0, 0, 0, 0, 0, 0, 100, 250, 500, 750, 900, 0, 0, 0, 0, 0, 999]);
         Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
-            game.slots(),
-            array![1, 0, 0, 0, 0, 0, 0, 100, 200, 500, 846, 900, 0, 0, 0, 0, 0, 0, 0, 999],
+            game.slots(), array![1, 0, 0, 0, 0, 0, 0, 100, 200, 500, 846, 900, 0, 0, 0, 0, 0, 999],
         );
     }
 
@@ -98,13 +91,11 @@ mod tests {
     fn test_bomb_at_boundary() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![1, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 999]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 999]);
         Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
-            game.slots(), array![120, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 503],
+            game.slots(), array![120, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 503],
         );
     }
 
@@ -112,14 +103,11 @@ mod tests {
     fn test_bomb_even() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 999]);
         Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
-            game.slots(),
-            array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 0, 0, 999],
+            game.slots(), array![1, 0, 0, 0, 0, 0, 0, 500, 500, 500, 500, 500, 0, 0, 0, 0, 0, 999],
         );
     }
 
@@ -127,14 +115,11 @@ mod tests {
     fn test_bomb_almost_even() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![1, 0, 0, 0, 0, 0, 0, 499, 499, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![1, 0, 0, 0, 0, 0, 0, 499, 499, 500, 501, 501, 0, 0, 0, 0, 0, 999]);
         Bomb::apply(ref game, 9, ref random, ref traps);
         assert_eq!(
-            game.slots(),
-            array![1, 0, 0, 0, 0, 0, 0, 499, 500, 500, 501, 501, 0, 0, 0, 0, 0, 0, 0, 999],
+            game.slots(), array![1, 0, 0, 0, 0, 0, 0, 499, 500, 500, 501, 501, 0, 0, 0, 0, 0, 999],
         );
     }
 
@@ -142,27 +127,19 @@ mod tests {
     fn test_bomb_left_only() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 250, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 250, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0]);
         Bomb::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 120, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 120, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn test_bomb_right_only() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 750, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 750, 0, 0, 0, 0]);
         Bomb::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 619, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 619, 0, 0, 0, 0]);
     }
 }

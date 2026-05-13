@@ -1,3 +1,9 @@
+//! # Governor — RESERVED (not actively exercised)
+//!
+//! OpenZeppelin Governor wrapper deployed on both chains for future
+//! on-chain governance. Not load-bearing for the bridge architecture
+//! today; included in deploys for forward compatibility.
+
 pub fn NAME() -> ByteArray {
     "Governor"
 }

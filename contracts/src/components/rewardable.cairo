@@ -1,3 +1,12 @@
+//! # RewardableComponent — **MAINNET ONLY**
+//!
+//! Mixed into `Vault`. Owns the ERC-4626-style staking-share accounting
+//! that distributes NUMS rewards proportionally to USDC deposits. Called
+//! by `Vault.pay` (provider-only, invoked from `purchase.execute`) and
+//! by `Vault.claim` (player-facing).
+//!
+//! Inert on the appchain side — purchases happen on mainnet, and the
+//! appchain Vault deployment is dead weight in bridge mode.
 #[starknet::component]
 pub mod RewardableComponent {
     // Imports

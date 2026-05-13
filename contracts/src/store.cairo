@@ -8,11 +8,13 @@ use ekubo::interfaces::positions::IPositionsDispatcher;
 use ekubo::interfaces::router::IRouterDispatcher;
 use crate::constants::WORLD_RESOURCE;
 use crate::events::claimed::ClaimedTrait;
+use crate::events::payload::Payload;
 use crate::events::purchased::PurchasedTrait;
 use crate::events::started::StartedTrait;
 use crate::events::vault::{VaultClaimedTrait, VaultPaidTrait};
+use crate::events::voucher::Voucher;
 use crate::interfaces::vrf::IVrfProviderDispatcher;
-use crate::models::index::{Config, Game, VaultInfo, VaultPosition};
+use crate::models::index::{Bridge, Config, Game, VaultInfo, VaultPosition};
 use crate::systems::token::{ITokenDispatcher, NAME as TOKEN};
 use crate::systems::vault::{IVaultDispatcher, NAME as VAULT};
 
@@ -72,6 +74,16 @@ pub impl StoreImpl of StoreTrait {
         IPositionsDispatcher { contract_address: config.ekubo_positions }
     }
 
+    // Bridge
+
+    fn bridge(self: @Store) -> Bridge {
+        self.world.read_model(WORLD_RESOURCE)
+    }
+
+    fn set_bridge(mut self: Store, bridge: Bridge) {
+        self.world.write_model(@bridge)
+    }
+
     // Config
 
     fn config(self: @Store) -> Config {
@@ -79,8 +91,6 @@ pub impl StoreImpl of StoreTrait {
     }
 
     fn set_config(mut self: Store, config: Config) {
-        let mut config = config;
-        config.world_resource = 0;
         self.world.write_model(@config)
     }
 
@@ -145,6 +155,14 @@ pub impl StoreImpl of StoreTrait {
 
     fn started(mut self: Store, player_id: felt252, game_id: u64, multiplier: u128) {
         let event = StartedTrait::new(player_id, game_id, multiplier);
+        self.world.emit_event(@event);
+    }
+
+    fn payload(mut self: Store, event: Payload) {
+        self.world.emit_event(@event);
+    }
+
+    fn voucher(mut self: Store, event: Voucher) {
         self.world.emit_event(@event);
     }
 

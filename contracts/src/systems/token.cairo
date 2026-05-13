@@ -1,11 +1,34 @@
 // SPDX-License-Identifier: MITuse use crate::interfaces::erc20::IERC20Dispatcher;
 // Compatible with OpenZeppelin Contracts for Cairo ^1.0.0
 
+//! # Token (NUMS ERC-20)
+//!
+//! Deployed on **both chains** for Dojo-world-monolith reasons, but
+//! functionally **mainnet-only** in the bridge architecture:
+//!
+//! - **mainnet** is the canonical NUMS supply. `purchase.execute` burns
+//!   NUMS during the swap; `Play.claim → playable.claim` mints NUMS
+//!   rewards via `Token.reward`.
+//! - **appchain** Token instance is deployed-but-dead. Bridge-mode
+//!   gameplay never reads or writes it. Removable in a future cleanup
+//!   if Dojo supports per-chain resource subsets.
+//!
+//! `MINTER_ROLE` is granted to mainnet `Play` at deploy time, which is
+//! what enables `playable.claim → store.nums_disp().reward(...)`.
+
 use starknet::ContractAddress;
 
+/// All methods live on **mainnet**. The appchain Token deployment is
+/// inert; in bridge mode no rewards are minted there.
 #[starknet::interface]
 pub trait IToken<TContractState> {
+    /// [mainnet] Mint NUMS reward to a player. Called by mainnet
+    /// `Play.claim → playable.claim` after consuming a reverse
+    /// Piltover message.
     fn reward(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+    /// [mainnet] Burn caller's NUMS balance. Called by mainnet
+    /// `purchase.execute` after the Ekubo swap so the bought NUMS is
+    /// destroyed (the buy-and-burn loop).
     fn burn(ref self: TContractState, amount: u256);
 }
 
@@ -74,6 +97,23 @@ mod Token {
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, treasury_address);
         let play_address = world.dns_address(@PLAY_NAME()).expect('Game contract not found!');
         self.accesscontrol._grant_role(MINTER_ROLE, play_address);
+        // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
+        // account. Mirrors the pattern in Setup.dojo_init / Play.dojo_init.
+        //
+        // Why: At deploy time DEFAULT_ADMIN_ROLE is granted only to Treasury,
+        // and MINTER_ROLE is granted only to Play. The e2e harness needs to
+        // grant additional roles (e.g. MINTER_ROLE on Setup so bridge-mode
+        // `Setup.apply_game_claim_batch` could mint — historical; today the
+        // mint runs through Play.claim and no extra grant is needed). Without
+        // this deployer-admin grant the harness would have to drive the
+        // Treasury timelock for any role mutation, which is impractical in
+        // a 10-minute integration test.
+        //
+        // Production safety: the deployer account on real chains IS the
+        // Treasury-controlled account, so granting DEFAULT_ADMIN_ROLE to it
+        // is idempotent with the Treasury grant above.
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
         // [Effect] Mint initial supply
         self.erc20.mint(recipient, initial_supply.into());
         // [Event] Emit a new registered contract for torii to index

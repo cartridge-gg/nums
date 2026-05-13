@@ -1,8 +1,18 @@
+//! # Faucet — TEST/DEV ONLY
+//!
+//! ERC-20 mock used as the quote token in dev / sepolia / e2e profiles.
+//! Production mainnet uses real USDC; `dojo_mainnet.toml` skips this
+//! contract entirely. Deployed on both chains in e2e profiles for
+//! symmetry, but only the mainnet (settlement) instance is exercised
+//! by `purchase.execute`.
+
 use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait IFaucet<TContractState> {
+    /// [either, dev only] Anyone-can-call mint of mock USDC.
     fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
+    /// [either, dev only] Caller burns own balance.
     fn burn(ref self: TContractState, amount: u256);
 }
 

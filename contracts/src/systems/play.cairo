@@ -1,3 +1,25 @@
+//! # Play (deployed on BOTH chains)
+//!
+//! The cross-chain bridge orchestrator. Same contract code on both chains,
+//! but different methods are intended for different chains:
+//!
+//! | Method | Chain | Role |
+//! |---|---|---|
+//! | `mint` | **mainnet** | Forward sender: mints `Collection` NFT, queues Piltover message |
+//! | `create` (#[l1_handler]) | **appchain** | Forward receiver: mirrors NFT on appchain, kicks off
+//! gameplay |
+//! | `set` / `select` / `apply` | **appchain** | Gameplay primitives |
+//! | `claim` | **mainnet** | Reverse receiver: consumes Piltover msg, mints NUMS reward |
+//! | `redeem` | **mainnet** | Voucher-based reward redemption (see method docs) |
+//!
+//! ## Critical invariant — address equality
+//!
+//! Mainnet `Play` contract address MUST equal appchain `Play` contract
+//! address. Both directions rely on it (`from_address == this` in `create`,
+//! `consume_message_from_appchain(this, ...)` in `claim`). Achieved by
+//! deploying both chains' Dojo worlds with the same `seed` and the same
+//! `Play` class hash. See `docs/CONTRACT_DEPLOYMENT_MAP.md`.
+
 use starknet::ContractAddress;
 
 #[inline]
@@ -5,20 +27,32 @@ pub fn NAME() -> ByteArray {
     "Play"
 }
 
+/// Public interface for `Play`. Each method's intended chain is annotated
+/// at the implementation site below.
 #[starknet::interface]
 pub trait IPlay<T> {
-    fn mint(ref self: T, player: ContractAddress, quantity: u32);
-    fn create(
+    /// [mainnet] Mints `Collection` NFTs and queues forward Piltover messages.
+    fn mint(
         ref self: T,
         player: ContractAddress,
-        multiplier: u128,
-        supply: u256,
-        price: u256,
+        multiplier: Option<u128>,
+        supply: Option<u256>,
+        price: Option<u256>,
+        soulbound: Option<bool>,
         quantity: u32,
     );
+    /// [appchain] Places a number into a game slot.
     fn set(ref self: T, game_id: u64, index: u8);
+    /// [appchain] Selects a power (preparing it to be applied).
     fn select(ref self: T, game_id: u64, index: u8);
+    /// [appchain] Applies a previously-selected power to a slot.
     fn apply(ref self: T, game_id: u64, index: u8);
+    /// [mainnet] Consumes a reverse Piltover message from the appchain
+    /// and mints the NUMS reward to the player.
+    fn claim(ref self: T, payload: Span<felt252>);
+    /// [mainnet] Voucher-driven reward redemption (parallel reverse path
+    /// for quest-style rewards).
+    fn redeem(ref self: T, payload: Span<felt252>);
 }
 
 const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
@@ -27,6 +61,7 @@ const CREATOR_ROLE: felt252 = selector!("CREATOR_ROLE");
 pub mod Play {
     use achievement::component::Component as AchievementComponent;
     use achievement::component::Component::AchievementTrait;
+    use core::panic_with_felt252;
     use dojo::world::WorldStorageTrait;
     use leaderboard::components::rankable::RankableComponent;
     use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
@@ -34,11 +69,15 @@ pub mod Play {
     use openzeppelin::introspection::src5::SRC5Component;
     use quest::component::Component as QuestComponent;
     use quest::component::Component::QuestTrait;
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, syscalls};
     use crate::components::playable::PlayableComponent;
     use crate::constants::{MULTIPLIER_PRECISION, NAMESPACE};
     use crate::elements::quests::finisher;
     use crate::elements::quests::index::{IQuest, QuestType};
+    use crate::events::payload::PayloadTrait;
+    use crate::events::voucher::VoucherTrait;
+    use crate::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use crate::store::StoreTrait;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
     };
@@ -115,6 +154,21 @@ pub mod Play {
         self.accesscontrol._grant_role(CREATOR_ROLE, setup_address);
         let this = starknet::get_contract_address();
         self.accesscontrol._grant_role(CREATOR_ROLE, this);
+        // [Effect] Test-driven: also grant DEFAULT_ADMIN_ROLE to the deploying
+        // account. Mirrors the pattern in Setup.dojo_init / Token.dojo_init.
+        //
+        // Why: Play's `create` L1Handler runs `Collection.mint` (which
+        // requires Collection's MINTER_ROLE, granted to Play at deploy) but
+        // the harness also needs to grant CREATOR_ROLE to other callers in
+        // bridge mode (historically: the deleted Materializer contract). The
+        // deployer-admin grant is what enables harness-driven role mutation
+        // without going through Treasury timelock.
+        //
+        // Production safety: the deployer account on real chains IS the
+        // Treasury-controlled account, so this grant is idempotent with the
+        // Treasury grant above.
+        let deployer_account = starknet::get_tx_info().unbox().account_contract_address;
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, deployer_account);
     }
 
     impl AchievementImpl of AchievementTrait<ContractState> {
@@ -168,63 +222,120 @@ pub mod Play {
             if !quest.reward() {
                 return;
             }
-            // [Effect] Create game
-            let play = IPlayDispatcher { contract_address: starknet::get_contract_address() };
-            play.mint(player_id.try_into().unwrap(), 1);
+
+            // [Messaging] Message to mainnet
+            let voucher = VoucherTrait::new(
+                player: player_id.try_into().unwrap(), multiplier: None, supply: None, price: None,
+            );
+            let to_address = starknet::get_contract_address();
+            match syscalls::send_message_to_l1_syscall(to_address.into(), voucher.span()) {
+                Ok(_) => (),
+                Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
+            }
+
+            // [Event] Emit the voucher
+            let world = self.get_contract().world(@NAMESPACE());
+            let store = StoreTrait::new(world);
+            store.voucher(voucher);
         }
+    }
+
+    // [Chain] appchain — L1Handler invoked by Katana's messaging worker when
+    // the forward Piltover message from mainnet `Play.mint` is delivered.
+    //
+    // ## Critical invariants
+    //
+    // 1. **Parameter order MUST match the `Payload` struct field order**
+    //    in `events/index.cairo` (game_id → player → multiplier → supply →
+    //    price → level → reward). Mismatching the order causes Cairo's
+    //    strict L1Handler deserialization to fail (typically observed as
+    //    `'Failed to deserialize param #N'`).
+    //
+    // 2. **Full 7-field Payload accepted**, even though `_level` and
+    //    `_reward` are always zero on the forward direction. Cairo's L1Handler
+    //    rejects extra calldata, so we must accept every felt in the payload.
+    //    The forward `Play.mint` calls `PayloadTrait::new(...)` with zeros
+    //    for these two fields and then `.span()` serializes the whole struct
+    //    (9 felts) into the message.
+    //
+    // 3. **`from_address == this`** is the address-equality bridge invariant.
+    //    The forward call sends `send_message_to_appchain(this, ...)` where
+    //    `this` is mainnet Play. Katana delivers the L1Handler on the
+    //    appchain to the contract at the SAME address. The assertion
+    //    therefore verifies both that the message came from the legit
+    //    sender (mainnet Play) and that we're at the expected address on
+    //    the appchain.
+    #[l1_handler]
+    fn create(
+        ref self: ContractState,
+        from_address: felt252,
+        game_id: u64,
+        player: ContractAddress,
+        multiplier: u128,
+        supply: u256,
+        price: u256,
+        _level: u8,
+        _reward: u128,
+    ) {
+        // [Setup] World and Store
+        let world = self.world(@NAMESPACE());
+        // [Check] Sender is allowed — address-equality invariant.
+        let this = starknet::get_contract_address();
+        assert(from_address == this.into(), 'Play: invalid sender');
+        // [Interaction] Mirror the mainnet-assigned game_id by minting the
+        // same NFT id on the appchain Collection. ERC-721 uniqueness in
+        // `Collection.mint(to, game_id, soulbound)` is the replay guard
+        // for this forward path — a duplicate L1Handler delivery would
+        // revert here.
+        let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+        let collection = ICollectionDispatcher { contract_address: collection_address };
+        let game_id = collection.mint(player, game_id, true);
+        // [Effect] Start gameplay on the appchain.
+        self.playable.create(world, player, game_id, multiplier, supply, price);
     }
 
     #[abi(embed_v0)]
     impl PlayImpl of IPlay<ContractState> {
-        fn mint(ref self: ContractState, player: ContractAddress, mut quantity: u32) {
-            // [Check] Caller is allowed
-            self.accesscontrol.assert_only_role(CREATOR_ROLE);
-            // [Setup] World
-            let world = self.world(@NAMESPACE());
-            // [Check] Caller is allowed
-            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
-            let collection = ICollectionDispatcher { contract_address: collection_address };
-            // [Effect] Create games
-            let world = self.world(@NAMESPACE());
-            let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
-            let asset = IERC20MixinDispatcher { contract_address: token_address };
-            let supply = asset.total_supply();
-            let multiplier = MULTIPLIER_PRECISION;
-            while quantity > 0 {
-                // [Interaction] Mint a game
-                let game_id = collection.mint(player, true);
-                // [Effect] Create game
-                self.playable.create(world, player, game_id, multiplier, supply, 0);
-                quantity -= 1;
-            }
-        }
-
-        fn create(
+        // [Chain] mainnet
+        fn mint(
             ref self: ContractState,
             player: ContractAddress,
-            multiplier: u128,
-            supply: u256,
-            price: u256,
+            multiplier: Option<u128>,
+            supply: Option<u256>,
+            price: Option<u256>,
+            soulbound: Option<bool>,
             mut quantity: u32,
         ) {
             // [Check] Caller is allowed
             self.accesscontrol.assert_only_role(CREATOR_ROLE);
-            // [Setup] World
+            // [Setup] World, Store and Dispatchers
             let world = self.world(@NAMESPACE());
-            // [Check] Caller is allowed
+            let store = StoreTrait::new(world);
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
             let collection = ICollectionDispatcher { contract_address: collection_address };
             // [Effect] Create games
-            let world = self.world(@NAMESPACE());
+            let (token_address, _) = world.dns(@TOKEN()).expect('Token not found!');
+            let asset = IERC20MixinDispatcher { contract_address: token_address };
+            let supply = supply.unwrap_or(asset.total_supply());
+            let multiplier = multiplier.unwrap_or(MULTIPLIER_PRECISION);
+            let soulbound = soulbound.unwrap_or(true);
+            let price = price.unwrap_or(0);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
             while quantity > 0 {
-                // [Interaction] Mint a game
-                let game_id = collection.mint(player, true);
-                // [Effect] Create game
-                self.playable.create(world, player, game_id, multiplier, supply, price);
                 quantity -= 1;
+                // [Interaction] Mint a new game asset
+                let game_id = collection.new(player, soulbound);
+                // [Message] Bridge game information
+                let payload = PayloadTrait::new(player, game_id, multiplier, supply, price, 0, 0);
+                let this = starknet::get_contract_address();
+                messaging.send_message_to_appchain(this, selector!("create"), payload.span());
+                // [Event] Emit the payload
+                store.payload(payload);
             }
         }
 
+        // [Chain] appchain
         fn set(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -238,6 +349,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
+        // [Chain] appchain
         fn select(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -251,6 +363,7 @@ pub mod Play {
             collection.update(game_id.into());
         }
 
+        // [Chain] appchain
         fn apply(ref self: ContractState, game_id: u64, index: u8) {
             // [Setup] World
             let world = self.world(@NAMESPACE());
@@ -262,6 +375,54 @@ pub mod Play {
             self.playable.apply(world, game_id, index);
             // [Interaction] Update token metadata
             collection.update(game_id.into());
+        }
+
+        // [Chain] mainnet
+        fn claim(ref self: ContractState, mut payload: Span<felt252>) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Verify message from Appchain
+            let store = StoreTrait::new(world);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
+            let this = starknet::get_contract_address();
+            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Caller is allowed
+            let payload = PayloadTrait::from(ref payload);
+            let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
+            let collection = ICollectionDispatcher { contract_address: collection_address };
+            collection.assert_is_owner(starknet::get_caller_address(), payload.game_id.into());
+            // [Effect] Claim reward
+            self.playable.claim(world, payload);
+            // [Interaction] Update token metadata
+            collection.update(payload.game_id.into());
+        }
+
+        // [Chain] mainnet
+        fn redeem(ref self: ContractState, mut payload: Span<felt252>) {
+            // [Setup] World
+            let world = self.world(@NAMESPACE());
+            // [Check] Verify message from Appchain
+            let store = StoreTrait::new(world);
+            let bridge = store.bridge();
+            let messaging = IMessagingDispatcher { contract_address: bridge.address };
+            let this = starknet::get_contract_address();
+            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Caller is allowed
+            let voucher = VoucherTrait::from(ref payload);
+            let caller = starknet::get_caller_address();
+            assert(caller == voucher.player, 'Play: invalid caller');
+            // [Effect] Claim reward, we use the dispatcher to ensure caller will be `this`
+            let play = IPlayDispatcher { contract_address: this };
+            play
+                .mint(
+                    player: voucher.player,
+                    multiplier: voucher.multiplier,
+                    supply: voucher.supply,
+                    price: voucher.price,
+                    soulbound: None,
+                    quantity: 1,
+                );
         }
     }
 }

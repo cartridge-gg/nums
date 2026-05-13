@@ -38,97 +38,74 @@ pub impl Magnet of TrapTrait {
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::{DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN};
     use crate::helpers::random::RandomImpl;
     use super::*;
 
-    const DEFAULT_SLOT_COUNT: u8 = 20;
+    const DEFAULT_SLOT_COUNT: u8 = 18;
     const DEFAULT_MULTIPLIER: u128 = 1;
 
     #[test]
     fn test_magnet_basic_left() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Magnet::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn test_magnet_basic_right() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 
     #[test]
     fn test_magnet_both_sides() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        assert_eq!(game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 
     #[test]
     fn test_magnet_no_slots() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Magnet::apply(ref game, 9, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn test_magnet_already_close() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 9, ref random, ref traps);
         // Left slot at 8 should move to 9, but can't (max is slot_index - 1 = 8), so doesn't move
-        // Right slot at 19 should move towards 9 (min is slot_index + 1 = 10)
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        // Right slot at 17 should move towards 9 (min is slot_index + 1 = 10)
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 
     #[test]
     fn test_magnet_no_empty_slots_between() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
         game
             .force(
                 array![
                     100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 1000, 1100, 1200, 1300, 1400,
-                    1500, 1600, 1700, 1800, 1900,
+                    1500, 1600, 1700,
                 ],
             );
         Magnet::apply(ref game, 9, ref random, ref traps);
@@ -138,7 +115,7 @@ mod tests {
             game.slots(),
             array![
                 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 1000, 1100, 1200, 1300, 1400, 1500,
-                1600, 1700, 1800, 1900,
+                1600, 1700,
             ],
         );
     }
@@ -147,47 +124,37 @@ mod tests {
     fn test_magnet_at_boundary_left() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 0, ref random, ref traps);
         // slot_index is 0, left slot at 0 can't move (already at max slot_index - 1 = -1, invalid),
         // right should move towards 0 (min at slot_index + 1 = 1)
-        assert_eq!(
-            game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        assert_eq!(game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 
     #[test]
     fn test_magnet_at_boundary_right() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
-        Magnet::apply(ref game, 19, ref random, ref traps);
-        // slot_index is 19, left should move towards 19 (max at slot_index - 1 = 18), right slot at
-        // 19 can't move (min at slot_index + 1 = 20, invalid)
-        assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
-        );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        Magnet::apply(ref game, 17, ref random, ref traps);
+        // slot_index is 17, left should move towards 17 (max at slot_index - 1 = 16), right slot at
+        // 17 can't move (min at slot_index + 1 = 18, invalid)
+        assert_eq!(game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
     }
 
     #[test]
     fn test_magnet_slot_index_occupied() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 9, ref random, ref traps);
         // slot_index 9 is occupied, left should move to first empty towards 9 (max at 8), right
         // should move to last empty before 9 (min at 10, but no empty after 9, so moves to 8)
         assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
+            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 500, 0],
         );
     }
 
@@ -195,57 +162,41 @@ mod tests {
     fn test_magnet_left_at_slot_index_minus_one() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 9, ref random, ref traps);
         // Left slot at 8 (slot_index - 1) should not move, right should move towards 9
-        assert_eq!(
-            game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        assert_eq!(game.slots(), array![0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 
     #[test]
     fn test_magnet_right_at_slot_index_plus_one() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0]);
         Magnet::apply(ref game, 9, ref random, ref traps);
         // Right slot at 10 (slot_index + 1) should not move, left should move towards 9
-        assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
+        assert_eq!(game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn test_magnet_slot_index_first_with_both_sides() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
         Magnet::apply(ref game, 0, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500],
-        );
+        assert_eq!(game.slots(), array![0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500]);
     }
 
     #[test]
     fn test_magnet_slot_index_last_with_both_sides() {
         let mut traps = array![];
         let mut random = RandomImpl::new(0);
-        let mut game = GameTrait::new(
-            0, DEFAULT_MULTIPLIER, DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MIN, DEFAULT_SLOT_MAX, 0, 0,
-        );
-        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
-        Magnet::apply(ref game, 19, ref random, ref traps);
-        assert_eq!(
-            game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0],
-        );
+        let mut game = GameTrait::new(0, DEFAULT_MULTIPLIER, 0, 0);
+        game.force(array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
+        Magnet::apply(ref game, 17, ref random, ref traps);
+        assert_eq!(game.slots(), array![100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0]);
     }
 }

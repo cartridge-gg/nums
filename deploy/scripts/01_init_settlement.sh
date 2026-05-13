@@ -86,16 +86,22 @@ done <<<"${deploy_output}"
 tee_registry_address="$(normalize_felt "${tee_registry_address}")"
 log "TEE registry mock deployed at ${tee_registry_address}"
 
-# ----- 3. katana init rollup ----------------------------------------------
+# ----- 3. katana init rollup (TEE mode) -----------------------------------
 #
 # Initializes a fresh rollup chain spec on disk + declares & deploys the
-# Piltover Appchain core on Sepolia. The `--tee --tee-registry-address`
-# pair wires the facts_registry slot to our mock at init time so we
-# don't need a separate `set_facts_registry` call later.
+# Piltover Appchain core on Sepolia AND wires its `ProgramInfo` to the
+# `KatanaTee` variant + `facts_registry` to our TEE-registry-mock — all
+# in one shot. See `katana/bin/katana/src/cli/init/deployment.rs:174–212`:
+# right after the Piltover deploy, init unconditionally calls
+# `set_program_info(build_program_info(tee=true, chain_id))` and
+# `set_facts_registry(fact_registry)` when `--tee` is set.
 #
-# Mirrors `tests/e2e/src/rollup.rs::init_rollup`.
+# Mutually exclusive with `--settlement-facts-registry` (the ZK-mode
+# flag) per clap; using the wrong one leaves Piltover in `StarknetOs`
+# ProgramInfo and Saya's `update_state` reverts later with
+# `'mode: tee needs KatanaTee cfg'`.
 
-log "running katana init rollup (chain_id=${APPCHAIN_CHAIN_ID})…"
+log "running katana init rollup (chain_id=${APPCHAIN_CHAIN_ID}, --tee + ${tee_registry_address})…"
 mkdir -p "${CHAIN_CONFIG_DIR}"
 
 # `katana init rollup` prompts interactively when args are missing — pass
@@ -105,7 +111,8 @@ katana init rollup \
     --settlement-chain "${SEPOLIA_RPC_URL}" \
     --settlement-account-address "${SEPOLIA_DEPLOYER_ADDRESS}" \
     --settlement-account-private-key "${SEPOLIA_DEPLOYER_PRIVATE_KEY}" \
-    --settlement-facts-registry "${tee_registry_address}" \
+    --tee \
+    --tee-registry-address "${tee_registry_address}" \
     --output-path "${CHAIN_CONFIG_DIR}" \
     --output text
 

@@ -39,9 +39,8 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env up
 ```
 
 Stage-by-stage logs land on the same console (`bootstrap-settlement →
-katana → configure-piltover → migrate → saya`). Expected wall-clock
-on a fast connection: ~15 minutes; the long tail is the `sozo migrate`
-on Sepolia.
+katana → migrate → saya`). Expected wall-clock on a fast connection:
+~15 minutes; the long tail is the `sozo migrate` on Sepolia.
 
 When `saya` starts logging `Chain advanced to new block`, the bridge
 is live. The appchain RPC is reachable at `http://localhost:5050`
@@ -52,7 +51,7 @@ from the host.
 - **Restart**: `docker compose down && docker compose up` — Katana
   data and Saya's attestation DB are kept in named volumes, so
   restarts pick up where they left off. The bootstrap stage flag
-  files short-circuit Stages A–C; nothing redeploys.
+  files short-circuit Stages A and C; nothing redeploys.
 - **Reset** (wipes EVERYTHING — costs Sepolia gas on next `up`):
   ```sh
   docker compose -f deploy/docker-compose.yml --env-file deploy/.env down -v
@@ -62,25 +61,25 @@ from the host.
 
 ```
 bootstrap-settlement   one-shot  Stage A
-  └─ katana            long      Stage B.1   waits for Stage A
-       └─ configure-piltover  one-shot  Stage B.2   waits for Katana healthy
-            └─ migrate    one-shot  Stage C       waits for B.2
-                 └─ saya  long      Stage D       waits for C
+  └─ katana            long      Stage B   waits for Stage A
+       └─ migrate      one-shot  Stage C   waits for Katana healthy
+            └─ saya    long      Stage D   waits for C
 ```
 
 | Stage | What runs | Cost (Sepolia gas) |
 |---|---|---|
-| A | `saya-ops declare-and-deploy-tee-registry-mock` + `katana init rollup` (declares + deploys Piltover core) | ~0.2 STRK |
-| B.1 | `katana --chain ... --tee mock` (long-running) | 0 |
-| B.2 | `set_program_info(KatanaTee { hash })` on Piltover | ~0.01 STRK |
-| C | `sozo migrate` on both chains, `Setup.set_bridge` on both, `Vault.deposit` seed | ~2–5 STRK |
+| A | `saya-ops declare-and-deploy-tee-registry-mock` + `katana init rollup --tee --tee-registry-address …` (declares + deploys Piltover core AND wires `set_program_info(KatanaTee)` + `set_facts_registry` in the same init pass — see katana/bin/katana/src/cli/init/deployment.rs:174–212) | ~0.2 STRK |
+| B | `katana --chain ... --tee mock` (long-running) | 0 |
+| C | `sozo migrate` on both chains, `sozo execute … Setup.set_bridge` on both, `sozo execute … Token.approve + Vault.deposit` Vault seed | ~2–5 STRK |
 | D | `saya-tee tee start --mock-prove` (long-running, batches one block per submit) | per-block gas ongoing |
 
 ## Files
 
 - `docker-compose.yml` — service definitions, volumes, healthchecks.
-- `Dockerfile.tools` — builder image with every CLI we need (katana,
-  saya-tee, saya-ops, sozo, scarb, starkli, jq).
+- `Dockerfile.tools` — builder image with every CLI the bootstrap +
+  migrate stages need (katana, saya-tee, saya-ops, sozo, scarb, jq,
+  envsubst). No starkli — `sozo execute` handles every contract call
+  the deploy needs.
 - `Dockerfile.katana` / `Dockerfile.saya` — thin runtime images that
   copy the relevant binaries out of `tools`.
 - `scripts/` — bash translations of `tests/e2e/src/harness.rs`'s

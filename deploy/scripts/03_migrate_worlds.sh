@@ -155,78 +155,44 @@ done
 # ----- 7. Setup.set_bridge (idempotent safety net) ------------------------
 #
 # Both Dojo profiles already pass `${PILTOVER_ADDRESS}` as the
-# `bridge_messaging` init arg, so the storage should be correctly wired
-# by `dojo_init`. We still call `set_bridge` here as a no-op
-# guard against the rare case where someone seeded a placeholder by
-# mistake. The settlement Setup re-calls `set_bridge` on settlement;
-# the appchain Setup re-calls on appchain. Both are admin-gated to the
-# deployer / genesis account respectively, which is what we already
-# signed migrate with.
+# `bridge_messaging` init arg, so the storage should be correctly
+# wired by `dojo_init`. We still re-call `set_bridge` here as a
+# guard against placeholder-init mistakes (the e2e harness does the
+# same — see `tests/e2e/src/harness.rs::wire_cross_chain_addresses`).
+# `sozo execute` resolves the Setup address via the profile's
+# manifest, signs as the profile's account (admin on both chains),
+# and pays fees in STRK by default.
 
-set_bridge_settlement() {
-    local setup_addr
-    setup_addr=$(jq -r '.contracts[] | select(.tag == "NUMS-Setup") | .address' \
-        "${STATE_DIR}/manifests/settlement.json")
-    [[ -n "${setup_addr}" && "${setup_addr}" != "null" ]] \
-        || die "could not find NUMS-Setup address in settlement manifest"
-    setup_addr="$(normalize_felt "${setup_addr}")"
-    log "Setup.set_bridge(${PILTOVER_ADDRESS}) on settlement Setup ${setup_addr}"
-    starkli invoke \
-        --rpc "${SEPOLIA_RPC_URL}" \
-        --account /dev/null \
-        --strk \
-        --private-key "${SEPOLIA_DEPLOYER_PRIVATE_KEY}" \
-        "${setup_addr}" set_bridge "${PILTOVER_ADDRESS}"
-}
+log "Setup.set_bridge(${PILTOVER_ADDRESS}) on settlement Setup"
+sozo execute --profile settlement NUMS-Setup set_bridge "${PILTOVER_ADDRESS}"
 
-set_bridge_appchain() {
-    local setup_addr
-    setup_addr=$(jq -r '.contracts[] | select(.tag == "NUMS-Setup") | .address' \
-        "${STATE_DIR}/manifests/appchain.json")
-    [[ -n "${setup_addr}" && "${setup_addr}" != "null" ]] \
-        || die "could not find NUMS-Setup address in appchain manifest"
-    setup_addr="$(normalize_felt "${setup_addr}")"
-    log "Setup.set_bridge(${PILTOVER_ADDRESS}) on appchain Setup ${setup_addr}"
-    starkli invoke \
-        --rpc "${KATANA_URL:-http://katana:5050}" \
-        --account /dev/null \
-        --strk \
-        --private-key "${APPCHAIN_GENESIS_PRIVKEY}" \
-        "${setup_addr}" set_bridge "${PILTOVER_ADDRESS}"
-}
-
-set_bridge_settlement
-set_bridge_appchain
+log "Setup.set_bridge(${PILTOVER_ADDRESS}) on appchain Setup"
+sozo execute --profile appchain NUMS-Setup set_bridge "${PILTOVER_ADDRESS}"
 
 # ----- 8. Seed settlement Vault ------------------------------------------
 #
-# `Rewardable::pay` asserts `total_shares != 0`. Deposit 1 NUMS (in 18-
-# decimal units) so the first reward mint via `Play.claim` doesn't
+# `Rewardable::pay` asserts `total_shares != 0`. Deposit 1 NUMS (in
+# 18-decimal units) so the first reward mint via `Play.claim` doesn't
 # trip the assert. Same logic as `harness.rs::seed_vault_shares`.
+#
+# 1 NUMS = 1e18 = 0xde0b6b3a7640000. sozo's `u256:<hex>` calldata helper
+# (`dojo/crates/dojo/world/src/config/calldata_decoder.rs:219`) expands
+# this into the two felts (low, high) at invoke time. `/` separates
+# multicall entries.
+#
+# We need the Vault address as the spender on the approve call —
+# `world` resolves the Dojo World contract; for a Dojo system tag like
+# `NUMS-Vault`, sozo resolves to its deployed address from the
+# settlement profile's manifest. Use the `--diff` flag to force a
+# manifest re-read if the chain state ever drifts from disk.
 
-VAULT_ADDR=$(jq -r '.contracts[] | select(.tag == "NUMS-Vault") | .address' \
-    "${STATE_DIR}/manifests/settlement.json")
-TOKEN_ADDR=$(jq -r '.contracts[] | select(.tag == "NUMS-Token") | .address' \
-    "${STATE_DIR}/manifests/settlement.json")
-[[ -n "${VAULT_ADDR}" && "${VAULT_ADDR}" != "null" ]] \
-    || die "missing NUMS-Vault in settlement manifest"
-[[ -n "${TOKEN_ADDR}" && "${TOKEN_ADDR}" != "null" ]] \
-    || die "missing NUMS-Token in settlement manifest"
-VAULT_ADDR="$(normalize_felt "${VAULT_ADDR}")"
-TOKEN_ADDR="$(normalize_felt "${TOKEN_ADDR}")"
+NUMS_ONE_U256="u256:0xde0b6b3a7640000"
 
-log "seeding Vault ${VAULT_ADDR} with 1 NUMS (approve+deposit from deployer)"
-# u256 = (low, high). 1 NUMS = 1e18 = 0xDE0B6B3A7640000 (low), 0x0 (high).
-NUMS_ONE_LOW="0xde0b6b3a7640000"
-NUMS_ONE_HIGH="0x0"
-
-starkli invoke \
-    --rpc "${SEPOLIA_RPC_URL}" \
-    --account /dev/null \
-    --strk \
-    --private-key "${SEPOLIA_DEPLOYER_PRIVATE_KEY}" \
-    "${TOKEN_ADDR}" approve "${VAULT_ADDR}" "${NUMS_ONE_LOW}" "${NUMS_ONE_HIGH}" \
-    "${VAULT_ADDR}" deposit "${NUMS_ONE_LOW}" "${NUMS_ONE_HIGH}" "${SEPOLIA_DEPLOYER_ADDRESS}"
+log "seeding settlement Vault with 1 NUMS (approve + deposit from deployer)"
+sozo execute --profile settlement --diff \
+    NUMS-Token approve NUMS-Vault "${NUMS_ONE_U256}" \
+    / \
+    NUMS-Vault deposit "${NUMS_ONE_U256}" "${SEPOLIA_DEPLOYER_ADDRESS}"
 
 log "Vault seeded"
 

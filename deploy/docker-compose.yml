@@ -97,31 +97,23 @@ services:
       retries: 30
       start_period: 10s
 
-  # Stage B.2 — probe Katana for katana_tee_config_hash, then write
-  # ProgramInfo(KatanaTee { hash }) + facts_registry on the settlement
-  # Piltover. Oneshot; idempotent.
-  configure-piltover:
-    <<: *tools-image
-    container_name: nums-configure-piltover
-    depends_on:
-      katana:
-        condition: service_healthy
-    environment: *tools-env
-    volumes: *tools-volumes
-    env_file:
-      - .env
-    command: ["bash", "/repo/deploy/scripts/02_configure_piltover.sh"]
-    restart: "no"
-
-  # Stage C — render Dojo profiles, sozo build + migrate both chains,
-  # Setup.set_bridge on both, seed settlement Vault. Oneshot;
-  # idempotent.
+  # Stage B — render Dojo profiles, sozo build + migrate both chains,
+  # Setup.set_bridge on both, seed settlement Vault. Oneshot; idempotent.
+  #
+  # `katana init rollup --tee --tee-registry-address ...` in Stage A
+  # already wired Piltover's `ProgramInfo::KatanaTee` and
+  # `facts_registry` (see katana/bin/katana/src/cli/init/deployment.rs:
+  # 174–212), so there's no separate Piltover-configuration stage.
+  #
+  # `depends_on: katana` waits for the appchain Katana to be healthy
+  # (sozo migrate against the appchain profile points at
+  # http://katana:5050).
   migrate:
     <<: *tools-image
     container_name: nums-migrate
     depends_on:
-      configure-piltover:
-        condition: service_completed_successfully
+      katana:
+        condition: service_healthy
     environment: *tools-env
     volumes: *tools-volumes
     env_file:

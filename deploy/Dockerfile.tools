@@ -1,4 +1,4 @@
-# Tools image — bootstrap, configure-piltover, migrate.
+# Tools image — bootstrap + migrate stages.
 #
 # Multi-stage build:
 #   - katana: built from pinned upstream source (no public release with
@@ -6,9 +6,12 @@
 #   - saya-tee + saya-ops: pulled pre-built from `ghcr.io/dojoengine/saya`.
 #   - sozo: built from pinned upstream dojo (we want a specific commit
 #     so the Cairo migrate output is byte-stable across operator hosts).
-#   - scarb + starkli: release tarballs.
+#     `sozo execute` handles every contract call the deploy stages need
+#     (`Setup.set_bridge`, `Token.approve` + `Vault.deposit` multicall)
+#     so we don't ship `starkli`.
+#   - scarb: release tarball.
 #
-# Final image is ~600 MB and supports linux/amd64 + linux/arm64. First
+# Final image is ~500 MB and supports linux/amd64 + linux/arm64. First
 # build takes ~20 min for katana + sozo; subsequent builds reuse layer
 # cache.
 
@@ -81,26 +84,7 @@ RUN set -eux; \
     /opt/scarb/bin/scarb --version
 
 # ---------------------------------------------------------------------------
-# 5. starkli — fetch the release binary
-# ---------------------------------------------------------------------------
-FROM debian:bookworm-slim AS starkli-fetcher
-ARG STARKLI_VERSION=v0.5.1
-ARG TARGETARCH
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl tar \
-    && rm -rf /var/lib/apt/lists/*
-RUN set -eux; \
-    case "${TARGETARCH:-amd64}" in \
-        amd64) starkli_arch=x86_64-unknown-linux-gnu ;; \
-        arm64) starkli_arch=aarch64-unknown-linux-gnu ;; \
-        *) echo "unsupported TARGETARCH: ${TARGETARCH:-}"; exit 1 ;; \
-    esac; \
-    curl -fsSL "https://github.com/xJonathanLEI/starkli/releases/download/${STARKLI_VERSION}/starkli-${starkli_arch}.tar.gz" \
-        | tar -xz -C /usr/local/bin starkli; \
-    /usr/local/bin/starkli --version
-
-# ---------------------------------------------------------------------------
-# 6. Final runtime image
+# 5. Final runtime image
 # ---------------------------------------------------------------------------
 FROM debian:bookworm-slim
 
@@ -119,14 +103,12 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Binaries: katana + sozo from our compile stages; saya-tee + saya-ops
-# from the upstream release image; scarb + starkli from release
-# tarballs.
+# from the upstream release image; scarb from a release tarball.
 COPY --from=katana-builder /src/katana/target/release/katana   /usr/local/bin/katana
 COPY --from=saya-bins      /usr/local/bin/saya-tee             /usr/local/bin/saya-tee
 COPY --from=saya-bins      /usr/local/bin/saya-ops             /usr/local/bin/saya-ops
 COPY --from=sozo-builder   /src/dojo/target/release/sozo       /usr/local/bin/sozo
 COPY --from=scarb-fetcher  /opt/scarb                          /opt/scarb
-COPY --from=starkli-fetcher /usr/local/bin/starkli             /usr/local/bin/starkli
 
 ENV PATH=/opt/scarb/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin \
     STATE_DIR=/state \
@@ -141,7 +123,6 @@ RUN katana --version \
  && (saya-tee --version >/dev/null 2>&1 || saya-tee --help >/dev/null) \
  && saya-ops --help >/dev/null \
  && sozo --version \
- && scarb --version \
- && starkli --version
+ && scarb --version
 
 ENTRYPOINT ["tini", "--"]

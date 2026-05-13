@@ -96,13 +96,7 @@ export const Home = () => {
       gameId,
       setGameId,
     };
-  }, [
-    practiceGames,
-    chartData,
-    chartAbscissa,
-    gameId,
-    setGameId,
-  ]);
+  }, [practiceGames, chartData, chartAbscissa, gameId, setGameId]);
 
   // Set initial gameId to the first active game if available
   useEffect(() => {
@@ -158,7 +152,14 @@ export const Home = () => {
       continueGame(gameId);
       navigate(`/practice/${gameId}`);
     }
-  }, [gameId, practiceGames, continueGame, navigate, isConnected, handleConnect]);
+  }, [
+    gameId,
+    practiceGames,
+    continueGame,
+    navigate,
+    isConnected,
+    handleConnect,
+  ]);
 
   return (
     <HomeScene

@@ -1,5 +1,9 @@
 import { Config, Starterpack } from "@/models";
-import { DEFAULT_SLOT_COUNT, DEFAULT_SLOT_MAX, DEFAULT_SLOT_MIN } from "@/constants";
+import {
+  DEFAULT_SLOT_COUNT,
+  DEFAULT_SLOT_MAX,
+  DEFAULT_SLOT_MIN,
+} from "@/constants";
 
 export const OFFLINE_NUMS_PRICE = 0.001;
 export const OFFLINE_NUMS_PRICE_MICRO = 1000n;

@@ -29,7 +29,7 @@ let statusBarTheme = "dark"    // dark / light, related to override option.
 let pullToRefresh = true    // Enable/disable pull down to refresh page
 let webViewBackgroundColor = UIColor(red: 73/255, green: 25/255, blue: 208/255, alpha: 1)
 let enableCartridgeIframeStorageRelay = true
-let dispatchCartridgeAuthChangedEvent = true
+let dispatchCartridgeAuthChangedEvent = false
 let iframeStorageDebugEnabled = false
 let opensExternalLinksInSafariView = false
 

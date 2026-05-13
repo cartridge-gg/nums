@@ -10,7 +10,6 @@ import { mainnet } from "@starknet-react/chains";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { NativeAuthBridge } from "@/components/containers/native-auth-bridge";
 import { NativeNotificationBridge } from "@/components/containers/native-notification-bridge";
 import { NotificationEvents } from "@/components/containers/notification-events";
 import { DEFAULT_CHAIN_ID, RPC_URL, TORII_URL } from "@/config";
@@ -57,7 +56,6 @@ function App() {
             explorer={voyager}
             provider={provider}
           >
-            <NativeAuthBridge />
             <NativeNotificationBridge />
             <ThemeProvider>
               <AudioProvider>

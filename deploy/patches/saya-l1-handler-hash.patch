@@ -1,0 +1,86 @@
+diff --git a/bin/persistent-tee/src/settlement.rs b/bin/persistent-tee/src/settlement.rs
+index 4d53947..0395878 100644
+--- a/bin/persistent-tee/src/settlement.rs
++++ b/bin/persistent-tee/src/settlement.rs
+@@ -6,7 +6,6 @@ use anyhow::Result;
+ use cainome::cairo_serde::{CairoSerde, ContractAddress};
+ use katana_tee_client::{OnchainProof, StarknetCalldata};
+ use piltover::{MessageToAppchain, MessageToStarknet, PiltoverInput, TEEInput};
+-use sha3::{Digest, Keccak256};
+ use starknet::{
+     accounts::{Account, ExecutionEncoding, SingleOwnerAccount},
+     core::types::{BlockId, BlockTag, Call, Felt, FunctionCall, TransactionReceipt},
+@@ -27,22 +26,61 @@ use saya_core::{
+ 
+ const POLLING_INTERVAL: Duration = Duration::from_secs(2);
+ 
+-/// Computes the Starknet L1→L2 message hash using keccak256.
++/// Computes the appchain L1→L2 message hash using Poseidon.
+ ///
+-/// Matches the Ethereum StarknetMessaging.sol formula:
+-/// `keccak256(abi.encodePacked(from_address, to_address, nonce, selector, payload.length, payload))`
+-/// where `from_address` is a 20-byte Ethereum address (lower 20 bytes of the felt252).
++/// Mirrors Katana's `compute_starknet_to_appchain_message_hash` in
++/// `crates/messaging/src/stream/collector/starknet.rs`, which Katana
++/// stores in `L1HandlerTx.message_hash`. The TEE attestation's
++/// `l1_to_l2_msg_hashes` array (used for the `messages_commitment`)
++/// must reproduce those exact hashes, otherwise Piltover's TEE input
++/// validation reverts with `'tee: invalid messages'`.
++///
++/// Formula: `Poseidon([from_address, to_address, nonce, selector,
++/// payload.len, ...payload])`. All felts are full 32-byte Starknet
++/// felts — there is no Ethereum-style 20-byte address truncation
++/// here because the appchain-side L1Handler is dispatched from a
++/// Starknet contract (Piltover messaging), not from an Ethereum
++/// contract.
++///
++/// The previous keccak256-based formula matched the Ethereum
++/// `StarknetMessaging.sol` convention, but Saya's persistent-tee
++/// targets appchain settlement (Piltover on Starknet), not Ethereum
++/// L1, so the keccak formula was the wrong hash function for this
++/// path.
+ fn compute_l1_to_l2_msg_hash(msg: &L1ToL2Message) -> Felt {
+-    let mut hasher = Keccak256::new();
+-    hasher.update(&msg.from_address.to_bytes_be()[12..]);
+-    hasher.update(msg.to_address.to_bytes_be());
+-    hasher.update(msg.nonce.to_bytes_be());
+-    hasher.update(msg.selector.to_bytes_be());
+-    hasher.update(Felt::from(msg.payload.len() as u64).to_bytes_be());
++    use starknet_types_core::hash::{Poseidon, StarkHash};
++    // Katana builds the L1HandlerTx calldata as `[from_address,
++    // ...original_payload]` and hashes the full calldata (NOT the
++    // stripped payload) into the stored `message_hash`. See
++    // `crates/messaging/src/stream/collector/starknet.rs` in Katana:
++    //
++    //     let mut calldata = vec![from_address];
++    //     calldata.extend(&event.data[3..]);
++    //     let message_hash = compute_starknet_to_appchain_message_hash(
++    //         from_address, to_address, nonce, entry_point_selector,
++    //         &calldata,   // payload arg = [from_address, ...payload]
++    //     );
++    //
++    // So `from_address` appears twice in the hashed buffer — once as
++    // the top-level field, and once as `calldata[0]`. The length
++    // counted is `1 + original_payload.len()`. Saya's
++    // `TeeL1ToL2Message.payload` is the original payload (without the
++    // `from_address` prefix), so we re-add the duplication here to
++    // reproduce Katana's stored hash. Otherwise the
++    // `l1_to_l2_msg_hashes` array in `TEEInput` doesn't match what
++    // Katana baked into `messages_commitment` and Piltover's
++    // `validate_input` reverts with `'tee: invalid messages'`.
++    let mut buf: Vec<Felt> = Vec::with_capacity(6 + msg.payload.len());
++    buf.push(msg.from_address);
++    buf.push(msg.to_address);
++    buf.push(msg.nonce);
++    buf.push(msg.selector);
++    buf.push(Felt::from(msg.payload.len() as u64 + 1));
++    buf.push(msg.from_address);
+     for p in &msg.payload {
+-        hasher.update(p.to_bytes_be());
++        buf.push(*p);
+     }
+-    Felt::from_bytes_be(&hasher.finalize().into())
++    Poseidon::hash_array(&buf)
+ }
+ 
+ fn messages_to_starknet(msgs: &[L2ToL1Message]) -> Vec<MessageToStarknet> {

@@ -49,6 +49,13 @@ tests/e2e/artifacts/appchain_with_test.contract_class.json
 tests/e2e/Cargo.lock
 tests/e2e/target
 
+# Docker-compose deployment rendered profiles + manifests (regenerated
+# by `deploy/scripts/03_migrate_worlds.sh` on every bootstrap)
+dojo_appchain.toml
+dojo_settlement.toml
+manifest_appchain
+manifest_settlement
+
 # Playwright MCP
 .playwright-mcp
 

@@ -1,0 +1,35 @@
+# Thin saya-tee runtime image.
+#
+# Builds saya-tee from pinned upstream, applies the Poseidon hash patch
+# under `deploy/patches/`, then exports just the saya-tee binary into a
+# slim runtime image. The patch can be dropped when it lands in
+# upstream saya.
+
+ARG RUST_IMAGE=rust:1.84-bookworm
+ARG SAYA_REPO=https://github.com/dojoengine/saya.git
+ARG SAYA_REF=17c0ee0dc72bc107f1ad6e5dac69d6758151c6bd
+
+FROM ${RUST_IMAGE} AS builder
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git pkg-config libssl-dev clang \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+RUN git clone "${SAYA_REPO}" saya \
+ && cd saya && git checkout "${SAYA_REF}" \
+ && git submodule update --init --recursive --depth 1
+COPY patches/saya-l1-handler-hash.patch /tmp/saya-l1-handler-hash.patch
+RUN cd /src/saya && git apply --3way /tmp/saya-l1-handler-hash.patch
+WORKDIR /src/saya/bin/persistent-tee
+RUN cargo build --release --bin saya-tee
+
+FROM debian:bookworm-slim
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        ca-certificates curl jq tini libssl3 \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /src/saya/bin/persistent-tee/target/release/saya-tee /usr/local/bin/saya-tee
+ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin \
+    STATE_DIR=/state
+ENTRYPOINT ["tini", "--"]

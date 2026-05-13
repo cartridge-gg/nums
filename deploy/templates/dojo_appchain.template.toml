@@ -1,0 +1,91 @@
+# Rendered at deploy time by deploy/scripts/03_migrate_worlds.sh.
+# Placeholders get replaced by `envsubst` from values in /state/state.env
+# (APPCHAIN_GENESIS_ADDRESS / _PRIVKEY) and the operator's `.env`
+# (NUMS_WORLD_SEED).
+#
+# Targeted at the appchain Katana running in the `katana` compose
+# service. The rpc_url uses the docker DNS name `katana` so this profile
+# can be reused from any service in the same network (the `migrate`
+# container, and a developer's shell via `docker compose exec`).
+#
+# The appchain Katana runs as `ChainSpec::Rollup` (started via `katana
+# --chain <dir>`), which generates a fresh genesis account in Stage A.
+# We pass that genesis account's address + privkey here so sozo migrate
+# can sign the deploy transactions as the only account funded on this
+# chain.
+
+[world]
+name = "Nums"
+# SHARED seed across both profiles. MUST match
+# `dojo_settlement.template.toml`'s seed. See that file's comment for
+# the address-equality rationale.
+seed = "${NUMS_WORLD_SEED}"
+description = "Nums appchain world (Sepolia-settled rollup)"
+website = "https://nums.gg"
+
+[namespace]
+default = "NUMS"
+
+[env]
+rpc_url = "http://katana:5050"
+account_address = "${APPCHAIN_GENESIS_ADDRESS}"
+private_key = "${APPCHAIN_GENESIS_PRIVKEY}"
+
+[migration]
+order_inits = [
+  "NUMS-Token",
+  "NUMS-Faucet",
+  "NUMS-Setup",
+  "NUMS-Play",
+  "NUMS-Collection",
+  "NUMS-Vault",
+  "NUMS-Treasury",
+]
+# NUMS-Vrf has no `dojo_init`, but it MUST be deployed on the appchain.
+# Real gameplay (`Play.set`/`select`/`apply` via `Playable.set`) goes
+# through `store.vrf_disp().consume_random(...)`. Do NOT add NUMS-Vrf to
+# `skip_contracts` — keep it deployed so Setup's DNS-lookup fallback
+# (vrf_address = Option::None below) finds it.
+disable_multicall = true
+
+[writers]
+"NUMS" = ["NUMS-Setup", "NUMS-Play"]
+
+[owners]
+"NUMS" = ["NUMS-Collection", "NUMS-Vault", "NUMS-Faucet", "NUMS-Token", "NUMS-Treasury"]
+
+[init_call_args]
+"NUMS-Vault" = [
+  "0x1", # open: true
+  "0x0", # fee: 0 basis points
+]
+"NUMS-Governor" = []
+"NUMS-Treasury" = [
+  "0xe10",                          # min_delay: 1 hour
+  "${APPCHAIN_GENESIS_ADDRESS}",    # admin = genesis account
+]
+"NUMS-Token" = [
+  "0xD3C21BCECCEDA1000000",         # initial_supply: 1M NUMS (gameplay-locally; bridge mode does NOT mint here)
+  "${APPCHAIN_GENESIS_ADDRESS}",    # recipient = genesis account
+]
+"NUMS-Faucet" = [
+  "0x2540BE400",                    # initial_supply: 10K USDC (unused on appchain; deployed for symmetry)
+  "${APPCHAIN_GENESIS_ADDRESS}",    # recipient = genesis account
+]
+"NUMS-Setup" = [
+  "0x1",                            # vrf_address: Option::None → Setup.dojo_init resolves NUMS-Vrf via DNS at init time
+  "0x1",                            # quote_address: Option::None — Faucet via DNS
+  "${APPCHAIN_GENESIS_ADDRESS}",    # team_address
+  "0x0",                            # ekubo_router_address — unused on appchain
+  "0x0",                            # ekubo_positions_address — unused
+  "0x1E8480",                       # entry_price: 2.000000 USDC
+  "0xD3C21BCECCEDA1000000",         # target_supply: 1M NUMS
+  "0x46",                           # burn_percentage: 70% (informational; gameplay doesn't burn)
+  "0x32",                           # vault_percentage: 50%
+  "0xA",                            # average_score: 10 (initial)
+  "0x0",                            # pool_fee — unused
+  "0x0",                            # pool_tick_spacing — unused
+  "0x0",                            # pool_extension — unused
+  "${APPCHAIN_GENESIS_ADDRESS}",    # bundle_allower (free-bundle path)
+  "${PILTOVER_ADDRESS}",            # bridge_messaging — Piltover core deployed on settlement; appchain Setup reads it for diagnostics only
+]

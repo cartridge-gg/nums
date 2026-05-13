@@ -1,0 +1,9 @@
+# Bootstrap-generated state. In normal operation this is held in named
+# docker volumes; this glob covers any bind-mounted copies a developer
+# might create when poking at the stack locally.
+state/
+*.flag
+
+# `.env` is already covered by the repo-root .gitignore (`.env`, `.env.*`,
+# with `!.env.sample` un-ignored), so the operator's `deploy/.env` stays
+# out of git and `deploy/.env.sample` stays in.

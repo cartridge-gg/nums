@@ -1,0 +1,36 @@
+# Thin Katana runtime image.
+#
+# Sources the `katana` binary out of the `tools` image's katana-builder
+# stage (see Dockerfile.tools) so we only compile katana once. Final
+# image is just the OS shell + curl/jq for the compose healthcheck +
+# the binary itself.
+
+# Build-args inherited from compose: KATANA_REPO, KATANA_REF. Defaults
+# match Dockerfile.tools so a one-arg compose build works.
+ARG RUST_IMAGE=rust:1.84-bookworm
+ARG KATANA_REPO=https://github.com/dojoengine/katana.git
+ARG KATANA_REF=c8d76b6150aa3c288aa2da8c3577c676f2815b63
+
+FROM ${RUST_IMAGE} AS builder
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git pkg-config libssl-dev clang \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+RUN git clone "${KATANA_REPO}" katana \
+ && cd katana && git checkout "${KATANA_REF}" \
+ && git submodule update --init --recursive --depth 1
+WORKDIR /src/katana
+RUN cargo build --release --bin katana
+
+FROM debian:bookworm-slim
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        ca-certificates curl jq tini libssl3 \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /src/katana/target/release/katana /usr/local/bin/katana
+ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin \
+    STATE_DIR=/state
+RUN katana --version
+ENTRYPOINT ["tini", "--"]

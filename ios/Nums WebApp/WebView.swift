@@ -2,6 +2,7 @@ import UIKit
 import WebKit
 import AuthenticationServices
 import SafariServices
+import CartridgeIOSKit
 
 let iframeStorageSnapshotKeyPrefix = "__iframeStorageSnapshot__:"
 let iframeStorageTargetHost = "x.cartridge.gg"
@@ -1108,13 +1109,22 @@ private func hostMatchesAllowedOrigin(_ requestHost: String, origin: String) -> 
 }
 
 extension ViewController: WKUIDelegate, WKDownloadDelegate {
-    // redirect new tabs to main webview
+    // Keep window.open() navigations in a real popup WebView so controller
+    // auth can postMessage back to its opener and close itself.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if (navigationAction.targetFrame == nil) {
-            webView.load(navigationAction.request)
-        }
-        return nil
+        popupWebViewCoordinator.createPopupWebView(
+            with: configuration,
+            for: navigationAction,
+            sourceWebView: webView,
+            navigationDelegate: self,
+            uiDelegate: self
+        )
     }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        popupWebViewCoordinator.closePopupWebView(webView)
+    }
+
     // restrict navigation to target host, open external links in 3rd party apps
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if (navigationAction.request.url?.scheme == "about") {

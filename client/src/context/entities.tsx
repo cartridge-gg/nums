@@ -18,6 +18,7 @@ import { subscribeEntities, subscribeEvents } from "@/api/torii/subscribe";
 import { toriiClientAtom } from "@/atoms";
 import {
   Claimed,
+  Payload,
   type Config,
   Purchased,
   Started,
@@ -40,6 +41,7 @@ type EntitiesProviderState = {
   scores: Score[];
   claimeds: Claimed[];
   claimed: Claimed | undefined;
+  payloads: Payload[];
   status: "loading" | "error" | "success";
   refresh: () => Promise<void>;
 };
@@ -63,6 +65,7 @@ export function EntitiesProvider({
   const [purchaseds, setPurchaseds] = useState<Purchased[]>([]);
   const [starteds, setStarteds] = useState<Started[]>([]);
   const [claimeds, setClaimeds] = useState<Claimed[]>([]);
+  const [payloads, setPayloads] = useState<Payload[]>([]);
   const [scores, setScores] = useState<Score[]>([]);
   const [purchased, setPurchased] = useState<Purchased>();
   const [started, setStarted] = useState<Started>();
@@ -114,6 +117,7 @@ export function EntitiesProvider({
     const parsedPurchaseds = Event.parsePurchaseds(entities);
     const parsedStarteds = Event.parseStarteds(entities);
     const parsedClaimeds = Event.parseClaimeds(entities);
+    const parsedPayloads = Event.parsePayloads(entities);
     const parsedScores = Event.parseScores(entities);
 
     if (parsedPurchaseds.length > 0) {
@@ -146,6 +150,10 @@ export function EntitiesProvider({
       );
       const nextClaimed = parsedClaimeds.find((item) => !item.hasExpired());
       if (nextClaimed) setClaimed(nextClaimed);
+    }
+
+    if (parsedPayloads.length > 0) {
+      setPayloads((prev) => Payload.dedupe([...parsedPayloads, ...prev]));
     }
 
     if (parsedScores.length > 0) {
@@ -279,6 +287,7 @@ export function EntitiesProvider({
     started,
     claimeds,
     claimed,
+    payloads,
     status,
     refresh,
   };

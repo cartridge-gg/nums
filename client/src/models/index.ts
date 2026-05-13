@@ -12,6 +12,7 @@ export { Starterpack } from "./starterpack";
 export { Purchased } from "./purchased";
 export { Claimed } from "./claimed";
 export { Started } from "./started";
+export { Payload } from "./payload";
 export { Score } from "./score";
 export {
   AchievementDefinition,
@@ -443,6 +444,51 @@ export interface RawClaimed {
   time: {
     type: "primitive";
     type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+}
+
+export interface RawPayload {
+  game_id: {
+    type: "primitive";
+    type_name: "u64";
+    value: string;
+    key: boolean;
+  };
+  player: {
+    type: "primitive";
+    type_name: "ContractAddress";
+    value: string;
+    key: boolean;
+  };
+  multiplier: {
+    type: "primitive";
+    type_name: "u128";
+    value: string;
+    key: boolean;
+  };
+  supply: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  price: {
+    type: "primitive";
+    type_name: "u256";
+    value: string;
+    key: boolean;
+  };
+  level: {
+    type: "primitive";
+    type_name: "u8";
+    value: string;
+    key: boolean;
+  };
+  reward: {
+    type: "primitive";
+    type_name: "u128";
     value: string;
     key: boolean;
   };

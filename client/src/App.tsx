@@ -9,6 +9,7 @@ import {
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
+import { useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { chains, DEFAULT_CHAIN_ID } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,7 +28,7 @@ import { AchievementsProvider } from "./context/achievements";
 import { TutorialProvider } from "./context/tutorial";
 import { VaultProvider } from "./context/vault";
 import { BundlesProvider } from "./context/bundles";
-import { GamesProvider } from "./context/games";
+import { GamesProvider, useGames } from "./context/games";
 import { MerkledropsProvider } from "./context/merkledrops";
 import { PostHogProvider } from "./context/posthog";
 
@@ -158,7 +159,7 @@ function AuthenticatedApp() {
                                       />
                                       <Route
                                         path="/game"
-                                        element={<LoadingScene />}
+                                        element={<PendingGame />}
                                       />
                                       <Route
                                         path="/practice"
@@ -189,3 +190,23 @@ function AuthenticatedApp() {
 }
 
 export default App;
+
+function PendingGame() {
+  const { refresh } = useGames();
+
+  useEffect(() => {
+    void refresh();
+    const interval = window.setInterval(() => {
+      void refresh();
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [refresh]);
+
+  return (
+    <LoadingScene
+      title="Creating Game"
+      description="Purchase confirmed. Waiting for the appchain game to arrive."
+    />
+  );
+}

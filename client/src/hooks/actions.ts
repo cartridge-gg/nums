@@ -17,6 +17,17 @@ import { usePostHog } from "@/context/posthog";
 import { GameEngine } from "@/engines";
 import { Random } from "@/helpers/random";
 
+type ClaimPayload = {
+  toCalldata: () => Array<string | number | bigint>;
+};
+
+type ClaimArgs =
+  | number
+  | {
+      gameId: number;
+      payload: ClaimPayload | Array<string | number | bigint>;
+    };
+
 export const useActions = () => {
   const { account } = useAccount();
   const { chain } = useNetwork();
@@ -275,7 +286,9 @@ export const useActions = () => {
   );
 
   const claim = useCallback(
-    async (gameId: number) => {
+    async (args: ClaimArgs) => {
+      const gameId = typeof args === "number" ? args : args.gameId;
+
       if (isPracticeMode) {
         if (!practiceGame) return false;
         try {
@@ -291,16 +304,23 @@ export const useActions = () => {
 
       try {
         if (!account?.address) return false;
+        if (typeof args === "number") return false;
+
         const gameAddress = getGameAddress(chain.id);
-        await account.execute([
+        const payload = Array.isArray(args.payload)
+          ? args.payload
+          : args.payload.toCalldata();
+        const { transaction_hash } = await account.execute([
           {
             contractAddress: gameAddress,
             entrypoint: "claim",
-            calldata: CallData.compile({
-              gameId: gameId,
-            }),
+            calldata: CallData.compile({ payload }),
           },
         ]);
+        const receipt = await account.waitForTransaction(transaction_hash);
+        if (!receipt.isSuccess()) {
+          return false;
+        }
         capture("reward_claimed", { game_id: gameId, mode });
         return true;
       } catch (e) {

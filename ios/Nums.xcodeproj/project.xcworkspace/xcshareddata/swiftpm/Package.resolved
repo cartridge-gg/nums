@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cartridge-gg/cartridge-ios-kit",
       "state" : {
-        "revision" : "002d241b1c936e9a4020f4faa555cc1b33d3aa55",
-        "version" : "0.1.0"
+        "revision" : "09b3bd27a592b19f27b64279640aecbe0cf03712",
+        "version" : "0.2.0"
       }
     }
   ],

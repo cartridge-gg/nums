@@ -1,5 +1,6 @@
 import UIKit
 import WebKit
+import CartridgeIOSKit
 
 var appWebView: WKWebView! = nil
 
@@ -16,6 +17,7 @@ class ViewController: UIViewController, WKNavigationDelegate, UIDocumentInteract
     @IBOutlet weak var connectionProblemView: UIImageView!
     @IBOutlet weak var webviewView: UIView!
     var toolbarView: UIToolbar!
+    lazy var popupWebViewCoordinator = CartridgePopupWebViewCoordinator(containerView: webviewView)
 
     var htmlIsLoaded = false;
 

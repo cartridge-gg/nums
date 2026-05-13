@@ -207,6 +207,156 @@ fn parse_config_toml(path: &Path) -> Result<(Felt, u64)> {
     Ok((core, cfg.settlement.starknet.block))
 }
 
+/// Deploy `account` on the SETTLEMENT chain via a `DeployAccount` v3
+/// transaction so the same address that exists on the appchain rollup
+/// is also live on settlement.
+///
+/// In the e2e flow we want a single player whose key works on both
+/// chains. The rollup auto-generates its genesis account at an address
+/// derived from `(salt, class_hash, [pubkey], 0)` and pre-funds it
+/// there. Settlement Katana `--dev` mode pre-funds a disjoint set of
+/// addresses (derived using a different frozen class hash for the
+/// address calc). The simplest fix is to take the rollup's
+/// `GenesisAccount` and re-deploy it on settlement under the same
+/// formula — the resulting deploy address matches the appchain's
+/// genesis address exactly.
+///
+/// Pre-conditions:
+/// - The settlement Katana is `--dev --dev.no-fee
+///   --dev.no-account-validation` so the new account doesn't need a
+///   STRK balance before sending the `DeployAccount` (the
+///   transaction's fee is waived) and the validation can succeed
+///   despite the account having no historical state.
+/// - The OZ account class (`account.class_hash`) must be declared on
+///   settlement. Katana `--dev` mode declares it at genesis time, so
+///   this is implicit.
+pub async fn deploy_account_on_settlement(
+    provider: &JsonRpcClient<HttpTransport>,
+    chain_id: Felt,
+    account: &GenesisAccount,
+) -> Result<()> {
+    use starknet::accounts::{AccountFactory, OpenZeppelinAccountFactory};
+    use starknet::signers::{LocalWallet, SigningKey};
+
+    let signer = LocalWallet::from_signing_key(SigningKey::from_secret_scalar(account.private_key));
+    let factory = OpenZeppelinAccountFactory::new(
+        account.class_hash,
+        chain_id,
+        signer,
+        provider,
+    )
+    .await
+    .map_err(|e| anyhow!("OpenZeppelinAccountFactory::new: {e}"))?;
+
+    // Salt is hard-coded to 0x29a (Katana's `GenesisAccount::DEFAULT_SALT
+    // = felt!("666")`). All rollup-mode genesis accounts use this salt,
+    // so DeployAccount with the same salt + class + pubkey reproduces
+    // the appchain genesis address on settlement.
+    let salt = Felt::from_hex("0x29a").unwrap();
+
+    // We tolerate the case where the account is already deployed (e.g. a
+    // pre-existing settlement state from a previous run). Otherwise,
+    // submit a fresh DeployAccount tx and wait for it to finalize.
+    let already = provider
+        .get_class_hash_at(BlockId::Tag(BlockTag::PreConfirmed), account.address)
+        .await
+        .is_ok();
+    if already {
+        info!(
+            "rollup genesis account already deployed on settlement @ {:#x}",
+            account.address,
+        );
+        return Ok(());
+    }
+
+    let deployment = factory.deploy_v3(salt).gas_estimate_multiplier(2.0);
+    let result = deployment
+        .send()
+        .await
+        .map_err(|e| anyhow!("DeployAccount v3 send: {e}"))?;
+    info!(
+        "rollup genesis account deploy on settlement: tx {:#x} → addr {:#x}",
+        result.transaction_hash, account.address,
+    );
+
+    // Poll the receipt so callers can rely on the account existing
+    // immediately after this returns.
+    let deadline = std::time::Instant::now() + Duration::from_secs(30);
+    loop {
+        match provider.get_transaction_receipt(result.transaction_hash).await {
+            Ok(_) => return Ok(()),
+            Err(_) if std::time::Instant::now() < deadline => {
+                tokio::time::sleep(Duration::from_millis(200)).await;
+            }
+            Err(e) => bail!("DeployAccount receipt timeout: {e}"),
+        }
+    }
+}
+
+/// Add an additional account to `genesis.json`'s `accounts` map.
+///
+/// `katana init rollup` produces a chain config with a single
+/// auto-generated genesis account; in the e2e harness we want the
+/// player (chosen here = DEV_ACCOUNT_0) to be signable on BOTH the
+/// settlement Katana (where it's pre-deployed by `--dev` mode) and
+/// the appchain (where, without this patch, the player isn't
+/// pre-deployed and `Play.set` cannot be sent from that address).
+///
+/// The genesis JSON keys accounts by address string, so we just
+/// append a new entry referencing the same OZ account class hash as
+/// the auto-generated genesis account. Salt is dummy — Katana keys
+/// the address from the JSON map key, not from a recomputed hash, so
+/// the salt value doesn't have to be cryptographically consistent.
+pub fn patch_genesis_with_extra_account(
+    genesis_path: &Path,
+    address: Felt,
+    public_key: Felt,
+    private_key: Felt,
+    class_hash: Felt,
+    balance_wei_hex: &str,
+) -> Result<()> {
+    let bytes =
+        std::fs::read(genesis_path).with_context(|| format!("read {}", genesis_path.display()))?;
+    let mut v: Value = serde_json::from_slice(&bytes)
+        .with_context(|| format!("parse {} as JSON", genesis_path.display()))?;
+
+    let accounts = v
+        .get_mut("accounts")
+        .and_then(Value::as_object_mut)
+        .ok_or_else(|| anyhow!("no accounts object in {}", genesis_path.display()))?;
+
+    let key = format!("{:#x}", address);
+    // Katana's `deploy_predeployed_dev_account` computes the actual
+    // contract-deploy address as
+    // `get_contract_address(salt, class_hash, [public_key], 0)` and
+    // ignores the JSON map key. To make the deployed contract land at
+    // exactly `address`, the salt MUST be the one that hashes
+    // `(salt, class_hash, [public_key], 0)` to `address`. Katana's
+    // `--dev` mode uses `GenesisAccount::DEFAULT_SALT = felt!("666") =
+    // 0x29a`, so we set the same salt here. For DEV_ACCOUNT_0
+    // specifically — whose pubkey/class came from the same `--dev`
+    // generator — this reproduces the same derived address on the
+    // appchain that settlement already uses.
+    let entry = serde_json::json!({
+        "publicKey": format!("{:#x}", public_key),
+        "privateKey": format!("{:#x}", private_key),
+        "class": format!("{:#x}", class_hash),
+        "balance": balance_wei_hex,
+        "salt": "0x29a", // = felt!("666") — Katana's DEFAULT_SALT for dev accounts
+        "nonce": null,
+        "storage": null,
+    });
+    accounts.insert(key.clone(), entry);
+
+    std::fs::write(genesis_path, serde_json::to_vec_pretty(&v)?)
+        .with_context(|| format!("write patched {}", genesis_path.display()))?;
+    info!(
+        "patched {} with extra account {key}",
+        genesis_path.display()
+    );
+    Ok(())
+}
+
 fn parse_genesis_account(path: &Path) -> Result<GenesisAccount> {
     let bytes = std::fs::read(path).with_context(|| format!("read {}", path.display()))?;
     let v: Value =

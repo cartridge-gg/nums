@@ -66,10 +66,19 @@ async fn happy_path_full_saya_round_trip() -> Result<()> {
     let env = TestEnv::start().await?;
     env.assert_infrastructure_ready().await?;
 
-    // Player == appchain rollup genesis account. See module-level docs
-    // for why this is preferred over DEV_ACCOUNT_0 in the real-Saya
-    // flow (must be signable on both chains; appchain rollup mode only
-    // pre-deploys the genesis account, not Katana's --dev accounts).
+    // Player == rollup genesis account on BOTH chains. The harness's
+    // step 2b in `TestEnv::start` sends a `DeployAccount v3` tx on the
+    // settlement chain so the appchain genesis account is also live
+    // there — same address (derived from the same salt/class/pubkey),
+    // signable by the same private key. The same player address
+    // therefore:
+    //   - owns the Collection NFT minted by `Play.mint` on settlement,
+    //   - owns the mirrored Collection NFT minted by `Play.create` on
+    //     the appchain,
+    //   - signs `Play.set` on the appchain (where it's pre-deployed by
+    //     the rollup chain spec),
+    //   - signs `Play.claim` on settlement (where the harness
+    //     `DeployAccount`'d it at the same address).
     let appchain_player = env.appchain_account()?;
     let settlement_player = env.appchain_player_on_settlement()?;
     let player_addr: Felt = appchain_player.address();

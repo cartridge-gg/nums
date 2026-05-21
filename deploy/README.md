@@ -1,109 +1,102 @@
-# Nums bridge — Docker Compose deployment
+# Nums bridge — Sepolia-settled local deploy
 
-End-to-end orchestration for a real Nums bridge that settles on
-**Starknet Sepolia**. One `docker compose up` produces:
+Four bash scripts. No docker, no compose, no templates.
 
-- A long-running Katana node acting as the **appchain** (rollup mode).
-- A long-running `saya-tee` proving every appchain block and submitting
-  state roots to a Piltover core deployed on Sepolia.
-- All Cairo contracts migrated and wired on both chains (Setup, Play,
-  Collection, Vault, Token, Treasury, plus the Piltover core and the
-  AMD TEE registry mock on Sepolia).
-
-The TEE pipeline runs in **mock-prove mode** (no SEV-SNP hardware
-required). See [`docs/SAYA_TEE_SETUP.md`](../docs/SAYA_TEE_SETUP.md)
-for the rationale; the same approach is used by `tests/e2e/`.
+End state: a local appchain Katana settling to Sepolia via `saya-tee`
+(mock-prove), with Torii indexing the appchain world for the React
+client.
 
 ## Prerequisites
 
-- Docker and `docker compose` (compose plugin v2.20+ — we use
-  `service_completed_successfully` and named bind-volumes).
-- A Starknet Sepolia account with **≥5 STRK** in its balance (covers
-  the Piltover deploy + Dojo migrate; the bootstrap aborts early on
-  `out of funds`).
+Binaries on `PATH`: `katana`, `sozo`, `saya-tee`, `saya-ops`, `torii`,
+plus `scarb` and `jq`.
 
-## One-time setup
+Sepolia deployer with **≥5 STRK** (covers `sozo migrate` + ongoing
+`saya-tee` state submits).
 
 ```sh
 cp deploy/.env.sample deploy/.env
-# Edit deploy/.env: fill in SEPOLIA_DEPLOYER_ADDRESS,
-# SEPOLIA_DEPLOYER_PRIVATE_KEY, and SEPOLIA_PROVER_PRIVATE_KEY.
+# Fill in SEPOLIA_DEPLOYER_PRIVATE_KEY and SEPOLIA_PROVER_PRIVATE_KEY
+source deploy/.env
 ```
+
+Everything else (RPC URL, deployer address, Piltover address, world
+seed, TEE registry salt) is hardcoded inside the scripts.
 
 ## Run
 
-From the repo root:
+Each script blocks; run them in separate terminals (or `tmux` / `nohup`).
 
 ```sh
-docker compose -f deploy/docker-compose.yml --env-file deploy/.env up
+# Terminal 1 — appchain Katana. Bootstraps Piltover + TEE registry on
+# first run if deploy/chain-config/ is missing.
+bash deploy/scripts/katana.sh
+
+# Terminal 2 — sozo build + migrate both worlds, then wire the bridge
+# and seed the settlement Vault. One-shot.
+bash deploy/scripts/migrate.sh
+
+# Terminal 3 — saya-tee in mock-prove mode.
+bash deploy/scripts/saya.sh
+
+# Terminal 4 — Torii indexer for the appchain world.
+bash deploy/scripts/torii.sh
 ```
 
-Stage-by-stage logs land on the same console (`bootstrap-settlement →
-katana → migrate → saya`). Expected wall-clock on a fast connection:
-~15 minutes; the long tail is the `sozo migrate` on Sepolia.
+When `saya.sh` starts logging `Chain advanced to new block`, the bridge
+is live. Host endpoints:
 
-When `saya` starts logging `Chain advanced to new block`, the bridge
-is live. The appchain RPC is reachable at `http://localhost:5050`
-from the host.
-
-## Idempotency / restart / reset
-
-- **Restart**: `docker compose down && docker compose up` — Katana
-  data and Saya's attestation DB are kept in named volumes, so
-  restarts pick up where they left off. The bootstrap stage flag
-  files short-circuit Stages A and C; nothing redeploys.
-- **Reset** (wipes EVERYTHING — costs Sepolia gas on next `up`):
-  ```sh
-  docker compose -f deploy/docker-compose.yml --env-file deploy/.env down -v
-  ```
-
-## What the stack does
-
-```
-bootstrap-settlement   one-shot  Stage A
-  └─ katana            long      Stage B   waits for Stage A
-       └─ migrate      one-shot  Stage C   waits for Katana healthy
-            └─ saya    long      Stage D   waits for C
-```
-
-| Stage | What runs | Cost (Sepolia gas) |
-|---|---|---|
-| A | `saya-ops declare-and-deploy-tee-registry-mock` + `katana init rollup --tee --tee-registry-address …` (declares + deploys Piltover core AND wires `set_program_info(KatanaTee)` + `set_facts_registry` in the same init pass — see katana/bin/katana/src/cli/init/deployment.rs:174–212) | ~0.2 STRK |
-| B | `katana --chain ... --tee mock` (long-running) | 0 |
-| C | `sozo migrate` on both chains, `sozo execute … Setup.set_bridge` on both, `sozo execute … Token.approve + Vault.deposit` Vault seed | ~2–5 STRK |
-| D | `saya-tee tee start --mock-prove` (long-running, batches one block per submit) | per-block gas ongoing |
+- Appchain RPC:  `http://localhost:6969`
+- Appchain Torii: `http://localhost:8080`
 
 ## Files
 
-- `docker-compose.yml` — service definitions, volumes, healthchecks.
-- `Dockerfile.tools` — builder image with every CLI the bootstrap +
-  migrate stages need (katana, saya-tee, saya-ops, sozo, scarb, jq,
-  envsubst). No starkli — `sozo execute` handles every contract call
-  the deploy needs.
-- `Dockerfile.katana` / `Dockerfile.saya` — thin runtime images that
-  copy the relevant binaries out of `tools`.
-- `scripts/` — bash translations of `tests/e2e/src/harness.rs`'s
-  `TestEnv::start` for use inside the containers.
-- `templates/` — Dojo profile templates rendered against the
-  bootstrap-generated addresses.
+- `scripts/katana.sh` — appchain Katana + first-run bootstrap.
+- `scripts/migrate.sh` — `sozo migrate` both worlds + bridge wiring.
+- `scripts/saya.sh` — long-running saya-tee.
+- `scripts/torii.sh` — long-running Torii indexer.
+- `chain-config/` — committed rollup chain spec (config.toml +
+  genesis.json). Used by `katana.sh` to start the appchain. The genesis
+  keypair is dev-only and committed intentionally.
+- `../dojo_settlement.toml` / `../dojo_appchain.toml` — committed Dojo
+  profiles. The deployer `private_key` is read by sozo from the
+  `DOJO_PRIVATE_KEY` env var (sourced in `migrate.sh`); the appchain
+  genesis keypair is inlined (local-dev chain only).
 
 ## Pitfalls
 
-- **Class hash equality**: Dojo's address derivation depends on the
-  Play class hash. `scripts/03_migrate_worlds.sh` re-runs the same
-  `force_play_artifacts_match` workaround the e2e harness uses
-  (`harness.rs:321`); if Dojo's Sierra non-determinism gets fixed
-  upstream, drop the copy step.
-- **`--tee mock` is dev-only**: Same caveat as in
-  `docs/SAYA_TEE_SETUP.md`. Production needs SEV-SNP hardware and a
-  real Piltover TEE registry. Don't ship the mock registry to mainnet.
-- **Sepolia gas spikes**: bursty migrate txs sometimes hit the
-  free-RPC rate limit. If you see `429`s in `migrate` logs, retry —
-  the script is restart-safe (Dojo's manifests are append-only).
-- **Saya version**: `Dockerfile.saya` + `Dockerfile.tools` pull
-  `saya-tee`/`saya-ops` binaries from `ghcr.io/dojoengine/saya:v0.4.0`
-  (pinned via `SAYA_VERSION` build-arg). If a future
-  `saya-tee` regresses `compute_l1_to_l2_msg_hash` and you see
-  `'tee: invalid messages'` from Piltover on message-carrying blocks,
-  pin `SAYA_VERSION` to a known-good build and apply
-  `deploy/patches/saya-l1-handler-hash.patch` via a custom build stage.
+- **First-run bootstrap**: if `deploy/chain-config/` is missing, the
+  Katana script deploys Piltover on Sepolia and runs `katana init
+  rollup` to populate it. That generates a fresh appchain genesis
+  keypair, so `dojo_appchain.toml`'s inlined `account_address` /
+  `private_key` will be stale — copy the new values out of
+  `deploy/chain-config/genesis.json` before running `migrate.sh`.
+- **Re-running `migrate.sh`** is safe: Dojo's manifests are
+  append-only and the multicall is idempotent. Side effect — the Vault
+  gets a second 1 NUMS deposit per run, which is benign (the seed only
+  needs `total_shares != 0`).
+- **Sepolia gas spikes** sometimes return bogus fee estimates from the
+  RPC right after a parallel sozo migrate burst. Re-running the failed
+  step is the fix.
+- **`--tee mock` is dev-only**. Production needs SEV-SNP hardware and a
+  real Piltover TEE registry.
+
+## Client
+
+To run the React client against this stack, alias the appchain as
+"Sepolia" inside the UI (the client only knows `SN_MAIN` and
+`SN_SEPOLIA`):
+
+```sh
+cp manifest_appchain.json manifest_sepolia.json
+
+cat > client/.env <<'EOF'
+VITE_DEFAULT_CHAIN=SN_SEPOLIA
+VITE_SN_SEPOLIA_RPC_URL=http://localhost:6969
+VITE_SN_SEPOLIA_TORII_URL=http://localhost:8080
+VITE_SN_SEPOLIA_VRF=0x0
+EOF
+
+pnpm install
+pnpm dev   # http://localhost:1337
+```

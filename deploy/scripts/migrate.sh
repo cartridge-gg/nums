@@ -47,26 +47,21 @@ run_appchain=true
 cd "${REPO_ROOT}"
 mkdir -p "${LOG_DIR}"
 
-# Build settlement whenever the appchain is in scope — the Play-artifact
-# copy below needs target/settlement/ even when only the appchain migrates.
-if ${run_settlement} || ${run_appchain}; then
-    log "sozo build (settlement)"
-    sozo build --profile settlement
-fi
-if ${run_appchain}; then
-    log "sozo build (appchain)"
-    sozo build --profile appchain
-
-    # Sierra non-determinism workaround: force the appchain's Play
-    # artifacts to match the settlement's so both chains declare the same
-    # Play class (required for the bridge's address-equality invariant).
-    # Drop when upstream Dojo determinism lands. See
-    # tests/e2e/src/harness.rs:283–322.
-    log "force Play artifacts to match"
-    for fname in nums_Play.contract_class.json nums_Play.compiled_contract_class.json; do
-        cp -f "target/settlement/${fname}" "target/appchain/${fname}"
-    done
-fi
+# Build BOTH profiles + run the Play-artifact copy unconditionally, even
+# under --only. Sierra non-determinism means independent builds of Play
+# across time produce different class hashes (verified: back-to-back
+# `sozo build --profile X` runs of the same source give different
+# nums_Play.contract_class.json hashes). With one-sided --only runs, the
+# unrefreshed side keeps a stale class hash and the Play contract
+# addresses diverge across chains, breaking the bridge's address-equality
+# invariant. Always rebuild + recopy keeps them locked together.
+# Drop when upstream Dojo determinism lands; see tests/e2e/src/harness.rs:283–322.
+log "sozo build (settlement + appchain) + force Play artifacts to match"
+sozo build --profile settlement
+sozo build --profile appchain
+for fname in nums_Play.contract_class.json nums_Play.compiled_contract_class.json; do
+    cp -f "target/settlement/${fname}" "target/appchain/${fname}"
+done
 
 if ${run_settlement} && ${run_appchain}; then
     log "sozo migrate (parallel)"

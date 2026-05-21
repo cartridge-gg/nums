@@ -51,11 +51,10 @@ mkdir -p "${LOG_DIR}"
 # under --only. Sierra non-determinism means independent builds of Play
 # across time produce different class hashes (verified: back-to-back
 # `sozo build --profile X` runs of the same source give different
-# nums_Play.contract_class.json hashes). With one-sided --only runs, the
-# unrefreshed side keeps a stale class hash and the Play contract
-# addresses diverge across chains, breaking the bridge's address-equality
-# invariant. Always rebuild + recopy keeps them locked together.
-# Drop when upstream Dojo determinism lands; see tests/e2e/src/harness.rs:283–322.
+# nums_Play.contract_class.json hashes). Keeping the class hashes in
+# sync across chains means Play has identical behavior on both sides;
+# the bridge wires the cross-chain ROUTING via set_bridge's `peer` arg
+# below, so contract addresses themselves no longer need to match.
 log "sozo build (settlement + appchain) + force Play artifacts to match"
 sozo build --profile settlement
 sozo build --profile appchain

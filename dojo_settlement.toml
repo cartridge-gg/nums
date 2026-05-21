@@ -7,12 +7,12 @@
 [world]
 name = "Nums"
 # SHARED seed across both profiles. MUST match dojo_appchain.toml's seed —
-# Dojo derives the world address from (class_hash, seed); both chains must
-# land at the same world address for the bridge's address-equality
-# invariant (mainnet Play addr == appchain Play addr) to hold. See
-# tests/e2e/src/harness.rs::force_play_artifacts_match for the Play-class
-# half of the same story.
-seed = "nums-sepolia-v0.0.1"
+# Dojo derives the world address from (class_hash, seed). Both chains
+# landing at the same world address keeps Dojo selectors / dispatcher
+# wiring symmetric. The bridge itself routes via Setup.set_bridge's
+# explicit `peer` arg, so Play contract addresses no longer need to be
+# equal across chains.
+seed = "nums-sepolia-v0.0.2"
 description = "Nums settlement world (Sepolia deployment)"
 website = "https://nums.gg"
 

@@ -9,8 +9,8 @@
 [world]
 name = "Nums"
 # SHARED seed across both profiles. MUST match dojo_settlement.toml's
-# seed. See that file's comment for the address-equality rationale.
-seed = "nums-sepolia-v0.0.1"
+# seed. See that file's comment.
+seed = "nums-sepolia-v0.0.2"
 description = "Nums appchain world (Sepolia-settled rollup)"
 website = "https://nums.gg"
 

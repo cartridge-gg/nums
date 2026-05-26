@@ -57,7 +57,17 @@ pub struct Game {
 pub struct Bridge {
     #[key]
     pub world_resource: felt252,
+    /// Piltover messaging contract address on this chain.
     pub address: ContractAddress,
+    /// Cross-chain `Play` peer address — i.e. the appchain `Play` address
+    /// when this Bridge lives on settlement, and the settlement `Play`
+    /// address when this Bridge lives on the appchain. Used by every
+    /// cross-chain send/receive site to address messages and validate
+    /// senders instead of the previous `this == that` invariant. May be
+    /// `0` immediately after Setup.initialize; the deploy is expected to
+    /// call `Setup.set_bridge` once both chains have migrated and their
+    /// `Play` addresses are known.
+    pub peer: ContractAddress,
 }
 
 #[derive(Copy, Drop, Serde)]

@@ -15,10 +15,7 @@ Last updated: `feat/tee-appchain-saya` branch (stacked on
 | Cairo unit | `Bridge` model default-zero in test world | `test_local_path_bridge_config_zero_defaults`, `test_bridge_config_fields_zero_by_default` | ✓ Anchors the test environment in a known state |
 | Cairo unit | EMA push baseline | `test_ema_push_is_non_commutative` | ✓ Locked-in design assumption |
 | Cairo unit | Pre-existing game/trap/helper tests | (legacy suite) | ✓ Unchanged by the bridge refactor |
-| **E2E** | **Forward bridge path (mainnet → appchain)** | `happy_path_full_saya_round_trip` (forward half) | ✓ Auto-delivery via Katana messaging worker |
-| **E2E** | **Reverse bridge path (appchain → mainnet) — real Saya** | `happy_path_full_saya_round_trip` (reverse half) | ✓ Real gameplay loop → `send_message_to_l1_syscall` → `saya-tee --mock-prove` state-root commit → mainnet `Play.claim` |
-| **E2E** | Piltover `appc_to_sn` hash formula sanity | `message_hash_matches_piltover_formula` | ✓ Locks in the off-chain hash impl |
-| | | **160 / 160 unit + 2 / 2 e2e** | |
+| | | **160 / 160 unit** | |
 
 ## What the refactor changed
 
@@ -37,55 +34,6 @@ The `Materializer` contract, its tests, the `PendingPurchase` /
 (`e_PurchaseInitiated`, `e_GameClaimApplied`) were removed. The
 `Bridge` model was simplified to a single `address` field (the
 Piltover messaging contract used for both directions).
-
-## E2E coverage — real Saya round-trip
-
-`happy_path_full_saya_round_trip` runs the full bridge loop against
-two real Katanas plus a real `saya-tee --mock-prove` child process.
-The flow:
-
-1. `Setup.issue` calls `Play.mint(recipient, multiplier, supply,
-   price, soulbound, qty)` on mainnet.
-2. For each unit, mainnet `Play.mint`:
-   - mints a `Collection` NFT (gets a fresh `game_id`),
-   - sends a Piltover message via `send_message_to_appchain` carrying
-     a serialized `Payload`.
-3. Katana's messaging worker delivers the L1Handler to appchain
-   `Play.create(from_address, player, game_id, multiplier, supply,
-   price)`.
-4. Appchain `Play.create`:
-   - asserts `from_address == this` (the address-equality assumption,
-     see `BRIDGE_ARCHITECTURE.md`),
-   - re-mints the `Collection` NFT on the appchain with the same
-     `game_id`,
-   - calls `playable.create(...)` to start the game.
-
-5. Player drives the appchain game to completion via repeated
-   `Play.set(game_id, index)` calls. When `game.over != 0`, the
-   terminating tx triggers `Playable.finish`, which builds the
-   reverse `Payload` and enqueues it via
-   `send_message_to_l1_syscall(this, payload)`.
-6. `saya-tee` polls the appchain, batches the block, generates a
-   stub TEE attestation (verified against the
-   `piltover_mock_amd_tee_registry` deployed by the harness), and
-   calls `update_state(...)` on the settlement Piltover core.
-7. Player calls mainnet `Play.claim(payload)`:
-   `consume_message_from_appchain` accepts the now-`ReadyToConsume`
-   message, `Collection.assert_is_owner` enforces NFT ownership, and
-   `Playable.claim` mints NUMS + pushes the EMA.
-
-Harness assertions:
-
-- `read_player_games_count(player)` on the **appchain** `Collection`
-  increases by `qty` after the forward delivery.
-- The reverse payload extracted from `receipt.messages_sent` has the
-  expected 9-felt Cairo Serde layout (game_id, player, multiplier,
-  supply.lo/hi, price.lo/hi, level, reward).
-- The Piltover storage view `appchain_to_sn_messages(hash)` transitions
-  from `NothingToConsume` to `ReadyToConsume(>=1)` after the Saya
-  commit.
-- Mainnet `Token.balance_of(player)` increases by `payload.reward`
-  after `Play.claim`.
 
 ## Coverage gaps (deferred to follow-up PRs)
 
@@ -159,8 +107,6 @@ obsolete:
   work).
 - `sozo test` — 160 passed.
 - `scarb fmt --check` — clean.
-- `cargo check --tests --manifest-path tests/e2e/Cargo.toml` — passes
-  on the retargeted harness.
 - `pnpm run type:check`, `pnpm run lint:check`, `pnpm run test` — pass;
   client TS unaffected by this refactor except for the slot-count
   20→18 trap test updates (102 / 102 passing).

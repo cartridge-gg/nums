@@ -1,3 +1,12 @@
 # `deploy/.env` is covered by the repo-root .gitignore (`.env`, `.env.*`
 # with `!.env.sample`), so the operator's secrets stay out of git and
 # `.env.sample` stays in.
+
+# Long-running service data + logs written here by deploy/scripts/*
+# (katana DB, torii DB, saya DB, migrate logs). Regenerate by re-running
+# the scripts. `chain-config/` is committed and intentionally not ignored.
+katana-data/
+torii-data/
+saya-data/
+migrate-*.log
+state.env.bk

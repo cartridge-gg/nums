@@ -18,7 +18,7 @@ SEPOLIA_DEPLOYER_ADDRESS="0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707
 PILTOVER_ADDRESS="0x2c784f47b6620b46e9b56e1f9616269f7c56ff54e321483fd011fbd9e3f3a0a"
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-LOG_DIR="${REPO_ROOT}/.local-stack"
+LOG_DIR="${REPO_ROOT}/deploy"
 
 log() { printf '[migrate.sh] %s\n' "$*" >&2; }
 die() { log "$*"; exit 1; }

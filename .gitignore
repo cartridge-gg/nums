@@ -49,10 +49,6 @@ tests/e2e/artifacts/appchain_with_test.contract_class.json
 tests/e2e/Cargo.lock
 tests/e2e/target
 
-# Sepolia bridge deploy — long-running service data (katana DB, torii DB,
-# saya DB, migrate logs). Regenerate by re-running deploy/scripts/*.
-.local-stack/
-
 # Playwright MCP
 .playwright-mcp
 

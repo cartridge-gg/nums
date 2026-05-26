@@ -10,7 +10,7 @@ KATANA_URL="http://localhost:6969"
 HTTP_PORT="8080"
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DATA_DIR="${REPO_ROOT}/.local-stack/torii-data"
+DATA_DIR="${REPO_ROOT}/deploy/torii-data"
 MANIFEST="${REPO_ROOT}/manifest_appchain.json"
 
 log() { printf '[torii.sh] %s\n' "$*" >&2; }

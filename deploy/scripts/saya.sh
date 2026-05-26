@@ -11,7 +11,7 @@ TEE_REGISTRY_ADDRESS="0x2528fd2aef183977ac8e905e179d127efe3ac14feb3a39e2e2d1cdc8
 KATANA_URL="http://localhost:6969"
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DATA_DIR="${REPO_ROOT}/.local-stack/saya-data"
+DATA_DIR="${REPO_ROOT}/deploy/saya-data"
 
 : "${SEPOLIA_DEPLOYER_PRIVATE_KEY:?set SEPOLIA_DEPLOYER_PRIVATE_KEY (source deploy/.env)}"
 : "${SEPOLIA_PROVER_PRIVATE_KEY:?set SEPOLIA_PROVER_PRIVATE_KEY (source deploy/.env)}"

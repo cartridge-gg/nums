@@ -19,7 +19,7 @@ KATANA_HTTP_PORT="6969"
 DEPLOY_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "${DEPLOY_DIR}/.." && pwd)"
 CHAIN_CONFIG_DIR="${DEPLOY_DIR}/chain-config"
-DATA_DIR="${REPO_ROOT}/.local-stack/katana-data"
+DATA_DIR="${DEPLOY_DIR}/katana-data"
 
 log() { printf '[katana.sh] %s\n' "$*" >&2; }
 
@@ -68,6 +68,7 @@ exec katana \
     --http.addr 0.0.0.0 \
     --http.port "${KATANA_HTTP_PORT}" \
     --http.cors-origins "*" \
+    --messaging.enabled \
     --explorer \
     --tee mock \
     --dev --dev.no-fee \

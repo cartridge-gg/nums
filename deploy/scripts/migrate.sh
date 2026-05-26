@@ -120,22 +120,14 @@ if ${run_sepolia}; then
     [[ "${appchain_play}" == "0x0" ]] \
         && log "WARN: manifest_appchain.json missing — sepolia set_bridge will not wire the appchain peer"
 
-    # set_bridge must run on its OWN — do NOT fold it into a multicall with
-    # the `u256:`-bearing approve/deposit calls below. sozo's `/`-delimited
-    # multicall + `u256:` expansion mis-aligns set_bridge's `peer` arg
-    # (observed: peer wired to a garbage address while bridge_messaging
-    # landed correctly). The appchain set_bridge, run standalone, is fine.
-    log "sepolia: Setup.set_bridge"
-    DOJO_PRIVATE_KEY="${SEPOLIA_DEPLOYER_PRIVATE_KEY}" \
-        sozo execute --profile sepolia \
-            NUMS-Setup set_bridge "${PILTOVER_ADDRESS}" "${appchain_play}"
-
-    # Bundle the Vault funding into one multicall so approve + deposit share
+    # Bundle sepolia-side state changes into one multicall so they share
     # a single nonce — running as separate invocations races the Sepolia
     # RPC's view of the deployer's nonce.
-    log "sepolia: Token.approve + Vault.deposit (multicall)"
+    log "sepolia: Setup.set_bridge + Token.approve + Vault.deposit (multicall)"
     DOJO_PRIVATE_KEY="${SEPOLIA_DEPLOYER_PRIVATE_KEY}" \
         sozo execute --profile sepolia \
+            NUMS-Setup set_bridge "${PILTOVER_ADDRESS}" "${appchain_play}" \
+            / \
             NUMS-Token approve "${vault_address}" "${NUMS_ONE_U256}" \
             / \
             NUMS-Vault deposit "${NUMS_ONE_U256}" "${SEPOLIA_DEPLOYER_ADDRESS}"

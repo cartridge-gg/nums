@@ -33,7 +33,7 @@ Each script blocks; run them in separate terminals (or `tmux` / `nohup`).
 bash deploy/scripts/katana.sh
 
 # Terminal 2 — sozo build + migrate both worlds, then wire the bridge
-# and seed the settlement Vault. One-shot.
+# and seed the Sepolia (settlement) Vault. One-shot.
 bash deploy/scripts/migrate.sh
 
 # Terminal 3 — saya-tee in mock-prove mode.
@@ -58,7 +58,7 @@ is live. Host endpoints:
 - `chain-config/` — committed rollup chain spec (config.toml +
   genesis.json). Used by `katana.sh` to start the appchain. The genesis
   keypair is dev-only and committed intentionally.
-- `../dojo_settlement.toml` / `../dojo_appchain.toml` — committed Dojo
+- `../dojo_sepolia.toml` / `../dojo_appchain.toml` — committed Dojo
   profiles. The deployer `private_key` is read by sozo from the
   `DOJO_PRIVATE_KEY` env var (sourced in `migrate.sh`); the appchain
   genesis keypair is inlined (local-dev chain only).

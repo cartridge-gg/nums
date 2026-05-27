@@ -1,6 +1,7 @@
 import { createDojoConfig } from "@dojoengine/core";
-import { mainnet, sepolia } from "@starknet-react/chains";
+import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
 import { shortString } from "starknet";
+import manifestAppchain from "../../manifest_appchain.json";
 import manifestMainnet from "../../manifest_mainnet.json";
 import manifestSepolia from "../../manifest_sepolia.json";
 import { NAMESPACE } from "@/constants";
@@ -10,41 +11,126 @@ export const DEFAULT_CHAIN_ID = shortString.encodeShortString(
   import.meta.env.VITE_DEFAULT_CHAIN,
 );
 
+export const PLAY_CHAIN_ID = DEFAULT_CHAIN_ID;
+export const SETTLEMENT_CHAIN_ID = shortString.encodeShortString(
+  import.meta.env.VITE_SETTLEMENT_CHAIN,
+);
+
 export const USDC_ADDRESS =
   "0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb";
 export const SEPOLIA_CHAIN_ID = shortString.encodeShortString("SN_SEPOLIA");
 export const MAINNET_CHAIN_ID = shortString.encodeShortString("SN_MAIN");
+export const APPCHAIN_CHAIN_ID = shortString.encodeShortString(
+  "NUMS_APPCHAIN_SEPOLIA",
+);
 
-export const chainName = {
-  [SEPOLIA_CHAIN_ID]: "Starknet Sepolia",
-  [MAINNET_CHAIN_ID]: "Starknet Mainnet",
+type Manifest = typeof manifestSepolia;
+
+type ChainConfig = {
+  shortName: string;
+  displayName: string;
+  chain: Chain;
+  manifest: Manifest;
+  rpcUrl: string;
+  toriiUrl: string;
 };
 
-export const manifests = {
-  [SEPOLIA_CHAIN_ID]: manifestSepolia,
-  [MAINNET_CHAIN_ID]: manifestMainnet,
+const appchainRpcUrl = import.meta.env.VITE_NUMS_APPCHAIN_SEPOLIA_RPC_URL;
+const appchainToriiUrl = import.meta.env.VITE_NUMS_APPCHAIN_SEPOLIA_TORII_URL;
+
+const appchain: Chain = {
+  id: BigInt(APPCHAIN_CHAIN_ID),
+  network: "nums-appchain-sepolia",
+  name: "Nums Appchain (Sepolia)",
+  nativeCurrency: {
+    address:
+      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    name: "Ether",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  testnet: true,
+  rpcUrls: {
+    default: { http: [] },
+    public: { http: appchainRpcUrl ? [appchainRpcUrl] : [] },
+  },
+  paymasterRpcUrls: {
+    avnu: { http: [] },
+  },
 };
 
-export const chains = {
-  [SEPOLIA_CHAIN_ID]: sepolia,
-  [MAINNET_CHAIN_ID]: mainnet,
+const chainConfigs: Record<string, ChainConfig> = {
+  [SEPOLIA_CHAIN_ID]: {
+    shortName: "SN_SEPOLIA",
+    displayName: "Starknet Sepolia",
+    chain: sepolia,
+    manifest: manifestSepolia,
+    rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL,
+    toriiUrl: import.meta.env.VITE_SN_SEPOLIA_TORII_URL,
+  },
+  [MAINNET_CHAIN_ID]: {
+    shortName: "SN_MAIN",
+    displayName: "Starknet Mainnet",
+    chain: mainnet,
+    manifest: manifestMainnet as Manifest,
+    rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL,
+    toriiUrl: import.meta.env.VITE_SN_MAIN_TORII_URL,
+  },
+  [APPCHAIN_CHAIN_ID]: {
+    shortName: "NUMS_APPCHAIN_SEPOLIA",
+    displayName: "Nums Appchain (Sepolia)",
+    chain: appchain,
+    manifest: manifestAppchain as Manifest,
+    rpcUrl: appchainRpcUrl,
+    toriiUrl: appchainToriiUrl,
+  },
 };
 
-const dojoConfigSepolia = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SN_SEPOLIA_TORII_URL,
-  manifest: manifestSepolia,
-});
+for (const [role, id] of [
+  ["VITE_DEFAULT_CHAIN", PLAY_CHAIN_ID],
+  ["VITE_SETTLEMENT_CHAIN", SETTLEMENT_CHAIN_ID],
+] as const) {
+  const cfg = chainConfigs[id];
+  if (!cfg) {
+    throw new Error(
+      `Chain ${id} (from ${role}) is not registered in chainConfigs`,
+    );
+  }
+  if (!cfg.rpcUrl) {
+    throw new Error(
+      `Missing RPC URL for ${cfg.shortName} (set VITE_${cfg.shortName}_RPC_URL); required for ${role}`,
+    );
+  }
+  if (!cfg.toriiUrl) {
+    throw new Error(
+      `Missing Torii URL for ${cfg.shortName} (set VITE_${cfg.shortName}_TORII_URL); required for ${role}`,
+    );
+  }
+}
 
-const dojoConfigMainnet = createDojoConfig({
-  rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL,
-  toriiUrl: import.meta.env.VITE_SN_MAIN_TORII_URL,
-  manifest: manifestMainnet,
-});
+const mapChainConfigs = <T>(fn: (cfg: ChainConfig) => T): Record<string, T> =>
+  Object.fromEntries(
+    Object.entries(chainConfigs).map(([id, cfg]) => [id, fn(cfg)]),
+  );
 
-export const dojoConfigs = {
-  [SEPOLIA_CHAIN_ID]: dojoConfigSepolia,
-  [MAINNET_CHAIN_ID]: dojoConfigMainnet,
+export const chainName = mapChainConfigs((cfg) => cfg.displayName);
+export const manifests = mapChainConfigs((cfg) => cfg.manifest);
+export const chains = mapChainConfigs((cfg) => cfg.chain);
+export const dojoConfigs = mapChainConfigs((cfg) =>
+  createDojoConfig({
+    rpcUrl: cfg.rpcUrl,
+    toriiUrl: cfg.toriiUrl,
+    manifest: cfg.manifest,
+  }),
+);
+
+const getChainConfig = (chainId: bigint): ChainConfig => {
+  const chainIdHex = `0x${chainId.toString(16)}`;
+  const cfg = chainConfigs[chainIdHex];
+  if (!cfg) {
+    throw new Error(`Unsupported chain id: ${chainIdHex}`);
+  }
+  return cfg;
 };
 
 export const getEkuboUrl = (chainId: bigint) => {
@@ -56,9 +142,7 @@ export const getContractAddress = (
   namespace: string,
   contractName: string,
 ) => {
-  const chainIdHex = `0x${chainId.toString(16)}`;
-
-  const manifest = manifests[chainIdHex];
+  const { manifest } = getChainConfig(chainId);
   const contract = manifest.contracts.find(
     (i) => i.tag === `${namespace}-${contractName}`,
   );
@@ -69,10 +153,8 @@ export const getContractAddress = (
 };
 
 export const getVrfAddress = (chainId: bigint) => {
-  const decodedChainId = shortString.decodeShortString(
-    `0x${chainId.toString(16)}`,
-  );
-  const fromEnv = import.meta.env[`VITE_${decodedChainId}_VRF`];
+  const { shortName } = getChainConfig(chainId);
+  const fromEnv = import.meta.env[`VITE_${shortName}_VRF`];
   if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "MockVRF");
 };
@@ -82,10 +164,8 @@ export const getTokenAddress = (chainId: bigint) => {
 };
 
 export const getFaucetAddress = (chainId: bigint) => {
-  const decodedChainId = shortString.decodeShortString(
-    `0x${chainId.toString(16)}`,
-  );
-  const fromEnv = import.meta.env[`VITE_${decodedChainId}_QUOTE`];
+  const { shortName } = getChainConfig(chainId);
+  const fromEnv = import.meta.env[`VITE_${shortName}_QUOTE`];
   if (fromEnv && BigInt(fromEnv) !== 0n) return fromEnv;
   return getContractAddress(chainId, NAMESPACE, "Faucet");
 };

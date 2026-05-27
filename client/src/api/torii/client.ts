@@ -1,39 +1,51 @@
 import * as torii from "@dojoengine/torii-wasm";
 import { ToriiGrpcClient } from "@dojoengine/grpc";
-import { DEFAULT_CHAIN_ID, dojoConfigs } from "@/config";
+import { dojoConfigs, PLAY_CHAIN_ID } from "@/config";
 
-let clientInstance: torii.ToriiClient | null = null;
-let clientPromise: Promise<torii.ToriiClient> | null = null;
+const wasmClients = new Map<string, Promise<torii.ToriiClient>>();
 
-export async function initToriiClient(): Promise<torii.ToriiClient> {
-  if (clientInstance) return clientInstance;
-  if (clientPromise) return clientPromise;
+export function getToriiClient(
+  chainId: string = PLAY_CHAIN_ID,
+): Promise<torii.ToriiClient> {
+  const existing = wasmClients.get(chainId);
+  if (existing) return existing;
 
-  const toriiUrl = dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl;
+  const cfg = dojoConfigs[chainId];
+  if (!cfg) {
+    throw new Error(`No dojo config registered for chain ${chainId}`);
+  }
 
-  clientPromise = (async () => {
-    const client = await new torii.ToriiClient({
-      toriiUrl,
+  const promise = Promise.resolve(
+    new torii.ToriiClient({
+      toriiUrl: cfg.toriiUrl,
       worldAddress: "0x0",
-    });
-    clientInstance = client;
-    return client;
-  })();
-
-  return clientPromise;
+    }),
+  );
+  wasmClients.set(chainId, promise);
+  return promise;
 }
 
-let grpcInstance: ToriiGrpcClient | null = null;
+export const initToriiClient = () => getToriiClient(PLAY_CHAIN_ID);
 
-export function initGrpcClient(): ToriiGrpcClient {
-  if (grpcInstance) return grpcInstance;
+const grpcClients = new Map<string, ToriiGrpcClient>();
 
-  const toriiUrl = dojoConfigs[DEFAULT_CHAIN_ID].toriiUrl;
+export function getGrpcClient(
+  chainId: string = PLAY_CHAIN_ID,
+): ToriiGrpcClient {
+  let client = grpcClients.get(chainId);
+  if (client) return client;
 
-  grpcInstance = new ToriiGrpcClient({
-    toriiUrl,
+  const cfg = dojoConfigs[chainId];
+  if (!cfg) {
+    throw new Error(`No dojo config registered for chain ${chainId}`);
+  }
+
+  client = new ToriiGrpcClient({
+    toriiUrl: cfg.toriiUrl,
     worldAddress: "0x0",
   });
-
-  return grpcInstance;
+  grpcClients.set(chainId, client);
+  return client;
 }
+
+export const initGrpcClient = () => getGrpcClient(PLAY_CHAIN_ID);

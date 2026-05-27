@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
-    "address": "0xe0618d4f8c9b2008501141e275fc0d6ca99b9e0629fc3e7e5062f0264c5e01",
-    "seed": "nums-sepolia-v0.0.3",
+    "address": "0x55d4bb3273254a3bb8a98a0252edc9ef14b1710720592593c76e3ada06d1d3a",
+    "seed": "0x1234567890abb",
     "name": "Nums",
     "entrypoints": [
       "uuid",
@@ -33,7 +33,7 @@
   },
   "contracts": [
     {
-      "address": "0x2135baa985395aa7e254407dae5606806774ad48829952d151514b11c30a9f0",
+      "address": "0x1d14b4a337b5fa3ed31c6785bd5634786eb6fc5d85bee6d8c0dcf59d5caaff",
       "class_hash": "0x295f44b683a92006a95ff2ec1db6fa6c065e76ac8a23dce97dc1ef89928d255",
       "init_calldata": [],
       "tag": "NUMS-Collection",
@@ -56,11 +56,11 @@
       ]
     },
     {
-      "address": "0x72a878bd1e495646a77fdb080889c7367cf9d37b6713d08eec1d82f7f048796",
+      "address": "0x3f77420242cc28b40e61504335f3863ec1da63af6713473f9585df22acbf3e4",
       "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Faucet",
       "selector": "0x7f375e045e15d0abdd0ac04a5c315f8af42af9bf60d46897bda5307b14a149",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "address": "0x57a61324815ad12132f29967ef22e134dab2db5e154c80ced882e64189f4f94",
+      "address": "0x7e7e89bd43f78627f0ec42328a318775b1f39cf104dab42c3aad388518af269",
       "class_hash": "0x1a04ad3d4066d571d7fd4334b6acac70140fded7f55cfe4a7396ce77b9fe417",
       "init_calldata": [],
       "tag": "NUMS-Governor",
@@ -121,25 +121,24 @@
       ]
     },
     {
-      "address": "0x165627fc2eefbbc1d02ea04b99f3ac9537c5016132c152b865d9347e5ad4a82",
-      "class_hash": "0x6949cda12724bfeead20a04451a02c933e4d23c77dc1e28e7353793a9487564",
+      "address": "0x38753f615f4b42d75e1bc829a26798a265045db09922d618c5b10257b6352f0",
+      "class_hash": "0x2af409fc4e7b8f099fb03d6e77a09d65f6ccc579f041aeb097ebc0b17db3610",
       "init_calldata": [
-        "0x0",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
         "0x1",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
+        "0x1",
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0",
         "0x0",
         "0x0",
         "0x1E8480",
         "0xD3C21BCECCEDA1000000",
-        "0x0",
+        "0x46",
         "0x32",
         "0xA",
         "0x0",
         "0x0",
         "0x0",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
-        "0x2c784f47b6620b46e9b56e1f9616269f7c56ff54e321483fd011fbd9e3f3a0a"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0",
+        "0x4f36831b9514aadc92786b6ac54549e8af232ca76f6248f2a38ca8aede6617"
       ],
       "tag": "NUMS-Setup",
       "selector": "0x7e892d735ebc74cab8eb1b1700c2155e33845b03aaa4a4c33ca0ed7c3b7b6da",
@@ -168,11 +167,11 @@
       ]
     },
     {
-      "address": "0x36a1766c4ec1dbbabb79c56cf7a3d5244ce920b8e717425ef2116cc34a55d10",
+      "address": "0x7e5f36a8291a581b44914751516db8bb2eedcbb14c86bad726bf57cd82f30d",
       "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Token",
       "selector": "0x500199e486811b06dd992b129c72f48d8859c1ee14b4e18c6564d32cf38e6c1",
@@ -191,11 +190,11 @@
       ]
     },
     {
-      "address": "0x62f7022b8fa5da99c0dfede8f64be926c52445eb4bb93785d9bf25f05adc417",
+      "address": "0x17e691e5c95726005f8a4ec39bf9cf197341851ccbd40b9c26ed991d49e6740",
       "class_hash": "0x108c043199db093d66dc239f259a9dd0821f6e9f83ed1b667647ff8bfe6cb0",
       "init_calldata": [
         "0xe10",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Treasury",
       "selector": "0x4830c7127b47657b7b187f2acba1b9cddd78525c01aa5c89d9bf2696e07c1af",
@@ -219,12 +218,9 @@
       ]
     },
     {
-      "address": "0x174ba110f47c4141f8be5896205f7bf6acf501ad55f732e3305bd4726515176",
+      "address": "0x4aa6b650363be5160de27b670c2a61534ae379cc77b7df430fa7cce528b1a36",
       "class_hash": "0x15ae3ba4ebfc7a35f6c45e2e65ac5815bfd37cdcba1db69ae2f8969934609d8",
-      "init_calldata": [
-        "0x1",
-        "0x0"
-      ],
+      "init_calldata": ["0x1", "0x0"],
       "tag": "NUMS-Vault",
       "selector": "0x62e34e3b9b2ffaeb5384597a44c02d8219a11a1d8b5ba667422c244c599324",
       "systems": [
@@ -251,6 +247,19 @@
         "transfer_from",
         "approve",
         "transferFrom"
+      ]
+    },
+    {
+      "address": "0x44d1da5a3ecfc20233e4e938d01d0f3a2608be9a322f765625583b6ca5a7f70",
+      "class_hash": "0x5620980b638f10936c193612df4732e91c1d947730ea75c419c1d96c5493b79",
+      "init_calldata": [],
+      "tag": "NUMS-Vrf",
+      "selector": "0x70d0e584424de8733cbd89780caafc8e4fb98d332c46f8c2e60429f4b7998bf",
+      "systems": [
+        "request_random",
+        "consume_random",
+        "assert_consumed",
+        "upgrade"
       ]
     }
   ],
@@ -370,14 +379,9 @@
           "name": "address",
           "type": "core::starknet::contract_address::ContractAddress",
           "key": false
-        },
-        {
-          "name": "peer",
-          "type": "core::starknet::contract_address::ContractAddress",
-          "key": false
         }
       ],
-      "class_hash": "0x6b2df5f9751c7c1895981b6e10f2666eabae9fda8c5ce92a0d4222a656a719c",
+      "class_hash": "0x59a07ff5b94baba0af06dcab963ab327ccbda78e2d26099b7b134ab07288763",
       "tag": "NUMS-Bridge",
       "selector": "0x59e750d4926cc46cd65c1086d2f72503f3a3970ee11821de664039042f385ec"
     },
@@ -2064,6 +2068,18 @@
       ]
     },
     {
+      "type": "function",
+      "name": "assert_consumed",
+      "inputs": [
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "external"
+    },
+    {
       "type": "struct",
       "name": "bundle::component::Component::BundleQuote",
       "members": [
@@ -2730,6 +2746,22 @@
       "type": "constructor",
       "name": "constructor",
       "inputs": []
+    },
+    {
+      "type": "function",
+      "name": "consume_random",
+      "inputs": [
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "core::felt252"
+        }
+      ],
+      "state_mutability": "external"
     },
     {
       "type": "struct",
@@ -4777,18 +4809,9 @@
     {
       "type": "function",
       "name": "dojo_init",
-      "inputs": [
-        {
-          "name": "open",
-          "type": "core::bool"
-        },
-        {
-          "name": "fee",
-          "type": "core::integer::u16"
-        }
-      ],
+      "inputs": [],
       "outputs": [],
-      "state_mutability": "external"
+      "state_mutability": "view"
     },
     {
       "type": "struct",
@@ -5447,6 +5470,37 @@
       ]
     },
     {
+      "type": "enum",
+      "name": "nums::interfaces::vrf::Source",
+      "variants": [
+        {
+          "name": "Nonce",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "Salt",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "nums::mocks::vrf::Vrf::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
       "type": "struct",
       "name": "nums::models::index::Bridge",
       "members": [
@@ -5457,10 +5511,6 @@
         {
           "name": "address",
           "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "peer",
-          "type": "core::starknet::contract_address::ContractAddress"
         }
       ]
     },
@@ -5470,10 +5520,6 @@
       "members": [
         {
           "name": "address",
-          "type": "core::starknet::contract_address::ContractAddress"
-        },
-        {
-          "name": "peer",
           "type": "core::starknet::contract_address::ContractAddress"
         }
       ]
@@ -6474,10 +6520,6 @@
           "inputs": [
             {
               "name": "bridge_messaging",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "peer",
               "type": "core::starknet::contract_address::ContractAddress"
             }
           ],
@@ -10387,6 +10429,22 @@
           "type": "core::byte_array::ByteArray"
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "request_random",
+      "inputs": [
+        {
+          "name": "caller",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "external"
     }
   ]
 }

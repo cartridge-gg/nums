@@ -17,6 +17,8 @@ const fetchTokenUsdPrice = async (
       tokenAddress,
       quoteAddress,
     );
+
+    console.debug("fetchTokenUsdPrice", swap);
     const price = (swap.total / 1e6 / 100).toString();
     return price;
   } catch (error) {
@@ -30,6 +32,7 @@ const fetchAllPrices = async (
   tokenAddresses: string[],
   quoteAddress: string,
 ): Promise<Map<string, string>> => {
+  console.debug("fetching all prices", chainId);
   const pricePromises = tokenAddresses.map((address) =>
     fetchTokenUsdPrice(chainId, address, quoteAddress),
   );

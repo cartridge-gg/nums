@@ -10,6 +10,12 @@ import type ControllerConnector from "@cartridge/connector/controller";
 import { getSetupAddress } from "@/config";
 import { usePreserveSearchNavigate } from "@/lib/router";
 import { useControllers } from "@/context/controllers";
+import { usePostHog } from "@/context/posthog";
+import { usePrices } from "@/context/prices";
+import {
+  bundleStarterpackEventProperties,
+  createAnalyticsEventId,
+} from "@/lib/analytics";
 
 export interface GameBanner {
   preset: string;
@@ -54,11 +60,13 @@ const BANNERS: GameBanner[] = [
 export const useBanners = () => {
   const { account, connector } = useAccount();
   const { chain } = useNetwork();
-  const { issuances } = useBundles();
+  const { bundles, issuances } = useBundles();
+  const { getNumsPrice } = usePrices();
   const [results, setResults] = useState<BannerConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = usePreserveSearchNavigate();
   const { find } = useControllers();
+  const { capture } = usePostHog();
 
   const username = useMemo(() => {
     if (!account?.address) return undefined;
@@ -73,7 +81,35 @@ export const useBanners = () => {
 
   const handleShare = useCallback(async () => {
     if (!username || !chain) return;
+    const bundle = bundles.find((item) => item.id === 0);
+    const numsPriceUsd = parseFloat(getNumsPrice() || "0.0");
+    const checkoutEventId = createAnalyticsEventId("starterpack_checkout");
+
+    if (bundle) {
+      capture(
+        "starterpack_checkout_started",
+        bundleStarterpackEventProperties({
+          eventId: checkoutEventId,
+          bundle,
+          numsPriceUsd,
+        }),
+      );
+    }
+
     const onPurchaseComplete = () => {
+      if (bundle) {
+        capture(
+          "starterpack_purchased",
+          bundleStarterpackEventProperties({
+            eventId: checkoutEventId.replace(
+              "starterpack_checkout",
+              "starterpack_purchase",
+            ),
+            bundle,
+            numsPriceUsd,
+          }),
+        );
+      }
       navigate("/game");
     };
 
@@ -87,7 +123,7 @@ export const useBanners = () => {
       onPurchaseComplete,
       socialClaimOptions,
     });
-  }, [navigate, chain.id, username, referralLink]);
+  }, [navigate, chain, username, referralLink, bundles, getNumsPrice, capture]);
 
   useEffect(() => {
     const load = async () => {

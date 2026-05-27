@@ -12,6 +12,8 @@ import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { chains, DEFAULT_CHAIN_ID } from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { NativeNotificationBridge } from "@/components/containers/native-notification-bridge";
+import { NotificationEvents } from "@/components/containers/notification-events";
 import { AudioProvider } from "./context/audio";
 import { SoundProvider } from "./context/sound";
 import { ThemeProvider } from "./context/theme";
@@ -104,6 +106,7 @@ function DeployGate() {
         v7_relativeSplatPath: true,
       }}
     >
+      <NotificationEvents />
       <Routes>
         <Route path="/support" element={<Support />} />
         <Route path="/*" element={<AuthenticatedApp />} />
@@ -124,6 +127,7 @@ function App() {
             explorer={voyager}
             provider={provider}
           >
+            <NativeNotificationBridge />
             <DeployGate />
           </StarknetConfig>
         </QueryClientProvider>

@@ -31,11 +31,11 @@ sort-module-level-items = true
 [profile.slot]
 [profile.mainnet]
 [profile.sepolia]
-# E2E integration test profiles (tests/e2e/). Both reference fresh worlds
-# spun up by the harness on locally-running Katanas. See
-# tests/e2e/README.md and dojo_e2eappchain.toml / dojo_e2esettlement.toml.
-[profile.e2eappchain]
-[profile.e2esettlement]
+# Deployment profiles (deploy/). `appchain` targets the local Katana
+# rollup; the `sepolia` profile (declared above) doubles as the
+# settlement layer on Starknet Sepolia. Driven by deploy/scripts/*.sh.
+# See deploy/README.md.
+[profile.appchain]
 
 [tool.scarb]
 allow-prebuilt-plugins = ["dojo_cairo_macros"]

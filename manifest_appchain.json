@@ -60,7 +60,7 @@
       "class_hash": "0x49f473ec2f5157386b137c19d2c3e1899c787ee4efc8f8b04cbc757ddd8fe80",
       "init_calldata": [
         "0x2540BE400",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Faucet",
       "selector": "0x7f375e045e15d0abdd0ac04a5c315f8af42af9bf60d46897bda5307b14a149",
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "address": "0x7ab889d81b81249236b015a051c92b11cc2e0e07dbf238f071d24c1feeda7f3",
+      "address": "0x5e255b8782d47fbcfd7251cecca310384ef5c08b9bce0fc619070819819bbbb",
       "class_hash": "0x256a4ad6b458eadd1c1700b98c8ec37031e37f54d1fa996d34ed813ab3587fb",
       "init_calldata": [],
       "tag": "NUMS-Play",
@@ -124,21 +124,20 @@
       "address": "0x165627fc2eefbbc1d02ea04b99f3ac9537c5016132c152b865d9347e5ad4a82",
       "class_hash": "0x6949cda12724bfeead20a04451a02c933e4d23c77dc1e28e7353793a9487564",
       "init_calldata": [
-        "0x0",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
         "0x1",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
+        "0x1",
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0",
         "0x0",
         "0x0",
         "0x1E8480",
         "0xD3C21BCECCEDA1000000",
-        "0x0",
+        "0x46",
         "0x32",
         "0xA",
         "0x0",
         "0x0",
         "0x0",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab",
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0",
         "0x2c784f47b6620b46e9b56e1f9616269f7c56ff54e321483fd011fbd9e3f3a0a"
       ],
       "tag": "NUMS-Setup",
@@ -172,7 +171,7 @@
       "class_hash": "0x103ef4d3a12251e5dc98b73c8f165d94cfbef1fc90f218cba3b6a1250df0943",
       "init_calldata": [
         "0xD3C21BCECCEDA1000000",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Token",
       "selector": "0x500199e486811b06dd992b129c72f48d8859c1ee14b4e18c6564d32cf38e6c1",
@@ -195,7 +194,7 @@
       "class_hash": "0x108c043199db093d66dc239f259a9dd0821f6e9f83ed1b667647ff8bfe6cb0",
       "init_calldata": [
         "0xe10",
-        "0x02F6B748E2e823916c28CC1F4966fBE7856091B93d0cc1Ca1707dccDbbc801ab"
+        "0x4f1ead849e0604df21347a7551443bcc2dcb918caa0d0806a13675c594992b0"
       ],
       "tag": "NUMS-Treasury",
       "selector": "0x4830c7127b47657b7b187f2acba1b9cddd78525c01aa5c89d9bf2696e07c1af",
@@ -251,6 +250,19 @@
         "transfer_from",
         "approve",
         "transferFrom"
+      ]
+    },
+    {
+      "address": "0x7fbe78b935b77928202a33367928987b190bad02605790fed1b0e10e5d99423",
+      "class_hash": "0x5620980b638f10936c193612df4732e91c1d947730ea75c419c1d96c5493b79",
+      "init_calldata": [],
+      "tag": "NUMS-Vrf",
+      "selector": "0x70d0e584424de8733cbd89780caafc8e4fb98d332c46f8c2e60429f4b7998bf",
+      "systems": [
+        "request_random",
+        "consume_random",
+        "assert_consumed",
+        "upgrade"
       ]
     }
   ],
@@ -2064,6 +2076,18 @@
       ]
     },
     {
+      "type": "function",
+      "name": "assert_consumed",
+      "inputs": [
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "external"
+    },
+    {
       "type": "struct",
       "name": "bundle::component::Component::BundleQuote",
       "members": [
@@ -2730,6 +2754,22 @@
       "type": "constructor",
       "name": "constructor",
       "inputs": []
+    },
+    {
+      "type": "function",
+      "name": "consume_random",
+      "inputs": [
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "core::felt252"
+        }
+      ],
+      "state_mutability": "external"
     },
     {
       "type": "struct",
@@ -4777,18 +4817,9 @@
     {
       "type": "function",
       "name": "dojo_init",
-      "inputs": [
-        {
-          "name": "open",
-          "type": "core::bool"
-        },
-        {
-          "name": "fee",
-          "type": "core::integer::u16"
-        }
-      ],
+      "inputs": [],
       "outputs": [],
-      "state_mutability": "external"
+      "state_mutability": "view"
     },
     {
       "type": "struct",
@@ -5443,6 +5474,37 @@
             }
           ],
           "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "nums::interfaces::vrf::Source",
+      "variants": [
+        {
+          "name": "Nonce",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "Salt",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "nums::mocks::vrf::Vrf::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
         }
       ]
     },
@@ -10387,6 +10449,22 @@
           "type": "core::byte_array::ByteArray"
         }
       ]
+    },
+    {
+      "type": "function",
+      "name": "request_random",
+      "inputs": [
+        {
+          "name": "caller",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "source",
+          "type": "nums::interfaces::vrf::Source"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "external"
     }
   ]
 }

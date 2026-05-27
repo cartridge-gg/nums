@@ -13,8 +13,8 @@
 //! | `apply(game_id, index)` | **appchain** | Player applies a previously-selected power. Same
 //! auto-finish trigger. |
 //! | `finish(world, game_id)` | **appchain** | Internal: builds the reverse Piltover payload and
-//! calls `send_message_to_l1_syscall(this, payload)`. Address-equality invariant: `this` = appchain
-//! Play = mainnet Play. |
+//! calls `send_message_to_l1_syscall(bridge.peer, payload)`. The peer is the mainnet `Play`
+//! address as wired by `Setup.set_bridge` post-deploy. |
 //! | `claim(world, payload)` | **mainnet** | Called by `Play.claim` after
 //! `consume_message_from_appchain` validates the message. Pushes EMA via `config.push`, mints
 //! reward via `Token.reward(player, reward_amount)`. |
@@ -41,6 +41,7 @@ pub mod PlayableComponent {
     use crate::events::payload::{Payload, PayloadTrait};
     use crate::helpers::random::RandomImpl;
     use crate::helpers::rewarder::Rewarder;
+    use crate::models::bridge::assert_peer;
     use crate::models::config::ConfigTrait;
     use crate::models::game::{AssertTrait, GameAssert, GameTrait};
     use crate::systems::collection::NAME as COLLECTION;
@@ -412,7 +413,8 @@ pub mod PlayableComponent {
                 game.level,
                 reward,
             );
-            let to_address = starknet::get_contract_address();
+            // [Check] Cross-chain peer (mainnet Play) must be registered.
+            let to_address = assert_peer(store.bridge());
             match syscalls::send_message_to_l1_syscall(to_address.into(), payload.span()) {
                 Ok(_) => (),
                 Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },

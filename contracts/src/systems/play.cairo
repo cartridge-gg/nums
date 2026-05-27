@@ -12,13 +12,15 @@
 //! | `claim` | **mainnet** | Reverse receiver: consumes Piltover msg, mints NUMS reward |
 //! | `redeem` | **mainnet** | Voucher-based reward redemption (see method docs) |
 //!
-//! ## Critical invariant — address equality
+//! ## Bridge peer wiring
 //!
-//! Mainnet `Play` contract address MUST equal appchain `Play` contract
-//! address. Both directions rely on it (`from_address == this` in `create`,
-//! `consume_message_from_appchain(this, ...)` in `claim`). Achieved by
-//! deploying both chains' Dojo worlds with the same `seed` and the same
-//! `Play` class hash. See `docs/CONTRACT_DEPLOYMENT_MAP.md`.
+//! Every cross-chain send/receive site below resolves its counterpart via
+//! `bridge.peer` (settlement Play address on the appchain side, appchain
+//! Play address on the settlement side). The deploy is expected to call
+//! `Setup.set_bridge(messaging_address, peer_play_address)` on each chain
+//! once both worlds have migrated and the `Play` addresses are known.
+//! Before `peer` is wired, any cross-chain call here will revert with
+//! `Bridge: peer not set`. See `docs/CONTRACT_DEPLOYMENT_MAP.md`.
 
 use starknet::ContractAddress;
 
@@ -77,6 +79,7 @@ pub mod Play {
     use crate::events::payload::PayloadTrait;
     use crate::events::voucher::VoucherTrait;
     use crate::interfaces::messaging::{IMessagingDispatcher, IMessagingDispatcherTrait};
+    use crate::models::bridge::assert_peer;
     use crate::store::StoreTrait;
     use crate::systems::collection::{
         ICollectionDispatcher, ICollectionDispatcherTrait, NAME as COLLECTION,
@@ -227,15 +230,15 @@ pub mod Play {
             let voucher = VoucherTrait::new(
                 player: player_id.try_into().unwrap(), multiplier: None, supply: None, price: None,
             );
-            let to_address = starknet::get_contract_address();
+            let world = self.get_contract().world(@NAMESPACE());
+            let store = StoreTrait::new(world);
+            // [Check] Cross-chain peer (mainnet Play) must be registered.
+            let to_address = assert_peer(store.bridge());
             match syscalls::send_message_to_l1_syscall(to_address.into(), voucher.span()) {
                 Ok(_) => (),
                 Err(_) => { panic_with_felt252(err_code: 'Message to mainnet failed') },
             }
 
-            // [Event] Emit the voucher
-            let world = self.get_contract().world(@NAMESPACE());
-            let store = StoreTrait::new(world);
             store.voucher(voucher);
         }
     }
@@ -258,13 +261,15 @@ pub mod Play {
     //    for these two fields and then `.span()` serializes the whole struct
     //    (9 felts) into the message.
     //
-    // 3. **`from_address == this`** is the address-equality bridge invariant.
-    //    The forward call sends `send_message_to_appchain(this, ...)` where
-    //    `this` is mainnet Play. Katana delivers the L1Handler on the
-    //    appchain to the contract at the SAME address. The assertion
-    //    therefore verifies both that the message came from the legit
-    //    sender (mainnet Play) and that we're at the expected address on
-    //    the appchain.
+    // 3. **`from_address == bridge.peer`** validates the sender via the
+    //    registered cross-chain peer. The forward call sends
+    //    `send_message_to_appchain(bridge.peer, ...)` where the peer on
+    //    settlement = the appchain Play address; Katana delivers the
+    //    L1Handler to that address on the appchain. The appchain Play in
+    //    turn reads its own `bridge.peer` (= settlement Play address) and
+    //    asserts the L1Handler's `from_address` matches it. This removes
+    //    the earlier hard requirement that mainnet and appchain Play be
+    //    deployed at identical contract addresses.
     #[l1_handler]
     fn create(
         ref self: ContractState,
@@ -279,9 +284,10 @@ pub mod Play {
     ) {
         // [Setup] World and Store
         let world = self.world(@NAMESPACE());
-        // [Check] Sender is allowed — address-equality invariant.
-        let this = starknet::get_contract_address();
-        assert(from_address == this.into(), 'Play: invalid sender');
+        let store = StoreTrait::new(world);
+        // [Check] Sender is the registered cross-chain peer (settlement Play).
+        let peer = assert_peer(store.bridge());
+        assert(from_address == peer.into(), 'Play: invalid sender');
         // [Interaction] Mirror the mainnet-assigned game_id by minting the
         // same NFT id on the appchain Collection. ERC-721 uniqueness in
         // `Collection.mint(to, game_id, soulbound)` is the replay guard
@@ -322,14 +328,16 @@ pub mod Play {
             let price = price.unwrap_or(0);
             let bridge = store.bridge();
             let messaging = IMessagingDispatcher { contract_address: bridge.address };
+            // [Check] Cross-chain peer must be wired (Setup.set_bridge) before
+            // forward messages can be addressed to it on the appchain.
+            let peer = assert_peer(bridge);
             while quantity > 0 {
                 quantity -= 1;
                 // [Interaction] Mint a new game asset
                 let game_id = collection.new(player, soulbound);
                 // [Message] Bridge game information
                 let payload = PayloadTrait::new(player, game_id, multiplier, supply, price, 0, 0);
-                let this = starknet::get_contract_address();
-                messaging.send_message_to_appchain(this, selector!("create"), payload.span());
+                messaging.send_message_to_appchain(peer, selector!("create"), payload.span());
                 // [Event] Emit the payload
                 store.payload(payload);
             }
@@ -385,8 +393,9 @@ pub mod Play {
             let store = StoreTrait::new(world);
             let bridge = store.bridge();
             let messaging = IMessagingDispatcher { contract_address: bridge.address };
-            let this = starknet::get_contract_address();
-            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Cross-chain peer (appchain Play) must be registered.
+            let from_address = assert_peer(bridge);
+            messaging.consume_message_from_appchain(from_address, payload);
             // [Check] Caller is allowed
             let payload = PayloadTrait::from(ref payload);
             let (collection_address, _) = world.dns(@COLLECTION()).expect('Collection not found!');
@@ -406,13 +415,17 @@ pub mod Play {
             let store = StoreTrait::new(world);
             let bridge = store.bridge();
             let messaging = IMessagingDispatcher { contract_address: bridge.address };
-            let this = starknet::get_contract_address();
-            messaging.consume_message_from_appchain(this, payload);
+            // [Check] Cross-chain peer (appchain Play) must be registered.
+            let from_address = assert_peer(bridge);
+            messaging.consume_message_from_appchain(from_address, payload);
             // [Check] Caller is allowed
             let voucher = VoucherTrait::from(ref payload);
             let caller = starknet::get_caller_address();
             assert(caller == voucher.player, 'Play: invalid caller');
             // [Effect] Claim reward, we use the dispatcher to ensure caller will be `this`
+            // (`this` here is **this contract** — the local Play instance —
+            // not a cross-chain peer; do not touch).
+            let this = starknet::get_contract_address();
             let play = IPlayDispatcher { contract_address: this };
             play
                 .mint(

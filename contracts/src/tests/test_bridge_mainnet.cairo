@@ -30,16 +30,19 @@ mod tests {
 
     /// REGRESSION: `spawn_test_world` does not run `dojo_init`, so the
     /// `Bridge` model is unwritten and reads return the default
-    /// (zero address). This anchors the test environment in a known
-    /// state — any production deploy MUST go through `Setup.dojo_init`
-    /// (which enforces a non-zero bridge messaging address) before
-    /// gameplay messages flow.
+    /// (zero addresses for both `address` and `peer`). This anchors the
+    /// test environment in a known state — any production deploy MUST
+    /// go through `Setup.dojo_init` (which enforces a non-zero bridge
+    /// messaging address) plus a follow-up `Setup.set_bridge` that
+    /// wires the cross-chain `peer` Play address before gameplay
+    /// messages flow.
     #[test]
     fn test_local_path_bridge_config_zero_defaults() {
         let (world, _systems, _ctx) = spawn_game();
         let store = StoreImpl::new(world);
         let bridge = store.bridge();
         assert(bridge.address.is_zero(), 'bridge addr should be zero');
+        assert(bridge.peer.is_zero(), 'bridge peer should be zero');
     }
 
     // Setter coverage NOTE: `Setup.set_bridge` is gated by ADMIN_ROLE

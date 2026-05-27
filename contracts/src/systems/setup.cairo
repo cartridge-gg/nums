@@ -54,11 +54,16 @@ pub trait ISetup<T> {
     fn set_base_price(ref self: T, base_price: u256);
     /// [mainnet] Tuning: EMA state (admin recalibration of average score).
     fn set_average_score(ref self: T, average_score: u32, average_weigth: u16);
-    /// [both] Rotates the per-chain Piltover messaging contract address.
-    /// Used on mainnet (forward send + reverse consume) and on the appchain
-    /// (informational; the reverse send path uses the native Cairo
-    /// `send_message_to_l1_syscall`).
-    fn set_bridge(ref self: T, bridge_messaging: ContractAddress);
+    /// [both] Rotates the per-chain Piltover messaging contract address
+    /// AND the cross-chain `Play` peer address used by every send/receive
+    /// site. Pass `peer = 0` to leave the previous peer in place (or to
+    /// initialize this chain without a peer yet — cross-chain calls will
+    /// then revert with `Bridge: peer not set` until both chains are
+    /// migrated and the deployer issues a second `set_bridge` with the
+    /// real peer address).
+    fn set_bridge(
+        ref self: T, bridge_messaging: ContractAddress, peer: ContractAddress,
+    );
     /// [both] Register a merkle-drop tree (free-bundle airdrop).
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
     /// [both] Claim a free bundle via merkle proof. Calls `Play.mint` with
@@ -79,6 +84,7 @@ pub mod Setup {
     use bundle::component::Component as BundleComponent;
     use bundle::component::Component::{BundleQuote, BundleTrait};
     use bundle::interface::IBundle;
+    use core::num::traits::Zero;
     use dojo::world::WorldStorageTrait;
     use merkledrop::component::Component as MerkledropComponent;
     use merkledrop::component::Component::MerkledropTrait;
@@ -263,8 +269,14 @@ pub mod Setup {
         );
         store.set_config(config);
 
-        // [Effect] Setup bridge
-        let bridge = BridgeTrait::new(world_resource: WORLD_RESOURCE, address: bridge_messaging);
+        // [Effect] Setup bridge — peer is unknown until both chains are
+        // migrated, so initialize it to 0 and let the deploy wire it
+        // post-migration via `Setup.set_bridge(bridge_messaging, peer)`.
+        let bridge = BridgeTrait::new(
+            world_resource: WORLD_RESOURCE,
+            address: bridge_messaging,
+            peer: 0.try_into().unwrap(),
+        );
         store.set_bridge(bridge);
 
         // [Effect] Initialize starterpack
@@ -445,12 +457,27 @@ pub mod Setup {
             store.set_config(config);
         }
 
-        fn set_bridge(ref self: ContractState, bridge_messaging: ContractAddress) {
+        fn set_bridge(
+            ref self: ContractState,
+            bridge_messaging: ContractAddress,
+            peer: ContractAddress,
+        ) {
             let mut world = self.world(@NAMESPACE());
             let mut store = StoreImpl::new(world);
             self.accesscontrol.assert_only_role(ADMIN_ROLE);
+            // [Effect] Preserve existing peer if caller passes 0 — lets the
+            // deploy rotate the messaging address (or vice versa) without
+            // having to know the other field's current value.
+            let existing_peer = store.bridge().peer;
+            let resolved_peer = if peer.is_non_zero() {
+                peer
+            } else {
+                existing_peer
+            };
             let bridge = BridgeTrait::new(
-                world_resource: WORLD_RESOURCE, address: bridge_messaging,
+                world_resource: WORLD_RESOURCE,
+                address: bridge_messaging,
+                peer: resolved_peer,
             );
             store.set_bridge(bridge);
         }

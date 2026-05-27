@@ -24,4 +24,5 @@ fn test_bridge_config_fields_zero_by_default() {
     let bridge = store.bridge();
     let zero: starknet::ContractAddress = 0.try_into().unwrap();
     assert(bridge.address == zero, 'bridge addr should be zero');
+    assert(bridge.peer == zero, 'bridge peer should be zero');
 }

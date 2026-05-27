@@ -64,6 +64,9 @@ pub trait ISetup<T> {
     fn set_bridge(
         ref self: T, bridge_messaging: ContractAddress, peer: ContractAddress,
     );
+    /// [both] Returns the per-chain Piltover messaging contract address
+    /// currently stored in the `Bridge` model.
+    fn get_bridge_address(self: @T) -> ContractAddress;
     /// [both] Register a merkle-drop tree (free-bundle airdrop).
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
     /// [both] Claim a free bundle via merkle proof. Calls `Play.mint` with
@@ -480,6 +483,12 @@ pub mod Setup {
                 peer: resolved_peer,
             );
             store.set_bridge(bridge);
+        }
+
+        fn get_bridge_address(self: @ContractState) -> ContractAddress {
+            let world = self.world(@NAMESPACE());
+            let store = StoreImpl::new(world);
+            store.bridge().address
         }
 
         fn merkledrop_register(

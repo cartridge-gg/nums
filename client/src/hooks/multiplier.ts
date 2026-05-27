@@ -42,14 +42,22 @@ export const useMultiplier = ({
   const [multiplier, setMultiplier] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const lastSuccessfulPackMultiplierRef = useRef<bigint | null>(null);
 
-  // Derive loading: true immediately when packMultiplier changes (before useEffect)
-  // or while fetch is in progress
-  const isLoading =
-    isFetching || lastSuccessfulPackMultiplierRef.current !== packMultiplier;
+  const isLoading = isFetching;
+
+  console.log("in useMultiplier", isLoading);
 
   useEffect(() => {
+    console.log("useMultiplier: useEffect 1");
+    console.debug(
+      "useMultiplier",
+      !burnPercentage,
+      !currentSupply,
+      !targetSupply,
+      !numsAddress,
+      !quoteAddress,
+    );
+
     if (
       !burnPercentage ||
       !currentSupply ||
@@ -59,6 +67,8 @@ export const useMultiplier = ({
     )
       return;
 
+    console.log("useMultiplier: useEffect 2");
+
     // burn_usdc = burn_percentage * pack_multiplier * base_price / 100  (6-dec USDC)
     const burnUsdc = (burnPercentage * packMultiplier * basePrice) / 100n;
     if (burnUsdc === 0n) return;
@@ -67,6 +77,8 @@ export const useMultiplier = ({
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       try {
+        console.log("fetching multiplier for burnUsdc", burnUsdc);
+
         // Real NUMS output for burnUsdc USDC via Ekubo — includes slippage
         const quote = await getSwapQuote(
           chain.id,
@@ -90,8 +102,8 @@ export const useMultiplier = ({
           slotCount,
         );
         setMultiplier(Number(mulRaw) / Number(MULTIPLIER_PRECISION));
-        lastSuccessfulPackMultiplierRef.current = packMultiplier;
       } catch {
+        console.log("fetch catch error");
         // Keep previous value on network/API error
       } finally {
         setIsFetching(false);

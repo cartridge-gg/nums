@@ -12,7 +12,7 @@ import { GovernanceScene } from "@/components/scenes/governance";
 import { StakingScene } from "@/components/scenes/staking";
 import { Airdrop } from "@/components/containers/airdrop";
 import { useHeader } from "@/hooks/header";
-import { useAccount, useDisconnect, useNetwork } from "@starknet-react/core";
+import { useAccount, useDisconnect } from "@starknet-react/core";
 import { useControllers } from "@/context/controllers";
 import { useActions } from "@/hooks/actions";
 import { useReferral } from "@/hooks/referral";
@@ -28,7 +28,12 @@ import { usePrices } from "@/context/prices";
 import { useGames } from "@/context/games";
 import { useEntities } from "@/context/entities";
 import type ControllerConnector from "@cartridge/connector/controller";
+import { toast } from "sonner";
+import { num } from "starknet";
 import { PurchaseModalProvider } from "@/context/purchase-modal";
+import { useOpenBundleOnSettlement } from "@/hooks/settlement";
+import { useAwaitNewGame } from "@/hooks/await-game";
+import { useMintGameOnSettlement } from "@/hooks/mint-game-debug";
 import { useToasters } from "@/hooks/toasters";
 import { useNotifications } from "@/hooks/notifications";
 import { useWelcome } from "@/context/welcome";
@@ -49,7 +54,7 @@ import { useBundles } from "@/context/bundles";
 import { useAirdrop } from "@/hooks/airdrop";
 import { shortAddress } from "@/helpers";
 import { usePostHog } from "@/context/posthog";
-import { getSetupAddress } from "@/config";
+import { getSetupAddress, SETTLEMENT_CHAIN_ID } from "@/config";
 import {
   bundleStarterpackEventProperties,
   createAnalyticsEventId,
@@ -71,7 +76,6 @@ export interface MainProps {
 }
 
 export const Main = ({ children }: MainProps) => {
-  const { chain } = useNetwork();
   const { pathname } = useLocation();
   const [initialPathname] = useState(() => pathname);
   const { isDismissed, isDismissing, dismiss } = useWelcome();
@@ -238,8 +242,24 @@ export const Main = ({ children }: MainProps) => {
     quoteAddress: config?.quote ?? "",
   });
 
+  const openBundleOnSettlement = useOpenBundleOnSettlement();
+  const startAwaitNewGame = useAwaitNewGame();
+  const mintGameOnSettlement = useMintGameOnSettlement();
+
+  const closeAllModals = useCallback(() => {
+    setShowQuestScene(false);
+    setShowAchievementScene(false);
+    setShowLeaderboardScene(false);
+    setShowPurchaseScene(false);
+    setShowStakingScene(false);
+    setShowReferralScene(false);
+    setShowGovernanceScene(false);
+    setShowSettingsScene(false);
+  }, []);
+
   const handlePurchase = useCallback(async () => {
-    if (!bundle || !chain) return;
+    if (!bundle) return;
+
     const checkoutEventId = createAnalyticsEventId("starterpack_checkout");
     checkoutEventIdRef.current = checkoutEventId;
     capture(
@@ -251,7 +271,34 @@ export const Main = ({ children }: MainProps) => {
       }),
     );
 
-    const onPurchaseComplete = () => {
+    const socialClaimOptions = {
+      shareMessage: `My application was accepted!\nHave you checked yours?\n🔢 @numsgg\n${referralLink}`,
+    };
+
+    const registry = getSetupAddress(num.toBigInt(SETTLEMENT_CHAIN_ID));
+
+    // Subscribe to appchain Game updates before kicking off the settlement tx
+    // so we don't miss the cross-chain message arrival.
+    const awaiting = startAwaitNewGame();
+
+    try {
+      await openBundleOnSettlement(bundle.id, registry, {
+        socialClaimOptions:
+          bundle.price === 0n ? socialClaimOptions : undefined,
+      });
+
+      toast.promise(awaiting.promise, {
+        loading: "Confirming on appchain…",
+        success: "Game registered!",
+        error:
+          "Something unexpected happened. The purchase may still be confirming on the appchain.",
+      });
+
+      const newGame = await awaiting.promise;
+
+      // Emit the purchased analytics event once the cross-chain message
+      // has actually landed (replaces the old optimistic
+      // onPurchaseComplete callback).
       const purchaseEventId =
         checkoutEventIdRef.current ??
         createAnalyticsEventId("starterpack_purchase");
@@ -267,28 +314,48 @@ export const Main = ({ children }: MainProps) => {
         }),
       );
       checkoutEventIdRef.current = null;
-      setShowQuestScene(false);
-      setShowAchievementScene(false);
-      setShowLeaderboardScene(false);
-      setShowPurchaseScene(false);
-      setShowStakingScene(false);
-      setShowReferralScene(false);
-      setShowGovernanceScene(false);
-      setShowSettingsScene(false);
-      navigate("/game");
-    };
 
-    const socialClaimOptions = {
-      shareMessage: `My application was accepted!\nHave you checked yours?\n🔢 @numsgg\n${referralLink}`,
-    };
+      closeAllModals();
+      navigate(`/game/${newGame.id}`);
+    } catch {
+      awaiting.cancel();
+    }
+  }, [
+    bundle,
+    referralLink,
+    numsPrice,
+    capture,
+    openBundleOnSettlement,
+    startAwaitNewGame,
+    closeAllModals,
+    navigate,
+  ]);
 
-    const controller = connector as ControllerConnector;
-    const registry = getSetupAddress(chain.id);
-    await controller.controller.openBundle(bundle.id, registry, {
-      onPurchaseComplete,
-      socialClaimOptions: bundle.price === 0n ? socialClaimOptions : undefined,
-    });
-  }, [bundle, navigate, chain, referralLink, capture, numsPrice]);
+  // Dev-only: skip Setup.issue / USDC payment / bundle bookkeeping and
+  // hit settlement Play.mint directly. Just exercises the cross-chain
+  // create-message plumbing. Requires CREATOR_ROLE on the connected
+  // wallet — see useMintGameOnSettlement for how to grant it.
+  const handleDevMint = useCallback(async () => {
+    const awaiting = startAwaitNewGame();
+    try {
+      await mintGameOnSettlement();
+      toast.promise(awaiting.promise, {
+        loading: "Waiting for appchain create…",
+        success: "Game registered (dev mint)",
+        error: "Dev mint did not surface on appchain Torii within timeout",
+      });
+      const newGame = await awaiting.promise;
+      closeAllModals();
+      navigate(`/game/${newGame.id}`);
+    } catch (err) {
+      awaiting.cancel();
+      toast.error(
+        err instanceof Error
+          ? `Dev mint failed: ${err.message}`
+          : "Dev mint failed",
+      );
+    }
+  }, [mintGameOnSettlement, startAwaitNewGame, closeAllModals, navigate]);
 
   // Detect new game and navigate to it
   useEffect(() => {
@@ -794,6 +861,16 @@ export const Main = ({ children }: MainProps) => {
           )}
           <MediaButton onClick={() => setMediaOpen((prev) => !prev)} />
         </div>
+      )}
+      {import.meta.env.DEV && (
+        <button
+          type="button"
+          onClick={handleDevMint}
+          className="fixed bottom-3 right-3 z-50 rounded-md border border-amber-500/60 bg-black/70 px-3 py-1.5 text-xs font-mono text-amber-300 hover:bg-black/90"
+          title="Settlement Play.mint → L1→L2 create. Requires CREATOR_ROLE on the connected wallet."
+        >
+          DEV: mint test game
+        </button>
       )}
       <TutorialAnchorPortal />
       <Toaster expand />

@@ -140,6 +140,8 @@ export const PurchaseScene = ({
     maxPayout,
   ]);
 
+  console.debug(detailsProps);
+
   // Calculate purchase props
   const purchaseProps = useMemo(() => {
     return {

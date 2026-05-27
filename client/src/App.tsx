@@ -1,16 +1,22 @@
 import ControllerConnector from "@cartridge/connector/controller";
 import type { ControllerOptions } from "@cartridge/controller";
-import { type Chain, mainnet, sepolia } from "@starknet-react/chains";
+import type { Chain } from "@starknet-react/chains";
 import {
   type Connector,
   jsonRpcProvider,
+  paymasterRpcProvider,
   StarknetConfig,
   voyager,
 } from "@starknet-react/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { chains, DEFAULT_CHAIN_ID } from "@/config";
+import {
+  chains,
+  DEFAULT_CHAIN_ID,
+  dojoConfigs,
+  SETTLEMENT_CHAIN_ID,
+} from "@/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { NativeNotificationBridge } from "@/components/containers/native-notification-bridge";
 import { NotificationEvents } from "@/components/containers/notification-events";
@@ -33,29 +39,25 @@ import { GamesProvider } from "./context/games";
 import { MerkledropsProvider } from "./context/merkledrops";
 import { PostHogProvider } from "./context/posthog";
 
+const rpcUrlForChain = (chain: Chain): string => {
+  const cfg = dojoConfigs[`0x${chain.id.toString(16)}`];
+  if (!cfg) throw new Error(`Unsupported chain: ${chain.network}`);
+  return cfg.rpcUrl;
+};
+
 const provider = jsonRpcProvider({
-  rpc: (chain: Chain) => {
-    switch (chain) {
-      case mainnet:
-        return { nodeUrl: import.meta.env.VITE_SN_MAIN_RPC_URL };
-      case sepolia:
-        return { nodeUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL };
-      default:
-        throw new Error(`Unsupported chain: ${chain.network}`);
-    }
-  },
+  rpc: (chain: Chain) => ({ nodeUrl: rpcUrlForChain(chain) }),
+});
+
+const paymaster = paymasterRpcProvider({
+  rpc: (chain: Chain) => ({
+    nodeUrl: chain.paymasterRpcUrls?.avnu?.http?.[0] ?? rpcUrlForChain(chain),
+  }),
 });
 
 const buildChains = () => {
-  const chain = chains[DEFAULT_CHAIN_ID];
-  switch (chain) {
-    case mainnet:
-      return [{ rpcUrl: import.meta.env.VITE_SN_MAIN_RPC_URL }];
-    case sepolia:
-      return [{ rpcUrl: import.meta.env.VITE_SN_SEPOLIA_RPC_URL }];
-    default:
-      throw new Error(`Unsupported chain: ${chain.network}`);
-  }
+  const ids = Array.from(new Set([DEFAULT_CHAIN_ID, SETTLEMENT_CHAIN_ID]));
+  return ids.map((id) => ({ rpcUrl: rpcUrlForChain(chains[id]) }));
 };
 
 const slot = import.meta.env[
@@ -70,6 +72,7 @@ const options: ControllerOptions = {
   preset: "nums",
   namespace: "NUMS",
   slot: slot,
+  tokens: { erc20: [] },
   locationGate: {
     blocked: [
       "US-HI",
@@ -122,10 +125,13 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <StarknetConfig
             autoConnect
-            chains={[chains[DEFAULT_CHAIN_ID]]}
+            chains={Array.from(
+              new Set([DEFAULT_CHAIN_ID, SETTLEMENT_CHAIN_ID]),
+            ).map((id) => chains[id])}
             connectors={connectors}
             explorer={voyager}
             provider={provider}
+            paymasterProvider={paymaster}
           >
             <NativeNotificationBridge />
             <DeployGate />

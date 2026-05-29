@@ -67,6 +67,12 @@ pub trait ISetup<T> {
     /// [both] Returns the per-chain Piltover messaging contract address
     /// currently stored in the `Bridge` model.
     fn get_bridge_address(self: @T) -> ContractAddress;
+    /// [both] Returns the cross-chain `Play` peer address stored in the
+    /// local `Bridge` model — i.e. the address forward messages are
+    /// sent TO (on settlement) or expected to come FROM (on the
+    /// appchain). Returns `0` if the deploy hasn't wired the peer yet
+    /// via `Setup.set_bridge(_, peer)`.
+    fn get_bridge_peer(self: @T) -> ContractAddress;
     /// [both] Register a merkle-drop tree (free-bundle airdrop).
     fn merkledrop_register(ref self: T, data: Span<Span<felt252>>, expiration: u64) -> felt252;
     /// [both] Claim a free bundle via merkle proof. Calls `Play.mint` with
@@ -489,6 +495,12 @@ pub mod Setup {
             let world = self.world(@NAMESPACE());
             let store = StoreImpl::new(world);
             store.bridge().address
+        }
+
+        fn get_bridge_peer(self: @ContractState) -> ContractAddress {
+            let world = self.world(@NAMESPACE());
+            let store = StoreImpl::new(world);
+            store.bridge().peer
         }
 
         fn merkledrop_register(

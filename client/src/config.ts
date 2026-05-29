@@ -185,3 +185,46 @@ export const getSetupAddress = (chainId: bigint) => {
 export const getCollectionAddress = (chainId: bigint) => {
   return getContractAddress(chainId, NAMESPACE, "Collection");
 };
+
+/// Best-effort wrapper: per-chain manifests don't ship every contract
+/// (e.g. Vault is mainnet-only, Faucet is non-mainnet), so swallow the
+/// `contract!.address` throw from `getContractAddress` and surface
+/// "n/a" in the debug table instead.
+const tryGet = (fn: () => string): string => {
+  try {
+    return fn();
+  } catch {
+    return "n/a";
+  }
+};
+
+/// Dumps every game-contract address per resolved chain to the console.
+/// Called once from `main.tsx` so a quick devtools peek confirms which
+/// deployment the client is wired to before any user action.
+export const logContractAddresses = () => {
+  const roles: Array<[string, string]> = [
+    ["play", PLAY_CHAIN_ID],
+    ["settlement", SETTLEMENT_CHAIN_ID],
+  ];
+  const seen = new Set<string>();
+  for (const [role, chainIdHex] of roles) {
+    if (seen.has(chainIdHex)) continue;
+    seen.add(chainIdHex);
+    const cfg = chainConfigs[chainIdHex];
+    const chainId = BigInt(chainIdHex);
+    const sameChain = PLAY_CHAIN_ID === SETTLEMENT_CHAIN_ID;
+    const label = sameChain ? "play+settlement" : role;
+    console.debug(
+      `[nums] contracts on ${cfg.shortName} (${label}, ${chainIdHex}):`,
+      {
+        Play: tryGet(() => getGameAddress(chainId)),
+        Setup: tryGet(() => getSetupAddress(chainId)),
+        Token: tryGet(() => getTokenAddress(chainId)),
+        Vault: tryGet(() => getVaultAddress(chainId)),
+        Faucet: tryGet(() => getFaucetAddress(chainId)),
+        Collection: tryGet(() => getCollectionAddress(chainId)),
+        VRF: tryGet(() => getVrfAddress(chainId)),
+      },
+    );
+  }
+};

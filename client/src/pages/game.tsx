@@ -5,7 +5,10 @@ import { PurchaseScene } from "@/components/scenes/purchase";
 import { Selections } from "@/components/containers/selections";
 import { Places } from "@/components/containers/places";
 import { Uses } from "@/components/containers/uses";
-import { GameOver } from "@/components/containers/game-over";
+import {
+  GameOver,
+  type RewardClaimStatus,
+} from "@/components/containers/game-over";
 import { useActions } from "@/hooks/actions";
 import { usePractice } from "@/context/practice";
 import { useGame } from "@/context/games";
@@ -48,7 +51,13 @@ export const Game = () => {
   const { getNumsPrice } = usePrices();
   const { openPurchaseScene } = usePurchaseModal();
   const { playerGames: games } = useGames();
-  const { config, starterpacks } = useEntities();
+  const {
+    config,
+    starterpacks,
+    payloads,
+    claimeds,
+    refresh: refreshEntities,
+  } = useEntities();
 
   const activeStarterpack = useMemo(() => starterpacks[0], [starterpacks]);
 
@@ -78,6 +87,9 @@ export const Game = () => {
   );
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(!isPracticeMode);
+  const [claimAttempt, setClaimAttempt] = useState<
+    "idle" | "claiming" | "error" | "success"
+  >("idle");
 
   // Get game ID from path params (only in blockchain mode)
   const gameId = useMemo(() => {
@@ -91,6 +103,30 @@ export const Game = () => {
   const blockchainGame = useGame(gameId);
 
   const game = isPracticeMode ? practiceGame : blockchainGame;
+
+  const reversePayload = useMemo(() => {
+    if (!game) return undefined;
+    return payloads.find(
+      (payload) => payload.game_id === game.id && payload.isReverse(),
+    );
+  }, [game, payloads]);
+
+  const rewardClaimed = useMemo(() => {
+    if (!game) return false;
+    return (
+      claimAttempt === "success" ||
+      claimeds.some((claimed) => claimed.game_id === game.id)
+    );
+  }, [claimAttempt, claimeds, game]);
+
+  const rewardClaimStatus = useMemo<RewardClaimStatus | undefined>(() => {
+    if (isPracticeMode || !game?.over) return undefined;
+    if (claimAttempt === "claiming") return "claiming";
+    if (rewardClaimed) return "claimed";
+    if (claimAttempt === "error") return "error";
+    if (reversePayload) return "ready";
+    return "settling";
+  }, [claimAttempt, game?.over, isPracticeMode, reversePayload, rewardClaimed]);
 
   // Track if we've initialized practice game for this practice mode session
   const practiceInitializedRef = useRef(false);
@@ -426,6 +462,10 @@ export const Game = () => {
     prevOverRef.current = game.over;
   }, [game, playPositive, capture, isPracticeMode]);
 
+  useEffect(() => {
+    setClaimAttempt("idle");
+  }, [game?.id]);
+
   // Track practice/tutorial mode entry
   useEffect(() => {
     if (isPracticeMode) {
@@ -477,10 +517,15 @@ export const Game = () => {
     };
   }, [game, getNumsPrice, games]);
 
-  const handleClaim = useCallback(() => {
-    if (!game || game.claimed) return;
-    claim(game.id);
-  }, [game, claim]);
+  const handleClaim = useCallback(async () => {
+    if (!game || !reversePayload || rewardClaimed) return;
+    setClaimAttempt("claiming");
+    const success = await claim({ gameId: game.id, payload: reversePayload });
+    setClaimAttempt(success ? "success" : "error");
+    if (success) {
+      await refreshEntities();
+    }
+  }, [game, reversePayload, rewardClaimed, claim, refreshEntities]);
 
   const handlePlayAgain = useCallback(() => {
     if (isPracticeMode) {
@@ -668,8 +713,13 @@ export const Game = () => {
               }
               onClose={() => setShowGameOver(false)}
               onPurchase={() => openPurchaseScene()}
+              claimStatus={rewardClaimStatus}
               onClaim={
-                isPracticeMode ? null : game.claimed ? undefined : handleClaim
+                isPracticeMode
+                  ? null
+                  : rewardClaimed || !reversePayload
+                    ? undefined
+                    : handleClaim
               }
               onPlayAgain={isPracticeMode ? handlePlayAgain : undefined}
             />

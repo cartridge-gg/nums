@@ -24,7 +24,13 @@ const meta = {
       </BrowserRouter>
     ),
   ],
-  argTypes: {},
+  argTypes: {
+    claimStatus: {
+      control: "select",
+      options: ["settling", "ready", "claiming", "claimed", "error"],
+      description: "Bridge reward claim state",
+    },
+  },
 } satisfies Meta<typeof GameOver>;
 
 export default meta;
@@ -63,8 +69,25 @@ export const Default: Story = {
       username: "player",
     },
     onClaim: fn(),
+    claimStatus: "ready",
     onClose: fn(),
     onPurchase: fn(),
+  },
+};
+
+export const Settling: Story = {
+  args: {
+    ...Default.args,
+    claimStatus: "settling",
+    onClaim: undefined,
+  },
+};
+
+export const ClaimError: Story = {
+  args: {
+    ...Default.args,
+    claimStatus: "error",
+    onClaim: fn(),
   },
 };
 
@@ -97,6 +120,7 @@ export const Claimed: Story = {
     score: 15,
     newGameId: 1,
     newGameCount: 5,
+    claimStatus: "claimed",
     onClose: fn(),
     onPurchase: fn(),
   },

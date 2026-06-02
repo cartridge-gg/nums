@@ -111,7 +111,7 @@ export const useToasters = () => {
           title: free ? "Claim Complete" : "Purchase Complete",
         }}
         descriptionProps={{
-          reward: "Nums Game(s)",
+          reward: "Game Queued",
         }}
         thumbnailProps={{
           type: "purchase",

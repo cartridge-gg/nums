@@ -3,9 +3,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "@/components/ui/button";
 import {
   AddIcon,
+  CheckIcon,
+  ClockIcon,
   CrownIcon,
   RefreshIcon,
   ShadowEffect,
+  TokenIcon,
 } from "@/components/icons";
 import { useId, useState, useEffect, useMemo } from "react";
 import Confetti from "react-confetti";
@@ -23,11 +26,19 @@ export interface GameOverProps
   newGameId: number;
   newGameCount: number;
   shareProps?: ShareProps;
+  claimStatus?: RewardClaimStatus;
   onClaim?: null | (() => void);
   onClose: () => void;
   onPurchase: () => void;
   onPlayAgain?: () => void; // For practice mode
 }
+
+export type RewardClaimStatus =
+  | "settling"
+  | "ready"
+  | "claiming"
+  | "claimed"
+  | "error";
 
 const gameOverVariants = cva(
   "select-none relative flex flex-col items-center p-6 md:pt-0 gap-4 md:gap-6 h-full w-full justify-between",
@@ -52,6 +63,7 @@ export const GameOver = ({
   newGameId,
   newGameCount,
   shareProps,
+  claimStatus,
   onClaim,
   onClose,
   onPurchase,
@@ -69,6 +81,12 @@ export const GameOver = ({
   const isPractice = useMemo(() => {
     return onClaim === null;
   }, [onClaim]);
+
+  const resolvedClaimStatus = useMemo<RewardClaimStatus>(() => {
+    if (claimStatus) return claimStatus;
+    if (onClaim) return "ready";
+    return "claimed";
+  }, [claimStatus, onClaim]);
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -140,42 +158,52 @@ export const GameOver = ({
             payout={payout}
             className={cn("rounded-xl hidden", isPractice && "flex")}
           />
+          {!isPractice && (
+            <RewardClaim
+              status={resolvedClaimStatus}
+              onClaim={onClaim || undefined}
+              filterId={filterId}
+              className="rounded-xl"
+            />
+          )}
           <Disclaimer
             className={cn("rounded-xl hidden", isPractice && "flex")}
           />
         </div>
 
         {/* Buttons */}
-        <div className="w-full flex gap-4">
-          {shareProps && (
-            <Share
-              {...shareProps}
-              className="h-12 min-w-[52px] px-2.5 bg-secondary-100 rounded-lg hover:bg-secondary-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
-            />
-          )}
-          {onPlayAgain ? (
-            <PlayAgain
-              filterId={filterId}
-              onClick={onPlayAgain}
-              className="flex-1"
-              variant={!onClaim ? "default" : "secondary"}
-            />
-          ) : newGameCount > 0 ? (
-            <Replay
-              filterId={filterId}
-              gameId={newGameId}
-              count={newGameCount}
-              className="flex-1"
-              variant={!onClaim ? "default" : "secondary"}
-            />
-          ) : (
-            <NewGame
-              filterId={filterId}
-              onClick={onPurchase}
-              className="flex-1"
-              variant={!onClaim ? "default" : "secondary"}
-            />
-          )}
+        <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex gap-4">
+            {shareProps && (
+              <Share
+                {...shareProps}
+                className="h-12 min-w-[52px] px-2.5 bg-secondary-100 rounded-lg hover:bg-secondary-200 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.12)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)] text-white-100"
+              />
+            )}
+            {onPlayAgain ? (
+              <PlayAgain
+                filterId={filterId}
+                onClick={onPlayAgain}
+                className="flex-1"
+                variant={!onClaim ? "default" : "secondary"}
+              />
+            ) : newGameCount > 0 ? (
+              <Replay
+                filterId={filterId}
+                gameId={newGameId}
+                count={newGameCount}
+                className="flex-1"
+                variant={!onClaim ? "default" : "secondary"}
+              />
+            ) : (
+              <NewGame
+                filterId={filterId}
+                onClick={onPurchase}
+                className="flex-1"
+                variant={!onClaim ? "default" : "secondary"}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -339,6 +367,105 @@ const Value = ({ value, className }: { value: number; className?: string }) => {
       >
         {`$${value.toFixed(2).toLocaleString()}`}
       </p>
+    </div>
+  );
+};
+
+const rewardClaimVariants = cva(
+  "px-4 py-3 flex flex-col gap-3 bg-primary-800 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_1px_0px_0px_rgba(0,0,0,0.12)]",
+  {
+    variants: {
+      variant: {
+        default: "",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
+interface RewardClaimProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof rewardClaimVariants> {
+  status: RewardClaimStatus;
+  filterId: string;
+  onClaim?: () => void;
+}
+
+const rewardClaimCopy: Record<
+  RewardClaimStatus,
+  { title: string; description: string; button: string }
+> = {
+  settling: {
+    title: "Bridge Settling",
+    description: "Reward unlocks after the appchain proof reaches mainnet.",
+    button: "Settling",
+  },
+  ready: {
+    title: "Ready to Claim",
+    description: "Submit the mainnet claim to mint this reward.",
+    button: "Claim Reward",
+  },
+  claiming: {
+    title: "Claiming",
+    description: "Mainnet claim is being submitted.",
+    button: "Claiming",
+  },
+  claimed: {
+    title: "Reward Claimed",
+    description: "NUMS reward has been minted on mainnet.",
+    button: "Claimed",
+  },
+  error: {
+    title: "Still Settling",
+    description: "The claim is not consumable yet. Try again shortly.",
+    button: "Retry Claim",
+  },
+};
+
+const RewardClaim = ({
+  status,
+  filterId,
+  onClaim,
+  variant,
+  className,
+  ...props
+}: RewardClaimProps) => {
+  const copy = rewardClaimCopy[status];
+  const Icon = status === "claimed" ? CheckIcon : ClockIcon;
+  const canClaim = (status === "ready" || status === "error") && !!onClaim;
+
+  return (
+    <div className={cn(rewardClaimVariants({ variant, className }))} {...props}>
+      <div className="flex items-center gap-3">
+        <div className="h-9 w-9 flex items-center justify-center rounded bg-black-700 text-yellow-100">
+          <Icon size="sm" style={{ filter: `url(#${filterId})` }} />
+        </div>
+        <div className="min-w-0 flex flex-col gap-1">
+          <p className="text-[22px]/[15px] tracking-wide translate-y-0.5 text-yellow-100">
+            {copy.title}
+          </p>
+          <p className="font-sans text-xs leading-4 text-primary-100">
+            {copy.description}
+          </p>
+        </div>
+      </div>
+      <Button
+        variant={status === "error" ? "informative" : "default"}
+        className="h-10 w-full gap-2"
+        onClick={onClaim}
+        disabled={!canClaim}
+        loading={status === "claiming"}
+      >
+        <TokenIcon size="sm" style={{ filter: `url(#${filterId})` }} />
+        <span
+          className="text-[22px]/[15px] tracking-wide translate-y-0.5"
+          style={{ textShadow: "2px 2px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          {copy.button}
+        </span>
+      </Button>
     </div>
   );
 };

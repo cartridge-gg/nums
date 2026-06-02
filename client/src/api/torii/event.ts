@@ -5,10 +5,12 @@ import {
   type RawPurchased,
   type RawStarted,
   type RawClaimed,
+  type RawPayload,
   type RawScore,
   Purchased as PurchasedModel,
   Started as StartedModel,
   Claimed as ClaimedModel,
+  Payload as PayloadModel,
   Score as ScoreModel,
 } from "@/models";
 
@@ -20,9 +22,10 @@ function query() {
   const purchased: `${string}-${string}` = `${NAMESPACE}-${PurchasedModel.getModelName()}`;
   const started: `${string}-${string}` = `${NAMESPACE}-${StartedModel.getModelName()}`;
   const claimed: `${string}-${string}` = `${NAMESPACE}-${ClaimedModel.getModelName()}`;
+  const payload: `${string}-${string}` = `${NAMESPACE}-${PayloadModel.getModelName()}`;
   const score: `${string}-${string}` = `${NAMESPACE}-${ScoreModel.getModelName()}`;
   const clauses = new ClauseBuilder().keys(
-    [purchased, started, claimed, score],
+    [purchased, started, claimed, payload, score],
     [],
     "VariableLen",
   );
@@ -79,6 +82,19 @@ function parseClaimeds(entities: torii.Entity[]): ClaimedModel[] {
   );
 }
 
+function parsePayloads(entities: torii.Entity[]): PayloadModel[] {
+  const items: PayloadModel[] = [];
+  const key = modelKey(PayloadModel.getModelName());
+  for (const entity of entities) {
+    if (entity.models[key]) {
+      items.push(
+        PayloadModel.parse(entity.models[key] as unknown as RawPayload),
+      );
+    }
+  }
+  return PayloadModel.dedupe(items);
+}
+
 function parseScores(entities: torii.Entity[]): ScoreModel[] {
   const items: ScoreModel[] = [];
   const key = modelKey(ScoreModel.getModelName());
@@ -95,11 +111,13 @@ export const Event = {
     purchased: () => ["events", "purchased"] as const,
     started: () => ["events", "started"] as const,
     claimed: () => ["events", "claimed"] as const,
+    payloads: () => ["events", "payloads"] as const,
     scores: () => ["events", "scores"] as const,
   },
   query,
   parsePurchaseds,
   parseStarteds,
   parseClaimeds,
+  parsePayloads,
   parseScores,
 };
